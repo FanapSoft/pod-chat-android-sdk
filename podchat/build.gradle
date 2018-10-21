@@ -1,0 +1,78 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 27
+        versionCode 17
+        versionName "0.1.2.15"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+ext {
+    bintrayRepo = "maven"
+    bintrayName = "com.fanap.podchat"
+
+    libraryName = 'podchat'
+
+    publishedGroupId = 'com.fanap.podchat'
+    artifact = 'podchat'
+    libraryVersion = '0.1.2.15'
+
+    libraryDescription = 'Fanaps POD Async service (DIRANA)'
+    gitUrl = 'https://github.com/Sinarahimi/PodChatAndroid.git'
+    siteUrl = 'https://github.com/Sinarahimi/PodChatAndroid'
+    developerId = 'sinara'
+    developerName = 'Sina Rahimi'
+    developerEmail = 'develop.rahimi95@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    implementation 'com.android.support:support-annotations:27.1.1'
+    implementation 'com.google.code.gson:gson:2.8.0'
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    //okHttp
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+    //Rx
+    implementation 'io.reactivex:rxjava:1.1.6'
+    implementation 'io.reactivex:rxandroid:1.2.1'
+
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
+
+    //logger
+    api 'com.orhanobut:logger:2.2.0'
+
+    api  'com.fanap.podasync:podasync:0.0.8.2'
+}
+
+if (project.rootProject.file('local.properties').exists()) {
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+}
