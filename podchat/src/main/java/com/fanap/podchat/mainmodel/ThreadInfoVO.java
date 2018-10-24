@@ -2,7 +2,7 @@ package com.fanap.podchat.mainmodel;
 
 public class ThreadInfoVO  {
     private String image;
-    private String title;
+    private String name;
     private String description;
     private String metadata;
 
@@ -10,15 +10,15 @@ public class ThreadInfoVO  {
         this.description = threadInfoVOBuilder.description;
         this.image = threadInfoVOBuilder.image;
         this.metadata = threadInfoVOBuilder.metadata;
-        this.title = threadInfoVOBuilder.title;
+        this.name = threadInfoVOBuilder.name;
     }
 
     public String getTitle() {
-        return title;
+        return name;
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.name = title;
     }
 
     public static class Builder {
@@ -26,14 +26,14 @@ public class ThreadInfoVO  {
         private String image;
         private String description;
         private String metadata;
-        private String title;
+        private String name;
 
         public Builder image(String image) {
             this.image = image;
             return this;
         }
 public Builder title(String title) {
-            this.title = title;
+            this.name = title;
             return this;
         }
 

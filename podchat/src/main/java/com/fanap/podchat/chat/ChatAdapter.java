@@ -1,36 +1,37 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.OutPutAddParticipant;
-import com.fanap.podchat.model.OutPutBlock;
+import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutBlockList;
-import com.fanap.podchat.model.OutPutContact;
-import com.fanap.podchat.model.OutPutDeleteMessage;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutMute;
-import com.fanap.podchat.model.OutPutNewMessage;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultAddParticipant;
+import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 
 public class ChatAdapter implements ChatListener {
     @Override
-    public void onDeliver(String content, long threadId) {
+    public void onDeliver(String content, ChatResponse<ResultMessage> chatResponse) {
 
     }
 
     @Override
-    public void onError(String content,ErrorOutPut errorOutPut) {
+    public void onError(String content, ErrorOutPut errorOutPut) {
     }
 
     @Override
-    public void onGetContacts(String contentm, OutPutContact outPutContact) {
+    public void onGetContacts(String contentm,  ChatResponse<ResultContact> outPutContact) {
 
     }
 
@@ -50,17 +51,17 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onBlock(String content,OutPutBlock outPutBlock) {
+    public void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
 
     }
 
     @Override
-    public void onUnBlock(String content,OutPutBlock outPutBlock) {
+    public void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
 
     }
 
     @Override
-    public void onSeen(String content, long threadId) {
+    public void onSeen(String content, ChatResponse<ResultMessage> chatResponse) {
 
     }
 
@@ -80,7 +81,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onSent(String content) {
+    public void onSent(String content, ChatResponse<MessageVO> chatResponse) {
 
     }
 
@@ -130,12 +131,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onNewMessage(String content,OutPutNewMessage outPutNewMessage) {
+    public void onNewMessage(String content, ChatResponse<ResultMessage> outPutNewMessage) {
 
     }
 
     @Override
-    public void onDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage) {
+    public void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
 
     }
 
@@ -160,7 +161,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant) {
+    public void onThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> outPutAddParticipant) {
 
     }
 
@@ -185,7 +186,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetBlockList(String content,OutPutBlockList outPutBlockList) {
+    public void onGetBlockList(String content, OutPutBlockList outPutBlockList) {
 
     }
 

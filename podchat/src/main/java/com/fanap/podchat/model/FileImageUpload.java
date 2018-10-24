@@ -6,7 +6,7 @@ public class FileImageUpload {
     private String referenceNumber;
     private int count;
     private String ott;
-    private String errorMessage;
+    private String message;
     private ResultImageFile result;
 
     public boolean isHasError() {
@@ -57,11 +57,11 @@ public class FileImageUpload {
         this.result = result;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getMessage() {
+        return message;
     }
 
-    public void setErrorMessage(String message) {
-        this.errorMessage = message;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

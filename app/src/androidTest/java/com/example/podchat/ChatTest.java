@@ -324,13 +324,14 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.addContact("maman", "sadeghi", "09122488169", "dev55@gmail.com");
+        presenter.addContact("maman", "sadeghi", "091224858169", "dev55@gmail.com");
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         Mockito.verify(view, Mockito.times(1)).onAddContact();
+        Mockito.verify(view,Mockit)
     }
 
     //    fifiUser

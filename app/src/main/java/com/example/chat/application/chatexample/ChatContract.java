@@ -19,67 +19,98 @@ import java.util.List;
 public interface ChatContract {
     interface view {
 
-        default void onGetUserInfo() { }
+        default void onGetUserInfo() {
+        }
 
-        void onGetThreadList();
+        default void onGetThreadList() {
+        }
 
-        void onGetThreadHistory();
+        default void onGetThreadHistory() {
+        }
 
-        void onGetContacts();
+        default void onGetContacts() {
+        }
 
-        void onGetThreadParticipant();
+        default void onGetThreadParticipant() {
+        }
 
-        void onSentMessage();
+        default void onSentMessage() {
+        }
 
-        void onGetDeliverMessage();
+        default void onGetDeliverMessage() {
+        }
 
-        void onGetSeenMessage();
+        default void onGetSeenMessage() {
+        }
 
-        void onEditMessage();
+        default void onEditMessage() {
+        }
 
-        void onDeleteMessage();
+        default void onDeleteMessage() {
+        }
 
-        void onCreateThread();
+        default void onCreateThread() {
+        }
 
-        void onMuteThread();
+        default void onMuteThread() {
+        }
 
-        void onUnMuteThread();
+        default void onUnMuteThread() {
+        }
 
-        void onRenameGroupThread();
+        default void onRenameGroupThread() {
+        }
 
-        void onAddContact();
+        default void onAddContact() {
+        }
 
-        void onUpdateContact();
+        default void onUpdateContact() {
+        }
 
-        void onUploadFile();
+        default void onUploadFile() {
+        }
 
-        void onUploadImageFile();
+        default void onUploadImageFile() {
+        }
 
-        void onRemoveContact();
+        default void onRemoveContact() {
+        }
 
-        void onAddParticipant();
+        default void onAddParticipant() {
+        }
 
-        void onRemoveParticipant();
+        default void onRemoveParticipant() {
+        }
 
-        void onLeaveThread();
+        default void onLeaveThread() {
+        }
 
-        void onBlock();
+        default void onBlock() {
+        }
 
-        void onUnblock();
+        default void onUnblock() {
+        }
 
-        void onSearchContact();
+        default void onSearchContact() {
+        }
 
-        void onSearchHisory();
+        default void onSearchHisory() {
+        }
 
-        void ongetBlockList();
+        default void ongetBlockList() {
+        }
 
-        void onMapSearch();
+        default void onMapSearch() {
+        }
 
-        void onMapRouting();
+        default void onMapRouting() {
+        }
 
-        void onError();
+        default void onError() {
+        }
 
-        default void onSpam(){};
+        default void onSpam() {
+        }
     }
 
     interface presenter {
@@ -159,6 +190,6 @@ public interface ChatContract {
 
         void deleteMessage(long messageId, Boolean deleteForAll, ChatHandler handler);
 
-        void uploadImageProgress(Context context, Activity activity, Uri fileUri,ProgressHandler.onProgress handler);
+        void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler);
     }
 }

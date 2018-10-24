@@ -64,7 +64,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String[] funcSecond = {
             "Choose function"
             , "Sync Contact"
-            , "Send file"
+            , "Send file Message"
             , "Upload Image"
             , "Upload File"
             , "Remove Thread Participant"
@@ -94,14 +94,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
 //    private String name = "jiji";
 //    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
-//    private String name = "zizi";
-//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+
+    private String name = "zizi";
+    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
-    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-    private static String name = "Alexi";
+//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+//    private static String name = "Alexi";
     private String fileUri;
-//    private static String name = "SandBox";
-//    private static String TOKEN = "d57010813e744e5fb1d12ce986209b86";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -322,8 +321,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         break;
                     case 6:
-                        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("this is test description").build();
-                        presenter.updateThreadInfo(1031, threadInfoVO, new ChatHandler() {
+                        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("this is test description")
+                                .title("flower").build();
+                        presenter.updateThreadInfo(1211, threadInfoVO, new ChatHandler() {
                             @Override
                             public void onUpdateThreadInfo(String uniqueId) {
                                 super.onUpdateThreadInfo(uniqueId);
@@ -400,7 +400,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         break;
                     case 8:
-                        presenter.deleteMessage(1921, true, new ChatHandler() {
+                        presenter.deleteMessage(16804, true, new ChatHandler() {
                             @Override
                             public void onDeleteMessage(String uniqueId) {
                                 super.onDeleteMessage(uniqueId);
@@ -466,7 +466,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 312, meta, new ChatHandler() {
+                , 351, meta, new ChatHandler() {
                     @Override
                     public void onSent(String uniqueId, long threadId) {
                         super.onSent(uniqueId, threadId);
@@ -511,8 +511,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 //"get thread"
                 ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(22);
-                threadIds.add(1031);
-                presenter.getThread(2, null, null, null, new ChatHandler() {
+                threadIds.add(351);
+                presenter.getThread(15, null, threadIds, null, new ChatHandler() {
                     @Override
                     public void onGetThread(String uniqueId) {
                         super.onGetThread(uniqueId);
@@ -586,9 +586,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(123, 5)
-//                        , new Invitee(565, 2)
-//                        , new Invitee(578, 2)
+                Invitee[] invite = new Invitee[]{
+                         new Invitee(563, 2)
+                        , new Invitee(1967, 2)
+//                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
                 };
                 presenter.createThread(0, invite, null, new ChatHandler() {
@@ -602,7 +603,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             case 9:
                 //get thread history
                 History history = new History.Builder().build();
-                presenter.getHistory(history, 312, new ChatHandler() {
+                presenter.getHistory(history, 351, new ChatHandler() {
                     @Override
                     public void onGetHistory(String uniqueId) {
                         super.onGetHistory(uniqueId);
@@ -632,7 +633,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(2, 0L, new ChatHandler() {
+                presenter.getContact(15, 0L, new ChatHandler() {
                     @Override
                     public void onGetContact(String uniqueId) {
                         super.onGetContact(uniqueId);
@@ -652,7 +653,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("masodi", "ra", "09128054535", "");
+                presenter.addContact("masodi", "ra", "09128054535", "min"+new Date().getTime());
                 break;
             case 15:
                 // remove contact

@@ -14,6 +14,7 @@ import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
@@ -32,7 +33,11 @@ import com.fanap.podchat.model.OutPutNewMessage;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultAddParticipant;
+import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultThreads;
 import com.orhanobut.logger.Logger;
 
@@ -48,7 +53,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public ChatPresenter(Context context, ChatContract.view view) {
         chat = Chat.init(context);
         chat.addListener(this);
-        chat.isCacheable(false);
+        chat.isCacheables(false);
         chat.isLoggable(true);
 
         this.context = context;
@@ -249,8 +254,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     //View
     @Override
-    public void onDeliver(String content, long threadId) {
-        super.onDeliver(content, threadId);
+    public void onDeliver(String content,ChatResponse<ResultMessage> chatResponse) {
+        super.onDeliver(content, chatResponse);
         view.onGetDeliverMessage();
     }
 
@@ -265,15 +270,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetContacts(String content, OutPutContact outPutContact) {
+    public void onGetContacts(String content,  ChatResponse<ResultContact> outPutContact) {
         super.onGetContacts(content, outPutContact);
         Logger.json(content);
         view.onGetContacts();
     }
 
     @Override
-    public void onSeen(String content, long threadId) {
-        super.onSeen(content, threadId);
+    public void onSeen(String content, ChatResponse<ResultMessage> chatResponse) {
+        super.onSeen(content, chatResponse);
         view.onGetSeenMessage();
     }
 
@@ -283,8 +288,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onSent(String content) {
-        super.onSent(content);
+    public void onSent(String content,ChatResponse<MessageVO> chatResponse) {
+        super.onSent(content,chatResponse);
         view.onSentMessage();
     }
 
@@ -368,7 +373,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant) {
+    public void onThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> outPutAddParticipant) {
         super.onThreadAddParticipant(content, outPutAddParticipant);
         view.onAddParticipant();
     }
@@ -380,7 +385,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage) {
+    public void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
         super.onDeleteMessage(content, outPutDeleteMessage);
         view.onDeleteMessage();
     }
@@ -397,29 +402,29 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onNewMessage(String content, OutPutNewMessage outPutNewMessage) {
-        super.onNewMessage(content, outPutNewMessage);
+    public void onNewMessage(String content, ChatResponse<ResultMessage> chatResponse) {
+        super.onNewMessage(content, chatResponse);
 //        outPutNewMessage = JsonUtil.fromJSON(content, OutPutNewMessage.class);
-        MessageVO messageVO = outPutNewMessage.getResult();
-        Participant participant = messageVO.getParticipant();
+//        MessageVO messageVO = outPutNewMessage.getResult();
+//        Participant participant = messageVO.getParticipant();
 
-        long id = messageVO.getId();
-        chat.seenMessage(id, participant.getId(), new ChatHandler() {
-            @Override
-            public void onSeen(String uniqueId) {
-                super.onSeen(uniqueId);
-            }
-        });
+//        long id = messageVO.getId();
+//        chat.seenMessage(id, participant.getId(), new ChatHandler() {
+//            @Override
+//            public void onSeen(String uniqueId) {
+//                super.onSeen(uniqueId);
+//            }
+//        });
     }
 
     @Override
-    public void onBlock(String content, OutPutBlock outPutBlock) {
+    public void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
         super.onBlock(content, outPutBlock);
         view.onBlock();
     }
 
     @Override
-    public void onUnBlock(String content, OutPutBlock outPutBlock) {
+    public void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
         super.onUnBlock(content, outPutBlock);
         view.onUnblock();
     }

@@ -1,30 +1,31 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.OutPutAddParticipant;
-import com.fanap.podchat.model.OutPutBlock;
+import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutBlockList;
-import com.fanap.podchat.model.OutPutContact;
-import com.fanap.podchat.model.OutPutDeleteMessage;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutMute;
-import com.fanap.podchat.model.OutPutNewMessage;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultAddParticipant;
+import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
-import com.fanap.podchat.model.ResultHistory;
 
 public interface ChatListener {
 
 
     void onError(String content, ErrorOutPut OutPutError);
 
-    void onGetContacts(String content, OutPutContact outPutContact);
+    void onGetContacts(String content,  ChatResponse<ResultContact> outPutContact);
 
     void onGetHistory(String content, ChatResponse<ResultHistory> history);
 
@@ -36,23 +37,23 @@ public interface ChatListener {
 
     }
 
-    default void onBlock(String content, OutPutBlock outPutBlock) {
+    default void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
 
     }
 
-    default void onUnBlock(String content, OutPutBlock outPutBlock) {
+    default void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
 
     }
 
-    default void onSeen(String content, long threadId) {
+    default void onSeen(String content, ChatResponse<ResultMessage> chatResponse) {
 
     }
 
-    default void onDeliver(String content, long threadId) {
+    default void onDeliver(String content, ChatResponse<ResultMessage> chatResponse) {
 
     }
 
-    default void onSent(String content) {
+    default void onSent(String content, ChatResponse<MessageVO> chatResponse) {
 
     }
 
@@ -104,11 +105,11 @@ public interface ChatListener {
 
     }
 
-    default void onNewMessage(String content, OutPutNewMessage outPutNewMessage) {
+    default void onNewMessage(String content,  ChatResponse<ResultMessage> outPutNewMessage) {
 
     }
 
-    default void onDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage) {
+    default void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
 
     }
 
@@ -132,7 +133,7 @@ public interface ChatListener {
 
     }
 
-    default void onThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant) {
+    default void onThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> outPutAddParticipant) {
 
     }
 

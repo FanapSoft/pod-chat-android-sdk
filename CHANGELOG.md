@@ -4,16 +4,32 @@
 
 # Changelog
 All notable changes to this project will be documented here.
+##  Version [] -2018-0-0
+- [Add] The responses of this listeners were changed 
+onGetContacts
+onGetHistory
+onGetThread
+onBlock
+onUnBlock
+onSeen
+onDeliver
+onSent
+onNewMessage
+onDeleteMessage
+onThreadAddParticipant
+onUpdateThreadInfo
 
-## Future Version [*] -2018-00-00
--   [Add] Support SSL for Pre Android 4.4 for socket and Api Request(All api)
--   [Add] Implement Cache for Message
--   [Add] Spam
--   [Add] Add Progress to FileUpload
--   [Add] Add Progress to ImageUpload
--   [BugFix] Sync Contact
+##  Version [0.1.2.15] -2018-10-21
+-   [Add]In order to receive a response by UpdateThreadInfo,
+ you can use onUpdateThreadInfo listener. 
+And beaware that you just see updated fields not the entire thread.
+- [bug fix] `onNewmessage`
+- [add] image to `inviter` model
+- [add] `messageType1 to messageVo model
+- Remove all `Serialized` from all of the models
+- [bug fix] on `getForwardMessage`
 
-## Future Version [0.1.2.10] -2018-00-00
+##  Version [0.1.2.10] -2018-10-19
 
 -   [Add] Now getHistory and getThreads have the same response model.
 -   [Add] The `updateThreadInfo` function can accept title now.
@@ -22,7 +38,7 @@ All notable changes to this project will be documented here.
           seenMessage`.
 -   [BugFix] Bug has been fixed in sendText message when put null in handler. 
 
-## Future Version [0.1.2.6] -2018-10-08
+##  Version [0.1.2.6] -2018-10-08
 -   [Add] The project has been added to Maven
 -   [Add] Unique id was added to Most of the functions as return. 
 -   [Add] Unique id was added to Most responses.

@@ -10,12 +10,12 @@ import com.fanap.podchat.model.ResultAddContact;
 public class Util {
 
     @NonNull
-    public static OutPutAddContact getReformatOutPutAddContact(Contacts contacts) {
+    public static OutPutAddContact getReformatOutPutAddContact(Contacts contacts, String uniqueId) {
         OutPutAddContact outPutAddContact = new OutPutAddContact();
         outPutAddContact.setErrorCode(0);
         outPutAddContact.setErrorMessage("");
         outPutAddContact.setHasError(false);
-
+        outPutAddContact.setUniqueId(uniqueId);
         ResultAddContact resultAddContact = new ResultAddContact();
         resultAddContact.setContentCount(1);
         Contact contact = new Contact();
@@ -26,6 +26,7 @@ public class Util {
         contact.setId(contacts.getResult().get(0).getId());
         contact.setLastName(contacts.getResult().get(0).getLastName());
         contact.setUniqueId(contacts.getResult().get(0).getUniqueId());
+        resultAddContact.setContact(contact);
         outPutAddContact.setResult(resultAddContact);
         return outPutAddContact;
     }

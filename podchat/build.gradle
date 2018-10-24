@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 17
-        versionName "0.1.2.15"
+        versionCode 18
+        versionName "0.1.2.16"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -34,7 +34,7 @@ ext {
 
     publishedGroupId = 'com.fanap.podchat'
     artifact = 'podchat'
-    libraryVersion = '0.1.2.15'
+    libraryVersion = '0.1.2.16'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
     gitUrl = 'https://github.com/Sinarahimi/PodChatAndroid.git'
@@ -69,7 +69,7 @@ dependencies {
     //logger
     api 'com.orhanobut:logger:2.2.0'
 
-    api  'com.fanap.podasync:podasync:0.0.8.2'
+    api  'com.fanap.podasync:podasync:0.0.8.5'
 }
 
 if (project.rootProject.file('local.properties').exists()) {

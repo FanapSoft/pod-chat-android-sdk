@@ -8,6 +8,7 @@ public class SearchContactVO {
     private Integer errorCode;
     private Integer count;
     private String ott;
+    private String message;
     private List<Contact> result;
 
     public Boolean getHasError() {
@@ -56,5 +57,13 @@ public class SearchContactVO {
 
     public void setResult(List<Contact> result) {
         this.result = result;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

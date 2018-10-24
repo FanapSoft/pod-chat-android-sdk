@@ -1,8 +1,10 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.Contact;
+
 public class ResultAddContact {
 
-    private com.fanap.podchat.mainmodel.Contact Contact;
+    private com.fanap.podchat.mainmodel.Contact contact;
     private long contentCount;
 
     public long getContentCount() {
@@ -13,11 +15,11 @@ public class ResultAddContact {
         this.contentCount = contentCount;
     }
 
-    public com.fanap.podchat.mainmodel.Contact getContact() {
-        return Contact;
+    public Contact getContact() {
+        return contact;
     }
 
-    public void setContact(com.fanap.podchat.mainmodel.Contact contact) {
-        Contact = contact;
+    public void setContact(Contact contact) {
+        this.contact = contact;
     }
 }

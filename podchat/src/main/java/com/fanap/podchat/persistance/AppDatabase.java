@@ -11,7 +11,7 @@ import com.fanap.podchat.mainmodel.Contact;
 @Database(entities = {Contact.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
-    public static final String DATABASE_DB = "isCacheable.db";
+    public static final String DATABASE_DB = "isCacheables.db";
     private static AppDatabase appDatabase;
 
     public static AppDatabase getInstance(Context context) {

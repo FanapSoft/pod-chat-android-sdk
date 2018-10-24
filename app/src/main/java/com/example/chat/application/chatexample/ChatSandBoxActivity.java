@@ -90,24 +90,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             , "Update the thread info"
     };
     private Uri uri;
-
-    //fel token
-//    private String name = "felfeli";
-//    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
-    //Fifi
-//    private String name = "Fifi";
-//    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
-
-    //    private String name = "jiji";
-//    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
-//    private String name = "zizi";
-//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
-    //Token Alexi
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-//    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "635a916dfb6046d78e26a1e436182703";
+    private static String TOKEN = "aac985a51f6748b29681e079b894a6b0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,149 +116,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         Spinner spinnerThird = findViewById(R.id.spinnerThird);
         ChatContract.view view = new ChatContract.view()
         {
-            @Override
-            public void onGetUserInfo() {
-
-            }
-
-            @Override
-            public void onGetThreadList() {
-
-            }
-
-            @Override
-            public void onGetThreadHistory() {
-
-            }
-
-            @Override
-            public void onGetContacts() {
-
-            }
-
-            @Override
-            public void onGetThreadParticipant() {
-
-            }
-
-            @Override
-            public void onSentMessage() {
-
-            }
-
-            @Override
-            public void onGetDeliverMessage() {
-            }
-
-            @Override
-            public void onGetSeenMessage() {
-
-            }
-
-            @Override
-            public void onEditMessage() {
-
-            }
-
-            @Override
-            public void onDeleteMessage() {
-
-            }
-
-            @Override
-            public void onCreateThread() {
-
-            }
-
-            @Override
-            public void onMuteThread() {
-
-            }
-
-            @Override
-            public void onUnMuteThread() {
-
-            }
-
-            @Override
-            public void onRenameGroupThread() {
-
-            }
-
-            @Override
-            public void onAddContact() {
-
-            }
-
-            @Override
-            public void onUpdateContact() {
-
-            }
-
-            @Override
-            public void onUploadFile() {
-
-            }
-
-            @Override
-            public void onUploadImageFile() {
-
-            }
-
-            @Override
-            public void onRemoveContact() {
-
-            }
-
-            @Override
-            public void onAddParticipant() {
-
-            }
-
-            @Override
-            public void onRemoveParticipant() {
-
-            }
-
-            @Override
-            public void onLeaveThread() {
-
-            }
-
-            @Override
-            public void onBlock() {
-
-            }
-
-            @Override
-            public void onUnblock() {
-
-            }
-
-            @Override
-            public void onSearchContact() {
-
-            }
-
-            @Override
-            public void onSearchHisory() {
-
-            }
-
-            @Override
-            public void ongetBlockList() {
-
-            }
-
-            @Override
-            public void onMapSearch() {
-
-            }
-
-            @Override
-            public void onMapRouting() {
-
-            }
 
             @Override
             public void onError() {
@@ -306,7 +148,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
                         break;
                     case 3:
-                        presenter.block(1063L, new ChatHandler() {
+                        presenter.block(1382L, new ChatHandler() {
                             @Override
                             public void onBlock(String uniqueId) {
                                 super.onBlock(uniqueId);
@@ -315,7 +157,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 4:
-                        presenter.unBlock(25L, new ChatHandler() {
+                        presenter.unBlock(1382L, new ChatHandler() {
                             @Override
                             public void onUnBlock(String uniqueId) {
                                 super.onUnBlock(uniqueId);
@@ -334,7 +176,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                     case 6:
 //                        1104 is a group
-                        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("description + mine").build();
+                        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("description + mine").title("new flower").build();
                         presenter.updateThreadInfo(1104, threadInfoVO, new ChatHandler() {
                             @Override
                             public void onUpdateThreadInfo(String uniqueId) {
@@ -434,7 +276,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 8:
-                        presenter.deleteMessage(1921, true, new ChatHandler() {
+                        presenter.deleteMessage(4684, true, new ChatHandler() {
                             @Override
                             public void onDeleteMessage(String uniqueId) {
                                 super.onDeleteMessage(uniqueId);

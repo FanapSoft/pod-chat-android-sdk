@@ -1,23 +1,27 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.OutPutAddParticipant;
-import com.fanap.podchat.model.OutPutBlock;
+import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutBlockList;
-import com.fanap.podchat.model.OutPutContact;
-import com.fanap.podchat.model.OutPutDeleteMessage;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutMute;
-import com.fanap.podchat.model.OutPutNewMessage;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultAddParticipant;
+import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
-import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.util.LogHelper;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +30,7 @@ public class ChatListenerManager {
     private final List<ChatListener> mListeners = new ArrayList<>();
     private boolean mSyncNeeded = true;
     private List<ChatListener> mCopiedListeners;
+    private LogHelper logHelper;
 
     public ChatListenerManager() {
     }
@@ -36,6 +41,7 @@ public class ChatListenerManager {
         }
 
         synchronized (mListeners) {
+            logHelper = LogHelper.init(true);
             mListeners.add(listener);
             mSyncNeeded = true;
         }
@@ -124,9 +130,11 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetThread(content, thread);
+                Logger.e("error");
 
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -141,7 +149,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetContacts(String content, OutPutContact outPutContact) {
+    public void callOnGetContacts(String content,  ChatResponse<ResultContact> outPutContact) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
 
@@ -152,30 +160,30 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSentMessage(String content) {
+    public void callOnSentMessage(String content, ChatResponse<MessageVO> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSent(content);
+                listener.onSent(content,chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnSeenMessage(String content, long threadId) {
+    public void callOnSeenMessage(String content, ChatResponse<ResultMessage> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSeen(content,threadId);
+                listener.onSeen(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnDeliveryMessage(String content, long threadId) {
+    public void callOnDeliveryMessage(String content, ChatResponse<ResultMessage> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onDeliver(content,threadId);
+                listener.onDeliver(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -299,7 +307,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnNewMessage(String content, OutPutNewMessage outPutNewMessage) {
+    public void callOnNewMessage(String content,  ChatResponse<ResultMessage> outPutNewMessage) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onNewMessage(content, outPutNewMessage);
@@ -309,10 +317,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUploadImageFile(String content, FileImageUpload fileImageUpload ) {
+    public void callOnUploadImageFile(String content, FileImageUpload fileImageUpload) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUploadImageFile(content,fileImageUpload);
+                listener.onUploadImageFile(content, fileImageUpload);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -339,7 +347,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant) {
+    public void callOnThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> outPutAddParticipant) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onThreadAddParticipant(content, outPutAddParticipant);
@@ -369,7 +377,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage) {
+    public void callOnDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onDeleteMessage(content, outPutDeleteMessage);
@@ -429,7 +437,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnBlock(String content, OutPutBlock outPutBlock) {
+    public void callOnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onBlock(content, outPutBlock);
@@ -439,7 +447,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUnBlock(String content, OutPutBlock outPutBlock) {
+    public void callOnUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onUnBlock(content, outPutBlock);
@@ -459,7 +467,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSearchContact(String content) {
+    public void callOnSearchContact(String content, SearchContactVO contact) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onSearchContact(content);
@@ -482,7 +490,7 @@ public class ChatListenerManager {
     public void callOnUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUpdateThreadInfo(threadJson,chatResponse);
+                listener.onUpdateThreadInfo(threadJson, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
