@@ -42,6 +42,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private EditText editText;
     private EditText editTextThread;
     private Button buttonFileChoose;
+    private Button buttonConnect;
     private String selectedFilePath;
     private ProgressBar progressBar;
     private TextView percentage;
@@ -92,7 +93,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "aac985a51f6748b29681e079b894a6b0";
+    private static String TOKEN = "fb319eb427f64cd49e15ec455b76683a";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         TextView textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
         percentage = findViewById(R.id.percentage);
+        buttonConnect = findViewById(R.id.buttonConnect);
         editText = findViewById(R.id.editTextMessage);
         editTextThread = findViewById(R.id.editTextThread);
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
@@ -122,12 +124,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
             }
         };
-        presenter = new ChatPresenter(this, view);
+        presenter = new ChatPresenter(this, view,this);
         presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
         setupThirdSpinner(spinnerThird);
+        buttonConnect.setOnClickListener(this);
     }
 
     private void setupThirdSpinner(Spinner spinnerThird) {
@@ -318,7 +321,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         spinner.setOnItemSelectedListener(this);
     }
 
-    public void connect(View view) {
+    public void connect() {
 
 //socketAddress: "wss://chat-sandbox.pod.land/ws",
 // {**REQUIRED**} Socket Address ssoHost: "
@@ -529,6 +532,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void onClick(View v) {
         if (v == buttonFileChoose) {
             showPicChooser();
+        }
+        if (v == buttonConnect) {
+            presenter.connect("ws://chat-sandbox.pod.land/ws",
+                    "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
+                    "https://sandbox.pod.land:8043/srv/basic-platform/", "http://sandbox.fanapium.com:8080/");
         }
     }
 

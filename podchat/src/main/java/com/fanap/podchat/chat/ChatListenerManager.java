@@ -15,11 +15,15 @@ import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
+import com.fanap.podchat.model.ResultMute;
+import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.util.LogHelper;
 import com.orhanobut.logger.Logger;
 
@@ -130,7 +134,6 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetThread(content, thread);
-                Logger.e("error");
 
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
@@ -145,6 +148,7 @@ public class ChatListenerManager {
                 listener.onGetHistory(content, history);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -152,10 +156,10 @@ public class ChatListenerManager {
     public void callOnGetContacts(String content,  ChatResponse<ResultContact> outPutContact) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-
                 listener.onGetContacts(content, outPutContact);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -166,6 +170,7 @@ public class ChatListenerManager {
                 listener.onSent(content,chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -176,6 +181,7 @@ public class ChatListenerManager {
                 listener.onSeen(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -186,6 +192,7 @@ public class ChatListenerManager {
                 listener.onDeliver(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -196,16 +203,18 @@ public class ChatListenerManager {
                 listener.onError(content, errorOutPut);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
 
-    public void callOnGetThreadParticipant(String content, OutPutParticipant outPutParticipant) {
+    public void callOnGetThreadParticipant(String content, ChatResponse<ResultParticipant> outPutParticipant) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetThreadParticipant(content, outPutParticipant);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -223,6 +232,7 @@ public class ChatListenerManager {
                 listener.onEditedMessage(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -233,6 +243,7 @@ public class ChatListenerManager {
                 listener.onContactAdded(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -243,36 +254,40 @@ public class ChatListenerManager {
                 listener.onRemoveContact(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
 
-    public void callOnMuteThread(String content, OutPutMute outPut) {
+    public void callOnMuteThread(String content, ChatResponse<ResultMute> outPut) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onMuteThread(content, outPut);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
 
-    public void callOnUnmuteThread(String content, OutPutMute outPut) {
+    public void callOnUnmuteThread(String content, ChatResponse<ResultMute> outPut) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onUnmuteThread(content, outPut);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
 
-    public void callOnUserInfo(String content, OutPutUserInfo outPutUserInfo) {
+    public void callOnUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onUserInfo(content, outPutUserInfo);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -283,6 +298,7 @@ public class ChatListenerManager {
                 listener.onCreateThread(content, outPutThread);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -293,6 +309,7 @@ public class ChatListenerManager {
                 listener.onUpdateContact(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -303,6 +320,7 @@ public class ChatListenerManager {
                 listener.onRenameThread(content, outPutThread);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -313,6 +331,7 @@ public class ChatListenerManager {
                 listener.onNewMessage(content, outPutNewMessage);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -323,6 +342,7 @@ public class ChatListenerManager {
                 listener.onUploadImageFile(content, fileImageUpload);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -333,6 +353,7 @@ public class ChatListenerManager {
                 listener.onUploadFile(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -343,6 +364,7 @@ public class ChatListenerManager {
                 listener.onSyncContact(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -353,6 +375,7 @@ public class ChatListenerManager {
                 listener.onThreadAddParticipant(content, outPutAddParticipant);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -363,6 +386,7 @@ public class ChatListenerManager {
                 listener.onThreadRemoveParticipant(content, outPutParticipant);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -373,6 +397,7 @@ public class ChatListenerManager {
                 listener.onThreadLeaveParticipant(content, outPutLeaveThread);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -383,6 +408,7 @@ public class ChatListenerManager {
                 listener.onDeleteMessage(content, outPutDeleteMessage);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -393,6 +419,7 @@ public class ChatListenerManager {
                 listener.onThreadInfoUpdated(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -403,6 +430,7 @@ public class ChatListenerManager {
                 listener.onLastSeenUpdated(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -413,6 +441,7 @@ public class ChatListenerManager {
                 listener.onChatState(state);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -423,6 +452,7 @@ public class ChatListenerManager {
                 listener.onMapSearch(content, outPutMapNeshan);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -433,6 +463,7 @@ public class ChatListenerManager {
                 listener.onMapRouting(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -443,6 +474,7 @@ public class ChatListenerManager {
                 listener.onBlock(content, outPutBlock);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -453,16 +485,18 @@ public class ChatListenerManager {
                 listener.onUnBlock(content, outPutBlock);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
 
-    public void callOnGetBlockList(String content, OutPutBlockList outPutBlockList) {
+    public void callOnGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetBlockList(content, outPutBlockList);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -473,6 +507,7 @@ public class ChatListenerManager {
                 listener.onSearchContact(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -483,6 +518,7 @@ public class ChatListenerManager {
                 listener.onSearchContact(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -493,6 +529,7 @@ public class ChatListenerManager {
                 listener.onUpdateThreadInfo(threadJson, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }

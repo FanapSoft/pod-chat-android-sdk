@@ -5,20 +5,21 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.OutPutBlockList;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutMute;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
-import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
+import com.fanap.podchat.model.ResultMute;
+import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUserInfo;
 
 public interface ChatListener {
 
@@ -57,15 +58,15 @@ public interface ChatListener {
 
     }
 
-    default void onMuteThread(String content, OutPutMute outPutMute) {
+    default void onMuteThread(String content, ChatResponse<ResultMute> outPutMute) {
 
     }
 
-    default void onUnmuteThread(String content, OutPutMute outPutUnMute) {
+    default void onUnmuteThread(String content, ChatResponse<ResultMute> outPutUnMute) {
 
     }
 
-    default void onUserInfo(String content, OutPutUserInfo outPutUserInfo) {
+    default void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
 
     }
 
@@ -73,7 +74,7 @@ public interface ChatListener {
 
     }
 
-    default void onGetThreadParticipant(String content, OutPutParticipant outPutParticipant) {
+    default void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> outPutParticipant) {
 
     }
 
@@ -149,7 +150,7 @@ public interface ChatListener {
 
     void onChatState(String state);
 
-    void onGetBlockList(String content, OutPutBlockList outPutBlockList);
+    void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList);
 
 
     void onUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> chatResponse);

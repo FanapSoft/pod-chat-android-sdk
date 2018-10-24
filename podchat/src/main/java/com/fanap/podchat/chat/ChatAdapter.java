@@ -5,20 +5,21 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.OutPutBlockList;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutMute;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
-import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
+import com.fanap.podchat.model.ResultMute;
+import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUserInfo;
 
 public class ChatAdapter implements ChatListener {
     @Override
@@ -66,17 +67,17 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onMuteThread(String content, OutPutMute outPutMute) {
+    public void onMuteThread(String content, ChatResponse<ResultMute> outPutMute) {
 
     }
 
     @Override
-    public void onUnmuteThread(String content, OutPutMute outPutUnMute) {
+    public void onUnmuteThread(String content, ChatResponse<ResultMute> outPutUnMute) {
 
     }
 
     @Override
-    public void onUserInfo(String content, OutPutUserInfo outPutUserInfo) {
+    public void onUserInfo(String content,ChatResponse<ResultUserInfo> outPutUserInfo) {
 
     }
 
@@ -91,7 +92,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetThreadParticipant(String content, OutPutParticipant outPutParticipant) {
+    public void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> outPutParticipant) {
 
     }
 
@@ -186,7 +187,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetBlockList(String content, OutPutBlockList outPutBlockList) {
+    public void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
 
     }
 

@@ -12,6 +12,8 @@ public class Participant  {
     private long notSeenDuration;
     private long contactId;
     private String contactName;
+    private String contactFirstName ;
+    private String contactLastName;
     private Boolean sendEnable;
     private Boolean receiveEnable;
     private String cellphoneNumber;
@@ -147,5 +149,21 @@ public class Participant  {
 
     public void setAdmin(Boolean admin) {
         this.admin = admin;
+    }
+
+    public String getContactFirstName() {
+        return contactFirstName;
+    }
+
+    public void setContactFirstName(String contactFirstName) {
+        this.contactFirstName = contactFirstName;
+    }
+
+    public String getContactLastName() {
+        return contactLastName;
+    }
+
+    public void setContactLastName(String contactLastName) {
+        this.contactLastName = contactLastName;
     }
 }

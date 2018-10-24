@@ -35,10 +35,14 @@ import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
+import com.fanap.podchat.model.ResultMute;
+import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUserInfo;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -49,13 +53,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private Chat chat;
     private ChatContract.view view;
     private Context context;
+    private Activity activity;
 
-    public ChatPresenter(Context context, ChatContract.view view) {
+    public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
         chat = Chat.init(context);
         chat.addListener(this);
         chat.isCacheables(false);
         chat.isLoggable(true);
-
+        this.activity = activity;
         this.context = context;
         this.view = view;
     }
@@ -254,7 +259,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     //View
     @Override
-    public void onDeliver(String content,ChatResponse<ResultMessage> chatResponse) {
+    public void onDeliver(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onDeliver(content, chatResponse);
         view.onGetDeliverMessage();
     }
@@ -270,9 +275,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetContacts(String content,  ChatResponse<ResultContact> outPutContact) {
+    public void onGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
         super.onGetContacts(content, outPutContact);
         Logger.json(content);
+        Logger.d(outPutContact);
         view.onGetContacts();
     }
 
@@ -283,20 +289,26 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onUserInfo(String content, OutPutUserInfo outPutUserInfo) {
+    public void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
         view.onGetUserInfo();
     }
 
     @Override
-    public void onSent(String content,ChatResponse<MessageVO> chatResponse) {
-        super.onSent(content,chatResponse);
+    public void onSent(String content, ChatResponse<MessageVO> chatResponse) {
+        super.onSent(content, chatResponse);
         view.onSentMessage();
     }
 
     @Override
     public void onError(String content, ErrorOutPut outPutError) {
         super.onError(content, outPutError);
-        Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -306,7 +318,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetThreadParticipant(String content, OutPutParticipant outPutParticipant) {
+    public void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> outPutParticipant) {
         super.onGetThreadParticipant(content, outPutParticipant);
         view.onGetThreadParticipant();
     }
@@ -324,13 +336,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onMuteThread(String content, OutPutMute outPutMute) {
+    public void onMuteThread(String content, ChatResponse<ResultMute> outPutMute) {
         super.onMuteThread(content, outPutMute);
         view.onMuteThread();
     }
 
     @Override
-    public void onUnmuteThread(String content, OutPutMute outPutMute) {
+    public void onUnmuteThread(String content, ChatResponse<ResultMute> outPutMute) {
         super.onUnmuteThread(content, outPutMute);
         view.onUnMuteThread();
     }
@@ -441,7 +453,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetBlockList(String content, OutPutBlockList outPutBlockList) {
+    public void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
         super.onGetBlockList(content, outPutBlockList);
         view.ongetBlockList();
     }

@@ -64,7 +64,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String[] funcSecond = {
             "Choose function"
             , "Sync Contact"
-            , "Send file Message"
+            , "Send file"
             , "Upload Image"
             , "Upload File"
             , "Remove Thread Participant"
@@ -270,7 +270,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         };
 
-        presenter = new ChatPresenter(this, view);
+        presenter = new ChatPresenter(this, view,this);
         presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
