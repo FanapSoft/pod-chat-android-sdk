@@ -31,6 +31,9 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.util.JsonUtil;
 import com.fanap.podchat.chat.ChatHandler;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,70 +44,37 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextThread;
+    private EditText editTextToken;
     private Button buttonFileChoose;
     private Button buttonConnect;
+    private Button buttonToken;
     private String selectedFilePath;
     private ProgressBar progressBar;
     private TextView percentage;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
-    private static final String[] func = {
-            "Choose function",
-            "get thread",
-            "rename thread",
-            "get user info",
-            "reply message",
-            "forward message",
-            "send text message",
-            "get thread participant",
-            "create thread",
-            "get thread history",
-            "mute thread",
-            "un mute thread"
-            , "get contacts"
-            , "edit message"
-            , "add contact"
-            , "remove contact"
-            , "update contact"
-    };
 
-    private static final String[] funcSecond = {
-            "Choose function"
-            , "Sync Contact"
-            , "Send file"
-            , "Upload Image"
-            , "Upload File"
-            , "Remove Thread Participant"
-            , "Add Thread Participant"
-            , "Leave Thread"
-            , "Delete Message"
-            , "Search Contact"
-            , "Search History"
-    };
-    private static final String[] funcThird = {
-            "Choose Map function"
-            , "Search Map"
-            , "Map Routing"
-            , "Block"
-            , "UnBlock"
-            , "GetBlockList"
-            , "Update the thread info"
-    };
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "fb319eb427f64cd49e15ec455b76683a";
+    private static String TOKEN = "ecfee54231e8467b838858e5ae3a66d6";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
         TextView textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
         percentage = findViewById(R.id.percentage);
         buttonConnect = findViewById(R.id.buttonConnect);
+        buttonToken = findViewById(R.id.buttonToken);
         editText = findViewById(R.id.editTextMessage);
+        editTextToken = findViewById(R.id.editTextToken);
         editTextThread = findViewById(R.id.editTextThread);
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
         buttonFileChoose = findViewById(R.id.buttonFileChoose);
@@ -116,25 +86,25 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
         Spinner spinnerThird = findViewById(R.id.spinnerThird);
-        ChatContract.view view = new ChatContract.view()
-        {
+        ChatContract.view view = new ChatContract.view() {
 
             @Override
             public void onError() {
 
             }
         };
-        presenter = new ChatPresenter(this, view,this);
+        presenter = new ChatPresenter(this, view, this);
         presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
         setupThirdSpinner(spinnerThird);
         buttonConnect.setOnClickListener(this);
+        buttonToken.setOnClickListener(this);
     }
 
     private void setupThirdSpinner(Spinner spinnerThird) {
-        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, funcThird);
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcThird);
 
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerThird.setAdapter(adapterSpinner);
@@ -198,7 +168,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     private void setupSecondSpinner(Spinner spinnerSecond) {
-        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, funcSecond);
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcSecond);
 
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSecond.setAdapter(adapterSpinner);
@@ -314,7 +284,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     private void setupSpinner(Spinner spinner) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, func);
+                android.R.layout.simple_spinner_item, ConstantSample.func);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
@@ -537,6 +507,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             presenter.connect("ws://chat-sandbox.pod.land/ws",
                     "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
                     "https://sandbox.pod.land:8043/srv/basic-platform/", "http://sandbox.fanapium.com:8080/");
+        }
+        if (v == buttonToken) {
+
+//            String token = editText.getText().toString();
+//            if (token != null) {
+                presenter.setToke("4b00f4ae0ee146028e39e87db92338ab");
+//            }
         }
     }
 

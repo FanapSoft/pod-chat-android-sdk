@@ -12,6 +12,8 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultThreads;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ public interface ChatContract {
         default void onGetUserInfo() {
         }
 
-        default void onGetThreadList() {
+        default void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
         }
 
         default void onGetThreadHistory() {
@@ -114,6 +116,8 @@ public interface ChatContract {
     }
 
     interface presenter {
+
+        void setToke(String token);
 
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
                 , String platformHost, String fileServer);

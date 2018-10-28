@@ -39,6 +39,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private EditText editTextThread;
     private Button buttonFileChoose;
     private String selectedFilePath;
+    private Button buttonConnect;
+
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
     private static final String[] func = {
@@ -100,6 +102,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
+
+    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
+    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
+    private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
+    private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
+    private String serverName = "chat-server";
+
     private String fileUri;
 
     @Override
@@ -113,6 +122,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         editTextThread = findViewById(R.id.editTextThread);
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
         buttonFileChoose = findViewById(R.id.buttonFileChoose);
+        buttonConnect = findViewById(R.id.buttonConnect);
         buttonFileChoose.setOnClickListener(this);
 
         ArrayList<Contact> contacts = new ArrayList<>();
@@ -123,154 +133,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
         Spinner spinnerThird = findViewById(R.id.spinnerThird);
+        buttonConnect.setOnClickListener(this);
         ChatContract.view view = new ChatContract.view() {
-            @Override
-            public void onGetThreadList() {
 
-            }
-
-            @Override
-            public void onGetThreadHistory() {
-
-            }
-
-            @Override
-            public void onGetContacts() {
-
-            }
-
-            @Override
-            public void onGetThreadParticipant() {
-
-            }
-
-            @Override
-            public void onSentMessage() {
-
-            }
-
-            @Override
-            public void onGetDeliverMessage() {
-
-            }
-
-            @Override
-            public void onGetSeenMessage() {
-
-            }
-
-            @Override
-            public void onEditMessage() {
-
-            }
-
-            @Override
-            public void onDeleteMessage() {
-
-            }
-
-            @Override
-            public void onCreateThread() {
-
-            }
-
-            @Override
-            public void onMuteThread() {
-
-            }
-
-            @Override
-            public void onUnMuteThread() {
-
-            }
-
-            @Override
-            public void onRenameGroupThread() {
-
-            }
-
-            @Override
-            public void onAddContact() {
-
-            }
-
-            @Override
-            public void onUpdateContact() {
-
-            }
-
-            @Override
-            public void onUploadFile() {
-
-            }
-
-            @Override
-            public void onUploadImageFile() {
-
-            }
-
-            @Override
-            public void onRemoveContact() {
-
-            }
-
-            @Override
-            public void onAddParticipant() {
-
-            }
-
-            @Override
-            public void onRemoveParticipant() {
-
-            }
-
-            @Override
-            public void onLeaveThread() {
-
-            }
-
-            @Override
-            public void onBlock() {
-
-            }
-
-            @Override
-            public void onUnblock() {
-
-            }
-
-            @Override
-            public void onSearchContact() {
-
-            }
-
-            @Override
-            public void onSearchHisory() {
-
-            }
-
-            @Override
-            public void ongetBlockList() {
-
-            }
-
-            @Override
-            public void onMapSearch() {
-
-            }
-
-            @Override
-            public void onMapRouting() {
-
-            }
-
-            @Override
-            public void onError() {
-
-            }
         };
 
-        presenter = new ChatPresenter(this, view,this);
+        presenter = new ChatPresenter(this, view, this);
         presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
@@ -442,23 +310,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setOnItemSelectedListener(this);
     }
 
-    public void connect(View view) {
-
-//socketAddress: "wss://chat-sandbox.pod.land/ws",
-// {**REQUIRED**} Socket Address ssoHost: "
-//https://accounts.pod.land", // {**REQUIRED**} Socket Address
-// ssoGrantDevicesAddress: "/oauth2/grants/devices",
-// {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
-        http:
-//sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
-        presenter.connect("ws://172.16.106.26:8003/ws",
-                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
-
-//        presenter.connect("ws://chat-sandbox.pod.land/ws",
-//                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-//                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
-    }
 
     public void sendMessage(View view) {
         Inviter inviter = new Inviter();
@@ -466,18 +317,18 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 351, meta, new ChatHandler() {
+                , 293, meta, new ChatHandler() {
                     @Override
                     public void onSent(String uniqueId, long threadId) {
                         super.onSent(uniqueId, threadId);
-                        Toast.makeText(ChatActivity.this,"its worked",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChatActivity.this, "its worked", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onSentResult(String content) {
                         super.onSentResult(content);
                         if (content != null) {
-                            Toast.makeText(ChatActivity.this,"no null",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ChatActivity.this, "no null", Toast.LENGTH_SHORT).show();
 
                         }
                     }
@@ -586,9 +437,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
+                //jiji 122
                 Invitee[] invite = new Invitee[]{
-                         new Invitee(563, 2)
-                        , new Invitee(1967, 2)
+                        new Invitee(122, 1)
+//                        , new Invitee(1967, 2)
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
                 };
@@ -653,7 +505,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("masodi", "ra", "09128054535", "min"+new Date().getTime());
+                presenter.addContact("masodi", "ra", "09128054535", "min" + new Date().getTime());
                 break;
             case 15:
                 // remove contact
@@ -674,6 +526,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onClick(View v) {
         if (v == buttonFileChoose) {
             showPicChooser();
+        }
+        if (v == buttonConnect) {
+
+            presenter.connect(socketAddress,
+                    "POD-Chat", serverName, TOKEN, ssoHost,
+                    platformHost, fileServer);
         }
     }
 

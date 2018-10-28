@@ -13,8 +13,10 @@ import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
+import com.fanap.podchat.model.ResultThreads;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -89,8 +91,8 @@ public class ChatTest {
             e.printStackTrace();
         }
 
-//        view.onGetThreadList();
         Mockito.verify(view, Mockito.times(1)).onGetThreadList();
+        ChatResponse<ResultThreads> chatResponse =
     }
 
     @Test
@@ -331,7 +333,8 @@ public class ChatTest {
             e.printStackTrace();
         }
         Mockito.verify(view, Mockito.times(1)).onAddContact();
-        Mockito.verify(view,Mockit)
+//        Mockito.verify(view,Mockit.)
+
     }
 
     //    fifiUser

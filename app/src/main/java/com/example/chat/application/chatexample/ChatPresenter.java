@@ -66,6 +66,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void setToke(String token) {
+        chat.setToken(token);
+    }
+
+    @Override
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer) {
         chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer);
@@ -267,7 +272,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
         super.onGetThread(content, thread);
-        view.onGetThreadList();
+        view.onGetThreadList(content, thread);
     }
 
     @Override
