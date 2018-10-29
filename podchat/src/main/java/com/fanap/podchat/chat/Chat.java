@@ -179,7 +179,6 @@ public class Chat extends AsyncAdapter {
         if (instance == null) {
 
             async = Async.getInstance(context);
-            async.isLoggable(true);
             instance = new Chat();
             instance.setContext(context);
             moshi = new Moshi.Builder().build();
@@ -192,6 +191,7 @@ public class Chat extends AsyncAdapter {
     public void isLoggable(boolean log) {
         this.log = log;
         LogHelper.init(log);
+        async.isLoggable(log);
     }
 
     /**
@@ -221,6 +221,7 @@ public class Chat extends AsyncAdapter {
             setFileServer(fileServer);
             gson = new GsonBuilder().create();
             async.connect(socketAddress, appId, severName, token, ssoHost, "");
+
 //            deviceIdRequest(ssoHost, socketAddress, appId, severName);
             state = true;
         } else {
@@ -268,8 +269,7 @@ public class Chat extends AsyncAdapter {
     public void onReceivedMessage(String textMessage) throws IOException {
         super.onReceivedMessage(textMessage);
         int messageType = 0;
-        JsonAdapter<ChatMessage> jsonAdapter = moshi.adapter(ChatMessage.class);
-        ChatMessage chatMessage = jsonAdapter.fromJson(textMessage);
+        ChatMessage chatMessage = gson.fromJson(textMessage, ChatMessage.class);
 
         String messageUniqueId = chatMessage != null ? chatMessage.getUniqueId() : null;
         long threadId = chatMessage != null ? chatMessage.getSubjectId() : 0;
@@ -296,7 +296,13 @@ public class Chat extends AsyncAdapter {
                 handleSent(chatMessage, messageUniqueId, threadId);
                 break;
             case Constants.DELIVERY:
-                handleDelivery(chatMessage, messageUniqueId, threadId);
+                try {
+                    handleDelivery(chatMessage, messageUniqueId, threadId);
+
+                } catch (Exception e) {
+                    String errorJson = getErrorOutPut(e.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId());
+                    if (log) Logger.json(errorJson);
+                }
                 break;
             case Constants.SEEN:
                 handleSeen(chatMessage, messageUniqueId, threadId);
@@ -383,6 +389,12 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    @Override
+    public void onError(String textMessage) throws IOException {
+        super.onError(textMessage);
+        if (log) Logger.e(textMessage);
     }
 
     /**
@@ -1658,7 +1670,7 @@ public class Chat extends AsyncAdapter {
      * @return {@code this} object.
      */
     public Chat addListener(ChatListener listener) {
-        listenerManager.addListener(listener);
+        listenerManager.addListener(listener, log);
         return this;
     }
 
@@ -1718,7 +1730,8 @@ public class Chat extends AsyncAdapter {
             sendAsyncMessage(asyncContent, 4, "CHAT PING");
         }
     }
-    private void pingAfterSetToken(){
+
+    private void pingAfterSetToken() {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(Constants.PING);
         chatMessage.setTokenIssuer("1");

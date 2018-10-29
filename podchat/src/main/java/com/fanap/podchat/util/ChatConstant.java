@@ -8,12 +8,14 @@ public class ChatConstant {
     public static final int ERROR_CODE_CHECK_URL = 6005;
     public static final int ERROR_CODE_READ_CONTACT_PERMISSION = 6006;
     public static final int ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 6007;
+    public static final int ERROR_CODE_UNKNOWN_EXCEPTION = 6008;
     public static final int ERROR_CODE_CANT_GET_USER_INFO = 6100;
     public static final int ERROR_CODE_CONNECTION_NOT_ESTABLISHED = 6101;
     public static final int ERROR_CODE_NETWORK_ERROR = 6200;
     public static final int ERROR_CODE_UPLOAD_FILE = 6300;
     public static final int ERROR_CODE_NOT_IMAGE = 6301;
     public static final String ERROR_INVALID_TOKEN = "Invalid Token!";
+    public static final String ERROR_UNKNOWN_EXCEPTION = "Unknown Exception";
     public static final String ERROR_CHECK_URL = "Url must end in /";
     public static final String ERROR_CURRENT_DEVICE = "There Is No Current Device!";
     public static final String ERROR_READ_CONTACT_PERMISSION = "READ_CONTACTS Permission Needed!";

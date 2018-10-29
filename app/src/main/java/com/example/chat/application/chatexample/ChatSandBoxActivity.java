@@ -57,7 +57,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "ecfee54231e8467b838858e5ae3a66d6";
+    private static String TOKEN = "ee371d61b1b94d1184c5228c59839421";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -512,7 +512,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
 //            String token = editText.getText().toString();
 //            if (token != null) {
-                presenter.setToke("4b00f4ae0ee146028e39e87db92338ab");
+                presenter.setToke("6c185fe056b7427eb4c9397029e20741");
 //            }
         }
     }

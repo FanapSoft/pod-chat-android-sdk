@@ -53,14 +53,6 @@ public class MessageVO {
         this.seen = seen;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getUniqueId() {
         return uniqueId;
     }
@@ -147,5 +139,13 @@ public class MessageVO {
 
     public void setMessageType(int messageType) {
         this.messageType = messageType;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long messageId) {
+        this.id = messageId;
     }
 }

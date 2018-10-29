@@ -91,17 +91,20 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "felfeli";
 //    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
     //Fifi
-//    private String name = "Fifi";
-//    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+    private String name = "Fifi";
+    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
+//    private static String name = "Alexi";
+//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+
+    //Masoud
 //    private String name = "jiji";
 //    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
 
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-//    private static String name = "Alexi";
+//
 
     private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
@@ -317,7 +320,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 293, meta, new ChatHandler() {
+                , 312, meta, new ChatHandler() {
                     @Override
                     public void onSent(String uniqueId, long threadId) {
                         super.onSent(uniqueId, threadId);

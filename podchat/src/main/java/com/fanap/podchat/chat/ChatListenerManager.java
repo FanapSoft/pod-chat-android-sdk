@@ -39,13 +39,13 @@ public class ChatListenerManager {
     public ChatListenerManager() {
     }
 
-    public void addListener(ChatListener listener) {
+    public void addListener(ChatListener listener, boolean log) {
         if (listener == null) {
             return;
         }
 
         synchronized (mListeners) {
-            logHelper = LogHelper.init(true);
+            logHelper = LogHelper.init(log);
             mListeners.add(listener);
             mSyncNeeded = true;
         }
@@ -203,7 +203,7 @@ public class ChatListenerManager {
                 listener.onError(content, errorOutPut);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
-                Logger.e(t, t.getMessage());
+                Logger.e(t, t.getCause().getMessage());
             }
         }
     }
