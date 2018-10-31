@@ -5,6 +5,11 @@
 # Changelog
 All notable changes to this project will be documented here.
 ##  Version [] -2018-0-0
+
+- [Add]
+
+##  Version [] -2018-0-0
+
 - [Add] The responses of this listeners were changed 
 onGetContacts
 onGetHistory

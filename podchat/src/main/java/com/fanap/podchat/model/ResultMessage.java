@@ -1,22 +1,31 @@
 package com.fanap.podchat.model;
 
 public class ResultMessage {
-    private long threadId;
-    private MessageVO messageVO ;
+    private long messageId;
+    private long participantId;
+    private long conversationId;
 
-    public long getThreadId() {
-        return threadId;
+    public long getMessageId() {
+        return messageId;
     }
 
-    public void setThreadId(long threadId) {
-        this.threadId = threadId;
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 
-    public MessageVO getMessageVO() {
-        return messageVO;
+    public long getParticipantId() {
+        return participantId;
     }
 
-    public void setMessageVO(MessageVO messageVO) {
-        this.messageVO = messageVO;
+    public void setParticipantId(long participantId) {
+        this.participantId = participantId;
+    }
+
+    public long getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(long conversationId) {
+        this.conversationId = conversationId;
     }
 }

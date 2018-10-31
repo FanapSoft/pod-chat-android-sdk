@@ -1,6 +1,11 @@
 package com.fanap.podchat.mainmodel;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
+@Entity
 public class UserInfo  {
+    @PrimaryKey
     private long id;
     private boolean sendEnable;
     private boolean receiveEnable;

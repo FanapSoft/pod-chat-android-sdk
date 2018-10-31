@@ -43,48 +43,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
-    private static final String[] func = {
-            "Choose function",
-            "get thread",
-            "rename thread",
-            "get user info",
-            "reply message",
-            "forward message",
-            "send text message",
-            "get thread participant",
-            "create thread",
-            "get thread history",
-            "mute thread",
-            "un mute thread",
-            "get contacts",
-            "edit message"
-            , "add contact"
-            , "remove contact"
-            , "update contact"
-    };
 
-    private static final String[] funcSecond = {
-            "Choose function"
-            , "Sync Contact"
-            , "Send file"
-            , "Upload Image"
-            , "Upload File"
-            , "Remove Thread Participant"
-            , "Add Thread Participant"
-            , "Leave Thread"
-            , "Delete Message"
-            , "Search Contact"
-            , "Search History"
-    };
-    private static final String[] funcThird = {
-            "Choose Map function"
-            , "Search Map"
-            , "Map Routing"
-            , "Block"
-            , "UnBlock"
-            , "GetBlockList"
-            , "Update the thread info"
-    };
     private Uri uri;
 
     //fel token
@@ -150,7 +109,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setupThirdSpinner(Spinner spinnerThird) {
-        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, funcThird);
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcThird);
 
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerThird.setAdapter(adapterSpinner);
@@ -211,7 +170,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setupSecondSpinner(Spinner spinnerSecond) {
-        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, funcSecond);
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcSecond);
 
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSecond.setAdapter(adapterSpinner);
@@ -306,7 +265,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setupSpinner(Spinner spinner) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, func);
+                android.R.layout.simple_spinner_item, ConstantSample.func);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
@@ -508,7 +467,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("masodi", "ra", "09128054535", "min" + new Date().getTime());
+                presenter.addContact("saman", "rashedi", "09128884535", "min" + new Date().getTime());
                 break;
             case 15:
                 // remove contact

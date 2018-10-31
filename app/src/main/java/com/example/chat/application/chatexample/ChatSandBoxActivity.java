@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -30,7 +31,6 @@ import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.util.JsonUtil;
-import com.fanap.podchat.chat.ChatHandler;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
@@ -57,7 +57,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "ee371d61b1b94d1184c5228c59839421";
+    private static String TOKEN = "9bf210249bd84f4ab87b5b7d85c1d8ac";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

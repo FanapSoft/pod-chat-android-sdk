@@ -6,7 +6,7 @@ android {
     compileSdkVersion 27
 
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 18
         targetSdkVersion 27
         versionCode 23
         versionName "0.1.2.22"
@@ -69,7 +69,7 @@ dependencies {
     //logger
     api 'com.orhanobut:logger:2.2.0'
 
-    api  'com.fanap.podasync:podasync:0.0.8.9'
+    api  'com.fanap.podasync:podasync:0.0.8.10'
 }
 
 if (project.rootProject.file('local.properties').exists()) {

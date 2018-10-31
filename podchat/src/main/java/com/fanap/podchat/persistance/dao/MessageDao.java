@@ -6,6 +6,7 @@ import android.arch.persistence.room.Query;
 
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.UserInfo;
 
 import java.util.List;
 
@@ -19,6 +20,13 @@ public interface MessageDao {
 
     @Query("select * from Contact")
     List<Contact> getContact();
+
+    @Insert(onConflict = REPLACE)
+    void insertUserInfo(UserInfo userInfo);
+
+    @Query("select * from UserInfo")
+    UserInfo getUserInfo();
+
 
 //    @Query("select * from Thread")
 //    List<Thread> getThread();
