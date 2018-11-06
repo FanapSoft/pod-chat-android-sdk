@@ -15,6 +15,7 @@ import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
+import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
@@ -82,7 +83,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onSent(String content, ChatResponse<MessageVO> chatResponse) {
+    public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
 
     }
 
@@ -132,7 +133,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onNewMessage(String content, ChatResponse<ResultMessage> outPutNewMessage) {
+    public void onNewMessage(String content, ChatResponse<ResultNewMessage> outPutNewMessage) {
 
     }
 

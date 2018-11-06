@@ -13,7 +13,6 @@ import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
@@ -21,24 +20,17 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.OutPutAddParticipant;
-import com.fanap.podchat.model.OutPutBlock;
-import com.fanap.podchat.model.OutPutBlockList;
-import com.fanap.podchat.model.OutPutContact;
-import com.fanap.podchat.model.OutPutDeleteMessage;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutMute;
-import com.fanap.podchat.model.OutPutNewMessage;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
-import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
+import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThreads;
@@ -61,7 +53,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isCacheables(false);
         chat.isLoggable(true);
         chat.rawLog(true);
-        chat.isCacheables(true);
         this.activity = activity;
         this.context = context;
         this.view = view;
@@ -125,7 +116,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler) {
-        chat.replyMessage(messageContent, threadId, messageId, handler);
+        chat.replyMessage(messageContent, threadId, messageId,"meta", handler);
     }
 
     @Override
@@ -301,7 +292,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onSent(String content, ChatResponse<MessageVO> chatResponse) {
+    public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onSent(content, chatResponse);
         view.onSentMessage();
     }
@@ -421,7 +412,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onNewMessage(String content, ChatResponse<ResultMessage> chatResponse) {
+    public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
         super.onNewMessage(content, chatResponse);
 //        outPutNewMessage = JsonUtil.fromJSON(content, OutPutNewMessage.class);
 //        MessageVO messageVO = outPutNewMessage.getResult();

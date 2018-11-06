@@ -12,6 +12,7 @@ public class Contact  {
     private long userId;
     private String lastName;
     private String profileImage;
+    private Boolean blocked;
     @Embedded
     private LinkedUser linkedUser;
     private String cellphoneNumber;
@@ -106,5 +107,13 @@ public class Contact  {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    public Boolean getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
     }
 }

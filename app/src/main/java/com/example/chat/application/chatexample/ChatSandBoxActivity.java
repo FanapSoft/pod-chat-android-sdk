@@ -57,7 +57,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "9bf210249bd84f4ab87b5b7d85c1d8ac";
+    private static String TOKEN = "d670faa716594949926f5a554d82d493";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -300,9 +300,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
         http:
 //sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
-//        presenter.connect("ws://172.16.106.26:8003/ws",
-//                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-//                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
+
         presenter.connect("ws://chat-sandbox.pod.land/ws",
                 "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
                 "https://sandbox.pod.land:8043/srv/basic-platform/", "http://sandbox.fanapium.com:8080/");
@@ -313,7 +311,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 381, meta, null);
+                , 22, meta, null);
 
 
 // String text = editText.getText().toString();
@@ -406,11 +404,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  * ---->private int idType;
                  *
                  */
-                //alexi 570
-                //felfeli 571
+                // 589 pori
                 Invitee[] invite = new Invitee[]{new Invitee(589, 2)
-                        , new Invitee(381, 2)
-                        , new Invitee(22, 2)
+//                        , new Invitee(381, 2)
+//                        , new Invitee(22, 2)
 //                        , new Invitee(824, 2)
                 };
                 presenter.createThread(0, invite, null, new ChatHandler() {
@@ -512,7 +509,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
 //            String token = editText.getText().toString();
 //            if (token != null) {
-                presenter.setToke("6c185fe056b7427eb4c9397029e20741");
+                presenter.setToke("0999d0e0dfb84d208d406ffe6400557b");
 //            }
         }
     }

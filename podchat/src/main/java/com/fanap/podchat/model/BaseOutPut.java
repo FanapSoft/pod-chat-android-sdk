@@ -2,6 +2,7 @@ package com.fanap.podchat.model;
 
 public abstract class BaseOutPut {
     private boolean hasError;
+    private boolean cache;
     private String errorMessage;
     private long errorCode;
     private String uniqueId;
@@ -36,5 +37,13 @@ public abstract class BaseOutPut {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public boolean isCache() {
+        return cache;
+    }
+
+    public void setCache(boolean cache) {
+        this.cache = cache;
     }
 }

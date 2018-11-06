@@ -6,19 +6,17 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.OutPutBlockList;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutMute;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
-import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
+import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
@@ -153,7 +151,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetContacts(String content,  ChatResponse<ResultContact> outPutContact) {
+    public void callOnGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetContacts(content, outPutContact);
@@ -164,10 +162,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSentMessage(String content, ChatResponse<MessageVO> chatResponse) {
+    public void callOnSentMessage(String content, ChatResponse<ResultMessage> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSent(content,chatResponse);
+                listener.onSent(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -325,7 +323,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnNewMessage(String content,  ChatResponse<ResultMessage> outPutNewMessage) {
+    public void callOnNewMessage(String content, ChatResponse<ResultNewMessage> outPutNewMessage) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onNewMessage(content, outPutNewMessage);

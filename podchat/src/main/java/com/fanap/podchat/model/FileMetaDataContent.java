@@ -4,9 +4,9 @@ public class FileMetaDataContent {
     private String link;
     private String hashCode;
     private String name;
-    private int id;
+    private long id;
     private String originalName;
-    private int size;
+    private long size;
     private String mimeType;
 
     public String getLink() {
@@ -33,11 +33,11 @@ public class FileMetaDataContent {
         this.name = name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 }
