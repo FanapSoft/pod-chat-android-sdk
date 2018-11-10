@@ -53,11 +53,31 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private TextView percentage;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
+//socketAddress: "wss://chat-sandbox.pod.land/ws",
+// {**REQUIRED**} Socket Address ssoHost: "
+//https://accounts.pod.land", // {**REQUIRED**} Socket Address
+// ssoGrantDevicesAddress: "/oauth2/grants/devices",
+// {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
+//    http:
+//sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
 
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "d670faa716594949926f5a554d82d493";
+    private static String TOKEN = "d0b2e1e0840241f0b8ca5d010cfde58c";
+
+    private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
+    private static String serverName = "chat-server";
+    private static String appId = "POD-Chat";
+    private static String ssoHost = "https://accounts.pod.land/";
+    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
+    private static String fileServer = "http://sandbox.pod.land:8080/";
+//    private static String fileServer = "a440205bc6a44e879e7012367fab8d03";
+
+
+//(String socketAddress, String appId, String severName, String token,
+////    String ssoHost, String platformHost, String fileServer)
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,30 +209,31 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                                 , getUri(), null);
                         break;
                     case 3:
-//                        presenter.uploadImage(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri());
-                        presenter.uploadImageProgress(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri()
-                                , new ProgressHandler.onProgress() {
-                                    @Override
-                                    public void onProgressUpdate(int bytesSent) {
-                                        percentage.setText(String.valueOf(bytesSent));
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                            progressBar.setProgress(bytesSent, true);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFinish(String imageJson, FileImageUpload fileImageUpload) {
-                                        progressBar.setProgress(100);
-                                        percentage.setText(String.valueOf(100));
-                                    }
-
-                                    @Override
-                                    public void onError(String jsonError, ErrorOutPut error) {
-
-                                    }
-                                });
-//                        case 4:
-//                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
+                        presenter.uploadImage(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri());
+//                        presenter.uploadImageProgress(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri()
+//                                , new ProgressHandler.onProgress() {
+//                                    @Override
+//                                    public void onProgressUpdate(int bytesSent) {
+//                                        percentage.setText(String.valueOf(bytesSent));
+//                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                                            progressBar.setProgress(bytesSent, true);
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onFinish(String imageJson, FileImageUpload fileImageUpload) {
+//                                        progressBar.setProgress(100);
+//                                        percentage.setText(String.valueOf(100));
+//                                    }
+//
+//                                    @Override
+//                                    public void onError(String jsonError, ErrorOutPut error) {
+//
+//                                    }
+//                                });
+                        break;
+                    case 4:
+                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();
@@ -293,17 +314,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     public void connect() {
 
-//socketAddress: "wss://chat-sandbox.pod.land/ws",
-// {**REQUIRED**} Socket Address ssoHost: "
-//https://accounts.pod.land", // {**REQUIRED**} Socket Address
-// ssoGrantDevicesAddress: "/oauth2/grants/devices",
-// {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
-        http:
-//sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
 
-        presenter.connect("ws://chat-sandbox.pod.land/ws",
-                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-                "https://sandbox.pod.land:8043/srv/basic-platform/", "http://sandbox.fanapium.com:8080/");
+        presenter.connect(socketAddres,
+                appId, "chat-server", TOKEN, "https://accounts.pod.land",
+                "https://sandbox.pod.land:8043/srv/basic-platform/", fileServer);
     }
 
     public void sendMessage(View view) {
@@ -466,14 +480,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 13:
                 //"edit message"
+                Inviter inviter = new Inviter();
+                inviter.setName("sina");
+                String meta = JsonUtil.getJson(inviter);
                 presenter.editMessage(13530,
-                        "hi this is edit at" + new Date().getTime() + "by" + name, new ChatHandler() {
-                            @Override
-                            public void onEditMessage(String uniqueId) {
-                                super.onEditMessage(uniqueId);
-                                Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
                 break;
             case 14:
@@ -501,15 +512,15 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             showPicChooser();
         }
         if (v == buttonConnect) {
-            presenter.connect("ws://chat-sandbox.pod.land/ws",
-                    "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-                    "https://sandbox.pod.land:8043/srv/basic-platform/", "http://sandbox.fanapium.com:8080/");
+            presenter.connect(socketAddres,
+                    appId, serverName, TOKEN, ssoHost,
+                    platformHost, fileServer);
         }
         if (v == buttonToken) {
 
 //            String token = editText.getText().toString();
 //            if (token != null) {
-                presenter.setToke("0999d0e0dfb84d208d406ffe6400557b");
+            presenter.setToke("0999d0e0dfb84d208d406ffe6400557b");
 //            }
         }
     }
@@ -532,8 +543,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 } else if (requestCode == FILE_REQUEST_CODE) {
                     Uri fileUri = data.getData();
                     String path = FilePick.getSmartFilePath(this, fileUri);
+
+                    String pathFile = fileUri.toString();
                     setFileUri(path);
-                    setUri(fileUri);
+                    setUri(Uri.parse(pathFile));
                 }
             }
         }

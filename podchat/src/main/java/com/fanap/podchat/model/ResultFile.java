@@ -5,6 +5,7 @@ public class ResultFile {
     private String name;
     private String hashCode;
     private String description;
+    private long size;
 
     public int getId() {
         return id;
@@ -36,5 +37,13 @@ public class ResultFile {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }

@@ -457,12 +457,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 13:
                 //"edit message"
-                presenter.editMessage(13530, "hi this is edit at" + new Date().getTime() + "by" + name, new ChatHandler() {
-                    @Override
-                    public void onEditMessage(String uniqueId) {
-                        super.onEditMessage(uniqueId);
-                    }
-                });
+                Inviter inviter = new Inviter();
+                inviter.setName("sina");
+                String meta = JsonUtil.getJson(inviter);
+                presenter.editMessage(13530,
+                        "hi this is edit at" + new Date().getTime() + "by" + name,meta,null);
 
                 break;
             case 14:

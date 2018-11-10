@@ -150,7 +150,7 @@ public interface ChatContract {
 
         void unMuteThread(int threadId, ChatHandler handler);
 
-        void editMessage(int messageId, String messageContent, ChatHandler handler);
+        void editMessage(int messageId, String messageContent, String metaData, ChatHandler handler);
 
         void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler);
 

@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import java.io.File;
@@ -63,6 +64,11 @@ public class FileUtils {
      * @return Extension including the dot("."); "" if there is no extension;
      *         null if uri was null.
      */
+
+
+
+
+
     public static String getExtension(String uri) {
         if (uri == null) {
             return null;
@@ -251,6 +257,7 @@ public class FileUtils {
      * @see #getFile(Context, Uri)
      * @author paulburke
      */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static String getPath(final Context context, final Uri uri) {
 
         if (DEBUG)
@@ -342,6 +349,7 @@ public class FileUtils {
      * @see #getPath(Context, Uri)
      * @author paulburke
      */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static File getFile(Context context, Uri uri) {
         if (uri != null) {
             String path = getPath(context, uri);

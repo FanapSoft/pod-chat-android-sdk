@@ -19,7 +19,6 @@ import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutParticipant;
@@ -30,8 +29,8 @@ import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultMessage;
-import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
+import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
@@ -116,7 +115,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler) {
-        chat.replyMessage(messageContent, threadId, messageId,"meta", handler);
+        chat.replyMessage(messageContent, threadId, messageId, "meta", handler);
     }
 
     @Override
@@ -140,8 +139,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void editMessage(int messageId, String messageContent, ChatHandler handler) {
-        chat.editMessage(messageId, messageContent, handler);
+    public void editMessage(int messageId, String messageContent, String metaData, ChatHandler handler) {
+        chat.editMessage(messageId, messageContent, metaData, handler);
     }
 
     @Override
