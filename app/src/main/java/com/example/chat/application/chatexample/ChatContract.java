@@ -176,9 +176,9 @@ public interface ChatContract {
 
         void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email);
 
-        void uploadImage(Context context, Activity activity, Uri fileUri);
+        void uploadImage(Activity activity, Uri fileUri);
 
-        void uploadFile(Context context, Activity activity, String fileUri, Uri uri);
+        void uploadFile(Activity activity, Uri uri);
 
         void seenMessage(int messageId, long ownerId, ChatHandler handler);
 

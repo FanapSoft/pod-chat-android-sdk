@@ -13,7 +13,9 @@ import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
@@ -103,6 +105,11 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onUploadImageFile(String content, ChatResponse<ResultImageFile> chatResponse) {
+
+    }
+
+    @Override
     public void onContactAdded(String content) {
 
     }
@@ -147,13 +154,9 @@ public class ChatAdapter implements ChatListener {
 
     }
 
-    @Override
-    public void onUploadFile(String content) {
-
-    }
 
     @Override
-    public void onUploadImageFile(String content, FileImageUpload fileImageUpload) {
+    public void onUploadFile(String content, ChatResponse<ResultFile> chatResponse) {
 
     }
 

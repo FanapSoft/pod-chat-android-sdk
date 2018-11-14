@@ -2,6 +2,9 @@ package com.fanap.podchat.model;
 
 public class ResultLeaveThread {
     private String name;
+    private String firstName;
+    private String lastName;
+    private String image;
     private int id;
     private long notSeenDuration;
     private long threadId;

@@ -27,7 +27,9 @@ import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
@@ -49,7 +51,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
         chat = Chat.init(context);
         chat.addListener(this);
-        chat.isCacheables(false);
+        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
         this.activity = activity;
@@ -204,13 +206,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void uploadImage(Context context, Activity activity, Uri fileUri) {
-        chat.uploadImage(context, activity, fileUri);
+    public void uploadImage(Activity activity, Uri fileUri) {
+        chat.uploadImage(activity, fileUri);
     }
 
     @Override
-    public void uploadFile(Context context, Activity activity, String fileUri, Uri uri) {
-        chat.uploadFile(context, activity, fileUri, uri);
+    public void uploadFile(Activity activity, Uri uri) {
+        chat.uploadFile(activity, uri);
     }
 
     @Override
@@ -364,14 +366,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onUploadFile(String content) {
-        super.onUploadFile(content);
+    public void onUploadFile(String content, ChatResponse<ResultFile> response) {
+        super.onUploadFile(content, response);
         view.onUploadFile();
     }
 
+
     @Override
-    public void onUploadImageFile(String content, FileImageUpload fileImageUpload) {
-        super.onUploadImageFile(content, fileImageUpload);
+    public void onUploadImageFile(String content, ChatResponse<ResultImageFile> chatResponse) {
+        super.onUploadImageFile(content, chatResponse);
         view.onUploadImageFile();
     }
 

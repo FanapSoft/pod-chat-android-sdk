@@ -53,18 +53,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private TextView percentage;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
-//socketAddress: "wss://chat-sandbox.pod.land/ws",
-// {**REQUIRED**} Socket Address ssoHost: "
-//https://accounts.pod.land", // {**REQUIRED**} Socket Address
-// ssoGrantDevicesAddress: "/oauth2/grants/devices",
-// {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
-//    http:
-//sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
 
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "d0b2e1e0840241f0b8ca5d010cfde58c";
+    private static String TOKEN = "fcc9d700d61d419994d277aed25a8491";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -72,11 +65,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String ssoHost = "https://accounts.pod.land/";
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8080/";
-//    private static String fileServer = "a440205bc6a44e879e7012367fab8d03";
-
-
-//(String socketAddress, String appId, String severName, String token,
-////    String ssoHost, String platformHost, String fileServer)
 
 
     @Override
@@ -209,7 +197,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                                 , getUri(), null);
                         break;
                     case 3:
-                        presenter.uploadImage(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri());
+                        presenter.uploadImage(ChatSandBoxActivity.this, getUri());
 //                        presenter.uploadImageProgress(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri()
 //                                , new ProgressHandler.onProgress() {
 //                                    @Override
@@ -233,7 +221,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                                });
                         break;
                     case 4:
-                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
+                        presenter.uploadFile(ChatSandBoxActivity.this, getUri());
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();
@@ -261,7 +249,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 7:
-                        presenter.leaveThread(661, new ChatHandler() {
+                        presenter.leaveThread(22, new ChatHandler() {
                             @Override
                             public void onLeaveThread(String uniqueId) {
                                 super.onLeaveThread(uniqueId);
@@ -346,10 +334,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             case 1:
                 //"get thread"
                 ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(1104);
+                threadIds.add(22);
 //                threadIds.add(1031);
 //                presenter.getThread(2, 0, null, null);
-                presenter.getThread(10, null, threadIds, null, null);
+                presenter.getThread(2, null, threadIds, null, null);
 //                        new ChatHandler() {
 //                    @Override
 //                    public void onGetThread(String uniqueId) {
@@ -402,7 +390,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0L, 381, null);
+                presenter.getThreadParticipant(10, 0L, 2, null);
 
                 break;
             case 8:
@@ -411,6 +399,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  * int TO_BE_USER_CONTACT_ID = 2;
                  * int TO_BE_USER_CELLPHONE_NUMBER = 3;
                  * int TO_BE_USER_USERNAME = 4;
+                 * int TO_BE_USER_ID = 5;
                  */
                 /**"create thread"
                  * This is Invitee object
@@ -435,7 +424,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 9:
                 //get thread history
-                History history = new History.Builder().count(2).build();
+                History history = new History.Builder().count(10).build();
+
                 presenter.getHistory(history, 381, new ChatHandler() {
                     @Override
                     public void onGetHistory(String uniqueId) {
@@ -518,10 +508,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         }
         if (v == buttonToken) {
 
-//            String token = editText.getText().toString();
-//            if (token != null) {
-            presenter.setToke("0999d0e0dfb84d208d406ffe6400557b");
-//            }
+            String Freshtoken = editTextToken.getText().toString();
+            if (Freshtoken != null) {
+            presenter.setToke(Freshtoken);
+            }
         }
     }
 

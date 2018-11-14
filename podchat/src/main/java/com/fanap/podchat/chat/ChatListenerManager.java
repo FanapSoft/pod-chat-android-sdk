@@ -14,7 +14,9 @@ import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
@@ -334,10 +336,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUploadImageFile(String content, FileImageUpload fileImageUpload) {
+    public void callOnUploadImageFile(String content, ChatResponse<ResultImageFile> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUploadImageFile(content, fileImageUpload);
+                listener.onUploadImageFile(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -345,10 +347,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUploadFile(String content) {
+    public void callOnUploadFile(String content, ChatResponse<ResultFile> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUploadFile(content);
+                listener.onUploadFile(content, response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

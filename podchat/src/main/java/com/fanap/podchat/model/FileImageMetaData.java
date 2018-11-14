@@ -8,7 +8,7 @@ public class FileImageMetaData {
     private String name;
     private int actualHeight;
     private int actualWidth;
-    private int size;
+    private long size;
     private String mimeType;
 
     public String getOriginalName() {
@@ -17,14 +17,6 @@ public class FileImageMetaData {
 
     public void setOriginalName(String originalName) {
         this.originalName = originalName;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public String getMimeType() {
@@ -81,5 +73,13 @@ public class FileImageMetaData {
 
     public void setActualWidth(int actualWidth) {
         this.actualWidth = actualWidth;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }

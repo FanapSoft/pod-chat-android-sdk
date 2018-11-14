@@ -191,9 +191,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                 , getUri(), null);
                         break;
                     case 3:
-                        presenter.uploadImage(ChatActivity.this, ChatActivity.this, getUri());
-                    case 4:
-                        presenter.uploadFile(ChatActivity.this, ChatActivity.this, getFileUri(), getUri());
+                        presenter.uploadImage(ChatActivity.this, getUri());                    case 4:
+//                        presenter.uploadFile(ChatSandBoxActivity.this, getUri());
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();

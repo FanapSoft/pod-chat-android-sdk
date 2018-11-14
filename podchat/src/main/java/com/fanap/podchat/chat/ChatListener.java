@@ -13,7 +13,9 @@ import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
@@ -119,11 +121,11 @@ public interface ChatListener {
 
     }
 
-    default void onUploadFile(String content) {
+    default void onUploadFile(String content, ChatResponse<ResultFile> chatResponse) {
 
     }
 
-    default void onUploadImageFile(String content, FileImageUpload fileImageUpload) {
+    default void onUploadImageFile(String content, ChatResponse<ResultImageFile> chatResponse) {
 
     }
 

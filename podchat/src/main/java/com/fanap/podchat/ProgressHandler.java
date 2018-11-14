@@ -1,8 +1,9 @@
 package com.fanap.podchat;
 
 import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.FileImageUpload;
+import com.fanap.podchat.model.ResultImageFile;
 
 //A callback for while file is being uploaded.
 public abstract class ProgressHandler {
@@ -11,7 +12,7 @@ public abstract class ProgressHandler {
     public interface onProgress {
         void onProgressUpdate(int bytesSent);
 
-        void onFinish(String imageJson, FileImageUpload fileImageUpload);
+        void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse);
 
         void onError(String jsonError, ErrorOutPut error);
     }
