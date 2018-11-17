@@ -1,14 +1,37 @@
-package com.fanap.podchat.mainmodel;
+package com.fanap.podchat.cachemodel;
+
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
+import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.LastMessageVO;
+import com.fanap.podchat.mainmodel.Participant;
 
 import java.util.List;
 
-public class Thread {
+@Entity
+public class ThreadVo {
+    @PrimaryKey
     private long id;
     private long joinDate;
+
+    @Ignore
     private Inviter inviter;
-    private LastMessageVO lastMessageVO;
+
+    private Long inviterId;
+
+    @Ignore
+    private CacheLastMessageVO lastMessageVO;
+
+    private Long lastMessageVOId;
+
     private String title;
-    private List<Participant> participants;
+
+    @Ignore
+    private List<CacheParticipant> participants;
+
     private long time;
     private String lastMessage;
     private String lastParticipantName;
@@ -27,65 +50,9 @@ public class Thread {
     private String metadata;
     private boolean canEditInfo;
     private long participantCount;
-    private Boolean canSpam;
-    private Boolean admin;
+    private boolean canSpam;
+    private boolean admin;
 
-    public Thread(long id,
-                  long joinDate,
-                  Inviter inviter,
-                  LastMessageVO lastMessageVO,
-                  String title,
-                  List<Participant> participants,
-                  long time,
-                  String lastMessage,
-                  String lastParticipantName,
-                  String lastParticipantImage,
-                  boolean group,
-                  long partner,
-                  String image,
-                  String description,
-                  long unreadCount,
-                  long lastSeenMessageId,
-                  long partnerLastMessageId,
-                  long partnerLastSeenMessageId,
-                  long partnerLastDeliveredMessageId,
-                  int type,
-                  boolean mute,
-                  String metadata,
-                  boolean canEditInfo,
-                  long participantCount,
-                  Boolean canSpam,
-                  Boolean admin) {
-        this.id = id;
-        this.joinDate = joinDate;
-        this.inviter = inviter;
-        this.lastMessageVO = lastMessageVO;
-        this.title = title;
-        this.participants = participants;
-        this.time = time;
-        this.lastMessage = lastMessage;
-        this.lastParticipantName = lastParticipantName;
-        this.lastParticipantImage = lastParticipantImage;
-        this.group = group;
-        this.partner = partner;
-        this.image = image;
-        this.description = description;
-        this.unreadCount = unreadCount;
-        this.lastSeenMessageId = lastSeenMessageId;
-        this.partnerLastMessageId = partnerLastMessageId;
-        this.partnerLastSeenMessageId = partnerLastSeenMessageId;
-        this.partnerLastDeliveredMessageId = partnerLastDeliveredMessageId;
-        this.type = type;
-        this.mute = mute;
-        this.metadata = metadata;
-        this.canEditInfo = canEditInfo;
-        this.participantCount = participantCount;
-        this.canSpam = canSpam;
-        this.admin = admin;
-    }
-
-    public Thread() {
-    }
 
     public long getId() {
         return id;
@@ -103,11 +70,11 @@ public class Thread {
         this.title = title;
     }
 
-    public List<Participant> getParticipants() {
+    public List<CacheParticipant> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<Participant> participants) {
+    public void setParticipants(List<CacheParticipant> participants) {
         this.participants = participants;
     }
 
@@ -183,11 +150,11 @@ public class Thread {
         this.image = image;
     }
 
-    public LastMessageVO getLastMessageVO() {
+    public CacheLastMessageVO getLastMessageVO() {
         return lastMessageVO;
     }
 
-    public void setLastMessageVO(LastMessageVO lastMessageVO) {
+    public void setLastMessageVO(CacheLastMessageVO lastMessageVO) {
         this.lastMessageVO = lastMessageVO;
     }
 
@@ -263,6 +230,22 @@ public class Thread {
         this.metadata = metadata;
     }
 
+    public Long getInviterId() {
+        return inviterId;
+    }
+
+    public void setInviterId(Long inviterId) {
+        this.inviterId = inviterId;
+    }
+
+    public Long getLastMessageVOId() {
+        return lastMessageVOId;
+    }
+
+    public void setLastMessageVOId(Long lastMessageVOId) {
+        this.lastMessageVOId = lastMessageVOId;
+    }
+
     public String getLastParticipantImage() {
         return lastParticipantImage;
     }
@@ -271,27 +254,27 @@ public class Thread {
         this.lastParticipantImage = lastParticipantImage;
     }
 
-    public Boolean getCanSpam() {
-        return canSpam;
-    }
-
-    public void setCanSpam(Boolean canSpam) {
-        this.canSpam = canSpam;
-    }
-
-    public Boolean getAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(Boolean admin) {
-        this.admin = admin;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isCanSpam() {
+        return canSpam;
+    }
+
+    public void setCanSpam(boolean canSpam) {
+        this.canSpam = canSpam;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 }

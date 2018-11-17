@@ -1,9 +1,12 @@
 package com.fanap.podchat.mainmodel;
 
-import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 
+@Entity
 public class Inviter  {
-    @ColumnInfo(name = "inviter_id")
+
+    @PrimaryKey
     private long id;
     private String name;
     private String firstName;

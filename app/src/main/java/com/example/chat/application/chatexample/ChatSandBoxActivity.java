@@ -57,7 +57,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "fcc9d700d61d419994d277aed25a8491";
+    private static String TOKEN = "0335a72eaa2b4de69d552f48e0d9724b";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -336,8 +336,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 ArrayList<Integer> threadIds = new ArrayList<>();
                 threadIds.add(22);
 //                threadIds.add(1031);
-//                presenter.getThread(2, 0, null, null);
-                presenter.getThread(2, null, threadIds, null, null);
+                presenter.getThread(5, null, null, null, null);
 //                        new ChatHandler() {
 //                    @Override
 //                    public void onGetThread(String uniqueId) {
@@ -408,7 +407,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  *
                  */
                 // 589 pori
-                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(261, 5)
 //                        , new Invitee(381, 2)
 //                        , new Invitee(22, 2)
 //                        , new Invitee(824, 2)

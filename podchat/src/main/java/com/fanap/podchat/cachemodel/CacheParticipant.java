@@ -1,10 +1,20 @@
-package com.fanap.podchat.mainmodel;
+package com.fanap.podchat.cachemodel;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
-public class Participant {
+@Entity(indices = {@Index(value = {"order_id"}, unique = true)})
+public class CacheParticipant {
     @PrimaryKey
     private long id;
+
+    @ColumnInfo(name = "order_id")
+    private long orderId;
+
+    private long threadId;
+
     private String name;
     private String firstName;
     private String lastName;
@@ -23,51 +33,11 @@ public class Participant {
     private Boolean blocked;
     private Boolean admin;
 
+    @Override
+    public String toString() {
+        return super.toString();
 
-    public Participant() {
     }
-
-    public Participant(
-            long id,
-            String name,
-            String firstName,
-            String lastName,
-            String image,
-            long notSeenDuration,
-            long contactId,
-            String contactName,
-            String contactFirstName,
-            String contactLastName,
-            Boolean sendEnable,
-            Boolean receiveEnable,
-            String cellphoneNumber,
-            String email,
-            Boolean myFriend,
-            Boolean online,
-            Boolean blocked,
-            Boolean admin
-    ) {
-
-        this.id=id;
-        this.name=name;
-        this.firstName=firstName;
-        this.lastName=lastName;
-        this.image=image;
-        this.notSeenDuration=notSeenDuration;
-        this.contactId=contactId;
-        this.contactName=contactName;
-        this.contactFirstName=contactFirstName;
-        this.contactLastName=contactLastName;
-        this.sendEnable=sendEnable;
-        this.receiveEnable=receiveEnable;
-        this.cellphoneNumber=cellphoneNumber;
-        this.email=email;
-        this.myFriend=myFriend;
-        this.online=online;
-        this.blocked=blocked;
-        this.admin=admin;
-    }
-
 
     public long getId() {
         return id;
@@ -115,6 +85,38 @@ public class Participant {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public long getContactId() {
+        return contactId;
+    }
+
+    public void setContactId(long contactId) {
+        this.contactId = contactId;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
+    public String getContactFirstName() {
+        return contactFirstName;
+    }
+
+    public void setContactFirstName(String contactFirstName) {
+        this.contactFirstName = contactFirstName;
+    }
+
+    public String getContactLastName() {
+        return contactLastName;
+    }
+
+    public void setContactLastName(String contactLastName) {
+        this.contactLastName = contactLastName;
     }
 
     public Boolean getSendEnable() {
@@ -165,22 +167,6 @@ public class Participant {
         this.online = online;
     }
 
-    public long getContactId() {
-        return contactId;
-    }
-
-    public void setContactId(long contactId) {
-        this.contactId = contactId;
-    }
-
-    public String getContactName() {
-        return contactName;
-    }
-
-    public void setContactName(String contactName) {
-        this.contactName = contactName;
-    }
-
     public Boolean getBlocked() {
         return blocked;
     }
@@ -197,19 +183,19 @@ public class Participant {
         this.admin = admin;
     }
 
-    public String getContactFirstName() {
-        return contactFirstName;
+    public long getOrderId() {
+        return orderId;
     }
 
-    public void setContactFirstName(String contactFirstName) {
-        this.contactFirstName = contactFirstName;
+    public void setOrderId(long orderId) {
+        this.orderId = orderId;
     }
 
-    public String getContactLastName() {
-        return contactLastName;
+    public long getThreadId() {
+        return threadId;
     }
 
-    public void setContactLastName(String contactLastName) {
-        this.contactLastName = contactLastName;
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
     }
 }

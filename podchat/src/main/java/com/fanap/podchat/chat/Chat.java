@@ -23,6 +23,7 @@ import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.AddParticipant;
 import com.fanap.podchat.mainmodel.BaseMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -491,11 +492,12 @@ public class Chat extends AsyncAdapter {
      * @param metaData    [optional]
      */
     public String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData) {
-        String uniqueId = generateUniqueId();
+        String uniqueId;
         metaData = metaData != null ? metaData : "";
         try {
             if (chatReady) {
                 if (fileUri != null) {
+                    uniqueId = generateUniqueId();
                     File file = new File(fileUri.getPath());
                     String mimeType = handleMimType(fileUri, file);
                     if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
@@ -504,11 +506,12 @@ public class Chat extends AsyncAdapter {
                         String path = FilePick.getSmartFilePath(context, fileUri);
                         uploadFileMessage(activity, description, threadId, mimeType, path, metaData, uniqueId);
                     }
+                    return uniqueId;
                 }
-                return uniqueId;
             }
         } catch (Exception e) {
             if (log) Logger.e(e.getCause().getMessage());
+            return null;
         }
 
         return null;
@@ -1075,47 +1078,91 @@ public class Chat extends AsyncAdapter {
      * @param offset specified offset you want
      */
     public String getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler) {
-
-        ChatMessageContent chatMessageContent = new ChatMessageContent();
-
-        Long offsets = offset;
-        if (count == null) {
-            chatMessageContent.setCount(50);
-        } else {
-            chatMessageContent.setCount(count);
-        }
-
-        if (offset == null) {
-            chatMessageContent.setOffset(0);
-            offsets = 0L;
-        } else {
-            chatMessageContent.setOffset(offset);
-        }
-
-        if (threadName != null) {
-            chatMessageContent.setName(threadName);
-        }
-        if (threadIds != null) {
-            chatMessageContent.setThreadIds(threadIds);
-        }
-        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
-        String content = messageContentJsonAdapter.toJson(chatMessageContent);
-
         String uniqueId = generateUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(content);
-        chatMessage.setType(Constants.GET_THREADS);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
 
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        setCallBacks(null, null, null, true, Constants.GET_THREADS, offsets, uniqueId);
+        try {
+            if (cache) {
+                if (messageDatabaseHelper.getThreads() != null) {
+                    List<Thread> threads = messageDatabaseHelper.getThreads();
+                    ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
+                    int contentCount = messageDatabaseHelper.getThreadCount();
 
-        sendAsyncMessage(asyncContent, 3, "Get thread send");
-        if (handler != null) {
-            handler.onGetThread(uniqueId);
+                    ResultThreads resultThreads = new ResultThreads();
+                    resultThreads.setThreads(threads);
+                    resultThreads.setContentCount(contentCount);
+                    chatResponse.setErrorCode(0);
+                    chatResponse.setErrorMessage("");
+                    chatResponse.setHasError(false);
+                    chatResponse.setCache(true);
+//            outPutThreads.setUniqueId();
+
+//            if (threads.size() + callback.getOffset() < chatMessage.getContentCount()) {
+//                resultThreads.setHasNext(true);
+//            } else {
+//                resultThreads.setHasNext(false);
+//            }
+//            resultThreads.setNextOffset(callback.getOffset() + threads.size());
+                    chatResponse.setResult(resultThreads);
+
+                    String threadJson = gson.toJson(chatResponse);
+                    listenerManager.callOnGetThread(threadJson, chatResponse);
+                    if (log) Logger.i("CACHE_GET_THREAD");
+                    if (log) Logger.json(threadJson);
+                }
+            }
+            ChatMessageContent chatMessageContent = new ChatMessageContent();
+
+            Long offsets = offset;
+            if (count == null) {
+                chatMessageContent.setCount(50);
+            } else {
+                chatMessageContent.setCount(count);
+            }
+
+            if (offset == null) {
+                chatMessageContent.setOffset(0);
+                offsets = 0L;
+            } else {
+                chatMessageContent.setOffset(offset);
+            }
+
+            if (threadName != null) {
+                chatMessageContent.setName(threadName);
+            }
+
+            JsonObject jObj;
+
+            if (threadIds != null && threadIds.size() > 0) {
+                chatMessageContent.setThreadIds(threadIds);
+                jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
+
+            } else {
+                jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
+                jObj.remove("threadIds");
+
+            }
+
+            jObj.remove("lastMessageId");
+            jObj.remove("firstMessageId");
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(jObj.toString());
+            chatMessage.setType(Constants.GET_THREADS);
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setToken(getToken());
+            chatMessage.setUniqueId(uniqueId);
+
+            JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+            String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+            setCallBacks(null, null, null, true, Constants.GET_THREADS, offsets, uniqueId);
+
+            sendAsyncMessage(asyncContent, 3, "Get thread send");
+            if (handler != null) {
+                handler.onGetThread(uniqueId);
+            }
+            return uniqueId;
+        } catch (Exception e) {
+            Logger.e(e.getCause().getMessage());
         }
         return uniqueId;
     }
@@ -2789,7 +2836,15 @@ public class Chat extends AsyncAdapter {
                                         int fileId = result.getId();
                                         String hashCode = result.getHashCode();
 
-//                                        ChatResponse<>
+                                        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+                                        chatResponse.setResult(result);
+                                        chatResponse.setUniqueId(uniqueId);
+                                        result.setSize(file_size);
+                                        String json = gson.toJson(chatResponse);
+
+                                        listenerManager.callOnUploadFile(json, chatResponse);
+                                        if (log) Logger.i("RECEIVE_UPLOAD_FILE");
+                                        if (log) Logger.json(json);
 
 
                                         MetaDataFile metaDataFile = new MetaDataFile();
@@ -3093,6 +3148,13 @@ public class Chat extends AsyncAdapter {
         ChatResponse<ResultThreads> outPutThreads = new ChatResponse<>();
         ArrayList<Thread> threads = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Thread>>() {
         }.getType());
+
+        if (cache) {
+            ArrayList<ThreadVo> threadVos = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<ThreadVo>>() {
+            }.getType());
+            messageDatabaseHelper.saveThreads(threadVos);
+        }
+
 
         ResultThreads resultThreads = new ResultThreads();
         resultThreads.setThreads(threads);

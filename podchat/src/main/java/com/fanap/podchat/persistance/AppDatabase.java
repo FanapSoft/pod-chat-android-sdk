@@ -5,11 +5,26 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
+import com.fanap.podchat.cachemodel.CacheForwardInfo;
+import com.fanap.podchat.cachemodel.CacheLastMessageVO;
+import com.fanap.podchat.cachemodel.CacheParticipant;
+import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
+import com.fanap.podchat.cachemodel.ThreadVo;
+import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.mainmodel.Contact;
 
-@Database(entities = {Contact.class, UserInfo.class}, version = 1, exportSchema = false)
+@Database(entities = {
+        Contact.class,
+        Inviter.class,
+        UserInfo.class,
+        CacheLastMessageVO.class,
+        CacheForwardInfo.class,
+        CacheParticipant.class,
+        CacheReplyInfoVO.class,
+        ThreadVo.class
+}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public static final String DATABASE_DB = "cache.db";
