@@ -278,7 +278,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 312, meta, new ChatHandler() {
+                , 1199, meta, new ChatHandler() {
                     @Override
                     public void onSent(String uniqueId, long threadId) {
                         super.onSent(uniqueId, threadId);

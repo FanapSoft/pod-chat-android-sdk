@@ -51,7 +51,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
         chat = Chat.init(context);
         chat.addListener(this);
-        chat.isCacheables(true);
+//        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
         this.activity = activity;

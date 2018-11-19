@@ -35,8 +35,6 @@ public class ReplyInfoVO {
     public ReplyInfoVO() {
     }
 
-
-
     public Participant getParticipant() {
         return participant;
     }
