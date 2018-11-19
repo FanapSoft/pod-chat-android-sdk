@@ -28,6 +28,8 @@ public class CacheForwardInfo {
     @Ignore
     private ConversationSummery conversation;
 
+    private long conversationId;
+
     public CacheParticipant getParticipant() {
         return participant;
     }
@@ -59,5 +61,13 @@ public class CacheForwardInfo {
     @Nullable
     public void setParticipantId(Long participantId) {
         this.participantId = participantId;
+    }
+
+    public long getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(long conversationId) {
+        this.conversationId = conversationId;
     }
 }

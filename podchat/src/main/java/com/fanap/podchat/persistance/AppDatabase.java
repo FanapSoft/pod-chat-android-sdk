@@ -12,6 +12,7 @@ import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.mainmodel.Contact;
 
@@ -23,6 +24,7 @@ import com.fanap.podchat.mainmodel.Contact;
         CacheForwardInfo.class,
         CacheParticipant.class,
         CacheReplyInfoVO.class,
+        ConversationSummery.class,
         ThreadVo.class
 }, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {

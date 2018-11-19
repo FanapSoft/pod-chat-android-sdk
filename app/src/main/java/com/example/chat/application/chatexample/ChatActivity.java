@@ -323,8 +323,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 //"get thread"
                 ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(22);
-                threadIds.add(351);
-                presenter.getThread(15, null, threadIds, null, new ChatHandler() {
+//                threadIds.add(351);
+                presenter.getThread(5, null, null, null, new ChatHandler() {
                     @Override
                     public void onGetThread(String uniqueId) {
                         super.onGetThread(uniqueId);

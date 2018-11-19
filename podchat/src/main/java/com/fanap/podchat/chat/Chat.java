@@ -1079,11 +1079,13 @@ public class Chat extends AsyncAdapter {
      */
     public String getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler) {
         String uniqueId = generateUniqueId();
-
+        Long offsets = offset;
+        count = count != null ? count : 50;
+        offset = offset != null ? offset : 0;
         try {
             if (cache) {
-                if (messageDatabaseHelper.getThreads() != null) {
-                    List<Thread> threads = messageDatabaseHelper.getThreads();
+                if (messageDatabaseHelper.getThreads(count, offset) != null) {
+                    List<Thread> threads = messageDatabaseHelper.getThreads(count, offset);
                     ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
                     int contentCount = messageDatabaseHelper.getThreadCount();
 
@@ -1094,14 +1096,13 @@ public class Chat extends AsyncAdapter {
                     chatResponse.setErrorMessage("");
                     chatResponse.setHasError(false);
                     chatResponse.setCache(true);
-//            outPutThreads.setUniqueId();
 
-//            if (threads.size() + callback.getOffset() < chatMessage.getContentCount()) {
-//                resultThreads.setHasNext(true);
-//            } else {
-//                resultThreads.setHasNext(false);
-//            }
-//            resultThreads.setNextOffset(callback.getOffset() + threads.size());
+                    if (threads.size() + offset < contentCount) {
+                        resultThreads.setHasNext(true);
+                    } else {
+                        resultThreads.setHasNext(false);
+                    }
+                    resultThreads.setNextOffset(offset + threads.size());
                     chatResponse.setResult(resultThreads);
 
                     String threadJson = gson.toJson(chatResponse);
@@ -1111,13 +1112,6 @@ public class Chat extends AsyncAdapter {
                 }
             }
             ChatMessageContent chatMessageContent = new ChatMessageContent();
-
-            Long offsets = offset;
-            if (count == null) {
-                chatMessageContent.setCount(50);
-            } else {
-                chatMessageContent.setCount(count);
-            }
 
             if (offset == null) {
                 chatMessageContent.setOffset(0);

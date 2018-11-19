@@ -15,6 +15,8 @@ import com.fanap.podchat.mainmodel.LastMessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.model.ConversationSummery;
+import com.fanap.podchat.model.ReplyInfoVO;
 
 import java.util.List;
 
@@ -42,8 +44,8 @@ public interface MessageDao {
     @Query("select COUNT(id) FROM THREADVO")
     int getThreadCount();
 
-    @Query("select * from ThreadVo")
-    List<ThreadVo> getThreads();
+    @Query("select * from ThreadVo LIMIT :count OFFSET :offset")
+    List<ThreadVo> getThreads(long count, long offset);
 
     @Query("select  * from ThreadVo where id = :id")
     ThreadVo getThread(long id);
@@ -83,7 +85,7 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertReplyInfoVO(CacheReplyInfoVO replyInfoVO);
 
-    @Query("select * from CacheReplyInfoVO where replyInfoVO_Id = :replyInfoVOId")
+    @Query("select * from CacheReplyInfoVO where id = :replyInfoVOId")
     CacheReplyInfoVO getReplyInfo(long replyInfoVOId);
 
     //Cache ForwardInfo
@@ -93,4 +95,10 @@ public interface MessageDao {
     @Query("select * from CacheForwardInfo where forwardInfo_Id = :forwardInfoId ")
     CacheForwardInfo getForwardInfo(long forwardInfoId);
 
+    //Cache ConversationSummery
+    @Query("select * from ConversationSummery where id = :id")
+    ConversationSummery getConversationSummery(long id);
+
+    @Insert(onConflict = REPLACE)
+    void insertConversationSummery(ConversationSummery conversationSummery);
 }
