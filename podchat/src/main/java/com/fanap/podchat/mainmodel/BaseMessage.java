@@ -7,6 +7,7 @@ public class BaseMessage  {
     private int type;
     private long subjectId;
     private String uniqueId;
+    private String typeCode;
 
     public String getContent() {
         return content;
@@ -54,5 +55,13 @@ public class BaseMessage  {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
     }
 }

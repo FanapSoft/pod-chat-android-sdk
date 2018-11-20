@@ -11,6 +11,7 @@ public class ChatMessageForward {
     private int contentCount;
     private String metadata;
     private long repliedTo;
+    private String typeCode;
 
     public String getToken() {
         return token;
@@ -90,5 +91,13 @@ public class ChatMessageForward {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
     }
 }

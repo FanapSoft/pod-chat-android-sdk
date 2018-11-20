@@ -20,7 +20,6 @@ public class ReplyInfoVO {
             String systemMetadata,
             String metadata,
             String message
-
     ) {
         this.repliedToMessageId = repliedToMessageId;
         this.messageType = messageType;
@@ -29,7 +28,6 @@ public class ReplyInfoVO {
         this.systemMetadata = systemMetadata;
         this.metadata = metadata;
         this.message = message;
-
     }
 
     public ReplyInfoVO() {

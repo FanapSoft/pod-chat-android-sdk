@@ -53,7 +53,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "f5aa8b12b0914e6ebb55abfe0ca1c055";
+    private static String TOKEN = "a54b2791933645359a8991fd3ad5727d";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -221,9 +221,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();
-                        contactIds.add(123L);
+                        contactIds.add(2L);
 //                       contactIds.add(121L);
-                        presenter.removeParticipants(691, contactIds, new ChatHandler() {
+                        presenter.removeParticipants(1201, contactIds, new ChatHandler() {
                             @Override
                             public void onRemoveParticipants(String uniqueId) {
                                 super.onRemoveParticipants(uniqueId);
@@ -245,7 +245,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 7:
-                        presenter.leaveThread(22, new ChatHandler() {
+                        presenter.leaveThread(81, new ChatHandler() {
                             @Override
                             public void onLeaveThread(String uniqueId) {
                                 super.onLeaveThread(uniqueId);
@@ -385,7 +385,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0L, 2, null);
+                presenter.getThreadParticipant(10, 0L, 1201, null);
 
                 break;
             case 8:

@@ -11,7 +11,6 @@ public class Contact  {
     private String firstName;
     private long userId;
     private String lastName;
-    private String profileImage;
     private Boolean blocked;
     @Embedded
     private LinkedUser linkedUser;
@@ -91,14 +90,6 @@ public class Contact  {
 
     public void setNotSeenDuration(long notSeenDuration) {
         this.notSeenDuration = notSeenDuration;
-    }
-
-    public String getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
     }
 
     public long getUserId() {

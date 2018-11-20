@@ -27,7 +27,9 @@ public interface ContactApi {
             , @Field("lastName") String lastName
             , @Field("email") String email
             , @Field("uniqueId") String uniqueId
-            , @Field("cellphoneNumber") String cellphoneNumber);
+            , @Field("cellphoneNumber") String cellphoneNumber
+            , @Field("typeCode") String typeCode
+    );
 
     @POST("nzh/addContacts")
     @FormUrlEncoded

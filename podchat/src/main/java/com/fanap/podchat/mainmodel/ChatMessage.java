@@ -2,6 +2,7 @@ package com.fanap.podchat.mainmodel;
 
 public class ChatMessage  {
     private String token;
+    private String typeCode;
     private String tokenIssuer;
     private int type;
     private long subjectId;
@@ -100,5 +101,13 @@ public class ChatMessage  {
 
     public void setMetadata(String metadata) {
         this.metadata = metadata;
+    }
+
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
     }
 }

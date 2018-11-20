@@ -66,8 +66,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void connect(String serverAddress, String appId, String severName,
-                        String token, String ssoHost, String platformHost, String fileServer) {
-        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer);
+                        String token, String ssoHost, String platformHost, String fileServer,String typeCode) {
+        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer,typeCode);
     }
 
     @Override

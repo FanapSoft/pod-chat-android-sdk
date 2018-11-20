@@ -7,6 +7,7 @@ public class AddParticipant  {
     private String token;
     private String tokenIssuer;
     private int type;
+    private String typeCode;
 
     public long getSubjectId() {
         return subjectId;
@@ -54,5 +55,13 @@ public class AddParticipant  {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public String getTypeCode() {
+        return typeCode;
+    }
+
+    public void setTypeCode(String typeCode) {
+        this.typeCode = typeCode;
     }
 }

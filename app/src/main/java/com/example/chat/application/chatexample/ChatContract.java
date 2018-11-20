@@ -120,7 +120,7 @@ public interface ChatContract {
         void setToke(String token);
 
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
-                , String platformHost, String fileServer);
+                , String platformHost, String fileServer,String typeCode);
 
         void mapSearch(String searchTerm, Double latitude, Double longitude);
 
