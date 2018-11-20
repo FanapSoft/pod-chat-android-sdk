@@ -62,10 +62,8 @@ import com.fanap.podchat.model.MetaDataImageFile;
 import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.OutPutHistory;
 import com.fanap.podchat.model.OutPutInfoThread;
-import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutMapRout;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUpdateContact;
 import com.fanap.podchat.model.ResultAddParticipant;
@@ -104,7 +102,6 @@ import com.fanap.podchat.util.LogHelper;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -2538,18 +2535,20 @@ public class Chat extends AsyncAdapter {
 
 
     private void handleOutPutLeaveThread(ChatMessage chatMessage, String messageUniqueId) {
-        ResultLeaveThread leaveThread = JsonUtil.fromJSON(chatMessage.getContent(), ResultLeaveThread.class);
+
+        ChatResponse<ResultLeaveThread> chatResponse = new ChatResponse<>();
+
+        ResultLeaveThread leaveThread = gson.fromJson(chatMessage.getContent(), ResultLeaveThread.class);
         leaveThread.setThreadId(chatMessage.getSubjectId());
-        OutPutLeaveThread outPutLeaveThread = new OutPutLeaveThread();
-        outPutLeaveThread.setErrorCode(0);
-        outPutLeaveThread.setHasError(false);
-        outPutLeaveThread.setErrorMessage("");
-        outPutLeaveThread.setUniqueId(chatMessage.getUniqueId());
-        outPutLeaveThread.setResult(leaveThread);
+        chatResponse.setErrorCode(0);
+        chatResponse.setHasError(false);
+        chatResponse.setErrorMessage("");
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+        chatResponse.setResult(leaveThread);
 
-        String jsonThread = gson.toJson(outPutLeaveThread);
+        String jsonThread = gson.toJson(chatResponse);
 
-        listenerManager.callOnThreadLeaveParticipant(jsonThread, outPutLeaveThread);
+        listenerManager.callOnThreadLeaveParticipant(jsonThread, chatResponse);
         messageCallbacks.remove(messageUniqueId);
         if (log) Logger.i("RECEIVE_LEAVE_THREAD");
         if (log) Logger.json(jsonThread);
@@ -2650,24 +2649,12 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOutPutRemoveParticipant(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
-        reformatThreadParticipants(callback, chatMessage);
 
-        OutPutParticipant outPutParticipant = new OutPutParticipant();
-        outPutParticipant.setErrorCode(0);
-        outPutParticipant.setErrorMessage("");
-        outPutParticipant.setHasError(false);
-        outPutParticipant.setUniqueId(chatMessage.getUniqueId());
+        ChatResponse<ResultParticipant> chatResponse = reformatThreadParticipants(callback, chatMessage);
 
-        ResultParticipant resultParticipant = new ResultParticipant();
+        String jsonRmParticipant = gson.toJson(chatResponse);
 
-        List<Participant> participants = JsonUtil.fromJSON(chatMessage.getContent(), new TypeReference<List<Participant>>() {
-        });
-
-        resultParticipant.setParticipants(participants);
-        outPutParticipant.setResult(resultParticipant);
-        String jsonRmParticipant = JsonUtil.getJson(outPutParticipant);
-
-        listenerManager.callOnThreadRemoveParticipant(jsonRmParticipant, outPutParticipant);
+        listenerManager.callOnThreadRemoveParticipant(jsonRmParticipant, chatResponse);
         messageCallbacks.remove(messageUniqueId);
         if (log) Logger.i("RECEIVE_REMOVE_PARTICIPANT");
         if (log) Logger.json(jsonRmParticipant);

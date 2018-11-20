@@ -18,7 +18,6 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutParticipant;
@@ -30,6 +29,7 @@ import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultLeaveThread;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
@@ -391,10 +391,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onThreadRemoveParticipant(String content, OutPutParticipant outPutParticipant) {
-        super.onThreadRemoveParticipant(content, outPutParticipant);
+    public void onThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> chatResponse) {
+        super.onThreadRemoveParticipant(content, chatResponse);
         view.onRemoveParticipant();
     }
+
 
     @Override
     public void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
@@ -403,8 +404,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onThreadLeaveParticipant(String content, OutPutLeaveThread outPutLeaveThread) {
-        super.onThreadLeaveParticipant(content, outPutLeaveThread);
+    public void onThreadLeaveParticipant(String content, ChatResponse<ResultLeaveThread> response) {
+        super.onThreadLeaveParticipant(content, response);
         view.onLeaveThread();
     }
 

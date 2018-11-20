@@ -16,6 +16,7 @@ import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultLeaveThread;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
@@ -171,12 +172,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onThreadRemoveParticipant(String content, OutPutParticipant outPutParticipant) {
+    public void onThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> chatResponse) {
 
     }
 
     @Override
-    public void onThreadLeaveParticipant(String content, OutPutLeaveThread outPutLeaveThread) {
+    public void onThreadLeaveParticipant(String content, ChatResponse<ResultLeaveThread> response) {
 
     }
 

@@ -4,11 +4,7 @@ import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
@@ -17,9 +13,10 @@ import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultLeaveThread;
 import com.fanap.podchat.model.ResultMessage;
-import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
+import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -380,10 +377,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnThreadRemoveParticipant(String content, OutPutParticipant outPutParticipant) {
+    public void callOnThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadRemoveParticipant(content, outPutParticipant);
+                listener.onThreadRemoveParticipant(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -391,10 +388,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnThreadLeaveParticipant(String content, OutPutLeaveThread outPutLeaveThread) {
+    public void callOnThreadLeaveParticipant(String content, ChatResponse<ResultLeaveThread> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadLeaveParticipant(content, outPutLeaveThread);
+                listener.onThreadLeaveParticipant(content, response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
