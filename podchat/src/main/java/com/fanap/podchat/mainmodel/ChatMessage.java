@@ -1,10 +1,11 @@
 package com.fanap.podchat.mainmodel;
 
-public class ChatMessage  {
+public class ChatMessage {
     private String token;
     private String typeCode;
     private String tokenIssuer;
     private int type;
+    private Integer messageType;
     private long subjectId;
     private String uniqueId;
     private String content;
@@ -109,5 +110,13 @@ public class ChatMessage  {
 
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
+    }
+
+    public Integer getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(Integer messageType) {
+        this.messageType = messageType;
     }
 }

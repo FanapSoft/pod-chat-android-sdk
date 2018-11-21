@@ -18,9 +18,7 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
@@ -98,6 +96,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void searchHistory(NosqlListMessageCriteriaVO builderListMessage, ChatHandler handler) {
         chat.searchHistory(builderListMessage, handler);
+
+        chat.deliveredMessageList(12500);
     }
 
     @Override

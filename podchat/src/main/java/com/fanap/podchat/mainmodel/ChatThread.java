@@ -16,7 +16,6 @@ public class ChatThread  {
     private int type;
     private String ownerSsoId;
     private List<Invitee> invitees;
-    private List<Invitee[]> arrayInvitees;
     private String title;
 
     public String getOwnerSsoId() {
@@ -41,14 +40,6 @@ public class ChatThread  {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public List<Invitee[]> getArrayInvitees() {
-        return arrayInvitees;
-    }
-
-    public void setArrayInvitees(List<Invitee[]> arrayInvitees) {
-        this.arrayInvitees = arrayInvitees;
     }
 
     public int getType() {

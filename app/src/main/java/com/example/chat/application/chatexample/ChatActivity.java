@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
@@ -26,7 +27,6 @@ import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.util.JsonUtil;
-import com.fanap.podchat.chat.ChatHandler;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,6 +70,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
     private String serverName = "chat-server";
+    private String typeCode = "";
 
     private String fileUri;
 
@@ -491,7 +492,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
             presenter.connect(socketAddress,
                     "POD-Chat", serverName, TOKEN, ssoHost,
-                    platformHost, fileServer);
+                    platformHost, fileServer,typeCode);
         }
     }
 

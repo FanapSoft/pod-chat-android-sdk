@@ -80,6 +80,8 @@ public class ChatMessageType {
         int DELETE_MESSAGE = 29;
         int THREAD_INFO_UPDATED = 30;
         int LAST_SEEN_UPDATED = 31;
+        int SEEN_MESSAGE_LIST = 32;
+        int DELIVERED_MESSAGE_LIST = 33;
         int SPAM_PV_THREAD = 41;
         int ERROR = 999;
     }
