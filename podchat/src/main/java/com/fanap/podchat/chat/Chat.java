@@ -2030,6 +2030,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    //Get the list of the person that saw the specific message
     public String seenMessageList(long messageId) {
         String uniqueId = generateUniqueId();
 
