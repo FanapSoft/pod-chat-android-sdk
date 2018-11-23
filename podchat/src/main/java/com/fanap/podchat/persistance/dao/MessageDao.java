@@ -11,12 +11,8 @@ import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.LastMessageVO;
-import com.fanap.podchat.mainmodel.Participant;
-import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
-import com.fanap.podchat.model.ReplyInfoVO;
 
 import java.util.List;
 
@@ -80,6 +76,34 @@ public interface MessageDao {
 
     @Query("select * from CacheParticipant where id = :participantId")
     CacheParticipant getParticipant(long participantId);
+
+    @Query("select COUNT(id) FROM CacheParticipant WHERE threadId = :threadId")
+    int getParticipantCount(long threadId);
+
+    @Query("select * from CacheParticipant WHERE :threadId ORDER BY name LIMIT :count OFFSET :offset ")
+    List<CacheParticipant> geParticipants(long offset, long count, long threadId);
+
+    @Query("select * from CacheParticipant WHERE threadId = :threadId")
+    List<CacheParticipant> geParticipantsWithThreadId(long threadId);
+
+    //Search contact
+    @Query("select * from Contact where id = :id")
+    Contact getContactById(long id);
+
+    @Query("select * from contact where firstName LIKE :firstName ")
+    List<Contact> getContactsByFirst(String firstName);
+
+    @Query("select * from contact where lastName LIKE :lastName ")
+    List<Contact> getContactsByLast(String lastName);
+
+    @Query("select * from contact where firstName LIKE :firstName AND lastName LIKE :lastName")
+    List<Contact> getContactsByFirstAndLast(String firstName, String lastName);
+
+    @Query("select * from Contact where cellphoneNumber LIKE :cellphoneNumber")
+    List<Contact> getContactByCell(String cellphoneNumber);
+
+    @Query("select * from contact where email LIKE :email ")
+    List<Contact> getContactsByEmail(String email);
 
     //cache replyInfoVO
     @Insert(onConflict = REPLACE)

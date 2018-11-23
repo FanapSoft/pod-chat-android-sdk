@@ -24,14 +24,14 @@ public class CacheParticipant {
     private String contactName;
     private String contactFirstName;
     private String contactLastName;
-    private Boolean sendEnable;
-    private Boolean receiveEnable;
+    private boolean sendEnable;
+    private boolean receiveEnable;
     private String cellphoneNumber;
     private String email;
-    private Boolean myFriend;
-    private Boolean online;
-    private Boolean blocked;
-    private Boolean admin;
+    private boolean myFriend;
+    private boolean online;
+    private boolean blocked;
+    private boolean admin;
 
     @Override
     public String toString() {
@@ -119,19 +119,19 @@ public class CacheParticipant {
         this.contactLastName = contactLastName;
     }
 
-    public Boolean getSendEnable() {
+    public boolean getSendEnable() {
         return sendEnable;
     }
 
-    public void setSendEnable(Boolean sendEnable) {
+    public void setSendEnable(boolean sendEnable) {
         this.sendEnable = sendEnable;
     }
 
-    public Boolean getReceiveEnable() {
+    public boolean getReceiveEnable() {
         return receiveEnable;
     }
 
-    public void setReceiveEnable(Boolean receiveEnable) {
+    public void setReceiveEnable(boolean receiveEnable) {
         this.receiveEnable = receiveEnable;
     }
 
@@ -151,35 +151,35 @@ public class CacheParticipant {
         this.email = email;
     }
 
-    public Boolean getMyFriend() {
+    public boolean getMyFriend() {
         return myFriend;
     }
 
-    public void setMyFriend(Boolean myFriend) {
+    public void setMyFriend(boolean myFriend) {
         this.myFriend = myFriend;
     }
 
-    public Boolean getOnline() {
+    public boolean getOnline() {
         return online;
     }
 
-    public void setOnline(Boolean online) {
+    public void setOnline(boolean online) {
         this.online = online;
     }
 
-    public Boolean getBlocked() {
+    public boolean getBlocked() {
         return blocked;
     }
 
-    public void setBlocked(Boolean blocked) {
+    public void setBlocked(boolean blocked) {
         this.blocked = blocked;
     }
 
-    public Boolean getAdmin() {
+    public boolean getAdmin() {
         return admin;
     }
 
-    public void setAdmin(Boolean admin) {
+    public void setAdmin(boolean admin) {
         this.admin = admin;
     }
 

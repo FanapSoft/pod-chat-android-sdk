@@ -226,4 +226,67 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
     }
 
+    public List<Participant> getThreadParticipant(long offset, long count, long threadId) {
+        List<Participant> participants = new ArrayList<>();
+        if (messageDao.geParticipants(offset, count, threadId) == null) {
+            return participants;
+        } else {
+            List<CacheParticipant> cacheParticipants = messageDao.geParticipants(offset, count, threadId);
+
+            for (CacheParticipant cParticipant : cacheParticipants) {
+                Participant participant = new Participant(
+                        cParticipant.getId(),
+                        cParticipant.getName(),
+                        cParticipant.getFirstName(),
+                        cParticipant.getLastName(),
+                        cParticipant.getImage(),
+                        cParticipant.getNotSeenDuration(),
+                        cParticipant.getContactId(),
+                        cParticipant.getContactName(),
+                        cParticipant.getContactFirstName(),
+                        cParticipant.getContactLastName(),
+                        cParticipant.getSendEnable(),
+                        cParticipant.getReceiveEnable(),
+                        cParticipant.getCellphoneNumber(),
+                        cParticipant.getEmail(),
+                        cParticipant.getMyFriend(),
+                        cParticipant.getOnline(),
+                        cParticipant.getBlocked(),
+                        cParticipant.getAdmin()
+                );
+                participants.add(participant);
+            }
+        }
+        return participants;
+    }
+
+    public long getParticipantCount(long threadId) {
+        return messageDao.getParticipantCount(threadId);
+    }
+
+    //Cache contact
+    public Contact getContactById(long id){
+        return messageDao.getContactById(id);
+    }
+
+    public List<Contact> getContactsByFirst(String firstName){
+        return messageDao.getContactsByFirst(firstName);
+    }
+
+    public List<Contact> getContactsByLast(String lastName){
+        return messageDao.getContactsByLast(lastName);
+    }
+
+    public List<Contact> getContactsByFirstAndLast(String firstName, String lastName){
+        return messageDao.getContactsByFirstAndLast(firstName, lastName);
+    }
+
+    public List<Contact> getContactByCell(String cellphoneNumber){
+        return messageDao.getContactByCell(cellphoneNumber);
+    }
+
+    public List<Contact> getContactsByEmail(String email){
+        return messageDao.getContactsByEmail(email);
+    }
+
 }

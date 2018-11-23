@@ -23,6 +23,7 @@ import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.AddParticipant;
 import com.fanap.podchat.mainmodel.BaseMessage;
@@ -1343,9 +1344,49 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    //TODO test again
     public String searchContact(SearchContact searchContact) {
         String uniqueId = generateUniqueId();
         String type_code;
+
+
+        if (cache) {
+            List<Contact> contacts = new ArrayList<>();
+            if (searchContact.getId() != null) {
+                Contact contact = messageDatabaseHelper.getContactById(Long.valueOf(searchContact.getId()));
+                contacts.add(contact);
+            } else if (searchContact.getFirstName() != null) {
+                contacts = messageDatabaseHelper.getContactsByFirst(searchContact.getFirstName());
+            } else if (searchContact.getFirstName() != null && searchContact.getLastName() != null&& !searchContact.getFirstName().isEmpty()&& !searchContact.getLastName().isEmpty()) {
+                contacts = messageDatabaseHelper.getContactsByFirstAndLast(searchContact.getFirstName(), searchContact.getLastName());
+            } else if (searchContact.getEmail() != null && !searchContact.getEmail().isEmpty()) {
+                contacts = messageDatabaseHelper.getContactsByEmail(searchContact.getEmail());
+            } else if (searchContact.getCellphoneNumber() != null && !searchContact.getCellphoneNumber().isEmpty()) {
+                contacts = messageDatabaseHelper.getContactByCell(searchContact.getCellphoneNumber());
+            }
+
+            ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+
+            ResultContact resultContact = new ResultContact();
+            ArrayList<Contact> listContact = new ArrayList<>(contacts);
+            resultContact.setContacts(listContact);
+
+            chatResponse.setHasError(false);
+            chatResponse.setErrorCode(0);
+            chatResponse.setErrorMessage("");
+            chatResponse.setResult(resultContact);
+
+            String jsonContact = JsonUtil.getJson(chatResponse);
+
+//            listenerManager.callOnSearchContact(jsonContact,chatResponse);
+            if (log) Logger.json(jsonContact);
+            if (log) Logger.i("CACHE_SEARCH_CONTACT");
+
+        }
+
+
+
+
         if (searchContact.getTypeCode() != null && !searchContact.getTypeCode().isEmpty()) {
             type_code = searchContact.getTypeCode();
         } else {
@@ -1786,6 +1827,31 @@ public class Chat extends AsyncAdapter {
      */
     public String getThreadParticipants(Integer count, Long offset, long threadId, String typeCode, ChatHandler handler) {
 
+        offset = offset != null ? offset : 0;
+        count = count != null ? count : 50;
+        if (cache) {
+            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId);
+            if (participants != null) {
+                long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
+                ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
+
+                ResultParticipant resultParticipant = new ResultParticipant();
+
+                resultParticipant.setContentCount(participants.size());
+                if (participants.size() + offset < participantCount) {
+                    resultParticipant.setHasNext(true);
+                } else {
+                    resultParticipant.setHasNext(false);
+                }
+                resultParticipant.setParticipants(participants);
+                chatResponse.setResult(resultParticipant);
+                resultParticipant.setNextOffset(offset + participants.size());
+                String jsonParticipant = gson.toJson(chatResponse);
+                listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
+                Logger.json(jsonParticipant);
+            }
+        }
+
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         if (count == null) {
             chatMessageContent.setCount(50);
@@ -1798,7 +1864,6 @@ public class Chat extends AsyncAdapter {
         } else {
             chatMessageContent.setOffset(offset);
         }
-
 
         JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
         String content = messageContentJsonAdapter.toJson(chatMessageContent);
@@ -2580,7 +2645,7 @@ public class Chat extends AsyncAdapter {
                     if (callback.isResult()) {
                         ChatResponse<ResultParticipant> chatResponse = reformatThreadParticipants(callback, chatMessage);
 
-                        String jsonParticipant = JsonUtil.getJson(chatResponse);
+                        String jsonParticipant = gson.toJson(chatResponse);
                         listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
                         messageCallbacks.remove(messageUniqueId);
                         if (log) Logger.i("RECEIVE_PARTICIPANT");
@@ -2927,10 +2992,17 @@ public class Chat extends AsyncAdapter {
         if (log) Logger.json(json);
     }
 
+    //TODO test cache
     private ChatResponse<ResultParticipant> reformatThreadParticipants(Callback callback, ChatMessage chatMessage) {
 
         ArrayList<Participant> participants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Participant>>() {
         }.getType());
+
+        if (cache) {
+            List<CacheParticipant> cacheParticipants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Participant>>() {
+            }.getType());
+            messageDatabaseHelper.saveParticipants(cacheParticipants, chatMessage.getSubjectId());
+        }
 
         ChatResponse<ResultParticipant> outPutParticipant = new ChatResponse<>();
         outPutParticipant.setErrorCode(0);

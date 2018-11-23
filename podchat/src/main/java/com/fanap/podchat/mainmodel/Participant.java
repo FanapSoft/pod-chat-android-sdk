@@ -1,9 +1,6 @@
 package com.fanap.podchat.mainmodel;
 
-import android.arch.persistence.room.PrimaryKey;
-
 public class Participant {
-    @PrimaryKey
     private long id;
     private String name;
     private String firstName;
