@@ -26,6 +26,7 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.JsonUtil;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -53,7 +54,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "a54b2791933645359a8991fd3ad5727d";
+    private static String TOKEN = "ea6229b9b68a4f0e8ea3a547cf312d86";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -61,6 +62,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String ssoHost = "https://accounts.pod.land/";
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8080/";
+    private static String TYPE_CODE = "";
 
 
     @Override
@@ -190,7 +192,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
                                 "test file message",
                                 381
-                                , getUri(), null);
+                                , getUri(), null, null);
                         break;
                     case 3:
                         presenter.uploadImage(ChatSandBoxActivity.this, getUri());
@@ -298,10 +300,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     public void connect() {
 
-
         presenter.connect(socketAddres,
                 appId, "chat-server", TOKEN, "https://accounts.pod.land",
-                "https://sandbox.pod.land:8043/srv/basic-platform/", fileServer);
+                "https://sandbox.pod.land:8043/srv/basic-platform/", fileServer, TYPE_CODE);
     }
 
     public void sendMessage(View view) {
@@ -309,7 +310,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 22, meta, null);
+                , 22, null, meta, null);
 
 
 // String text = editText.getText().toString();
@@ -332,14 +333,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 ArrayList<Integer> threadIds = new ArrayList<>();
                 threadIds.add(22);
 //                threadIds.add(1031);
-                presenter.getThread(5, null, null, null, null);
-//                        new ChatHandler() {
-//                    @Override
-//                    public void onGetThread(String uniqueId) {
-//                        super.onGetThread(uniqueId);
-//                        Toast.makeText(ChatSandBoxActivity.this,uniqueId,Toast.LENGTH_SHORT).show();
-//                    }
-//                });
+//                presenter.getThread(5, null, null, null, null);
+                RequestThread requestThread = new RequestThread.Builder().
+                        count(2)
+                        .creatorCoreUserId(2)
+                        .build();
+                presenter.getThreadObject(requestThread);
 
                 break;
             case 2:
@@ -499,13 +498,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         if (v == buttonConnect) {
             presenter.connect(socketAddres,
                     appId, serverName, TOKEN, ssoHost,
-                    platformHost, fileServer);
+                    platformHost, fileServer, TYPE_CODE);
         }
         if (v == buttonToken) {
 
-            String Freshtoken = editTextToken.getText().toString();
-            if (Freshtoken != null) {
-            presenter.setToke(Freshtoken);
+            String freshtoken = editTextToken.getText().toString();
+            if (!freshtoken.isEmpty()) {
+                presenter.setToke(freshtoken);
             }
         }
     }

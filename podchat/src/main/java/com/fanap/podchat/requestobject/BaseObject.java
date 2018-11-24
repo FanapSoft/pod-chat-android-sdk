@@ -37,11 +37,11 @@ public abstract class BaseObject {
     }
 
 
-    public Long getOffset() {
+    public long getOffset() {
         return offset;
     }
 
-    public void setOffset(Long offset) {
+    public void setOffset(long offset) {
         this.offset = offset;
     }
 }

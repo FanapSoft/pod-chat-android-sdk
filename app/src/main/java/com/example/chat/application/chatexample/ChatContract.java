@@ -6,14 +6,15 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
-import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestThread;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,6 +129,8 @@ public interface ChatContract {
 
         void getThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
 
+        void getThreadObject(RequestThread requestThread);
+
         void getUserInfo(ChatHandler handler);
 
         void getHistory(History history, long threadId, ChatHandler handler);
@@ -138,7 +141,7 @@ public interface ChatContract {
 
         void createThread(int threadType, Invitee[] invitee, String threadTitle, ChatHandler handler);
 
-        void sendTextMessage(String textMessage, long threadId, String metaData, ChatHandler handler);
+        void sendTextMessage(String textMessage, long threadId, Integer messageType, String metaData, ChatHandler handler);
 
         void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler);
 
@@ -168,7 +171,7 @@ public interface ChatContract {
 
         void getBlockList(Long count, Integer offset, ChatHandler handler);
 
-        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData);
+        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData,Integer messageType);
 
         void syncContact(Activity activity);
 

@@ -34,6 +34,7 @@ import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RequestThread;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -80,44 +81,49 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler) {
-        chat.getThreads(count, offset, threadIds, threadName, null, handler);
+//        chat.getThreads(count, offset, threadIds, threadName, handler);
+    }
+
+    @Override
+    public void getThreadObject(RequestThread requestThread) {
+        chat.getThreads(requestThread);
     }
 
     @Override
     public void getUserInfo(ChatHandler handler) {
-        chat.getUserInfo(null, handler);
+        chat.getUserInfo(handler);
     }
 
     @Override
     public void getHistory(History history, long threadId, ChatHandler handler) {
-        chat.getHistory(history, threadId, null, handler);
+        chat.getHistory(history, threadId, handler);
     }
 
     @Override
     public void searchHistory(NosqlListMessageCriteriaVO builderListMessage, ChatHandler handler) {
-        chat.searchHistory(builderListMessage, null, handler);
+        chat.searchHistory(builderListMessage, handler);
 
         chat.deliveredMessageList(12500);
     }
 
     @Override
     public void getContact(Integer count, Long offset, ChatHandler handler) {
-        chat.getContacts(count, offset, null, handler);
+        chat.getContacts(count, offset, handler);
     }
 
     @Override
     public void createThread(int threadType, Invitee[] invitee, String threadTitle, ChatHandler handler) {
-        chat.createThread(threadType, invitee, threadTitle, null, handler);
+        chat.createThread(threadType, invitee, threadTitle, handler);
     }
 
     @Override
-    public void sendTextMessage(String textMessage, long threadId, String metaData, ChatHandler handler) {
-        chat.sendTextMessage(textMessage, threadId, metaData, null, handler);
+    public void sendTextMessage(String textMessage, long threadId, Integer messageType, String metaData, ChatHandler handler) {
+        chat.sendTextMessage(textMessage, threadId, messageType, metaData, handler);
     }
 
     @Override
     public void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler) {
-        chat.replyMessage(messageContent, threadId, messageId, "meta", null, handler);
+        chat.replyMessage(messageContent, threadId, messageId, "meta", handler);
     }
 
     @Override
@@ -127,7 +133,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void muteThread(int threadId, ChatHandler handler) {
-        chat.muteThread(threadId, null, handler);
+        chat.muteThread(threadId, handler);
     }
 
     @Override
@@ -137,22 +143,22 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void unMuteThread(int threadId, ChatHandler handler) {
-        chat.unMuteThread(threadId, null, handler);
+        chat.unMuteThread(threadId, handler);
     }
 
     @Override
     public void editMessage(int messageId, String messageContent, String metaData, ChatHandler handler) {
-        chat.editMessage(messageId, messageContent, metaData, null, handler);
+        chat.editMessage(messageId, messageContent, metaData,  handler);
     }
 
     @Override
     public void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler) {
-        chat.getThreadParticipants(count, offset, threadId, null, handler);
+        chat.getThreadParticipants(count, offset, threadId, handler);
     }
 
     @Override
     public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
-        chat.addContact(firstName, lastName, cellphoneNumber, null, email);
+        chat.addContact(firstName, lastName, cellphoneNumber, email);
     }
 
     @Override
@@ -167,27 +173,27 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void block(Long contactId, ChatHandler handler) {
-        chat.block(contactId, null, handler);
+        chat.block(contactId,  handler);
     }
 
     @Override
     public void unBlock(long contactId, ChatHandler handler) {
-        chat.unblock(contactId, null, null);
+        chat.unblock(contactId,  null);
     }
 
     @Override
     public void spam(long threadId) {
-        chat.spam(threadId, null);
+        chat.spam(threadId);
     }
 
     @Override
     public void getBlockList(Long count, Integer offset, ChatHandler handler) {
-        chat.getBlockList(count, offset, null, handler);
+        chat.getBlockList(count, offset,  handler);
     }
 
     @Override
-    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, String typeCode, int messageType) {
-        chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, typeCode, messageType);
+    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType) {
+        chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, messageType);
     }
 
     @Override

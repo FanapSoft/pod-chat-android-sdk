@@ -74,6 +74,7 @@ public class RequestThread extends BaseObject {
     public ArrayList<Integer> getThreadIds() {
         return threadIds;
     }
+
     public long getCreatorCoreUserId() {
         return creatorCoreUserId;
     }
@@ -97,6 +98,7 @@ public class RequestThread extends BaseObject {
     public void setPartnerCoreContactId(long partnerCoreContactId) {
         this.partnerCoreContactId = partnerCoreContactId;
     }
+
     public void setThreadIds(ArrayList<Integer> threadIds) {
         this.threadIds = threadIds;
     }
