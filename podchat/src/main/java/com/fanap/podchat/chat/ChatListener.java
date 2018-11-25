@@ -3,12 +3,9 @@ package com.fanap.podchat.chat;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
@@ -30,7 +27,7 @@ public interface ChatListener {
 
     void onError(String content, ErrorOutPut OutPutError);
 
-    void onGetContacts(String content,  ChatResponse<ResultContact> outPutContact);
+    void onGetContacts(String content, ChatResponse<ResultContact> outPutContact);
 
     void onGetHistory(String content, ChatResponse<ResultHistory> history);
 
@@ -86,7 +83,7 @@ public interface ChatListener {
 
     }
 
-    default void onContactAdded(String content) {
+    default void onContactAdded(String content, ChatResponse<ResultAddContact> chatResponse) {
 
     }
 
@@ -110,7 +107,7 @@ public interface ChatListener {
 
     }
 
-    default void onNewMessage(String content,  ChatResponse<ResultNewMessage> outPutNewMessage) {
+    default void onNewMessage(String content, ChatResponse<ResultNewMessage> outPutNewMessage) {
 
     }
 
@@ -142,7 +139,7 @@ public interface ChatListener {
 
     }
 
-    default void onThreadRemoveParticipant(String content,ChatResponse<ResultParticipant> chatResponse) {
+    default void onThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> chatResponse) {
 
     }
 

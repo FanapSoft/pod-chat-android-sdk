@@ -14,7 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
@@ -189,7 +188,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 381
-                                , getUri(), null);
+                                , getUri(), null,null);
                         break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, getUri());                    case 4:
@@ -279,22 +278,23 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 1199, meta, new ChatHandler() {
-                    @Override
-                    public void onSent(String uniqueId, long threadId) {
-                        super.onSent(uniqueId, threadId);
-                        Toast.makeText(ChatActivity.this, "its worked", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onSentResult(String content) {
-                        super.onSentResult(content);
-                        if (content != null) {
-                            Toast.makeText(ChatActivity.this, "no null", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-                });
+                , 1199, null,meta,null);
+//                new ChatHandler() {
+//                    @Override
+//                    public void onSent(String uniqueId, long threadId) {
+//                        super.onSent(uniqueId, threadId);
+//                        Toast.makeText(ChatActivity.this, "its worked", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                    @Override
+//                    public void onSentResult(String content) {
+//                        super.onSentResult(content);
+//                        if (content != null) {
+//                            Toast.makeText(ChatActivity.this, "no null", Toast.LENGTH_SHORT).show();
+//
+//                        }
+//                    }
+//                });
 
 //        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
 //                , 312, meta, new Chat.SendTextMessageHandler() {

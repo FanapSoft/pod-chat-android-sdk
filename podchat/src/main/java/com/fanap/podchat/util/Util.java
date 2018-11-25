@@ -3,8 +3,8 @@ package com.fanap.podchat.util;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
-import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.ResultAddContact;
 
 import java.util.ArrayList;
@@ -12,12 +12,10 @@ import java.util.ArrayList;
 public class Util {
 
     @NonNull
-    public static OutPutAddContact getReformatOutPutAddContact(Contacts contacts, String uniqueId) {
-        OutPutAddContact outPutAddContact = new OutPutAddContact();
-        outPutAddContact.setErrorCode(0);
-        outPutAddContact.setErrorMessage("");
-        outPutAddContact.setHasError(false);
-        outPutAddContact.setUniqueId(uniqueId);
+    public static ChatResponse<ResultAddContact> getReformatOutPutAddContact(Contacts contacts, String uniqueId) {
+        ChatResponse<ResultAddContact> chatResponse = new ChatResponse<>();
+        chatResponse.setUniqueId(uniqueId);
+
         ResultAddContact resultAddContact = new ResultAddContact();
         resultAddContact.setContentCount(1);
         Contact contact = new Contact();
@@ -29,8 +27,8 @@ public class Util {
         contact.setLastName(contacts.getResult().get(0).getLastName());
         contact.setUniqueId(contacts.getResult().get(0).getUniqueId());
         resultAddContact.setContact(contact);
-        outPutAddContact.setResult(resultAddContact);
-        return outPutAddContact;
+        chatResponse.setResult(resultAddContact);
+        return chatResponse;
     }
 
     public static boolean isNullOrEmpty(String string) {

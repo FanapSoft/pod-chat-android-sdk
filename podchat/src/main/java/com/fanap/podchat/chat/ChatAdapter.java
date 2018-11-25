@@ -3,12 +3,9 @@ package com.fanap.podchat.chat;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
@@ -18,8 +15,8 @@ import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
 import com.fanap.podchat.model.ResultMessage;
-import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultMute;
+import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -81,7 +78,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onUserInfo(String content,ChatResponse<ResultUserInfo> outPutUserInfo) {
+    public void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
 
     }
 
@@ -111,7 +108,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onContactAdded(String content) {
+    public void onContactAdded(String content,ChatResponse<ResultAddContact> chatResponse) {
 
     }
 

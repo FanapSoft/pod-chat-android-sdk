@@ -61,13 +61,13 @@ import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
-import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.OutPutHistory;
 import com.fanap.podchat.model.OutPutInfoThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutMapRout;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutUpdateContact;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
@@ -1509,8 +1509,6 @@ public class Chat extends AsyncAdapter {
      */
     public String addContact(String firstName, String lastName, String cellphoneNumber, String email) {
 
-//        if (typeCode == null || typeCode.isEmpty()) {
-//        }
         typeCode = getTypeCode();
 
         String uniqueId = generateUniqueId();
@@ -1522,11 +1520,10 @@ public class Chat extends AsyncAdapter {
                     Contacts contacts = addContactResponse.body();
                     if (!contacts.getHasError()) {
 
-                        OutPutAddContact outPutAddContact = Util.getReformatOutPutAddContact(contacts, uniqueId);
+                        ChatResponse<ResultAddContact> chatResponse = Util.getReformatOutPutAddContact(contacts, uniqueId);
+                        String contactsJson = gson.toJson(chatResponse);
 
-                        String contactsJson = gson.toJson(outPutAddContact);
-
-                        listenerManager.callOnAddContact(contactsJson);
+                        listenerManager.callOnAddContact(contactsJson, chatResponse);
                         if (log) Logger.json(contactsJson);
                         if (log) Logger.i("RECEIVED_ADD_CONTACT");
                     } else {
@@ -3416,13 +3413,14 @@ public class Chat extends AsyncAdapter {
                             if (log) Logger.e(jsonError);
                         } else {
                             AddContacts contacts = contactsResponse.body();
-                            String contactsJson = JsonUtil.getJson(contacts);
+                            String contactsJson = gson.toJson(contacts);
                             if (syncContacts) {
                                 listenerManager.callOnSyncContact(contactsJson);
                                 if (log) Logger.i("SYNC_CONTACT");
                                 syncContacts = false;
                             } else {
-                                listenerManager.callOnAddContact(contactsJson);
+//                                ChatResponse<ResultAddContact> chatResponse = Util.getReformatOutPutAddContact(contacts, cellphoneNumbers);
+//                                listenerManager.callOnAddContact(contactsJson);
                                 if (log) Logger.i("ADD_CONTACTS");
                             }
                             if (log) Logger.json(contactsJson);

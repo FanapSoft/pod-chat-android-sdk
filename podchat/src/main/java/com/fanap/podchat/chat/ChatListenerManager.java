@@ -6,6 +6,7 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
@@ -234,10 +235,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnAddContact(String content) {
+    public void callOnAddContact(String content, ChatResponse<ResultAddContact> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onContactAdded(content);
+                listener.onContactAdded(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
