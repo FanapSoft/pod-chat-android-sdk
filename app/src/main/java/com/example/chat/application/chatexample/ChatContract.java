@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.mainmodel.CreateThreadRequest;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -117,11 +118,18 @@ public interface ChatContract {
     }
 
     interface presenter {
+        void seenMessageList(long messageId);
+
+        void createThreadWithMessage(CreateThreadRequest threadRequest);
+
+        void deliveredMessageList(long messageId);
+
+        void getThreads(RequestThread requestThread);
 
         void setToke(String token);
 
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
-                , String platformHost, String fileServer,String typeCode);
+                , String platformHost, String fileServer, String typeCode);
 
         void mapSearch(String searchTerm, Double latitude, Double longitude);
 
@@ -171,7 +179,7 @@ public interface ChatContract {
 
         void getBlockList(Long count, Integer offset, ChatHandler handler);
 
-        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData,Integer messageType);
+        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType);
 
         void syncContact(Activity activity);
 

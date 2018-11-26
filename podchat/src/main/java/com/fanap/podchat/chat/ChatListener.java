@@ -153,7 +153,9 @@ public interface ChatListener {
 
     void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList);
 
-
     void onUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> chatResponse);
 
+    void OnDeliveredMessageList(String content);
+
+    void OnSeenMessageList(String content);
 }

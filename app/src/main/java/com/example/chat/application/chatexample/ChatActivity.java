@@ -18,13 +18,16 @@ import android.widget.TextView;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.CreateThreadRequest;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.JsonUtil;
 
 import java.util.ArrayList;
@@ -49,15 +52,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "felfeli";
 //    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
     //Fifi
-//    private String name = "Fifi";
-//    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+    private String name = "Fifi";
+    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
 //    private static String name = "Alexi";
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 
     //Masoud
-    private String name = "jiji";
-    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
+//    private String name = "jiji";
+//    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
 
 //    private String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
@@ -159,6 +162,34 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                 super.onUpdateThreadInfo(uniqueId);
                             }
                         });
+                    case 7:
+
+                        presenter.seenMessageList(17313);
+                        break;
+                    case 8:
+                        presenter.deliveredMessageList(17313);
+                        break;
+                    case 9:
+                        List<Invitee> invite = new ArrayList<>();
+                        invite.add(new Invitee(122, 1));
+
+//                                new Invitee[]{
+//                                new Invitee(122, 1)
+//                        , new Invitee(1967, 2)
+//                        ,new Invitee(123, 5)
+//                        , new Invitee(824, 2)
+
+                        RequestThreadInnerMessage message = new RequestThreadInnerMessage.Builder("hello").build();
+                        CreateThreadRequest createThreadRequest = new CreateThreadRequest.Builder(0
+                                , invite
+                                , message)
+                                .build();
+                        presenter.createThreadWithMessage(createThreadRequest);
+                        break;
+                    case 10:
+
+                        getthreadWithCoreUser();
+                        break;
                 }
             }
 
@@ -169,6 +200,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
+    //Function second
     private void setupSecondSpinner(Spinner spinnerSecond) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcSecond);
 
@@ -188,10 +220,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 381
-                                , getUri(), null,null);
+                                , getUri(), null, null);
                         break;
                     case 3:
-                        presenter.uploadImage(ChatActivity.this, getUri());                    case 4:
+                        presenter.uploadImage(ChatActivity.this, getUri());
+                    case 4:
 //                        presenter.uploadFile(ChatSandBoxActivity.this, getUri());
                         break;
                     case 5:
@@ -278,7 +311,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 1199, null,meta,null);
+                , 1288, null, meta, null);
 //                new ChatHandler() {
 //                    @Override
 //                    public void onSent(String uniqueId, long threadId) {
@@ -375,7 +408,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, null, 22, new ChatHandler() {
+                presenter.getThreadParticipant(10, null, 351, new ChatHandler() {
                     @Override
                     public void onGetThreadParticipant(String uniqueId) {
                         super.onGetThreadParticipant(uniqueId);
@@ -461,7 +494,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 inviter.setName("sina");
                 String meta = JsonUtil.getJson(inviter);
                 presenter.editMessage(13530,
-                        "hi this is edit at" + new Date().getTime() + "by" + name,meta,null);
+                        "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
                 break;
             case 14:
@@ -492,7 +525,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
             presenter.connect(socketAddress,
                     "POD-Chat", serverName, TOKEN, ssoHost,
-                    platformHost, fileServer,typeCode);
+                    platformHost, fileServer, typeCode);
         }
     }
 
@@ -545,5 +578,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public String getFileUri() {
         return fileUri;
+    }
+    public void getthreadWithCoreUser(){
+        RequestThread requestThread = new RequestThread.Builder().partnerCoreContactId(566).build();
+        presenter.getThreads(requestThread);
     }
 }

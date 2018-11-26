@@ -35,9 +35,13 @@ public class RequestThreadInnerMessage {
         private List<Long> forwardedMessageIds;
         private List<String> forwardedUniqueIds;
 
-        public Builder(String text, int type) {
+        public Builder(String text) {
             this.text = text;
+        }
+
+        Builder type(int type){
             this.type = type;
+            return this;
         }
 
         Builder repliedTo(long repliedTo) {

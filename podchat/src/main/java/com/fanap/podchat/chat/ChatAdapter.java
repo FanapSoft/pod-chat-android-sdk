@@ -199,6 +199,16 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void OnDeliveredMessageList(String content) {
+
+    }
+
+    @Override
+    public void OnSeenMessageList(String content) {
+
+    }
+
+    @Override
     public void onSearchContact(String content) {
 
     }

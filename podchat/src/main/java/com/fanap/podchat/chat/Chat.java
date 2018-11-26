@@ -401,6 +401,13 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.SPAM_PV_THREAD:
                 break;
+            case Constants.DELIVERED_MESSAGE_LIST:
+                handleResponseMessage(callback, chatMessage, messageUniqueId);
+                break;
+            case Constants.SEEN_MESSAGE_LIST:
+                handleResponseMessage(callback, chatMessage, messageUniqueId);
+                break;
+
         }
     }
 
@@ -1244,7 +1251,7 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setTokenIssuer("1");
                 String asyncContent = gson.toJson(chatMessage);
                 setCallBacks(null, null, null, true, Constants.GET_THREADS, requestThread.getOffset(), uniqueId);
-                sendAsyncMessage(asyncContent, 3, "SEND GET THREADS");
+                sendAsyncMessage(asyncContent, 3, "SEND GET THREADS WITH CORE USER");
             }
 
 
@@ -1827,7 +1834,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    //TODO in Progress
+    //TODO in progress
     public String createThreadWithMessage(CreateThreadRequest threadRequest) {
 
         if (threadRequest.getMessage().getForwardedMessageIds() != null && threadRequest.getMessage().getForwardedMessageIds().size() > 0) {
@@ -1850,7 +1857,9 @@ public class Chat extends AsyncAdapter {
         chatMessage.setToken(getToken());
         chatMessage.setTokenIssuer("1");
 
-
+        setCallBacks(null, null, null, true, Constants.INVITATION, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD_WITH_MESSAGE");
         return uniqueId;
     }
 
@@ -2167,7 +2176,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    //Get the list of the person that saw the specific message
+    //Get the list of the participants that saw the specific message
     public String seenMessageList(long messageId) {
         String uniqueId = generateUniqueId();
 
@@ -2524,7 +2533,8 @@ public class Chat extends AsyncAdapter {
                             callbacks.remove(indexUnique);
                             threadCallbacks.put(threadId, callbacks);
                             if (log)
-                                Logger.i("Is Seen" + " " + "Unique Id" + callback.getUniqueId());
+                                Logger.i("RECEIVED_SEEN_MESSAGE");
+                                Logger.json(json);
                         }
                         indexUnique--;
                     }
@@ -2769,6 +2779,18 @@ public class Chat extends AsyncAdapter {
                     }
 
                     break;
+                case Constants.DELIVERED_MESSAGE_LIST:
+                    if (callback.isResult()) {
+
+                        listenerManager.callOnDeliveredMessageList(chatMessage.getContent());
+                    }
+                    break;
+                case Constants.SEEN_MESSAGE_LIST:
+                    if (callback.isResult()) {
+                        listenerManager.callOnSeenMessageList(chatMessage.getContent());
+                    }
+                    break;
+
             }
         }
 

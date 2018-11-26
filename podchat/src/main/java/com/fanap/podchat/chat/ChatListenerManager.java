@@ -531,4 +531,26 @@ public class ChatListenerManager {
             }
         }
     }
+
+    public void callOnDeliveredMessageList(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnDeliveredMessageList(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
+            }
+        }
+    }
+
+    public void callOnSeenMessageList(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnSeenMessageList(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
+            }
+        }
+    }
 }

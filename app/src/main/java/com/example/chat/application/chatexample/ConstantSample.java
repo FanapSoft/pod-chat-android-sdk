@@ -43,5 +43,9 @@ public class ConstantSample {
             , "UnBlock"
             , "GetBlockList"
             , "Update the thread info"
+            , "Seen Message List"
+            , "delivered Message List"
+            , "Create thread with new Message"
+            , "Get thread with coreUserId"
     };
 }
