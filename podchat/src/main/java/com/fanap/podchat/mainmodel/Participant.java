@@ -8,6 +8,7 @@ public class Participant {
     private String image;
     private long notSeenDuration;
     private long contactId;
+    private long coreUserId;
     private String contactName;
     private String contactFirstName;
     private String contactLastName;
@@ -208,5 +209,13 @@ public class Participant {
 
     public void setContactLastName(String contactLastName) {
         this.contactLastName = contactLastName;
+    }
+
+    public long getCoreUserId() {
+        return coreUserId;
+    }
+
+    public void setCoreUserId(long coreUserId) {
+        this.coreUserId = coreUserId;
     }
 }

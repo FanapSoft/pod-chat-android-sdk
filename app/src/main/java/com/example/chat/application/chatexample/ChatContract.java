@@ -7,7 +7,6 @@ import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.mainmodel.CreateThreadRequest;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -15,6 +14,9 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 
 import java.util.ArrayList;
@@ -118,11 +120,12 @@ public interface ChatContract {
     }
 
     interface presenter {
-        void seenMessageList(long messageId);
+        void seenMessageList(RequestSeenMessageList requestParam);
 
-        void createThreadWithMessage(CreateThreadRequest threadRequest);
+        void deliveredMessageList(RequestDeliveredMessageList requestParams);
 
-        void deliveredMessageList(long messageId);
+        void createThreadWithMessage(RequestCreateThread threadRequest);
+
 
         void getThreads(RequestThread requestThread);
 

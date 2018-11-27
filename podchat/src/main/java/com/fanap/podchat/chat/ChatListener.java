@@ -155,7 +155,7 @@ public interface ChatListener {
 
     void onUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> chatResponse);
 
-    void OnDeliveredMessageList(String content);
+    void OnDeliveredMessageList(String content, ChatResponse<ResultParticipant> chatResponse);
 
-    void OnSeenMessageList(String content);
+    void OnSeenMessageList(String content, ChatResponse<ResultParticipant> chatResponse);
 }

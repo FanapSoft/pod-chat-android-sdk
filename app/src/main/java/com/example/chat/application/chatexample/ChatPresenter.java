@@ -10,7 +10,6 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.mainmodel.CreateThreadRequest;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -36,6 +35,9 @@ import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.orhanobut.logger.Logger;
 
@@ -61,18 +63,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void seenMessageList(long messageId) {
-        chat.seenMessageList(messageId);
+    public void seenMessageList(RequestSeenMessageList requestParams) {
+        chat.seenMessageList(requestParams);
     }
 
     @Override
-    public void createThreadWithMessage(CreateThreadRequest threadRequest) {
+    public void createThreadWithMessage(RequestCreateThread threadRequest) {
         chat.createThreadWithMessage(threadRequest);
     }
 
     @Override
-    public void deliveredMessageList(long messageId) {
-        chat.deliveredMessageList(messageId);
+    public void deliveredMessageList(RequestDeliveredMessageList requestParams) {
+        chat.deliveredMessageList(requestParams);
     }
 
     @Override
@@ -124,8 +126,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void searchHistory(NosqlListMessageCriteriaVO builderListMessage, ChatHandler handler) {
         chat.searchHistory(builderListMessage, handler);
-
-        chat.deliveredMessageList(12500);
     }
 
     @Override
@@ -484,6 +484,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
         super.onGetBlockList(content, outPutBlockList);
         view.ongetBlockList();
+    }
+
+    @Override
+    public void OnSeenMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
+
     }
 
     @Override

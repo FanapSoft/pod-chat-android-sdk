@@ -5,6 +5,7 @@ import android.arch.persistence.room.ColumnInfo;
 public class LinkedUser  {
     @ColumnInfo(name = "linkedUser_id")
     private long id;
+    private long coreUserId;
     private String username;
     private String nickname;
     private String name;
@@ -48,5 +49,13 @@ public class LinkedUser  {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getCoreUserId() {
+        return coreUserId;
+    }
+
+    public void setCoreUserId(long coreUserId) {
+        this.coreUserId = coreUserId;
     }
 }

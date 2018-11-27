@@ -3,7 +3,7 @@ package com.fanap.podchat.mainmodel;
 import java.util.List;
 
 /**
- * + CreateThreadRequest    {object}
+ * + RequestCreateThread    {object}
  *    - ownerSsoId          {string}
  *    + invitees            {object}
  *       -id                {string}

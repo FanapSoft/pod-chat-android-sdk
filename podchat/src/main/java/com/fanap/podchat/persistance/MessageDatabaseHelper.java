@@ -85,7 +85,6 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                                 cacheParticipant.getOnline(),
                                 cacheParticipant.getBlocked(),
                                 cacheParticipant.getAdmin()
-
                         );
                     }
                     if (cacheLastMessageVO.getReplyInfoVOId() != null) {
@@ -104,7 +103,6 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     if (cacheLastMessageVO.getReplyInfoVOId() != null) {
 
                     }
-
 
                     lastMessageVO = new LastMessageVO(
                             cacheLastMessageVO.getId(),
@@ -153,6 +151,218 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
             return threads;
         } else {
             threads = new ArrayList<>();
+        }
+
+        return threads;
+    }
+
+    public List<Thread> getThreadsByThreadName(String threadName){
+        List<Thread> threads ;
+        if (messageDao.getThreadByName(threadName) !=null) {
+           ThreadVo threadVo= messageDao.getThreadByName(threadName);
+           threads = new ArrayList<>();
+            CacheParticipant cacheParticipant;
+            CacheReplyInfoVO cacheReplyInfoVO;
+            Participant participant = null;
+            ReplyInfoVO replyInfoVO = null;
+            LastMessageVO lastMessageVO = null;
+            if (threadVo.getInviterId() != null) {
+                threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
+            }
+            if (threadVo.getLastMessageVOId() != null) {
+                threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
+                CacheLastMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
+                if (cacheLastMessageVO.getParticipantId() != null) {
+                    cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+                    participant = new Participant(
+                            cacheParticipant.getId(),
+                            cacheParticipant.getName(),
+                            cacheParticipant.getFirstName(),
+                            cacheParticipant.getLastName(),
+                            cacheParticipant.getImage(),
+                            cacheParticipant.getNotSeenDuration(),
+                            cacheParticipant.getContactId(),
+                            cacheParticipant.getContactName(),
+                            cacheParticipant.getContactFirstName(),
+                            cacheParticipant.getContactLastName(),
+                            cacheParticipant.getSendEnable(),
+                            cacheParticipant.getReceiveEnable(),
+                            cacheParticipant.getCellphoneNumber(),
+                            cacheParticipant.getEmail(),
+                            cacheParticipant.getMyFriend(),
+                            cacheParticipant.getOnline(),
+                            cacheParticipant.getBlocked(),
+                            cacheParticipant.getAdmin()
+
+                    );
+                }
+                if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                    cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+                    replyInfoVO = new ReplyInfoVO(
+                            cacheReplyInfoVO.getRepliedToMessageId(),
+                            cacheReplyInfoVO.getMessageType(),
+                            cacheReplyInfoVO.isDeleted(),
+                            cacheReplyInfoVO.getRepliedToMessage(),
+                            cacheReplyInfoVO.getSystemMetadata(),
+                            cacheReplyInfoVO.getMetadata(),
+                            cacheReplyInfoVO.getMessage()
+                    );
+                }
+
+                if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+
+                }
+
+                lastMessageVO = new LastMessageVO(
+                        cacheLastMessageVO.getId(),
+                        cacheLastMessageVO.getUniqueId(),
+                        cacheLastMessageVO.getMessage(),
+                        cacheLastMessageVO.isEdited(),
+                        cacheLastMessageVO.isEditable(),
+                        cacheLastMessageVO.getTime(),
+                        participant,
+                        replyInfoVO,
+                        null
+                );
+            }
+
+            Thread thread = new Thread(
+                    threadVo.getId(),
+                    threadVo.getJoinDate(),
+                    threadVo.getInviter(),
+                    lastMessageVO,
+                    threadVo.getTitle(),
+                    null,
+                    threadVo.getTime(),
+                    threadVo.getLastMessage(),
+                    threadVo.getLastParticipantName(),
+                    threadVo.getLastParticipantImage(),
+                    threadVo.isGroup(),
+                    threadVo.getPartner(),
+                    threadVo.getImage(),
+                    threadVo.getDescription(),
+                    threadVo.getUnreadCount(),
+                    threadVo.getLastSeenMessageId(),
+                    threadVo.getPartnerLastMessageId(),
+                    threadVo.getPartnerLastSeenMessageId(),
+                    threadVo.getPartnerLastDeliveredMessageId(),
+                    threadVo.getType(),
+                    threadVo.isMute(),
+                    threadVo.getMetadata(),
+                    threadVo.isCanEditInfo(),
+                    threadVo.getParticipantCount(),
+                    threadVo.isCanSpam(),
+                    threadVo.isAdmin()
+            );
+            threads.add(thread);
+        }else {
+            return new ArrayList<>();
+        }
+
+        return threads;
+    }
+
+    public List<Thread> getThreadsByThreadIds(ArrayList<Integer> threadIds){
+        List<Thread> threads = new ArrayList<>() ;
+
+        for (int id :threadIds){
+            if (messageDao.getThreadById(id) !=null) {
+                ThreadVo threadVo = messageDao.getThreadById(id);
+                CacheParticipant cacheParticipant;
+                CacheReplyInfoVO cacheReplyInfoVO;
+                Participant participant = null;
+                ReplyInfoVO replyInfoVO = null;
+                LastMessageVO lastMessageVO = null;
+                if (threadVo.getInviterId() != null) {
+                    threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
+                }
+                if (threadVo.getLastMessageVOId() != null) {
+                    threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
+                    CacheLastMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
+                    if (cacheLastMessageVO.getParticipantId() != null) {
+                         cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+                          participant = new Participant(
+                                cacheParticipant.getId(),
+                                cacheParticipant.getName(),
+                                cacheParticipant.getFirstName(),
+                                cacheParticipant.getLastName(),
+                                cacheParticipant.getImage(),
+                                cacheParticipant.getNotSeenDuration(),
+                                cacheParticipant.getContactId(),
+                                cacheParticipant.getContactName(),
+                                cacheParticipant.getContactFirstName(),
+                                cacheParticipant.getContactLastName(),
+                                cacheParticipant.getSendEnable(),
+                                cacheParticipant.getReceiveEnable(),
+                                cacheParticipant.getCellphoneNumber(),
+                                cacheParticipant.getEmail(),
+                                cacheParticipant.getMyFriend(),
+                                cacheParticipant.getOnline(),
+                                cacheParticipant.getBlocked(),
+                                cacheParticipant.getAdmin()
+                        );
+                    }
+                    if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                        cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+                         replyInfoVO = new ReplyInfoVO(
+                                cacheReplyInfoVO.getRepliedToMessageId(),
+                                cacheReplyInfoVO.getMessageType(),
+                                cacheReplyInfoVO.isDeleted(),
+                                cacheReplyInfoVO.getRepliedToMessage(),
+                                cacheReplyInfoVO.getSystemMetadata(),
+                                cacheReplyInfoVO.getMetadata(),
+                                cacheReplyInfoVO.getMessage()
+                        );
+                    }
+
+                    if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+
+                    }
+
+                    lastMessageVO = new LastMessageVO(
+                            cacheLastMessageVO.getId(),
+                            cacheLastMessageVO.getUniqueId(),
+                            cacheLastMessageVO.getMessage(),
+                            cacheLastMessageVO.isEdited(),
+                            cacheLastMessageVO.isEditable(),
+                            cacheLastMessageVO.getTime(),
+                            participant,
+                            replyInfoVO,
+                            null
+                    );
+                }
+
+
+                Thread thread = new Thread(
+                        threadVo.getId(),
+                        threadVo.getJoinDate(),
+                        threadVo.getInviter(),
+                        lastMessageVO,
+                        threadVo.getTitle(),
+                        null,
+                        threadVo.getTime(),
+                        threadVo.getLastMessage(),
+                        threadVo.getLastParticipantName(),
+                        threadVo.getLastParticipantImage(),
+                        threadVo.isGroup(),
+                        threadVo.getPartner(),
+                        threadVo.getImage(),
+                        threadVo.getDescription(),
+                        threadVo.getUnreadCount(),
+                        threadVo.getLastSeenMessageId(),
+                        threadVo.getPartnerLastMessageId(),
+                        threadVo.getPartnerLastSeenMessageId(),
+                        threadVo.getPartnerLastDeliveredMessageId(),
+                        threadVo.getType(),
+                        threadVo.isMute(),
+                        threadVo.getMetadata(),
+                        threadVo.isCanEditInfo(),
+                        threadVo.getParticipantCount(),
+                        threadVo.isCanSpam(),
+                        threadVo.isAdmin()
+                );
+                threads.add(thread);
+            }
         }
 
         return threads;

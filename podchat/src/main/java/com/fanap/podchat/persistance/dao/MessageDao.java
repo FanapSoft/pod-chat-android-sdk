@@ -44,10 +44,10 @@ public interface MessageDao {
     List<ThreadVo> getThreads(long count, long offset);
 
     @Query("select  * from ThreadVo where id = :id")
-    ThreadVo getThread(long id);
+    ThreadVo getThreadById(long id);
 
-    @Query("select  * from ThreadVo where id = :id")
-    ThreadVo getThreadByName(long id);
+    @Query("select  * from ThreadVo where title = :title")
+    ThreadVo getThreadByName(String title);
 
     @Insert(onConflict = REPLACE)
     void insertThreads(List<ThreadVo> ThreadVo);

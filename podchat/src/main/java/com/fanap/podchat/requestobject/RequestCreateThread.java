@@ -1,8 +1,11 @@
-package com.fanap.podchat.mainmodel;
+package com.fanap.podchat.requestobject;
+
+import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 
 import java.util.List;
 
-public class CreateThreadRequest {
+public class RequestCreateThread extends BaseRequestObject{
 
     private int type;
     private String ownerSsoId;
@@ -10,14 +13,15 @@ public class CreateThreadRequest {
     private String title;
     private RequestThreadInnerMessage message;
 
-    public CreateThreadRequest(Builder builder) {
+    public RequestCreateThread(Builder builder) {
+        super(builder);
         this.type = builder.type;
         this.message = builder.message;
         this.title = builder.title;
         this.invitees = builder.invitees;
     }
 
-    public static class Builder {
+    public static class Builder extends BaseRequestObject.Builder<Builder>{
         private final int type;
         private final List<Invitee> invitees;
         private String title;
@@ -33,9 +37,14 @@ public class CreateThreadRequest {
             this.title = title;
             return this;
         }
+        @Override
+        protected RequestCreateThread.Builder self() {
+            return this;
+        }
 
-        public CreateThreadRequest build() {
-            return new CreateThreadRequest(this);
+
+        public RequestCreateThread build() {
+            return new RequestCreateThread(this);
         }
     }
 

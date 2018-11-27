@@ -199,12 +199,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void OnDeliveredMessageList(String content) {
+    public void OnDeliveredMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
 
     }
 
     @Override
-    public void OnSeenMessageList(String content) {
+    public void OnSeenMessageList(String content,ChatResponse<ResultParticipant> chatResponse) {
 
     }
 

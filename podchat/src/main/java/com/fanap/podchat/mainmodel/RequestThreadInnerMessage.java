@@ -9,9 +9,7 @@ public class RequestThreadInnerMessage {
     private long repliedTo;
     private String metadata;
     private String systemMetadata;
-    private String uniqueId;
     private List<Long> forwardedMessageIds;
-    private List<String> forwardedUniqueIds;
 
 
     public RequestThreadInnerMessage(Builder builder){
@@ -20,9 +18,7 @@ public class RequestThreadInnerMessage {
         this.repliedTo = builder.repliedTo;
         this.metadata = builder.metadata;
         this.systemMetadata = builder.systemMetadata;
-        this.uniqueId = builder.uniqueId;
         this.forwardedMessageIds = builder.forwardedMessageIds;
-        this.forwardedUniqueIds = builder.forwardedUniqueIds;
     }
 
     public static class Builder {
@@ -31,46 +27,34 @@ public class RequestThreadInnerMessage {
         private long repliedTo;
         private String metadata;
         private String systemMetadata;
-        private String uniqueId;
         private List<Long> forwardedMessageIds;
-        private List<String> forwardedUniqueIds;
 
         public Builder(String text) {
             this.text = text;
         }
 
-        Builder type(int type){
+        public Builder type(int type){
             this.type = type;
             return this;
         }
 
-        Builder repliedTo(long repliedTo) {
+        public Builder repliedTo(long repliedTo) {
             this.repliedTo = repliedTo;
             return this;
         }
 
-        Builder metadata(String metadata) {
+        public Builder metadata(String metadata) {
             this.metadata = metadata;
             return this;
         }
 
-        Builder systemMetadata(String systemMetadata) {
+        public Builder systemMetadata(String systemMetadata) {
             this.systemMetadata = systemMetadata;
             return this;
         }
 
-        Builder forwardedMessageIds(List<Long> forwardedMessageIds) {
+        public  Builder forwardedMessageIds(List<Long> forwardedMessageIds) {
             this.forwardedMessageIds = forwardedMessageIds;
-            return this;
-        }
-
-        Builder forwardedUniqueIds(List<String> forwardedUniqueIds) {
-            this.forwardedUniqueIds = forwardedUniqueIds;
-            return this;
-        }
-
-        Builder uniqueId(String uniqueId){
-            this.uniqueId = uniqueId;
             return this;
         }
 
@@ -120,27 +104,11 @@ public class RequestThreadInnerMessage {
         this.systemMetadata = systemMetadata;
     }
 
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
     public List<Long> getForwardedMessageIds() {
         return forwardedMessageIds;
     }
 
     public void setForwardedMessageIds(List<Long> forwardedMessageIds) {
         this.forwardedMessageIds = forwardedMessageIds;
-    }
-
-    public List<String> getForwardedUniqueIds() {
-        return forwardedUniqueIds;
-    }
-
-    public void setForwardedUniqueIds(List<String> forwardedUniqueIds) {
-        this.forwardedUniqueIds = forwardedUniqueIds;
     }
 }

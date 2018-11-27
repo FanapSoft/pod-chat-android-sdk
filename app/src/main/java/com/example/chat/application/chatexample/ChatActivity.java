@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.CreateThreadRequest;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
@@ -27,6 +26,9 @@ import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.JsonUtil;
 
@@ -163,11 +165,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                             }
                         });
                     case 7:
-
-                        presenter.seenMessageList(17313);
+                        RequestSeenMessageList requests = new RequestSeenMessageList.Builder(17374).build();
+                        presenter.seenMessageList(requests);
                         break;
                     case 8:
-                        presenter.deliveredMessageList(17313);
+                        RequestDeliveredMessageList requestD = new RequestDeliveredMessageList.Builder(17374).build();
+                        presenter.deliveredMessageList(requestD);
                         break;
                     case 9:
                         List<Invitee> invite = new ArrayList<>();
@@ -178,13 +181,19 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                        , new Invitee(1967, 2)
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
+                        List<Long> listForwardIds = new ArrayList<>();
+                        listForwardIds.add(1346L);
+                        RequestThreadInnerMessage message = new RequestThreadInnerMessage
+                                .Builder("hello")
+                                .forwardedMessageIds(listForwardIds)
+                                .build();
 
-                        RequestThreadInnerMessage message = new RequestThreadInnerMessage.Builder("hello").build();
-                        CreateThreadRequest createThreadRequest = new CreateThreadRequest.Builder(0
+                        RequestCreateThread requestCreateThread = new RequestCreateThread
+                                .Builder(0
                                 , invite
                                 , message)
                                 .build();
-                        presenter.createThreadWithMessage(createThreadRequest);
+                        presenter.createThreadWithMessage(requestCreateThread);
                         break;
                     case 10:
 
@@ -579,7 +588,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     public String getFileUri() {
         return fileUri;
     }
-    public void getthreadWithCoreUser(){
+
+    public void getthreadWithCoreUser() {
         RequestThread requestThread = new RequestThread.Builder().partnerCoreContactId(566).build();
         presenter.getThreads(requestThread);
     }

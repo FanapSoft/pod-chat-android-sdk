@@ -13,6 +13,7 @@ public class Inviter  {
     private String image;
     private String lastName;
     private long notSeenDuration;
+    private long coreUserId;
 
     public long getId() {
         return id;
@@ -60,5 +61,13 @@ public class Inviter  {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public long getCoreUserId() {
+        return coreUserId;
+    }
+
+    public void setCoreUserId(long coreUserId) {
+        this.coreUserId = coreUserId;
     }
 }

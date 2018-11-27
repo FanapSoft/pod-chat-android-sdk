@@ -24,9 +24,12 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
-import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.util.JsonUtil;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -54,7 +57,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "ea6229b9b68a4f0e8ea3a547cf312d86";
+    private static String TOKEN = "6c10bc7f875d40c198f44534b15d2696";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -163,6 +166,42 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                             }
                         });
                         break;
+                    case 7:
+                        RequestSeenMessageList requests = new RequestSeenMessageList.Builder(17374).build();
+                        presenter.seenMessageList(requests);
+                        break;
+                    case 8:
+                        RequestDeliveredMessageList requestD = new RequestDeliveredMessageList.Builder(17374).build();
+                        presenter.deliveredMessageList(requestD);
+                        break;
+                    case 9:
+                        List<Invitee> invite = new ArrayList<>();
+                        invite.add(new Invitee(122, 1));
+
+//                                new Invitee[]{
+//                                new Invitee(122, 1)
+//                        , new Invitee(1967, 2)
+//                        ,new Invitee(123, 5)
+//                        , new Invitee(824, 2)
+                        List<Long> listForwardIds = new ArrayList<>();
+                        listForwardIds.add(1346L);
+                        RequestThreadInnerMessage message = new RequestThreadInnerMessage
+                                .Builder("hello")
+                                .forwardedMessageIds(listForwardIds)
+                                .build();
+
+                        RequestCreateThread requestCreateThread = new RequestCreateThread
+                                .Builder(0
+                                , invite
+                                , message)
+                                .build();
+                        presenter.createThreadWithMessage(requestCreateThread);
+                        break;
+                    case 10:
+
+                        getthreadWithCoreUser();
+                        break;
+
                 }
             }
 
@@ -171,6 +210,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
             }
         });
+    }
+
+    private void getthreadWithCoreUser() {
+
     }
 
     private void setupSecondSpinner(Spinner spinnerSecond) {
@@ -330,15 +373,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 1:
                 //"get thread"
-                ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(22);
-//                threadIds.add(1031);
-//                presenter.getThread(5, null, null, null, null);
-                RequestThread requestThread = new RequestThread.Builder().
-                        count(2)
-                        .creatorCoreUserId(2)
-                        .build();
-                presenter.getThreadObject(requestThread);
+                getThreads();
 
                 break;
             case 2:
@@ -384,7 +419,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0L, 1201, null);
+                getThreadParticipant();
 
                 break;
             case 8:
@@ -484,6 +519,17 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 presenter.updateContact(588, "masoudian", "", "", ""
                 );
         }
+    }
+
+    private void getThreads() {
+        ArrayList<Integer> threadIds = new ArrayList<>();
+        threadIds.add(22);
+        threadIds.add(1031);
+        presenter.getThread(5, null, null, null, null);
+    }
+
+    private void getThreadParticipant() {
+        presenter.getThreadParticipant(10, 0L, 1201, null);
     }
 
     @Override

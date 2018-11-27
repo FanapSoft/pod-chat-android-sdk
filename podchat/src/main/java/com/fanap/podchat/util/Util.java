@@ -8,6 +8,7 @@ import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ResultAddContact;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Util {
 
@@ -56,7 +57,14 @@ public class Util {
         return check;
     }
 
-    public static <T extends Class> boolean isNullOrEmptyArray(ArrayList<T> list) {
+    public static <T extends Class> boolean isNullOrEmpty(List<T> list) {
+        boolean check = true;
+        if (list != null && list.size() <= 0) {
+            check = false;
+        }
+        return check;
+    }
+    public static <T extends Number> boolean isNullOrEmptyNumber(List<T> list) {
         boolean check = true;
         if (list != null && list.size() <= 0) {
             check = false;

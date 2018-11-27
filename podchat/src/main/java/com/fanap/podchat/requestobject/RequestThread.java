@@ -2,11 +2,10 @@ package com.fanap.podchat.requestobject;
 
 import java.util.ArrayList;
 
-public class RequestThread extends BaseObject {
+public class RequestThread extends BaseRequestObject {
 
     private ArrayList<Integer> threadIds;
     private String threadName;
-    private String typeCode;
     private long creatorCoreUserId;
     private long partnerCoreUserId;
     private long partnerCoreContactId;
@@ -15,14 +14,13 @@ public class RequestThread extends BaseObject {
         super(builder);
         this.threadIds = builder.threadIds;
         this.threadName = builder.threadName;
-        this.typeCode = builder.typeCode;
         this.creatorCoreUserId = builder.creatorCoreUserId;
         this.partnerCoreUserId = builder.partnerCoreUserId;
         this.partnerCoreContactId = builder.partnerCoreContactId;
     }
 
 
-    public static class Builder extends BaseObject.Builder<Builder> {
+    public static class Builder extends BaseRequestObject.Builder<Builder> {
         private ArrayList<Integer> threadIds;
         private String threadName;
         private String typeCode;
@@ -32,11 +30,6 @@ public class RequestThread extends BaseObject {
 
         public Builder threadName(String threadName) {
             this.threadName = threadName;
-            return this;
-        }
-
-        public Builder typeCode(String typeCode) {
-            this.typeCode = typeCode;
             return this;
         }
 
@@ -109,13 +102,5 @@ public class RequestThread extends BaseObject {
 
     public void setThreadName(String threadName) {
         this.threadName = threadName;
-    }
-
-    public String getTypeCode() {
-        return typeCode;
-    }
-
-    public void setTypeCode(String typeCode) {
-        this.typeCode = typeCode;
     }
 }
