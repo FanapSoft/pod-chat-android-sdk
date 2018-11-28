@@ -16,6 +16,8 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 
@@ -154,6 +156,8 @@ public interface ChatContract {
 
         void sendTextMessage(String textMessage, long threadId, Integer messageType, String metaData, ChatHandler handler);
 
+        void sendTextMessage(RequestMessage requestMessage, ChatHandler handler);
+
         void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler);
 
         LiveData<String> getLiveState();
@@ -183,6 +187,8 @@ public interface ChatContract {
         void getBlockList(Long count, Integer offset, ChatHandler handler);
 
         void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType);
+
+        void sendFileMessage(RequestFileMessage requestFileMessage);
 
         void syncContact(Activity activity);
 

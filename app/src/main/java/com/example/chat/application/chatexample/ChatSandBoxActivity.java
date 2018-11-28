@@ -29,6 +29,8 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.JsonUtil;
@@ -58,7 +60,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "8eca5dd6af7b46cea391fb26074e8a87";
+    private static String TOKEN = "2221ce59c62742d18b97bfc1caf5de5c";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -234,10 +236,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.syncContact(ChatSandBoxActivity.this);
                         break;
                     case 2:
-                        presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
-                                "test file message",
-                                381
-                                , getUri(), null, null);
+
+                        sendFileMessage();
                         break;
                     case 3:
                         presenter.uploadImage(ChatSandBoxActivity.this, getUri());
@@ -350,13 +350,35 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 "https://sandbox.pod.land:8043/srv/basic-platform/", fileServer, TYPE_CODE);
     }
 
+    public void sendFileMessage() {
+
+        RequestFileMessage requestFileMessage = new RequestFileMessage
+                .Builder(this, 381, getUri())
+                .metaData("name")
+                .build();
+
+        presenter.sendFileMessage(requestFileMessage);
+
+//      presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
+//        "test file message",
+//        381
+//       , getUri(), null, null);
+    }
+
     public void sendMessage(View view) {
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
-        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 22, null, meta, null);
+        RequestMessage requestMessage = new RequestMessage
+                .Builder("test at" + " " + new Date().getTime() + name, 22)
+                .messageType(2)
+                .jsonMetaData(meta)
+                .build();
+        presenter.sendTextMessage(requestMessage, null);
 
+
+//        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
+//                , 22, null, meta, null);
 
 // String text = editText.getText().toString();
 ////        long textThread = Long.valueOf(editTextThread.getText().toString());
@@ -577,7 +599,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     String path = FilePick.getSmartFilePath(this, fileUri);
 
                     String pathFile = fileUri.toString();
-                    setFileUri(path);
+//                    setFileUri(path);
                     setUri(Uri.parse(pathFile));
                 }
             }

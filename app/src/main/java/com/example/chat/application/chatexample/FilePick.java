@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 public class FilePick {
 
@@ -55,10 +56,23 @@ public class FilePick {
                 // DownloadsProvider
                 else if (isDownloadsDocument(uri)) {
                     final String id = DocumentsContract.getDocumentId(uri);
-                    final Uri contentUri = ContentUris.withAppendedId(
-                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
-                    return getDataColumn(context, contentUri, null, null);
+                    if (!TextUtils.isEmpty(id)) {
+                        if (id.startsWith("raw:")) {
+                            return id.replaceFirst("raw:", "");
+                        }
+                        try {
+                            final Uri contentUri = ContentUris.withAppendedId(
+                                    Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                            return getDataColumn(context, contentUri, null, null);
+                        } catch (NumberFormatException e) {
+                            return null;
+                        }
+                    }
+//                    final Uri contentUri = ContentUris.withAppendedId(
+//                            Uri.parse("content://downloads/public_downloads")
+//                            , Long.valueOf(id));
+//
+//                    return getDataColumn(context, contentUri, null, null);
                 }
                 // MediaProvider
                 else if (isMediaDocument(uri)) {

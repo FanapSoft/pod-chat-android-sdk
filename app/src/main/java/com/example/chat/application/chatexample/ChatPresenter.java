@@ -37,6 +37,8 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.orhanobut.logger.Logger;
@@ -144,6 +146,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void sendTextMessage(RequestMessage requestMessage, ChatHandler handler) {
+        chat.sendTextMessage(requestMessage, null);
+    }
+
+    @Override
     public void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler) {
         chat.replyMessage(messageContent, threadId, messageId, "meta", handler);
     }
@@ -216,6 +223,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType) {
         chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, messageType);
+    }
+
+    @Override
+    public void sendFileMessage(RequestFileMessage requestFileMessage) {
+        chat.sendFileMessage(requestFileMessage);
     }
 
     @Override

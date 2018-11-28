@@ -95,8 +95,11 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
+import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.Callback;
@@ -252,8 +255,32 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    public void connect(){
-
+    public void connect(RequestConnect requestConnect) {
+        try {
+            if (platformHost.endsWith("/")) {
+                pingHandler = new Handler();
+                messageCallbacks = new HashMap<>();
+                threadCallbacks = new HashMap<>();
+                handlerSend = new HashMap<>();
+                async.addListener(this);
+                RetrofitHelperPlatformHost retrofitHelperPlatformHost = new RetrofitHelperPlatformHost(platformHost, getContext());
+                contactApi = retrofitHelperPlatformHost.getService(ContactApi.class);
+                setPlatformHost(requestConnect.getPlatformHost());
+                setToken(requestConnect.getToken());
+                setTypeCode(requestConnect.getTypeCode());
+                setFileServer(requestConnect.getFileServer());
+                gson = new GsonBuilder().create();
+                async.connect(requestConnect.getSocketAddress(),
+                        requestConnect.getAppId(),
+                        requestConnect.getSeverName(), requestConnect.getToken(), requestConnect.getSsoHost(), "");
+                state = true;
+            } else {
+                String jsonError = getErrorOutPut("PlatformHost " + ChatConstant.ERROR_CHECK_URL, ChatConstant.ERROR_CODE_CHECK_URL, null);
+                if (log) Logger.e(jsonError);
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+        }
     }
 
     /**
@@ -473,6 +500,44 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    //TODO test again
+    public String sendTextMessage(RequestMessage requestMessage, ChatHandler handler) {
+        String asyncContent = null;
+        String uniqueId = null;
+        if (chatReady) {
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(requestMessage.getTextMessage());
+            chatMessage.setType(Constants.MESSAGE);
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setToken(getToken());
+            uniqueId = generateUniqueId();
+            chatMessage.setUniqueId(uniqueId);
+            chatMessage.setTime(1000);
+            chatMessage.setSubjectId(requestMessage.getThreadId());
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+
+            if (!Util.isNullOrEmpty(requestMessage.getMessageType())) {
+                jsonObject.addProperty("messageType", requestMessage.getMessageType());
+            } else {
+                jsonObject.remove("messageType");
+            }
+
+            asyncContent = gson.toJson(chatMessage);
+            setThreadCallbacks(requestMessage.getThreadId(), uniqueId);
+
+            if (handler != null) {
+
+                handler.onSent(uniqueId, requestMessage.getThreadId());
+                handler.onSentResult(null);
+                handlerSend.put(uniqueId, handler);
+            }
+        }
+        sendAsyncMessage(asyncContent, 4, "SEND_TEXT_MESSAGE");
+        return uniqueId;
+    }
+
     /**
      * First we get the contact from server then at the respond of that
      * {@link #handleSyncContact(ChatMessage, Callback)} we add all of the PhoneContact that get from
@@ -525,6 +590,40 @@ public class Chat extends AsyncAdapter {
         return null;
     }
 
+
+    public String sendFileMessage(RequestFileMessage requestFileMessage) {
+        try {
+            Activity activity = requestFileMessage.getActivity();
+            String description = requestFileMessage.getDescription();
+            long threadId = requestFileMessage.getThreadId();
+            Uri fileUri = requestFileMessage.getFileUri();
+            String metaData = requestFileMessage.getMetaData();
+            int messageType = requestFileMessage.getMessageType();
+            String uniqueId;
+            if (chatReady) {
+                if (fileUri != null) {
+                    uniqueId = generateUniqueId();
+                    File file = new File(fileUri.getPath());
+                    String mimeType = handleMimType(fileUri, file);
+                    if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+                        uploadImageFileMessage(getContext(), activity, description, threadId, fileUri, mimeType, metaData, uniqueId, getTypeCode(), messageType);
+                    } else {
+                        String path = FilePick.getSmartFilePath(context, fileUri);
+                        uploadFileMessage(activity, description, threadId, mimeType, path, metaData, uniqueId, getTypeCode(), messageType);
+                    }
+                    return uniqueId;
+                }
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, null);
+                if (log) Logger.json(jsonError);
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+            return null;
+        }
+
+        return null;
+    }
 
     //TODO error code
     public String uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
@@ -3349,8 +3448,8 @@ public class Chat extends AsyncAdapter {
                                         String typeCode, Integer messageType) {
         if (fileServer != null) {
             if (Permission.Check_READ_STORAGE(activity)) {
-                String path = FilePick.getSmartFilePath(context, fileUri);
-                File file = new File(path);
+//                String path = FilePick.getSmartFilePath(context, fileUri);
+                File file = new File(fileUri.getPath());
                 if (file.exists()) {
                     long fileSize = file.length();
                     RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
