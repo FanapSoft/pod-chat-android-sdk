@@ -902,13 +902,6 @@ public class Chat extends AsyncAdapter {
         addParticipant.setToken(getToken());
         addParticipant.setTokenIssuer("1");
         addParticipant.setUniqueId(uniqueId);
-//        if (typeCode != null && !typeCode.isEmpty()) {
-//            addParticipant.setTypeCode(typeCode);
-//        } else {
-//            addParticipant.setTypeCode(getTypeCode());
-//        }
-
-        //            addParticipant.setTypeCode(getTypeCode());
 
         addParticipant.setType(Constants.ADD_PARTICIPANT);
         String asyncContent = JsonUtil.getJson(addParticipant);
