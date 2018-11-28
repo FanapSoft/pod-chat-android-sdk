@@ -252,6 +252,10 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    public void connect(){
+
+    }
+
     /**
      * When state of the Async changed then the chat ping is stopped buy (chatState)flag
      */
@@ -1232,6 +1236,13 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String SearchInThread() {
+        String uniqueId = null;
+
+        return uniqueId;
+    }
+
+
     /**
      * Get history of the thread
      * <p>
@@ -2194,7 +2205,7 @@ public class Chat extends AsyncAdapter {
     @NonNull
     private String getErrorOutPut(String errorMessage, long errorCode, String uniqueId) {
         ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
-        String jsonError = JsonUtil.getJson(error);
+        String jsonError = gson.toJson(error);
         listenerManager.callOnError(jsonError, error);
         return jsonError;
     }
@@ -2318,6 +2329,7 @@ public class Chat extends AsyncAdapter {
         if (log) Logger.json(chatMessage.getContent());
     }
 
+    //TODO
     private void handleRemoveFromThread(ChatMessage chatMessage) {
         if (log) Logger.i("RECEIVED_REMOVE_FROM_THREAD", chatMessage);
         listenerManager.callOnRemovedFromThread(chatMessage.getContent());

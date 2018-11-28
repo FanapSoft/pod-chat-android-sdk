@@ -19,7 +19,6 @@ public class RequestThread extends BaseRequestObject {
         this.partnerCoreContactId = builder.partnerCoreContactId;
     }
 
-
     public static class Builder extends BaseRequestObject.Builder<Builder> {
         private ArrayList<Integer> threadIds;
         private String threadName;
