@@ -30,6 +30,7 @@ import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.JsonUtil;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -57,7 +58,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "6c10bc7f875d40c198f44534b15d2696";
+    private static String TOKEN = "8eca5dd6af7b46cea391fb26074e8a87";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -213,7 +214,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     private void getthreadWithCoreUser() {
-
+        RequestThread requestThread = new RequestThread.Builder().partnerCoreUserId(982).build();
+        presenter.getThreads(requestThread);
     }
 
     private void setupSecondSpinner(Spinner spinnerSecond) {

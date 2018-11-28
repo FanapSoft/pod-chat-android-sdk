@@ -489,12 +489,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(15, 0L, new ChatHandler() {
-                    @Override
-                    public void onGetContact(String uniqueId) {
-                        super.onGetContact(uniqueId);
-                    }
-                });
+                getContacts();
 
                 break;
             case 13:
@@ -519,6 +514,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 presenter.updateContact(571, "Fel", "", "", "devfelfel@gmail.com"
                 );
         }
+    }
+
+    private void getContacts() {
+        presenter.getContact(15, 0L,null);
     }
 
     @Override

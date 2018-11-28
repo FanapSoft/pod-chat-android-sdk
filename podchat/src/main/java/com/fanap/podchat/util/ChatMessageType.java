@@ -13,7 +13,9 @@ public class ChatMessageType {
         this.messageType = messageType;
     }
 
-    @IntDef({Constants.INVITATION, Constants.MESSAGE,
+    @IntDef({
+            Constants.INVITATION,
+            Constants.MESSAGE,
             Constants.SENT,
             Constants.DELIVERY,
             Constants.SEEN,
@@ -45,6 +47,8 @@ public class ChatMessageType {
             Constants.DELETE_MESSAGE,
             Constants.ERROR,
             Constants.SPAM_PV_THREAD,
+            Constants.SEEN_MESSAGE_LIST ,
+            Constants.DELIVERED_MESSAGE_LIST
     })
 
     @Retention(RetentionPolicy.SOURCE)

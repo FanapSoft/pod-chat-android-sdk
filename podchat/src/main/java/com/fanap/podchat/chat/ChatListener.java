@@ -24,7 +24,6 @@ import com.fanap.podchat.model.ResultUserInfo;
 
 public interface ChatListener {
 
-
     void onError(String content, ErrorOutPut OutPutError);
 
     void onGetContacts(String content, ChatResponse<ResultContact> outPutContact);
