@@ -102,6 +102,8 @@ import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestUploadFile;
+import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType.Constants;
@@ -806,6 +808,85 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String uploadImage(RequestUploadImage requestUploadImage) {
+        String uniqueId = null;
+        try {
+            if (fileServer != null && requestUploadImage.getFileUri() != null) {
+                if (Permission.Check_READ_STORAGE(requestUploadImage.getActivity())) {
+                    String path = FilePick.getSmartFilePath(getContext(), requestUploadImage.getFileUri());
+                    File file = new File(path);
+                    if (file.exists()) {
+                        uniqueId = generateUniqueId();
+                        String mimeType = handleMimType(requestUploadImage.getFileUri(), file);
+                        if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+                            RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+                            FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+                            RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+                            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+                            RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
+                            Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
+                            String finalUniqueId = uniqueId;
+                            uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileImageUpload>>() {
+                                @Override
+                                public void call(Response<FileImageUpload> fileUploadResponse) {
+                                    if (fileUploadResponse.isSuccessful()) {
+                                        boolean hasError = fileUploadResponse.body().isHasError();
+                                        if (hasError) {
+                                            String errorMessage = fileUploadResponse.body().getMessage();
+                                            int errorCode = fileUploadResponse.body().getErrorCode();
+                                            String jsonError = getErrorOutPut(errorMessage, errorCode, null);
+                                            if (log) Logger.e(jsonError);
+                                        } else {
+                                            FileImageUpload fileImageUpload = fileUploadResponse.body();
+                                            ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                                            ResultImageFile resultImageFile = new ResultImageFile();
+                                            chatResponse.setUniqueId(finalUniqueId);
+                                            resultImageFile.setId(fileImageUpload.getResult().getId());
+                                            resultImageFile.setHashCode(fileImageUpload.getResult().getHashCode());
+                                            resultImageFile.setName(fileImageUpload.getResult().getName());
+                                            resultImageFile.setHeight(fileImageUpload.getResult().getHeight());
+                                            resultImageFile.setWidth(fileImageUpload.getResult().getWidth());
+                                            resultImageFile.setActualHeight(fileImageUpload.getResult().getActualHeight());
+                                            resultImageFile.setActualWidth(fileImageUpload.getResult().getActualWidth());
+
+                                            chatResponse.setResult(resultImageFile);
+
+                                            String imageJson = gson.toJson(chatResponse);
+
+                                            listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+                                            if (log) Logger.i("RECEIVE_UPLOAD_IMAGE");
+                                            if (log) Logger.json(imageJson);
+                                        }
+                                    }
+                                }
+                            }, throwable -> {
+                                String jsonError = getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, null);
+                                if (log) Logger.e(jsonError);
+                            });
+                        } else {
+                            String jsonError = getErrorOutPut(ChatConstant.ERROR_NOT_IMAGE, ChatConstant.ERROR_CODE_NOT_IMAGE, null);
+                            if (log) Logger.e(jsonError);
+                            uniqueId = null;
+                        }
+                    }
+                } else {
+                    String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
+                    if (log) Logger.e(jsonError);
+                    uniqueId = null;
+                }
+            } else {
+                if (log) Logger.e("FileServer url Is null");
+                uniqueId = null;
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+            uniqueId = null;
+        }
+        return uniqueId;
+    }
+
+
     public String uploadFile(Activity activity, Uri uri) {
         String uniqueId;
         try {
@@ -814,6 +895,74 @@ public class Chat extends AsyncAdapter {
                     String path = FilePick.getSmartFilePath(getContext(), uri);
                     File file = new File(path);
                     String mimeType = handleMimType(uri, file);
+                    if (file.exists()) {
+                        uniqueId = generateUniqueId();
+                        long fileSize = file.length();
+                        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+                        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+                        RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+                        RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
+
+                        MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+                        Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
+                        uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
+                            @Override
+                            public void call(Response<FileUpload> fileUploadResponse) {
+                                if (fileUploadResponse.isSuccessful()) {
+                                    boolean hasError = fileUploadResponse.body().isHasError();
+                                    if (hasError) {
+                                        String errorMessage = fileUploadResponse.body().getMessage();
+                                        int errorCode = fileUploadResponse.body().getErrorCode();
+                                        String jsonError = getErrorOutPut(errorMessage, errorCode, null);
+                                        if (log) Logger.e(jsonError);
+                                    } else {
+                                        ResultFile result = fileUploadResponse.body().getResult();
+
+                                        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+                                        result.setSize(fileSize);
+                                        chatResponse.setUniqueId(uniqueId);
+                                        chatResponse.setResult(result);
+                                        String json = gson.toJson(chatResponse);
+
+                                        listenerManager.callOnUploadFile(json, chatResponse);
+                                        if (log) Logger.i("RECEIVE_UPLOAD_FILE");
+                                        if (log) Logger.json(json);
+                                    }
+                                }
+                            }
+                        }, throwable -> {
+                            String jsonError = getErrorOutPut(throwable.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, null);
+                            if (log) Logger.e(jsonError);
+                        });
+                    } else {
+                        if (log) Logger.e("File is not Exist");
+                        return null;
+                    }
+                } else {
+                    if (log) Logger.e("FileServer url Is null");
+                    return null;
+                }
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
+                if (log) Logger.e(jsonError);
+                return null;
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+            return null;
+        }
+        return uniqueId;
+    }
+
+    public String uploadFile(RequestUploadFile requestUploadFile)
+    {
+        String uniqueId;
+        try {
+            if (Permission.Check_READ_STORAGE(requestUploadFile.getActivity())) {
+                if (getFileServer() != null) {
+                    String path = FilePick.getSmartFilePath(getContext(), requestUploadFile.getFileUri());
+                    File file = new File(path);
+                    String mimeType = handleMimType(requestUploadFile.getFileUri(), file);
                     if (file.exists()) {
                         uniqueId = generateUniqueId();
                         long fileSize = file.length();
