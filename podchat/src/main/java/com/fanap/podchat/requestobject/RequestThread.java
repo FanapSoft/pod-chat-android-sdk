@@ -10,7 +10,7 @@ public class RequestThread extends BaseRequestObject {
     private long partnerCoreUserId;
     private long partnerCoreContactId;
 
-    public RequestThread(Builder builder) {
+     RequestThread(Builder builder) {
         super(builder);
         this.threadIds = builder.threadIds;
         this.threadName = builder.threadName;

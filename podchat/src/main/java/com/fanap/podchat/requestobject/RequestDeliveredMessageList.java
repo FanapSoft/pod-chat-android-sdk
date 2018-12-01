@@ -4,7 +4,7 @@ public class RequestDeliveredMessageList extends BaseRequestObject {
     private long messageId;
 
 
-    public RequestDeliveredMessageList(Builder builder){
+     RequestDeliveredMessageList(Builder builder){
         super(builder);
         this.messageId = builder.messageId;
     }

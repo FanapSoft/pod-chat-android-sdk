@@ -11,7 +11,7 @@ public class RequestFileMessage {
     private int messageType;
     private String description;
 
-    public RequestFileMessage(Builder builder) {
+     RequestFileMessage(Builder builder) {
         this.setActivity(builder.activity);
         this.setThreadId(builder.threadId);
         this.setFileUri(builder.fileUri);

@@ -8,7 +8,7 @@ public class RequestUploadImage {
     private Activity activity;
     private Uri fileUri;
 
-    public RequestUploadImage(Builder builder) {
+    RequestUploadImage(Builder builder) {
         this.activity = builder.activity;
         this.fileUri = builder.fileUri;
 

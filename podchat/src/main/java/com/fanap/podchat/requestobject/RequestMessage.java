@@ -6,7 +6,7 @@ public class RequestMessage {
     private String jsonMetaData;
     private long threadId;
 
-    public RequestMessage(Builder builder) {
+     RequestMessage(Builder builder) {
         this.setTextMessage(builder.textMessage);
         this.setThreadId(builder.threadId);
         this.setMessageType(builder.messageType);

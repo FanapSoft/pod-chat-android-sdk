@@ -26,8 +26,12 @@ import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.JsonUtil;
@@ -237,28 +241,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                        presenter.uploadFile(ChatSandBoxActivity.this, getUri());
                         break;
                     case 5:
-                        List<Long> contactIds = new ArrayList<>();
-                        contactIds.add(123L);
-//                       contactIds.add(121L);
-                        presenter.removeParticipants(691, contactIds, new ChatHandler() {
-                            @Override
-                            public void onRemoveParticipants(String uniqueId) {
-                                super.onRemoveParticipants(uniqueId);
-                            }
-                        });
+                        removeParticipants();
 
                         break;
                     case 6:
-                        List<Long> participantIds = new ArrayList<>();
-                        participantIds.add(485L);
-                        participantIds.add(577L);
-                        participantIds.add(824L);
-                        presenter.addParticipants(691, participantIds, new ChatHandler() {
-                            @Override
-                            public void onAddParticipants(String uniqueId) {
-                                super.onAddParticipants(uniqueId);
-                            }
-                        });
+                        addParticipants();
 
                         break;
                     case 7:
@@ -298,10 +285,44 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
 
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    private void removeParticipants() {
+        List<Long> participantIds = new ArrayList<>();
+        participantIds.add(123L);
+        long threadId = 691;
+        RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(threadId, participantIds).build();
+        presenter.removeParticipants(request, null);
+
+//                       contactIds.add(121L);
+//        presenter.removeParticipants(691, contactIds, new ChatHandler() {
+//            @Override
+//            public void onRemoveParticipants(String uniqueId) {
+//                super.onRemoveParticipants(uniqueId);
+//            }
+//        });
+    }
+
+    private void addParticipants() {
+        List<Long> participantIds = new ArrayList<>();
+        participantIds.add(485L);
+        participantIds.add(577L);
+        participantIds.add(824L);
+        long threadId = 691;
+//        presenter.addParticipants(691, participantIds, new ChatHandler() {
+//            @Override
+//            public void onAddParticipants(String uniqueId) {
+//                super.onAddParticipants(uniqueId);
+//            }
+//        });
+
+        RequestAddParticipants request = new RequestAddParticipants.Builder(threadId, participantIds).build();
+        presenter.addParticipants(request, null);
     }
 
     private void setupSpinner(Spinner spinner) {
@@ -320,7 +341,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 1288, null, meta, null);
+                , 1288, 2, meta, null);
 //                new ChatHandler() {
 //                    @Override
 //                    public void onSent(String uniqueId, long threadId) {
@@ -396,21 +417,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 4:
                 //"reply message",
-                presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
-                    @Override
-                    public void onReplyMessage(String uniqueId) {
-                        super.onReplyMessage(uniqueId);
-                    }
-                });
+                replyMessage();
 
                 break;
             case 5:
                 /**forward message */
-                ArrayList<Long> messageIds = new ArrayList<>();
-                messageIds.add(15255L);
-                messageIds.add(15256L);
-                messageIds.add(15257L);
-                presenter.forwardMessage(293, messageIds);
+                ForwardMessage();
                 break;
             case 6:
                 //"send text message",
@@ -459,7 +471,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             case 9:
                 //get thread history
                 History history = new History.Builder().build();
-                presenter.getHistory(history, 351, new ChatHandler() {
+                presenter.getHistory(history, 1288, new ChatHandler() {
                     @Override
                     public void onGetHistory(String uniqueId) {
                         super.onGetHistory(uniqueId);
@@ -516,8 +528,33 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    public void replyMessage() {
+        RequestReplyMessage message = new RequestReplyMessage.Builder("this is reply from john", 381, 14103).build();
+        presenter.replyMessage(message, null);
+//        presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
+//            @Override
+//            public void onReplyMessage(String uniqueId) {
+//                super.onReplyMessage(uniqueId);
+//            }
+//        });
+    }
+
+    public void ForwardMessage() {
+        ArrayList<Long> messageIds = new ArrayList<>();
+        messageIds.add(15255L);
+        messageIds.add(15256L);
+        messageIds.add(15257L);
+        long threadId = 1288;
+//        presenter.forwardMessage(293, messageIds);
+
+        RequestForwardMessage forwardMessage = new RequestForwardMessage
+                .Builder(threadId, messageIds)
+                .build();
+        presenter.forwardMessage(forwardMessage);
+    }
+
     private void getContacts() {
-        presenter.getContact(15, 0L,null);
+        presenter.getContact(15, 0L, null);
     }
 
     @Override

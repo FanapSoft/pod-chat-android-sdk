@@ -1,37 +1,39 @@
 package com.fanap.podchat.requestobject;
 
-public class RequestGetFile {
-    private long fileId;
+public class RequestGetImage {
+    private long imageId;
     private String hashCode;
     private boolean downloadable;
 
-     RequestGetFile(Builder builder) {
-        this.fileId =  builder.fileId;
+     RequestGetImage(Builder builder) {
+        this.imageId = builder.imageId;
         this.hashCode = builder.hashCode;
         this.downloadable = builder.downloadable;
     }
 
     public static class Builder {
-        private long fileId;
+        private long imageId;
         private String hashCode;
         private boolean downloadable;
 
-        public Builder(long fileId, String hashCode, boolean downloadable) {
-        this.fileId = fileId;
-        this.hashCode = hashCode;
-        this.downloadable = downloadable;
+
+        public Builder(long imageId, String hashCode, boolean downloadable) {
+            this.imageId = imageId;
+            this.hashCode = hashCode;
+            this.downloadable = downloadable;
         }
-        public RequestGetFile build(){
-            return new RequestGetFile(this);
+
+        public RequestGetImage build() {
+            return new RequestGetImage(this);
         }
     }
 
-    public long getFileId() {
-        return fileId;
+    public long getImageId() {
+        return imageId;
     }
 
-    public void setFileId(long fileId) {
-        this.fileId = fileId;
+    public void setImageId(long imageId) {
+        this.imageId = imageId;
     }
 
     public String getHashCode() {

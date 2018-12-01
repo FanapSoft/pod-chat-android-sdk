@@ -13,7 +13,7 @@ public class RequestCreateThread extends BaseRequestObject{
     private String title;
     private RequestThreadInnerMessage message;
 
-    public RequestCreateThread(Builder builder) {
+     RequestCreateThread(Builder builder) {
         super(builder);
         this.type = builder.type;
         this.message = builder.message;

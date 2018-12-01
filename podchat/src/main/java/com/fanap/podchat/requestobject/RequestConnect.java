@@ -11,7 +11,7 @@ public class RequestConnect extends BaseRequestObject {
     private String fileServer;
 
 
-    public RequestConnect(Builder builder) {
+     RequestConnect(Builder builder) {
         super(builder);
 
     }

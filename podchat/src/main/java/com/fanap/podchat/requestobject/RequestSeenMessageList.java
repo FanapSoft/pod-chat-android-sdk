@@ -4,7 +4,7 @@ public class RequestSeenMessageList extends BaseRequestObject {
     private long messageId;
 
 
-    public RequestSeenMessageList(Builder builder){
+     RequestSeenMessageList(Builder builder){
         super(builder);
         this.messageId = builder.messageId;
     }

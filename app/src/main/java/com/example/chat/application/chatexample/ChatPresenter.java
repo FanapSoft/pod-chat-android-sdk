@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.fanap.podchat.ProgressHandler;
@@ -35,10 +36,14 @@ import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.orhanobut.logger.Logger;
@@ -122,7 +127,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getHistory(History history, long threadId, ChatHandler handler) {
-        chat.getHistory(history, threadId, handler);
+        String uniq = chat.getHistory(history, threadId, handler);
+        Log.i("un", uniq);
     }
 
     @Override
@@ -153,6 +159,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler) {
         chat.replyMessage(messageContent, threadId, messageId, "meta", handler);
+    }
+
+    @Override
+    public void replyMessage(RequestReplyMessage request, ChatHandler handler) {
+        chat.replyMessage(request, handler);
     }
 
     @Override
@@ -241,6 +252,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void forwardMessage(RequestForwardMessage request) {
+        chat.forwardMessage(request);
+    }
+
+    @Override
     public void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email) {
         chat.updateContact(id, firstName, lastName, cellphoneNumber, email);
     }
@@ -271,8 +287,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler) {
+        chat.removeParticipants(requestRemoveParticipants, handler);
+    }
+
+    @Override
     public void addParticipants(long threadId, List<Long> contactIds, ChatHandler handler) {
         chat.addParticipants(threadId, contactIds, handler);
+    }
+
+    @Override
+    public void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler) {
+        chat.addParticipants(requestAddParticipants, handler);
     }
 
     @Override

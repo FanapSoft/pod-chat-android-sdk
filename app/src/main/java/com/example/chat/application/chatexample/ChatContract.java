@@ -14,10 +14,14 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 
@@ -160,6 +164,8 @@ public interface ChatContract {
 
         void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler);
 
+        void replyMessage(RequestReplyMessage request, ChatHandler handler);
+
         LiveData<String> getLiveState();
 
         void muteThread(int threadId, ChatHandler handler);
@@ -194,6 +200,8 @@ public interface ChatContract {
 
         void forwardMessage(long threadId, ArrayList<Long> messageIds);
 
+        void forwardMessage(RequestForwardMessage request);
+
         void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email);
 
         void uploadImage(Activity activity, Uri fileUri);
@@ -206,7 +214,11 @@ public interface ChatContract {
 
         void removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler);
 
+        void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler);
+
         void addParticipants(long threadId, List<Long> contactIds, ChatHandler handler);
+
+        void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler);
 
         void leaveThread(long threadId, ChatHandler handler);
 
