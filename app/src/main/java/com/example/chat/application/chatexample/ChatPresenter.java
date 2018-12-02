@@ -38,9 +38,11 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -129,6 +131,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void getHistory(History history, long threadId, ChatHandler handler) {
         String uniq = chat.getHistory(history, threadId, handler);
         Log.i("un", uniq);
+    }
+
+    @Override
+    public void getHistory(RequestGetHistory request, ChatHandler handler) {
+        chat.getHistory(request, handler);
     }
 
     @Override
@@ -314,6 +321,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void deleteMessage(long messageId, Boolean deleteForAll, ChatHandler handler) {
         chat.deleteMessage(messageId, deleteForAll, handler);
+    }
+
+    @Override
+    public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
+        chat.deleteMessage(deleteMessage, handler);
     }
 
     @Override

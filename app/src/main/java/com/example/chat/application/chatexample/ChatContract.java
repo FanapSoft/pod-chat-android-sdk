@@ -16,9 +16,11 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -152,6 +154,8 @@ public interface ChatContract {
 
         void getHistory(History history, long threadId, ChatHandler handler);
 
+        void getHistory(RequestGetHistory request, ChatHandler handler);
+
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
 
         void getContact(Integer count, Long offset, ChatHandler handler);
@@ -225,6 +229,8 @@ public interface ChatContract {
         void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler);
 
         void deleteMessage(long messageId, Boolean deleteForAll, ChatHandler handler);
+
+        void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler);
 
         void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler);
     }

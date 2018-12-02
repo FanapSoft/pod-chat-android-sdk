@@ -18,7 +18,6 @@ import android.widget.TextView;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -28,8 +27,10 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -258,12 +259,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         break;
                     case 8:
-                        presenter.deleteMessage(16804, true, new ChatHandler() {
-                            @Override
-                            public void onDeleteMessage(String uniqueId) {
-                                super.onDeleteMessage(uniqueId);
-                            }
-                        });
+                        deleteMessage();
 
                         break;
                     case 9:
@@ -285,11 +281,26 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             }
 
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    public void deleteMessage() {
+        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
+                .Builder(17462)
+//                .deleteForAll(true)
+                .typeCode("5")
+                .build();
+        presenter.deleteMessage(requestDeleteMessage, null);
+
+//        presenter.deleteMessage(16804, true, new ChatHandler() {
+//            @Override
+//            public void onDeleteMessage(String uniqueId) {
+//                super.onDeleteMessage(uniqueId);
+//            }
+//        });
     }
 
     private void removeParticipants() {
@@ -385,15 +396,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 1:
                 //"get thread"
-                ArrayList<Integer> threadIds = new ArrayList<>();
-//                threadIds.add(22);
-//                threadIds.add(351);
-                presenter.getThread(5, null, null, null, new ChatHandler() {
-                    @Override
-                    public void onGetThread(String uniqueId) {
-                        super.onGetThread(uniqueId);
-                    }
-                });
+                getThreads();
                 break;
             case 2:
                 //"rename thread",
@@ -470,13 +473,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 9:
                 //get thread history
-                History history = new History.Builder().build();
-                presenter.getHistory(history, 1288, new ChatHandler() {
-                    @Override
-                    public void onGetHistory(String uniqueId) {
-                        super.onGetHistory(uniqueId);
-                    }
-                });
+                getHistory();
 
                 break;
             case 10:
@@ -526,6 +523,45 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 presenter.updateContact(571, "Fel", "", "", "devfelfel@gmail.com"
                 );
         }
+    }
+
+    public void getHistory() {
+        RequestGetHistory request = new RequestGetHistory
+                .Builder(1288)
+                .count(5)
+                .firstMessageId(1733)
+                .lastMessageId(1780)
+                .typeCode("6")
+                .build();
+
+        presenter.getHistory(request, null);
+
+//        History history = new History.Builder().build();
+//        presenter.getHistory(history, 1288, new ChatHandler() {
+//            @Override
+//            public void onGetHistory(String uniqueId) {
+//                super.onGetHistory(uniqueId);
+//            }
+//        });
+    }
+
+    public void getThreads() {
+        ArrayList<Integer> threadIds = new ArrayList<>();
+//                threadIds.add(22);
+//                threadIds.add(351);
+        RequestThread requestThread = new RequestThread
+                .Builder()
+                .partnerCoreContactId(566)
+                .count(5)
+                .build();
+        presenter.getThreads(requestThread);
+
+//        presenter.getThread(5, null, null, null, new ChatHandler() {
+//            @Override
+//            public void onGetThread(String uniqueId) {
+//                super.onGetThread(uniqueId);
+//            }
+//        });
     }
 
     public void replyMessage() {

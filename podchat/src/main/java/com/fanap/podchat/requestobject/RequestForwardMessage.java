@@ -14,7 +14,7 @@ public class RequestForwardMessage extends GeneralRequestObject{
     }
 
 
-    public static class Builder extends GeneralRequestObject.Builder{
+    public static class Builder extends GeneralRequestObject.Builder<Builder>{
         private long threadId;
         private ArrayList<Long> messageIds;
 
@@ -28,9 +28,10 @@ public class RequestForwardMessage extends GeneralRequestObject{
         }
 
         @Override
-        protected GeneralRequestObject.Builder self() {
+        protected Builder self() {
             return this;
         }
+
 
     }
     public long getThreadId() {

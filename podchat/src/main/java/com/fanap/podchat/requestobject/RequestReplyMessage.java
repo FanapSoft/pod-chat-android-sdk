@@ -15,7 +15,7 @@ public class RequestReplyMessage extends GeneralRequestObject {
         this.messageId = builder.messageId;
     }
 
-    public static class Builder extends GeneralRequestObject.Builder {
+    public static class Builder extends GeneralRequestObject.Builder<Builder> {
         private String messageContent;
         private long threadId;
         private long messageId;
@@ -37,9 +37,11 @@ public class RequestReplyMessage extends GeneralRequestObject {
         }
 
         @Override
-        protected GeneralRequestObject.Builder self() {
-            return null;
+        protected Builder self() {
+            return this;
         }
+
+
     }
 
     public String getMessageContent() {

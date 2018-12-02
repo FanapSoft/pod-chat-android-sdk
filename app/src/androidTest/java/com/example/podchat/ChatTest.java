@@ -15,8 +15,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultImageFile;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -92,8 +91,10 @@ public class ChatTest {
         }
 
         Mockito.verify(view, Mockito.times(1)).onGetThreadList();
-        ChatResponse<ResultThreads> chatResponse =
+//        ChatResponse<ResultThreads> chatResponse =
     }
+
+    //Get History
 
     @Test
     @MediumTest
@@ -185,7 +186,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.sendTextMessage("this is test", 381, null);
+        presenter.sendTextMessage("this is test", 381, null,"name",null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -204,14 +205,14 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.sendTextMessage("this is test", 381, null);
+        presenter.sendTextMessage("this is test", 381,2,"", null);
         Mockito.verify(view, Mockito.times(1)).onSentMessage();
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.editMessage(1350, "salam this is edite" + new Date().getTime() + "by" + NAME);
+        presenter.editMessage(1350, "salam this is edite" + new Date().getTime() + "by" + NAME, "",null);
         Mockito.verify(view, Mockito.times(1)).onEditMessage();
     }
 
@@ -238,7 +239,7 @@ public class ChatTest {
             e.printStackTrace();
         }
         Invitee[] invite = new Invitee[]{new Invitee(566, 2)};
-        presenter.createThread(0, invite, "yes");
+        presenter.createThread(0, invite, "yes", null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -255,7 +256,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.muteThread(381);
+        presenter.muteThread(381, null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -291,7 +292,7 @@ public class ChatTest {
         }
 
         presenter.replyMessage("this is reply to all of you at" + new Date().getTime()
-                , 381, 14103);
+                , 381, 14103, null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -401,7 +402,7 @@ public class ChatTest {
             e.printStackTrace();
         }
         Uri uri = Uri.parse("content://media/external/images/media/781");
-        presenter.uploadImage(appContext, activity, uri);
+        presenter.uploadImage(activity, uri);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -426,7 +427,7 @@ public class ChatTest {
             }
 
             @Override
-            public void onFinish(String imageJson, FileImageUpload fileImageUpload) {
+            public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
 
             }
 
@@ -477,7 +478,7 @@ public class ChatTest {
         List<Long> participantIds = new ArrayList<>();
         participantIds.add(824L);
         participantIds.add(577L);
-        presenter.addParticipants(691, participantIds);
+        presenter.addParticipants(691, participantIds, null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -497,7 +498,7 @@ public class ChatTest {
         List<Long> contactIds = new ArrayList<>();
         contactIds.add(123L);
         contactIds.add(121L);
-        presenter.removeParticipants(691, contactIds);
+        presenter.removeParticipants(691, contactIds, null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -514,7 +515,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.leaveThread(657);
+        presenter.leaveThread(657,null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -531,7 +532,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.deleteMessage(14380, true);
+        presenter.deleteMessage(14380, true,null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -539,6 +540,8 @@ public class ChatTest {
         }
         Mockito.verify(view, Mockito.times(1)).onDeleteMessage();
     }
+
+    //getThread possibility test
 
     @Test
     @MediumTest
@@ -559,13 +562,46 @@ public class ChatTest {
 
     @Test
     @MediumTest
+    public void getThreadWithIds(){
+
+    }
+
+    @Test
+    @MediumTest
+    public void getThreadWithName(){
+
+    }
+
+    @Test
+    @MediumTest
+    public void getThreadWithPartnerCoreUserId(){
+
+    }
+
+    @Test
+    @MediumTest
+    public void getThreadWithCreatorCoreUserId(){
+
+    }
+
+    @Test
+    @MediumTest
+    public void getThreadWithPartnerCoreContactId(){
+
+    }
+
+
+
+
+    @Test
+    @MediumTest
     public void block() {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.block(575L);
+        presenter.block(575L,null);
 
         try {
             Thread.sleep(3000);

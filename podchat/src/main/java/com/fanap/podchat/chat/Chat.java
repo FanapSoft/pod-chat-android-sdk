@@ -98,10 +98,13 @@ import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestMessage;
@@ -1399,60 +1402,63 @@ public class Chat extends AsyncAdapter {
 
     /**
      * forward message
-     *
-     *  threadId   destination thread id
-     *  messageIds Array of message ids that we want to forward them
+     * <p>
+     * threadId   destination thread id
+     * messageIds Array of message ids that we want to forward them
      */
     public List<String> forwardMessage(RequestForwardMessage request) {
+        ArrayList<String> uniqueIds = null;
+        if (chatReady) {
+            ArrayList<Long> messageIds = request.getMessageIds();
+            long threadId = request.getThreadId();
 
-        ArrayList<Long> messageIds = request.getMessageIds();
-        long threadId = request.getThreadId();
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSubjectId(threadId);
 
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSubjectId(threadId);
+            ObjectMapper mapper = new ObjectMapper();
+            uniqueIds = new ArrayList<>();
 
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayList<String> uniqueIds = new ArrayList<>();
+            ArrayList<Callback> callbacks = new ArrayList<>();
 
-        ArrayList<Callback> callbacks = new ArrayList<>();
+            for (int i = 0; i < messageIds.size(); i++) {
+                String uniqueId = generateUniqueId();
+                uniqueIds.add(uniqueId);
+                Callback callback = new Callback();
+                callback.setDelivery(true);
+                callback.setSeen(true);
+                callback.setSent(true);
+                callback.setUniqueId(uniqueId);
+                callbacks.add(callback);
+            }
 
-        for (int i = 0; i < messageIds.size(); i++) {
-            String uniqueId = generateUniqueId();
-            uniqueIds.add(uniqueId);
-            Callback callback = new Callback();
-            callback.setDelivery(true);
-            callback.setSeen(true);
-            callback.setSent(true);
-            callback.setUniqueId(uniqueId);
-            callbacks.add(callback);
+            threadCallbacks.put(threadId, callbacks);
+            try {
+                chatMessage.setUniqueId(mapper.writeValueAsString(uniqueIds));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+            chatMessage.setContent(messageIds.toString());
+            chatMessage.setToken(getToken());
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setType(Constants.FORWARD_MESSAGE);
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+            jsonObject.remove("contentCount");
+            jsonObject.remove("systemMetadata");
+            jsonObject.remove("metadata");
+            jsonObject.remove("repliedTo");
+
+            String typeCode = request.getTypeCode();
+            if (Util.isNullOrEmpty(typeCode)) {
+                jsonObject.addProperty("typeCode", getTypeCode());
+            } else {
+                jsonObject.remove("typeCode");
+            }
+
+            sendAsyncMessage(jsonObject.toString(), 4, "SEND_FORWARD_MESSAGE");
         }
 
-        threadCallbacks.put(threadId, callbacks);
-        try {
-            chatMessage.setUniqueId(mapper.writeValueAsString(uniqueIds));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        chatMessage.setContent(messageIds.toString());
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setType(Constants.FORWARD_MESSAGE);
-
-        JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-        jsonObject.remove("contentCount");
-        jsonObject.remove("systemMetadata");
-        jsonObject.remove("metadata");
-        jsonObject.remove("repliedTo");
-
-        String typeCode = request.getTypeCode();
-        if (Util.isNullOrEmpty(typeCode)) {
-            jsonObject.addProperty("typeCode", getTypeCode());
-        } else {
-            jsonObject.remove("typeCode");
-        }
-
-        sendAsyncMessage(jsonObject.toString(), 4, "SEND_FORWARD_MESSAGE");
         return uniqueIds;
     }
 
@@ -1466,7 +1472,7 @@ public class Chat extends AsyncAdapter {
      */
     public String replyMessage(RequestReplyMessage request, ChatHandler handler) {
         String uniqueId = generateUniqueId();
-        String asyncContent = null ;
+        String asyncContent = null;
         if (chatReady) {
 
             ChatMessage chatMessage = new ChatMessage();
@@ -1500,7 +1506,7 @@ public class Chat extends AsyncAdapter {
             if (handler != null) {
                 handler.onReplyMessage(uniqueId);
             }
-        }else {
+        } else {
             return null;
         }
         sendAsyncMessage(asyncContent, 4, "SEND_REPLY_MESSAGE");
@@ -1579,6 +1585,52 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
+     * DELETE MESSAGE IN THREAD
+     * <p>
+     * messageId    Id of the message that you want to be removed.
+     * deleteForAll If you want to delete message for everyone you can set it true if u don't want
+     * you can set it false or even null.
+     */
+    public String deleteMessage(RequestDeleteMessage request, ChatHandler handler) {
+        String asyncContent = null;
+        String uniqueId = null;
+        if (chatReady) {
+            boolean deleteForAll = request.isDeleteForAll();
+            long messageId = request.getMessageId();
+            String typeCode = request.getTypeCode();
+
+            uniqueId = generateUniqueId();
+            BaseMessage baseMessage = new BaseMessage();
+
+            DeleteMessage deleteMessage = new DeleteMessage();
+            deleteMessage.setDeleteForAll(deleteForAll);
+            String content = JsonUtil.getJson(deleteMessage);
+
+            baseMessage.setContent(content);
+            baseMessage.setSubjectId(messageId);
+            baseMessage.setToken(getToken());
+            baseMessage.setTokenIssuer("1");
+            baseMessage.setType(Constants.DELETE_MESSAGE);
+            baseMessage.setUniqueId(uniqueId);
+
+            if (Util.isNullOrEmpty(request.getTypeCode())) {
+                baseMessage.setTypeCode(request.getTypeCode());
+            } else {
+                baseMessage.setTypeCode(getTypeCode());
+            }
+
+            asyncContent = gson.toJson(baseMessage);
+            setCallBacks(null, null, null, true, Constants.DELETE_MESSAGE, null, uniqueId);
+            if (handler != null) {
+                handler.onDeleteMessage(uniqueId);
+            }
+        }
+
+        sendAsyncMessage(asyncContent, 4, "SEND_DELETE_MESSAGE");
+        return uniqueId;
+    }
+
+    /**
      * Get the list of threads or you can just pass the thread id that you want
      *
      * @param count  number of thread
@@ -1636,6 +1688,7 @@ public class Chat extends AsyncAdapter {
                 chatMessageContent.setOffset(offset);
             }
 
+            chatMessageContent.setCount(count);
             if (threadName != null) {
                 chatMessageContent.setName(threadName);
             }
@@ -1789,6 +1842,69 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * Get history of the thread
+     * <p>
+     * count    count of the messages
+     * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
+     * lastMessageId
+     * FirstMessageId
+     *
+     * @param threadId Id of the thread that we want to get the history
+     */
+    public String getHistory(RequestGetHistory request, ChatHandler handler) {
+
+        long offsets = request.getOffset();
+
+        if (request.getCount() != 0) {
+            request.setCount(request.getCount());
+        } else {
+            request.setCount(50L);
+        }
+
+        if (request.getOffset() != 0) {
+            request.setOffset(request.getOffset());
+        } else {
+            request.setOffset(0L);
+            offsets = 0;
+        }
+
+        JsonObject jObj = (JsonObject) gson.toJsonTree(request);
+        if (request.getLastMessageId() == 0) {
+            jObj.remove("lastMessageId");
+        }
+
+        if (request.getFirstMessageId() == 0) {
+            jObj.remove("firstMessageId");
+        }
+
+        String uniqueId = generateUniqueId();
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(jObj.toString());
+
+        chatMessage.setType(Constants.GET_HISTORY);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(request.getThreadId());
+
+        if (Util.isNullOrEmpty(request.getTypeCode())) {
+            chatMessage.setTypeCode(getTypeCode());
+        } else {
+            chatMessage.setTypeCode(request.getTypeCode());
+        }
+
+        String asyncContent = gson.toJson(chatMessage);
+
+        setCallBacks(null, null, null, true, Constants.GET_HISTORY, offsets, uniqueId);
+        sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
+        if (handler != null) {
+            handler.onGetHistory(uniqueId);
+        }
+        return uniqueId;
+    }
+
     public String searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler) {
 
         JsonAdapter<NosqlListMessageCriteriaVO> messageContentJsonAdapter = moshi.adapter(NosqlListMessageCriteriaVO.class);
@@ -1811,6 +1927,67 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 3, "SEND SEARCH0. HISTORY");
         if (handler != null) {
             handler.onSearchHistory(uniqueId);
+        }
+        return uniqueId;
+    }
+
+    //TODO working progress
+    /**
+     * Get all of the contacts of the user
+     */
+    public String getContacts(RequestGetContact request, ChatHandler handler) {
+
+        Long offsets = request.getOffset();
+        String uniqueId;
+        if (cache) {
+            ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacts());
+            ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+
+            ResultContact resultContact = new ResultContact();
+            resultContact.setContacts(arrayList);
+            chatResponse.setResult(resultContact);
+            resultContact.setContentCount(messageDatabaseHelper.getContacts().size());
+
+            String contactJson = JsonUtil.getJson(chatResponse);
+
+            listenerManager.callOnGetContacts(contactJson, chatResponse);
+        }
+
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
+//
+//        if (request.getOffset() != null) {
+//            chatMessageContent.setOffset(offset);
+//        } else {
+//            chatMessageContent.setOffset(0);
+//            offsets = 0L;
+//        }
+//
+        JsonObject jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
+//        jObj.remove("lastMessageId");
+//        jObj.remove("firstMessageId");
+//        if (count != null) {
+//            jObj.remove("count");
+//            jObj.addProperty("size", count);
+//        } else {
+//            jObj.remove("count");
+//            jObj.addProperty("size", 50);
+//        }
+
+        uniqueId = generateUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(jObj.toString());
+        chatMessage.setType(Constants.GET_CONTACTS);
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+
+        chatMessage.setTypeCode(getTypeCode());
+
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+        setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offsets, uniqueId);
+        sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
+        if (handler != null) {
+            handler.onGetContact(uniqueId);
         }
         return uniqueId;
     }
@@ -2807,6 +2984,7 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
     }
 
+    //TODO change response model
     private void handleThreadInfoUpdated(ChatMessage chatMessage) {
         OutPutInfoThread outPutInfoThread = new OutPutInfoThread();
         ResultThread resultThread = new ResultThread();
@@ -2818,7 +2996,7 @@ public class Chat extends AsyncAdapter {
         if (log) Logger.json(chatMessage.getContent());
     }
 
-    //TODO
+    //TODO change response model
     private void handleRemoveFromThread(ChatMessage chatMessage) {
         if (log) Logger.i("RECEIVED_REMOVE_FROM_THREAD", chatMessage);
         listenerManager.callOnRemovedFromThread(chatMessage.getContent());
@@ -3492,9 +3670,6 @@ public class Chat extends AsyncAdapter {
     private void handleOutPutDeleteMsg(ChatMessage chatMessage) {
 
         ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
-        chatResponse.setErrorCode(0);
-        chatResponse.setErrorMessage("");
-        chatResponse.setHasError(false);
         chatResponse.setUniqueId(chatMessage.getUniqueId());
 
         ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();

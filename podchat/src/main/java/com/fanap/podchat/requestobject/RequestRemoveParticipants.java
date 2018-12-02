@@ -40,7 +40,7 @@ public class RequestRemoveParticipants extends GeneralRequestObject {
 
         @Override
         protected Builder self() {
-            return null;
+            return this;
         }
 
         public RequestRemoveParticipants build() {

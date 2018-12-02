@@ -5,7 +5,7 @@ public class Invitee  {
     private long id;
     private int idType;
 
-    public Invitee(int id, int idType) {
+    public Invitee(long id, int idType) {
         this.id = id;
         this.idType = idType;
     }
