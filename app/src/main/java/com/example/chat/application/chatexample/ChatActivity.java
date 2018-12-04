@@ -512,7 +512,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("saman", "rashedi", "09128884535", "min" + new Date().getTime());
+                presenter.addContact("Mahdi", "Kani", "09122564555", "min" + new Date().getTime());
                 break;
             case 15:
                 // remove contact

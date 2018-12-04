@@ -1,7 +1,7 @@
 package com.fanap.podchat.model;
 
 public class FileImageMetaData {
-    private int id;
+    private long id;
     private String originalName;
     private String link;
     private String hashCode;
@@ -51,11 +51,11 @@ public class FileImageMetaData {
         this.name = name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

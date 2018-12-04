@@ -60,7 +60,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "2221ce59c62742d18b97bfc1caf5de5c";
+    private static String TOKEN = "c92c7119067543f0a74715e6ea8359dd";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -532,7 +532,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 14:
                 // add contact
-                presenter.addContact("hani", "ra", "09128854535", "");
+                presenter.addContact("mamad", "raid", "09128854555", "");
                 break;
             case 15:
                 // remove contact

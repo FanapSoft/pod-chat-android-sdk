@@ -28,6 +28,17 @@ public interface ContactApi {
             , @Field("email") String email
             , @Field("uniqueId") String uniqueId
             , @Field("cellphoneNumber") String cellphoneNumber
+    );
+
+    @POST("nzh/addContacts")
+    @FormUrlEncoded
+    Observable<Response<Contacts>> addContact(@Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Field("firstName") String firstName
+            , @Field("lastName") String lastName
+            , @Field("email") String email
+            , @Field("uniqueId") String uniqueId
+            , @Field("cellphoneNumber") String cellphoneNumber
             , @Field("typeCode") String typeCode
     );
 

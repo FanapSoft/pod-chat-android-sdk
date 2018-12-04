@@ -1,7 +1,7 @@
 package com.fanap.podchat.model;
 
 public class ResultImageFile {
-    private int id;
+    private long id;
     private String name;
     private String hashCode;
     private String description;
@@ -10,11 +10,11 @@ public class ResultImageFile {
     private int width;
     private int height;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

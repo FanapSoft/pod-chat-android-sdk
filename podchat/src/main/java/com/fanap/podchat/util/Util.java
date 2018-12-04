@@ -33,9 +33,9 @@ public class Util {
     }
 
     public static boolean isNullOrEmpty(String string) {
-        boolean check = false;
+        boolean check = true;
         if (string != null && !string.isEmpty()) {
-            check = true;
+            check = false;
         }
         return check;
     }
