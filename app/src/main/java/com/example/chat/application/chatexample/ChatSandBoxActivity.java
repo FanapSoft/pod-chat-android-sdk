@@ -60,7 +60,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "03c5aa6eb53e4e939b3f47ef5d7a0a5e";
+    private static String TOKEN = "689d35815c8f4b1cbe1095a4ae81dea0";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -68,7 +68,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String ssoHost = "https://accounts.pod.land/";
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8080/";
-    private static String TYPE_CODE = "";
+    private static String TYPE_CODE = "chattest";
 
 
     @Override
@@ -512,7 +512,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(10, null, new ChatHandler() {
+                presenter.getContact(50, null, new ChatHandler() {
                     @Override
                     public void onGetContact(String uniqueId) {
                         super.onGetContact(uniqueId);
@@ -532,7 +532,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 14:
                 // add contact
-                presenter.addContact("mamad", "raid", "09128854555", "");
+                presenter.addContact("Maziar", "falahi", "09218854555", "");
                 break;
             case 15:
                 // remove contact
@@ -549,7 +549,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ArrayList<Integer> threadIds = new ArrayList<>();
         threadIds.add(22);
         threadIds.add(1031);
-        presenter.getThread(5, null, null, null, null);
+        presenter.getThread(5, 6L, null, null, null);
     }
 
     private void getThreadParticipant() {
