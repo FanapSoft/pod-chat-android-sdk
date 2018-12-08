@@ -26,6 +26,8 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestUnBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -192,6 +194,8 @@ public interface ChatContract {
 
         void unBlock(long contactId, ChatHandler handler);
 
+        void unBlock(RequestUnBlock request, ChatHandler handler);
+
         void spam(long threadId);
 
         void getBlockList(Long count, Integer offset, ChatHandler handler);
@@ -227,6 +231,8 @@ public interface ChatContract {
         void leaveThread(long threadId, ChatHandler handler);
 
         void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler);
+
+        void updateThreadInfo(RequestThreadInfo request, ChatHandler handler);
 
         void deleteMessage(long messageId, Boolean deleteForAll, ChatHandler handler);
 

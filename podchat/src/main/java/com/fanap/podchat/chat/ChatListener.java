@@ -20,6 +20,7 @@ import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 
 public interface ChatListener {
@@ -78,7 +79,7 @@ public interface ChatListener {
 
     }
 
-    default void onEditedMessage(String content) {
+    default void onEditedMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
 
     }
 
@@ -114,7 +115,7 @@ public interface ChatListener {
 
     }
 
-    default void onUpdateContact(String content) {
+    default void onUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
 
     }
 

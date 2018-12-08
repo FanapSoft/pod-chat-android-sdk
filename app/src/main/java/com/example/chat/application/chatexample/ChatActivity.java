@@ -506,7 +506,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 Inviter inviter = new Inviter();
                 inviter.setName("sina");
                 String meta = JsonUtil.getJson(inviter);
-                presenter.editMessage(13530,
+                presenter.editMessage(17552,
                         "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
                 break;

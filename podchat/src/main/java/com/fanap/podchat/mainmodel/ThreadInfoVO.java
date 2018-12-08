@@ -1,6 +1,6 @@
 package com.fanap.podchat.mainmodel;
 
-public class ThreadInfoVO  {
+public class ThreadInfoVO {
     private String image;
     private String name;
     private String description;
@@ -32,7 +32,8 @@ public class ThreadInfoVO  {
             this.image = image;
             return this;
         }
-public Builder title(String title) {
+
+        public Builder title(String title) {
             this.name = title;
             return this;
         }
@@ -47,8 +48,8 @@ public Builder title(String title) {
             return this;
         }
 
-        public ThreadInfoVO build(){
-           return new ThreadInfoVO(this);
+        public ThreadInfoVO build() {
+            return new ThreadInfoVO(this);
         }
 
     }

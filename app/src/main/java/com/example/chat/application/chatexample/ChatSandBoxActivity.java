@@ -26,13 +26,14 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
-import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.util.JsonUtil;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -60,7 +61,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "689d35815c8f4b1cbe1095a4ae81dea0";
+    private static String TOKEN = "e9b95acbf54e4046b1ff089d33d93a30";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -142,12 +143,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 4:
-                        presenter.unBlock(1382L, new ChatHandler() {
-                            @Override
-                            public void onUnBlock(String uniqueId) {
-                                super.onUnBlock(uniqueId);
-                            }
-                        });
+                        unBlock();
 
                         break;
                     case 5:
@@ -160,14 +156,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 6:
-//                        1104 is a group
-                        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("description + mine").title("new flower").build();
-                        presenter.updateThreadInfo(1104, threadInfoVO, new ChatHandler() {
-                            @Override
-                            public void onUpdateThreadInfo(String uniqueId) {
-                                super.onUpdateThreadInfo(uniqueId);
-                            }
-                        });
+                        updateThreadInfo();
+
                         break;
                     case 7:
                         RequestSeenMessageList requests = new RequestSeenMessageList.Builder(17374).build();
@@ -208,11 +198,39 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 }
             }
 
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
+    }
+
+    public void updateThreadInfo() {
+        //                        1104 is a group
+        RequestThreadInfo threadInfo = new RequestThreadInfo.Builder().threadId(1104).description("yes").name("this is test").build();
+
+        presenter.updateThreadInfo(threadInfo, null);
+
+//        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("description + mine").title("new flower").build();
+//        presenter.updateThreadInfo(1104, threadInfoVO, new ChatHandler() {
+//            @Override
+//            public void onUpdateThreadInfo(String uniqueId) {
+//                super.onUpdateThreadInfo(uniqueId);
+//            }
+//        });
+    }
+
+    public void unBlock() {
+        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder(1382).build();
+        presenter.unBlock(requestUnBlock, null);
+
+//        presenter.unBlock(1382L, new ChatHandler() {
+//            @Override
+//            public void onUnBlock(String uniqueId) {
+//                super.onUnBlock(uniqueId);
+//            }
+//        });
     }
 
     private void getthreadWithCoreUser() {

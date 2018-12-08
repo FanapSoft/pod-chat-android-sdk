@@ -21,6 +21,7 @@ import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.util.LogHelper;
 import com.orhanobut.logger.Logger;
@@ -224,10 +225,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnEditedMessage(String content) {
+    public void callOnEditedMessage(String content,ChatResponse<ResultNewMessage> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onEditedMessage(content);
+                listener.onEditedMessage(content,chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -301,10 +302,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUpdateContact(String content) {
+    public void callOnUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUpdateContact(content);
+                listener.onUpdateContact(content,chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

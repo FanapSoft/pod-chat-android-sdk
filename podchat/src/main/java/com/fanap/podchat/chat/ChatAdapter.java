@@ -20,6 +20,7 @@ import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 
 public class ChatAdapter implements ChatListener {
@@ -98,7 +99,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onEditedMessage(String content) {
+    public void onEditedMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
 
     }
 
@@ -148,7 +149,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onUpdateContact(String content) {
+    public void onUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
 
     }
 

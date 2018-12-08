@@ -35,6 +35,7 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
@@ -48,6 +49,8 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -229,6 +232,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void unBlock(RequestUnBlock request, ChatHandler handler) {
+        chat.unblock(request, handler);
+    }
+
+    @Override
     public void spam(long threadId) {
         chat.spam(threadId);
     }
@@ -319,6 +327,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void updateThreadInfo(RequestThreadInfo request, ChatHandler handler) {
+        chat.updateThreadInfo(request, handler);
+    }
+
+    @Override
     public void deleteMessage(long messageId, Boolean deleteForAll, ChatHandler handler) {
         chat.deleteMessage(messageId, deleteForAll, handler);
     }
@@ -401,8 +414,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onEditedMessage(String content) {
-        super.onEditedMessage(content);
+    public void onEditedMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
+        super.onEditedMessage(content, chatResponse);
         view.onEditMessage();
     }
 
@@ -437,8 +450,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onUpdateContact(String content) {
-        super.onUpdateContact(content);
+    public void onUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
+        super.onUpdateContact(content, chatResponse);
         view.onUpdateContact();
     }
 

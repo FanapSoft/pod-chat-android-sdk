@@ -1,29 +1,24 @@
 package com.fanap.podchat.requestobject;
 
-
-public class RequestReplyMessage extends GeneralRequestObject {
+public class RequestEditMessage extends GeneralRequestObject {
     private String messageContent;
-    private long threadId;
     private long messageId;
     private String metaData;
 
-     RequestReplyMessage(Builder builder) {
+     RequestEditMessage(Builder builder) {
         super(builder);
         this.metaData = builder.metaData;
         this.messageContent = builder.messageContent;
-        this.threadId = builder.threadId;
         this.messageId = builder.messageId;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
         private String messageContent;
-        private long threadId;
         private long messageId;
         private String metaData;
 
-        public Builder(String messageContent, long threadId, long messageId) {
+        public Builder(String messageContent, long messageId) {
             this.messageContent = messageContent;
-            this.threadId = threadId;
             this.messageId = messageId;
         }
 
@@ -32,8 +27,8 @@ public class RequestReplyMessage extends GeneralRequestObject {
             return this;
         }
 
-        public RequestReplyMessage build() {
-            return new RequestReplyMessage(this);
+        public RequestEditMessage build() {
+            return new RequestEditMessage(this);
         }
 
         @Override
@@ -48,14 +43,6 @@ public class RequestReplyMessage extends GeneralRequestObject {
 
     public void setMessageContent(String messageContent) {
         this.messageContent = messageContent;
-    }
-
-    public long getThreadId() {
-        return threadId;
-    }
-
-    public void setThreadId(long threadId) {
-        this.threadId = threadId;
     }
 
     public long getMessageId() {
