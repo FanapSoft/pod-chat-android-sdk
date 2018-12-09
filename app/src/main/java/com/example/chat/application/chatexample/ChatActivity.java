@@ -549,19 +549,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(22);
 //                threadIds.add(351);
-        RequestThread requestThread = new RequestThread
-                .Builder()
-                .partnerCoreContactId(566)
-                .count(5)
-                .build();
-        presenter.getThreads(requestThread);
+//        RequestThread requestThread = new RequestThread
+//                .Builder()
+//                .partnerCoreContactId(566)
+//                .count(5)
+//                .build();
+//        presenter.getThreads(requestThread);
 
-//        presenter.getThread(5, null, null, null, new ChatHandler() {
-//            @Override
-//            public void onGetThread(String uniqueId) {
-//                super.onGetThread(uniqueId);
-//            }
-//        });
+        presenter.getThreads(null, null, null, null, null);
     }
 
     public void replyMessage() {

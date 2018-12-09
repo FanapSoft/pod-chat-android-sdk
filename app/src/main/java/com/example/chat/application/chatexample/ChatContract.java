@@ -148,7 +148,7 @@ public interface ChatContract {
 
         void mapRouting(String origin, String destination);
 
-        void getThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
+        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
 
         void getThreadObject(RequestThread requestThread);
 
