@@ -61,7 +61,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "d67aac7652bf49248e8efc9cc39d9261";
+    private static String TOKEN = "4fc3cd5b1f014e9d8713df1e2f25b219";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -69,7 +69,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String ssoHost = "https://accounts.pod.land/";
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8080/";
-    private static String TYPE_CODE = null;
+    private static String TYPE_CODE = "chattest";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,14 +192,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                     case 10:
 
-                        presenter.getThreads(null,null,null,null,null);
-
-//                        getthreadWithCoreUser();
+                        getthreadWithCoreUser();
                         break;
 
                 }
             }
-
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -524,7 +522,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(50, null, new ChatHandler() {
+                presenter.getContact(10, null, new ChatHandler() {
                     @Override
                     public void onGetContact(String uniqueId) {
                         super.onGetContact(uniqueId);
@@ -579,7 +577,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         }
         if (v == buttonConnect) {
             presenter.connect(socketAddres,
-                    appId, serverName, "82d050c5b4e94a029c27f6c8bbd21cb4", ssoHost,
+                    appId, serverName, TOKEN, ssoHost,
                     platformHost, fileServer, TYPE_CODE);
         }
         if (v == buttonToken) {
