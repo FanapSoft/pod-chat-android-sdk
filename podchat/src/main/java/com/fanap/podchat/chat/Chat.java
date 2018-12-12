@@ -399,13 +399,13 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.GET_THREADS:
                 if (callback == null) {
-                    handleGetThreads(callback, chatMessage, messageUniqueId);
+                    handleGetThreads(null, chatMessage, messageUniqueId);
                 }
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.INVITATION:
                 if (callback == null) {
-                    handleCreateThread(callback, chatMessage, messageUniqueId);
+                    handleCreateThread(null, chatMessage, messageUniqueId);
                 }
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
@@ -414,7 +414,7 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.LEAVE_THREAD:
                 if (callback == null) {
-                    handleOutPutLeaveThread(callback, chatMessage, messageUniqueId);
+                    handleOutPutLeaveThread(null, chatMessage, messageUniqueId);
                 }
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
@@ -431,7 +431,7 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.REMOVE_PARTICIPANT:
                 if (callback == null) {
-                    handleOutPutRemoveParticipant(callback, chatMessage, messageUniqueId);
+                    handleOutPutRemoveParticipant(null, chatMessage, messageUniqueId);
                 }
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
@@ -705,6 +705,7 @@ public class Chat extends AsyncAdapter {
                         @Override
                         public void call(Response<FileImageUpload> fileUploadResponse) {
                             if (fileUploadResponse.isSuccessful()) {
+
                                 boolean hasError = fileUploadResponse.body().isHasError();
                                 if (hasError) {
                                     String errorMessage = fileUploadResponse.body().getMessage();

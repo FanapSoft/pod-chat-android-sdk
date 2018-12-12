@@ -31,7 +31,7 @@ import com.fanap.podchat.persistance.dao.MessageDao;
 }, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
-    public static final String DATABASE_DB = "cache.db";
+    private static final String DATABASE_DB = "cache.db";
     private static AppDatabase appDatabase;
 
     public static AppDatabase getInstance(Context context) {
