@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
+import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -12,6 +13,7 @@ import com.fanap.podchat.mainmodel.LastMessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
 
@@ -25,6 +27,114 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     public MessageDatabaseHelper(Context context) {
         super(context);
         messageDao = appDatabase.getMessageDao();
+    }
+
+    public void saveHistory(List<CacheMessageVO> messageVOS) {
+        for (CacheMessageVO messageVO : messageVOS) {
+            if (messageVO.getParticipant() != null) {
+                messageVO.setParticipantId(messageVO.getParticipant().getId());
+                messageDao.insertParticipant(messageVO.getParticipant());
+
+            }
+
+            if (messageVO.getConversation() != null) {
+                messageVO.setThreadVoId(messageVO.getConversation().getId());
+                messageDao.insertThread(messageVO.getConversation());
+            }
+
+            if (messageVO.getForwardInfo() != null) {
+                messageVO.setForwardInfoId(messageVO.getForwardInfo().getId());
+                messageDao.insertForwardInfo(messageVO.getForwardInfo());
+                if (messageVO.getForwardInfo().getParticipant() != null) {
+                    messageVO.getForwardInfo().setParticipantId(messageVO.getForwardInfo().getParticipant().getId());
+                    messageDao.insertParticipant(messageVO.getForwardInfo().getParticipant());
+                }
+            }
+
+            if (messageVO.getReplyInfoVO() != null) {
+                messageVO.setReplyInfoVOId(messageVO.getReplyInfoVO().getId());
+                messageDao.insertReplyInfoVO(messageVO.getReplyInfoVO());
+                if (messageVO.getReplyInfoVO().getParticipant() != null) {
+                    messageVO.getReplyInfoVO().setParticipantId(messageVO.getReplyInfoVO().getParticipant().getId());
+                    messageDao.insertParticipant(messageVO.getReplyInfoVO().getParticipant());
+                }
+            }
+        }
+    }
+
+
+    public List<MessageVO> getHistories() {
+        List<MessageVO> messageVOS = new ArrayList<>();
+        List<CacheMessageVO> cMessageVOS = messageDao.getHistories();
+        Participant participant = null;
+        ReplyInfoVO replyInfoVO = null;
+        for (CacheMessageVO cacheMessageVO : cMessageVOS) {
+            if (cacheMessageVO.getThreadVoId() != null) {
+                cacheMessageVO.setConversation(messageDao.getThreadById(cacheMessageVO.getThreadVoId()));
+            }
+            if (cacheMessageVO.getForwardInfoId() != null) {
+                cacheMessageVO.setForwardInfo(messageDao.getForwardInfo(cacheMessageVO.getForwardInfoId()));
+            }
+            if (cacheMessageVO.getParticipantId() != null) {
+                CacheParticipant cacheParticipant = messageDao.getParticipant(cacheMessageVO.getParticipantId());
+                 participant = new Participant(
+                    cacheParticipant.getId(),
+                        cacheParticipant.getName(),
+                        cacheParticipant.getFirstName(),
+                        cacheParticipant.getLastName(),
+                        cacheParticipant.getImage(),
+                        cacheParticipant.getNotSeenDuration(),
+                        cacheParticipant.getContactId(),
+                        cacheParticipant.getContactName(),
+                        cacheParticipant.getContactFirstName(),
+                        cacheParticipant.getContactLastName(),
+                        cacheParticipant.getSendEnable(),
+                        cacheParticipant.getReceiveEnable(),
+                        cacheParticipant.getCellphoneNumber(),
+                        cacheParticipant.getEmail(),
+                        cacheParticipant.getMyFriend(),
+                        cacheParticipant.getOnline(),
+                        cacheParticipant.getBlocked(),
+                        cacheParticipant.getAdmin()
+                );
+
+            }
+            if (cacheMessageVO.getReplyInfoVOId() != null) {
+                CacheReplyInfoVO cacheReplyInfoVO = messageDao.getReplyInfo(cacheMessageVO.getReplyInfoVOId());
+                replyInfoVO = new ReplyInfoVO(
+                        cacheReplyInfoVO.getRepliedToMessageId(),
+                        cacheReplyInfoVO.getMessageType(),
+                        cacheReplyInfoVO.isDeleted(),
+                        cacheReplyInfoVO.getRepliedToMessage(),
+                        cacheReplyInfoVO.getSystemMetadata(),
+                        cacheReplyInfoVO.getMetadata(),
+                        cacheReplyInfoVO.getMessage()
+                );
+            }
+
+            MessageVO messageVO = new MessageVO(
+                    cacheMessageVO.getId(),
+                    cacheMessageVO.isEdited(),
+                    cacheMessageVO.isEditable(),
+                    cacheMessageVO.isDelivered(),
+                    cacheMessageVO.isSeen(),
+                    cacheMessageVO.getUniqueId(),
+                    cacheMessageVO.getMessageType(),
+                    cacheMessageVO.getPreviousId(),
+                    cacheMessageVO.getMessage(),
+                    participant,
+                    cacheMessageVO.getTime(),
+                    cacheMessageVO.getMetadata(),
+                    cacheMessageVO.getSystemMetadata(),
+                    null,
+                    replyInfoVO,
+                    null
+            );
+
+            messageVOS.add(messageVO);
+        }
+
+        return messageVOS;
     }
 
     public List<Contact> getContacts() {

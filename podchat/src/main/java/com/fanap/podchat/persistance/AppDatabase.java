@@ -7,14 +7,15 @@ import android.content.Context;
 
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
+import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
+import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.persistance.dao.MessageDao;
-import com.fanap.podchat.mainmodel.Contact;
 
 @Database(entities = {
         Contact.class,
@@ -25,6 +26,7 @@ import com.fanap.podchat.mainmodel.Contact;
         CacheParticipant.class,
         CacheReplyInfoVO.class,
         ConversationSummery.class,
+        CacheMessageVO.class,
         ThreadVo.class
 }, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {

@@ -61,7 +61,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "4fc3cd5b1f014e9d8713df1e2f25b219";
+    private static String TOKEN = "c706bc14a6f9448ca1e04f2c34788f87";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -168,27 +168,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.deliveredMessageList(requestD);
                         break;
                     case 9:
-                        List<Invitee> invite = new ArrayList<>();
-                        invite.add(new Invitee(122, 1));
-
-//                                new Invitee[]{
-//                                new Invitee(122, 1)
-//                        , new Invitee(1967, 2)
-//                        ,new Invitee(123, 5)
-//                        , new Invitee(824, 2)
-                        List<Long> listForwardIds = new ArrayList<>();
-                        listForwardIds.add(1346L);
-                        RequestThreadInnerMessage message = new RequestThreadInnerMessage
-                                .Builder("hello")
-                                .forwardedMessageIds(listForwardIds)
-                                .build();
-
-                        RequestCreateThread requestCreateThread = new RequestCreateThread
-                                .Builder(0
-                                , invite
-                                , message)
-                                .build();
-                        presenter.createThreadWithMessage(requestCreateThread);
+                        createThreadWithMsg();
                         break;
                     case 10:
 
@@ -203,6 +183,31 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
             }
         });
+    }
+
+    public void createThreadWithMsg() {
+
+        List<Invitee> invite = new ArrayList<>();
+        invite.add(new Invitee(122, 1));
+
+//                                new Invitee[]{
+//                                new Invitee(122, 1)
+//                        , new Invitee(1967, 2)
+//                        ,new Invitee(123, 5)
+//                        , new Invitee(824, 2)
+//        List<Long> listForwardIds = new ArrayList<>();
+//        listForwardIds.add(1346L);
+        RequestThreadInnerMessage message = new RequestThreadInnerMessage
+                .Builder("hello")
+//                .forwardedMessageIds(listForwardIds)
+                .build();
+
+        RequestCreateThread requestCreateThread = new RequestCreateThread
+                .Builder(0
+                , invite
+                , message)
+                .build();
+        presenter.createThreadWithMessage(requestCreateThread);
     }
 
     public void updateThreadInfo() {
@@ -380,7 +385,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         RequestMessage requestMessage = new RequestMessage
-                .Builder("test at" + " " + new Date().getTime() + name, 22)
+                .Builder("test at" + " " + new Date().getTime() + name, 9000)
                 .messageType(2)
                 .jsonMetaData(meta)
                 .build();
@@ -489,7 +494,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 //get thread history
                 History history = new History.Builder().count(10).build();
 
-                presenter.getHistory(history, 381, new ChatHandler() {
+                presenter.getHistory(history, 2, new ChatHandler() {
                     @Override
                     public void onGetHistory(String uniqueId) {
                         super.onGetHistory(uniqueId);
@@ -510,6 +515,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                 break;
             case 11:
+                //"un mute thread"
                 //"un mute thread"
                 presenter.unMuteThread(543, new ChatHandler() {
                     @Override
@@ -536,7 +542,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 Inviter inviter = new Inviter();
                 inviter.setName("sina");
                 String meta = JsonUtil.getJson(inviter);
-                presenter.editMessage(13530,
+                presenter.editMessage(7905,
                         "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
                 break;

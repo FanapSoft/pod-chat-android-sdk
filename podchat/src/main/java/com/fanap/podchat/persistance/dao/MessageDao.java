@@ -6,6 +6,7 @@ import android.arch.persistence.room.Query;
 
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
+import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -27,6 +28,16 @@ public interface MessageDao {
 
     @Query("select * from Contact")
     List<Contact> getContact();
+
+    //Cache thread history
+    @Insert(onConflict = REPLACE)
+    void insertMessage(CacheMessageVO messageVO);
+
+    @Insert(onConflict = REPLACE)
+    void insertHistories(List<CacheMessageVO> messageVOS);
+
+    @Query("select * from CacheMessageVO")
+    List<CacheMessageVO> getHistories();
 
     //Cache userInfo
     @Insert(onConflict = REPLACE)

@@ -1,13 +1,9 @@
 package com.fanap.podchat.model;
 
-import android.arch.persistence.room.Embedded;
-
 import com.fanap.podchat.mainmodel.Participant;
 
 public class ForwardInfo {
-    @Embedded
     private Participant participant;
-    @Embedded
     private ConversationSummery conversation;
 
     public Participant getParticipant() {

@@ -23,6 +23,7 @@ import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.AddParticipant;
@@ -478,7 +479,7 @@ public class Chat extends AsyncAdapter {
     }
 
     @Override
-    public void onError(String textMessage) throws IOException {
+    public void onError(String textMessage) {
         super.onError(textMessage);
         if (log) Logger.e(textMessage);
     }
@@ -925,8 +926,8 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
 
-    public String uploadFile(Activity activity, Uri uri) {
         String uniqueId;
         try {
             if (Permission.Check_READ_STORAGE(activity)) {
@@ -1636,6 +1637,7 @@ public class Chat extends AsyncAdapter {
             chatMessage.setContent(messageContent);
             chatMessage.setTime(1000);
             chatMessage.setType(Constants.MESSAGE);
+
             if (metaData != null) {
                 chatMessage.setSystemMetadata(metaData);
             }
@@ -1876,6 +1878,7 @@ public class Chat extends AsyncAdapter {
         if (log) Logger.json(threadJson);
     }
 
+
     public String getThreads(RequestThread requestThread) {
         String uniqueId = generateUniqueId();
         ChatMessage chatMessage = new ChatMessage();
@@ -1941,6 +1944,42 @@ public class Chat extends AsyncAdapter {
      */
     public String getHistory(History history, long threadId, ChatHandler handler) {
         String uniqueId = null;
+
+        if (cache) {
+
+            List<MessageVO> messageVOS = messageDatabaseHelper.getHistories();
+//            resultsHistory.setHistory(messageVOS);
+//
+//            ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
+//
+//            ResultHistory resultHistory = new ResultHistory();
+//
+//            List<MessageVO> messageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
+//            }.getType());
+//
+//            resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
+//            resultHistory.setContentCount(chatMessage.getContentCount());
+//            if (messageVOS.size() + callback.getOffset() < chatMessage.getContentCount()) {
+//                resultHistory.setHasNext(true);
+//            } else {
+//                resultHistory.setHasNext(false);
+//            }
+//
+//            resultHistory.setHistory(messageVOS);
+//            chatResponse.setErrorCode(0);
+//            chatResponse.setHasError(false);
+//            chatResponse.setErrorMessage("");
+//            chatResponse.setResult(resultHistory);
+//            chatResponse.setUniqueId(chatMessage.getUniqueId());
+//
+//            String json = JsonUtil.getJson(chatResponse);
+//            listenerManager.callOnGetThreadHistory(json, chatResponse);
+//
+//            messageCallbacks.remove(messageUniqueId);
+//            if (log) Logger.i("CACHE_GET_HISTORY");
+//            if (log) Logger.json(json);
+        }
+
         if (chatReady) {
             long offsets = history.getOffset();
 
@@ -2752,7 +2791,6 @@ public class Chat extends AsyncAdapter {
             if (log) Logger.e(jsonError);
         }
 
-
         return uniqueId;
     }
 
@@ -3105,7 +3143,7 @@ public class Chat extends AsyncAdapter {
                     RequestThreadInnerMessage innerMessage = threadRequest.getMessage();
                     innerMessageObj = (JsonObject) gson.toJsonTree(innerMessage);
 
-                    if (Util.isNullOrEmptyNumber(threadRequest.getMessage().getForwardedMessageIds())) {
+                    if (!Util.isNullOrEmptyNumber(threadRequest.getMessage().getForwardedMessageIds())) {
 
                         List<Long> messageIds = threadRequest.getMessage().getForwardedMessageIds();
                         forwardUniqueIds = new ArrayList<>();
@@ -3168,7 +3206,7 @@ public class Chat extends AsyncAdapter {
                 if (log) Logger.e(jsonError);
             }
 
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (log) Logger.e(e.getCause().getMessage());
         }
         return uniqueId;
@@ -3783,7 +3821,7 @@ public class Chat extends AsyncAdapter {
      * Message can be edit when you pass the message id and the edited
      * content in order to edit your Message.
      */
-    public String editMessage(int messageId, String messageContent, String metaData, ChatHandler handler) {
+    public String editMessage(int messageId, String messageContent, String systemMetaData, ChatHandler handler) {
         String uniqueId = null;
         try {
             if (chatReady) {
@@ -3795,8 +3833,9 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setUniqueId(uniqueId);
                 chatMessage.setSubjectId(messageId);
                 chatMessage.setContent(messageContent);
-                chatMessage.setSystemMetadata(metaData);
+                chatMessage.setSystemMetadata(systemMetaData);
                 chatMessage.setTokenIssuer("1");
+
 
                 JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
 
@@ -3806,6 +3845,8 @@ public class Chat extends AsyncAdapter {
                     jsonObject.remove("typeCode");
                     jsonObject.addProperty("typeCode", getTypeCode());
                 }
+
+                jsonObject.remove("metadata");
 
                 String asyncContent = jsonObject.toString();
 
@@ -4014,6 +4055,8 @@ public class Chat extends AsyncAdapter {
         ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
         String jsonError = gson.toJson(error);
         listenerManager.callOnError(jsonError, error);
+        if (log)
+            Logger.e("ErrorMessage :" + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId, error);
         return jsonError;
     }
 
@@ -4137,10 +4180,9 @@ public class Chat extends AsyncAdapter {
 
             pingHandler.removeCallbacksAndMessages(null);
 
-            /*Change state of the chat becuase of the Client not Authenticate*/
+            /*Change state of the chat because of the Client not Authenticate*/
             listenerManager.callOnChatState("ASYNC_READY");
             async.setStateLiveData("ASYNC_READY");
-
 
             return;
         }
@@ -4266,6 +4308,11 @@ public class Chat extends AsyncAdapter {
                                 }
                             });
 
+                            if (cache) {
+                                //Save sent message to Messages table
+
+                            }
+
                             Callback callbackUpdateSent = new Callback();
                             callbackUpdateSent.setSent(false);
                             callbackUpdateSent.setDelivery(callback.isDelivery());
@@ -4281,7 +4328,7 @@ public class Chat extends AsyncAdapter {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (log) Logger.e(e.getCause().getMessage());
         }
 
@@ -4945,6 +4992,13 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
+
+        if (cache) {
+            List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
+            }.getType());
+            messageDatabaseHelper.saveHistory(cMessageVOS);
+        }
+
         ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
 
         ResultHistory resultHistory = new ResultHistory();

@@ -21,6 +21,42 @@ public class MessageVO {
     private ReplyInfoVO replyInfoVO;
     private ForwardInfo forwardInfo;
 
+    public MessageVO(
+            long id,
+            boolean edited,
+            boolean editable,
+            boolean delivered,
+            boolean seen,
+            String uniqueId,
+            int messageType,
+            long previousId,
+            String message,
+            Participant participant,
+            long time,
+            String metadata,
+            String systemMetadata,
+            Thread conversation,
+            ReplyInfoVO replyInfoVO,
+            ForwardInfo forwardInfo
+    ) {
+        this.id = id;
+        this.edited = edited;
+        this.editable = editable;
+        this.delivered = delivered;
+        this.seen = seen;
+        this.uniqueId = uniqueId;
+        this.messageType = messageType;
+        this.previousId = previousId;
+        this.message = message;
+        this.participant = participant;
+        this.time = time;
+        this.metadata = metadata;
+        this.systemMetadata = systemMetadata;
+        this.conversation = conversation;
+        this.replyInfoVO = replyInfoVO;
+        this.forwardInfo = forwardInfo;
+    }
+
     public boolean isEdited() {
         return edited;
     }

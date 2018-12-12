@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -30,7 +31,6 @@ import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
-import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -86,6 +86,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_chat);
 
         TextView textViewState = findViewById(R.id.textViewStateChat);
@@ -526,23 +527,23 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void getHistory() {
-        RequestGetHistory request = new RequestGetHistory
-                .Builder(1288)
-                .count(5)
-                .firstMessageId(1733)
-                .lastMessageId(1780)
-                .typeCode("6")
-                .build();
+//        RequestGetHistory request = new RequestGetHistory
+//                .Builder(1288)
+//                .count(5)
+//                .firstMessageId(1733)
+//                .lastMessageId(1780)
+//                .typeCode("6")
+//                .build();
+//
+//        presenter.getHistory(request, null);
 
-        presenter.getHistory(request, null);
-
-//        History history = new History.Builder().build();
-//        presenter.getHistory(history, 1288, new ChatHandler() {
-//            @Override
-//            public void onGetHistory(String uniqueId) {
-//                super.onGetHistory(uniqueId);
-//            }
-//        });
+        History history = new History.Builder().build();
+        presenter.getHistory(history, 1288, new ChatHandler() {
+            @Override
+            public void onGetHistory(String uniqueId) {
+                super.onGetHistory(uniqueId);
+            }
+        });
     }
 
     public void getThreads() {
