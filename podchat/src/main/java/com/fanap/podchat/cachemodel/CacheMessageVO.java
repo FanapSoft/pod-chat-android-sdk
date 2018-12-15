@@ -30,6 +30,8 @@ public class CacheMessageVO {
     @Ignore
     private ThreadVo conversation;
 
+    private long conversationId;
+
     private Long threadVoId;
 
     @Ignore
@@ -201,5 +203,13 @@ public class CacheMessageVO {
 
     public void setMessageType(int messageType) {
         this.messageType = messageType;
+    }
+
+    public long getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(long conversationId) {
+        this.conversationId = conversationId;
     }
 }

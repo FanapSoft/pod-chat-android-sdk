@@ -61,7 +61,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "c706bc14a6f9448ca1e04f2c34788f87";
+    private static String TOKEN = "a7703dedd3474c5282812a482cdd154c";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -69,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String ssoHost = "https://accounts.pod.land/";
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8080/";
-    private static String TYPE_CODE = "chattest";
+    private static String TYPE_CODE = "";
 
 
     @Override
@@ -302,19 +302,19 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                     case 6:
                         List<Long> participantIds = new ArrayList<>();
-                        participantIds.add(485L);
+                        participantIds.add(2404L);
 //                        participantIds.add(577L);
 //                        participantIds.add(824L);
-                        presenter.addParticipants(661, participantIds, new ChatHandler() {
+                        presenter.addParticipants(1105, participantIds, new ChatHandler() {
                             @Override
                             public void onAddParticipants(String uniqueId) {
                                 super.onAddParticipants(uniqueId);
                             }
                         });
-
+//2404
                         break;
                     case 7:
-                        presenter.leaveThread(81, new ChatHandler() {
+                        presenter.leaveThread(381, new ChatHandler() {
                             @Override
                             public void onLeaveThread(String uniqueId) {
                                 super.onLeaveThread(uniqueId);
@@ -385,7 +385,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         RequestMessage requestMessage = new RequestMessage
-                .Builder("test at" + " " + new Date().getTime() + name, 9000)
+                .Builder("test at" + " " + new Date().getTime() + name, 1105)
                 .messageType(2)
                 .jsonMetaData(meta)
                 .build();
@@ -542,7 +542,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 Inviter inviter = new Inviter();
                 inviter.setName("sina");
                 String meta = JsonUtil.getJson(inviter);
-                presenter.editMessage(7905,
+                presenter.editMessage(8264,
                         "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
                 break;
@@ -563,13 +563,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     private void getThreads() {
         ArrayList<Integer> threadIds = new ArrayList<>();
-        threadIds.add(22);
+//        threadIds.add(1105);
         threadIds.add(1031);
-        presenter.getThreads(5, 6L, null, null, null);
+        presenter.getThreads(5, 6L, threadIds, null, null);
     }
 
     private void getThreadParticipant() {
-        presenter.getThreadParticipant(10, 0L, 1201, null);
+        presenter.getThreadParticipant(10, 0L, 1105, null);
     }
 
     @Override

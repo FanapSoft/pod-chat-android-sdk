@@ -1,13 +1,11 @@
 package com.fanap.podchat.cachemodel;
 
 import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ConversationSummery;
 
 @Entity
@@ -19,7 +17,6 @@ public class CacheForwardInfo {
     private long id;
 
     @Ignore
-    @Nullable
     private CacheParticipant participant;
 
     @Nullable

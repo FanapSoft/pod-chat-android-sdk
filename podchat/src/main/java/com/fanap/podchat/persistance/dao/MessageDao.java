@@ -24,7 +24,10 @@ public interface MessageDao {
 
     //Cache contact
     @Insert(onConflict = REPLACE)
-    void insertContact(List<Contact> t);
+    void insertContacts(List<Contact> t);
+
+    @Insert(onConflict = REPLACE)
+    void insertContact(Contact contact);
 
     @Query("select * from Contact")
     List<Contact> getContact();
@@ -36,8 +39,11 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertHistories(List<CacheMessageVO> messageVOS);
 
-    @Query("select * from CacheMessageVO")
-    List<CacheMessageVO> getHistories();
+    @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time LIMIT :count OFFSET :offset ")
+    List<CacheMessageVO> getHistories(long count,long offset,long threadVoId);
+
+    @Query("SELECT COUNT(id) FROM CacheMessageVO")
+    long getHistoryCount();
 
     //Cache userInfo
     @Insert(onConflict = REPLACE)

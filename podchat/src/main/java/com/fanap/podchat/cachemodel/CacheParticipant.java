@@ -1,17 +1,12 @@
 package com.fanap.podchat.cachemodel;
 
-import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
-@Entity(indices = {@Index(value = {"order_id"}, unique = true)})
+@Entity()
 public class CacheParticipant {
     @PrimaryKey
     private long id;
-
-    @ColumnInfo(name = "order_id")
-    private long orderId;
 
     private long threadId;
 
@@ -181,14 +176,6 @@ public class CacheParticipant {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
-    }
-
-    public long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(long orderId) {
-        this.orderId = orderId;
     }
 
     public long getThreadId() {

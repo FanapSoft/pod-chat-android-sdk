@@ -138,7 +138,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getHistory(History history, long threadId, ChatHandler handler) {
         String uniq = chat.getHistory(history, threadId, handler);
-        Log.i("un", uniq);
+        if (uniq != null) {
+            Log.i("un", uniq);
+        }
     }
 
     @Override

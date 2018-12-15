@@ -13,33 +13,37 @@ import com.fanap.podchat.mainmodel.LastMessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.model.ConversationSummery;
+import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
+import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
-    public MessageDao messageDao;
+    private MessageDao messageDao;
 
     public MessageDatabaseHelper(Context context) {
         super(context);
         messageDao = appDatabase.getMessageDao();
     }
 
-    public void saveHistory(List<CacheMessageVO> messageVOS) {
+    //Cache history
+    public void saveHistory(List<CacheMessageVO> messageVOS, long threadId) {
         for (CacheMessageVO messageVO : messageVOS) {
+            messageVO.setThreadVoId(threadId);
+
             if (messageVO.getParticipant() != null) {
                 messageVO.setParticipantId(messageVO.getParticipant().getId());
                 messageDao.insertParticipant(messageVO.getParticipant());
-
             }
 
             if (messageVO.getConversation() != null) {
-                messageVO.setThreadVoId(messageVO.getConversation().getId());
-                messageDao.insertThread(messageVO.getConversation());
+//                messageDao.insertThread(messageVO.getConversation());
             }
 
             if (messageVO.getForwardInfo() != null) {
@@ -60,25 +64,61 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                 }
             }
         }
+        messageDao.insertHistories(messageVOS);
     }
 
+    public void saveMessage(CacheMessageVO cacheMessageVO) {
+        messageDao.insertMessage(cacheMessageVO);
+    }
 
-    public List<MessageVO> getHistories() {
+    public List<MessageVO> getHistories(long count, long offset, long id) {
         List<MessageVO> messageVOS = new ArrayList<>();
-        List<CacheMessageVO> cMessageVOS = messageDao.getHistories();
+        List<CacheMessageVO> cMessageVOS = messageDao.getHistories(count, offset, id);
         Participant participant = null;
         ReplyInfoVO replyInfoVO = null;
+        ForwardInfo forwardInfo = null;
+        Thread thread = null;
+        ConversationSummery conversationSummery = null;
         for (CacheMessageVO cacheMessageVO : cMessageVOS) {
-            if (cacheMessageVO.getThreadVoId() != null) {
-                cacheMessageVO.setConversation(messageDao.getThreadById(cacheMessageVO.getThreadVoId()));
+            if (!Util.isNullOrEmpty(cacheMessageVO.getConversationId())) {
+                cacheMessageVO.setConversation(messageDao.getThreadById(cacheMessageVO.getConversationId()));
+                ThreadVo threadVo = cacheMessageVO.getConversation();
+                thread = new Thread(
+                        threadVo.getId(),
+                        threadVo.getJoinDate(),
+                        threadVo.getInviter(),
+                       null,
+                        threadVo.getTitle(),
+                        null,
+                        threadVo.getTime(),
+                        threadVo.getLastMessage(),
+                        threadVo.getLastParticipantName(),
+                        threadVo.getLastParticipantImage(),
+                        threadVo.isGroup(),
+                        threadVo.getPartner(),
+                        threadVo.getImage(),
+                        threadVo.getDescription(),
+                        threadVo.getUnreadCount(),
+                        threadVo.getLastSeenMessageId(),
+                        threadVo.getPartnerLastMessageId(),
+                        threadVo.getPartnerLastSeenMessageId(),
+                        threadVo.getPartnerLastDeliveredMessageId(),
+                        threadVo.getType(),
+                        threadVo.isMute(),
+                        threadVo.getMetadata(),
+                        threadVo.isCanEditInfo(),
+                        threadVo.getParticipantCount(),
+                        threadVo.isCanSpam(),
+                        threadVo.isAdmin()
+                );
             }
             if (cacheMessageVO.getForwardInfoId() != null) {
                 cacheMessageVO.setForwardInfo(messageDao.getForwardInfo(cacheMessageVO.getForwardInfoId()));
             }
             if (cacheMessageVO.getParticipantId() != null) {
                 CacheParticipant cacheParticipant = messageDao.getParticipant(cacheMessageVO.getParticipantId());
-                 participant = new Participant(
-                    cacheParticipant.getId(),
+                participant = new Participant(
+                        cacheParticipant.getId(),
                         cacheParticipant.getName(),
                         cacheParticipant.getFirstName(),
                         cacheParticipant.getLastName(),
@@ -111,6 +151,36 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                         cacheReplyInfoVO.getMessage()
                 );
             }
+            if (cacheMessageVO.getForwardInfo() != null) {
+                CacheForwardInfo cacheForwardInfo = messageDao.getForwardInfo(cacheMessageVO.getForwardInfoId());
+                if (cacheForwardInfo.getParticipantId() != null) {
+                    CacheParticipant cacheParticipant = messageDao.getParticipant(cacheForwardInfo.getParticipantId());
+                    participant = new Participant(
+                            cacheParticipant.getId(),
+                            cacheParticipant.getName(),
+                            cacheParticipant.getFirstName(),
+                            cacheParticipant.getLastName(),
+                            cacheParticipant.getImage(),
+                            cacheParticipant.getNotSeenDuration(),
+                            cacheParticipant.getContactId(),
+                            cacheParticipant.getContactName(),
+                            cacheParticipant.getContactFirstName(),
+                            cacheParticipant.getContactLastName(),
+                            cacheParticipant.getSendEnable(),
+                            cacheParticipant.getReceiveEnable(),
+                            cacheParticipant.getCellphoneNumber(),
+                            cacheParticipant.getEmail(),
+                            cacheParticipant.getMyFriend(),
+                            cacheParticipant.getOnline(),
+                            cacheParticipant.getBlocked(),
+                            cacheParticipant.getAdmin()
+                    );
+                }
+                if (Util.isNullOrEmpty(cacheForwardInfo.getConversationId())) {
+                    conversationSummery = messageDao.getConversationSummery(cacheForwardInfo.getConversationId());
+                }
+                forwardInfo = new ForwardInfo(participant, conversationSummery);
+            }
 
             MessageVO messageVO = new MessageVO(
                     cacheMessageVO.getId(),
@@ -126,9 +196,9 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     cacheMessageVO.getTime(),
                     cacheMessageVO.getMetadata(),
                     cacheMessageVO.getSystemMetadata(),
-                    null,
+                    thread,
                     replyInfoVO,
-                    null
+                    forwardInfo
             );
 
             messageVOS.add(messageVO);
@@ -137,12 +207,21 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return messageVOS;
     }
 
+    public long getHistoryContentCount() {
+        return messageDao.getHistoryCount();
+    }
+
+    //Cache contact
     public List<Contact> getContacts() {
         return messageDao.getContact();
     }
 
-    public void save(List<Contact> contacts) {
-        messageDao.insertContact(contacts);
+    public void saveContacts(List<Contact> contacts) {
+        messageDao.insertContacts(contacts);
+    }
+
+    public void saveContact(Contact contact) {
+        messageDao.insertContact(contact);
     }
 
     public void saveUserInfo(UserInfo userInfo) {
@@ -266,11 +345,11 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return threads;
     }
 
-    public List<Thread> getThreadsByThreadName(String threadName){
-        List<Thread> threads ;
-        if (messageDao.getThreadByName(threadName) !=null) {
-           ThreadVo threadVo= messageDao.getThreadByName(threadName);
-           threads = new ArrayList<>();
+    public List<Thread> getThreadsByThreadName(String threadName) {
+        List<Thread> threads;
+        if (messageDao.getThreadByName(threadName) != null) {
+            ThreadVo threadVo = messageDao.getThreadByName(threadName);
+            threads = new ArrayList<>();
             CacheParticipant cacheParticipant;
             CacheReplyInfoVO cacheReplyInfoVO;
             Participant participant = null;
@@ -365,18 +444,18 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     threadVo.isAdmin()
             );
             threads.add(thread);
-        }else {
+        } else {
             return new ArrayList<>();
         }
 
         return threads;
     }
 
-    public List<Thread> getThreadsByThreadIds(ArrayList<Integer> threadIds){
-        List<Thread> threads = new ArrayList<>() ;
+    public List<Thread> getThreadsByThreadIds(ArrayList<Integer> threadIds) {
+        List<Thread> threads = new ArrayList<>();
 
-        for (int id :threadIds){
-            if (messageDao.getThreadById(id) !=null) {
+        for (int id : threadIds) {
+            if (messageDao.getThreadById(id) != null) {
                 ThreadVo threadVo = messageDao.getThreadById(id);
                 CacheParticipant cacheParticipant;
                 CacheReplyInfoVO cacheReplyInfoVO;
@@ -390,8 +469,8 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheLastMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
-                         cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                          participant = new Participant(
+                        cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+                        participant = new Participant(
                                 cacheParticipant.getId(),
                                 cacheParticipant.getName(),
                                 cacheParticipant.getFirstName(),
@@ -414,7 +493,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     }
                     if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                         cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                         replyInfoVO = new ReplyInfoVO(
+                        replyInfoVO = new ReplyInfoVO(
                                 cacheReplyInfoVO.getRepliedToMessageId(),
                                 cacheReplyInfoVO.getMessageType(),
                                 cacheReplyInfoVO.isDeleted(),
@@ -546,6 +625,10 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
     }
 
+    public void saveParticipant(CacheParticipant cacheParticipant) {
+        messageDao.insertParticipant(cacheParticipant);
+    }
+
     public List<Participant> getThreadParticipant(long offset, long count, long threadId) {
         List<Participant> participants = new ArrayList<>();
         if (messageDao.geParticipants(offset, count, threadId) == null) {
@@ -585,27 +668,27 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     }
 
     //Cache contact
-    public Contact getContactById(long id){
+    public Contact getContactById(long id) {
         return messageDao.getContactById(id);
     }
 
-    public List<Contact> getContactsByFirst(String firstName){
+    public List<Contact> getContactsByFirst(String firstName) {
         return messageDao.getContactsByFirst(firstName);
     }
 
-    public List<Contact> getContactsByLast(String lastName){
+    public List<Contact> getContactsByLast(String lastName) {
         return messageDao.getContactsByLast(lastName);
     }
 
-    public List<Contact> getContactsByFirstAndLast(String firstName, String lastName){
+    public List<Contact> getContactsByFirstAndLast(String firstName, String lastName) {
         return messageDao.getContactsByFirstAndLast(firstName, lastName);
     }
 
-    public List<Contact> getContactByCell(String cellphoneNumber){
+    public List<Contact> getContactByCell(String cellphoneNumber) {
         return messageDao.getContactByCell(cellphoneNumber);
     }
 
-    public List<Contact> getContactsByEmail(String email){
+    public List<Contact> getContactsByEmail(String email) {
         return messageDao.getContactsByEmail(email);
     }
 

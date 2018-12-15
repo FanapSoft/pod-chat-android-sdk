@@ -6,6 +6,11 @@ public class ForwardInfo {
     private Participant participant;
     private ConversationSummery conversation;
 
+    public ForwardInfo(Participant participant, ConversationSummery conversation){
+        this.participant = participant;
+        this.conversation = conversation;
+    }
+
     public Participant getParticipant() {
         return participant;
     }
