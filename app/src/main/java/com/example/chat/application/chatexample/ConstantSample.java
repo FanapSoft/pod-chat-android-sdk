@@ -47,5 +47,7 @@ public class ConstantSample {
             , "delivered Message List"
             , "Create thread with new Message"
             , "Get thread with coreUserId"
+            ,"map static image"
+            ,"map reverse"
     };
 }

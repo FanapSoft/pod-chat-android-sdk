@@ -15,10 +15,12 @@ import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
+import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
@@ -548,6 +550,28 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.OnSeenMessageList(content,chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
+            }
+        }
+    }
+
+    public void callOnMapReverse(String json, ChatResponse<ResultMapReverse> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnMapReverse(json,chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
+            }
+        }
+    }
+
+    public void callOnStaticMap(ChatResponse<ResultStaticMapImage> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnStaticMap(chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

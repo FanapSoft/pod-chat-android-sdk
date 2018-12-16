@@ -56,6 +56,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonConnect" />
 
+    <ImageView
+        android:id="@+id/imageMap"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/buttonConnect" />
+
     <EditText
         android:id="@+id/editTextThread"
         android:layout_width="0dp"

@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -36,6 +38,7 @@ import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.MapNeshan;
+import com.fanap.podchat.mainmodel.MapReverse;
 import com.fanap.podchat.mainmodel.MapRout;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
@@ -77,10 +80,12 @@ import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
 import com.fanap.podchat.model.ResultMap;
+import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
@@ -111,7 +116,9 @@ import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestLeaveThread;
+import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapRouting;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
@@ -148,6 +155,9 @@ import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -160,6 +170,8 @@ import java.util.UUID;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -187,14 +199,13 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, Callback> messageCallbacks;
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
     private static HashMap<String, ChatHandler> handlerSend;
+    private static final String API_KEY_MAP = "8b77db18704aa646ee5aaea13e7370f4f88b9e8c";
     private boolean syncContact = false;
     private long lastSentMessageTime;
-    private boolean chatState = false;
     private boolean chatReady = false;
     private boolean rawLog = false;
     private boolean asyncReady = false;
     private boolean hasNextContact = false;
-    private boolean ping = true;
     private boolean cache = false;
     private static final int TOKEN_ISSUER = 1;
     private long retryStepUserInfo = 1;
@@ -1953,8 +1964,8 @@ public class Chat extends AsyncAdapter {
         String uniqueId = null;
 
         if (cache) {
-            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(),threadId) != null) {
-                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(),threadId);
+            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId) != null) {
+                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId);
                 long contentCount = messageDatabaseHelper.getHistoryContentCount();
 
                 ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
@@ -2392,7 +2403,6 @@ public class Chat extends AsyncAdapter {
                         String jsonError = getErrorOutPut(contacts.getMessage(), contacts.getErrorCode(), uniqueId);
                         if (log) Logger.e(jsonError);
                     }
-
                 }
             }, (Throwable throwable) ->
             {
@@ -2739,14 +2749,16 @@ public class Chat extends AsyncAdapter {
         });
     }
 
-    public void mapRouting(RequestMapRouting request) {
+    public String mapRouting(RequestMapRouting request) {
         String origin = request.getOrigin();
         String destination = request.getDestination();
-
+        String uniqueId;
         RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
         MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+        uniqueId = generateUniqueId();
         Observable<Response<MapRout>> responseObservable = mapApi.mapRouting("8b77db18704aa646ee5aaea13e7370f4f88b9e8c"
                 , origin, destination, true);
+        String finalUniqueId = uniqueId;
         responseObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<MapRout>>() {
             @Override
             public void call(Response<MapRout> mapRoutResponse) {
@@ -2758,12 +2770,157 @@ public class Chat extends AsyncAdapter {
                     listenerManager.callOnMapRouting(jsonMapRout);
                     Logger.i("RECEIVE_MAP_ROUTING");
                     Logger.json(jsonMapRout);
+                } else {
+                    String jsonError = getErrorOutPut(mapRoutResponse.message(), mapRoutResponse.code(), finalUniqueId);
+                    if (log) Logger.e(jsonError);
                 }
             }
         }, (Throwable throwable) -> {
             Logger.e(throwable, "Error on map routing");
         });
+        return uniqueId;
     }
+
+    public String mapStaticImage(RequestMapStaticImage request) {
+        String uniqueId = null;
+        if (chatReady) {
+            String type = request.getType();
+            int zoom = request.getZoom();
+            int width = request.getWidth();
+            int height = request.getHeight();
+            String center = request.getCenter();
+            uniqueId = generateUniqueId();
+            if (Util.isNullOrEmpty(type)) {
+                type = "standard-night";
+            }
+            if (Util.isNullOrEmpty(zoom)) {
+                zoom = 15;
+            }
+            if (Util.isNullOrEmpty(width)) {
+                width = 800;
+            }
+            if (Util.isNullOrEmpty(height)) {
+                height = 500;
+            }
+
+            RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+            MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+
+            Call<ResponseBody> call = mapApi.mapStaticCall(API_KEY_MAP,
+                    type,
+                    zoom,
+                    center,
+                    width,
+                    height);
+            String finalUniqueId = uniqueId;
+            call.enqueue(new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.body() != null) {
+                            Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                            ChatResponse<ResultStaticMapImage> chatResponse = new ChatResponse<>();
+                            ResultStaticMapImage result = new ResultStaticMapImage();
+                            result.setBitmap(bitmap);
+                            chatResponse.setUniqueId(finalUniqueId);
+                            chatResponse.setResult(result);
+                            listenerManager.callOnStaticMap(chatResponse);
+                            if (log) Logger.i("RECEIVE_MAP_STATIC");
+                        }
+                    } else {
+
+                        try {
+                            String errorBody;
+                            if (response.errorBody() != null) {
+                                errorBody = response.errorBody().string();
+                                JSONObject jObjError = new JSONObject(errorBody);
+                                String errorMessage = jObjError.getString("message");
+                                int errorCode = jObjError.getInt("code");
+                                String jsonError = getErrorOutPut(errorMessage, errorCode, finalUniqueId);
+                                if (log) Logger.e(jsonError);
+                            }
+
+                        } catch (JSONException e) {
+                            if (log) Logger.e(e.getCause().getMessage());
+                        } catch (IOException e) {
+                            if (log) Logger.e(e.getCause().getMessage());
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    String jsonError = getErrorOutPut(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                    if (log) Logger.e(jsonError);
+                }
+            });
+        }
+
+
+        return uniqueId;
+    }
+
+    public String mapReverse(RequestMapReverse request) {
+        String uniqueId = null;
+        if (chatReady) {
+
+            double lat = request.getLat();
+            double lng = request.getLng();
+            uniqueId = generateUniqueId();
+            RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+            MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+            Observable<Response<MapReverse>> observable = mapApi.mapReverse(API_KEY_MAP, lat, lng);
+            String finalUniqueId = uniqueId;
+            observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<MapReverse>>() {
+                @Override
+                public void call(Response<MapReverse> mapReverseResponse) {
+                    MapReverse mapReverse = mapReverseResponse.body();
+                    if (mapReverseResponse.isSuccessful()) {
+                        ChatResponse<ResultMapReverse> chatResponse = new ChatResponse<>();
+
+                        ResultMapReverse resultMap = new ResultMapReverse();
+
+                        resultMap.setAddress(mapReverse.getAddress());
+                        resultMap.setCity(mapReverse.getCity());
+                        resultMap.setIn_odd_even_zone(mapReverse.isIn_odd_even_zone());
+                        resultMap.setIn_traffic_zone(mapReverse.isIn_traffic_zone());
+                        resultMap.setMunicipality_zone(mapReverse.getMunicipality_zone());
+                        resultMap.setNeighbourhood(mapReverse.getNeighbourhood());
+                        resultMap.setState(mapReverse.getState());
+
+                        chatResponse.setUniqueId(finalUniqueId);
+                        chatResponse.setResult(resultMap);
+                        String json = gson.toJson(chatResponse);
+                        listenerManager.callOnMapReverse(json, chatResponse);
+                        if (log) Logger.i(json);
+                        if (log) Logger.i("RECEIVE_MAP_REVERSE");
+                    } else {
+                        try {
+                            String errorBody;
+                            if (mapReverseResponse.errorBody() != null) {
+                                errorBody = mapReverseResponse.errorBody().string();
+                                JSONObject jObjError = new JSONObject(errorBody);
+                                String errorMessage = jObjError.getString("message");
+                                int errorCode = jObjError.getInt("code");
+                                String jsonError = getErrorOutPut(errorMessage, errorCode, finalUniqueId);
+                                if (log) Logger.e(jsonError);
+                            }
+
+                        } catch (JSONException e) {
+                            if (log) Logger.e(e.getCause().getMessage());
+                        } catch (IOException e) {
+                            if (log) Logger.e(e.getCause().getMessage());
+                        }
+                    }
+                }
+            }, (Throwable throwable) -> {
+                String jsonError = getErrorOutPut(throwable.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                if (log) Logger.e(jsonError);
+            });
+        }
+        return uniqueId;
+    }
+
 
     public String block(Long contactId, ChatHandler handler) {
         String uniqueId = null;
@@ -4099,9 +4256,6 @@ public class Chat extends AsyncAdapter {
     private void pingWithDelay() {
         long lastSentMessageTimeout = 9 * 1000;
         lastSentMessageTime = new Date().getTime();
-
-        ping = false;
-
         pingRunOnUIThread(new Runnable() {
             @Override
             public void run() {

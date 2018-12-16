@@ -14,10 +14,12 @@ import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
+import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
@@ -147,15 +149,27 @@ public interface ChatListener {
 
     }
 
-    void onLastSeenUpdated(String content);
+    default void OnMapReverse(String json, ChatResponse<ResultMapReverse> chatResponse) {
+    }
 
-    void onChatState(String state);
+    default void onLastSeenUpdated(String content) {
+    }
 
-    void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList);
+    default void onChatState(String state) {
+    }
 
-    void onUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> chatResponse);
+    default void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
+    }
 
-    void OnDeliveredMessageList(String content, ChatResponse<ResultParticipant> chatResponse);
+    default void onUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> chatResponse) {
+    }
 
-    void OnSeenMessageList(String content, ChatResponse<ResultParticipant> chatResponse);
+    default void OnDeliveredMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
+    }
+
+    default void OnSeenMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
+    }
+
+    default void OnStaticMap(ChatResponse<ResultStaticMapImage> chatResponse) {
+    }
 }

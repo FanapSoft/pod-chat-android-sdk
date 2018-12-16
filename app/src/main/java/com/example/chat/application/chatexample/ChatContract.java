@@ -13,6 +13,7 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
@@ -21,6 +22,8 @@ import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -119,7 +122,13 @@ public interface ChatContract {
         default void onMapSearch() {
         }
 
+        default void onMapStaticImage(ChatResponse<ResultStaticMapImage> chatResponse) {
+        }
+
         default void onMapRouting() {
+        }
+
+        default void onMapReverse() {
         }
 
         default void onError() {
@@ -147,6 +156,10 @@ public interface ChatContract {
         void mapSearch(String searchTerm, Double latitude, Double longitude);
 
         void mapRouting(String origin, String destination);
+
+        void mapStaticImage(RequestMapStaticImage request);
+
+        void mapReverse(RequestMapReverse request);
 
         void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
 

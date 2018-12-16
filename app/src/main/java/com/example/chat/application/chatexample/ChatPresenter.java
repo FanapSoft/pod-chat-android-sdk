@@ -34,6 +34,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
@@ -44,6 +45,8 @@ import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -118,6 +121,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void mapRouting(String origin, String originLng) {
         chat.mapRouting(origin, originLng);
+    }
+
+    @Override
+    public void mapStaticImage(RequestMapStaticImage request) {
+        chat.mapStaticImage(request);
+    }
+
+    @Override
+    public void mapReverse(RequestMapReverse request) {
+        chat.mapReverse(request);
     }
 
     @Override
@@ -567,4 +580,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onSearchContact();
     }
 
+    @Override
+    public void OnStaticMap(ChatResponse<ResultStaticMapImage> chatResponse) {
+        view.onMapStaticImage(chatResponse);
+    }
 }

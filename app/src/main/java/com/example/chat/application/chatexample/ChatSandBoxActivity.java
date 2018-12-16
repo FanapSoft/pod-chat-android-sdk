@@ -2,6 +2,7 @@ package com.example.chat.application.chatexample;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -12,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -26,9 +28,13 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -52,6 +58,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Button buttonFileChoose;
     private Button buttonConnect;
     private Button buttonToken;
+    private ImageView imageMap;
     private String selectedFilePath;
     private ProgressBar progressBar;
     private TextView percentage;
@@ -61,7 +68,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "a7703dedd3474c5282812a482cdd154c";
+    private static String TOKEN = "8e67a701c4fe465192012c744cf529c8";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -89,6 +96,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         editText = findViewById(R.id.editTextMessage);
         editTextToken = findViewById(R.id.editTextToken);
         editTextThread = findViewById(R.id.editTextThread);
+        imageMap = findViewById(R.id.imageMap);
+
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
         buttonFileChoose = findViewById(R.id.buttonFileChoose);
         progressBar = findViewById(R.id.progressbar);
@@ -104,6 +113,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             @Override
             public void onError() {
 
+            }
+
+            @Override
+            public void onMapStaticImage(ChatResponse<ResultStaticMapImage> chatResponse) {
+                Bitmap bitmap = chatResponse.getResult().getBitmap();
+                imageMap.setImageBitmap(bitmap);
             }
         };
         presenter = new ChatPresenter(this, view, this);
@@ -174,6 +189,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         getthreadWithCoreUser();
                         break;
+                    case 11:
+
+                        mapStatic();
+                        break;
+                    case 12:
+
+                        mapReverse();
+                        break;
 
                 }
             }
@@ -183,6 +206,20 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
             }
         });
+    }
+
+    public void mapReverse() {
+        double lat = 35.7003510;
+        double lng = 51.3376472;
+        RequestMapReverse requestMapReverse = new RequestMapReverse.Builder(lat, lng).build();
+        presenter.mapReverse(requestMapReverse);
+    }
+
+    public void mapStatic() {
+//        String center = "35.7003510,51.3376472";
+        String center = "35.7003510,35.7003510";
+        RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder(center).build();
+        presenter.mapStaticImage(staticImage);
     }
 
     public void createThreadWithMsg() {
@@ -595,6 +632,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         }
     }
 
+
     private void showPicChooser() {
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, PICK_IMAGE_FILE_REQUEST);
@@ -647,4 +685,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public String getFileUri() {
         return fileUri;
     }
+
+
 }
