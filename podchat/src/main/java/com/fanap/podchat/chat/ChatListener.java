@@ -27,11 +27,14 @@ import com.fanap.podchat.model.ResultUserInfo;
 
 public interface ChatListener {
 
-    void onError(String content, ErrorOutPut OutPutError);
+    default void onError(String content, ErrorOutPut OutPutError) {
+    }
 
-    void onGetContacts(String content, ChatResponse<ResultContact> outPutContact);
+    default void onGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
+    }
 
-    void onGetHistory(String content, ChatResponse<ResultHistory> history);
+    default void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+    }
 
     default void onGetThread(String content, ChatResponse<ResultThreads> thread) {
 

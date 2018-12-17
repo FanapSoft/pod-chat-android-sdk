@@ -19,7 +19,9 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultThreads;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,9 +50,9 @@ public class ChatTest {
 
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 
-    private static String NAME = "felfeli";
-    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
-    private static String name = "SandBox";
+//    private String name = "Fifi";
+    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+    private static String NAME = "SandBox";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -94,19 +96,23 @@ public class ChatTest {
     @MediumTest
     public void getThreadList() {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(7000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.getThread(10, null, null, null, null);
+        presenter.getThreads(10, null, null, null, null);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(7000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
+        view = new ChatContract.view() {
+            @Override
+            public void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
+                Assert.assertNotNull(thread);
+            }
+        };
         Mockito.verify(view, Mockito.times(1));
-//        ChatResponse<ResultThreads> chatResponse =
     }
 
     //Get History
@@ -567,7 +573,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.getThread(20, 0L, null, "FiFi", null);
+        presenter.getThreads(20, 0L, null, "FiFi", null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
