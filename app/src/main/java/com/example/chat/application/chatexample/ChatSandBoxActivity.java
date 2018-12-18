@@ -68,7 +68,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "8e67a701c4fe465192012c744cf529c8";
+    private static String TOKEN = "480cd5f5ea3c491b963f236760db6c79";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -360,12 +360,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 8:
-                        presenter.deleteMessage(4684, true, new ChatHandler() {
-                            @Override
-                            public void onDeleteMessage(String uniqueId) {
-                                super.onDeleteMessage(uniqueId);
-                            }
-                        });
+                        deleteMessage();
 
                         break;
                     case 9:
@@ -387,12 +382,22 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 }
             }
 
+
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
     }
 
+    public void deleteMessage() {
+        presenter.deleteMessage(8861, false, new ChatHandler() {
+            @Override
+            public void onDeleteMessage(String uniqueId) {
+                super.onDeleteMessage(uniqueId);
+            }
+        });
+    }
     private void setupSpinner(Spinner spinner) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, ConstantSample.func);
@@ -422,7 +427,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         RequestMessage requestMessage = new RequestMessage
-                .Builder("test at" + " " + new Date().getTime() + name, 1105)
+                .Builder("test at" + " " + new Date().getTime() + name, 2)
                 .messageType(2)
                 .jsonMetaData(meta)
                 .build();
@@ -601,8 +606,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private void getThreads() {
         ArrayList<Integer> threadIds = new ArrayList<>();
 //        threadIds.add(1105);
-        threadIds.add(1031);
-        presenter.getThreads(5, 6L, threadIds, null, null);
+//        threadIds.add(1031);
+        presenter.getThreads(5, null, null, null, null);
     }
 
     private void getThreadParticipant() {

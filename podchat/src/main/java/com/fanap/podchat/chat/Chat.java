@@ -225,7 +225,7 @@ public class Chat extends AsyncAdapter {
     private boolean checkToken = false;
     private boolean retryToken = false;
     private boolean userInfoResponse = false;
-
+    private boolean firstNotAuthenticate = false;
 
     private Chat() {
     }
@@ -247,7 +247,6 @@ public class Chat extends AsyncAdapter {
         }
         return instance;
     }
-
 
     /*
      * You can have log if you change (boolean) log into true
@@ -2016,6 +2015,7 @@ public class Chat extends AsyncAdapter {
      * <p>
      * count    count of the messages
      * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
+     * and order must be lower case
      * lastMessageId
      * FirstMessageId
      *
@@ -2024,10 +2024,13 @@ public class Chat extends AsyncAdapter {
     public String getHistory(History history, long threadId, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
-
+        String order = "desc";
         if (cache) {
-            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId) != null) {
-                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId);
+            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order) != null) {
+                if (Util.isNullOrEmpty(history.getOrder())) {
+                    order = "desc";
+                }
+                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order);
                 long contentCount = messageDatabaseHelper.getHistoryContentCount();
 
                 ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
@@ -2049,6 +2052,7 @@ public class Chat extends AsyncAdapter {
                 chatResponse.setErrorMessage("");
                 chatResponse.setResult(resultHistory);
                 chatResponse.setUniqueId(uniqueId);
+                chatResponse.setCache(true);
 
                 String json = JsonUtil.getJson(chatResponse);
                 listenerManager.callOnGetThreadHistory(json, chatResponse);
@@ -2175,17 +2179,17 @@ public class Chat extends AsyncAdapter {
             sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
             if (handler != null) {
                 handler.onGetHistory(uniqueId);
-            } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                if (log) Logger.e(jsonError);
             }
+        }else {
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            if (log) Logger.e(jsonError);
         }
 
         return uniqueId;
     }
 
     public String searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler) {
-        String uniqueId = null;
+        String uniqueId ;
         uniqueId = generateUniqueId();
         if (chatReady) {
             JsonAdapter<NosqlListMessageCriteriaVO> messageContentJsonAdapter = moshi.adapter(NosqlListMessageCriteriaVO.class);
@@ -2219,7 +2223,6 @@ public class Chat extends AsyncAdapter {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             if (log) Logger.e(jsonError);
         }
-
         return uniqueId;
     }
 
@@ -4325,8 +4328,12 @@ public class Chat extends AsyncAdapter {
         this.typeCode = typeCode;
     }
 
-    //TODO null pointer
+    //TODO null pointer offset
     private void handleCacheThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName) {
+        if (offset == null) {
+            offset = 0L;
+        }
+
         List<Thread> threads = null;
         if (threadName != null) {
             threads = messageDatabaseHelper.getThreadsByThreadName(threadName);
@@ -4334,7 +4341,7 @@ public class Chat extends AsyncAdapter {
         if (threadIds != null && threadIds.size() > 0) {
             threads = messageDatabaseHelper.getThreadsByThreadIds(threadIds);
         }
-        if (count != null && offset != null) {
+        if (count != null) {
             threads = messageDatabaseHelper.getThreads(count, offset);
         }
         ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
@@ -4465,7 +4472,10 @@ public class Chat extends AsyncAdapter {
             userInfoResponse = true;
             retryStepUserInfo = 1;
             chatReady = false;
-            retryToken = true;
+            if (firstNotAuthenticate) {
+                retryToken = true;
+            }
+            firstNotAuthenticate = true;
 
             String errorMessage = error.getMessage();
             long errorCode = error.getCode();
@@ -4524,7 +4534,7 @@ public class Chat extends AsyncAdapter {
             retryToken = true;
             listenerManager.callOnChatState(CHAT_READY);
             async.setStateLiveData(CHAT_READY);
-            if (log) Logger.i("CLIENT_AUTHENTICATED_NOW", chatMessage);
+            if (log) Logger.i("** CLIENT_AUTHENTICATED_NOW", chatMessage);
             pingWithDelay();
         }
     }
@@ -5238,14 +5248,19 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
         chatResponse.setUniqueId(chatMessage.getUniqueId());
-
+        long messageId = Long.valueOf(chatMessage.getContent());
         ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
         DeleteMessageContent deleteMessage = new DeleteMessageContent();
-        deleteMessage.setId(Long.valueOf(chatMessage.getContent()));
+        deleteMessage.setId(messageId);
         resultDeleteMessage.setDeletedMessage(deleteMessage);
         chatResponse.setResult(resultDeleteMessage);
 
         String jsonDeleteMsg = gson.toJson(chatResponse);
+
+        if (cache) {
+            messageDatabaseHelper.deleteMessage(messageId);
+            if (log) Logger.i("DeleteMessage from dataBase with this messageId" + " " + messageId);
+        }
 
         listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
         if (log) Logger.i("RECEIVE_DELETE_MESSAGE");
@@ -5982,7 +5997,7 @@ public class Chat extends AsyncAdapter {
                     } else {
                         if (retrySetToken < 60) retrySetToken *= 4;
                         pingAfterSetToken();
-                        retryTokenRunOnUIThread(this::run, retrySetToken);
+                        retryTokenRunOnUIThread(this::run, retrySetToken * 1000);
                         if (log)
                             Logger.i("Ping for check Token Athentication is retry after " + retrySetToken + " s");
                     }

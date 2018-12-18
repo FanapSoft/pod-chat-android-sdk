@@ -36,11 +36,17 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertMessage(CacheMessageVO messageVO);
 
+    @Query("DELETE FROM CacheMessageVO WHERE id = :id ")
+    void deleteMessage(long id);
+
     @Insert(onConflict = REPLACE)
     void insertHistories(List<CacheMessageVO> messageVOS);
 
-    @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time LIMIT :count OFFSET :offset ")
-    List<CacheMessageVO> getHistories(long count,long offset,long threadVoId);
+    @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time ASC LIMIT :count OFFSET :offset ")
+    List<CacheMessageVO> getHistoriesASC(long count,long offset,long threadVoId);
+
+    @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time DESC LIMIT :count OFFSET :offset ")
+    List<CacheMessageVO> getHistoriesDESC(long count,long offset,long threadVoId);
 
     @Query("SELECT COUNT(id) FROM CacheMessageVO")
     long getHistoryCount();
@@ -86,6 +92,7 @@ public interface MessageDao {
 
     @Query("select * from CacheLastMessageVO where id = :LastMessageVOId")
     CacheLastMessageVO getLastMessageVO(long LastMessageVOId);
+
 
     //cache participant
     @Insert(onConflict = REPLACE)

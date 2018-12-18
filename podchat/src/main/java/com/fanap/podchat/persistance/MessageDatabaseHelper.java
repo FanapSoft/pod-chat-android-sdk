@@ -71,9 +71,20 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         messageDao.insertMessage(cacheMessageVO);
     }
 
-    public List<MessageVO> getHistories(long count, long offset, long id) {
+    public void deleteMessage(long id) {
+        messageDao.deleteMessage(id);
+    }
+
+    public List<MessageVO> getHistories(long count, long offset, long id, String order) {
         List<MessageVO> messageVOS = new ArrayList<>();
-        List<CacheMessageVO> cMessageVOS = messageDao.getHistories(count, offset, id);
+        List<CacheMessageVO> cMessageVOS;
+
+        if (order.equals("asc")) {
+            cMessageVOS = messageDao.getHistoriesASC(count, offset, id);
+        } else {
+            cMessageVOS = messageDao.getHistoriesDESC(count, offset, id);
+        }
+
         Participant participant = null;
         ReplyInfoVO replyInfoVO = null;
         ForwardInfo forwardInfo = null;
@@ -87,7 +98,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                         threadVo.getId(),
                         threadVo.getJoinDate(),
                         threadVo.getInviter(),
-                       null,
+                        null,
                         threadVo.getTitle(),
                         null,
                         threadVo.getTime(),
