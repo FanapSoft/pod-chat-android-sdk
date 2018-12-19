@@ -18,6 +18,7 @@ import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
+import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
@@ -75,14 +76,48 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         messageDao.deleteMessage(id);
     }
 
-    public List<MessageVO> getHistories(long count, long offset, long id, String order) {
+    public void updateGetHistoryResponse(Callback callback, List<MessageVO> messageVOS, long threadId) {
+        long count = callback.getCount();
+        long offset = callback.getOffset();
+        long firstMessageId = callback.getFirstMessageId();
+        long lastMessageId = callback.getLastMessageId();
+        String order = callback.getOrder();
+
+        if (!Util.isNullOrEmpty(callback.getFirstMessageId()) && !Util.isNullOrEmpty(callback.getLastMessageId())) {
+            if (Util.isNullOrEmptyMessageVO(messageVOS)) {
+                if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order))) {
+                    messageDao.deleteMessageBetweenLastAndFirst(threadId,firstMessageId,lastMessageId);
+                }
+                //TODO 6:33 second of masoud
+            }else if(messageVOS.size() == 1){
+                if (getHistories(count, offset, threadId, order).size() > 1) {
+//                    messageDao.;
+                }
+
+            }
+        }
+
+//        if (chatMessage.getContent().isEmpty()) {
+//            if (!Util.isNullOrEmptyMessageVO(messageDatabaseHelper.getHistories(callback.getCount(), callback.getOffset(), chatMessage.getSubjectId(), callback.getOrder()))) {
+//                messageDatabaseHelper.deleteMessageAfterOffset(callback.getCount(), callback.getOffset(), chatMessage.getSubjectId(), callback.getOrder());
+//            }
+//        }
+//
+//        if (messageVOS.size() == 1) {
+//            if ((messageDatabaseHelper.getHistories(callback.getCount(), callback.getOffset(), chatMessage.getSubjectId(), callback.getOrder()).size() > 1)) {
+//
+//            }
+//        }
+    }
+
+    public List<MessageVO> getHistories(long count, long offset, long threadId, String order) {
         List<MessageVO> messageVOS = new ArrayList<>();
         List<CacheMessageVO> cMessageVOS;
 
         if (order.equals("asc")) {
-            cMessageVOS = messageDao.getHistoriesASC(count, offset, id);
+            cMessageVOS = messageDao.getHistoriesASC(count, offset, threadId);
         } else {
-            cMessageVOS = messageDao.getHistoriesDESC(count, offset, id);
+            cMessageVOS = messageDao.getHistoriesDESC(count, offset, threadId);
         }
 
         Participant participant = null;
@@ -216,6 +251,15 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
 
         return messageVOS;
+    }
+
+    public void deleteMessageAfterOffset(long count, long offset, long threadId, String order) {
+        if (order.equals("asd")) {
+            messageDao.deleteMessageAfterOffsetTime(count, offset, threadId);
+        } else {
+
+        }
+
     }
 
     public long getHistoryContentCount() {

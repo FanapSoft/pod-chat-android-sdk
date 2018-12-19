@@ -48,6 +48,15 @@ public interface MessageDao {
     @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time DESC LIMIT :count OFFSET :offset ")
     List<CacheMessageVO> getHistoriesDESC(long count,long offset,long threadVoId);
 
+    @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId NOT IN (select time from CacheMessageVO ORDER BY time ASC LIMIT :count OFFSET :offset )")
+    void deleteMessageAfterOffset(long count,long offset,long threadVoId);
+
+    @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId AND time IN (select time from CacheMessageVO ORDER BY time ASC LIMIT :count OFFSET :offset )")
+    void deleteMessageAfterOffsetTime (long count,long offset,long threadVoId);
+
+    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadVoId  AND time IN(SELECT time FROM CacheMessageVO WHERE id BETWEEN :firstMessageId AND :lastMessageId ORDER BY time)")
+    void deleteMessageBetweenLastAndFirst (long threadVoId,long firstMessageId, long lastMessageId);
+
     @Query("SELECT COUNT(id) FROM CacheMessageVO")
     long getHistoryCount();
 

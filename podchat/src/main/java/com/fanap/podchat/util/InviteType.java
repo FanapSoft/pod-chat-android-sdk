@@ -13,7 +13,8 @@ public class InviteType {
         this.chatType = chatType;
     }
 
-    @IntDef({Constants.TO_BE_USER_SSO_ID, Constants.TO_BE_USER_CONTACT_ID,
+    @IntDef({Constants.TO_BE_USER_SSO_ID,
+            Constants.TO_BE_USER_CONTACT_ID,
             Constants.TO_BE_USER_CELLPHONE_NUMBER,
             Constants.TO_BE_USER_USERNAME,
     })

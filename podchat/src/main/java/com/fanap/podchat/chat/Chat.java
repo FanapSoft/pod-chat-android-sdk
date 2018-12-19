@@ -206,6 +206,7 @@ public class Chat extends AsyncAdapter {
     private boolean rawLog = false;
     private boolean asyncReady = false;
     private boolean hasNextContact = false;
+    private boolean ping = true;
     private boolean cache = false;
     private static final int TOKEN_ISSUER = 1;
     private long retryStepUserInfo = 1;
@@ -225,7 +226,7 @@ public class Chat extends AsyncAdapter {
     private boolean checkToken = false;
     private boolean retryToken = false;
     private boolean userInfoResponse = false;
-    private boolean firstNotAuthenticate = false;
+//    private boolean firstNotAuthenticate = true;
 
     private Chat() {
     }
@@ -508,11 +509,15 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    @Override
-    public void onError(String textMessage) {
-        super.onError(textMessage);
-        if (log) Logger.e(textMessage);
-    }
+    //TODO
+//    @Override
+//    public void onError(String textMessage)  {
+//        try {
+//            super.onError(textMessage);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Send text message to the thread
@@ -538,11 +543,9 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setMessageType(messageType);
             }
 
-
             if (JsonMetaData != null) {
                 chatMessage.setSystemMetadata(JsonMetaData);
             }
-
 
             chatMessage.setUniqueId(uniqueId);
             chatMessage.setTime(1000);
@@ -2024,12 +2027,13 @@ public class Chat extends AsyncAdapter {
     public String getHistory(History history, long threadId, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
-        String order = "desc";
+        String order = history.getOrder();
+        if (Util.isNullOrEmpty(history.getOrder())) {
+            order = "desc";
+        }
         if (cache) {
             if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order) != null) {
-                if (Util.isNullOrEmpty(history.getOrder())) {
-                    order = "desc";
-                }
+
                 List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order);
                 long contentCount = messageDatabaseHelper.getHistoryContentCount();
 
@@ -2063,60 +2067,74 @@ public class Chat extends AsyncAdapter {
         }
 
         if (chatReady) {
-            long offsets = history.getOffset();
-
-            if (history.getCount() != 0) {
-                history.setCount(history.getCount());
-            } else {
-                history.setCount(50L);
-            }
-
-            if (history.getOffset() != 0) {
-                history.setOffset(history.getOffset());
-            } else {
-                history.setOffset(0L);
-                offsets = 0;
-            }
-
-            JsonObject jObj = (JsonObject) gson.toJsonTree(history);
-            if (history.getLastMessageId() == 0) {
-                jObj.remove("lastMessageId");
-            }
-
-            if (history.getFirstMessageId() == 0) {
-                jObj.remove("firstMessageId");
-            }
-
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setContent(jObj.toString());
-            chatMessage.setType(Constants.GET_HISTORY);
-            chatMessage.setToken(getToken());
-            chatMessage.setTokenIssuer("1");
-            chatMessage.setUniqueId(uniqueId);
-            chatMessage.setSubjectId(threadId);
-
-            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-
-            if (Util.isNullOrEmpty(getTypeCode())) {
-                jsonObject.remove("typeCode");
-            } else {
-                jsonObject.remove("typeCode");
-                jsonObject.addProperty("typeCode", getTypeCode());
-            }
-
-            String asyncContent = jsonObject.toString();
-
-            setCallBacks(null, null, null, true, Constants.GET_HISTORY, offsets, uniqueId);
-            if (handler != null) {
-                handler.onGetHistory(uniqueId);
-            }
-
-            sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
+            getHistoryMain(history, threadId, handler, uniqueId);
         } else {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             if (log) Logger.e(jsonError);
         }
         return uniqueId;
+    }
+
+    /**
+     * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
+     * order should be set with lower case
+     */
+    private void getHistoryMain(History history, long threadId, ChatHandler handler, String uniqueId) {
+        long offsets = history.getOffset();
+
+        if (history.getCount() != 0) {
+            history.setCount(history.getCount());
+        } else {
+            history.setCount(50);
+        }
+
+        if (history.getOffset() != 0) {
+            history.setOffset(history.getOffset());
+        } else {
+            history.setOffset(0);
+            offsets = 0;
+        }
+
+        JsonObject jObj = (JsonObject) gson.toJsonTree(history);
+        if (history.getLastMessageId() == 0) {
+            jObj.remove("lastMessageId");
+        }
+
+        if (history.getFirstMessageId() == 0) {
+            jObj.remove("firstMessageId");
+        }
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(jObj.toString());
+        chatMessage.setType(Constants.GET_HISTORY);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+        if (Util.isNullOrEmpty(getTypeCode())) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", getTypeCode());
+        }
+
+        String asyncContent = jsonObject.toString();
+        String order;
+        if (Util.isNullOrEmpty(history.getOrder())) {
+            order = "asc";
+        } else {
+            order = history.getOrder();
+        }
+
+        setCallBacks(history.getFirstMessageId(), history.getLastMessageId(), order, history.getCount(), offsets, uniqueId);
+        if (handler != null) {
+            handler.onGetHistory(uniqueId);
+        }
+
+        sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
     }
 
     /**
@@ -2133,54 +2151,15 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
         if (chatReady) {
-            long offsets = request.getOffset();
+            History history = new History.Builder()
+                    .count(request.getCount())
+                    .firstMessageId(request.getFirstMessageId())
+                    .lastMessageId(request.getLastMessageId())
+                    .offset(request.getOffset())
+                    .order(request.getOrder()).build();
+            getHistoryMain(history, request.getThreadId(), handler, uniqueId);
 
-            if (request.getCount() != 0) {
-                request.setCount(request.getCount());
-            } else {
-                request.setCount(50L);
-            }
-
-            if (request.getOffset() != 0) {
-                request.setOffset(request.getOffset());
-            } else {
-                request.setOffset(0L);
-                offsets = 0;
-            }
-
-            JsonObject jObj = (JsonObject) gson.toJsonTree(request);
-            if (request.getLastMessageId() == 0) {
-                jObj.remove("lastMessageId");
-            }
-
-            if (request.getFirstMessageId() == 0) {
-                jObj.remove("firstMessageId");
-            }
-
-
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setContent(jObj.toString());
-
-            chatMessage.setType(Constants.GET_HISTORY);
-            chatMessage.setToken(getToken());
-            chatMessage.setTokenIssuer("1");
-            chatMessage.setUniqueId(uniqueId);
-            chatMessage.setSubjectId(request.getThreadId());
-
-            if (Util.isNullOrEmpty(request.getTypeCode())) {
-                chatMessage.setTypeCode(getTypeCode());
-            } else {
-                chatMessage.setTypeCode(request.getTypeCode());
-            }
-
-            String asyncContent = gson.toJson(chatMessage);
-
-            setCallBacks(null, null, null, true, Constants.GET_HISTORY, offsets, uniqueId);
-            sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
-            if (handler != null) {
-                handler.onGetHistory(uniqueId);
-            }
-        }else {
+        } else {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             if (log) Logger.e(jsonError);
         }
@@ -2189,7 +2168,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public String searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler) {
-        String uniqueId ;
+        String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
             JsonAdapter<NosqlListMessageCriteriaVO> messageContentJsonAdapter = moshi.adapter(NosqlListMessageCriteriaVO.class);
@@ -2772,7 +2751,7 @@ public class Chat extends AsyncAdapter {
 
             RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
             MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
-            Observable<Response<MapNeshan>> observable = mapApi.mapSearch("8b77db18704aa646ee5aaea13e7370f4f88b9e8c"
+            Observable<Response<MapNeshan>> observable = mapApi.mapSearch(API_KEY_MAP
                     , searchTerm, latitude, longitude);
             observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<MapNeshan>>() {
                 @Override
@@ -4472,10 +4451,9 @@ public class Chat extends AsyncAdapter {
             userInfoResponse = true;
             retryStepUserInfo = 1;
             chatReady = false;
-            if (firstNotAuthenticate) {
-                retryToken = true;
-            }
-            firstNotAuthenticate = true;
+
+            tokenHandler.removeCallbacksAndMessages(null);
+            retrySetToken = 1;
 
             String errorMessage = error.getMessage();
             long errorCode = error.getCode();
@@ -4531,7 +4509,10 @@ public class Chat extends AsyncAdapter {
         if (checkToken) {
             chatReady = true;
             checkToken = false;
-            retryToken = true;
+
+            retrySetToken = 1;
+            tokenHandler.removeCallbacksAndMessages(null);
+
             listenerManager.callOnChatState(CHAT_READY);
             async.setStateLiveData(CHAT_READY);
             if (log) Logger.i("** CLIENT_AUTHENTICATED_NOW", chatMessage);
@@ -5334,7 +5315,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
 
+        List<MessageVO> messageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
+        }.getType());
+
         if (cache) {
+            messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId());
+
             List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
             }.getType());
             messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
@@ -5344,8 +5330,6 @@ public class Chat extends AsyncAdapter {
 
         ResultHistory resultHistory = new ResultHistory();
 
-        List<MessageVO> messageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
-        }.getType());
 
         resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
         resultHistory.setContentCount(chatMessage.getContentCount());
@@ -5483,6 +5467,29 @@ public class Chat extends AsyncAdapter {
                 callback.setSent(sent);
                 callback.setRequestType(requestType);
                 callback.setResult(result);
+                messageCallbacks.put(uniqueId, callback);
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+        }
+    }
+
+    private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count, Long offset, String uniqueId) {
+
+        try {
+            if (chatReady || asyncReady) {
+
+                offset = offset != null ? offset : 0;
+
+                Callback callback = new Callback();
+                callback.setFirstMessageId(firstMessageId);
+                callback.setLastMessageId(lastMessageId);
+                callback.setOffset(offset);
+                callback.setCount(count);
+                callback.setOrder(order);
+                callback.setResult(true);
+                callback.setRequestType(Constants.GET_HISTORY);
+
                 messageCallbacks.put(uniqueId, callback);
             }
         } catch (Exception e) {
@@ -5990,17 +5997,17 @@ public class Chat extends AsyncAdapter {
             retryTokenRunOnUIThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (retryToken) {
-                        retrySetToken = 1;
-                        retryToken = false;
-                        tokenHandler.removeCallbacksAndMessages(null);
-                    } else {
-                        if (retrySetToken < 60) retrySetToken *= 4;
-                        pingAfterSetToken();
-                        retryTokenRunOnUIThread(this::run, retrySetToken * 1000);
-                        if (log)
-                            Logger.i("Ping for check Token Athentication is retry after " + retrySetToken + " s");
-                    }
+//                    if (retryToken) {
+//                        retrySetToken = 1;
+//                        retryToken = false;
+//                        tokenHandler.removeCallbacksAndMessages(null);
+//                    } else {
+                    if (retrySetToken < 60) retrySetToken *= 4;
+                    pingAfterSetToken();
+                    retryTokenRunOnUIThread(this::run, retrySetToken * 1000);
+                    if (log)
+                        Logger.i("Ping for check Token Athentication is retry after " + retrySetToken + " s");
+//                    }
                 }
             }, retrySetToken * 1000);
         }

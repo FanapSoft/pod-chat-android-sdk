@@ -53,19 +53,19 @@ public class History  {
         }
     }
 
-    public Long getOffset() {
+    public long getOffset() {
         return offset;
     }
 
-    public void setOffset(Long offset) {
+    public void setOffset(long offset) {
         this.offset = offset;
     }
 
-    public Long getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(Long count) {
+    public void setCount(long count) {
         this.count = count;
     }
 

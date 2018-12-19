@@ -14,10 +14,12 @@ import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
+import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
@@ -135,6 +137,16 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onMapRouting(String content) {
+
+    }
+
+    @Override
+    public void OnMapReverse(String json, ChatResponse<ResultMapReverse> chatResponse) {
+
+    }
+
+    @Override
+    public void OnStaticMap(ChatResponse<ResultStaticMapImage> chatResponse) {
 
     }
 

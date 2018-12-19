@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
+import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ResultAddContact;
 
 import java.util.ArrayList;
@@ -59,14 +60,23 @@ public class Util {
 
     public static <T extends Class> boolean isNullOrEmpty(List<T> list) {
         boolean check = true;
-        if (list != null && list.size() <= 0) {
+        if (list != null && list.size() > 0) {
             check = false;
         }
         return check;
     }
+
+  public static boolean isNullOrEmptyMessageVO(List<MessageVO> list) {
+        boolean check = true;
+        if (list != null && list.size() > 0) {
+            check = false;
+        }
+        return check;
+    }
+
     public static <T extends Number> boolean isNullOrEmptyNumber(List<T> list) {
         boolean check = true;
-        if (list != null && list.size() <= 0) {
+        if (list != null && list.size() > 0) {
             check = false;
         }
         return check;

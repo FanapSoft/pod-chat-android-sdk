@@ -8,15 +8,32 @@ public class Callback {
     private boolean sent;
     private boolean result;
     private String uniqueId;
+    private String order;
+    private long count;
+    private long firstMessageId;
+    private long lastMessageId;
 
-    public Callback(long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
+    public Callback(String order, long count, long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
         this.offset = offset;
         this.requestType = requestType;
         this.delivery = delivery;
         this.sent = sent;
         this.seen = seen;
         this.result = result;
+        this.count = count;
+        this.order = order;
     }
+
+    public Callback(String order, long count, long offset, int requestType, long firstMessageId, long lastMessageId, boolean result) {
+        this.offset = offset;
+        this.requestType = requestType;
+        this.lastMessageId = lastMessageId;
+        this.firstMessageId = firstMessageId;
+        this.result = result;
+        this.count = count;
+        this.order = order;
+    }
+
 
     public Callback(String uniqueId, boolean delivery, boolean seen, boolean sent) {
         this.delivery = delivery;
@@ -90,4 +107,35 @@ public class Callback {
         this.uniqueId = uniqueId;
     }
 
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
+
+    public String getOrder() {
+        return order;
+    }
+
+    public void setOrder(String order) {
+        this.order = order;
+    }
+
+    public long getFirstMessageId() {
+        return firstMessageId;
+    }
+
+    public void setFirstMessageId(long firstMessageId) {
+        this.firstMessageId = firstMessageId;
+    }
+
+    public long getLastMessageId() {
+        return lastMessageId;
+    }
+
+    public void setLastMessageId(long lastMessageId) {
+        this.lastMessageId = lastMessageId;
+    }
 }

@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 28
@@ -22,7 +21,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
 }
 
 dependencies {
@@ -37,7 +36,6 @@ dependencies {
     // required if you want to use Mockito for Android tests
     androidTestImplementation 'org.mockito:mockito-android:2.7.22'
     implementation project(path: ':podchat')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.android.gms:play-services:11.4.0'
     implementation 'com.android.support:design:28.0.0'
 

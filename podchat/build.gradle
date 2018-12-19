@@ -8,7 +8,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 23
+        versionCode 24
         versionName "0.2.2.6"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -57,6 +57,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+
     //okHttp
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
     //Rx
