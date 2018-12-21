@@ -4982,7 +4982,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             CacheMessageVO cacheMessageVO = gson.fromJson(chatMessage.getContent(), CacheMessageVO.class);
-            messageDatabaseHelper.saveMessage(cacheMessageVO);
+            messageDatabaseHelper.saveMessage(cacheMessageVO,chatMessage.getSubjectId());
         }
 
         newMessage.setMessageVO(messageVO);
@@ -5319,10 +5319,11 @@ public class Chat extends AsyncAdapter {
         }.getType());
 
         if (cache) {
-            messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId());
 
             List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
             }.getType());
+
+            messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(),cMessageVOS);
             messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
         }
 

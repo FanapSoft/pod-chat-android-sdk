@@ -44,6 +44,9 @@ public class CacheMessageVO {
 
     private Long forwardInfoId;
 
+       public CacheMessageVO() {
+    }
+
     public boolean isEdited() {
         return edited;
     }

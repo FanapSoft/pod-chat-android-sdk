@@ -68,7 +68,36 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         messageDao.insertHistories(messageVOS);
     }
 
-    public void saveMessage(CacheMessageVO cacheMessageVO) {
+    public void saveMessage(CacheMessageVO cacheMessageVO, long threadId) {
+        cacheMessageVO.setThreadVoId(threadId);
+
+        if (cacheMessageVO.getParticipant() != null) {
+            cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
+            messageDao.insertParticipant(cacheMessageVO.getParticipant());
+        }
+
+        if (cacheMessageVO.getConversation() != null) {
+//                messageDao.insertThread(messageVO.getConversation());
+        }
+
+        if (cacheMessageVO.getForwardInfo() != null) {
+            cacheMessageVO.setForwardInfoId(cacheMessageVO.getForwardInfo().getId());
+            messageDao.insertForwardInfo(cacheMessageVO.getForwardInfo());
+            if (cacheMessageVO.getForwardInfo().getParticipant() != null) {
+                cacheMessageVO.getForwardInfo().setParticipantId(cacheMessageVO.getForwardInfo().getParticipant().getId());
+                messageDao.insertParticipant(cacheMessageVO.getForwardInfo().getParticipant());
+            }
+        }
+
+        if (cacheMessageVO.getReplyInfoVO() != null) {
+            cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getId());
+            messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
+            if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
+                cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
+                messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
+            }
+        }
+
         messageDao.insertMessage(cacheMessageVO);
     }
 
@@ -76,26 +105,69 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         messageDao.deleteMessage(id);
     }
 
-    public void updateGetHistoryResponse(Callback callback, List<MessageVO> messageVOS, long threadId) {
+    public void updateGetHistoryResponse(Callback callback, List<MessageVO> messageVOS, long threadId, List<CacheMessageVO> cMessageVOS) {
         long count = callback.getCount();
         long offset = callback.getOffset();
         long firstMessageId = callback.getFirstMessageId();
         long lastMessageId = callback.getLastMessageId();
         String order = callback.getOrder();
 
-        if (!Util.isNullOrEmpty(callback.getFirstMessageId()) && !Util.isNullOrEmpty(callback.getLastMessageId())) {
-            if (Util.isNullOrEmptyMessageVO(messageVOS)) {
-                if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order))) {
-                    messageDao.deleteMessageBetweenLastAndFirst(threadId,firstMessageId,lastMessageId);
+        if (order.equals("asc")) {
+            updateGetHistoryResponseASC();
+            //TODO check DESC and ASC
+            if (!Util.isNullOrEmpty(callback.getFirstMessageId()) && !Util.isNullOrEmpty(callback.getLastMessageId())) {
+                if (Util.isNullOrEmptyMessageVO(messageVOS)) {
+                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order))) {
+                        messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMessageId, lastMessageId);
+                    }
+
+                } else if (messageVOS.size() == 1) {
+                    if (getHistories(count, offset, threadId, order).size() > 1) {
+                        messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMessageId, lastMessageId);
+                        saveMessage(cMessageVOS.get(0), threadId);
+                    }
+
+                } else if (messageVOS.size() > 1) {
+                    int size = getHistories(count, offset, threadId, order).size();
+                    long firstMesssageId = getHistories(count, offset, threadId, order).get(0).getId();
+                    long lastMesssageId = getHistories(count, offset, threadId, order).get(size - 1).getId();
+                    messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
+                    saveHistory(cMessageVOS, threadId);
                 }
-                //TODO 6:33 second of masoud
-            }else if(messageVOS.size() == 1){
-                if (getHistories(count, offset, threadId, order).size() > 1) {
-//                    messageDao.;
+
+            } else if (!Util.isNullOrEmpty(callback.getFirstMessageId())) {
+                if (Util.isNullOrEmptyMessageVO(messageVOS)) {
+                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order))) {
+                        messageDao.deleteMessageWithFirstMessageIdASC(count,offset,threadId,firstMessageId);
+                    }
+
+                } else if (messageVOS.size() == 1) {
+                    if (getHistories(count, offset, threadId, order).size() > 1) {
+                        messageDao.deleteMessageWithFirstMessageIdASC(count,offset,threadId,firstMessageId);
+                    saveMessage(cMessageVOS.get(0), threadId);
+                    }
+                    //TODO what is this conditional
+                } else if (messageVOS.size() > 1) {
+                int size = getHistories(count, offset, threadId, order).size();
+                long firstMesssageId = getHistories(count, offset, threadId, order).get(0).getId();
+                long lastMesssageId = getHistories(count, offset, threadId, order).get(size - 1).getId();
+                messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
+                saveHistory(cMessageVOS, threadId);
                 }
+            }
+
+
+            //TODO magar injori nist ke firstmessage id bashe mishe ASC va last messageId bashe mishe DESC ??
+            if (!Util.isNullOrEmpty(callback.getLastMessageId())) {
 
             }
         }
+
+        if (order.equals("desc")) {
+            updateGetHistoryResponseDESC();
+        }
+
+
 
 //        if (chatMessage.getContent().isEmpty()) {
 //            if (!Util.isNullOrEmptyMessageVO(messageDatabaseHelper.getHistories(callback.getCount(), callback.getOffset(), chatMessage.getSubjectId(), callback.getOrder()))) {
@@ -108,6 +180,14 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 //
 //            }
 //        }
+    }
+
+    private void updateGetHistoryResponseDESC() {
+
+    }
+
+    private void updateGetHistoryResponseASC() {
+
     }
 
     public List<MessageVO> getHistories(long count, long offset, long threadId, String order) {
