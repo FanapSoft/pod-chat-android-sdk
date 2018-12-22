@@ -44,6 +44,7 @@ import com.fanap.podchat.util.JsonUtil;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
+import com.idescout.sql.SqlScoutServer;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "9c475b3de8f4492e966128c95f7345bf";
+    private static String TOKEN = "24b0b4a8c79948d9abe9e18b35a09420";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -77,11 +78,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8080/";
     private static String TYPE_CODE = "";
+    SqlScoutServer sqlScoutServer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sqlScoutServer = SqlScoutServer.create(this, getPackageName());
+
         setContentView(R.layout.activity_chat);
         try {
             ProviderInstaller.installIfNeeded(this);
@@ -691,5 +695,27 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         return fileUri;
     }
 
+    @Override
+    protected void onResume() {
+        sqlScoutServer.resume();
+        super.onResume();
+    }
 
+    @Override
+    protected void onDestroy() {
+        sqlScoutServer.destroy();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        sqlScoutServer.destroy();
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        sqlScoutServer.destroy();
+        super.onStop();
+    }
 }

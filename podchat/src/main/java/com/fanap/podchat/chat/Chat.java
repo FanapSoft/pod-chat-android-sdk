@@ -1603,8 +1603,12 @@ public class Chat extends AsyncAdapter {
 
             sendAsyncMessage(asyncContent, 4, "SEND_FORWARD_MESSAGE");
         } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, null);
-            if (log) Logger.e(jsonError);
+            if (uniqueIds != null) {
+                for (String uniqueId : uniqueIds) {
+                    String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                    if (log) Logger.e(jsonError);
+                }
+            }
         }
 
         return uniqueIds;
@@ -2028,13 +2032,15 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
         String order = history.getOrder();
+        long lastMessageId = history.getLastMessageId();
+        long firstMessageId = history.getFirstMessageId();
         if (Util.isNullOrEmpty(history.getOrder())) {
             order = "desc";
         }
         if (cache) {
-            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order) != null) {
+            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId) != null) {
 
-                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order);
+                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId);
                 long contentCount = messageDatabaseHelper.getHistoryContentCount();
 
                 ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
@@ -2262,7 +2268,9 @@ public class Chat extends AsyncAdapter {
      */
     public String getContacts(Integer count, Long offset, ChatHandler handler) {
 
-        String uniqueId = null;
+        String uniqueId;
+        uniqueId = generateUniqueId();
+
         if (cache) {
             ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacts());
             ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
@@ -2297,7 +2305,6 @@ public class Chat extends AsyncAdapter {
                 jObj.addProperty("size", 50);
             }
 
-            uniqueId = generateUniqueId();
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setContent(jObj.toString());
             chatMessage.setType(Constants.GET_CONTACTS);
@@ -4528,6 +4535,11 @@ public class Chat extends AsyncAdapter {
         try {
             MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
 
+            if (cache) {
+                CacheMessageVO cacheMessageVO = gson.fromJson(chatMessage.getContent(), CacheMessageVO.class);
+                messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId());
+            }
+
             ChatResponse<ResultNewMessage> chatResponse = new ChatResponse<>();
             chatResponse.setUniqueId(chatMessage.getUniqueId());
             chatResponse.setHasError(false);
@@ -4596,11 +4608,6 @@ public class Chat extends AsyncAdapter {
                                 }
                             });
 
-                            //TODO
-                            if (cache) {
-                                //Save sent message to Messages table
-//                                messageDatabaseHelper.saveMessage();
-                            }
 
                             Callback callbackUpdateSent = new Callback();
                             callbackUpdateSent.setSent(false);
@@ -4982,7 +4989,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             CacheMessageVO cacheMessageVO = gson.fromJson(chatMessage.getContent(), CacheMessageVO.class);
-            messageDatabaseHelper.saveMessage(cacheMessageVO,chatMessage.getSubjectId());
+            messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId());
         }
 
         newMessage.setMessageVO(messageVO);
@@ -5323,14 +5330,14 @@ public class Chat extends AsyncAdapter {
             List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
             }.getType());
 
-            messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(),cMessageVOS);
+            //TODO complete this part
+            // messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS);
             messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
         }
 
         ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
 
         ResultHistory resultHistory = new ResultHistory();
-
 
         resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
         resultHistory.setContentCount(chatMessage.getContentCount());
