@@ -69,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "24b0b4a8c79948d9abe9e18b35a09420";
+    private static String TOKEN = "4e2ae338678f43b6b84c5c21585899c2";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -343,7 +343,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                     case 6:
                         List<Long> participantIds = new ArrayList<>();
-                        participantIds.add(2404L);
+                        participantIds.add(822L);
 //                        participantIds.add(577L);
 //                        participantIds.add(824L);
                         presenter.addParticipants(1105, participantIds, new ChatHandler() {
@@ -588,7 +588,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 Inviter inviter = new Inviter();
                 inviter.setName("sina");
                 String meta = JsonUtil.getJson(inviter);
-                presenter.editMessage(8264,
+                presenter.editMessage(9261,
                         "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
                 break;

@@ -2278,6 +2278,7 @@ public class Chat extends AsyncAdapter {
             ResultContact resultContact = new ResultContact();
             resultContact.setContacts(arrayList);
             chatResponse.setResult(resultContact);
+            chatResponse.setCache(true);
             resultContact.setContentCount(messageDatabaseHelper.getContacts().size());
 
             String contactJson = JsonUtil.getJson(chatResponse);
@@ -2449,6 +2450,7 @@ public class Chat extends AsyncAdapter {
                     if (!contacts.getHasError()) {
 
                         ChatResponse<ResultAddContact> chatResponse = Util.getReformatOutPutAddContact(contacts, uniqueId);
+
                         String contactsJson = gson.toJson(chatResponse);
 
                         listenerManager.callOnAddContact(contactsJson, chatResponse);
@@ -4634,7 +4636,7 @@ public class Chat extends AsyncAdapter {
         sUIThreadHandler = new Handler(Looper.getMainLooper());
     }
 
-    protected static void runOnUIThread(Runnable runnable) {
+    private static void runOnUIThread(Runnable runnable) {
         if (sUIThreadHandler != null) {
             sUIThreadHandler.post(runnable);
         } else {
@@ -4646,7 +4648,7 @@ public class Chat extends AsyncAdapter {
         pingHandler = new Handler(Looper.getMainLooper());
     }
 
-    protected static void pingRunOnUIThread(Runnable runnable, long delay) {
+    private static void pingRunOnUIThread(Runnable runnable, long delay) {
         if (pingHandler != null) {
             pingHandler.postDelayed(runnable, delay);
         } else {
@@ -4658,7 +4660,7 @@ public class Chat extends AsyncAdapter {
         tokenHandler = new Handler(Looper.getMainLooper());
     }
 
-    protected static void retryTokenRunOnUIThread(Runnable runnable, long delay) {
+    private static void retryTokenRunOnUIThread(Runnable runnable, long delay) {
         if (tokenHandler != null) {
             tokenHandler.postDelayed(runnable, delay);
         } else {
@@ -5174,7 +5176,7 @@ public class Chat extends AsyncAdapter {
         getUserInfoHandler = new Handler(Looper.getMainLooper());
     }
 
-    protected static void runOnUIUserInfoThread(Runnable runnable, long delayedTime) {
+    private static void runOnUIUserInfoThread(Runnable runnable, long delayedTime) {
         if (getUserInfoHandler != null) {
             getUserInfoHandler.postDelayed(runnable, delayedTime);
         } else {
@@ -5540,7 +5542,7 @@ public class Chat extends AsyncAdapter {
             phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             Contact contact = new Contact();
             char ch1 = phoneNumber.charAt(0);
-            if (Character.toString(ch1) != "+") {
+            if (!Character.toString(ch1).equals("+")) {
                 contact.setCellphoneNumber(phoneNumber.replaceAll(Character.toString(ch1), "+98"));
             }
             contact.setCellphoneNumber(phoneNumber.replaceAll(" ", ""));
@@ -5737,11 +5739,11 @@ public class Chat extends AsyncAdapter {
     private class DeleteMessage {
         private boolean deleteForAll;
 
-        public boolean isDeleteForAll() {
+        private boolean isDeleteForAll() {
             return deleteForAll;
         }
 
-        public void setDeleteForAll(boolean deleteForAll) {
+        private void setDeleteForAll(boolean deleteForAll) {
             this.deleteForAll = deleteForAll;
         }
     }
