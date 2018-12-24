@@ -123,6 +123,7 @@ import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -654,10 +655,10 @@ public class Chat extends AsyncAdapter {
                     File file = new File(fileUri.getPath());
                     String mimeType = handleMimType(fileUri, file);
                     if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-                        uploadImageFileMessage(context, activity, description, threadId, fileUri, mimeType, metaData, uniqueId, getTypeCode(), messageType);
+                        uploadImageFileMessage(context, activity, description, threadId, fileUri, mimeType, metaData, uniqueId, getTypeCode(), messageType, 0, null);
                     } else {
                         String path = FilePick.getSmartFilePath(context, fileUri);
-                        uploadFileMessage(activity, description, threadId, mimeType, path, metaData, uniqueId, getTypeCode(), messageType);
+                        uploadFileMessage(activity, description, threadId, mimeType, path, metaData, uniqueId, getTypeCode(), messageType, 0, null);
                     }
                     return uniqueId;
                 }
@@ -689,10 +690,10 @@ public class Chat extends AsyncAdapter {
                     File file = new File(fileUri.getPath());
                     String mimeType = handleMimType(fileUri, file);
                     if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-                        uploadImageFileMessage(getContext(), activity, description, threadId, fileUri, mimeType, metaData, uniqueId, getTypeCode(), messageType);
+                        uploadImageFileMessage(getContext(), activity, description, threadId, fileUri, mimeType, metaData, uniqueId, getTypeCode(), messageType, 0, null);
                     } else {
                         String path = FilePick.getSmartFilePath(context, fileUri);
-                        uploadFileMessage(activity, description, threadId, mimeType, path, metaData, uniqueId, getTypeCode(), messageType);
+                        uploadFileMessage(activity, description, threadId, mimeType, path, metaData, uniqueId, getTypeCode(), messageType, 0, null);
                     }
                     return uniqueId;
                 }
@@ -1679,6 +1680,40 @@ public class Chat extends AsyncAdapter {
         return uniqueIds;
     }
 
+    public String replyFileMessage(RequestReplyFileMessage request) {
+        String uniqueId = generateUniqueId();
+        long threadId = request.getThreadId();
+        String messageContent = request.getMessageContent();
+        String systemMetaData = request.getSystemMetaData();
+        Uri fileUri = request.getFileUri();
+        long messageId = request.getMessageId();
+        Activity activity = request.getActivity();
+        int messageType = request.getMessageType();
+        String methodName = ChatConstant.REPLY_MSG_METHOD;
+        try {
+            if (chatReady) {
+                if (fileUri != null) {
+                    File file = new File(fileUri.getPath());
+                    String mimeType = handleMimType(fileUri, file);
+                    if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+                        uploadImageFileMessage(getContext(), activity, messageContent, threadId, fileUri, mimeType, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName);
+                    } else {
+                        String path = FilePick.getSmartFilePath(context, fileUri);
+                        uploadFileMessage(activity, messageContent, threadId, mimeType, path, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName);
+                    }
+                    return uniqueId;
+                }
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                if (log) Logger.json(jsonError);
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+            return null;
+        }
+        return uniqueId;
+    }
+
     /**
      * Reply the message in the current thread and send az message and receive at the
      * <p>
@@ -1688,48 +1723,13 @@ public class Chat extends AsyncAdapter {
      * metaData       meta data of the message
      */
     public String replyMessage(RequestReplyMessage request, ChatHandler handler) {
-        String uniqueId = generateUniqueId();
-        String asyncContent = null;
-        if (chatReady) {
+        long threadId = request.getThreadId();
+        long messageId = request.getMessageId();
+        String messageContent = request.getMessageContent();
+        String systemMetaData = request.getSystemMetaData();
+        int messageType = request.getMessageType();
 
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setUniqueId(uniqueId);
-            chatMessage.setRepliedTo(request.getMessageId());
-            chatMessage.setSubjectId(request.getThreadId());
-            chatMessage.setTokenIssuer("1");
-            chatMessage.setToken(getToken());
-            chatMessage.setContent(request.getMessageContent());
-            chatMessage.setTime(1000);
-            chatMessage.setType(Constants.MESSAGE);
-            if (request.getMetaData() != null) {
-                chatMessage.setSystemMetadata(request.getMetaData());
-            }
-
-            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-            jsonObject.remove("contentCount");
-            jsonObject.remove("metadata");
-
-            String typeCode = request.getTypeCode();
-            if (Util.isNullOrEmpty(typeCode)) {
-                jsonObject.addProperty("typeCode", getTypeCode());
-            } else {
-                jsonObject.remove("typeCode");
-            }
-
-            asyncContent = jsonObject.toString();
-
-            setThreadCallbacks(request.getThreadId(), uniqueId);
-
-            if (handler != null) {
-                handler.onReplyMessage(uniqueId);
-            }
-            sendAsyncMessage(asyncContent, 4, "SEND_REPLY_MESSAGE");
-
-        } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-            if (log) Logger.e(jsonError);
-        }
-        return uniqueId;
+        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null, handler);
     }
 
     /**
@@ -1738,9 +1738,13 @@ public class Chat extends AsyncAdapter {
      * @param messageContent content of the reply message
      * @param threadId       id of the thread
      * @param messageId      of the message that we want to reply
-     * @param metaData       meta data of the message
+     * @param systemMetaData meta data of the message
      */
-    public String replyMessage(String messageContent, long threadId, long messageId, String metaData, ChatHandler handler) {
+    public String replyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, ChatHandler handler) {
+        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null, handler);
+    }
+
+    private String mainReplyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, String metaData, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
@@ -1754,18 +1758,32 @@ public class Chat extends AsyncAdapter {
             chatMessage.setTime(1000);
             chatMessage.setType(Constants.MESSAGE);
 
-            if (metaData != null) {
-                chatMessage.setSystemMetadata(metaData);
+            if (systemMetaData != null) {
+                chatMessage.setSystemMetadata(systemMetaData);
             }
-            chatMessage.setSystemMetadata(metaData);
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+            if (Util.isNullOrEmpty(metaData)) {
+                jsonObject.remove("metaData");
+            } else {
+                jsonObject.remove("metaData");
+                jsonObject.addProperty("metaData", metaData);
+            }
 
             if (Util.isNullOrEmpty(getTypeCode())) {
                 jsonObject.remove("typeCode");
             } else {
                 jsonObject.remove("typeCode");
                 jsonObject.addProperty("typeCode", getTypeCode());
+            }
+
+            if (Util.isNullOrEmpty(messageType)) {
+
+                jsonObject.remove("messageType");
+            } else {
+                jsonObject.remove("messageType");
+                jsonObject.addProperty("messageType", messageType);
             }
 
             String asyncContent = jsonObject.toString();
@@ -1780,9 +1798,9 @@ public class Chat extends AsyncAdapter {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             if (log) Logger.e(jsonError);
         }
-
         return uniqueId;
     }
+
 
     /**
      * DELETE MESSAGE IN THREAD
@@ -3184,7 +3202,6 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-
 
     //TODO SPam test
     public String spam(RequestSpam request) {
@@ -5567,7 +5584,7 @@ public class Chat extends AsyncAdapter {
 
     private void uploadFileMessage(Activity activity, String description, long threadId,
                                    String mimeType, String filePath, String metadata,
-                                   String uniqueId, String typeCode, Integer messageType) {
+                                   String uniqueId, String typeCode, Integer messageType, long messageId, String methodName) {
         try {
             if (Permission.Check_READ_STORAGE(activity)) {
                 if (getFileServer() != null) {
@@ -5621,7 +5638,11 @@ public class Chat extends AsyncAdapter {
 
                                         String jsonMeta = JsonUtil.getJson(metaDataFile);
                                         if (log) Logger.json(jsonMeta);
-                                        sendTextMessageWithFile(description, threadId, jsonMeta, metadata, uniqueId, typeCode, messageType);
+                                        if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.REPLY_MSG_METHOD)) {
+                                            mainReplyMessage(description, threadId, messageId, metadata, messageType, jsonMeta, null);
+                                        } else {
+                                            sendTextMessageWithFile(description, threadId, jsonMeta, metadata, uniqueId, typeCode, messageType);
+                                        }
                                     }
                                 }
                             }
@@ -5647,7 +5668,7 @@ public class Chat extends AsyncAdapter {
 
     private void uploadImageFileMessage(Context context, Activity activity, String description, long threadId,
                                         Uri fileUri, String mimeType, String metadata, String uniqueId,
-                                        String typeCode, Integer messageType) {
+                                        String typeCode, Integer messageType, long messageId, String methodName) {
         if (fileServer != null) {
             if (Permission.Check_READ_STORAGE(activity)) {
                 String path = FilePick.getSmartFilePath(context, fileUri);
@@ -5710,7 +5731,11 @@ public class Chat extends AsyncAdapter {
                                     metaData.setFile(fileMetaData);
 
                                     String metaJson = JsonUtil.getJson(metaData);
-                                    sendTextMessageWithFile(description, threadId, metaJson, metadata, uniqueId, typeCode, messageType);
+                                    if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.REPLY_MSG_METHOD)) {
+                                        mainReplyMessage(description, threadId, messageId, metadata, messageType, metaJson, null);
+                                    } else {
+                                        sendTextMessageWithFile(description, threadId, metaJson, metadata, uniqueId, typeCode, messageType);
+                                    }
                                     if (log) Logger.json(metaJson);
 
                                 }

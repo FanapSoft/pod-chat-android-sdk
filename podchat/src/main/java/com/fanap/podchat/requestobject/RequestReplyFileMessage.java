@@ -1,19 +1,27 @@
 package com.fanap.podchat.requestobject;
 
+import android.app.Activity;
+import android.net.Uri;
 
-public class RequestReplyMessage extends GeneralRequestObject {
+public class RequestReplyFileMessage extends GeneralRequestObject {
+
     private String messageContent;
     private long threadId;
     private long messageId;
     private String systemMetaData;
+    private Uri fileUri;
+    private Activity activity;
     private int messageType;
 
-    RequestReplyMessage(Builder builder) {
+
+    RequestReplyFileMessage(Builder builder) {
         super(builder);
         this.systemMetaData = builder.systemMetaData;
         this.messageContent = builder.messageContent;
         this.threadId = builder.threadId;
         this.messageId = builder.messageId;
+        this.fileUri = builder.fileUri;
+        this.activity = builder.activity;
         this.messageType = builder.messageType;
     }
 
@@ -22,15 +30,20 @@ public class RequestReplyMessage extends GeneralRequestObject {
         private long threadId;
         private long messageId;
         private String systemMetaData;
+        private Uri fileUri;
+        private Activity activity;
         private int messageType;
 
-        public Builder(String messageContent, long threadId, long messageId) {
+
+        public Builder(String messageContent, long threadId, long messageId, Uri fileUri, Activity activity) {
             this.messageContent = messageContent;
             this.threadId = threadId;
             this.messageId = messageId;
+            this.fileUri = fileUri;
+            this.activity = activity;
         }
 
-        public Builder messageType(int messageType) {
+        public Builder messageType(int messageType){
             this.messageType = messageType;
             return this;
         }
@@ -40,14 +53,15 @@ public class RequestReplyMessage extends GeneralRequestObject {
             return this;
         }
 
-        public RequestReplyMessage build() {
-            return new RequestReplyMessage(this);
+        public RequestReplyFileMessage build() {
+            return new RequestReplyFileMessage(this);
         }
 
         @Override
         protected Builder self() {
             return this;
         }
+
     }
 
     public String getMessageContent() {
@@ -82,11 +96,27 @@ public class RequestReplyMessage extends GeneralRequestObject {
         this.systemMetaData = systemMetaData;
     }
 
-    public Integer getMessageType() {
+    public Uri getFileUri() {
+        return fileUri;
+    }
+
+    public void setFileUri(Uri fileUri) {
+        this.fileUri = fileUri;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
+
+    public int getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(Integer messageType) {
+    public void setMessageType(int messageType) {
         this.messageType = messageType;
     }
 

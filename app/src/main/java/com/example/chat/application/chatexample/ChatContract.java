@@ -181,7 +181,7 @@ public interface ChatContract {
 
         void sendTextMessage(RequestMessage requestMessage, ChatHandler handler);
 
-        void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler);
+        void replyMessage(String messageContent, long threadId, long messageId, Integer messageType, ChatHandler handler);
 
         void replyMessage(RequestReplyMessage request, ChatHandler handler);
 

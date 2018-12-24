@@ -111,7 +111,7 @@ chat.unmuteThread(232);
 
 |Num|Message Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`sendTextMessage(String textMessage, long threadId, String metaData,SendTextMessageHandler handler)`       | Send text message to threadVo.           |
+|1|`sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)`       | Send text message to threadVo.           |
 |2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
 |3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the threadVo       |
 |4|`editMessage(int messageId, String messageContent)`         | Edit the message      |

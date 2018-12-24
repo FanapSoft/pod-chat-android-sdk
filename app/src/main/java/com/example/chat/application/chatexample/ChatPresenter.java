@@ -187,8 +187,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void replyMessage(String messageContent, long threadId, long messageId, ChatHandler handler) {
-        chat.replyMessage(messageContent, threadId, messageId, "meta", handler);
+    public void replyMessage(String messageContent, long threadId, long messageId, Integer messageType, ChatHandler handler) {
+        chat.replyMessage(messageContent, threadId, messageId, "meta", messageType, handler);
     }
 
     @Override

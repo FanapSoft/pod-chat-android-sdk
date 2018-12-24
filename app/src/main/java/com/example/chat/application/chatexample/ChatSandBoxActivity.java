@@ -484,7 +484,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 4:
                 //"reply message",
-                presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
+                presenter.replyMessage("this is reply from john", 381, 14103,null, new ChatHandler() {
                     @Override
                     public void onReplyMessage(String uniqueId) {
                         super.onReplyMessage(uniqueId);
