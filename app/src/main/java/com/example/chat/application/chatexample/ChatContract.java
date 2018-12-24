@@ -26,6 +26,7 @@ import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -182,6 +183,8 @@ public interface ChatContract {
         void sendTextMessage(RequestMessage requestMessage, ChatHandler handler);
 
         void replyMessage(String messageContent, long threadId, long messageId, Integer messageType, ChatHandler handler);
+
+        void replyFileMessage(RequestReplyFileMessage request);
 
         void replyMessage(RequestReplyMessage request, ChatHandler handler);
 

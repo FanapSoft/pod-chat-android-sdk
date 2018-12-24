@@ -49,6 +49,7 @@ import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -189,6 +190,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void replyMessage(String messageContent, long threadId, long messageId, Integer messageType, ChatHandler handler) {
         chat.replyMessage(messageContent, threadId, messageId, "meta", messageType, handler);
+    }
+
+    @Override
+    public void replyFileMessage(RequestReplyFileMessage request) {
+        chat.replyFileMessage(request);
     }
 
     @Override

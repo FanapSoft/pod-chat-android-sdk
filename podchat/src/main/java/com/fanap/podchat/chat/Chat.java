@@ -5640,6 +5640,8 @@ public class Chat extends AsyncAdapter {
                                         if (log) Logger.json(jsonMeta);
                                         if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.REPLY_MSG_METHOD)) {
                                             mainReplyMessage(description, threadId, messageId, metadata, messageType, jsonMeta, null);
+                                            if (log) Logger.i("SEND_REPLY_FILE_MESSAGE");
+
                                         } else {
                                             sendTextMessageWithFile(description, threadId, jsonMeta, metadata, uniqueId, typeCode, messageType);
                                         }
@@ -5733,6 +5735,7 @@ public class Chat extends AsyncAdapter {
                                     String metaJson = JsonUtil.getJson(metaData);
                                     if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.REPLY_MSG_METHOD)) {
                                         mainReplyMessage(description, threadId, messageId, metadata, messageType, metaJson, null);
+                                        if (log) Logger.i("SEND_REPLY_FILE_MESSAGE");
                                     } else {
                                         sendTextMessageWithFile(description, threadId, metaJson, metadata, uniqueId, typeCode, messageType);
                                     }
