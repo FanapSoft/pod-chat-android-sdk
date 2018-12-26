@@ -36,6 +36,7 @@ import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
@@ -69,7 +70,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "4e2ae338678f43b6b84c5c21585899c2";
+    private static String TOKEN = "6f1d2366829b4b4aba390ebc40adcce5";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -135,6 +136,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         buttonToken.setOnClickListener(this);
     }
 
+    //funcThird
     private void setupThirdSpinner(Spinner spinnerThird) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcThird);
 
@@ -283,6 +285,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         presenter.getThreads(requestThread);
     }
 
+    //funcSecond
     private void setupSecondSpinner(Spinner spinnerSecond) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcSecond);
 
@@ -383,6 +386,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         });
 
                         break;
+                    case 11:
+
+                        replyFileMessage();
+                        break;
                 }
             }
 
@@ -392,6 +399,16 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    private void replyFileMessage() {
+        String messageContent = "this is reply from john";
+        long threadId = 1105;
+        long messageId = 9321;
+        Uri fileUri = getUri();
+        RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
+                .Builder(messageContent,threadId,messageId,fileUri,this).build();
+        presenter.replyFileMessage(fileMessage);
     }
 
     public void deleteMessage() {
@@ -431,8 +448,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         RequestMessage requestMessage = new RequestMessage
-                .Builder("test at" + " " + new Date().getTime() + name, 2)
-                .messageType(2)
+                .Builder("test at" + " " + new Date().getTime() + name, 1105)
                 .jsonMetaData(meta)
                 .build();
         presenter.sendTextMessage(requestMessage, null);

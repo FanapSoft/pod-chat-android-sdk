@@ -225,9 +225,7 @@ public class Chat extends AsyncAdapter {
     private static Gson gson;
     private ArrayList<Contact> serverContacts;
     private boolean checkToken = false;
-    private boolean retryToken = false;
     private boolean userInfoResponse = false;
-//    private boolean firstNotAuthenticate = true;
 
     private Chat() {
     }
@@ -1779,7 +1777,6 @@ public class Chat extends AsyncAdapter {
             }
 
             if (Util.isNullOrEmpty(messageType)) {
-
                 jsonObject.remove("messageType");
             } else {
                 jsonObject.remove("messageType");
@@ -2050,16 +2047,19 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
         String order = history.getOrder();
+        String query = history.getQuery();
         long lastMessageId = history.getLastMessageId();
         long firstMessageId = history.getFirstMessageId();
+        long messageId = history.getId();
         if (Util.isNullOrEmpty(history.getOrder())) {
             order = "desc";
         }
         if (cache) {
-            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId) != null) {
+            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order
+                    , lastMessageId, firstMessageId, messageId,query) != null) {
 
-                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId);
-                long contentCount = messageDatabaseHelper.getHistoryContentCount();
+                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId,messageId,query);
+                long contentCount = messageDatabaseHelper.getHistoryContentCount(threadId);
 
                 ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
 
@@ -2103,8 +2103,12 @@ public class Chat extends AsyncAdapter {
      * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
      * order should be set with lower case
      */
+    //TODO test getHistory
     private void getHistoryMain(History history, long threadId, ChatHandler handler, String uniqueId) {
         long offsets = history.getOffset();
+        long firstMessageId = history.getFirstMessageId();
+        long lastMessageId = history.getLastMessageId();
+        long id= history.getId();
 
         if (history.getCount() != 0) {
             history.setCount(history.getCount());
@@ -2126,6 +2130,10 @@ public class Chat extends AsyncAdapter {
 
         if (history.getFirstMessageId() == 0) {
             jObj.remove("firstMessageId");
+        }
+
+        if (history.getId() <= 0) {
+            jObj.remove("id");
         }
 
         ChatMessage chatMessage = new ChatMessage();
@@ -2153,7 +2161,7 @@ public class Chat extends AsyncAdapter {
             order = history.getOrder();
         }
 
-        setCallBacks(history.getFirstMessageId(), history.getLastMessageId(), order, history.getCount(), offsets, uniqueId);
+        setCallBacks(firstMessageId,lastMessageId, order, history.getCount(), offsets, uniqueId,id);
         if (handler != null) {
             handler.onGetHistory(uniqueId);
         }
@@ -3897,7 +3905,8 @@ public class Chat extends AsyncAdapter {
      * Mute the thread so notification is off for that thread
      */
     public String muteThread(long threadId, ChatHandler handler) {
-        String uniqueId = null;
+        String uniqueId;
+        uniqueId = generateUniqueId();
         try {
             if (chatReady) {
                 ChatMessage chatMessage = new ChatMessage();
@@ -3905,7 +3914,6 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setToken(getToken());
                 chatMessage.setTokenIssuer("1");
                 chatMessage.setSubjectId(threadId);
-                uniqueId = generateUniqueId();
                 chatMessage.setUniqueId(uniqueId);
 
                 JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
@@ -3926,7 +3934,7 @@ public class Chat extends AsyncAdapter {
                     handler.onMuteThread(uniqueId);
                 }
             } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, null);
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
                 if (log) Logger.e(jsonError);
             }
 
@@ -3942,6 +3950,7 @@ public class Chat extends AsyncAdapter {
     public String muteThread(RequestMuteThread request, ChatHandler handler) {
         String uniqueId = null;
         JsonObject jsonObject = null;
+        uniqueId = generateUniqueId();
         try {
             if (chatReady) {
                 long threadId = request.getThreadId();
@@ -3953,7 +3962,6 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setTokenIssuer("1");
                 chatMessage.setSubjectId(threadId);
 
-                uniqueId = generateUniqueId();
 
                 chatMessage.setUniqueId(uniqueId);
 
@@ -4333,7 +4341,6 @@ public class Chat extends AsyncAdapter {
         this.typeCode = typeCode;
     }
 
-    //TODO null pointer offset
     private void handleCacheThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName) {
         if (offset == null) {
             offset = 0L;
@@ -5350,7 +5357,7 @@ public class Chat extends AsyncAdapter {
             }.getType());
 
             //TODO complete this part
-            // messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS);
+            messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS);
             messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
         }
 
@@ -5501,7 +5508,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count, Long offset, String uniqueId) {
+    private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count, Long offset, String uniqueId,long msgId) {
 
         try {
             if (chatReady || asyncReady) {
@@ -5514,6 +5521,7 @@ public class Chat extends AsyncAdapter {
                 callback.setOffset(offset);
                 callback.setCount(count);
                 callback.setOrder(order);
+                callback.setMessageId(msgId);
                 callback.setResult(true);
                 callback.setRequestType(Constants.GET_HISTORY);
 

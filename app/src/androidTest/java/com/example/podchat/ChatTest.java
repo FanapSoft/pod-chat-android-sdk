@@ -314,7 +314,7 @@ public class ChatTest {
         }
 
         presenter.replyMessage("this is reply to all of you at" + new Date().getTime()
-                , 381, 14103, null);
+                , 381, 14103,null, null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

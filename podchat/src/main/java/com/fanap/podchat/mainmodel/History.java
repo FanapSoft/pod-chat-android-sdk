@@ -1,11 +1,14 @@
 package com.fanap.podchat.mainmodel;
 
 public class History  {
+    private long id;
+    private long firstMessageId;
+    private long lastMessageId;
     private long offset;
     private long count;
     private String order;
-    private long firstMessageId;
-    private long lastMessageId;
+    private String query;
+    private NosqlSearchMetadataCriteria metadataCriteria;
 
     public History(Builder builder){
         this.count = builder.count;
@@ -13,7 +16,11 @@ public class History  {
         this.order = builder.order;
         this.firstMessageId = builder.firstMessageId;
         this.lastMessageId = builder.lastMessageId;
+        this.id = builder.id;
+        this.query = builder.query;
+        this.metadataCriteria = builder.metadataCriteria;
     }
+
 
     public static class Builder{
         private long offset;
@@ -21,7 +28,24 @@ public class History  {
         private String order;
         private long firstMessageId;
         private long lastMessageId;
+        private NosqlSearchMetadataCriteria metadataCriteria;
+        private long id;
+        private String query;
 
+        public Builder id(long id){
+            this.id = id;
+            return this;
+        }
+
+        public Builder id(String query){
+            this.query = query;
+            return this;
+        }
+
+        public Builder metadataCriteria(NosqlSearchMetadataCriteria metadataCriteria){
+            this.metadataCriteria = metadataCriteria;
+            return this;
+        }
 
         public Builder offset(long offset){
            this.offset = offset;
@@ -91,5 +115,29 @@ public class History  {
 
     public void setLastMessageId(long lastMessageId) {
         this.lastMessageId = lastMessageId;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public NosqlSearchMetadataCriteria getMetadataCriteria() {
+        return metadataCriteria;
+    }
+
+    public void setMetadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
+        this.metadataCriteria = metadataCriteria;
     }
 }

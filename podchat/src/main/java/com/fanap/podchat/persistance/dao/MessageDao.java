@@ -75,8 +75,17 @@ public interface MessageDao {
     @Query("DELETE FROM cachemessagevo WHERE threadVoId = :threadVoId  AND time IN (SELECT time FROM CacheMessageVO WHERE id >=:firstMessageId ORDER BY time DESC LIMIT :count OFFSET :offset )")
     void deleteMessageWithFirstMessageIdDESC(long count, long offset, long threadVoId, long firstMessageId);
 
-    @Query("SELECT COUNT(id) FROM CacheMessageVO")
-    long getHistoryCount();
+    @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId ")
+    long getHistoryCount(long threadVoId);
+
+    @Query("SELECT * FROM cachemessagevo WHERE id = :id ")
+    List<CacheMessageVO> getMessage(long id);
+
+    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId LIKE :query")
+    List<CacheMessageVO> setQuery(long threadVoId,String query);
+
+    @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId AND id BETWEEN :firstMessageId AND :lastMessageId")
+    long getHistoryCountWithLastAndFirtMSGId(long threadVoId, long lastMessageId, long firstMessageId);
 
     //Cache userInfo
     @Insert(onConflict = REPLACE)
@@ -119,7 +128,6 @@ public interface MessageDao {
 
     @Query("select * from CacheLastMessageVO where id = :LastMessageVOId")
     CacheLastMessageVO getLastMessageVO(long LastMessageVOId);
-
 
     //cache participant
     @Insert(onConflict = REPLACE)

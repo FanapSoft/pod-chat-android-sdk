@@ -110,6 +110,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         long offset = callback.getOffset();
         long firstMessageId = callback.getFirstMessageId();
         long lastMessageId = callback.getLastMessageId();
+        long messageId = callback.getMessageId();
         String order = callback.getOrder();
 
         List<MessageVO> histories;
@@ -118,68 +119,61 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
             if (!Util.isNullOrEmpty(callback.getFirstMessageId()) && !Util.isNullOrEmpty(callback.getLastMessageId())) {
                 if (Util.isNullOrEmptyMessageVO(messageVOS)) {
-                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order,lastMessageId,firstMessageId))) {
+                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null))) {
                         messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMessageId, lastMessageId);
                     }
 
                 } else if (messageVOS.size() == 1) {
-                    if (getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).size() > 1) {
-                        messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMessageId, lastMessageId);
-                        saveMessage(cMessageVOS.get(0), threadId);
-                    }
+                    messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMessageId, lastMessageId);
+                    saveMessage(cMessageVOS.get(0), threadId);
+
 
                 } else if (messageVOS.size() > 1) {
-                    int size = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).size();
-                    long firstMesssageId = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).get(0).getId();
-                    long lastMesssageId = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).get(size - 1).getId();
-                    messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
+                    messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMessageId, lastMessageId);
                     saveHistory(cMessageVOS, threadId);
                 }
 
             } else if (!Util.isNullOrEmpty(callback.getFirstMessageId())) {
                 if (Util.isNullOrEmptyMessageVO(messageVOS)) {
-                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order,lastMessageId,firstMessageId))) {
+                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null))) {
                         messageDao.deleteMessageWithFirstMessageIdASC(count, offset, threadId, firstMessageId);
                     }
 
                 } else if (messageVOS.size() == 1) {
-                    if (getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).size() > 1) {
+                    if (getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).size() > 1) {
                         messageDao.deleteMessageWithFirstMessageIdASC(count, offset, threadId, firstMessageId);
                         saveMessage(cMessageVOS.get(0), threadId);
                     }
 
                 } else if (messageVOS.size() > 1) {
-                    int size = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).size();
-                    long firstMesssageId = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).get(0).getId();
-                    long lastMesssageId = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).get(size - 1).getId();
+                    int size = getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).size();
+                    long firstMesssageId = getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).get(0).getId();
+                    long lastMesssageId = getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).get(size - 1).getId();
                     messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
                     saveHistory(cMessageVOS, threadId);
                 }
             } else if (!Util.isNullOrEmpty(callback.getLastMessageId())) {
                 if (Util.isNullOrEmptyMessageVO(messageVOS)) {
-                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order,lastMessageId,firstMessageId))) {
+                    if (!Util.isNullOrEmptyMessageVO(getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null))) {
                         messageDao.deleteMessageWithFirstMessageIdASC(count, offset, threadId, firstMessageId);
                     }
 
                 } else if (messageVOS.size() == 1) {
-                    if (getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).size() > 1) {
+                    if (getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).size() > 1) {
                         messageDao.deleteMessageWithFirstMessageIdASC(count, offset, threadId, firstMessageId);
                         saveMessage(cMessageVOS.get(0), threadId);
                     }
 
                 } else if (messageVOS.size() > 1) {
-                    int size = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).size();
-                    long firstMesssageId = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).get(0).getId();
-                    long lastMesssageId = getHistories(count, offset, threadId, order,lastMessageId,firstMessageId).get(size - 1).getId();
+                    int size = getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).size();
+                    long firstMesssageId = getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).get(0).getId();
+                    long lastMesssageId = getHistories(count, offset, threadId, order, lastMessageId, firstMessageId, 0, null).get(size - 1).getId();
                     messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
                     saveHistory(cMessageVOS, threadId);
                 }
-
-
+            } else if (!Util.isNullOrEmpty(messageId) && messageId > 0 ) {
+                //TODO incomplete
             }
-
-
-
         }
 
 
@@ -196,7 +190,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 //        }
     }
 
-    public List<MessageVO> getHistories(long count, long offset, long threadId, String order, long lastMessageId, long firstMessageId) {
+    public List<MessageVO> getHistories(long count, long offset, long threadId, String order, long lastMessageId, long firstMessageId, long messageId, String query) {
         List<MessageVO> messageVOS = new ArrayList<>();
         List<CacheMessageVO> cMessageVOS = new ArrayList<>();
 
@@ -218,7 +212,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
             } else {
                 messageDao.getHistoriesMessageIdDESC(count, offset, threadId, firstMessageId);
             }
-        } else  {
+        } else if (count > 0 && offset >= 0) {
 
             if (order.equals("asc")) {
                 if (messageDao.getHistoriesASC(count, offset, threadId) != null && messageDao.getHistoriesASC(count, offset, threadId).size() > 0) {
@@ -230,6 +224,14 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     cMessageVOS = messageDao.getHistoriesDESC(count, offset, threadId);
                 }
             }
+        } else if (messageId > 0) {
+            if (messageDao.getMessage(messageId) != null) {
+                cMessageVOS = messageDao.getMessage(messageId);
+            }
+        } else if (!Util.isNullOrEmpty(query)) {
+//            if () {
+//                cMessageVOS =
+//            }
         }
 
 
@@ -366,9 +368,8 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return messageVOS;
     }
 
-
-    public long getHistoryContentCount() {
-        return messageDao.getHistoryCount();
+    public long getHistoryContentCount(long threadVoId) {
+        return messageDao.getHistoryCount(threadVoId);
     }
 
     //Cache contact
@@ -415,26 +416,29 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     CacheLastMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
                         cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                        participant = new Participant(
-                                cacheParticipant.getId(),
-                                cacheParticipant.getName(),
-                                cacheParticipant.getFirstName(),
-                                cacheParticipant.getLastName(),
-                                cacheParticipant.getImage(),
-                                cacheParticipant.getNotSeenDuration(),
-                                cacheParticipant.getContactId(),
-                                cacheParticipant.getContactName(),
-                                cacheParticipant.getContactFirstName(),
-                                cacheParticipant.getContactLastName(),
-                                cacheParticipant.getSendEnable(),
-                                cacheParticipant.getReceiveEnable(),
-                                cacheParticipant.getCellphoneNumber(),
-                                cacheParticipant.getEmail(),
-                                cacheParticipant.getMyFriend(),
-                                cacheParticipant.getOnline(),
-                                cacheParticipant.getBlocked(),
-                                cacheParticipant.getAdmin()
-                        );
+                        if (cacheParticipant != null) {
+                            participant = new Participant(
+                                    cacheParticipant.getId(),
+                                    cacheParticipant.getName(),
+                                    cacheParticipant.getFirstName(),
+                                    cacheParticipant.getLastName(),
+                                    cacheParticipant.getImage(),
+                                    cacheParticipant.getNotSeenDuration(),
+                                    cacheParticipant.getContactId(),
+                                    cacheParticipant.getContactName(),
+                                    cacheParticipant.getContactFirstName(),
+                                    cacheParticipant.getContactLastName(),
+                                    cacheParticipant.getSendEnable(),
+                                    cacheParticipant.getReceiveEnable(),
+                                    cacheParticipant.getCellphoneNumber(),
+                                    cacheParticipant.getEmail(),
+                                    cacheParticipant.getMyFriend(),
+                                    cacheParticipant.getOnline(),
+                                    cacheParticipant.getBlocked(),
+                                    cacheParticipant.getAdmin()
+                            );
+                        }
+
                     }
                     if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                         cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
@@ -737,6 +741,8 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
                         cacheLastMessageVO.setParticipantId(threadVo.getLastMessageVO().getParticipant().getId());
                         messageDao.insertLastMessageVO(cacheLastMessageVO);
+                        CacheParticipant cacheParticipantLastMessageVO = threadVo.getLastMessageVO().getParticipant();
+                        cacheParticipantLastMessageVO.setThreadId(threadVo.getId());
                         messageDao.insertParticipant(threadVo.getLastMessageVO().getParticipant());
                     }
                     if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {

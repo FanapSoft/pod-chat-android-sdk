@@ -12,6 +12,7 @@ public class Callback {
     private long count;
     private long firstMessageId;
     private long lastMessageId;
+    private long messageId;
 
     public Callback(String order, long count, long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
         this.offset = offset;
@@ -29,6 +30,15 @@ public class Callback {
         this.requestType = requestType;
         this.lastMessageId = lastMessageId;
         this.firstMessageId = firstMessageId;
+        this.result = result;
+        this.count = count;
+        this.order = order;
+    }
+
+    public Callback(String order, long count, long offset, int requestType, long messageId, boolean result) {
+        this.offset = offset;
+        this.requestType = requestType;
+        this.messageId = messageId;
         this.result = result;
         this.count = count;
         this.order = order;
@@ -137,5 +147,13 @@ public class Callback {
 
     public void setLastMessageId(long lastMessageId) {
         this.lastMessageId = lastMessageId;
+    }
+
+    public long getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 }

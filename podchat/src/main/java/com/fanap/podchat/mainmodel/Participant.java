@@ -2,16 +2,21 @@ package com.fanap.podchat.mainmodel;
 
 public class Participant {
     private long id;
+
     private String name;
     private String firstName;
     private String lastName;
+
     private String image;
     private long notSeenDuration;
+
     private long contactId;
     private long coreUserId;
+
     private String contactName;
     private String contactFirstName;
     private String contactLastName;
+
     private Boolean sendEnable;
     private Boolean receiveEnable;
     private String cellphoneNumber;

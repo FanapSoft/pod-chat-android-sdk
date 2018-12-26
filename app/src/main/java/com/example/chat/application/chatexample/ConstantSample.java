@@ -33,6 +33,7 @@ public class ConstantSample {
             , "Delete Message"
             , "Search Contact"
             , "Search History"
+            ,"Send Reply file Message"
     };
 
     public static final String[] funcThird = {
