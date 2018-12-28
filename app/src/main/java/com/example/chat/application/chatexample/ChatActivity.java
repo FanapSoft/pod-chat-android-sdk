@@ -464,7 +464,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
                 };
-                presenter.createThread(0, invite, null, new ChatHandler() {
+                presenter.createThread(0, invite, null,"sina thread"
+                        ,null,null, new ChatHandler() {
                     @Override
                     public void onCreateThread(String uniqueId) {
                         super.onCreateThread(uniqueId);

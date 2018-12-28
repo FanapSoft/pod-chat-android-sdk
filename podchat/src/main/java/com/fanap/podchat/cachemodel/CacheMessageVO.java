@@ -15,6 +15,7 @@ public class CacheMessageVO {
     private boolean edited;
     private boolean editable;
     private boolean delivered;
+    private boolean deletable;
     private boolean seen;
     private int messageType;
     private String uniqueId;
@@ -214,5 +215,13 @@ public class CacheMessageVO {
 
     public void setConversationId(long conversationId) {
         this.conversationId = conversationId;
+    }
+
+    public boolean isDeletable() {
+        return deletable;
+    }
+
+    public void setDeletable(boolean deletable) {
+        this.deletable = deletable;
     }
 }

@@ -21,8 +21,12 @@ import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.Util;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
@@ -349,6 +353,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     cacheMessageVO.isEditable(),
                     cacheMessageVO.isDelivered(),
                     cacheMessageVO.isSeen(),
+                    cacheMessageVO.isDeletable(),
                     cacheMessageVO.getUniqueId(),
                     cacheMessageVO.getMessageType(),
                     cacheMessageVO.getPreviousId(),
@@ -787,6 +792,14 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     public void saveParticipants(List<CacheParticipant> participants, long threadId) {
         for (CacheParticipant participant : participants) {
             participant.setThreadId(threadId);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy",Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            c.add(Calendar.DATE, 2);
+            String output = sdf.format(c.getTime());
+            participant.setExpireDate(output);
+
             messageDao.insertParticipant(participant);
         }
     }
@@ -801,7 +814,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
             return participants;
         } else {
             List<CacheParticipant> cacheParticipants = messageDao.geParticipants(offset, count, threadId);
-
+            //TODO remove the participant from here
             for (CacheParticipant cParticipant : cacheParticipants) {
                 Participant participant = new Participant(
                         cParticipant.getId(),

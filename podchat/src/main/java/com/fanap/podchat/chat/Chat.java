@@ -2056,9 +2056,9 @@ public class Chat extends AsyncAdapter {
         }
         if (cache) {
             if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order
-                    , lastMessageId, firstMessageId, messageId,query) != null) {
+                    , lastMessageId, firstMessageId, messageId, query) != null) {
 
-                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId,messageId,query);
+                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId, messageId, query);
                 long contentCount = messageDatabaseHelper.getHistoryContentCount(threadId);
 
                 ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
@@ -2108,7 +2108,7 @@ public class Chat extends AsyncAdapter {
         long offsets = history.getOffset();
         long firstMessageId = history.getFirstMessageId();
         long lastMessageId = history.getLastMessageId();
-        long id= history.getId();
+        long id = history.getId();
 
         if (history.getCount() != 0) {
             history.setCount(history.getCount());
@@ -2161,7 +2161,7 @@ public class Chat extends AsyncAdapter {
             order = history.getOrder();
         }
 
-        setCallBacks(firstMessageId,lastMessageId, order, history.getCount(), offsets, uniqueId,id);
+        setCallBacks(firstMessageId, lastMessageId, order, history.getCount(), offsets, uniqueId, id);
         if (handler != null) {
             handler.onGetHistory(uniqueId);
         }
@@ -3367,18 +3367,44 @@ public class Chat extends AsyncAdapter {
      * <p>
      * int CHANNEL = 8;
      */
-    public String createThread(int threadType, Invitee[] invitee, String threadTitle, ChatHandler handler) {
-
-        String uniqueId = null;
+    public String createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
+            , String metadata, ChatHandler handler) {
+        String uniqueId;
+        uniqueId = generateUniqueId();
         if (chatReady) {
             List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
             ChatThread chatThread = new ChatThread();
             chatThread.setType(threadType);
             chatThread.setInvitees(invitees);
             chatThread.setTitle(threadTitle);
+            chatThread.setDescription(description);
+            chatThread.setImage(image);
+            chatThread.setMetadata(metadata);
 
-            String contentThreadChat = JsonUtil.getJson(chatThread);
-            uniqueId = generateUniqueId();
+            JsonObject chatThreadObject = (JsonObject) gson.toJsonTree(chatThread);
+
+            if (Util.isNullOrEmpty(description)) {
+                chatThreadObject.remove("description");
+            } else {
+                chatThreadObject.remove("description");
+                chatThreadObject.addProperty("description", description);
+            }
+
+            if (Util.isNullOrEmpty(image)) {
+                chatThreadObject.remove("image");
+            } else {
+                chatThreadObject.remove("image");
+                chatThreadObject.addProperty("image", image);
+            }
+
+            if (Util.isNullOrEmpty(metadata)) {
+                chatThreadObject.remove("metadata");
+
+            } else {
+                chatThreadObject.remove("metadata");
+                chatThreadObject.addProperty("metadata", metadata);
+            }
+            String contentThreadChat = chatThreadObject.toString();
 
             ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId, getTypeCode());
 
@@ -5508,7 +5534,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count, Long offset, String uniqueId,long msgId) {
+    private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count, Long offset, String uniqueId, long msgId) {
 
         try {
             if (chatReady || asyncReady) {

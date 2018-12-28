@@ -173,8 +173,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void createThread(int threadType, Invitee[] invitee, String threadTitle, ChatHandler handler) {
-        chat.createThread(threadType, invitee, threadTitle, handler);
+    public void createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
+            , String metaData, ChatHandler handler) {
+        chat.createThread(threadType, invitee, threadTitle, description, image, metaData, handler);
     }
 
     @Override

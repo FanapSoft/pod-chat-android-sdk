@@ -543,7 +543,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                        , new Invitee(22, 2)
 //                        , new Invitee(824, 2)
                 };
-                presenter.createThread(0, invite, null, new ChatHandler() {
+                presenter.createThread(0, invite, null,"sina thread"
+                        ,null,null, new ChatHandler() {
                     @Override
                     public void onCreateThread(String uniqueId) {
                         super.onCreateThread(uniqueId);

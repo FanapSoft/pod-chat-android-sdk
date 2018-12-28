@@ -9,6 +9,7 @@ public class CacheParticipant {
     private long id;
 
     private long threadId;
+    private String expireDate;
 
     private String name;
     private String firstName;
@@ -184,5 +185,13 @@ public class CacheParticipant {
 
     public void setThreadId(long threadId) {
         this.threadId = threadId;
+    }
+
+    public String getExpireDate() {
+        return expireDate;
+    }
+
+    public void setExpireDate(String expireDate) {
+        this.expireDate = expireDate;
     }
 }

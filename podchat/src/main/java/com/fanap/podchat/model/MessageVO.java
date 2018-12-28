@@ -8,6 +8,7 @@ public class MessageVO {
     private boolean editable;
     private boolean delivered;
     private boolean seen;
+    private boolean deletable;
     private long id;
     private String uniqueId;
     private int messageType;
@@ -27,6 +28,7 @@ public class MessageVO {
             boolean editable,
             boolean delivered,
             boolean seen,
+            boolean deletable,
             String uniqueId,
             int messageType,
             long previousId,
@@ -43,6 +45,7 @@ public class MessageVO {
         this.edited = edited;
         this.editable = editable;
         this.delivered = delivered;
+        this.deletable = deletable;
         this.seen = seen;
         this.uniqueId = uniqueId;
         this.messageType = messageType;
@@ -183,5 +186,13 @@ public class MessageVO {
 
     public void setId(long messageId) {
         this.id = messageId;
+    }
+
+    public boolean isDeletable() {
+        return deletable;
+    }
+
+    public void setDeletable(boolean deletable) {
+        this.deletable = deletable;
     }
 }

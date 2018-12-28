@@ -176,7 +176,8 @@ public interface ChatContract {
 
         void getContact(Integer count, Long offset, ChatHandler handler);
 
-        void createThread(int threadType, Invitee[] invitee, String threadTitle, ChatHandler handler);
+        void createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
+                , String metaData, ChatHandler handler);
 
         void sendTextMessage(String textMessage, long threadId, Integer messageType, String metaData, ChatHandler handler);
 

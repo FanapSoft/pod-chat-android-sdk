@@ -4,19 +4,22 @@ import java.util.List;
 
 /**
  * + RequestCreateThread    {object}
- *    - ownerSsoId          {string}
- *    + invitees            {object}
- *       -id                {string}
- *       -idType            {int} ** inviteeVOidTypes
- *    - title               {string}
- *    - type                {int} ** createThreadTypes
+ * - ownerSsoId          {string}
+ * + invitees            {object}
+ * -id                {string}
+ * -idType            {int} ** inviteeVOidTypes
+ * - title               {string}
+ * - type                {int} ** createThreadTypes
  */
-public class ChatThread  {
+public class ChatThread {
 
     private int type;
     private String ownerSsoId;
     private List<Invitee> invitees;
     private String title;
+    private String description;
+    private String image;
+    private String metadata;
 
     public String getOwnerSsoId() {
         return ownerSsoId;
@@ -48,5 +51,29 @@ public class ChatThread  {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
     }
 }
