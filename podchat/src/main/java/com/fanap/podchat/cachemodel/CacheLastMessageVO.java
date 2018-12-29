@@ -15,6 +15,9 @@ public class CacheLastMessageVO {
     private String message;
     private boolean edited;
     private boolean editable;
+    private boolean delivered;
+    private boolean seen;
+    private boolean deletable;
     private long time;
 
     @Ignore
@@ -136,5 +139,29 @@ public class CacheLastMessageVO {
     @Nullable
     public void setForwardInfoId(Long forwardInfoId) {
         this.forwardInfoId = forwardInfoId;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(boolean delivered) {
+        this.delivered = delivered;
+    }
+
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
+
+    public boolean isDeletable() {
+        return deletable;
+    }
+
+    public void setDeletable(boolean deletable) {
+        this.deletable = deletable;
     }
 }

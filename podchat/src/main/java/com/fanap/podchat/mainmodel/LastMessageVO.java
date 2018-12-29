@@ -9,6 +9,9 @@ public class LastMessageVO {
     private String message;
     private boolean edited;
     private boolean editable;
+    private boolean delivered;
+    private boolean seen;
+    private boolean deletable;
     private long time;
     private Participant participant;
     private ReplyInfoVO replyInfoVO;
@@ -21,6 +24,9 @@ public class LastMessageVO {
             String message,
             boolean edited,
             boolean editable,
+            boolean delivered,
+            boolean seen,
+            boolean deletable,
             long time,
             Participant participant,
             ReplyInfoVO replyInfoVO,
@@ -30,10 +36,14 @@ public class LastMessageVO {
         this.message = message;
         this.edited = edited;
         this.editable = editable;
+        this.delivered = delivered;
+        this.seen = seen;
+        this.deletable = deletable;
         this.time = time;
         this.participant = participant;
         this.replyInfoVO = replyInfoVO;
         this.forwardInfo = forwardInfo;
+
     }
 
     public LastMessageVO() {
@@ -110,5 +120,29 @@ public class LastMessageVO {
 
     public void setForwardInfo(ForwardInfo forwardInfo) {
         this.forwardInfo = forwardInfo;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(boolean delivered) {
+        this.delivered = delivered;
+    }
+
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
+
+    public boolean isDeletable() {
+        return deletable;
+    }
+
+    public void setDeletable(boolean deletable) {
+        this.deletable = deletable;
     }
 }

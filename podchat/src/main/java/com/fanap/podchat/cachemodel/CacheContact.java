@@ -1,12 +1,24 @@
-package com.fanap.podchat.mainmodel;
+package com.fanap.podchat.cachemodel;
 
-public class Contact {
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
+import com.fanap.podchat.mainmodel.LinkedUser;
+
+@Entity
+public class CacheContact {
+
+    private String expireDate;
+
+    @PrimaryKey
     private long id;
     private String firstName;
     private long userId;
     private String lastName;
     private Boolean blocked;
 
+    @Embedded
     private LinkedUser linkedUser;
     private String cellphoneNumber;
     private String email;
@@ -14,10 +26,9 @@ public class Contact {
     private long notSeenDuration;
     private boolean hasUser;
 
-    public Contact() {
-    }
 
-    public Contact(
+    public CacheContact(
+            String expireDate,
             long id,
             String firstName,
             long userId,
@@ -31,6 +42,7 @@ public class Contact {
             long notSeenDuration,
             boolean hasUser
     ) {
+        this.expireDate = expireDate;
         this.id = id;
         this.firstName = firstName;
         this.userId = userId;
@@ -45,6 +57,21 @@ public class Contact {
         this.hasUser = hasUser;
     }
 
+    public String getExpireDate() {
+        return expireDate;
+    }
+
+    public void setExpireDate(String expireDate) {
+        this.expireDate = expireDate;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -54,12 +81,28 @@ public class Contact {
         this.firstName = firstName;
     }
 
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
     public String getLastName() {
         return lastName;
     }
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Boolean getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
     }
 
     public LinkedUser getLinkedUser() {
@@ -94,22 +137,6 @@ public class Contact {
         this.uniqueId = uniqueId;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public boolean isHasUser() {
-        return hasUser;
-    }
-
-    public void setHasUser(boolean hasUser) {
-        this.hasUser = hasUser;
-    }
-
     public long getNotSeenDuration() {
         return notSeenDuration;
     }
@@ -118,19 +145,11 @@ public class Contact {
         this.notSeenDuration = notSeenDuration;
     }
 
-    public long getUserId() {
-        return userId;
+    public boolean isHasUser() {
+        return hasUser;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public Boolean getBlocked() {
-        return blocked;
-    }
-
-    public void setBlocked(Boolean blocked) {
-        this.blocked = blocked;
+    public void setHasUser(boolean hasUser) {
+        this.hasUser = hasUser;
     }
 }

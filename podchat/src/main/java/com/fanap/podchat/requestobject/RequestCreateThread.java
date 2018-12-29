@@ -5,7 +5,7 @@ import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 
 import java.util.List;
 
-public class RequestCreateThread extends BaseRequestObject{
+public class RequestCreateThread extends BaseRequestObject {
 
     private int type;
     private String ownerSsoId;
@@ -13,30 +13,37 @@ public class RequestCreateThread extends BaseRequestObject{
     private String title;
     private RequestThreadInnerMessage message;
 
-     RequestCreateThread(Builder builder) {
+    RequestCreateThread(Builder builder) {
         super(builder);
         this.type = builder.type;
         this.message = builder.message;
         this.title = builder.title;
         this.invitees = builder.invitees;
+        this.message = builder.message;
+
     }
 
-    public static class Builder extends BaseRequestObject.Builder<Builder>{
+    public static class Builder extends BaseRequestObject.Builder<Builder> {
         private final int type;
         private final List<Invitee> invitees;
         private String title;
-        private final RequestThreadInnerMessage message;
+        private RequestThreadInnerMessage message;
 
-        public Builder(int type, List<Invitee> invitees, RequestThreadInnerMessage message) {
+        public Builder(int type, List<Invitee> invitees) {
             this.invitees = invitees;
             this.type = type;
+        }
+
+        public Builder message(RequestThreadInnerMessage message) {
             this.message = message;
+            return this;
         }
 
         public Builder title(String title) {
             this.title = title;
             return this;
         }
+
         @Override
         protected RequestCreateThread.Builder self() {
             return this;

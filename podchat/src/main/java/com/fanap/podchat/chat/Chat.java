@@ -1763,10 +1763,10 @@ public class Chat extends AsyncAdapter {
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
 
             if (Util.isNullOrEmpty(metaData)) {
-                jsonObject.remove("metaData");
+                jsonObject.remove("metadata");
             } else {
-                jsonObject.remove("metaData");
-                jsonObject.addProperty("metaData", metaData);
+                jsonObject.remove("metadata");
+                jsonObject.addProperty("metadata", metaData);
             }
 
             if (Util.isNullOrEmpty(getTypeCode())) {
@@ -2254,11 +2254,13 @@ public class Chat extends AsyncAdapter {
             ResultContact resultContact = new ResultContact();
             resultContact.setContacts(arrayList);
             chatResponse.setResult(resultContact);
+            chatResponse.setCache(true);
             resultContact.setContentCount(messageDatabaseHelper.getContacts().size());
 
             String contactJson = JsonUtil.getJson(chatResponse);
-
             listenerManager.callOnGetContacts(contactJson, chatResponse);
+            if (log) Logger.json(contactJson);
+            if (log) Logger.i("CACHE_GET_CONTACT");
         }
 
         if (chatReady) {
@@ -2310,6 +2312,8 @@ public class Chat extends AsyncAdapter {
             String contactJson = JsonUtil.getJson(chatResponse);
 
             listenerManager.callOnGetContacts(contactJson, chatResponse);
+            if (log) Logger.json(contactJson);
+            if (log) Logger.i("CACHE_GET_CONTACT");
         }
         if (chatReady) {
 
@@ -2484,6 +2488,7 @@ public class Chat extends AsyncAdapter {
                         if (log) Logger.i("RECEIVED_ADD_CONTACT");
 
                         if (cache) {
+
                             messageDatabaseHelper.saveContact(chatResponse.getResult().getContact());
                         }
                     } else {
@@ -3358,7 +3363,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Create the thread to p to p/channel/group. The list below is showing all of the thread type
+     * Create the thread to p to p/channel/group. The list below is showing all of the threads type
      * int NORMAL = 0;
      * int OWNER_GROUP = 1;
      * int PUBLIC_GROUP = 2;
@@ -3377,9 +3382,6 @@ public class Chat extends AsyncAdapter {
             chatThread.setType(threadType);
             chatThread.setInvitees(invitees);
             chatThread.setTitle(threadTitle);
-            chatThread.setDescription(description);
-            chatThread.setImage(image);
-            chatThread.setMetadata(metadata);
 
             JsonObject chatThreadObject = (JsonObject) gson.toJsonTree(chatThread);
 
@@ -3432,6 +3434,17 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
+    /**
+     * Create the thread to p to p/channel/group. The list below is showing all of the thread type
+     * int NORMAL = 0;
+     * int OWNER_GROUP = 1;
+     * int PUBLIC_GROUP = 2;
+     * int CHANNEL_GROUP = 4;
+     * int TO_BE_USER_ID = 5;
+     * <p>
+     * int CHANNEL = 8;
+     */
     public String createThreadWithMessage(RequestCreateThread threadRequest) {
         List<String> forwardUniqueIds = null;
         JsonObject innerMessageObj = null;
@@ -3498,7 +3511,8 @@ public class Chat extends AsyncAdapter {
 
                     setCallBacks(null, null, null, true, Constants.INVITATION, null, uniqueId);
                     sendAsyncMessage(jsonObject.toString(), 4, "SEND_CREATE_THREAD_WITH_MESSAGE");
-                } else {
+                }
+                else {
                     if (log) Logger.e("RequestThreadInnerMessage object can not be null/Empty");
                 }
             } else {
@@ -3974,7 +3988,7 @@ public class Chat extends AsyncAdapter {
      * Mute the thread so notification is off for that thread
      */
     public String muteThread(RequestMuteThread request, ChatHandler handler) {
-        String uniqueId = null;
+        String uniqueId ;
         JsonObject jsonObject = null;
         uniqueId = generateUniqueId();
         try {

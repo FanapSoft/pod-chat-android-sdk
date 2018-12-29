@@ -196,8 +196,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         RequestCreateThread requestCreateThread = new RequestCreateThread
                                 .Builder(0
-                                , invite
-                                , message)
+                                , invite)
+//                                .message(message)
                                 .build();
                         presenter.createThreadWithMessage(requestCreateThread);
                         break;

@@ -261,7 +261,7 @@ public class ChatTest {
             e.printStackTrace();
         }
         Invitee[] invite = new Invitee[]{new Invitee(566, 2)};
-        presenter.createThread(0, invite, "yes", null);
+        presenter.createThread(0, invite, "yes", "first description",null,null,null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

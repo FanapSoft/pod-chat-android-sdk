@@ -70,7 +70,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "6f1d2366829b4b4aba390ebc40adcce5";
+    private static String TOKEN = "e27dc4912d674663a710413bdc1760ef";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -247,8 +247,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
                 .Builder(0
-                , invite
-                , message)
+                , invite)
                 .build();
         presenter.createThreadWithMessage(requestCreateThread);
     }
@@ -358,7 +357,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //2404
                         break;
                     case 7:
-                        presenter.leaveThread(381, new ChatHandler() {
+                        //1482
+                        presenter.leaveThread(1482, new ChatHandler() {
                             @Override
                             public void onLeaveThread(String uniqueId) {
                                 super.onLeaveThread(uniqueId);
@@ -406,8 +406,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         long threadId = 1105;
         long messageId = 9321;
         Uri fileUri = getUri();
+        Inviter inviter = new Inviter();
+        inviter.setName("sina");
+        String meta = JsonUtil.getJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
-                .Builder(messageContent,threadId,messageId,fileUri,this).build();
+                .Builder(messageContent,threadId,messageId,fileUri,this).systemMetaData(meta).build();
         presenter.replyFileMessage(fileMessage);
     }
 
@@ -431,7 +434,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void sendFileMessage() {
 
         RequestFileMessage requestFileMessage = new RequestFileMessage
-                .Builder(this, 381, getUri())
+                .Builder(this, 1105, getUri())
                 .metaData("name")
                 .build();
 
@@ -538,11 +541,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  *
                  */
                 // 589 pori
-                Invitee[] invite = new Invitee[]{new Invitee(261, 5)
-//                        , new Invitee(381, 2)
-//                        , new Invitee(22, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
+                        , new Invitee(1162, 2)
+                        , new Invitee(2404, 2)
 //                        , new Invitee(824, 2)
                 };
+
+
                 presenter.createThread(0, invite, null,"sina thread"
                         ,null,null, new ChatHandler() {
                     @Override

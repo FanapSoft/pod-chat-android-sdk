@@ -1,9 +1,11 @@
 package com.fanap.podchat.persistance.dao;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
+import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
@@ -24,15 +26,20 @@ public interface MessageDao {
 
     //Cache contact
     @Insert(onConflict = REPLACE)
-    void insertContacts(List<Contact> t);
+    void insertContacts(List<CacheContact> t);
 
     @Insert(onConflict = REPLACE)
-    void insertContact(Contact contact);
+    void insertContact(CacheContact contact);
 
-    @Query("select * from Contact")
-    List<Contact> getContact();
+    @Delete
+    void deleteContact(CacheContact cacheContact);
 
-    //Cache thread history
+    @Query("select * from CacheContact")
+    List<CacheContact> getContact();
+
+    /**
+     * Cache thread history
+     */
     @Insert(onConflict = REPLACE)
     void insertMessage(CacheMessageVO messageVO);
 
@@ -82,7 +89,7 @@ public interface MessageDao {
     List<CacheMessageVO> getMessage(long id);
 
     @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId LIKE :query")
-    List<CacheMessageVO> setQuery(long threadVoId,String query);
+    List<CacheMessageVO> setQuery(long threadVoId, String query);
 
     @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId AND id BETWEEN :firstMessageId AND :lastMessageId")
     long getHistoryCountWithLastAndFirtMSGId(long threadVoId, long lastMessageId, long firstMessageId);
@@ -129,9 +136,14 @@ public interface MessageDao {
     @Query("select * from CacheLastMessageVO where id = :LastMessageVOId")
     CacheLastMessageVO getLastMessageVO(long LastMessageVOId);
 
-    //cache participant
+    /**
+     * cache participant
+     */
     @Insert(onConflict = REPLACE)
     void insertParticipant(CacheParticipant participant);
+
+    @Query("DELETE FROM CacheParticipant where threadId = :threadId AND id = :id")
+    void deleteParticipant(long threadId, long id);
 
     @Query("select * from CacheParticipant where id = :participantId")
     CacheParticipant getParticipant(long participantId);
@@ -145,24 +157,26 @@ public interface MessageDao {
     @Query("select * from CacheParticipant WHERE threadId = :threadId")
     List<CacheParticipant> geParticipantsWithThreadId(long threadId);
 
-    //Search contact
-    @Query("select * from Contact where id = :id")
-    Contact getContactById(long id);
+    /**
+     * Search contact
+     */
+    @Query("select * from CacheContact where id = :id")
+    CacheContact getContactById(long id);
 
-    @Query("select * from contact where firstName LIKE :firstName ")
-    List<Contact> getContactsByFirst(String firstName);
+    @Query("select * from CacheContact where firstName LIKE :firstName ")
+    List<CacheContact> getContactsByFirst(String firstName);
 
-    @Query("select * from contact where lastName LIKE :lastName ")
-    List<Contact> getContactsByLast(String lastName);
+    @Query("select * from CacheContact where lastName LIKE :lastName ")
+    List<CacheContact> getContactsByLast(String lastName);
 
-    @Query("select * from contact where firstName LIKE :firstName AND lastName LIKE :lastName")
-    List<Contact> getContactsByFirstAndLast(String firstName, String lastName);
+    @Query("select * from CacheContact where firstName LIKE :firstName AND lastName LIKE :lastName")
+    List<CacheContact> getContactsByFirstAndLast(String firstName, String lastName);
 
-    @Query("select * from Contact where cellphoneNumber LIKE :cellphoneNumber")
-    List<Contact> getContactByCell(String cellphoneNumber);
+    @Query("select * from CacheContact where cellphoneNumber LIKE :cellphoneNumber")
+    List<CacheContact> getContactByCell(String cellphoneNumber);
 
-    @Query("select * from contact where email LIKE :email ")
-    List<Contact> getContactsByEmail(String email);
+    @Query("select * from CacheContact where email LIKE :email ")
+    List<CacheContact> getContactsByEmail(String email);
 
     //cache replyInfoVO
     @Insert(onConflict = REPLACE)

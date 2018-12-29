@@ -2,6 +2,7 @@ package com.fanap.podchat.persistance;
 
 import android.content.Context;
 
+import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
@@ -21,6 +22,7 @@ import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.Util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,7 +39,9 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         messageDao = appDatabase.getMessageDao();
     }
 
-    //Cache history
+    /**
+     * Cache history
+     */
     public void saveHistory(List<CacheMessageVO> messageVOS, long threadId) {
         for (CacheMessageVO messageVO : messageVOS) {
             messageVO.setThreadVoId(threadId);
@@ -175,7 +179,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
                     saveHistory(cMessageVOS, threadId);
                 }
-            } else if (!Util.isNullOrEmpty(messageId) && messageId > 0 ) {
+            } else if (!Util.isNullOrEmpty(messageId) && messageId > 0) {
                 //TODO incomplete
             }
         }
@@ -377,19 +381,112 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return messageDao.getHistoryCount(threadVoId);
     }
 
-    //Cache contact
+    /**
+     * //Cache contact
+     */
     public List<Contact> getContacts() {
-        return messageDao.getContact();
+        List<Contact> contacts = new ArrayList<>();
+
+        if (messageDao.getContact() != null) {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            Date nowDate = c.getTime();
+
+            List<CacheContact> cacheContacts = messageDao.getContact();
+            for (CacheContact cacheContact : cacheContacts) {
+                try {
+                    Date expireDate = format.parse(cacheContact.getExpireDate());
+                    if (expireDate.compareTo(nowDate) < 0) {
+                        deleteContact(cacheContact);
+                    } else {
+                        Contact contact = new Contact(
+                                cacheContact.getId(),
+                                cacheContact.getFirstName(),
+                                cacheContact.getUserId(),
+                                cacheContact.getLastName(),
+                                cacheContact.getBlocked(),
+                                cacheContact.getLinkedUser(),
+                                cacheContact.getCellphoneNumber(),
+                                cacheContact.getEmail(),
+                                cacheContact.getUniqueId(),
+                                cacheContact.getNotSeenDuration(),
+                                cacheContact.isHasUser()
+                        );
+                        contacts.add(contact);
+                    }
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return contacts;
     }
 
     public void saveContacts(List<Contact> contacts) {
-        messageDao.insertContacts(contacts);
+        List<CacheContact> cacheContacts = new ArrayList<>();
+        for (Contact contact : contacts) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            c.add(Calendar.DATE, 2);
+            String expireDate = sdf.format(c.getTime());
+
+            CacheContact cacheContact = new CacheContact(
+                    expireDate,
+                    contact.getId(),
+                    contact.getFirstName(),
+                    contact.getUserId(),
+                    contact.getLastName(),
+                    contact.getBlocked(),
+                    contact.getLinkedUser(),
+                    contact.getCellphoneNumber(),
+                    contact.getEmail(),
+                    contact.getUniqueId(),
+                    contact.getNotSeenDuration(),
+                    contact.isHasUser()
+            );
+
+            cacheContacts.add(cacheContact);
+        }
+        messageDao.insertContacts(cacheContacts);
     }
+
 
     public void saveContact(Contact contact) {
-        messageDao.insertContact(contact);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DATE, 2);
+
+        String expireDate = sdf.format(c.getTime());
+        CacheContact cacheContact = new CacheContact(
+                expireDate,
+                contact.getId(),
+                contact.getFirstName(),
+                contact.getUserId(),
+                contact.getLastName(),
+                contact.getBlocked(),
+                contact.getLinkedUser(),
+                contact.getCellphoneNumber(),
+                contact.getEmail(),
+                contact.getUniqueId(),
+                contact.getNotSeenDuration(),
+                contact.isHasUser()
+        );
+
+        messageDao.insertContact(cacheContact);
     }
 
+
+    public void deleteContact(CacheContact cacheContact) {
+        messageDao.deleteContact(cacheContact);
+    }
+
+    /**
+     * Cache UserInfo
+     */
     public void saveUserInfo(UserInfo userInfo) {
         messageDao.insertUserInfo(userInfo);
     }
@@ -468,6 +565,9 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                             cacheLastMessageVO.getMessage(),
                             cacheLastMessageVO.isEdited(),
                             cacheLastMessageVO.isEditable(),
+                            cacheLastMessageVO.isDelivered(),
+                            cacheLastMessageVO.isSeen(),
+                            cacheLastMessageVO.isDeletable(),
                             cacheLastMessageVO.getTime(),
                             participant,
                             replyInfoVO,
@@ -577,6 +677,9 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                         cacheLastMessageVO.getMessage(),
                         cacheLastMessageVO.isEdited(),
                         cacheLastMessageVO.isEditable(),
+                        cacheLastMessageVO.isDelivered(),
+                        cacheLastMessageVO.isSeen(),
+                        cacheLastMessageVO.isDeletable(),
                         cacheLastMessageVO.getTime(),
                         participant,
                         replyInfoVO,
@@ -683,6 +786,9 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                             cacheLastMessageVO.getMessage(),
                             cacheLastMessageVO.isEdited(),
                             cacheLastMessageVO.isEditable(),
+                            cacheLastMessageVO.isDelivered(),
+                            cacheLastMessageVO.isSeen(),
+                            cacheLastMessageVO.isDeletable(),
                             cacheLastMessageVO.getTime(),
                             participant,
                             replyInfoVO,
@@ -793,10 +899,11 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         for (CacheParticipant participant : participants) {
             participant.setThreadId(threadId);
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy",Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             c.add(Calendar.DATE, 2);
+
             String output = sdf.format(c.getTime());
             participant.setExpireDate(output);
 
@@ -808,35 +915,56 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         messageDao.insertParticipant(cacheParticipant);
     }
 
+    public void deleteParticipant(long threadId, long id) {
+        messageDao.deleteParticipant(threadId, id);
+    }
+
+    /**
+     * Participants have expire date after expTime that you can set it manually
+     */
     public List<Participant> getThreadParticipant(long offset, long count, long threadId) {
         List<Participant> participants = new ArrayList<>();
         if (messageDao.geParticipants(offset, count, threadId) == null) {
             return participants;
         } else {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            Date nowDate = c.getTime();
+
             List<CacheParticipant> cacheParticipants = messageDao.geParticipants(offset, count, threadId);
-            //TODO remove the participant from here
             for (CacheParticipant cParticipant : cacheParticipants) {
-                Participant participant = new Participant(
-                        cParticipant.getId(),
-                        cParticipant.getName(),
-                        cParticipant.getFirstName(),
-                        cParticipant.getLastName(),
-                        cParticipant.getImage(),
-                        cParticipant.getNotSeenDuration(),
-                        cParticipant.getContactId(),
-                        cParticipant.getContactName(),
-                        cParticipant.getContactFirstName(),
-                        cParticipant.getContactLastName(),
-                        cParticipant.getSendEnable(),
-                        cParticipant.getReceiveEnable(),
-                        cParticipant.getCellphoneNumber(),
-                        cParticipant.getEmail(),
-                        cParticipant.getMyFriend(),
-                        cParticipant.getOnline(),
-                        cParticipant.getBlocked(),
-                        cParticipant.getAdmin()
-                );
-                participants.add(participant);
+
+                try {
+                    Date expireDate = sdf.parse(cParticipant.getExpireDate());
+                    if (expireDate.compareTo(nowDate) < 0) {
+                        deleteParticipant(threadId, cParticipant.getId());
+                    } else {
+                        Participant participant = new Participant(
+                                cParticipant.getId(),
+                                cParticipant.getName(),
+                                cParticipant.getFirstName(),
+                                cParticipant.getLastName(),
+                                cParticipant.getImage(),
+                                cParticipant.getNotSeenDuration(),
+                                cParticipant.getContactId(),
+                                cParticipant.getContactName(),
+                                cParticipant.getContactFirstName(),
+                                cParticipant.getContactLastName(),
+                                cParticipant.getSendEnable(),
+                                cParticipant.getReceiveEnable(),
+                                cParticipant.getCellphoneNumber(),
+                                cParticipant.getEmail(),
+                                cParticipant.getMyFriend(),
+                                cParticipant.getOnline(),
+                                cParticipant.getBlocked(),
+                                cParticipant.getAdmin()
+                        );
+                        participants.add(participant);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return participants;
@@ -848,27 +976,143 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
     //Cache contact
     public Contact getContactById(long id) {
-        return messageDao.getContactById(id);
+        CacheContact cacheContact = messageDao.getContactById(id);
+        Contact contact = new Contact(
+                cacheContact.getId(),
+                cacheContact.getFirstName(),
+                cacheContact.getUserId(),
+                cacheContact.getLastName(),
+                cacheContact.getBlocked(),
+                cacheContact.getLinkedUser(),
+                cacheContact.getCellphoneNumber(),
+                cacheContact.getEmail(),
+                cacheContact.getUniqueId(),
+                cacheContact.getNotSeenDuration(),
+                cacheContact.isHasUser()
+        );
+        return contact;
     }
 
     public List<Contact> getContactsByFirst(String firstName) {
-        return messageDao.getContactsByFirst(firstName);
+        List<Contact> contacts = new ArrayList<>();
+        List<CacheContact> cacheContacts = messageDao.getContactsByFirst(firstName);
+        if (cacheContacts != null) {
+            for (CacheContact cacheContact : cacheContacts) {
+                Contact contact = new Contact(
+                        cacheContact.getId(),
+                        cacheContact.getFirstName(),
+                        cacheContact.getUserId(),
+                        cacheContact.getLastName(),
+                        cacheContact.getBlocked(),
+                        cacheContact.getLinkedUser(),
+                        cacheContact.getCellphoneNumber(),
+                        cacheContact.getEmail(),
+                        cacheContact.getUniqueId(),
+                        cacheContact.getNotSeenDuration(),
+                        cacheContact.isHasUser()
+                );
+                contacts.add(contact);
+            }
+        }
+        return contacts;
     }
 
     public List<Contact> getContactsByLast(String lastName) {
-        return messageDao.getContactsByLast(lastName);
+        List<Contact> contacts = new ArrayList<>();
+        List<CacheContact> cacheContacts = messageDao.getContactsByLast(lastName);
+        if (cacheContacts != null) {
+            for (CacheContact cacheContact : cacheContacts) {
+                Contact contact = new Contact(
+                        cacheContact.getId(),
+                        cacheContact.getFirstName(),
+                        cacheContact.getUserId(),
+                        cacheContact.getLastName(),
+                        cacheContact.getBlocked(),
+                        cacheContact.getLinkedUser(),
+                        cacheContact.getCellphoneNumber(),
+                        cacheContact.getEmail(),
+                        cacheContact.getUniqueId(),
+                        cacheContact.getNotSeenDuration(),
+                        cacheContact.isHasUser()
+                );
+                contacts.add(contact);
+            }
+        }
+        return contacts;
     }
 
     public List<Contact> getContactsByFirstAndLast(String firstName, String lastName) {
-        return messageDao.getContactsByFirstAndLast(firstName, lastName);
+        List<Contact> contacts = new ArrayList<>();
+        List<CacheContact> cacheContacts = messageDao.getContactsByFirstAndLast(firstName, lastName);
+        if (cacheContacts != null) {
+            for (CacheContact cacheContact : cacheContacts) {
+                Contact contact = new Contact(
+                        cacheContact.getId(),
+                        cacheContact.getFirstName(),
+                        cacheContact.getUserId(),
+                        cacheContact.getLastName(),
+                        cacheContact.getBlocked(),
+                        cacheContact.getLinkedUser(),
+                        cacheContact.getCellphoneNumber(),
+                        cacheContact.getEmail(),
+                        cacheContact.getUniqueId(),
+                        cacheContact.getNotSeenDuration(),
+                        cacheContact.isHasUser()
+                );
+                contacts.add(contact);
+            }
+        }
+
+        return contacts;
     }
 
     public List<Contact> getContactByCell(String cellphoneNumber) {
-        return messageDao.getContactByCell(cellphoneNumber);
+        List<Contact> contacts = new ArrayList<>();
+        List<CacheContact> cacheContacts = messageDao.getContactByCell(cellphoneNumber);
+        if (cacheContacts != null) {
+            for (CacheContact cacheContact : cacheContacts) {
+                Contact contact = new Contact(
+                        cacheContact.getId(),
+                        cacheContact.getFirstName(),
+                        cacheContact.getUserId(),
+                        cacheContact.getLastName(),
+                        cacheContact.getBlocked(),
+                        cacheContact.getLinkedUser(),
+                        cacheContact.getCellphoneNumber(),
+                        cacheContact.getEmail(),
+                        cacheContact.getUniqueId(),
+                        cacheContact.getNotSeenDuration(),
+                        cacheContact.isHasUser()
+                );
+                contacts.add(contact);
+            }
+        }
+        return contacts;
     }
 
     public List<Contact> getContactsByEmail(String email) {
-        return messageDao.getContactsByEmail(email);
+        List<Contact> contacts = new ArrayList<>();
+        List<CacheContact> cacheContacts = messageDao.getContactsByEmail(email);
+
+        if (cacheContacts != null) {
+            for (CacheContact cacheContact : cacheContacts) {
+                Contact contact = new Contact(
+                        cacheContact.getId(),
+                        cacheContact.getFirstName(),
+                        cacheContact.getUserId(),
+                        cacheContact.getLastName(),
+                        cacheContact.getBlocked(),
+                        cacheContact.getLinkedUser(),
+                        cacheContact.getCellphoneNumber(),
+                        cacheContact.getEmail(),
+                        cacheContact.getUniqueId(),
+                        cacheContact.getNotSeenDuration(),
+                        cacheContact.isHasUser()
+                );
+                contacts.add(contact);
+            }
+        }
+        return contacts;
     }
 
 }
