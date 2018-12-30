@@ -70,14 +70,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "e27dc4912d674663a710413bdc1760ef";
+    private static String TOKEN = "0959881b81364dbf867406d05038f38e";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
     private static String ssoHost = "https://accounts.pod.land/";
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
-    private static String fileServer = "http://sandbox.pod.land:8080/";
+    private static String fileServer = "http://sandbox.pod.land:8443/";
     private static String TYPE_CODE = "";
     SqlScoutServer sqlScoutServer;
 
@@ -203,7 +203,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         mapReverse();
                         break;
-
                 }
             }
 
@@ -394,7 +393,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             }
 
 
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -410,7 +408,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
-                .Builder(messageContent,threadId,messageId,fileUri,this).systemMetaData(meta).build();
+                .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
         presenter.replyFileMessage(fileMessage);
     }
 
@@ -422,6 +420,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             }
         });
     }
+
     private void setupSpinner(Spinner spinner) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, ConstantSample.func);
@@ -503,7 +502,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 4:
                 //"reply message",
-                presenter.replyMessage("this is reply from john", 381, 14103,null, new ChatHandler() {
+                presenter.replyMessage("this is reply from john", 381, 14103, null, new ChatHandler() {
                     @Override
                     public void onReplyMessage(String uniqueId) {
                         super.onReplyMessage(uniqueId);
@@ -540,22 +539,22 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  * ---->private int idType;
                  *
                  */
-                // 589 pori
+                // 589 poria
                 Invitee[] invite = new Invitee[]{new Invitee(589, 2)
                         , new Invitee(1162, 2)
                         , new Invitee(2404, 2)
 //                        , new Invitee(824, 2)
                 };
 
-
-                presenter.createThread(0, invite, null,"sina thread"
-                        ,null,null, new ChatHandler() {
-                    @Override
-                    public void onCreateThread(String uniqueId) {
-                        super.onCreateThread(uniqueId);
-                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                String image = "https://core.pod.land/nzh/image/?imageId=17006&width=476&height=476&hashCode=1666eedb75b-0.7473066083939505";
+                presenter.createThread(0, invite, null, "masoud thread"
+                        , image, "poria", new ChatHandler() {
+                            @Override
+                            public void onCreateThread(String uniqueId) {
+                                super.onCreateThread(uniqueId);
+                                Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
+                            }
+                        });
 
                 break;
             case 9:

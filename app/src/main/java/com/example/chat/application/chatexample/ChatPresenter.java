@@ -78,6 +78,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
+        chat.setExpireAmount(5000);
         this.activity = activity;
         this.context = context;
         this.view = view;
@@ -174,8 +175,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
-            , String metaData, ChatHandler handler) {
-        chat.createThread(threadType, invitee, threadTitle, description, image, metaData, handler);
+            , String systemMetadata, ChatHandler handler) {
+        chat.createThread(threadType, invitee, threadTitle, description, image, systemMetadata, handler);
     }
 
     @Override

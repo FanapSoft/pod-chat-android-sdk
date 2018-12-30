@@ -46,8 +46,7 @@ public class LastMessageVO {
 
     }
 
-    public LastMessageVO() {
-    }
+    public LastMessageVO() { }
 
 
     public Participant getParticipant() {

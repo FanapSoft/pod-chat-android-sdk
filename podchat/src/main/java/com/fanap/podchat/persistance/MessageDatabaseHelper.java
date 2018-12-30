@@ -424,13 +424,13 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return contacts;
     }
 
-    public void saveContacts(List<Contact> contacts) {
+    public void saveContacts(List<Contact> contacts,int expireAmount) {
         List<CacheContact> cacheContacts = new ArrayList<>();
         for (Contact contact : contacts) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
-            c.add(Calendar.DATE, 2);
+            c.add(Calendar.SECOND, expireAmount);
             String expireDate = sdf.format(c.getTime());
 
             CacheContact cacheContact = new CacheContact(
@@ -454,11 +454,11 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     }
 
 
-    public void saveContact(Contact contact) {
+    public void saveContact(Contact contact,int expireAmount) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
-        c.add(Calendar.DATE, 2);
+        c.add(Calendar.DATE, expireAmount);
 
         String expireDate = sdf.format(c.getTime());
         CacheContact cacheContact = new CacheContact(
