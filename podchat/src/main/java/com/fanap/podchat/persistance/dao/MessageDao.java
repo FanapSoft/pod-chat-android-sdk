@@ -34,6 +34,9 @@ public interface MessageDao {
     @Delete
     void deleteContact(CacheContact cacheContact);
 
+    @Query("DELETE FROM CacheContact WHERE id =:id")
+    void deleteContactById(long id);
+
     @Query("select * from CacheContact")
     List<CacheContact> getContact();
 

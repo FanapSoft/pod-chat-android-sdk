@@ -20,6 +20,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -249,10 +250,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnRemoveContact(String content) {
+    public void callOnRemoveContact(String content, ChatResponse<ResultRemoveContact> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onRemoveContact(content);
+                listener.onRemoveContact(content,response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -293,10 +294,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnCreateThread(String content, OutPutThread outPutThread) {
+    public void callOnCreateThread(String content, ChatResponse<ResultThread> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onCreateThread(content, outPutThread);
+                listener.onCreateThread(content, response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -414,10 +415,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnThreadInfoUpdated(String content) {
+    public void callOnThreadInfoUpdated(String content,ChatResponse<ResultThread> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadInfoUpdated(content);
+                listener.onThreadInfoUpdated(content,response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -502,10 +503,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSearchContact(String content, SearchContactVO contact) {
+    public void callOnSearchContact(String content, ChatResponse<ResultContact> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSearchContact(content);
+                listener.onSearchContact(content, response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -513,10 +514,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnRemovedFromThread(String content) {
+    public void callOnRemovedFromThread(String content, ChatResponse<ResultThread> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSearchContact(content);
+                listener.OnRemovedFromThread(content,chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

@@ -19,6 +19,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -51,7 +52,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onThreadInfoUpdated(String content) {
+    public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
 
     }
 
@@ -91,7 +92,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onCreateThread(String content, OutPutThread outPutThread) {
+    public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
 
     }
 
@@ -121,7 +122,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onRemoveContact(String content) {
+    public void onRemoveContact(String content, ChatResponse<ResultRemoveContact> response) {
 
     }
 
@@ -222,7 +223,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onSearchContact(String content) {
+    public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
 
     }
 }

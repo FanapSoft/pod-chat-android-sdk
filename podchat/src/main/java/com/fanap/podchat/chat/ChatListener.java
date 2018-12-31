@@ -19,6 +19,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -30,7 +31,7 @@ public interface ChatListener {
     default void onError(String content, ErrorOutPut OutPutError) {
     }
 
-    default void onGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
+    default void onGetContacts(String content, ChatResponse<ResultContact> response) {
     }
 
     default void onGetHistory(String content, ChatResponse<ResultHistory> history) {
@@ -40,55 +41,55 @@ public interface ChatListener {
 
     }
 
-    default void onThreadInfoUpdated(String content) {
+    default void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
 
     }
 
-    default void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    default void onBlock(String content, ChatResponse<ResultBlock> response) {
 
     }
 
-    default void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    default void onUnBlock(String content, ChatResponse<ResultBlock> response) {
 
     }
 
-    default void onSeen(String content, ChatResponse<ResultMessage> chatResponse) {
+    default void onSeen(String content, ChatResponse<ResultMessage> response) {
 
     }
 
-    default void onDeliver(String content, ChatResponse<ResultMessage> chatResponse) {
+    default void onDeliver(String content, ChatResponse<ResultMessage> response) {
 
     }
 
-    default void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
+    default void onSent(String content, ChatResponse<ResultMessage> response) {
 
     }
 
-    default void onMuteThread(String content, ChatResponse<ResultMute> outPutMute) {
+    default void onMuteThread(String content, ChatResponse<ResultMute> response) {
 
     }
 
-    default void onUnmuteThread(String content, ChatResponse<ResultMute> outPutUnMute) {
+    default void onUnmuteThread(String content, ChatResponse<ResultMute> response) {
 
     }
 
-    default void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
+    default void onUserInfo(String content, ChatResponse<ResultUserInfo> response) {
 
     }
 
-    default void onCreateThread(String content, OutPutThread outPutThread) {
+    default void onCreateThread(String content, ChatResponse<ResultThread> response) {
 
     }
 
-    default void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> outPutParticipant) {
+    default void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> response) {
 
     }
 
-    default void onEditedMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
+    default void onEditedMessage(String content, ChatResponse<ResultNewMessage> response) {
 
     }
 
-    default void onContactAdded(String content, ChatResponse<ResultAddContact> chatResponse) {
+    default void onContactAdded(String content, ChatResponse<ResultAddContact> response) {
 
     }
 
@@ -96,7 +97,7 @@ public interface ChatListener {
 
     }
 
-    default void onRemoveContact(String content) {
+    default void onRemoveContact(String content, ChatResponse<ResultRemoveContact> response) {
 
     }
 
@@ -112,23 +113,23 @@ public interface ChatListener {
 
     }
 
-    default void onNewMessage(String content, ChatResponse<ResultNewMessage> outPutNewMessage) {
+    default void onNewMessage(String content, ChatResponse<ResultNewMessage> response) {
 
     }
 
-    default void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
+    default void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> response) {
 
     }
 
-    default void onUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
+    default void onUpdateContact(String content, ChatResponse<ResultUpdateContact> response) {
 
     }
 
-    default void onUploadFile(String content, ChatResponse<ResultFile> chatResponse) {
+    default void onUploadFile(String content, ChatResponse<ResultFile> response) {
 
     }
 
-    default void onUploadImageFile(String content, ChatResponse<ResultImageFile> chatResponse) {
+    default void onUploadImageFile(String content, ChatResponse<ResultImageFile> response) {
 
     }
 
@@ -136,15 +137,15 @@ public interface ChatListener {
 
     }
 
-    default void onSearchContact(String content) {
+    default void onSearchContact(String content, ChatResponse<ResultContact> response) {
 
     }
 
-    default void onThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> outPutAddParticipant) {
+    default void onThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> response) {
 
     }
 
-    default void onThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> chatResponse) {
+    default void onThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> response) {
 
     }
 
@@ -152,7 +153,7 @@ public interface ChatListener {
 
     }
 
-    default void OnMapReverse(String json, ChatResponse<ResultMapReverse> chatResponse) {
+    default void OnMapReverse(String json, ChatResponse<ResultMapReverse> response) {
     }
 
     default void onLastSeenUpdated(String content) {
@@ -161,18 +162,22 @@ public interface ChatListener {
     default void onChatState(String state) {
     }
 
-    default void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
+    default void onGetBlockList(String content, ChatResponse<ResultBlockList> response) {
     }
 
-    default void onUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> chatResponse) {
+    default void onUpdateThreadInfo(String threadJson, ChatResponse<ResultThread> response) {
     }
 
-    default void OnDeliveredMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
+    default void OnDeliveredMessageList(String content, ChatResponse<ResultParticipant> response) {
     }
 
-    default void OnSeenMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
+    default void OnSeenMessageList(String content, ChatResponse<ResultParticipant> response) {
     }
 
-    default void OnStaticMap(ChatResponse<ResultStaticMapImage> chatResponse) {
+    default void OnStaticMap(ChatResponse<ResultStaticMapImage> response) {
+    }
+
+    default void OnRemovedFromThread(String content, ChatResponse<ResultThread> chatResponse){
+
     }
 }

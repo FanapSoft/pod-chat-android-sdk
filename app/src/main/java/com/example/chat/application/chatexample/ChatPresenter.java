@@ -34,7 +34,9 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
@@ -78,7 +80,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
-        chat.setExpireAmount(5000);
+        chat.setExpireAmount(180);
         this.activity = activity;
         this.context = context;
         this.view = view;
@@ -389,7 +391,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onThreadInfoUpdated(String content) {
+    public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
     }
 
     @Override
@@ -430,7 +432,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onCreateThread(String content, OutPutThread outPutThread) {
+    public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
         super.onCreateThread(content, outPutThread);
         view.onCreateThread();
     }
@@ -497,8 +499,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onRemoveContact(String content) {
-        super.onRemoveContact(content);
+    public void onRemoveContact(String content, ChatResponse<ResultRemoveContact> response) {
+        super.onRemoveContact(content, response);
         view.onRemoveContact();
     }
 
@@ -583,8 +585,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onSearchContact(String content) {
-        super.onSearchContact(content);
+    public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
+        super.onSearchContact(content, chatResponse);
         view.onSearchContact();
     }
 

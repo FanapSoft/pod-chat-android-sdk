@@ -388,7 +388,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         List<Contact> contacts = new ArrayList<>();
 
         if (messageDao.getContact() != null) {
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             Date nowDate = c.getTime();
@@ -427,11 +427,11 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     public void saveContacts(List<Contact> contacts,int expireAmount) {
         List<CacheContact> cacheContacts = new ArrayList<>();
         for (Contact contact : contacts) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             c.add(Calendar.SECOND, expireAmount);
-            String expireDate = sdf.format(c.getTime());
+            String expireDate = format.format(c.getTime());
 
             CacheContact cacheContact = new CacheContact(
                     expireDate,
@@ -447,20 +447,18 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     contact.getNotSeenDuration(),
                     contact.isHasUser()
             );
-
             cacheContacts.add(cacheContact);
         }
         messageDao.insertContacts(cacheContacts);
     }
 
-
-    public void saveContact(Contact contact,int expireAmount) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    public void saveContact(Contact contact,int expireSecond) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
-        c.add(Calendar.DATE, expireAmount);
+        c.add(Calendar.DATE, expireSecond);
 
-        String expireDate = sdf.format(c.getTime());
+        String expireDate = dateFormat.format(c.getTime());
         CacheContact cacheContact = new CacheContact(
                 expireDate,
                 contact.getId(),
@@ -475,13 +473,15 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                 contact.getNotSeenDuration(),
                 contact.isHasUser()
         );
-
         messageDao.insertContact(cacheContact);
     }
 
-
     public void deleteContact(CacheContact cacheContact) {
         messageDao.deleteContact(cacheContact);
+    }
+
+    public void deleteContactById(long id){
+        messageDao.deleteContactById(id);
     }
 
     /**
@@ -651,7 +651,6 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                             cacheParticipant.getOnline(),
                             cacheParticipant.getBlocked(),
                             cacheParticipant.getAdmin()
-
                     );
                 }
                 if (cacheLastMessageVO.getReplyInfoVOId() != null) {
@@ -895,23 +894,35 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
     }
 
-    public void saveParticipants(List<CacheParticipant> participants, long threadId) {
+    /**
+    * Cache participant
+    * */
+
+    public void saveParticipants(List<CacheParticipant> participants, long threadId,int expireSecond) {
         for (CacheParticipant participant : participants) {
             participant.setThreadId(threadId);
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
-            c.add(Calendar.DATE, 2);
+            c.add(Calendar.SECOND, expireSecond);
+            String expireDate = format.format(c.getTime());
 
-            String output = sdf.format(c.getTime());
-            participant.setExpireDate(output);
+            participant.setExpireDate(expireDate);
 
             messageDao.insertParticipant(participant);
         }
     }
 
-    public void saveParticipant(CacheParticipant cacheParticipant) {
+    public void saveParticipant(CacheParticipant cacheParticipant, int expireSecond) {
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.SECOND, expireSecond);
+        String expireDate = format.format(c.getTime());
+
+        cacheParticipant.setExpireDate(expireDate);
+
         messageDao.insertParticipant(cacheParticipant);
     }
 
@@ -927,7 +938,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         if (messageDao.geParticipants(offset, count, threadId) == null) {
             return participants;
         } else {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             Date nowDate = c.getTime();
@@ -936,7 +947,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
             for (CacheParticipant cParticipant : cacheParticipants) {
 
                 try {
-                    Date expireDate = sdf.parse(cParticipant.getExpireDate());
+                    Date expireDate = format.parse(cParticipant.getExpireDate());
                     if (expireDate.compareTo(nowDate) < 0) {
                         deleteParticipant(threadId, cParticipant.getId());
                     } else {
