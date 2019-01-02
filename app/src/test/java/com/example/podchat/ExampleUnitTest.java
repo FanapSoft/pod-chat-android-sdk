@@ -55,6 +55,10 @@ public class ExampleUnitTest {
         assertFalse(Util.isNullOrEmpty(srting));
 
     }
+    @Test
+    public void checkNullOrEmptyNumber(){
+        assertTrue(Util.isNullOrEmpty(0));
+    }
 
 
 }

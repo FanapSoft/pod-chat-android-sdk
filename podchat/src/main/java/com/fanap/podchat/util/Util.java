@@ -43,7 +43,7 @@ public class Util {
 
     public static <T extends Number> boolean isNullOrEmpty(T number) {
         String num = String.valueOf(number);
-        return number == null && num.equals("0");
+        return number == null || num.equals("0");
     }
 
     public static <T extends Object> boolean isNullOrEmpty(List<T> list) {
@@ -55,7 +55,7 @@ public class Util {
     }
 
     public static <T extends Number> boolean isNullOrEmptyNumber(List<T> list) {
-        return list != null && list.size() > 0;
+        return list == null || list.size() == 0;
     }
 
 }
