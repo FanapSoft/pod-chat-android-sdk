@@ -6,7 +6,7 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
 @Entity()
-public class CacheMessageVO {
+public class CacheMessageVO  {
 
     @PrimaryKey
     private long id;

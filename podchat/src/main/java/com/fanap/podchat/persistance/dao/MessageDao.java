@@ -4,6 +4,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.RawQuery;
 
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
@@ -91,8 +92,8 @@ public interface MessageDao {
     @Query("SELECT * FROM cachemessagevo WHERE id = :id ")
     List<CacheMessageVO> getMessage(long id);
 
-    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId LIKE :query")
-    List<CacheMessageVO> setQuery(long threadVoId, String query);
+    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY time DESC LIMIT :count OFFSET :offset")
+    List<CacheMessageVO> getQuery(long count, long offset, long threadVoId, String query);
 
     @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId AND id BETWEEN :firstMessageId AND :lastMessageId")
     long getHistoryCountWithLastAndFirtMSGId(long threadVoId, long lastMessageId, long firstMessageId);

@@ -34,52 +34,28 @@ public class Util {
     }
 
     public static boolean isNullOrEmpty(String string) {
-        boolean check = true;
-        if (string != null && !string.isEmpty()) {
-            check = false;
-        }
-        return check;
+        return string == null || string.isEmpty();
     }
 
     public static <T extends Number> boolean isNullOrEmpty(ArrayList<T> list) {
-        boolean check = true;
-        if (list != null && list.size() > 0) {
-            check = false;
-        }
-        return check;
+        return list == null || list.size() == 0;
     }
 
     public static <T extends Number> boolean isNullOrEmpty(T number) {
-        boolean check = true;
         String num = String.valueOf(number);
-        if (number != null && !num.equals("0")) {
-            check = false;
-        }
-        return check;
+        return number == null && num.equals("0");
     }
 
-    public static <T extends Class> boolean isNullOrEmpty(List<T> list) {
-        boolean check = true;
-        if (list != null && list.size() > 0) {
-            check = false;
-        }
-        return check;
+    public static <T extends Object> boolean isNullOrEmpty(List<T> list) {
+        return list == null || list.size() == 0;
     }
 
-  public static boolean isNullOrEmptyMessageVO(List<MessageVO> list) {
-        boolean check = true;
-        if (list != null && list.size() > 0) {
-            check = false;
-        }
-        return check;
+    public static boolean isNullOrEmptyMessageVO(List<MessageVO> list) {
+        return list == null || list.size() == 0;
     }
 
     public static <T extends Number> boolean isNullOrEmptyNumber(List<T> list) {
-        boolean check = true;
-        if (list != null && list.size() > 0) {
-            check = false;
-        }
-        return check;
+        return list != null && list.size() > 0;
     }
 
 }

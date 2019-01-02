@@ -7,6 +7,7 @@ public class Callback {
     private boolean seen;
     private boolean sent;
     private boolean result;
+    private boolean metadataCriteria;
     private String uniqueId;
     private String order;
     private long count;
@@ -155,5 +156,13 @@ public class Callback {
 
     public void setMessageId(long messageId) {
         this.messageId = messageId;
+    }
+
+    public boolean isMetadataCriteria() {
+        return metadataCriteria;
+    }
+
+    public void setMetadataCriteria(boolean metadataCriteria) {
+        this.metadataCriteria = metadataCriteria;
     }
 }

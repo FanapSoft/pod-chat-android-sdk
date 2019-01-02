@@ -508,16 +508,6 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO
-//    @Override
-//    public void onError(String textMessage)  {
-//        try {
-//            super.onError(textMessage);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     /**
      * Send text message to the thread
      *
@@ -2123,6 +2113,7 @@ public class Chat extends AsyncAdapter {
         long firstMessageId = history.getFirstMessageId();
         long lastMessageId = history.getLastMessageId();
         long id = history.getId();
+        String query = history.getQuery();
 
         if (history.getCount() != 0) {
             history.setCount(history.getCount());
@@ -2150,6 +2141,10 @@ public class Chat extends AsyncAdapter {
             jObj.remove("id");
         }
 
+        if (Util.isNullOrEmpty(query)) {
+            jObj.remove("query");
+        }
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(jObj.toString());
         chatMessage.setType(Constants.GET_HISTORY);
@@ -2175,7 +2170,7 @@ public class Chat extends AsyncAdapter {
             order = history.getOrder();
         }
 
-        setCallBacks(firstMessageId, lastMessageId, order, history.getCount(), offsets, uniqueId, id);
+        setCallBacks(firstMessageId, lastMessageId, order, history.getCount(), offsets, uniqueId, id,true);
         if (handler != null) {
             handler.onGetHistory(uniqueId);
         }
@@ -5625,7 +5620,8 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count, Long offset, String uniqueId, long msgId) {
+    private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count
+            , Long offset, String uniqueId, long msgId,boolean messageCriteriaVO) {
 
         try {
             if (chatReady || asyncReady) {
@@ -5640,6 +5636,7 @@ public class Chat extends AsyncAdapter {
                 callback.setOrder(order);
                 callback.setMessageId(msgId);
                 callback.setResult(true);
+                callback.setMetadataCriteria(messageCriteriaVO);
                 callback.setRequestType(Constants.GET_HISTORY);
 
                 messageCallbacks.put(uniqueId, callback);

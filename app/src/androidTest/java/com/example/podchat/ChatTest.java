@@ -43,14 +43,6 @@ public class ChatTest {
     private Activity activity;
     private Context appContext;
 
-    //    @Rule
-//    public ActivityTestRule<ChatActivity> mActivityRule = new ActivityTestRule<>(ChatActivity.class);
-    //TOKEN = ALEXI
-//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
-
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-
-//    private String name = "Fifi";
     private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
     private static String NAME = "SandBox";
 

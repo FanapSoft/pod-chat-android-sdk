@@ -1,5 +1,8 @@
 package com.example.podchat;
 
+import com.fanap.podchat.persistance.MessageDatabaseHelper;
+import com.fanap.podchat.util.Util;
+
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
@@ -21,7 +24,7 @@ public class ExampleUnitTest {
     }
 
     @Test
-    public void compareDates(){
+    public void compareDates() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
@@ -39,9 +42,19 @@ public class ExampleUnitTest {
 
         if (expireDate.compareTo(nowDate) < 0) {
             assertTrue(true);
-        }else {
+        } else {
             assertFalse(false);
         }
 
     }
+
+    @Test
+    public void checkNullOrEmpty() {
+        String srting = "yes";
+
+        assertFalse(Util.isNullOrEmpty(srting));
+
+    }
+
+
 }
