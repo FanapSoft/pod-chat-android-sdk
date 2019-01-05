@@ -248,14 +248,13 @@ public class Chat extends AsyncAdapter {
         return instance;
     }
 
-    /*
-     * You can have log if you change (boolean) log into true
+    /**
+     * It can have log if you change (boolean) log into true
      * */
     public void isLoggable(boolean log) {
         this.log = log;
         LogHelper.init(log);
         async.isLoggable(log);
-
     }
 
     public void socketLog(boolean log) {
@@ -1704,6 +1703,9 @@ public class Chat extends AsyncAdapter {
                         uploadFileMessage(activity, messageContent, threadId, mimeType, path, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName);
                     }
                     return uniqueId;
+                }else {
+                    String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_URI, ChatConstant.ERROR_CODE_INVALID_URI, uniqueId);
+                    if (log) Logger.json(jsonError);
                 }
             } else {
                 String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -2170,7 +2172,7 @@ public class Chat extends AsyncAdapter {
             order = history.getOrder();
         }
 
-        setCallBacks(firstMessageId, lastMessageId, order, history.getCount(), offsets, uniqueId, id,true);
+        setCallBacks(firstMessageId, lastMessageId, order, history.getCount(), offsets, uniqueId, id,true,query);
         if (handler != null) {
             handler.onGetHistory(uniqueId);
         }
@@ -5468,7 +5470,6 @@ public class Chat extends AsyncAdapter {
             List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
             }.getType());
 
-            //TODO complete this part
             messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS);
             messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
         }
@@ -5621,7 +5622,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count
-            , Long offset, String uniqueId, long msgId,boolean messageCriteriaVO) {
+            , Long offset, String uniqueId, long msgId, boolean messageCriteriaVO, String query) {
 
         try {
             if (chatReady || asyncReady) {
@@ -5636,6 +5637,7 @@ public class Chat extends AsyncAdapter {
                 callback.setOrder(order);
                 callback.setMessageId(msgId);
                 callback.setResult(true);
+                callback.setQuery(query);
                 callback.setMetadataCriteria(messageCriteriaVO);
                 callback.setRequestType(Constants.GET_HISTORY);
 

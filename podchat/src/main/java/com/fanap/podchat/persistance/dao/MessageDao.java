@@ -53,6 +53,18 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertHistories(List<CacheMessageVO> messageVOS);
 
+    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY time DESC LIMIT :count OFFSET :offset")
+    List<CacheMessageVO> getQueryDESC(long count, long offset, long threadVoId, String query);
+
+    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY time ASC LIMIT :count OFFSET :offset")
+    List<CacheMessageVO> getQueryASC(long count, long offset, long threadVoId, String query);
+
+    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadId AND time IN (SELECT time FROM CacheMessageVO WHERE message LIKE '%' || :query || '%' ORDER BY time DESC LIMIT :count OFFSET :offset) ")
+    void deleteMessagesWithQueryDesc(long threadId, long count, long offset, String query);
+
+    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadId AND time IN (SELECT time FROM CacheMessageVO WHERE message LIKE '%' || :query || '%' ORDER BY time ASC LIMIT :count OFFSET :offset) ")
+    void deleteMessagesWithQueryAsc(long threadId, long count, long offset, String query);
+
     @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time ASC LIMIT :count OFFSET :offset ")
     List<CacheMessageVO> getHistoriesASC(long count, long offset, long threadVoId);
 
@@ -92,9 +104,6 @@ public interface MessageDao {
     @Query("SELECT * FROM cachemessagevo WHERE id = :id ")
     List<CacheMessageVO> getMessage(long id);
 
-    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY time DESC LIMIT :count OFFSET :offset")
-    List<CacheMessageVO> getQuery(long count, long offset, long threadVoId, String query);
-
     @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId AND id BETWEEN :firstMessageId AND :lastMessageId")
     long getHistoryCountWithLastAndFirtMSGId(long threadVoId, long lastMessageId, long firstMessageId);
 
@@ -105,9 +114,11 @@ public interface MessageDao {
     @Query("select * from UserInfo")
     UserInfo getUserInfo();
 
-    //Cache thread
+    /**
+     * Cache thread
+     */
 
-    @Query("select COUNT(id) FROM THREADVO")
+    @Query("select COUNT(id) FROM THREADVO ")
     int getThreadCount();
 
     @Query("select * from ThreadVo LIMIT :count OFFSET :offset")
@@ -125,7 +136,9 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertThread(ThreadVo threadVo);
 
-    //cache inviter
+    /**
+     * cache inviter
+     */
 
     @Query("select * from Inviter where id = :inviterId ")
     Inviter getInviter(long inviterId);

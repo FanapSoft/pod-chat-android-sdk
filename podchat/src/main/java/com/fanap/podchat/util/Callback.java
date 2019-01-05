@@ -10,6 +10,7 @@ public class Callback {
     private boolean metadataCriteria;
     private String uniqueId;
     private String order;
+    private String query;
     private long count;
     private long firstMessageId;
     private long lastMessageId;
@@ -164,5 +165,13 @@ public class Callback {
 
     public void setMetadataCriteria(boolean metadataCriteria) {
         this.metadataCriteria = metadataCriteria;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 }

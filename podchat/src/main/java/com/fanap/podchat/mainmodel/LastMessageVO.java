@@ -17,7 +17,6 @@ public class LastMessageVO {
     private ReplyInfoVO replyInfoVO;
     private ForwardInfo forwardInfo;
 
-
     public LastMessageVO(
             long id,
             String uniqueId,

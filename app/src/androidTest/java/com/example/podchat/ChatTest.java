@@ -13,6 +13,7 @@ import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
 import com.example.chat.application.chatexample.ChatSandBoxActivity;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.SearchContact;
@@ -34,7 +35,7 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class ChatTest {
+public class ChatTest extends ChatAdapter{
 
     private static ChatContract.presenter presenter;
     @Mock
@@ -82,6 +83,12 @@ public class ChatTest {
             e.printStackTrace();
         }
         Mockito.verify(view, Mockito.times(1)).onGetUserInfo();
+    }
+
+    @Override
+    public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
+        super.onGetThread(content, thread);
+
     }
 
     @Test

@@ -22,6 +22,9 @@ public class MessageVO {
     private ReplyInfoVO replyInfoVO;
     private ForwardInfo forwardInfo;
 
+    public MessageVO() {
+    }
+
     public MessageVO(
             long id,
             boolean edited,
