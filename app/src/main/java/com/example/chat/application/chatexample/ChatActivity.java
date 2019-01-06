@@ -433,7 +433,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, null, 351, new ChatHandler() {
+                presenter.getThreadParticipant(500, null, 351, new ChatHandler() {
                     @Override
                     public void onGetThreadParticipant(String uniqueId) {
                         super.onGetThreadParticipant(uniqueId);

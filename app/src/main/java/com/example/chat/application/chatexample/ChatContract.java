@@ -149,6 +149,10 @@ public interface ChatContract {
 
         void getThreads(RequestThread requestThread);
 
+        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,
+
+                        long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler);
+
         void setToke(String token);
 
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost

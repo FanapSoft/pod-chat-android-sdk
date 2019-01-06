@@ -45,7 +45,6 @@ import com.fanap.podchat.util.JsonUtil;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
-import com.idescout.sql.SqlScoutServer;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -70,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "a2fd6d10a181469fa92add2c32950e5b";
+    private static String TOKEN = "7e5464cb4e7c46bebdf4d15f16b99825";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -79,13 +78,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8443/";
     private static String TYPE_CODE = "";
-    SqlScoutServer sqlScoutServer;
+//    SqlScoutServer sqlScoutServer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sqlScoutServer = SqlScoutServer.create(this, getPackageName());
+//        sqlScoutServer = SqlScoutServer.create(this, getPackageName());
 
         setContentView(R.layout.activity_chat);
         try {
@@ -155,12 +154,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
                         break;
                     case 3:
-                        presenter.block(1382L, new ChatHandler() {
-                            @Override
-                            public void onBlock(String uniqueId) {
-                                super.onBlock(uniqueId);
-                            }
-                        });
+                        presenter.block(1382L,null
+                        );
 
                         break;
                     case 4:
@@ -168,12 +163,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 5:
-                        presenter.getBlockList(null, null, new ChatHandler() {
-                            @Override
-                            public void onGetBlockList(String uniqueId) {
-                                super.onGetBlockList(uniqueId);
-                            }
-                        });
+                        presenter.getBlockList(null, null, null);
 
                         break;
                     case 6:
@@ -279,8 +269,17 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     private void getthreadWithCoreUser() {
-        RequestThread requestThread = new RequestThread.Builder().partnerCoreUserId(982).build();
-        presenter.getThreads(requestThread);
+//        RequestThread requestThread = new RequestThread.Builder().partnerCoreUserId(982).build();
+//        presenter.getThreads(requestThread);
+
+        ArrayList<Integer> threadIds = new ArrayList<>();
+//        threadIds.add(1105);
+//        threadIds.add(1031);
+        long count= 5;
+        long offset;
+        long creatorCoreUserId = 2 ;
+        presenter.getThreads(null,null,null,null,creatorCoreUserId
+                ,0,0,null);
     }
 
     //funcSecond
@@ -636,7 +635,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     private void getThreadParticipant() {
-        presenter.getThreadParticipant(10, 0L, 1105, null);
+        presenter.getThreadParticipant(500, 0L, 1105, null);
     }
 
     @Override
@@ -718,25 +717,25 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     @Override
     protected void onResume() {
-        sqlScoutServer.resume();
+//        sqlScoutServer.resume();
         super.onResume();
     }
 
     @Override
     protected void onDestroy() {
-        sqlScoutServer.destroy();
+//        sqlScoutServer.destroy();
         super.onDestroy();
     }
 
     @Override
     protected void onPause() {
-        sqlScoutServer.destroy();
+//        sqlScoutServer.destroy();
         super.onPause();
     }
 
     @Override
     protected void onStop() {
-        sqlScoutServer.destroy();
+//        sqlScoutServer.destroy();
         super.onStop();
     }
 }

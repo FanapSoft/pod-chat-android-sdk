@@ -4,6 +4,10 @@ public class History  {
     private long id;
     private long firstMessageId;
     private long lastMessageId;
+    private long fromTime;
+    private long fromTimeNanos;
+    private long toTime;
+    private long toTimeNanos;
     private long offset;
     private long count;
     private String order;
@@ -19,8 +23,11 @@ public class History  {
         this.id = builder.id;
         this.query = builder.query;
         this.metadataCriteria = builder.metadataCriteria;
+        this.fromTime = builder.fromTime;
+        this.fromTimeNanos = builder.fromTimeNanos;
+        this.toTime = builder.toTime;
+        this.toTimeNanos = builder.toTimeNanos;
     }
-
 
     public static class Builder{
         private long offset;
@@ -31,13 +38,38 @@ public class History  {
         private NosqlSearchMetadataCriteria metadataCriteria;
         private long id;
         private String query;
+        private long fromTime;
+        private long fromTimeNanos;
+        private long toTime;
+        private long toTimeNanos;
 
         public Builder id(long id){
             this.id = id;
             return this;
         }
 
-        public Builder id(String query){
+        public Builder fromTime(long fromTime){
+            this.fromTime = fromTime;
+            return this;
+        }
+
+        public Builder fromTimeNanos(long fromTimeNanos){
+            this.fromTimeNanos = fromTimeNanos;
+            return this;
+        }
+
+        public Builder toTime(long toTime){
+            this.toTime = toTime;
+            return this;
+        }
+
+
+        public Builder toTimeNanos(long toTimeNanos){
+            this.toTimeNanos = toTimeNanos;
+            return this;
+        }
+
+        public Builder query(String query){
             this.query = query;
             return this;
         }
@@ -75,6 +107,37 @@ public class History  {
         public History build(){
             return new History(this);
         }
+    }
+    public long getFromTime() {
+        return fromTime;
+    }
+
+    public void setFromTime(long fromTime) {
+        this.fromTime = fromTime;
+    }
+
+    public long getFromTimeNanos() {
+        return fromTimeNanos;
+    }
+
+    public void setFromTimeNanos(long fromTimeNanos) {
+        this.fromTimeNanos = fromTimeNanos;
+    }
+
+    public long getToTime() {
+        return toTime;
+    }
+
+    public void setToTime(long toTime) {
+        this.toTime = toTime;
+    }
+
+    public long getToTimeNanos() {
+        return toTimeNanos;
+    }
+
+    public void setToTimeNanos(long toTimeNanos) {
+        this.toTimeNanos = toTimeNanos;
     }
 
     public long getOffset() {

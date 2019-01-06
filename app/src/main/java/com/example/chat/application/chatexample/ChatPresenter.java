@@ -77,7 +77,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         refWatcher.watch(chat);
 
         chat.addListener(this);
-        chat.isCacheables(true);
+//        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setExpireAmount(180);
@@ -104,6 +104,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getThreads(RequestThread requestThread) {
         chat.getThreads(requestThread);
+    }
+
+    @Override
+    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler) {
+        chat.getThreads(count, offset, threadIds, threadName, creatorCoreUserId, partnerCoreUserId, partnerCoreContactId, handler);
     }
 
     @Override

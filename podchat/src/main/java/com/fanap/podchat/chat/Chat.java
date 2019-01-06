@@ -250,7 +250,7 @@ public class Chat extends AsyncAdapter {
 
     /**
      * It can have log if you change (boolean) log into true
-     * */
+     */
     public void isLoggable(boolean log) {
         this.log = log;
         LogHelper.init(log);
@@ -660,7 +660,6 @@ public class Chat extends AsyncAdapter {
 
         return null;
     }
-
 
     public String sendFileMessage(RequestFileMessage requestFileMessage) {
         String uniqueId;
@@ -1703,7 +1702,7 @@ public class Chat extends AsyncAdapter {
                         uploadFileMessage(activity, messageContent, threadId, mimeType, path, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName);
                     }
                     return uniqueId;
-                }else {
+                } else {
                     String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_URI, ChatConstant.ERROR_CODE_INVALID_URI, uniqueId);
                     if (log) Logger.json(jsonError);
                 }
@@ -1803,7 +1802,6 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-
 
     /**
      * DELETE MESSAGE IN THREAD
@@ -1978,6 +1976,103 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * Get the list of threads or you can just pass the thread id that you want
+     *
+     * @param creatorCoreUserId    if it sets to '0' its considered as it was'nt set
+     * @param partnerCoreUserId    if it sets to '0' its considered as it was'nt set -
+     *                             it gets threads of p2p not groups
+     * @param partnerCoreContactId if it sets to '0' its considered as it was'nt set-
+     *                             it gets threads of p2p not groups
+     * @param count
+     * @param offset
+     */
+    public String getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,
+                             long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler) {
+
+        String uniqueId;
+        count = count != null ? count : 50;
+        uniqueId = generateUniqueId();
+        try {
+
+            if (cache) {
+                handleCacheThread(count, offset, threadIds, threadName);
+            }
+
+            if (chatReady) {
+                ChatMessageContent chatMessageContent = new ChatMessageContent();
+
+                Long offsets;
+                if (offset != null) {
+                    chatMessageContent.setOffset(offset);
+                    offsets = offset;
+                } else {
+                    chatMessageContent.setOffset(0);
+                    offsets = 0L;
+                }
+
+                chatMessageContent.setCount(count);
+                if (threadName != null) {
+                    chatMessageContent.setName(threadName);
+                }
+                JsonObject jObj;
+
+                if (threadIds != null && threadIds.size() > 0) {
+                    chatMessageContent.setThreadIds(threadIds);
+                    jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
+
+                } else {
+                    jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
+                    jObj.remove("threadIds");
+                }
+
+
+                if (creatorCoreUserId > 0) {
+                    jObj.addProperty("creatorCoreUserId", creatorCoreUserId);
+                }
+                if (partnerCoreUserId > 0) {
+                    jObj.addProperty("partnerCoreUserId", partnerCoreUserId);
+                }
+                if (partnerCoreContactId > 0) {
+                    jObj.addProperty("partnerCoreContactId", partnerCoreContactId);
+                }
+
+                jObj.remove("lastMessageId");
+                jObj.remove("firstMessageId");
+
+                ChatMessage chatMessage = new ChatMessage();
+                chatMessage.setContent(jObj.toString());
+                chatMessage.setType(Constants.GET_THREADS);
+                chatMessage.setTokenIssuer("1");
+                chatMessage.setToken(getToken());
+                chatMessage.setUniqueId(uniqueId);
+
+                JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+                if (Util.isNullOrEmpty(getTypeCode())) {
+                    jsonObject.remove("typeCode");
+                } else {
+                    jsonObject.remove("typeCode");
+                    jsonObject.addProperty("typeCode", getTypeCode());
+                }
+
+                setCallBacks(null, null, null, true, Constants.GET_THREADS, offsets, uniqueId);
+
+                sendAsyncMessage(jsonObject.toString(), 3, "Get thread send");
+                if (handler != null) {
+                    handler.onGetThread(uniqueId);
+                }
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                if (log) Logger.e(jsonError);
+            }
+
+        } catch (Throwable e) {
+            Logger.e(e.getCause().getMessage());
+        }
+        return uniqueId;
+    }
+
 
     public String getThreads(RequestThread requestThread) {
         String uniqueId = generateUniqueId();
@@ -2109,12 +2204,16 @@ public class Chat extends AsyncAdapter {
      * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
      * order should be set with lower case
      */
-    //TODO test getHistory
     private void getHistoryMain(History history, long threadId, ChatHandler handler, String uniqueId) {
         long offsets = history.getOffset();
         long firstMessageId = history.getFirstMessageId();
         long lastMessageId = history.getLastMessageId();
+        long fromTime = history.getFromTime();
+        long fromTimeNanos = history.getFromTimeNanos();
+        long toTime = history.getToTime();
+        long toTimeNanos = history.getToTimeNanos();
         long id = history.getId();
+
         String query = history.getQuery();
 
         if (history.getCount() != 0) {
@@ -2147,6 +2246,23 @@ public class Chat extends AsyncAdapter {
             jObj.remove("query");
         }
 
+        if (Util.isNullOrEmpty(fromTime)) {
+            jObj.remove("fromTime");
+        }
+
+        if (Util.isNullOrEmpty(fromTimeNanos)) {
+            jObj.remove("fromTimeNanos");
+        }
+
+
+        if (Util.isNullOrEmpty(toTime)) {
+            jObj.remove("toTime");
+        }
+
+        if (Util.isNullOrEmpty(toTimeNanos)) {
+            jObj.remove("toTimeNanos");
+        }
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(jObj.toString());
         chatMessage.setType(Constants.GET_HISTORY);
@@ -2172,7 +2288,7 @@ public class Chat extends AsyncAdapter {
             order = history.getOrder();
         }
 
-        setCallBacks(firstMessageId, lastMessageId, order, history.getCount(), offsets, uniqueId, id,true,query);
+        setCallBacks(firstMessageId, lastMessageId, order, history.getCount(), offsets, uniqueId, id, true, query);
         if (handler != null) {
             handler.onGetHistory(uniqueId);
         }
@@ -3737,6 +3853,10 @@ public class Chat extends AsyncAdapter {
                     jsonObject.addProperty("typeCode", request.getTypeCode());
                 }
 
+
+                jsonObject.remove("lastMessageId");
+                jsonObject.remove("firstMessageId");
+
                 setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
                 if (handler != null) {
                     handler.onGetThreadParticipant(uniqueId);
@@ -3813,6 +3933,9 @@ public class Chat extends AsyncAdapter {
                 jsonObject.remove("typeCode");
                 jsonObject.addProperty("typeCode", getTypeCode());
             }
+
+            jsonObject.remove("lastMessageId");
+            jsonObject.remove("firstMessageId");
 
             String asyncContent = jsonObject.toString();
 
@@ -6157,17 +6280,11 @@ public class Chat extends AsyncAdapter {
             retryTokenRunOnUIThread(new Runnable() {
                 @Override
                 public void run() {
-//                    if (retryToken) {
-//                        retrySetToken = 1;
-//                        retryToken = false;
-//                        tokenHandler.removeCallbacksAndMessages(null);
-//                    } else {
                     if (retrySetToken < 60) retrySetToken *= 4;
                     pingAfterSetToken();
                     retryTokenRunOnUIThread(this::run, retrySetToken * 1000);
                     if (log)
                         Logger.i("Ping for check Token Athentication is retry after " + retrySetToken + " s");
-//                    }
                 }
             }, retrySetToken * 1000);
         }

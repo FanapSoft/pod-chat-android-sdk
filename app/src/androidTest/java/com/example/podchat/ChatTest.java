@@ -44,7 +44,7 @@ public class ChatTest extends ChatAdapter{
     private Activity activity;
     private Context appContext;
 
-    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+    private static String TOKEN = "c61fe4d8ebc442ef95c11deea8fb0d7a";
     private static String NAME = "SandBox";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
@@ -112,6 +112,45 @@ public class ChatTest extends ChatAdapter{
             }
         };
         Mockito.verify(view, Mockito.times(1));
+    }
+
+    // long creatorCoreUserId
+    @Test
+    @MediumTest
+    public void threadWithCreatorCoreUserId(){
+        try {
+            Thread.sleep(7000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ArrayList<Integer> threadIds = new ArrayList<>();
+//        threadIds.add(1105);
+//        threadIds.add(1031);
+        long count= 5;
+        long offset;
+        long creatorCoreUserId = 2 ;
+        presenter.getThreads(null,null,null,null,creatorCoreUserId
+                ,0,0,null);
+        try {
+            Thread.sleep(7000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1));
+    }
+
+    //long partnerCoreUserId
+    @Test
+    @MediumTest
+    public void threadWithPartnerCoreUserId(){
+
+    }
+
+    //long partnerCoreContactId
+    @Test
+    @MediumTest
+    public void threadWithPartnerCoreContactId(){
+
     }
 
     //Get History

@@ -14,14 +14,21 @@ public class CacheParticipant {
     private String name;
     private String firstName;
     private String lastName;
+
     private String image;
+
     private long notSeenDuration;
+
     private long contactId;
+    private long coreUserId;
+
     private String contactName;
     private String contactFirstName;
     private String contactLastName;
+
     private boolean sendEnable;
     private boolean receiveEnable;
+
     private String cellphoneNumber;
     private String email;
     private boolean myFriend;
@@ -193,5 +200,13 @@ public class CacheParticipant {
 
     public void setExpireDate(String expireDate) {
         this.expireDate = expireDate;
+    }
+
+    public long getCoreUserId() {
+        return coreUserId;
+    }
+
+    public void setCoreUserId(long coreUserId) {
+        this.coreUserId = coreUserId;
     }
 }
