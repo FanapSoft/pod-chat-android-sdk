@@ -173,6 +173,8 @@ public class ChatTest extends ChatAdapter{
         Mockito.verify(view, Mockito.times(1)).onGetThreadHistory();
     }
 
+
+
     @Test
     @MediumTest
     public void getContacts() {

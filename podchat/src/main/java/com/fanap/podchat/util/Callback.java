@@ -14,6 +14,12 @@ public class Callback {
     private long count;
     private long firstMessageId;
     private long lastMessageId;
+
+    private long fromTime;
+    private long fromTimeNanos;
+    private long toTime;
+    private long toTimeNanos;
+
     private long messageId;
 
     public Callback(String order, long count, long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
@@ -173,5 +179,37 @@ public class Callback {
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public long getFromTime() {
+        return fromTime;
+    }
+
+    public void setFromTime(long fromTime) {
+        this.fromTime = fromTime;
+    }
+
+    public long getFromTimeNanos() {
+        return fromTimeNanos;
+    }
+
+    public void setFromTimeNanos(long fromTimeNanos) {
+        this.fromTimeNanos = fromTimeNanos;
+    }
+
+    public long getToTime() {
+        return toTime;
+    }
+
+    public void setToTime(long toTime) {
+        this.toTime = toTime;
+    }
+
+    public long getToTimeNanos() {
+        return toTimeNanos;
+    }
+
+    public void setToTimeNanos(long toTimeNanos) {
+        this.toTimeNanos = toTimeNanos;
     }
 }

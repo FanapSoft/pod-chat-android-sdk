@@ -46,13 +46,19 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         for (CacheMessageVO messageVO : messageVOS) {
             messageVO.setThreadVoId(threadId);
 
+            long time = messageVO.getTime();
+            long timeNanos = messageVO.getTimeNanos();
+            long pow = (long) Math.pow(10, 9);
+            long timestamp = ((time / 1000) * pow) + timeNanos;
+            messageVO.setTimeStamp(timestamp);
+
             if (messageVO.getParticipant() != null) {
                 messageVO.setParticipantId(messageVO.getParticipant().getId());
                 messageDao.insertParticipant(messageVO.getParticipant());
             }
 
             if (messageVO.getConversation() != null) {
-//                messageDao.insertThread(messageVO.getConversation());
+                messageVO.setConversationId(messageVO.getConversation().getId());
             }
 
             if (messageVO.getForwardInfo() != null) {
@@ -119,6 +125,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         long firstMessageId = callback.getFirstMessageId();
         long lastMessageId = callback.getLastMessageId();
         long messageId = callback.getMessageId();
+//        long timeStamp =
         String order = callback.getOrder();
         String query = callback.getQuery();
 
@@ -384,7 +391,8 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
                 //just query has been set
             } else if (!Util.isNullOrEmpty(query)) {
-                cacheMessageVOS = getQuery(order,count, offset, threadId, query);
+                cacheMessageVOS = getQuery(order, count, offset, threadId, query);
+
             }
         }
 
@@ -509,6 +517,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     cacheMessageVO.getMessage(),
                     participant,
                     cacheMessageVO.getTime(),
+                    cacheMessageVO.getTimeNanos(),
                     cacheMessageVO.getMetadata(),
                     cacheMessageVO.getSystemMetadata(),
                     thread,

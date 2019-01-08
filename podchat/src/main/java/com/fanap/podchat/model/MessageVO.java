@@ -15,7 +15,10 @@ public class MessageVO {
     private long previousId;
     private String message;
     private Participant participant;
+
     private long time;
+    private long timeNanos;
+
     private String metadata;
     private String systemMetadata;
     private Thread conversation;
@@ -38,6 +41,7 @@ public class MessageVO {
             String message,
             Participant participant,
             long time,
+            long timeNanos,
             String metadata,
             String systemMetadata,
             Thread conversation,
@@ -56,6 +60,7 @@ public class MessageVO {
         this.message = message;
         this.participant = participant;
         this.time = time;
+        this.timeNanos = timeNanos;
         this.metadata = metadata;
         this.systemMetadata = systemMetadata;
         this.conversation = conversation;
@@ -197,5 +202,13 @@ public class MessageVO {
 
     public void setDeletable(boolean deletable) {
         this.deletable = deletable;
+    }
+
+    public long getTimeNanos() {
+        return timeNanos;
+    }
+
+    public void setTimeNanos(long timeNanos) {
+        this.timeNanos = timeNanos;
     }
 }

@@ -6,12 +6,17 @@ import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
 @Entity()
-public class CacheMessageVO  {
+public class CacheMessageVO {
 
     @PrimaryKey
     private long id;
     private long previousId;
+
+    private long timeStamp;
+
     private long time;
+    private long timeNanos;
+
     private boolean edited;
     private boolean editable;
     private boolean delivered;
@@ -45,7 +50,7 @@ public class CacheMessageVO  {
 
     private Long forwardInfoId;
 
-       public CacheMessageVO() {
+    public CacheMessageVO() {
     }
 
     public boolean isEdited() {
@@ -223,5 +228,21 @@ public class CacheMessageVO  {
 
     public void setDeletable(boolean deletable) {
         this.deletable = deletable;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    public long getTimeNanos() {
+        return timeNanos;
+    }
+
+    public void setTimeNanos(long timeNanos) {
+        this.timeNanos = timeNanos;
     }
 }

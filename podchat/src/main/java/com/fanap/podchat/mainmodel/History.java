@@ -1,6 +1,6 @@
 package com.fanap.podchat.mainmodel;
 
-public class History  {
+public class History {
     private long id;
     private long firstMessageId;
     private long lastMessageId;
@@ -14,7 +14,7 @@ public class History  {
     private String query;
     private NosqlSearchMetadataCriteria metadataCriteria;
 
-    public History(Builder builder){
+    History(Builder builder) {
         this.count = builder.count;
         this.offset = builder.offset;
         this.order = builder.order;
@@ -29,7 +29,11 @@ public class History  {
         this.toTimeNanos = builder.toTimeNanos;
     }
 
-    public static class Builder{
+    private History() {
+
+    }
+
+    public static class Builder {
         private long offset;
         private long count;
         private String order;
@@ -43,71 +47,72 @@ public class History  {
         private long toTime;
         private long toTimeNanos;
 
-        public Builder id(long id){
+        public Builder id(long id) {
             this.id = id;
             return this;
         }
 
-        public Builder fromTime(long fromTime){
+        public Builder fromTime(long fromTime) {
             this.fromTime = fromTime;
             return this;
         }
 
-        public Builder fromTimeNanos(long fromTimeNanos){
+        public Builder fromTimeNanos(long fromTimeNanos) {
             this.fromTimeNanos = fromTimeNanos;
             return this;
         }
 
-        public Builder toTime(long toTime){
+        public Builder toTime(long toTime) {
             this.toTime = toTime;
             return this;
         }
 
 
-        public Builder toTimeNanos(long toTimeNanos){
+        public Builder toTimeNanos(long toTimeNanos) {
             this.toTimeNanos = toTimeNanos;
             return this;
         }
 
-        public Builder query(String query){
+        public Builder query(String query) {
             this.query = query;
             return this;
         }
 
-        public Builder metadataCriteria(NosqlSearchMetadataCriteria metadataCriteria){
+        public Builder metadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
             this.metadataCriteria = metadataCriteria;
             return this;
         }
 
-        public Builder offset(long offset){
-           this.offset = offset;
-           return this;
+        public Builder offset(long offset) {
+            this.offset = offset;
+            return this;
         }
 
-        public Builder count(long count){
+        public Builder count(long count) {
             this.count = count;
             return this;
         }
 
-        public Builder order(String order){
+        public Builder order(String order) {
             this.order = order;
             return this;
         }
 
-        public Builder firstMessageId(long firstMessageId){
+        public Builder firstMessageId(long firstMessageId) {
             this.firstMessageId = firstMessageId;
             return this;
         }
 
-        public Builder lastMessageId (long lastMessageId){
+        public Builder lastMessageId(long lastMessageId) {
             this.lastMessageId = lastMessageId;
             return this;
         }
 
-        public History build(){
+        public History build() {
             return new History(this);
         }
     }
+
     public long getFromTime() {
         return fromTime;
     }

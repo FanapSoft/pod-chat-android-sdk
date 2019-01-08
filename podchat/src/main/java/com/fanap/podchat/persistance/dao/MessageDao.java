@@ -53,50 +53,62 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertHistories(List<CacheMessageVO> messageVOS);
 
-    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY time DESC LIMIT :count OFFSET :offset")
+    /**
+     * String Query
+     * */
+    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY timeStamp DESC LIMIT :count OFFSET :offset")
     List<CacheMessageVO> getQueryDESC(long count, long offset, long threadVoId, String query);
 
-    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY time ASC LIMIT :count OFFSET :offset")
+    @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY timeStamp ASC LIMIT :count OFFSET :offset")
     List<CacheMessageVO> getQueryASC(long count, long offset, long threadVoId, String query);
 
-    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadId AND time IN (SELECT time FROM CacheMessageVO WHERE message LIKE '%' || :query || '%' ORDER BY time DESC LIMIT :count OFFSET :offset) ")
+    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadId AND timeStamp IN (SELECT timeStamp FROM CacheMessageVO WHERE message LIKE '%' || :query || '%' ORDER BY timeStamp DESC LIMIT :count OFFSET :offset) ")
     void deleteMessagesWithQueryDesc(long threadId, long count, long offset, String query);
 
-    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadId AND time IN (SELECT time FROM CacheMessageVO WHERE message LIKE '%' || :query || '%' ORDER BY time ASC LIMIT :count OFFSET :offset) ")
+    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadId AND timeStamp IN (SELECT timeStamp FROM CacheMessageVO WHERE message LIKE '%' || :query || '%' ORDER BY timeStamp ASC LIMIT :count OFFSET :offset) ")
     void deleteMessagesWithQueryAsc(long threadId, long count, long offset, String query);
 
-    @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time ASC LIMIT :count OFFSET :offset ")
+    /**
+     * Get history
+     * */
+
+    @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY timeStamp ASC LIMIT :count OFFSET :offset ")
     List<CacheMessageVO> getHistoriesASC(long count, long offset, long threadVoId);
-
-    @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND id >= :messageId ORDER BY time ASC LIMIT :count OFFSET :offset ")
-    List<CacheMessageVO> getHistoriesMessageIdASC(long count, long offset, long threadVoId, long messageId);
-
-    @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND id >= :messageId ORDER BY time DESC LIMIT :count OFFSET :offset ")
-    List<CacheMessageVO> getHistoriesMessageIdDESC(long count, long offset, long threadVoId, long messageId);
-
-    @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND id BETWEEN :firstMessageId AND :lastMessageId ORDER BY time ASC LIMIT :count OFFSET :offset ")
-    List<CacheMessageVO> getHistoriesFandLASC(long count, long offset, long threadVoId, long firstMessageId, long lastMessageId);
-
-    @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND id BETWEEN :firstMessageId AND :lastMessageId ORDER BY time DESC LIMIT :count OFFSET :offset ")
-    List<CacheMessageVO> getHistoriesFandLDESC(long count, long offset, long threadVoId, long firstMessageId, long lastMessageId);
 
     @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY time DESC LIMIT :count OFFSET :offset ")
     List<CacheMessageVO> getHistoriesDESC(long count, long offset, long threadVoId);
 
-    @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId AND time IN (select time from CacheMessageVO ORDER BY time ASC LIMIT :count OFFSET :offset )")
+    @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND timeStamp >= :timeStamp ORDER BY timeStamp ASC LIMIT :count OFFSET :offset ")
+    List<CacheMessageVO> getHistoriesMessageIdASC(long count, long offset, long threadVoId, long timeStamp);
+
+    @Query("select * from CacheMessageVO where  threadVoId = :threadVoId  AND timeStamp >= :timeStamp ORDER BY timeStamp DESC LIMIT :count OFFSET :offset ")
+    List<CacheMessageVO> getHistoriesMessageIdDESC(long count, long offset, long threadVoId, long timeStamp);
+
+    @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND id BETWEEN :fromTime AND :toTime ORDER BY timeStamp ASC LIMIT :count OFFSET :offset ")
+    List<CacheMessageVO> getHistoriesFandLASC(long count, long offset, long threadVoId, long fromTime, long toTime);
+
+    @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND id BETWEEN :fromTime AND :toTime ORDER BY timeStamp DESC LIMIT :count OFFSET :offset ")
+    List<CacheMessageVO> getHistoriesFandLDESC(long count, long offset, long threadVoId, long fromTime, long toTime);
+
+
+    /**
+     * Delete message
+     * */
+
+    @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId AND timeStamp IN (select timeStamp from CacheMessageVO ORDER BY timeStamp ASC LIMIT :count OFFSET :offset )")
     void deleteMessageAfterOffsetTime(long count, long offset, long threadVoId);
 
-    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadVoId  AND time IN(SELECT time FROM CacheMessageVO WHERE id BETWEEN :firstMessageId AND :lastMessageId ORDER BY time ASC)")
-    void deleteMessageBetweenLastAndFirstASC(long threadVoId, long firstMessageId, long lastMessageId);
+    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadVoId  AND timeStamp IN(SELECT time FROM CacheMessageVO WHERE id BETWEEN :fromTime AND :toTime ORDER BY timeStamp ASC)")
+    void deleteMessageBetweenLastAndFirstASC(long threadVoId, long fromTime, long toTime);
 
-    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadVoId  AND time IN(SELECT time FROM CacheMessageVO WHERE id BETWEEN :firstMessageId AND :lastMessageId ORDER BY time DESC)")
-    void deleteMessageBetweenLastAndFirstDESC(long threadVoId, long firstMessageId, long lastMessageId);
+    @Query("DELETE FROM CacheMessageVO WHERE threadVoId = :threadVoId  AND timeStamp IN(SELECT timeStamp FROM CacheMessageVO WHERE timeStamp BETWEEN :fromTime AND :toTime ORDER BY timeStamp DESC)")
+    void deleteMessageBetweenLastAndFirstDESC(long threadVoId, long fromTime, long toTime);
 
-    @Query("DELETE FROM cachemessagevo WHERE threadVoId = :threadVoId  AND time IN (SELECT time FROM CacheMessageVO WHERE id >= :firstMessageId ORDER BY time ASC LIMIT :count OFFSET :offset )")
-    void deleteMessageWithFirstMessageIdASC(long count, long offset, long threadVoId, long firstMessageId);
+    @Query("DELETE FROM cachemessagevo WHERE threadVoId = :threadVoId  AND timeStamp IN (SELECT timeStamp FROM CacheMessageVO WHERE timeStamp >= :fromTime ORDER BY timeStamp ASC LIMIT :count OFFSET :offset )")
+    void deleteMessageWithFirstMessageIdASC(long count, long offset, long threadVoId, long fromTime);
 
-    @Query("DELETE FROM cachemessagevo WHERE threadVoId = :threadVoId  AND time IN (SELECT time FROM CacheMessageVO WHERE id >=:firstMessageId ORDER BY time DESC LIMIT :count OFFSET :offset )")
-    void deleteMessageWithFirstMessageIdDESC(long count, long offset, long threadVoId, long firstMessageId);
+    @Query("DELETE FROM cachemessagevo WHERE threadVoId = :threadVoId  AND timeStamp IN (SELECT timeStamp FROM CacheMessageVO WHERE timeStamp >=:fromTime ORDER BY time DESC LIMIT :count OFFSET :offset )")
+    void deleteMessageWithFirstMessageIdDESC(long count, long offset, long threadVoId, long fromTime);
 
     @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId ")
     long getHistoryCount(long threadVoId);
@@ -104,8 +116,8 @@ public interface MessageDao {
     @Query("SELECT * FROM cachemessagevo WHERE id = :id ")
     List<CacheMessageVO> getMessage(long id);
 
-    @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId AND id BETWEEN :firstMessageId AND :lastMessageId")
-    long getHistoryCountWithLastAndFirtMSGId(long threadVoId, long lastMessageId, long firstMessageId);
+    @Query("SELECT COUNT(id) FROM CacheMessageVO WHERE threadVoId = :threadVoId AND id BETWEEN :fromTime AND :toTime")
+    long getHistoryCountWithLastAndFirtMSGId(long threadVoId, long fromTime, long toTime);
 
     //Cache userInfo
     @Insert(onConflict = REPLACE)

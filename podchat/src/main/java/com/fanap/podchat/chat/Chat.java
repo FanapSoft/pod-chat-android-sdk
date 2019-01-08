@@ -2152,6 +2152,10 @@ public class Chat extends AsyncAdapter {
         long lastMessageId = history.getLastMessageId();
         long firstMessageId = history.getFirstMessageId();
         long messageId = history.getId();
+        long toTime = history.getToTime();
+        long toTimeNanos = history.getToTimeNanos();
+        long fromTime = history.getFromTime();
+        long fromTimeNanos = history.getFromTimeNanos();
         if (Util.isNullOrEmpty(history.getOrder())) {
             order = "desc";
         }
@@ -2199,7 +2203,9 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-
+    /*firstMessageId is going to deprecated
+    * lastMessageId is going to deprecated
+    * */
     /**
      * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
      * order should be set with lower case
@@ -2253,7 +2259,6 @@ public class Chat extends AsyncAdapter {
         if (Util.isNullOrEmpty(fromTimeNanos)) {
             jObj.remove("fromTimeNanos");
         }
-
 
         if (Util.isNullOrEmpty(toTime)) {
             jObj.remove("toTime");

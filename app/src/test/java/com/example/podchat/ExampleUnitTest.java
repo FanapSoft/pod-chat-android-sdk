@@ -60,5 +60,14 @@ public class ExampleUnitTest {
         assertTrue(Util.isNullOrEmpty(0));
     }
 
+    @Test
+    public void addTimeToNanos(){
+        long time = 1546954441289L;
+        long timeNanos = 289391000;
+        long pow =(long) Math.pow(10,9);
+        long timestamp = ((time/1000)*pow)+timeNanos;
+
+        assertNotEquals(13351,1546954441289391000L);
+    }
 
 }

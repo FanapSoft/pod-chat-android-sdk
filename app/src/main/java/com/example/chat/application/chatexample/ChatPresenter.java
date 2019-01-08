@@ -77,7 +77,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         refWatcher.watch(chat);
 
         chat.addListener(this);
-//        chat.isCacheables(true);
+        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setExpireAmount(180);
