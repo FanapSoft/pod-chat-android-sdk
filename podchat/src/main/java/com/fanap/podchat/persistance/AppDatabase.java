@@ -13,10 +13,14 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
+import com.fanap.podchat.cachemodel.queue.FailedMessage;
+import com.fanap.podchat.cachemodel.queue.SendingMessage;
+import com.fanap.podchat.cachemodel.queue.UploadingMessage;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.persistance.dao.MessageDao;
+import com.fanap.podchat.persistance.dao.MessageQueueDao;
 
 @Database(entities = {
         CacheContact.class,
@@ -43,4 +47,6 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     public abstract MessageDao getMessageDao();
+
+//    public abstract MessageQueueDao getMessageQueueDao();
 }

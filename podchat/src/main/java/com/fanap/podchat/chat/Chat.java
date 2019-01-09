@@ -505,6 +505,7 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+
     }
 
     /**
@@ -512,9 +513,9 @@ public class Chat extends AsyncAdapter {
      *
      * @param textMessage  String that we want to sent to the thread
      * @param threadId     Id of the destination thread
-     * @param JsonMetaData It should be Json,if you don't have metaData you can set it to "null"
+     * @param JsonSystemMetadata It should be Json,if you don't have metaData you can set it to "null"
      */
-    public String sendTextMessage(String textMessage, long threadId, Integer messageType, String JsonMetaData
+    public String sendTextMessage(String textMessage, long threadId, Integer messageType, String JsonSystemMetadata
             , ChatHandler handler) {
 
         String asyncContent = null;
@@ -527,12 +528,9 @@ public class Chat extends AsyncAdapter {
             chatMessage.setType(Constants.MESSAGE);
             chatMessage.setTokenIssuer("1");
             chatMessage.setToken(getToken());
-            if (messageType != null) {
-                chatMessage.setMessageType(messageType);
-            }
 
-            if (JsonMetaData != null) {
-                chatMessage.setSystemMetadata(JsonMetaData);
+            if (JsonSystemMetadata != null) {
+                chatMessage.setSystemMetadata(JsonSystemMetadata);
             }
 
             chatMessage.setUniqueId(uniqueId);
@@ -546,6 +544,11 @@ public class Chat extends AsyncAdapter {
             } else {
                 jsonObject.remove("typeCode");
                 jsonObject.addProperty("typeCode", getTypeCode());
+            }
+            if (!Util.isNullOrEmpty(messageType)) {
+                jsonObject.addProperty("messageType", messageType);
+            } else {
+                jsonObject.remove("messageType");
             }
 
             asyncContent = jsonObject.toString();
@@ -567,43 +570,13 @@ public class Chat extends AsyncAdapter {
 
 
     public String sendTextMessage(RequestMessage requestMessage, ChatHandler handler) {
-        String asyncContent = null;
-        String uniqueId = null;
-        uniqueId = generateUniqueId();
-        if (chatReady) {
+        String textMessage = requestMessage.getTextMessage();
+        long threadId = requestMessage.getThreadId();
+        int messageType = requestMessage.getMessageType();
+        String jsonMetaData= requestMessage.getJsonMetaData();
 
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setContent(requestMessage.getTextMessage());
-            chatMessage.setType(Constants.MESSAGE);
-            chatMessage.setTokenIssuer("1");
-            chatMessage.setToken(getToken());
-            chatMessage.setUniqueId(uniqueId);
-            chatMessage.setTime(1000);
-            chatMessage.setSubjectId(requestMessage.getThreadId());
+        return sendTextMessage(textMessage, threadId, messageType,jsonMetaData,handler);
 
-            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-
-            if (!Util.isNullOrEmpty(requestMessage.getMessageType())) {
-                jsonObject.addProperty("messageType", requestMessage.getMessageType());
-            } else {
-                jsonObject.remove("messageType");
-            }
-
-            asyncContent = gson.toJson(chatMessage);
-            setThreadCallbacks(requestMessage.getThreadId(), uniqueId);
-
-            if (handler != null) {
-
-                handler.onSent(uniqueId, requestMessage.getThreadId());
-                handler.onSentResult(null);
-                handlerSend.put(uniqueId, handler);
-            }
-            sendAsyncMessage(asyncContent, 4, "SEND_TEXT_MESSAGE");
-        } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-            if (log) Logger.json(jsonError);
-        }
-        return uniqueId;
     }
 
     /**
@@ -2147,23 +2120,12 @@ public class Chat extends AsyncAdapter {
     public String getHistory(History history, long threadId, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
-        String order = history.getOrder();
-        String query = history.getQuery();
-        long lastMessageId = history.getLastMessageId();
-        long firstMessageId = history.getFirstMessageId();
-        long messageId = history.getId();
-        long toTime = history.getToTime();
-        long toTimeNanos = history.getToTimeNanos();
-        long fromTime = history.getFromTime();
-        long fromTimeNanos = history.getFromTimeNanos();
-        if (Util.isNullOrEmpty(history.getOrder())) {
-            order = "desc";
-        }
-        if (cache) {
-            if (messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order
-                    , lastMessageId, firstMessageId, messageId, query) != null) {
 
-                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history.getCount(), history.getOffset(), threadId, order, lastMessageId, firstMessageId, messageId, query);
+
+        if (cache) {
+            if (messageDatabaseHelper.getHistories(history, threadId) != null) {
+
+                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history, threadId);
                 long contentCount = messageDatabaseHelper.getHistoryContentCount(threadId);
 
                 ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
@@ -2203,9 +2165,11 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
     /*firstMessageId is going to deprecated
-    * lastMessageId is going to deprecated
-    * */
+     * lastMessageId is going to deprecated
+     * */
+
     /**
      * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
      * order should be set with lower case

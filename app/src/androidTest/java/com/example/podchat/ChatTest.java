@@ -14,13 +14,17 @@ import com.example.chat.application.chatexample.ChatPresenter;
 import com.example.chat.application.chatexample.ChatSandBoxActivity;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.util.JsonUtil;
+import com.google.gson.Gson;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +48,7 @@ public class ChatTest extends ChatAdapter{
     private Activity activity;
     private Context appContext;
 
-    private static String TOKEN = "c61fe4d8ebc442ef95c11deea8fb0d7a";
+    private static String TOKEN = "289d6bcb47474e899ff6c1defc3be511";
     private static String NAME = "SandBox";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
@@ -89,6 +93,28 @@ public class ChatTest extends ChatAdapter{
     public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
         super.onGetThread(content, thread);
 
+    }
+
+    @Test
+    @MediumTest
+    public void createThreadWuithMetaData(){
+        try {
+            Thread.sleep(7000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        Invitee[] invite = new Invitee[]{new Invitee(589, 2)
+                , new Invitee(1162, 2)
+                , new Invitee(2404, 2)
+//                        , new Invitee(824, 2)
+        };
+        Contact contac = new Contact();
+        contac.setLastName("mamadi");
+
+        String  metaData = JsonUtil.getJson(contac);
+        presenter.createThread(0,invite,null,null,null,metaData,null);
     }
 
     @Test

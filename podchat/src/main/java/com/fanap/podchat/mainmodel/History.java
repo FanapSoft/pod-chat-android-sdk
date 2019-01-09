@@ -2,8 +2,12 @@ package com.fanap.podchat.mainmodel;
 
 public class History {
     private long id;
+
+    @Deprecated
     private long firstMessageId;
+    @Deprecated
     private long lastMessageId;
+
     private long fromTime;
     private long fromTimeNanos;
     private long toTime;
@@ -14,7 +18,7 @@ public class History {
     private String query;
     private NosqlSearchMetadataCriteria metadataCriteria;
 
-    History(Builder builder) {
+    public History(Builder builder) {
         this.count = builder.count;
         this.offset = builder.offset;
         this.order = builder.order;
@@ -30,7 +34,6 @@ public class History {
     }
 
     private History() {
-
     }
 
     public static class Builder {
@@ -98,11 +101,13 @@ public class History {
             return this;
         }
 
+        @Deprecated
         public Builder firstMessageId(long firstMessageId) {
             this.firstMessageId = firstMessageId;
             return this;
         }
 
+        @Deprecated
         public Builder lastMessageId(long lastMessageId) {
             this.lastMessageId = lastMessageId;
             return this;
