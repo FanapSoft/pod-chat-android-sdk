@@ -1,10 +1,7 @@
 package com.fanap.podchat.persistance;
 
 import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverters;
-import android.content.Context;
 
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
@@ -13,9 +10,6 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.cachemodel.queue.FailedMessage;
-import com.fanap.podchat.cachemodel.queue.SendingMessage;
-import com.fanap.podchat.cachemodel.queue.UploadingMessage;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
@@ -33,20 +27,13 @@ import com.fanap.podchat.persistance.dao.MessageQueueDao;
         ConversationSummery.class,
         CacheMessageVO.class,
         ThreadVo.class
-}, version = 1, exportSchema = false)
+}, version = AppDatabase.VERSION
+        , exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
-    private static final String DATABASE_DB = "cache.db";
-    private static AppDatabase appDatabase;
-
-    public static AppDatabase getInstance(Context context) {
-        if (appDatabase == null) {
-            appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB).allowMainThreadQueries().build();
-        }
-        return appDatabase;
-    }
+    static final int VERSION = 1;
 
     public abstract MessageDao getMessageDao();
 
-//    public abstract MessageQueueDao getMessageQueueDao();
+    public abstract MessageQueueDao getMessageQueueDao();
 }

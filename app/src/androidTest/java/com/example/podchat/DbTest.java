@@ -5,10 +5,13 @@ import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
+import com.fanap.podchat.persistance.module.AppDatabaseModule;
+import com.fanap.podchat.persistance.module.AppModule;
+import com.fanap.podchat.persistance.module.DaggerMessageComponent;
 import com.fanap.podchat.util.Callback;
 
 import org.junit.Before;
@@ -19,17 +22,26 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 @RunWith(AndroidJUnit4.class)
 public class DbTest {
     private Context appContext;
-    private MessageDatabaseHelper messageDatabaseHelper;
+
+//    @Inject
+    public MessageDatabaseHelper messageDatabaseHelper;
 
     @Before
     public void setUp() {
         Looper.prepare();
         appContext = InstrumentationRegistry.getTargetContext();
+        Chat.init(appContext);
         MockitoAnnotations.initMocks(this);
-        messageDatabaseHelper = new MessageDatabaseHelper(appContext);
+//        DaggerMessageComponent.builder()
+//                .appDatabaseModule(new AppDatabaseModule(appContext))
+//                .appModule(new AppModule(appContext))
+//                .build()
+//                .inject(this);
     }
 
     @Test
@@ -80,11 +92,13 @@ public class DbTest {
                 "",
                 null,
                 13354321,
-                "",
+                321000000,
                 "",
                 null,
                 null,
+                null ,
                 null
+
         );
 
         List<CacheMessageVO> cacheMessageVOS = new ArrayList<>();
@@ -128,8 +142,9 @@ public class DbTest {
                 "",
                 null,
                 13354321,
+                321000000,
                 "",
-                "",
+                null,
                 null,
                 null,
                 null
@@ -165,8 +180,9 @@ public class DbTest {
                 "",
                 null,
                 13354321,
+                321000000,
                 "",
-                "",
+                null,
                 null,
                 null,
                 null
@@ -201,8 +217,9 @@ public class DbTest {
                 "",
                 null,
                 13354321,
+                321000000,
                 "",
-                "",
+                null,
                 null,
                 null,
                 null
@@ -240,8 +257,9 @@ public class DbTest {
                 "",
                 null,
                 13354321,
+                321000000,
                 "",
-                "",
+                null,
                 null,
                 null,
                 null

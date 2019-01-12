@@ -1,7 +1,5 @@
 package com.fanap.podchat.persistance;
 
-import android.content.Context;
-
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
@@ -9,6 +7,7 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
+import com.fanap.podchat.cachemodel.queue.SendingMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.LastMessageVO;
@@ -20,6 +19,7 @@ import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
+import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.Util;
 
@@ -31,13 +31,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MessageDatabaseHelper extends BaseDatabaseHelper {
+import javax.inject.Inject;
+
+public class MessageDatabaseHelper {
 
     private MessageDao messageDao;
+    private MessageQueueDao messageQueueDao;
 
-    public MessageDatabaseHelper(Context context) {
-        super(context);
-        messageDao = appDatabase.getMessageDao();
+    @Inject
+    public MessageDatabaseHelper(MessageDao messageDao,MessageQueueDao messageQueueDao) {
+        this.messageQueueDao = messageQueueDao;
+        this.messageDao = messageDao;
     }
 
     /**
@@ -114,6 +118,42 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
 
         messageDao.insertMessage(cacheMessageVO);
+    }
+
+    public void insertMessageQueue(String uniqueId,String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){
+        SendingMessage sendingMessage = new SendingMessage();
+
+        sendingMessage.setUniqueId(uniqueId);
+        sendingMessage.setMessage(textMessage);
+        sendingMessage.setThreadVoId(threadId);
+        sendingMessage.setMessageType(messageType);
+        sendingMessage.setSystemMetadata(jsonSystemMetadata);
+
+        messageQueueDao.insertMessageQueue(sendingMessage);
+    }
+
+    public void deleteMessageQueue(String uniqueId){
+        messageQueueDao.deleteMessageQueue(uniqueId);
+    }
+
+    public void insertWaitMessageQueue(String uniqueId, String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){
+        SendingMessage sendingMessage = new SendingMessage();
+
+        sendingMessage.setUniqueId(uniqueId);
+        sendingMessage.setMessage(textMessage);
+        sendingMessage.setThreadVoId(threadId);
+        sendingMessage.setMessageType(messageType);
+        sendingMessage.setSystemMetadata(jsonSystemMetadata);
+
+        messageQueueDao.insertWaitMessageQueue(sendingMessage);
+    }
+
+    public void deleteWaitQueueMsgs(String uniqueId){
+        messageQueueDao.deleteWaitMessageQueue(uniqueId);
+    }
+
+    public List<String> getUniqueIds(long threadId){
+        return messageQueueDao.getMsgQueueUniqueIds(threadId);
     }
 
     public void deleteMessage(long id) {

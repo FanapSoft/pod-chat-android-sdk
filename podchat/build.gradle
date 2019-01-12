@@ -67,10 +67,14 @@ dependencies {
     implementation 'android.arch.persistence.room:runtime:1.1.1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
 
+
+    implementation 'com.google.dagger:dagger:2.16'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.16'
+
     //logger
     api 'com.orhanobut:logger:2.2.0'
 
-    api  'com.fanap.podasync:podasync:0.2.3.1'
+    api 'com.fanap.podasync:podasync:0.2.3.1'
 }
 
 if (project.rootProject.file('local.properties').exists()) {

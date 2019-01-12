@@ -69,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "7e5464cb4e7c46bebdf4d15f16b99825";
+    private static String TOKEN = "e5961f8dece940b4af9f664fa9bf971a";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -544,10 +544,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         , new Invitee(2404, 2)
 //                        , new Invitee(824, 2)
                 };
-
+                Invitee invitee = new Invitee();
+                invitee.setId(25);
+                String json = JsonUtil.getJson(invitee);
                 String image = "https://core.pod.land/nzh/image/?imageId=17006&width=476&height=476&hashCode=1666eedb75b-0.7473066083939505";
                 presenter.createThread(0, invite, null, "masoud thread"
-                        , image, "poria", new ChatHandler() {
+                        , image, json, new ChatHandler() {
                             @Override
                             public void onCreateThread(String uniqueId) {
                                 super.onCreateThread(uniqueId);

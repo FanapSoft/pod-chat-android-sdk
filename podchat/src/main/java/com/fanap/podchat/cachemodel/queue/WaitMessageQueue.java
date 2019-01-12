@@ -1,16 +1,10 @@
 package com.fanap.podchat.cachemodel.queue;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
-import com.fanap.podchat.cachemodel.CacheForwardInfo;
-import com.fanap.podchat.cachemodel.CacheParticipant;
-import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
-import com.fanap.podchat.cachemodel.ThreadVo;
-
 @Entity
-public class SendingMessage {
+public class WaitMessageQueue {
 
     @PrimaryKey
     private String uniqueId;
@@ -30,32 +24,27 @@ public class SendingMessage {
     private boolean seen;
     private int messageType;
 
-
     private String message;
     private String metadata;
     private String systemMetadata;
 
-    @Ignore
-    private CacheParticipant participant;
-
     private Long participantId;
-
-    @Ignore
-    private ThreadVo conversation;
 
     private long conversationId;
 
     private Long threadVoId;
 
-    @Ignore
-    private CacheReplyInfoVO replyInfoVO;
-
     private Long replyInfoVOId;
 
-    @Ignore
-    private CacheForwardInfo forwardInfo;
-
     private Long forwardInfoId;
+
+    public String getUniqueId() {
+        return uniqueId;
+    }
+
+    public void setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
+    }
 
     public long getId() {
         return id;
@@ -145,14 +134,6 @@ public class SendingMessage {
         this.messageType = messageType;
     }
 
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
     public String getMessage() {
         return message;
     }
@@ -177,28 +158,12 @@ public class SendingMessage {
         this.systemMetadata = systemMetadata;
     }
 
-    public CacheParticipant getParticipant() {
-        return participant;
-    }
-
-    public void setParticipant(CacheParticipant participant) {
-        this.participant = participant;
-    }
-
     public Long getParticipantId() {
         return participantId;
     }
 
     public void setParticipantId(Long participantId) {
         this.participantId = participantId;
-    }
-
-    public ThreadVo getConversation() {
-        return conversation;
-    }
-
-    public void setConversation(ThreadVo conversation) {
-        this.conversation = conversation;
     }
 
     public long getConversationId() {
@@ -217,28 +182,12 @@ public class SendingMessage {
         this.threadVoId = threadVoId;
     }
 
-    public CacheReplyInfoVO getReplyInfoVO() {
-        return replyInfoVO;
-    }
-
-    public void setReplyInfoVO(CacheReplyInfoVO replyInfoVO) {
-        this.replyInfoVO = replyInfoVO;
-    }
-
     public Long getReplyInfoVOId() {
         return replyInfoVOId;
     }
 
     public void setReplyInfoVOId(Long replyInfoVOId) {
         this.replyInfoVOId = replyInfoVOId;
-    }
-
-    public CacheForwardInfo getForwardInfo() {
-        return forwardInfo;
-    }
-
-    public void setForwardInfo(CacheForwardInfo forwardInfo) {
-        this.forwardInfo = forwardInfo;
     }
 
     public Long getForwardInfoId() {

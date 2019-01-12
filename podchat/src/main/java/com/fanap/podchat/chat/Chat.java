@@ -99,6 +99,9 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
+import com.fanap.podchat.persistance.module.AppDatabaseModule;
+import com.fanap.podchat.persistance.module.AppModule;
+import com.fanap.podchat.persistance.module.DaggerMessageComponent;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -160,12 +163,15 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import javax.inject.Inject;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -193,7 +199,6 @@ public class Chat extends AsyncAdapter {
     private static Chat instance;
     private String platformHost;
     private static ChatListenerManager listenerManager;
-    private static MessageDatabaseHelper messageDatabaseHelper;
     private long userId;
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
@@ -227,6 +232,9 @@ public class Chat extends AsyncAdapter {
     private boolean checkToken = false;
     private boolean userInfoResponse = false;
 
+    @Inject
+    public MessageDatabaseHelper messageDatabaseHelper;
+
     private Chat() {
     }
 
@@ -243,7 +251,12 @@ public class Chat extends AsyncAdapter {
             instance.setContext(context);
             moshi = new Moshi.Builder().build();
             listenerManager = new ChatListenerManager();
-            messageDatabaseHelper = new MessageDatabaseHelper(context);
+
+            DaggerMessageComponent.builder()
+                    .appDatabaseModule(new AppDatabaseModule(context))
+                    .appModule(new AppModule(context))
+                    .build()
+                    .inject(instance);
         }
         return instance;
     }
@@ -422,7 +435,11 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.GET_HISTORY:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
+                if (callback == null) {
+                    handleRemoveFromWaitQueue(chatMessage);
+                } else {
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                }
                 break;
             case Constants.GET_STATUS:
                 break;
@@ -505,22 +522,36 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
 
+    /*
+    *  Its Remove messages from wait queue after the check in their exist
+    * */
+    private void handleRemoveFromWaitQueue(ChatMessage chatMessage) {
+
+        List<MessageVO> messageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
+        }.getType());
+
+        for (MessageVO messageVO : messageVOS) {
+            messageDatabaseHelper.deleteWaitQueueMsgs(messageVO.getUniqueId());
+        }
     }
 
     /**
      * Send text message to the thread
      *
-     * @param textMessage  String that we want to sent to the thread
-     * @param threadId     Id of the destination thread
-     * @param JsonSystemMetadata It should be Json,if you don't have metaData you can set it to "null"
+     * @param textMessage        String that we want to sent to the thread
+     * @param threadId           Id of the destination thread
+     * @param jsonSystemMetadata It should be Json,if you don't have metaData you can set it to "null"
      */
-    public String sendTextMessage(String textMessage, long threadId, Integer messageType, String JsonSystemMetadata
+    public String sendTextMessage(String textMessage, long threadId, Integer messageType, String jsonSystemMetadata
             , ChatHandler handler) {
 
         String asyncContent = null;
         String uniqueId;
         uniqueId = generateUniqueId();
+
+        messageDatabaseHelper.insertMessageQueue(uniqueId, textMessage, threadId, messageType, jsonSystemMetadata);
 
         if (chatReady) {
             ChatMessage chatMessage = new ChatMessage();
@@ -529,8 +560,8 @@ public class Chat extends AsyncAdapter {
             chatMessage.setTokenIssuer("1");
             chatMessage.setToken(getToken());
 
-            if (JsonSystemMetadata != null) {
-                chatMessage.setSystemMetadata(JsonSystemMetadata);
+            if (jsonSystemMetadata != null) {
+                chatMessage.setSystemMetadata(jsonSystemMetadata);
             }
 
             chatMessage.setUniqueId(uniqueId);
@@ -560,6 +591,8 @@ public class Chat extends AsyncAdapter {
                 handlerSend.put(uniqueId, handler);
             }
 
+            messageDatabaseHelper.deleteMessageQueue(uniqueId);
+            messageDatabaseHelper.insertWaitMessageQueue(uniqueId, textMessage, threadId, messageType, jsonSystemMetadata);
             sendAsyncMessage(asyncContent, 4, "SEND_TEXT_MESSAGE");
         } else {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -573,9 +606,9 @@ public class Chat extends AsyncAdapter {
         String textMessage = requestMessage.getTextMessage();
         long threadId = requestMessage.getThreadId();
         int messageType = requestMessage.getMessageType();
-        String jsonMetaData= requestMessage.getJsonMetaData();
+        String jsonMetaData = requestMessage.getJsonMetaData();
 
-        return sendTextMessage(textMessage, threadId, messageType,jsonMetaData,handler);
+        return sendTextMessage(textMessage, threadId, messageType, jsonMetaData, handler);
 
     }
 
@@ -2101,11 +2134,14 @@ public class Chat extends AsyncAdapter {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             if (log) Logger.e(jsonError);
         }
-
-
         return uniqueId;
     }
 
+
+    /**
+     *@deprecated firstMessageId is going to deprecate
+     *@deprecated lastMessageId is going to deprecate
+     * */
     /**
      * Get history of the thread
      * <p>
@@ -2166,9 +2202,45 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    /*firstMessageId is going to deprecated
-     * lastMessageId is going to deprecated
-     * */
+    /**
+     * We send uniqueIds of message from waitQueue to ensure all of them have been sent
+     */
+    private void checkMessagesValidation(long threadId) {
+
+        //if waitQueue has these messages then request getHistory and in onSent remove them from wait queue
+        // select on wait Queue
+        List<String> uniqueIds = messageDatabaseHelper.getUniqueIds(threadId);
+        if (!Util.isNullOrEmpty(uniqueIds)) {
+
+            String uniqueId = generateUniqueId();
+            Type uniqueIdsType = new TypeToken<ArrayList<String>>() {
+            }.getType();
+            String listUniqueIds = gson.toJson(uniqueIds, uniqueIdsType);
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(listUniqueIds);
+            chatMessage.setType(Constants.GET_HISTORY);
+            chatMessage.setToken(getToken());
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setUniqueId(uniqueId);
+            chatMessage.setSubjectId(threadId);
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+            if (Util.isNullOrEmpty(getTypeCode())) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.remove("typeCode");
+                jsonObject.addProperty("typeCode", getTypeCode());
+            }
+
+            String asyncContent = jsonObject.toString();
+
+            sendAsyncMessage(asyncContent, 3, "CHECK_HISTORY_MESSAGES");
+        }
+
+
+    }
 
     /**
      * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
@@ -3526,11 +3598,11 @@ public class Chat extends AsyncAdapter {
             }
 
             if (Util.isNullOrEmpty(systemMetadata)) {
-                chatThreadObject.remove("systemMetadata");
+                chatThreadObject.remove("Metadata");
 
             } else {
-                chatThreadObject.remove("systemMetadata");
-                chatThreadObject.addProperty("systemMetadata", systemMetadata);
+                chatThreadObject.remove("Metadata");
+                chatThreadObject.addProperty("Metadata", systemMetadata);
             }
             String contentThreadChat = chatThreadObject.toString();
 
