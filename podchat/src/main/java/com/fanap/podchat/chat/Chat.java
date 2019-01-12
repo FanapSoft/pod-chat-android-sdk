@@ -2139,8 +2139,8 @@ public class Chat extends AsyncAdapter {
 
 
     /**
-     *@deprecated firstMessageId is going to deprecate
-     *@deprecated lastMessageId is going to deprecate
+     * firstMessageId is going to deprecate
+     * lastMessageId is going to deprecate
      * */
     /**
      * Get history of the thread
@@ -4878,7 +4878,7 @@ public class Chat extends AsyncAdapter {
 
     //TODO Problem in message id in forwardMessage
     private void handleSent(ChatMessage chatMessage, String messageUniqueId, long threadId) {
-
+        messageDatabaseHelper.deleteWaitQueueMsgs(messageUniqueId);
         try {
             if (threadCallbacks.containsKey(threadId)) {
                 ArrayList<Callback> callbacks = threadCallbacks.get(threadId);

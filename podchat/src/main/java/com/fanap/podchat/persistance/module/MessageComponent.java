@@ -6,6 +6,7 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.persistance.AppDatabase;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.dao.MessageDao;
+import com.fanap.podchat.persistance.dao.MessageQueueDao;
 
 import javax.inject.Singleton;
 
@@ -18,6 +19,8 @@ public interface MessageComponent {
     void inject(Chat chat);
 
     MessageDao messageDao();
+
+    MessageQueueDao MessageQueueDao();
 
     AppDatabase appDatabase();
 

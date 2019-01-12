@@ -12,9 +12,9 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 @Entity
 public class SendingMessage {
 
-    @PrimaryKey
     private String uniqueId;
 
+    @PrimaryKey(autoGenerate = true)
     private long id;
     private long previousId;
 

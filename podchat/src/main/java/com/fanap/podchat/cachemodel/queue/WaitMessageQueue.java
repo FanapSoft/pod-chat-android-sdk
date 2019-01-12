@@ -6,9 +6,9 @@ import android.arch.persistence.room.PrimaryKey;
 @Entity
 public class WaitMessageQueue {
 
-    @PrimaryKey
     private String uniqueId;
 
+    @PrimaryKey(autoGenerate = true)
     private long id;
     private long previousId;
 

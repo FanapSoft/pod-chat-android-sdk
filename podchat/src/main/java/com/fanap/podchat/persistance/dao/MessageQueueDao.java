@@ -15,13 +15,13 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 public interface MessageQueueDao {
 
     @Insert(onConflict = REPLACE)
-    void insertMessageQueue(SendingMessage sendingMessage);
+    void insertSendingMessageQueue(SendingMessage sendingMessage);
 
     @Insert(onConflict = REPLACE)
     void insertWaitMessageQueue(SendingMessage sendingMessage);
 
     @Query("DELETE FROM SendingMessage WHERE uniqueId = :uniqueId")
-    void deleteMessageQueue(String uniqueId);
+    void deleteSendingMessageQueue(String uniqueId);
 
     @Query("SELECT uniqueId FROM WaitMessageQueue WHERE threadVoId = :threadId")
     List<String> getMsgQueueUniqueIds(long threadId);

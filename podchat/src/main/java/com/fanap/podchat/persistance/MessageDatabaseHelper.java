@@ -129,11 +129,11 @@ public class MessageDatabaseHelper {
         sendingMessage.setMessageType(messageType);
         sendingMessage.setSystemMetadata(jsonSystemMetadata);
 
-        messageQueueDao.insertMessageQueue(sendingMessage);
+        messageQueueDao.insertSendingMessageQueue(sendingMessage);
     }
 
     public void deleteMessageQueue(String uniqueId){
-        messageQueueDao.deleteMessageQueue(uniqueId);
+        messageQueueDao.deleteSendingMessageQueue(uniqueId);
     }
 
     public void insertWaitMessageQueue(String uniqueId, String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){

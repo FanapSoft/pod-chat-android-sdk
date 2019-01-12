@@ -37,6 +37,12 @@ public class AppDatabaseModule {
 
     @Singleton
     @Provides
+    MessageQueueDao messageQueueDao(AppDatabase appDatabase){
+        return appDatabase.getMessageQueueDao();
+    }
+
+    @Singleton
+    @Provides
     MessageDatabaseHelper messageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao) {
         return new MessageDatabaseHelper(messageDao, messageQueueDao);
     }
