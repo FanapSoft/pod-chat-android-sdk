@@ -1,16 +1,18 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.Contact;
+
 import java.util.List;
 
 public class ResultUpdateContact {
-    private List<ResultContacts> contacts ;
+    private List<Contact> contacts ;
     private long contentCount;
 
-    public List<ResultContacts> getContacts() {
+    public List<Contact> getContacts() {
         return contacts;
     }
 
-    public void setContacts(List<ResultContacts> contacts) {
+    public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
     }
 

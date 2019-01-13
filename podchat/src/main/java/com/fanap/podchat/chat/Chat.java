@@ -525,15 +525,16 @@ public class Chat extends AsyncAdapter {
     }
 
     /*
-    *  Its Remove messages from wait queue after the check in their exist
-    * */
+     *  Its Remove messages from wait queue after the check in their exist
+     * */
     private void handleRemoveFromWaitQueue(ChatMessage chatMessage) {
+        if (cache) {
+            List<MessageVO> messageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
+            }.getType());
 
-        List<MessageVO> messageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
-        }.getType());
-
-        for (MessageVO messageVO : messageVOS) {
-            messageDatabaseHelper.deleteWaitQueueMsgs(messageVO.getUniqueId());
+            for (MessageVO messageVO : messageVOS) {
+                messageDatabaseHelper.deleteWaitQueueMsgs(messageVO.getUniqueId());
+            }
         }
     }
 
@@ -551,7 +552,9 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
 
-        messageDatabaseHelper.insertMessageQueue(uniqueId, textMessage, threadId, messageType, jsonSystemMetadata);
+        if (cache) {
+            messageDatabaseHelper.insertMessageQueue(uniqueId, textMessage, threadId, messageType, jsonSystemMetadata);
+        }
 
         if (chatReady) {
             ChatMessage chatMessage = new ChatMessage();
@@ -591,8 +594,12 @@ public class Chat extends AsyncAdapter {
                 handlerSend.put(uniqueId, handler);
             }
 
-            messageDatabaseHelper.deleteMessageQueue(uniqueId);
-            messageDatabaseHelper.insertWaitMessageQueue(uniqueId, textMessage, threadId, messageType, jsonSystemMetadata);
+            if (cache) {
+
+                messageDatabaseHelper.deleteMessageQueue(uniqueId);
+                messageDatabaseHelper.insertWaitMessageQueue(uniqueId, textMessage, threadId, messageType, jsonSystemMetadata);
+
+            }
             sendAsyncMessage(asyncContent, 4, "SEND_TEXT_MESSAGE");
         } else {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -1773,11 +1780,11 @@ public class Chat extends AsyncAdapter {
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
 
-            if (Util.isNullOrEmpty(metaData)) {
-                jsonObject.remove("metadata");
+            if (Util.isNullOrEmpty(systemMetaData)) {
+                jsonObject.remove("systemMetaData");
             } else {
-                jsonObject.remove("metadata");
-                jsonObject.addProperty("metadata", metaData);
+                jsonObject.remove("systemMetaData");
+                jsonObject.addProperty("systemMetaData", systemMetaData);
             }
 
             if (Util.isNullOrEmpty(getTypeCode())) {
@@ -2861,6 +2868,11 @@ public class Chat extends AsyncAdapter {
 
                         String json = gson.toJson(chatResponse);
                         listenerManager.callOnUpdateContact(json, chatResponse);
+
+                        if (cache) {
+                            messageDatabaseHelper.saveContact(updateContact.getResult().get(0), getExpireAmount());
+                        }
+
                         if (log) Logger.json(json);
                         if (log) Logger.i("RECEIVE_UPDATE_CONTACT");
                     } else {
@@ -3571,7 +3583,7 @@ public class Chat extends AsyncAdapter {
      * int CHANNEL = 8;
      */
     public String createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
-            , String systemMetadata, ChatHandler handler) {
+            , String metadata, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
@@ -3597,12 +3609,12 @@ public class Chat extends AsyncAdapter {
                 chatThreadObject.addProperty("image", image);
             }
 
-            if (Util.isNullOrEmpty(systemMetadata)) {
-                chatThreadObject.remove("Metadata");
+            if (Util.isNullOrEmpty(metadata)) {
+                chatThreadObject.remove("metadata");
 
             } else {
-                chatThreadObject.remove("Metadata");
-                chatThreadObject.addProperty("Metadata", systemMetadata);
+                chatThreadObject.remove("metadata");
+                chatThreadObject.addProperty("metadata", metadata);
             }
             String contentThreadChat = chatThreadObject.toString();
 
@@ -4338,8 +4350,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    //TODO Change MetaData to SystemMetaData
-
     /**
      * Message can be edit when you pass the message id and the edited
      * content in order to edit your Message.
@@ -4444,6 +4454,15 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String getMessageDeliveredList(RequestDeliveredMessageList requestParams) {
+        return deliveredMessageList(requestParams);
+    }
+
+    public String getMessageSeenList(RequestSeenMessageList requestParams) {
+        return seenMessageList(requestParams);
+    }
+
+    @Deprecated
     public String deliveredMessageList(RequestDeliveredMessageList requestParams) {
 
         String uniqueId;
@@ -4496,6 +4515,7 @@ public class Chat extends AsyncAdapter {
     }
 
     //Get the list of the participants that saw the specific message
+    @Deprecated
     public String seenMessageList(RequestSeenMessageList requestParams) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -4878,7 +4898,9 @@ public class Chat extends AsyncAdapter {
 
     //TODO Problem in message id in forwardMessage
     private void handleSent(ChatMessage chatMessage, String messageUniqueId, long threadId) {
-        messageDatabaseHelper.deleteWaitQueueMsgs(messageUniqueId);
+        if (cache) {
+            messageDatabaseHelper.deleteWaitQueueMsgs(messageUniqueId);
+        }
         try {
             if (threadCallbacks.containsKey(threadId)) {
                 ArrayList<Callback> callbacks = threadCallbacks.get(threadId);

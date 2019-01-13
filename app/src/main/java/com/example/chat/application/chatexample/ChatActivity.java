@@ -514,7 +514,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Mahdi", "Kani", "09122564755", "min" + new Date().getTime());
+                presenter.addContact("Maziar ", "Shahsavari", "09125564755", "min" + new Date().getTime());
                 break;
             case 15:
                 // remove contact
@@ -522,7 +522,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
-                presenter.updateContact(571, "Fel", "", "", "devfelfel@gmail.com"
+                presenter.updateContact(2795, "Maziar", "Shahsavari", "", "devfelfel@gmail.com"
                 );
         }
     }
