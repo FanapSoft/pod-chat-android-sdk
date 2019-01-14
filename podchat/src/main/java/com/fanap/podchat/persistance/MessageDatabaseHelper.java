@@ -8,6 +8,7 @@ import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingMessage;
+import com.fanap.podchat.cachemodel.queue.WaitMessageQueue;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.LastMessageVO;
@@ -120,7 +121,7 @@ public class MessageDatabaseHelper {
         messageDao.insertMessage(cacheMessageVO);
     }
 
-    public void insertMessageQueue(String uniqueId,String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){
+    public void insertSendingMessageQueue(String uniqueId, String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){
         SendingMessage sendingMessage = new SendingMessage();
 
         sendingMessage.setUniqueId(uniqueId);
@@ -135,6 +136,8 @@ public class MessageDatabaseHelper {
     public void deleteMessageQueue(String uniqueId){
         messageQueueDao.deleteSendingMessageQueue(uniqueId);
     }
+
+
 
     public void insertWaitMessageQueue(String uniqueId, String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){
         SendingMessage sendingMessage = new SendingMessage();
@@ -152,8 +155,10 @@ public class MessageDatabaseHelper {
         messageQueueDao.deleteWaitMessageQueue(uniqueId);
     }
 
-    public List<String> getUniqueIds(long threadId){
-        return messageQueueDao.getMsgQueueUniqueIds(threadId);
+
+
+    public List<WaitMessageQueue> getWaitQueueMsg(long threadId){
+        return messageQueueDao.getWaitQueueMsg(threadId);
     }
 
     public void deleteMessage(long id) {

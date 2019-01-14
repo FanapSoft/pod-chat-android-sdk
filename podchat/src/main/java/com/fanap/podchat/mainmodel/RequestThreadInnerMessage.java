@@ -11,7 +11,6 @@ public class RequestThreadInnerMessage {
     private String systemMetadata;
     private List<Long> forwardedMessageIds;
 
-
     public RequestThreadInnerMessage(Builder builder){
         this.text = builder.text;
         this.type = builder.type;

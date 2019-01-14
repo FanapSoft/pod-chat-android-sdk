@@ -5,6 +5,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
 import com.fanap.podchat.cachemodel.queue.SendingMessage;
+import com.fanap.podchat.cachemodel.queue.WaitMessageQueue;
 
 
 import java.util.List;
@@ -23,8 +24,8 @@ public interface MessageQueueDao {
     @Query("DELETE FROM SendingMessage WHERE uniqueId = :uniqueId")
     void deleteSendingMessageQueue(String uniqueId);
 
-    @Query("SELECT uniqueId FROM WaitMessageQueue WHERE threadVoId = :threadId")
-    List<String> getMsgQueueUniqueIds(long threadId);
+    @Query("SELECT * FROM WaitMessageQueue WHERE threadVoId = :threadId ORDER by id DESC ")
+    List<WaitMessageQueue> getWaitQueueMsg(long threadId);
 
     @Query("DELETE FROM waitmessagequeue WHERE uniqueId = :uniqueId")
     void deleteWaitMessageQueue(String uniqueId);
