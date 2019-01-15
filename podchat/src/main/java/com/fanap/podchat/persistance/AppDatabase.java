@@ -2,6 +2,7 @@ package com.fanap.podchat.persistance;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.TypeConverters;
 
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
@@ -10,8 +11,8 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.cachemodel.queue.SendingMessage;
-import com.fanap.podchat.cachemodel.queue.WaitMessageQueue;
+import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.WaitQueue;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
@@ -29,11 +30,12 @@ import com.fanap.podchat.persistance.dao.MessageQueueDao;
         ConversationSummery.class,
         CacheMessageVO.class,
         ThreadVo.class,
-        WaitMessageQueue.class,
-        SendingMessage.class
+        WaitQueue.class,
+        SendingQueue.class
 
 }, version = AppDatabase.VERSION
         , exportSchema = false)
+@TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
     static final int VERSION = 1;

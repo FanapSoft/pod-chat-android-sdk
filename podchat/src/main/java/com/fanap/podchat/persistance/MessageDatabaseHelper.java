@@ -7,8 +7,8 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.cachemodel.queue.SendingMessage;
-import com.fanap.podchat.cachemodel.queue.WaitMessageQueue;
+import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.WaitQueue;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.LastMessageVO;
@@ -121,43 +121,55 @@ public class MessageDatabaseHelper {
         messageDao.insertMessage(cacheMessageVO);
     }
 
-    public void insertSendingMessageQueue(String uniqueId, String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){
-        SendingMessage sendingMessage = new SendingMessage();
+    public void insertSendingMessageQueue(SendingQueue sendingQueue){
 
-        sendingMessage.setUniqueId(uniqueId);
-        sendingMessage.setMessage(textMessage);
-        sendingMessage.setThreadVoId(threadId);
-        sendingMessage.setMessageType(messageType);
-        sendingMessage.setSystemMetadata(jsonSystemMetadata);
+        sendingQueue.setUniqueId(sendingQueue.getUniqueId());
+        sendingQueue.setMessage(sendingQueue.getMessage());
+        sendingQueue.setThreadVoId(sendingQueue.getThreadVoId());
+        sendingQueue.setMessageType(sendingQueue.getMessageType());
+        sendingQueue.setSystemMetadata(sendingQueue.getSystemMetadata());
+        sendingQueue.setMessageIds(sendingQueue.getMessageIds());
+        sendingQueue.setReplyInfoVOId(sendingQueue.getReplyInfoVOId());
 
-        messageQueueDao.insertSendingMessageQueue(sendingMessage);
+        messageQueueDao.insertSendingMessageQueue(sendingQueue);
     }
 
-    public void deleteMessageQueue(String uniqueId){
+    public void deleteSendingMessageQueue(String uniqueId){
         messageQueueDao.deleteSendingMessageQueue(uniqueId);
     }
 
+    public void insertWaitMessageQueue(SendingQueue sendingQueue){
+        WaitQueue waitMessageQueue = new WaitQueue();
 
+        waitMessageQueue.setUniqueId(sendingQueue.getUniqueId());
+        waitMessageQueue.setMessage(sendingQueue.getMessage());
+        waitMessageQueue.setThreadVoId(sendingQueue.getThreadVoId());
+        waitMessageQueue.setMessageType(sendingQueue.getMessageType());
+        waitMessageQueue.setSystemMetadata(sendingQueue.getSystemMetadata());
+        waitMessageQueue.setForwardId(sendingQueue.getForwardId());
+        waitMessageQueue.setForwardUniqueIds(sendingQueue.getForwardUniqueIds());
+        waitMessageQueue.setMetadata(sendingQueue.getMetadata());
+        waitMessageQueue.setTime(sendingQueue.getTime());
+        waitMessageQueue.setTimeNanos(sendingQueue.getTimeNanos());
+        waitMessageQueue.setParticipantId(sendingQueue.getParticipantId());
+        waitMessageQueue.setPreviousId(sendingQueue.getPreviousId());
 
-    public void insertWaitMessageQueue(String uniqueId, String textMessage, long threadId, Integer messageType, String jsonSystemMetadata){
-        SendingMessage sendingMessage = new SendingMessage();
-
-        sendingMessage.setUniqueId(uniqueId);
-        sendingMessage.setMessage(textMessage);
-        sendingMessage.setThreadVoId(threadId);
-        sendingMessage.setMessageType(messageType);
-        sendingMessage.setSystemMetadata(jsonSystemMetadata);
-
-        messageQueueDao.insertWaitMessageQueue(sendingMessage);
+        messageQueueDao.insertWaitMessageQueue(waitMessageQueue);
     }
 
     public void deleteWaitQueueMsgs(String uniqueId){
         messageQueueDao.deleteWaitMessageQueue(uniqueId);
     }
 
+    public List<WaitQueue> getAllWaitQueueMsg(){
+        return messageQueueDao.getAllWaitQueueMsg();
+    }
 
+    public List<SendingQueue> getAllSendingQueue(){
+        return messageQueueDao.getAllSendingQueue();
+    }
 
-    public List<WaitMessageQueue> getWaitQueueMsg(long threadId){
+    public List<WaitQueue> getWaitQueueMsg(long threadId){
         return messageQueueDao.getWaitQueueMsg(threadId);
     }
 

@@ -4,8 +4,8 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
-import com.fanap.podchat.cachemodel.queue.SendingMessage;
-import com.fanap.podchat.cachemodel.queue.WaitMessageQueue;
+import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.WaitQueue;
 
 
 import java.util.List;
@@ -15,18 +15,31 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 @Dao
 public interface MessageQueueDao {
 
+    /**Sending Queue*/
     @Insert(onConflict = REPLACE)
-    void insertSendingMessageQueue(SendingMessage sendingMessage);
+    void insertSendingMessageQueue(SendingQueue sendingQueue);
 
-    @Insert(onConflict = REPLACE)
-    void insertWaitMessageQueue(SendingMessage sendingMessage);
-
-    @Query("DELETE FROM SendingMessage WHERE uniqueId = :uniqueId")
+    @Query("DELETE FROM SendingQueue WHERE uniqueId = :uniqueId")
     void deleteSendingMessageQueue(String uniqueId);
 
-    @Query("SELECT * FROM WaitMessageQueue WHERE threadVoId = :threadId ORDER by id DESC ")
-    List<WaitMessageQueue> getWaitQueueMsg(long threadId);
+    @Query("SELECT * FROM SendingQueue ORDER by id DESC")
+    List<SendingQueue> getAllSendingQueue();
 
-    @Query("DELETE FROM waitmessagequeue WHERE uniqueId = :uniqueId")
+    /**Wait Queue*/
+    @Insert(onConflict = REPLACE)
+    void insertWaitMessageQueue(WaitQueue waitMessageQueue);
+
+    @Query("SELECT * FROM WaitQueue WHERE threadVoId = :threadId ORDER by id DESC ")
+    List<WaitQueue> getWaitQueueMsg(long threadId);
+
+    @Query("SELECT * FROM WaitQueue ORDER by id DESC ")
+    List<WaitQueue> getAllWaitQueueMsg();
+
+    @Query("DELETE FROM WaitQueue WHERE uniqueId = :uniqueId")
     void deleteWaitMessageQueue(String uniqueId);
+
+    /**Upload Queue*/
+
+
+
 }
