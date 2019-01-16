@@ -283,7 +283,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType) {
-        chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, messageType);
+        chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, messageType,);
     }
 
     @Override
@@ -379,6 +379,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
         chat.uploadImageProgress(context, activity, fileUri, handler);
+
     }
 
 

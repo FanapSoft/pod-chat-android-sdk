@@ -8,6 +8,7 @@ import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.UploadingQueue;
 import com.fanap.podchat.cachemodel.queue.WaitQueue;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
@@ -40,7 +41,7 @@ public class MessageDatabaseHelper {
     private MessageQueueDao messageQueueDao;
 
     @Inject
-    public MessageDatabaseHelper(MessageDao messageDao,MessageQueueDao messageQueueDao) {
+    public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao) {
         this.messageQueueDao = messageQueueDao;
         this.messageDao = messageDao;
     }
@@ -121,7 +122,7 @@ public class MessageDatabaseHelper {
         messageDao.insertMessage(cacheMessageVO);
     }
 
-    public void insertSendingMessageQueue(SendingQueue sendingQueue){
+    public void insertSendingMessageQueue(SendingQueue sendingQueue) {
 
         sendingQueue.setUniqueId(sendingQueue.getUniqueId());
         sendingQueue.setMessage(sendingQueue.getMessage());
@@ -134,11 +135,11 @@ public class MessageDatabaseHelper {
         messageQueueDao.insertSendingMessageQueue(sendingQueue);
     }
 
-    public void deleteSendingMessageQueue(String uniqueId){
+    public void deleteSendingMessageQueue(String uniqueId) {
         messageQueueDao.deleteSendingMessageQueue(uniqueId);
     }
 
-    public void insertWaitMessageQueue(SendingQueue sendingQueue){
+    public void insertWaitMessageQueue(SendingQueue sendingQueue) {
         WaitQueue waitMessageQueue = new WaitQueue();
 
         waitMessageQueue.setUniqueId(sendingQueue.getUniqueId());
@@ -157,20 +158,28 @@ public class MessageDatabaseHelper {
         messageQueueDao.insertWaitMessageQueue(waitMessageQueue);
     }
 
-    public void deleteWaitQueueMsgs(String uniqueId){
+    public void deleteWaitQueueMsgs(String uniqueId) {
         messageQueueDao.deleteWaitMessageQueue(uniqueId);
     }
 
-    public List<WaitQueue> getAllWaitQueueMsg(){
+    public List<WaitQueue> getAllWaitQueueMsg() {
         return messageQueueDao.getAllWaitQueueMsg();
     }
 
-    public List<SendingQueue> getAllSendingQueue(){
+    public List<SendingQueue> getAllSendingQueue() {
         return messageQueueDao.getAllSendingQueue();
     }
 
-    public List<WaitQueue> getWaitQueueMsg(long threadId){
+    public List<WaitQueue> getWaitQueueMsg(long threadId) {
         return messageQueueDao.getWaitQueueMsg(threadId);
+    }
+
+    /*
+     * Uploading Queue
+     * */
+
+    public void insertUploadingQueue(UploadingQueue uploadingQueue) {
+        messageQueueDao.insertUploadingQueue(uploadingQueue);
     }
 
     public void deleteMessage(long id) {
@@ -355,7 +364,7 @@ public class MessageDatabaseHelper {
 
             } else if (messageVOS.size() == 1) {
                 if (getHistories(history, threadId).size() > 1) {
-                    messageDao.deleteMessageWithFirstMessageIdASC(count,offset, threadId,fromTime);
+                    messageDao.deleteMessageWithFirstMessageIdASC(count, offset, threadId, fromTime);
                     saveMessage(cMessageVOS.get(0), threadId);
                 }
 
@@ -1399,5 +1408,6 @@ public class MessageDatabaseHelper {
         }
         return contacts;
     }
+
 
 }

@@ -5,6 +5,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
 import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.UploadingQueue;
 import com.fanap.podchat.cachemodel.queue.WaitQueue;
 
 
@@ -15,7 +16,11 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 @Dao
 public interface MessageQueueDao {
 
-    /**Sending Queue*/
+    /**
+     *
+     * Sending Queue
+     *
+     */
     @Insert(onConflict = REPLACE)
     void insertSendingMessageQueue(SendingQueue sendingQueue);
 
@@ -25,7 +30,11 @@ public interface MessageQueueDao {
     @Query("SELECT * FROM SendingQueue ORDER by id DESC")
     List<SendingQueue> getAllSendingQueue();
 
-    /**Wait Queue*/
+    /**
+     *
+     * Wait Queue
+     *
+     */
     @Insert(onConflict = REPLACE)
     void insertWaitMessageQueue(WaitQueue waitMessageQueue);
 
@@ -38,8 +47,22 @@ public interface MessageQueueDao {
     @Query("DELETE FROM WaitQueue WHERE uniqueId = :uniqueId")
     void deleteWaitMessageQueue(String uniqueId);
 
-    /**Upload Queue*/
+    /**
+     *
+     * Uploading Queue
+     *
+     */
 
+    @Insert(onConflict = REPLACE)
+    void insertUploadingQueue(UploadingQueue uploadingQueue);
 
+    @Query("DELETE FROM UploadingQueue WHERE uniqueId = :uniqueId")
+    void deleteUploadingQueue(String uniqueId);
+
+    @Query("SELECT * FROM uploadingqueue ORDER by id DESC")
+    List<UploadingQueue> getAllUploadingQueue();
+
+    @Query("SELECT * FROM uploadingqueue WHERE threadVoId = :threadId ORDER by id DESC ")
+    List<UploadingQueue> getAllUploadingQueueByThreadId(long threadId);
 
 }

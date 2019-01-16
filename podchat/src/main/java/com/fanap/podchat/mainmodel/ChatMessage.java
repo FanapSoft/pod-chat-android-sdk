@@ -63,7 +63,6 @@ public class ChatMessage {
         this.time = time;
     }
 
-
     public long getRepliedTo() {
         return repliedTo;
     }
