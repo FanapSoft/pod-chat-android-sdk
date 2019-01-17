@@ -1,6 +1,11 @@
 package com.fanap.podchat.model;
 
 
+import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.UploadingQueue;
+import com.fanap.podchat.cachemodel.queue.WaitQueue;
+import com.fanap.podchat.mainmodel.MessageVO;
+
 import java.util.List;
 
 public class ResultHistory {
@@ -9,6 +14,12 @@ public class ResultHistory {
     private long contentCount;
     private boolean hasNext;
     private long nextOffset;
+
+    private List<SendingQueue> sendingQueue;
+
+    private List<WaitQueue> failedQueue;
+
+    private List<UploadingQueue> uploadingQueue;
 
     public long getContentCount() {
         return contentCount;
@@ -40,5 +51,29 @@ public class ResultHistory {
 
     public void setHistory(List<MessageVO> history) {
         this.history = history;
+    }
+
+    public List<SendingQueue> getSendingQueue() {
+        return sendingQueue;
+    }
+
+    public void setSendingQueue(List<SendingQueue> sendingQueue) {
+        this.sendingQueue = sendingQueue;
+    }
+
+    public List<WaitQueue> getFailedQueue() {
+        return failedQueue;
+    }
+
+    public void setFailedQueue(List<WaitQueue> failedQueue) {
+        this.failedQueue = failedQueue;
+    }
+
+    public List<UploadingQueue> getUploadingQueue() {
+        return uploadingQueue;
+    }
+
+    public void setUploadingQueue(List<UploadingQueue> uploadingQueue) {
+        this.uploadingQueue = uploadingQueue;
     }
 }

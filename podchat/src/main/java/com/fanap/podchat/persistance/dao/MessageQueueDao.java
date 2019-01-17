@@ -4,10 +4,9 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
-import com.fanap.podchat.cachemodel.queue.SendingQueue;
-import com.fanap.podchat.cachemodel.queue.UploadingQueue;
-import com.fanap.podchat.cachemodel.queue.WaitQueue;
-
+import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
+import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
+import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 
 import java.util.List;
 
@@ -17,52 +16,50 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 public interface MessageQueueDao {
 
     /**
-     *
      * Sending Queue
-     *
      */
     @Insert(onConflict = REPLACE)
-    void insertSendingMessageQueue(SendingQueue sendingQueue);
+    void insertSendingMessageQueue(SendingQueueCache sendingQueueCache);
 
-    @Query("DELETE FROM SendingQueue WHERE uniqueId = :uniqueId")
+    @Query("DELETE FROM SendingQueueCache WHERE uniqueId = :uniqueId")
     void deleteSendingMessageQueue(String uniqueId);
 
-    @Query("SELECT * FROM SendingQueue ORDER by id DESC")
-    List<SendingQueue> getAllSendingQueue();
+    @Query("SELECT * FROM SendingQueueCache ORDER by QueueId DESC")
+    List<SendingQueueCache> getAllSendingQueue();
+
+
+    @Query("SELECT * FROM SendingQueueCache WHERE threadId = :threadId ORDER by QueueId DESC")
+    List<SendingQueueCache> getAllSendingQueueByThredId(long threadId);
 
     /**
-     *
      * Wait Queue
-     *
      */
     @Insert(onConflict = REPLACE)
-    void insertWaitMessageQueue(WaitQueue waitMessageQueue);
+    void insertWaitMessageQueue(WaitQueueCache waitQueueCache);
 
-    @Query("SELECT * FROM WaitQueue WHERE threadVoId = :threadId ORDER by id DESC ")
-    List<WaitQueue> getWaitQueueMsg(long threadId);
+    @Query("SELECT * FROM WaitQueueCache WHERE threadId = :threadId ORDER by QueueId DESC ")
+    List<WaitQueueCache> getWaitQueueMsg(long threadId);
 
-    @Query("SELECT * FROM WaitQueue ORDER by id DESC ")
-    List<WaitQueue> getAllWaitQueueMsg();
+    @Query("SELECT * FROM WaitQueueCache ORDER by QueueId DESC ")
+    List<WaitQueueCache> getAllWaitQueueMsg();
 
-    @Query("DELETE FROM WaitQueue WHERE uniqueId = :uniqueId")
+    @Query("DELETE FROM WaitQueueCache WHERE uniqueId = :uniqueId")
     void deleteWaitMessageQueue(String uniqueId);
 
     /**
-     *
      * Uploading Queue
-     *
      */
 
     @Insert(onConflict = REPLACE)
-    void insertUploadingQueue(UploadingQueue uploadingQueue);
+    void insertUploadingQueue(UploadingQueueCache uploadingQueueCache);
 
-    @Query("DELETE FROM UploadingQueue WHERE uniqueId = :uniqueId")
+    @Query("DELETE FROM UploadingQueueCache WHERE uniqueId = :uniqueId")
     void deleteUploadingQueue(String uniqueId);
 
-    @Query("SELECT * FROM uploadingqueue ORDER by id DESC")
-    List<UploadingQueue> getAllUploadingQueue();
+    @Query("SELECT * FROM UploadingQueueCache ORDER by QueueId DESC")
+    List<UploadingQueueCache> getAllUploadingQueue();
 
-    @Query("SELECT * FROM uploadingqueue WHERE threadVoId = :threadId ORDER by id DESC ")
-    List<UploadingQueue> getAllUploadingQueueByThreadId(long threadId);
+    @Query("SELECT * FROM UploadingQueueCache WHERE  threadId= :threadId ORDER by QueueId DESC ")
+    List<UploadingQueueCache> getAllUploadingQueueByThreadId(long threadId);
 
 }

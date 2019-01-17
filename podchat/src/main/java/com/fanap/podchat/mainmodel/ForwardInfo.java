@@ -1,6 +1,6 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.mainmodel;
 
-import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.model.ConversationSummery;
 
 public class ForwardInfo {
     private Participant participant;

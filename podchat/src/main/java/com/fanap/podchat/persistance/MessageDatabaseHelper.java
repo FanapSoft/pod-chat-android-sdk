@@ -8,17 +8,19 @@ import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueue;
-import com.fanap.podchat.cachemodel.queue.UploadingQueue;
+import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
+import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueue;
+import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.LastMessageVO;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
-import com.fanap.podchat.model.ForwardInfo;
-import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
@@ -122,16 +124,7 @@ public class MessageDatabaseHelper {
         messageDao.insertMessage(cacheMessageVO);
     }
 
-    public void insertSendingMessageQueue(SendingQueue sendingQueue) {
-
-        sendingQueue.setUniqueId(sendingQueue.getUniqueId());
-        sendingQueue.setMessage(sendingQueue.getMessage());
-        sendingQueue.setThreadVoId(sendingQueue.getThreadVoId());
-        sendingQueue.setMessageType(sendingQueue.getMessageType());
-        sendingQueue.setSystemMetadata(sendingQueue.getSystemMetadata());
-        sendingQueue.setMessageIds(sendingQueue.getMessageIds());
-        sendingQueue.setReplyInfoVOId(sendingQueue.getReplyInfoVOId());
-
+    public void insertSendingMessageQueue(SendingQueueCache sendingQueue) {
         messageQueueDao.insertSendingMessageQueue(sendingQueue);
     }
 
@@ -139,7 +132,7 @@ public class MessageDatabaseHelper {
         messageQueueDao.deleteSendingMessageQueue(uniqueId);
     }
 
-    public void insertWaitMessageQueue(SendingQueue sendingQueue) {
+    public void insertWaitMessageQueue(SendingQueueCache sendingQueue) {
         WaitQueue waitMessageQueue = new WaitQueue();
 
         waitMessageQueue.setUniqueId(sendingQueue.getUniqueId());
@@ -162,15 +155,44 @@ public class MessageDatabaseHelper {
         messageQueueDao.deleteWaitMessageQueue(uniqueId);
     }
 
-    public List<WaitQueue> getAllWaitQueueMsg() {
+    public List<WaitQueueCache> getAllWaitQueueMsg() {
         return messageQueueDao.getAllWaitQueueMsg();
     }
 
-    public List<SendingQueue> getAllSendingQueue() {
+    public List<SendingQueueCache> getAllSendingQueue() {
         return messageQueueDao.getAllSendingQueue();
     }
 
-    public List<WaitQueue> getWaitQueueMsg(long threadId) {
+
+    public List<SendingQueueCache> getAllSendingQueueCByThreadId(long threadId) {
+        return messageQueueDao.getAllSendingQueue();
+    }
+
+    public List<SendingQueue> getAllSendingQueueByThreadId(long threadId) {
+
+        List<SendingQueue> sendingQueues = new ArrayList<>();
+        List<SendingQueueCache> sendingQueueCaches = messageQueueDao.getAllSendingQueue();
+
+        for (SendingQueueCache queueCache : sendingQueueCaches) {
+            SendingQueue sendingQueue = new SendingQueue();
+            sendingQueue.setThreadId(queueCache.getThreadId());
+
+            MessageVO messageVO = new MessageVO();
+            messageVO.setId(queueCache.getId());
+            messageVO.setMessage(queueCache.getMessage());
+            messageVO.setMessageType(queueCache.getMessageType());
+            messageVO.setMetadata(queueCache.getMetadata());
+            messageVO.setSystemMetadata(queueCache.getSystemMetadata());
+
+            sendingQueue.setMessageVo(messageVO);
+
+            sendingQueue.setUniqueId(queueCache.getUniqueId());
+        }
+        return sendingQueues;
+    }
+
+
+    public List<WaitQueueCache> getWaitQueueMsg(long threadId) {
         return messageQueueDao.getWaitQueueMsg(threadId);
     }
 
@@ -178,7 +200,7 @@ public class MessageDatabaseHelper {
      * Uploading Queue
      * */
 
-    public void insertUploadingQueue(UploadingQueue uploadingQueue) {
+    public void insertUploadingQueue(UploadingQueueCache uploadingQueue) {
         messageQueueDao.insertUploadingQueue(uploadingQueue);
     }
 

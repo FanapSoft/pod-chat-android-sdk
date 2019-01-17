@@ -3,9 +3,9 @@ package com.fanap.podchat.util;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
-import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ResultAddContact;
 
 import java.util.ArrayList;

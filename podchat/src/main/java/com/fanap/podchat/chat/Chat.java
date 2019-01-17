@@ -29,8 +29,9 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueue;
-import com.fanap.podchat.cachemodel.queue.WaitQueue;
+import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.mainmodel.AddParticipant;
 import com.fanap.podchat.mainmodel.BaseMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -43,6 +44,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.MapNeshan;
 import com.fanap.podchat.mainmodel.MapReverse;
 import com.fanap.podchat.mainmodel.MapRout;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
@@ -65,7 +67,6 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
-import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
 import com.fanap.podchat.model.OutPutHistory;
@@ -554,10 +555,10 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
 
-        SendingQueue sendingQueue = new SendingQueue();
+        SendingQueueCache sendingQueue = new SendingQueueCache();
         sendingQueue.setSystemMetadata(jsonSystemMetadata);
         sendingQueue.setMessageType(messageType);
-        sendingQueue.setThreadVoId(threadId);
+        sendingQueue.setThreadId(threadId);
         sendingQueue.setUniqueId(uniqueId);
         sendingQueue.setMessage(textMessage);
 
@@ -567,7 +568,6 @@ public class Chat extends AsyncAdapter {
         if (chatReady) {
 
             messageDatabaseHelper.deleteSendingMessageQueue(uniqueId);
-            messageDatabaseHelper.insertWaitMessageQueue(sendingQueue);
 
             ChatMessage chatMessageQueue = new ChatMessage();
             chatMessageQueue.setContent(textMessage);
@@ -603,6 +603,9 @@ public class Chat extends AsyncAdapter {
                 handlerSend.put(uniqueId, handler);
             }
             asyncContentWaitQueue = jsonObject.toString();
+
+            messageDatabaseHelper.insertWaitMessageQueue(sendingQueue);
+
             setThreadCallbacks(threadId, uniqueId);
             sendAsyncMessage(asyncContentWaitQueue, 4, "SEND_TEXT_MESSAGE");
 
@@ -618,11 +621,14 @@ public class Chat extends AsyncAdapter {
     * */
     private void checkMessageQueue() {
 
-        List<SendingQueue> waitMsgsQueue = messageDatabaseHelper.getAllSendingQueue();
-        for (SendingQueue sendingQueue : waitMsgsQueue) {
-            setThreadCallbacks(sendingQueue.getThreadVoId(), sendingQueue.getUniqueId());
-            messageDatabaseHelper.insertWaitMessageQueue(sendingQueue);
-            sendAsyncMessage(sendingQueue.getAsyncContent(), 4, "SEND_TEXT_MESSAGE");
+        List<SendingQueueCache> sendingQueueCaches = messageDatabaseHelper.getAllSendingQueue();
+        if (log) Logger.i("checkMessageQueue", sendingQueueCaches);
+        if (!Util.isNullOrEmpty(sendingQueueCaches)) {
+            for (SendingQueueCache sendingQueue : sendingQueueCaches) {
+                setThreadCallbacks(sendingQueue.getThreadId(), sendingQueue.getUniqueId());
+                messageDatabaseHelper.insertWaitMessageQueue(sendingQueue);
+                sendAsyncMessage(sendingQueue.getAsyncContent(), 4, "SEND_TEXT_MESSAGE");
+            }
         }
     }
 
@@ -2157,9 +2163,11 @@ public class Chat extends AsyncAdapter {
      * <p>
      * count    count of the messages
      * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
-     * and order must be lower case
+     *          and order must be lower case
      * lastMessageId
      * FirstMessageId
+     * {@link #checkMessagesValidation(long)} It is checked that if the message had been sent then its removed
+     * it from the messageQueue.
      *
      * @param threadId Id of the thread that we want to get the history
      */
@@ -2167,6 +2175,7 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
 
+        checkMessagesValidation(threadId);
 
         if (cache) {
             if (messageDatabaseHelper.getHistories(history, threadId) != null) {
@@ -2213,13 +2222,13 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * We send uniqueIds of message from waitQueue to ensure all of them have been sent
+     * It has sent uniqueIds of messages from waitQueue to ensure all of them have been sent.
      */
     private void checkMessagesValidation(long threadId) {
 
         //if waitQueue has these messages then request getHistory and in onSent remove them from wait queue
         // select on wait Queue
-        List<WaitQueue> uniqueIds = messageDatabaseHelper.getWaitQueueMsg(threadId);
+        List<WaitQueueCache> uniqueIds = messageDatabaseHelper.getWaitQueueMsg(threadId);
         if (!Util.isNullOrEmpty(uniqueIds)) {
 
             String uniqueId = generateUniqueId();
@@ -2248,8 +2257,6 @@ public class Chat extends AsyncAdapter {
 
             sendAsyncMessage(asyncContent, 3, "CHECK_HISTORY_MESSAGES");
         }
-
-
     }
 
     /**
@@ -5672,7 +5679,14 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
 
+
+
         ResultHistory resultHistory = new ResultHistory();
+
+
+        resultHistory.setSendingQueue(messageDatabaseHelper.getAllSendingQueueByThreadId(chatMessage.getSubjectId()));
+        resultHistory.setUploadingQueue();
+        resultHistory.setFailedQueue();
 
         resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
         resultHistory.setContentCount(chatMessage.getContentCount());
