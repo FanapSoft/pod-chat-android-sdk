@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
@@ -26,6 +27,9 @@ import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
@@ -235,7 +239,22 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 381
-                                , getUri(), null, null);
+                                , getUri(), null, null, new ProgressHandler.sendFileMessage() {
+                                    @Override
+                                    public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+
+                                    }
+
+                                    @Override
+                                    public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+
+                                    }
+
+                                    @Override
+                                    public void onError(String jsonError, ErrorOutPut error) {
+
+                                    }
+                                });
                         break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, getUri());

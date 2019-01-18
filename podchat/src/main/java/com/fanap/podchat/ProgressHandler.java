@@ -12,7 +12,7 @@ public abstract class ProgressHandler {
         default void onProgressUpdate(int bytesSent) {
         }
 
-        default void onProgressUpdate(String uniqueId,int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
@@ -25,14 +25,19 @@ public abstract class ProgressHandler {
     public interface onProgressFile {
         void onProgressUpdate(int bytesSent);
 
-        void onFinish(String imageJson, FileUpload fileImageUpload);
+        default void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        }
 
-        void onError(String jsonError, ErrorOutPut error);
+        default void onFinish(String imageJson, FileUpload fileImageUpload) {
+        }
+
+        default void onError(String jsonError, ErrorOutPut error) {
+        }
     }
 
     public interface sendFileMessage {
 
-        default void onProgressUpdate(String uniqueId,int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {

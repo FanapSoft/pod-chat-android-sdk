@@ -27,6 +27,9 @@ public interface MessageQueueDao {
     @Query("SELECT * FROM SendingQueueCache ORDER by QueueId DESC")
     List<SendingQueueCache> getAllSendingQueue();
 
+    @Query("SELECT * FROM SendingQueueCache Where uniqueId = :uniqueId")
+    SendingQueueCache getSendingQueue(String uniqueId);
+
 
     @Query("SELECT * FROM SendingQueueCache WHERE threadId = :threadId ORDER by QueueId DESC")
     List<SendingQueueCache> getAllSendingQueueByThredId(long threadId);

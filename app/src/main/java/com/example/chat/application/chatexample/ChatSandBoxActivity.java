@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
@@ -29,6 +31,8 @@ import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
@@ -38,7 +42,6 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.util.JsonUtil;
@@ -154,7 +157,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
                         break;
                     case 3:
-                        presenter.block(1382L,null
+                        presenter.block(1382L, null
                         );
 
                         break;
@@ -276,11 +279,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ArrayList<Integer> threadIds = new ArrayList<>();
 //        threadIds.add(1105);
 //        threadIds.add(1031);
-        long count= 5;
+        long count = 5;
         long offset;
-        long creatorCoreUserId = 2 ;
-        presenter.getThreads(null,null,null,null,creatorCoreUserId
-                ,0,0,null);
+        long creatorCoreUserId = 2;
+        presenter.getThreads(null, null, null, null, creatorCoreUserId
+                , 0, 0, null);
     }
 
     //funcSecond
@@ -409,7 +412,22 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         String meta = JsonUtil.getJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
                 .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
-        presenter.replyFileMessage(fileMessage);
+        presenter.replyFileMessage(fileMessage, new ProgressHandler.sendFileMessage() {
+            @Override
+            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                Log.i(uniqueId, "bytesSent  " + bytesSent + "  totalBytesSent" + totalBytesSent + "    totalBytesToSend");
+            }
+
+            @Override
+            public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+                Log.i("OnFinish", imageJson);
+            }
+
+            @Override
+            public void onError(String jsonError, ErrorOutPut error) {
+
+            }
+        });
     }
 
     public void deleteMessage() {
@@ -437,7 +455,22 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 .metaData("name")
                 .build();
 
-        presenter.sendFileMessage(requestFileMessage);
+        presenter.sendFileMessage(requestFileMessage, new ProgressHandler.sendFileMessage() {
+            @Override
+            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+
+            }
+
+            @Override
+            public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+
+            }
+
+            @Override
+            public void onError(String jsonError, ErrorOutPut error) {
+
+            }
+        });
 
 //      presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
 //        "test file message",
