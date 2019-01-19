@@ -452,7 +452,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
         RequestFileMessage requestFileMessage = new RequestFileMessage
                 .Builder(this, 1105, getUri())
-                .metaData("name")
+                .systemMetadata("name")
                 .build();
 
         presenter.sendFileMessage(requestFileMessage, new ProgressHandler.sendFileMessage() {

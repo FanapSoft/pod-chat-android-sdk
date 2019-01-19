@@ -7,7 +7,7 @@ public class RequestFileMessage {
     private Activity activity;
     private long threadId;
     private Uri fileUri;
-    private String metaData;
+    private String systemMetadata;
     private int messageType;
     private String description;
 
@@ -15,7 +15,7 @@ public class RequestFileMessage {
         this.setActivity(builder.activity);
         this.setThreadId(builder.threadId);
         this.setFileUri(builder.fileUri);
-        this.setMetaData(builder.metaData);
+        this.setSystemMetadata(builder.systemMetadata);
         this.setMessageType(builder.messageType);
     }
 
@@ -43,12 +43,12 @@ public class RequestFileMessage {
         this.fileUri = fileUri;
     }
 
-    public String getMetaData() {
-        return metaData;
+    public String getSystemMetadata() {
+        return systemMetadata;
     }
 
-    public void setMetaData(String metaData) {
-        this.metaData = metaData;
+    public void setSystemMetadata(String systemMetadata) {
+        this.systemMetadata = systemMetadata;
     }
 
     public int getMessageType() {
@@ -71,7 +71,7 @@ public class RequestFileMessage {
         private Activity activity;
         private long threadId;
         private Uri fileUri;
-        private String metaData;
+        private String systemMetadata;
         private int messageType;
 
         public Builder(Activity activity, long threadId, Uri fileUri) {
@@ -80,8 +80,8 @@ public class RequestFileMessage {
             this.fileUri = fileUri;
         }
 
-        public Builder metaData(String metaData) {
-            this.metaData = metaData;
+        public Builder systemMetadata(String systemMetadata) {
+            this.systemMetadata = systemMetadata;
             return this;
         }
 
@@ -93,7 +93,5 @@ public class RequestFileMessage {
         public RequestFileMessage build() {
             return new RequestFileMessage(this);
         }
-
-
     }
 }

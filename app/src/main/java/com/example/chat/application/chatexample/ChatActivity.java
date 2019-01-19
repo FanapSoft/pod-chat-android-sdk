@@ -221,7 +221,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Function second
     private void setupSecondSpinner(Spinner spinnerSecond) {
-        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcSecond);
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item
+                , ConstantSample.funcSecond);
 
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSecond.setAdapter(adapterSpinner);

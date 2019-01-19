@@ -604,7 +604,6 @@ public class MessageDatabaseHelper {
                 //just query has been set
             } else if (!Util.isNullOrEmpty(query)) {
                 cacheMessageVOS = getQuery(order, count, offset, threadId, query);
-
             }
         }
 
