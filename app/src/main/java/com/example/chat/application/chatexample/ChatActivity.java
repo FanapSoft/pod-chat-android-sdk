@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,6 +30,7 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
@@ -243,12 +245,17 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                 , getUri(), null, null, new ProgressHandler.sendFileMessage() {
                                     @Override
                                     public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-
+                                        Log.i("onProgressUpdate", "uniqueId " + uniqueId + "bytesSent " + bytesSent + " totalBytesSent " + totalBytesSent + " totalBytesToSend " + totalBytesToSend);
                                     }
 
                                     @Override
-                                    public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+                                    public void onFinishImage(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+                                        Log.i("onFinish file", imageJson);
+                                    }
 
+                                    @Override
+                                    public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
+                                        Log.i("onFinish file", json);
                                     }
 
                                     @Override
@@ -484,13 +491,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
                 };
-                presenter.createThread(0, invite, null,"sina thread"
-                        ,null,null, new ChatHandler() {
-                    @Override
-                    public void onCreateThread(String uniqueId) {
-                        super.onCreateThread(uniqueId);
-                    }
-                });
+                presenter.createThread(0, invite, null, "sina thread"
+                        , null, null, new ChatHandler() {
+                            @Override
+                            public void onCreateThread(String uniqueId) {
+                                super.onCreateThread(uniqueId);
+                            }
+                        });
 
                 break;
             case 9:

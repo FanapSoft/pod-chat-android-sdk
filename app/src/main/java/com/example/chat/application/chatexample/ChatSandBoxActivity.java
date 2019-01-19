@@ -32,6 +32,7 @@ import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
@@ -419,8 +420,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             }
 
             @Override
-            public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+            public void onFinishImage(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
                 Log.i("OnFinish", imageJson);
+            }
+
+            @Override
+            public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
+                Log.i("OnFinish", json);
             }
 
             @Override
@@ -462,7 +468,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             }
 
             @Override
-            public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+            public void onFinishImage(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+
+            }
+
+            @Override
+            public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
 
             }
 

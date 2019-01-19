@@ -125,8 +125,6 @@ public class MessageDatabaseHelper {
         messageDao.insertMessage(cacheMessageVO);
     }
 
-
-
     /*
      *
      * Wait Queue
@@ -156,9 +154,19 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllWaitQueueMsg();
     }
 
+    public SendingQueueCache getWaitMessageQueue(String uniqueId){
+        SendingQueueCache sendingQueueCache = new SendingQueueCache();
+
+//        messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
+//
+//        sendingQueueCache.
+//
+        return null;
+    }
+
     public List<WaitQueue> getAllWaitQueueCacheByThreadId(long threadId) {
         List<WaitQueue> listQueues = new ArrayList<>();
-        List<WaitQueueCache> listCaches = messageQueueDao.getWaitQueueMsg(threadId);
+        List<WaitQueueCache> listCaches = messageQueueDao.getWaitQueueMsgByThreadId(threadId);
         for (WaitQueueCache queueCache : listCaches) {
             WaitQueue waitQueue = new WaitQueue();
 
@@ -179,6 +187,10 @@ public class MessageDatabaseHelper {
         return listQueues;
     }
 
+    public void getWaitQueueAsyncContent(String uniqueId){
+        messageQueueDao.getWaitQueueAsyncContent(uniqueId);
+    }
+
     /*
      *
      * Sending Queue
@@ -192,7 +204,7 @@ public class MessageDatabaseHelper {
         messageQueueDao.deleteSendingMessageQueue(uniqueId);
     }
 
-    public SendingQueueCache getSendingQueueCache(String uniqueId){
+    public SendingQueueCache getSendingQueueCache(String uniqueId) {
         return messageQueueDao.getSendingQueue(uniqueId);
     }
 
@@ -200,8 +212,13 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllSendingQueue();
     }
 
-    public List<WaitQueueCache> getWaitQueueMsg(long threadId) {
-        return messageQueueDao.getWaitQueueMsg(threadId);
+    public List<WaitQueueCache> getListWaitQueueMsg(long threadId) {
+        return messageQueueDao.getWaitQueueMsgByThreadId(threadId);
+    }
+
+
+    public void getWaitQueueMsg(String uniqueId) {
+        return messageQueueDao.getWaitQueueMsgByThreadId(threadId);
     }
 
     public List<SendingQueueCache> getAllSendingQueueCByThreadId(long threadId) {
@@ -265,7 +282,7 @@ public class MessageDatabaseHelper {
         return uploadingQueues;
     }
 
-    public void deleteUploadingQueue(String uniqueId){
+    public void deleteUploadingQueue(String uniqueId) {
         messageQueueDao.deleteUploadingQueue(uniqueId);
     }
 

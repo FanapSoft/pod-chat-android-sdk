@@ -27,7 +27,7 @@ public class ProgressRequestBody extends RequestBody {
         mFile = file;
         mListener = listener;
         this.uniqueId = uniqueId;
-        mimType = mimType;
+        this.mimType = mimType;
     }
 
     @Nullable
