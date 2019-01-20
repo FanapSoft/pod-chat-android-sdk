@@ -354,19 +354,19 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void deleteMessage() {
-        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
-                .Builder(17462)
-//                .deleteForAll(true)
-                .typeCode("5")
-                .build();
-        presenter.deleteMessage(requestDeleteMessage, null);
+//        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
+//                .Builder(30791)
+////                .deleteForAll(true)
+//                .typeCode("5")
+//                .build();
+//        presenter.deleteMessage(requestDeleteMessage, null);
 
-//        presenter.deleteMessage(16804, true, new ChatHandler() {
-//            @Override
-//            public void onDeleteMessage(String uniqueId) {
-//                super.onDeleteMessage(uniqueId);
-//            }
-//        });
+        presenter.deleteMessage(30791, true, new ChatHandler() {
+            @Override
+            public void onDeleteMessage(String uniqueId) {
+                super.onDeleteMessage(uniqueId);
+            }
+        });
     }
 
     private void removeParticipants() {
@@ -642,7 +642,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         messageIds.add(15255L);
         messageIds.add(15256L);
         messageIds.add(15257L);
-        long threadId = 1288;
+        long threadId = 381;
 //        presenter.forwardMessage(293, messageIds);
 
         RequestForwardMessage forwardMessage = new RequestForwardMessage

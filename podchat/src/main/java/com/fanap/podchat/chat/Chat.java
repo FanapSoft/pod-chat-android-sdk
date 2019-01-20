@@ -1899,7 +1899,9 @@ public class Chat extends AsyncAdapter {
             BaseMessage baseMessage = new BaseMessage();
             DeleteMessage deleteMessage = new DeleteMessage();
             deleteMessage.setDeleteForAll(deleteForAll);
-            String content = JsonUtil.getJson(deleteMessage);
+
+            String content = gson.toJson(deleteMessage);
+
             baseMessage.setContent(content);
             baseMessage.setSubjectId(messageId);
             baseMessage.setToken(getToken());
@@ -1938,43 +1940,8 @@ public class Chat extends AsyncAdapter {
      * you can set it false or even null.
      */
     public String deleteMessage(RequestDeleteMessage request, ChatHandler handler) {
-        String asyncContent = null;
-        String uniqueId;
-        uniqueId = generateUniqueId();
-        if (chatReady) {
-            boolean deleteForAll = request.isDeleteForAll();
-            long messageId = request.getMessageId();
-            BaseMessage baseMessage = new BaseMessage();
 
-            DeleteMessage deleteMessage = new DeleteMessage();
-            deleteMessage.setDeleteForAll(deleteForAll);
-            String content = JsonUtil.getJson(deleteMessage);
-
-            baseMessage.setContent(content);
-            baseMessage.setSubjectId(messageId);
-            baseMessage.setToken(getToken());
-            baseMessage.setTokenIssuer("1");
-            baseMessage.setType(Constants.DELETE_MESSAGE);
-            baseMessage.setUniqueId(uniqueId);
-
-            if (Util.isNullOrEmpty(request.getTypeCode())) {
-                baseMessage.setTypeCode(request.getTypeCode());
-            } else {
-                baseMessage.setTypeCode(getTypeCode());
-            }
-
-            asyncContent = gson.toJson(baseMessage);
-            setCallBacks(null, null, null, true, Constants.DELETE_MESSAGE, null, uniqueId);
-            if (handler != null) {
-                handler.onDeleteMessage(uniqueId);
-            }
-        } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-            if (log) Logger.e(jsonError);
-        }
-
-        sendAsyncMessage(asyncContent, 4, "SEND_DELETE_MESSAGE");
-        return uniqueId;
+       return deleteMessage(request.getMessageId(),request.isDeleteForAll(),handler);
     }
 
     /**
@@ -6063,17 +6030,6 @@ public class Chat extends AsyncAdapter {
                                             if (log) Logger.i("RECEIVE_UPLOAD_FILE");
                                             if (log) Logger.json(json);
 
-//
-//                                            MetaDataFile metaDataFile = new MetaDataFile();
-//                                            FileMetaDataContent metaDataContent = new FileMetaDataContent();
-//                                            metaDataContent.setHashCode(hashCode);
-//                                            metaDataContent.setId(fileId);
-//                                            metaDataContent.setName(result.getName());
-//                                            metaDataContent.setMimeType(mimeType);
-//                                            metaDataContent.setSize(file_size);
-//                                            metaDataContent.setLink(getFile(fileId, hashCode, true));
-//
-//                                            metaDataFile.setFile(metaDataContent);
 
                                             String jsonMeta = createFileMetadata(finalFile, hashCode, fileId, mimeType, file_size);
 
