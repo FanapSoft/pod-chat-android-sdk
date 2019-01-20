@@ -154,7 +154,7 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllWaitQueueMsg();
     }
 
-    public SendingQueueCache getWaitMessageQueue(String uniqueId){
+    public SendingQueueCache getWaitMessageQueue(String uniqueId) {
         SendingQueueCache sendingQueueCache = new SendingQueueCache();
 
 //        messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
@@ -187,7 +187,7 @@ public class MessageDatabaseHelper {
         return listQueues;
     }
 
-    public void getWaitQueueAsyncContent(String uniqueId){
+    public void getWaitQueueAsyncContent(String uniqueId) {
         messageQueueDao.getWaitQueueAsyncContent(uniqueId);
     }
 
@@ -217,7 +217,24 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void getWaitQueueMsg(String uniqueId) {
+    public SendingQueueCache getWaitQueueMsgByUnique(String uniqueId) {
+        SendingQueueCache sendingQueueCache = new SendingQueueCache();
+        WaitQueueCache waitQueueCache = messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
+
+        sendingQueueCache.setAsyncContent(waitQueueCache.getAsyncContent());
+        sendingQueueCache.setId(waitQueueCache.getId());
+        sendingQueueCache.setMessage(waitQueueCache.getMessage());
+        sendingQueueCache.setMetadata(waitQueueCache.getMetadata());
+        sendingQueueCache.setThreadId(waitQueueCache.getThreadId());
+        sendingQueueCache.setUniqueId(waitQueueCache.getUniqueId());
+        sendingQueueCache.setSystemMetadata(waitQueueCache.getSystemMetadata());
+
+
+        return sendingQueueCache;
+    }
+
+
+    public List<WaitQueueCache> getWaitQueueMsg(long threadId) {
         return messageQueueDao.getWaitQueueMsgByThreadId(threadId);
     }
 

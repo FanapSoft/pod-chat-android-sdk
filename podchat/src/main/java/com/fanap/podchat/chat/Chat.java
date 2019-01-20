@@ -28,7 +28,6 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.cachemodel.queue.SendingQueue;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
@@ -1151,7 +1150,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    //TODO Add message Queue
     public String uploadFileProgress(Context context, Activity activity, String fileUri, Uri uri, ProgressHandler.onProgressFile handler) {
         String uniqueId = generateUniqueId();
 
@@ -1242,31 +1240,30 @@ public class Chat extends AsyncAdapter {
     //TODO resend Message
     public void resendMessage(String uniqueId) {
 
+        SendingQueueCache sendingQueueCache = messageDatabaseHelper.getWaitQueueMsgByUnique(uniqueId);
+        setThreadCallbacks(sendingQueueCache.getThreadId(), uniqueId);
+        messageDatabaseHelper.deleteWaitQueueMsgs(uniqueId);
+        messageDatabaseHelper.insertSendingMessageQueue(sendingQueueCache);
+        JsonObject jsonObject = (new JsonParser()).parse(sendingQueueCache.getAsyncContent()).getAsJsonObject();
 
-//        SendingQueueCache sendingQueueCache = messageDatabaseHelper.getWaitQueueMsg(uniqueId);
-//        setThreadCallbacks(threadId, uniqueId);
-//        messageDatabaseHelper.deleteWaitQueueMsgs(uniqueId);
-//        messageDatabaseHelper.insertSendingMessageQueue();
-//        JsonObject jsonObject = (new JsonParser()).parse(sendingQueue.getAsyncContent()).getAsJsonObject();
-//
-//        jsonObject.remove("token");
-//        jsonObject.addProperty("token", getToken());
-//
-//        sendAsyncMessage(jsonObject.toString(), 4, "SEND_TEXT_MESSAGE_FROM_MESSAGE_QUEUE");
+        jsonObject.remove("token");
+        jsonObject.addProperty("token", getToken());
+
+        sendAsyncMessage(jsonObject.toString(), 4, "SEND_TEXT_MESSAGE_FROM_MESSAGE_QUEUE");
     }
 
-    //TODO cancelMessage
+    //TODO test cancelMessage
     public void cancelMessage(String uniqueId) {
         messageDatabaseHelper.deleteSendingMessageQueue(uniqueId);
         messageDatabaseHelper.deleteWaitQueueMsgs(uniqueId);
     }
 
-    //TODO cancelUpload
+    //TODO test cancelUpload
     public void cancelUpload() {
 
     }
 
-    //TODO retryUpload
+    //TODO test retryUpload
     public void retryUpload() {
     }
 
@@ -1748,7 +1745,6 @@ public class Chat extends AsyncAdapter {
      * messageIds Array of message ids that we want to forward them
      */
     public List<String> forwardMessage(RequestForwardMessage request) {
-
         return forwardMessage(request.getThreadId(), request.getMessageIds());
     }
 
@@ -1763,7 +1759,6 @@ public class Chat extends AsyncAdapter {
         int messageType = request.getMessageType();
         String methodName = ChatConstant.REPLY_MSG_METHOD;
         try {
-            if (chatReady) {
                 if (fileUri != null) {
                     File file = new File(fileUri.getPath());
                     String mimeType = handleMimType(fileUri, file);
@@ -1778,10 +1773,6 @@ public class Chat extends AsyncAdapter {
                     String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_URI, ChatConstant.ERROR_CODE_INVALID_URI, uniqueId);
                     if (log) Logger.json(jsonError);
                 }
-            } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                if (log) Logger.json(jsonError);
-            }
         } catch (Exception e) {
             if (log) Logger.e(e.getCause().getMessage());
             return null;
@@ -6022,6 +6013,8 @@ public class Chat extends AsyncAdapter {
                     uploadingQueue.setMetadata(metaData);
 
                     messageDatabaseHelper.insertUploadingQueue(uploadingQueue);
+                    if (log)
+                        Logger.i("Message with this" + "  uniqueId  " + uniqueId + "  has been added to Uploading Queue");
                     if (chatReady) {
                         if (getFileServer() != null) {
                             RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());

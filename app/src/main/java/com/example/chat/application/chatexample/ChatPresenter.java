@@ -87,6 +87,26 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void resendMessage(String uniqueId) {
+        chat.resendMessage(uniqueId);
+    }
+
+    @Override
+    public void cancelMessage(String uniqueId) {
+        chat.cancelMessage(uniqueId);
+    }
+
+    @Override
+    public void retryUpload(String uniqueId) {
+
+    }
+
+    @Override
+    public void cancelUpload(String uniqueId) {
+
+    }
+
+    @Override
     public void seenMessageList(RequestSeenMessageList requestParams) {
         chat.seenMessageList(requestParams);
     }

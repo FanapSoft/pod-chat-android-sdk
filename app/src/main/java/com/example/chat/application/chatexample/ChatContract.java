@@ -140,6 +140,14 @@ public interface ChatContract {
     }
 
     interface presenter {
+        void resendMessage(String uniqueId);
+
+        void cancelMessage(String uniqueId);
+
+        void retryUpload(String uniqueId);
+
+        void cancelUpload(String uniqueId);
+
         void seenMessageList(RequestSeenMessageList requestParam);
 
         void deliveredMessageList(RequestDeliveredMessageList requestParams);

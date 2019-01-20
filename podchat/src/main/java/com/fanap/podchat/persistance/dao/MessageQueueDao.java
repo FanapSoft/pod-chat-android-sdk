@@ -43,9 +43,11 @@ public interface MessageQueueDao {
     @Query("SELECT * FROM WaitQueueCache WHERE threadId = :threadId ORDER by QueueId DESC ")
     List<WaitQueueCache> getWaitQueueMsgByThreadId(long threadId);
 
+    @Query("SELECT * FROM WaitQueueCache WHERE uniqueId = :uniqueId  ")
+    WaitQueueCache getWaitQueueMsgByUniqueId(String uniqueId);
+
     @Query("SELECT asyncContent FROM WaitQueueCache WHERE uniqueId = :uniqueId")
     String getWaitQueueAsyncContent(String uniqueId);
-
 
 
     @Query("SELECT * FROM WaitQueueCache ORDER by QueueId DESC ")

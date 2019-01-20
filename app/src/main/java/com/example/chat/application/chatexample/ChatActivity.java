@@ -38,6 +38,7 @@ import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -304,13 +305,50 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                 super.onSearchHistory(uniqueId);
                             }
                         });
-
+                        break;
+                    case 11:
+                        replyFileMessage();
                         break;
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void replyFileMessage() {
+        String messageContent = "this is reply from john with file";
+        long threadId = 381;
+        long messageId = 14103;
+        Uri fileUri = getUri();
+
+        Inviter inviter = new Inviter();
+        inviter.setName("sina");
+        String meta = JsonUtil.getJson(inviter);
+
+        RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
+                .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
+        presenter.replyFileMessage(fileMessage, new ProgressHandler.sendFileMessage() {
+            @Override
+            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                Log.i(uniqueId, "bytesSent ********* " + bytesSent + "  totalBytesSent******* " + totalBytesSent + "    totalBytesToSend**********");
+            }
+
+            @Override
+            public void onFinishImage(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+                Log.i("OnFinish ************ ", imageJson);
+            }
+
+            @Override
+            public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
+                Log.i("OnFinish ******* ", json);
+            }
+
+            @Override
+            public void onError(String jsonError, ErrorOutPut error) {
+
             }
         });
     }
@@ -566,7 +604,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //        presenter.getHistory(request, null);
 
         History history = new History.Builder().build();
-        presenter.getHistory(history, 1288, new ChatHandler() {
+        presenter.getHistory(history, 381, new ChatHandler() {
             @Override
             public void onGetHistory(String uniqueId) {
                 super.onGetHistory(uniqueId);
