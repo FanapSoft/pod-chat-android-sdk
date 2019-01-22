@@ -3,7 +3,6 @@ package com.fanap.podchat.persistance;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 
 import com.fanap.podchat.cachemodel.CacheContact;
@@ -13,14 +12,10 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.cachemodel.queue.FailedMessage;
-import com.fanap.podchat.cachemodel.queue.SendingMessage;
-import com.fanap.podchat.cachemodel.queue.UploadingMessage;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.persistance.dao.MessageDao;
-import com.fanap.podchat.persistance.dao.MessageQueueDao;
 
 @Database(entities = {
         CacheContact.class,

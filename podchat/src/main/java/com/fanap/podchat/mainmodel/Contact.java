@@ -6,7 +6,7 @@ public class Contact {
     private long userId;
     private String lastName;
     private Boolean blocked;
-
+    private long creationDate;
     private LinkedUser linkedUser;
     private String cellphoneNumber;
     private String email;
@@ -23,7 +23,7 @@ public class Contact {
             long userId,
             String lastName,
             Boolean blocked,
-
+            long creationDate,
             LinkedUser linkedUser,
             String cellphoneNumber,
             String email,
@@ -36,7 +36,7 @@ public class Contact {
         this.userId = userId;
         this.lastName = lastName;
         this.blocked = blocked;
-
+        this.creationDate = creationDate;
         this.linkedUser = linkedUser;
         this.cellphoneNumber = cellphoneNumber;
         this.email = email;
@@ -132,5 +132,13 @@ public class Contact {
 
     public void setBlocked(Boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 }

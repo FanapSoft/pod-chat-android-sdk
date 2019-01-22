@@ -17,6 +17,7 @@ public class CacheContact {
     private long userId;
     private String lastName;
     private Boolean blocked;
+    private long creationDate;
 
     @Embedded
     private LinkedUser linkedUser;
@@ -34,7 +35,7 @@ public class CacheContact {
             long userId,
             String lastName,
             Boolean blocked,
-
+            long creationDate,
             LinkedUser linkedUser,
             String cellphoneNumber,
             String email,
@@ -48,7 +49,7 @@ public class CacheContact {
         this.userId = userId;
         this.lastName = lastName;
         this.blocked = blocked;
-
+        this.creationDate = creationDate;
         this.linkedUser = linkedUser;
         this.cellphoneNumber = cellphoneNumber;
         this.email = email;
@@ -151,5 +152,13 @@ public class CacheContact {
 
     public void setHasUser(boolean hasUser) {
         this.hasUser = hasUser;
+    }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
     }
 }

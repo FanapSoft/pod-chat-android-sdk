@@ -69,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "7e5464cb4e7c46bebdf4d15f16b99825";
+    private static String TOKEN = "48422c05478748138152f227d36cc245";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -412,7 +412,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     public void deleteMessage() {
-        presenter.deleteMessage(8861, false, new ChatHandler() {
+        presenter.deleteMessage(9261, false, new ChatHandler() {
             @Override
             public void onDeleteMessage(String uniqueId) {
                 super.onDeleteMessage(uniqueId);
@@ -512,9 +512,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             case 5:
                 /**forward message */
                 ArrayList<Long> messageIds = new ArrayList<>();
-                messageIds.add(4313L);
-                messageIds.add(4303L);
-                presenter.forwardMessage(107, messageIds);
+                messageIds.add(9262L);
+                messageIds.add(9261L);
+                presenter.forwardMessage(2, messageIds);
                 break;
             case 6:
                 //"send text message",
@@ -539,14 +539,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  *
                  */
                 // 589 poria
-                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
-                        , new Invitee(1162, 2)
-                        , new Invitee(2404, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(2404, 2)
+//                        , new Invitee(1162, 2)
+//                        , new Invitee(2404, 2)
 //                        , new Invitee(824, 2)
                 };
 
                 String image = "https://core.pod.land/nzh/image/?imageId=17006&width=476&height=476&hashCode=1666eedb75b-0.7473066083939505";
-                presenter.createThread(0, invite, null, "masoud thread"
+                presenter.createThread(0, invite, null, null
                         , image, "poria", new ChatHandler() {
                             @Override
                             public void onCreateThread(String uniqueId) {
@@ -622,16 +622,16 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
-                presenter.updateContact(588, "masoudian", "", "", ""
+                presenter.updateContact(2404, "Asghar masoudi", "Amjadi", "09148401824", ""
                 );
         }
     }
 
     private void getThreads() {
         ArrayList<Integer> threadIds = new ArrayList<>();
-//        threadIds.add(1105);
+        threadIds.add(2);
 //        threadIds.add(1031);
-        presenter.getThreads(5, null, null, null, null);
+        presenter.getThreads(2, null, threadIds, null, null);
     }
 
     private void getThreadParticipant() {

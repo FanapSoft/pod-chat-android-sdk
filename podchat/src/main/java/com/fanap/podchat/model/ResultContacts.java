@@ -1,5 +1,7 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.LinkedUser;
+
 public class ResultContacts {
 
     private Integer id;
@@ -8,6 +10,9 @@ public class ResultContacts {
     private String email;
     private String cellphoneNumber;
     private String uniqueId;
+    private long creationDate;
+    private LinkedUser linkedUser;
+
 
     public Integer getId() {
         return id;
@@ -55,6 +60,22 @@ public class ResultContacts {
 
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LinkedUser getLinkedUser() {
+        return linkedUser;
+    }
+
+    public void setLinkedUser(LinkedUser linkedUser) {
+        this.linkedUser = linkedUser;
     }
 }
 

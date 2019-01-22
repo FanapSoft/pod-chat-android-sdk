@@ -30,6 +30,7 @@ public interface ContactApi {
             , @Field("cellphoneNumber") String cellphoneNumber
     );
 
+    /* addContacts Without type code */
     @POST("nzh/addContacts")
     @FormUrlEncoded
     Observable<Response<Contacts>> addContact(@Header("_token_") String token
@@ -42,6 +43,7 @@ public interface ContactApi {
             , @Field("typeCode") String typeCode
     );
 
+    /* addContacts With type code*/
     @POST("nzh/addContacts")
     @FormUrlEncoded
     Observable<Response<AddContacts>> addContacts(@Header("_token_") String token
@@ -52,12 +54,23 @@ public interface ContactApi {
             , @Field("uniqueId") ArrayList<String> uniqueId
             , @Field("cellphoneNumber") ArrayList<String> cellphoneNumber);
 
+    /* removeContacts With type code*/
+    @POST("nzh/removeContacts")
+    @FormUrlEncoded
+    Observable<Response<ContactRemove>> removeContact(@Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Field("id") long userId
+            , @Field("typeCode") String typeCode
+    );
+
+    /* removeContacts Without type code*/
     @POST("nzh/removeContacts")
     @FormUrlEncoded
     Observable<Response<ContactRemove>> removeContact(@Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Field("id") long userId);
 
+    /* Update contact without type code*/
     @POST("nzh/updateContacts")
     @FormUrlEncoded
     Observable<Response<UpdateContact>> updateContact(@Header("_token_") String token
@@ -68,6 +81,19 @@ public interface ContactApi {
             , @Field("email") String email
             , @Field("uniqueId") String uniqueId
             , @Field("cellphoneNumber") String cellphoneNumber);
+
+    /* Update contact with type code*/
+    @POST("nzh/updateContacts")
+    @FormUrlEncoded
+    Observable<Response<UpdateContact>> updateContact(@Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Field("id") long id
+            , @Field("firstName") String firstName
+            , @Field("lastName") String lastName
+            , @Field("email") String email
+            , @Field("uniqueId") String uniqueId
+            , @Field("cellphoneNumber") String cellphoneNumber
+            , @Field("typeCode") String typeCode);
 
     @GET("nzh/listContacts")
     Observable<Response<SearchContactVO>> searchContact(@Header("_token_") String token

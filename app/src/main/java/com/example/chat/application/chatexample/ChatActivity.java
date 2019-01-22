@@ -79,7 +79,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
     private String serverName = "chat-server";
-    private String typeCode = "";
+    private String typeCode = null;
 
     private String fileUri;
 
@@ -251,7 +251,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         break;
                     case 7:
-                        presenter.leaveThread(691, new ChatHandler() {
+                        presenter.leaveThread(1288, new ChatHandler() {
                             @Override
                             public void onLeaveThread(String uniqueId) {
                                 super.onLeaveThread(uniqueId);
@@ -281,7 +281,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
@@ -458,8 +457,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 //alexi 570
                 //felfeli 571
                 //jiji 122
+                //"firstName": "Ziiii",     │         "userId": 121,
                 Invitee[] invite = new Invitee[]{
-                        new Invitee(122, 1)
+                        new Invitee(121, 5)
 //                        , new Invitee(1967, 2)
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
@@ -514,7 +514,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Mahdi", "Kani", "09122564755", "min" + new Date().getTime());
+                presenter.addContact("Pouria", "Pahlevani", "09387181694", "min" + new Date().getTime());
                 break;
             case 15:
                 // remove contact
@@ -522,9 +522,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
-                presenter.updateContact(571, "Fel", "", "", "devfelfel@gmail.com"
-                );
+                updateContact();
         }
+    }
+
+    private void updateContact() {
+        presenter.updateContact(2404, "Farhad Amjadi", "Amjadi", "09148401824", "zi@gmail.com"
+        );
     }
 
     public void getHistory() {
@@ -549,7 +553,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void getThreads() {
         ArrayList<Integer> threadIds = new ArrayList<>();
-//                threadIds.add(22);
+                threadIds.add(293);
 //                threadIds.add(351);
 //        RequestThread requestThread = new RequestThread
 //                .Builder()
@@ -558,7 +562,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                .build();
 //        presenter.getThreads(requestThread);
 
-        presenter.getThreads(null, null, null, null, null);
+        presenter.getThreads(1, null, null, null, null);
     }
 
     public void replyMessage() {
@@ -578,12 +582,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         messageIds.add(15256L);
         messageIds.add(15257L);
         long threadId = 1288;
-//        presenter.forwardMessage(293, messageIds);
+        presenter.forwardMessage(293, messageIds);
 
-        RequestForwardMessage forwardMessage = new RequestForwardMessage
-                .Builder(threadId, messageIds)
-                .build();
-        presenter.forwardMessage(forwardMessage);
+//        RequestForwardMessage forwardMessage = new RequestForwardMessage
+//                .Builder(threadId, messageIds)
+//                .build();
+//        presenter.forwardMessage(forwardMessage);
     }
 
     private void getContacts() {

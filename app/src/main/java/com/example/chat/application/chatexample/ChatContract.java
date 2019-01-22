@@ -153,6 +153,8 @@ public interface ChatContract {
 
                         long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler);
 
+        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
+
         void setToke(String token);
 
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
@@ -166,7 +168,7 @@ public interface ChatContract {
 
         void mapReverse(RequestMapReverse request);
 
-        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
+
 
         void getThreadObject(RequestThread requestThread);
 
