@@ -553,7 +553,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void getThreads() {
         ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(293);
+                threadIds.add(1574);
+                threadIds.add(1573);
 //                threadIds.add(351);
 //        RequestThread requestThread = new RequestThread
 //                .Builder()
@@ -562,7 +563,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                .build();
 //        presenter.getThreads(requestThread);
 
-        presenter.getThreads(1, null, null, null, null);
+        presenter.getThreads(5, null, threadIds, "t", null);
     }
 
     public void replyMessage() {
@@ -664,6 +665,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void getthreadWithCoreUser() {
         RequestThread requestThread = new RequestThread.Builder().partnerCoreContactId(566).build();
-        presenter.getThreads(requestThread);
+        presenter.getThreads(requestThread,null);
     }
 }

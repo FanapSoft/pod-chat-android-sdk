@@ -22,7 +22,6 @@ public class RequestThread extends BaseRequestObject {
     public static class Builder extends BaseRequestObject.Builder<Builder> {
         private ArrayList<Integer> threadIds;
         private String threadName;
-        private String typeCode;
         private long creatorCoreUserId;
         private long partnerCoreUserId;
         private long partnerCoreContactId;

@@ -147,7 +147,7 @@ public interface ChatContract {
         void createThreadWithMessage(RequestCreateThread threadRequest);
 
 
-        void getThreads(RequestThread requestThread);
+        void getThreads(RequestThread requestThread, ChatHandler handler);
 
         void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,
 
@@ -167,10 +167,6 @@ public interface ChatContract {
         void mapStaticImage(RequestMapStaticImage request);
 
         void mapReverse(RequestMapReverse request);
-
-
-
-        void getThreadObject(RequestThread requestThread);
 
         void getUserInfo(ChatHandler handler);
 

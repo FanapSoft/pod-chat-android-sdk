@@ -80,7 +80,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
-        chat.setExpireAmount(180);
+//        chat.setExpireAmount(180);
         this.activity = activity;
         this.context = context;
         this.view = view;
@@ -102,8 +102,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThreads(RequestThread requestThread) {
-        chat.getThreads(requestThread);
+    public void getThreads(RequestThread requestThread, ChatHandler handler) {
+        chat.getThreads(requestThread,handler);
     }
 
     @Override
@@ -145,11 +145,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler) {
         chat.getThreads(count, offset, threadIds, threadName, handler);
-    }
-
-    @Override
-    public void getThreadObject(RequestThread requestThread) {
-        chat.getThreads(requestThread);
     }
 
     @Override

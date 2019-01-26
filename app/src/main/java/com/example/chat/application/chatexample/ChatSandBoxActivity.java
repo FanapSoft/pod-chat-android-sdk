@@ -69,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "48422c05478748138152f227d36cc245";
+    private static String TOKEN = "38d5a87b2bb8475aa7031ee05b4667bc";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -558,9 +558,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 9:
                 //get thread history
-                History history = new History.Builder().count(10).build();
+                History history = new History.Builder().build();
 
-                presenter.getHistory(history, 2, new ChatHandler() {
+                presenter.getHistory(history, 22, new ChatHandler() {
                     @Override
                     public void onGetHistory(String uniqueId) {
                         super.onGetHistory(uniqueId);
@@ -631,11 +631,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ArrayList<Integer> threadIds = new ArrayList<>();
         threadIds.add(2);
 //        threadIds.add(1031);
-        presenter.getThreads(2, null, threadIds, null, null);
+        presenter.getThreads(10, null, threadIds, null, null);
     }
 
     private void getThreadParticipant() {
-        presenter.getThreadParticipant(500, 0L, 1105, null);
+        presenter.getThreadParticipant(500, 0L, 2, null);
     }
 
     @Override

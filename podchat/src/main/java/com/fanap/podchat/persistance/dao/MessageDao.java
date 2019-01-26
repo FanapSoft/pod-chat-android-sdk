@@ -1,10 +1,12 @@
 package com.fanap.podchat.persistance.dao;
 
+import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
+import android.support.annotation.WorkerThread;
 
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
@@ -38,8 +40,12 @@ public interface MessageDao {
     @Query("DELETE FROM CacheContact WHERE id =:id")
     void deleteContactById(long id);
 
-    @Query("select * from CacheContact")
-    List<CacheContact> getContact();
+    @Query("select * from CacheContact LIMIT :count OFFSET :offset")
+    List<CacheContact> getContact(Integer count, Long offset);
+
+
+    @Query("SELECT COUNT(id) FROM CacheContact")
+    int getContactCount();
 
     /**
      * Cache thread history
@@ -55,7 +61,7 @@ public interface MessageDao {
 
     /**
      * String Query
-     * */
+     */
     @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY timeStamp DESC LIMIT :count OFFSET :offset")
     List<CacheMessageVO> getQueryDESC(long count, long offset, long threadVoId, String query);
 
@@ -70,7 +76,7 @@ public interface MessageDao {
 
     /**
      * Get history
-     * */
+     */
 
     @Query("select * from CacheMessageVO where threadVoId = :threadVoId ORDER BY timeStamp ASC LIMIT :count OFFSET :offset ")
     List<CacheMessageVO> getHistoriesASC(long count, long offset, long threadVoId);
@@ -90,10 +96,9 @@ public interface MessageDao {
     @Query("select * from CacheMessageVO where threadVoId = :threadVoId AND id BETWEEN :fromTime AND :toTime ORDER BY timeStamp DESC LIMIT :count OFFSET :offset ")
     List<CacheMessageVO> getHistoriesFandLDESC(long count, long offset, long threadVoId, long fromTime, long toTime);
 
-
     /**
      * Delete message
-     * */
+     */
 
     @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId AND timeStamp IN (select timeStamp from CacheMessageVO ORDER BY timeStamp ASC LIMIT :count OFFSET :offset )")
     void deleteMessageAfterOffsetTime(long count, long offset, long threadVoId);
@@ -130,17 +135,20 @@ public interface MessageDao {
      * Cache thread
      */
 
+    @RawQuery
+    List<ThreadVo> getThreadRaw (SupportSQLiteQuery query);
+
     @Query("select COUNT(id) FROM THREADVO ")
     int getThreadCount();
 
-    @Query("select * from ThreadVo LIMIT :count OFFSET :offset")
+    @Query("select * from ThreadVo  ORDER BY id DESC LIMIT :count OFFSET :offset ")
     List<ThreadVo> getThreads(long count, long offset);
 
     @Query("select  * from ThreadVo where id = :id")
     ThreadVo getThreadById(long id);
 
-    @Query("select  * from ThreadVo where title = :title")
-    ThreadVo getThreadByName(String title);
+    @Query("select  * from ThreadVo where title LIKE  '%' ||:title ||'%' ORDER BY id DESC LIMIT :count OFFSET :offset ")
+    List<ThreadVo> getThreadByName(long count, long offset, String title);
 
     @Insert(onConflict = REPLACE)
     void insertThreads(List<ThreadVo> ThreadVo);
@@ -185,6 +193,11 @@ public interface MessageDao {
 
     @Query("select * from CacheParticipant WHERE threadId = :threadId")
     List<CacheParticipant> geParticipantsWithThreadId(long threadId);
+
+    /**
+     * cache Thread_Participant
+     */
+    //TODO
 
     /**
      * Search contact
