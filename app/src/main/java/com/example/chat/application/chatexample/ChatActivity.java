@@ -251,7 +251,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         break;
                     case 7:
-                        presenter.leaveThread(1288, new ChatHandler() {
+                        presenter.leaveThread(1576, new ChatHandler() {
                             @Override
                             public void onLeaveThread(String uniqueId) {
                                 super.onLeaveThread(uniqueId);
@@ -352,7 +352,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String meta = JsonUtil.getJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 1288, 2, meta, null);
+                , 1576, 2, meta, null);
 //                new ChatHandler() {
 //                    @Override
 //                    public void onSent(String uniqueId, long threadId) {
@@ -432,7 +432,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(500, null, 351, new ChatHandler() {
+                presenter.getThreadParticipant(20, null, 351, new ChatHandler() {
                     @Override
                     public void onGetThreadParticipant(String uniqueId) {
                         super.onGetThreadParticipant(uniqueId);
@@ -553,8 +553,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void getThreads() {
         ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(1574);
-                threadIds.add(1573);
+                threadIds.add(1576);
+//                threadIds.add(1573);
 //                threadIds.add(351);
 //        RequestThread requestThread = new RequestThread
 //                .Builder()
@@ -563,7 +563,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                .build();
 //        presenter.getThreads(requestThread);
 
-        presenter.getThreads(5, null, threadIds, "t", null);
+        presenter.getThreads(15, null, threadIds, null, null);
     }
 
     public void replyMessage() {

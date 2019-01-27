@@ -1,14 +1,10 @@
 package com.fanap.podchat.cachemodel;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
 
 /*Link thread and participant together */
-@Entity
+@Entity(primaryKeys = {"threadId","participantId"})
 public class CacheThreadParticipant {
-
-    @PrimaryKey(autoGenerate = true)
-    private long id;
 
     private long threadId;
     private long participantId;
@@ -36,13 +32,5 @@ public class CacheThreadParticipant {
 
     public void setExpireDate(String expireDate) {
         this.expireDate = expireDate;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 }

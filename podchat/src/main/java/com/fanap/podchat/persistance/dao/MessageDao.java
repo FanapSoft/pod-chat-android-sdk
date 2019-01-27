@@ -6,6 +6,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
+import android.arch.persistence.room.Transaction;
 import android.support.annotation.WorkerThread;
 
 import com.fanap.podchat.cachemodel.CacheContact;
@@ -14,6 +15,7 @@ import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
+import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Inviter;
@@ -100,6 +102,9 @@ public interface MessageDao {
      * Delete message
      */
 
+    @Query("DELETE FROM CACHEMESSAGEVO WHERE id = :threadId")
+    void deleteAllMessageByThread(long threadId);
+
     @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId AND timeStamp IN (select timeStamp from CacheMessageVO ORDER BY timeStamp ASC LIMIT :count OFFSET :offset )")
     void deleteMessageAfterOffsetTime(long count, long offset, long threadVoId);
 
@@ -135,8 +140,11 @@ public interface MessageDao {
      * Cache thread
      */
 
+    @Query("SELECT lastMessageVOId FROM ThreadVo WHERE id = :threadId ")
+    long getLastMessageId(long threadId);
+
     @RawQuery
-    List<ThreadVo> getThreadRaw (SupportSQLiteQuery query);
+    List<ThreadVo> getThreadRaw(SupportSQLiteQuery query);
 
     @Query("select COUNT(id) FROM THREADVO ")
     int getThreadCount();
@@ -156,6 +164,9 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertThread(ThreadVo threadVo);
 
+    @Query("DELETE FROM threadvo WHERE id = :threadId")
+    void deleteThread(long threadId);
+
     /**
      * cache inviter
      */
@@ -166,12 +177,17 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertInviter(Inviter inviter);
 
-    //cache LastMessageVO
+    /**
+     * cache LastMessageVO
+     */
     @Insert(onConflict = REPLACE)
     void insertLastMessageVO(CacheLastMessageVO lastMessageVO);
 
     @Query("select * from CacheLastMessageVO where id = :LastMessageVOId")
     CacheLastMessageVO getLastMessageVO(long LastMessageVOId);
+
+    @Query("DELETE FROM cachelastmessagevo WHERE id = :id ")
+    void deleteLastMessage(long id);
 
     /**
      * cache participant
@@ -197,7 +213,19 @@ public interface MessageDao {
     /**
      * cache Thread_Participant
      */
-    //TODO
+
+    @Insert(onConflict = REPLACE)
+    void insertThreadParticipant(CacheThreadParticipant cacheThreadParticipant);
+
+    @Query("DELETE FROM CacheThreadParticipant WHERE participantId =:participantId")
+    void deleteCacheThreadParticipnat(long participantId);
+
+    @Query("SELECT * FROM cachethreadparticipant WHERE threadId = :threadId LIMIT :count OFFSET :offset ")
+    List<CacheThreadParticipant> getAllThreadParticipants(long offset, long count, long threadId);
+
+
+    @Query("DELETE FROM CacheThreadParticipant WHERE threadId = :threadId")
+    void deleteAllThreadParticipant(long threadId);
 
     /**
      * Search contact

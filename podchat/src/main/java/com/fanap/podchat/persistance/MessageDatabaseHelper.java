@@ -10,6 +10,7 @@ import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
+import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
@@ -642,7 +643,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return contacts;
     }
 
-    public int getContactCount(){
+    public int getContactCount() {
         return messageDao.getContactCount();
     }
 
@@ -716,7 +717,11 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     }
 
     public UserInfo getUserInfo() {
-        return messageDao.getUserInfo();
+        UserInfo userInfo = new UserInfo();
+        if (messageDao.getUserInfo() != null) {
+            userInfo = messageDao.getUserInfo();
+        }
+        return userInfo;
     }
 
     public int getThreadCount() {
@@ -749,7 +754,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
 
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(sQuery);
-        List<ThreadVo>  threadVos=  messageDao.getThreadRaw(query);
+        List<ThreadVo> threadVos = messageDao.getThreadRaw(query);
 
         List<Thread> threads = new ArrayList<>();
         if (threadVos != null) {
@@ -819,7 +824,6 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                             null
                     );
                 }
-
 
                 Thread thread = new Thread(
                         threadVo.getId(),
@@ -1248,10 +1252,22 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
     }
 
+    public void leaveThread(long threadId) {
+        deleteLastMessageVo(threadId);
+        messageDao.deleteThread(threadId);
+        messageDao.deleteAllThreadParticipant(threadId);
+        messageDao.deleteAllMessageByThread(threadId);
+    }
+
+    private void deleteLastMessageVo(long threadId){
+        long lastMsgId = messageDao.getLastMessageId(threadId);
+        messageDao.deleteLastMessage(lastMsgId);
+    }
+
     /**
      * Cache participant
      */
-
+    //TODO i have to remove expireDate from Cache Participant Table
     public void saveParticipants(List<CacheParticipant> participants, long threadId, int expireSecond) {
         for (CacheParticipant participant : participants) {
             participant.setThreadId(threadId);
@@ -1262,22 +1278,15 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
             c.add(Calendar.SECOND, expireSecond);
             String expireDate = format.format(c.getTime());
 
-            participant.setExpireDate(expireDate);
-
             messageDao.insertParticipant(participant);
+
+            CacheThreadParticipant ctp = new CacheThreadParticipant();
+            ctp.setExpireDate(expireDate);
+            ctp.setParticipantId(participant.getId());
+            ctp.setThreadId(threadId);
+
+            messageDao.insertThreadParticipant(ctp);
         }
-    }
-
-    public void saveParticipant(CacheParticipant cacheParticipant, int expireSecond) {
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.add(Calendar.SECOND, expireSecond);
-        String expireDate = format.format(c.getTime());
-
-        cacheParticipant.setExpireDate(expireDate);
-
-        messageDao.insertParticipant(cacheParticipant);
     }
 
     public void deleteParticipant(long threadId, long id) {
@@ -1289,7 +1298,8 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
      */
     public List<Participant> getThreadParticipant(long offset, long count, long threadId) {
         List<Participant> participants = new ArrayList<>();
-        if (messageDao.geParticipants(offset, count, threadId) == null) {
+        List<CacheThreadParticipant> listCtp = messageDao.getAllThreadParticipants(offset, count, threadId);
+        if (listCtp == null) {
             return participants;
         } else {
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
@@ -1297,14 +1307,15 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
             c.setTime(new Date());
             Date nowDate = c.getTime();
 
-            List<CacheParticipant> cacheParticipants = messageDao.geParticipants(offset, count, threadId);
-            for (CacheParticipant cParticipant : cacheParticipants) {
-
+            for (CacheThreadParticipant threadParticipant : listCtp) {
                 try {
-                    Date expireDate = format.parse(cParticipant.getExpireDate());
+                    Date expireDate = format.parse(threadParticipant.getExpireDate());
+                    long participantId = threadParticipant.getParticipantId();
+
                     if (expireDate.compareTo(nowDate) < 0) {
-                        deleteParticipant(threadId, cParticipant.getId());
+                        messageDao.deleteCacheThreadParticipnat(participantId);
                     } else {
+                        CacheParticipant cParticipant = messageDao.getParticipant(participantId);
                         Participant participant = new Participant(
                                 cParticipant.getId(),
                                 cParticipant.getName(),
@@ -1323,16 +1334,58 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                                 cParticipant.getMyFriend(),
                                 cParticipant.getOnline(),
                                 cParticipant.getBlocked(),
-                                cParticipant.getAdmin()
-                        );
+                                cParticipant.getAdmin());
                         participants.add(participant);
                     }
+
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
+
+//            List<CacheParticipant> cacheParticipants = messageDao.geParticipants(offset, count, threadId);
+//            for (CacheParticipant cParticipant : cacheParticipants) {
+//
+//                try {
+//                    Date expireDate = format.parse(cParticipant.getExpireDate());
+//                    if (expireDate.compareTo(nowDate) < 0) {
+//                        deleteParticipant(threadId, cParticipant.getId());
+//                    } else {
+//                        Participant participant = new Participant(
+//                                cParticipant.getId(),
+//                                cParticipant.getName(),
+//                                cParticipant.getFirstName(),
+//                                cParticipant.getLastName(),
+//                                cParticipant.getImage(),
+//                                cParticipant.getNotSeenDuration(),
+//                                cParticipant.getContactId(),
+//                                cParticipant.getContactName(),
+//                                cParticipant.getContactFirstName(),
+//                                cParticipant.getContactLastName(),
+//                                cParticipant.getSendEnable(),
+//                                cParticipant.getReceiveEnable(),
+//                                cParticipant.getCellphoneNumber(),
+//                                cParticipant.getEmail(),
+//                                cParticipant.getMyFriend(),
+//                                cParticipant.getOnline(),
+//                                cParticipant.getBlocked(),
+//                                cParticipant.getAdmin()
+//                        );
+//                        participants.add(participant);
+//                    }
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
+//            }
         }
         return participants;
+    }
+
+    private Date createNewDate() {
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        return c.getTime();
     }
 
     public long getParticipantCount(long threadId) {
@@ -1485,5 +1538,6 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
         return contacts;
     }
+
 
 }
