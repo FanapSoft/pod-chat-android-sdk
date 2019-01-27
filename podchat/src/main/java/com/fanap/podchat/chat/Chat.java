@@ -1360,7 +1360,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * @param participantIds List of PARTICIPANT IDs from Thread's Participants object
+     * @param participantIds List of PARTICIPANT IDs that gets from {@link #getThreadParticipants}
      * @param threadId       Id of the thread that we wants to remove their participant
      */
     public String removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler) {
@@ -1381,6 +1381,10 @@ public class Chat extends AsyncAdapter {
             removeParticipant.setContent(contacts.toString());
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(removeParticipant);
+            jsonObject.remove("contentCount");
+            jsonObject.remove("systemMetadata");
+            jsonObject.remove("metadata");
+            jsonObject.remove("repliedTo");
 
             if (Util.isNullOrEmpty(getTypeCode())) {
                 jsonObject.remove("typeCode");
@@ -1401,7 +1405,6 @@ public class Chat extends AsyncAdapter {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             if (log) Logger.json(jsonError);
         }
-
         return uniqueId;
     }
 
@@ -1411,45 +1414,11 @@ public class Chat extends AsyncAdapter {
      */
     public String removeParticipants(RequestRemoveParticipants request, ChatHandler handler) {
 
-        String uniqueId = generateUniqueId();
-        if (chatReady) {
-            ChatMessage chatMessage = new ChatMessage();
+        List<Long> participantIds = request.getParticipantIds();
+        long threadId = request.getThreadId();
+        String typeCode = request.getTypeCode();
 
-            chatMessage.setTokenIssuer("1");
-            chatMessage.setType(Constants.REMOVE_PARTICIPANT);
-            chatMessage.setSubjectId(request.getThreadId());
-            chatMessage.setToken(getToken());
-            chatMessage.setUniqueId(uniqueId);
-            JsonArray contacts = new JsonArray();
-            for (Long p : request.getParticipantIds()) {
-                contacts.add(p);
-            }
-            chatMessage.setContent(contacts.toString());
-
-            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-            jsonObject.remove("contentCount");
-            jsonObject.remove("systemMetadata");
-            jsonObject.remove("metadata");
-            jsonObject.remove("repliedTo");
-
-            String typeCode = request.getTypeCode();
-            if (Util.isNullOrEmpty(typeCode)) {
-                jsonObject.addProperty("typeCode", getTypeCode());
-            } else {
-                jsonObject.remove("typeCode");
-            }
-
-            sendAsyncMessage(jsonObject.toString(), 4, "SEND_REMOVE_PARTICIPANT");
-            setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
-            if (handler != null) {
-                handler.onRemoveParticipants(uniqueId);
-            }
-        } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-            if (log) Logger.json(jsonError);
-        }
-
-        return uniqueId;
+        return removeParticipants(threadId, participantIds, handler);
     }
 
     public String leaveThread(long threadId, ChatHandler handler) {
@@ -3627,99 +3596,18 @@ public class Chat extends AsyncAdapter {
      * threadId id of the thread we want to get the participant list
      */
     public String getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) {
-        String uniqueId;
-        uniqueId = generateUniqueId();
 
-        try {
-            long count = request.getCount();
-            long offset = request.getOffset();
-            long threadId = request.getThreadId();
-            String typeCode = request.getTypeCode();
+        long count = request.getCount();
+        long offset = request.getOffset();
+        long threadId = request.getThreadId();
+        String typeCode = request.getTypeCode();
 
-            if (Util.isNullOrEmpty(count)) {
-                count = 50;
-            }
-
-            if (cache) {
-                List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId);
-                if (participants != null) {
-                    long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
-                    ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
-
-                    ResultParticipant resultParticipant = new ResultParticipant();
-
-                    resultParticipant.setContentCount(participants.size());
-                    if (participants.size() + offset < participantCount) {
-                        resultParticipant.setHasNext(true);
-                    } else {
-                        resultParticipant.setHasNext(false);
-                    }
-                    resultParticipant.setParticipants(participants);
-                    chatResponse.setResult(resultParticipant);
-                    resultParticipant.setNextOffset(offset + participants.size());
-                    String jsonParticipant = gson.toJson(chatResponse);
-                    listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
-                    Logger.json(jsonParticipant);
-                }
-            }
-
-            if (chatReady) {
-
-                JsonObject jsonContent = (JsonObject) gson.toJsonTree(request);
-                jsonContent.remove("threadId");
-
-                ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setContent(jsonContent.toString());
-
-                chatMessage.setType(Constants.THREAD_PARTICIPANTS);
-                chatMessage.setTokenIssuer("1");
-                chatMessage.setToken(getToken());
-                chatMessage.setUniqueId(uniqueId);
-                chatMessage.setSubjectId(threadId);
-
-                JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-                jsonObject.remove("contentCount");
-                jsonObject.remove("systemMetadata");
-                jsonObject.remove("metadata");
-                jsonObject.remove("repliedTo");
-
-                if (Util.isNullOrEmpty(typeCode)) {
-                    if (Util.isNullOrEmpty(getTypeCode())) {
-                        jsonObject.remove("typeCode");
-                    } else {
-                        jsonObject.addProperty("typeCode", getTypeCode());
-                    }
-                } else {
-                    jsonObject.addProperty("typeCode", request.getTypeCode());
-                }
-
-
-                jsonObject.remove("lastMessageId");
-                jsonObject.remove("firstMessageId");
-
-                setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
-                if (handler != null) {
-                    handler.onGetThreadParticipant(uniqueId);
-                }
-                sendAsyncMessage(jsonObject.toString(), 3, "SEND_THREAD_PARTICIPANT");
-            } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                if (log) Logger.e(jsonError);
-            }
-        } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
-        }
-
-        return uniqueId;
+        return getThreadParticipantsMain((int) count, offset, threadId, typeCode, handler);
     }
 
-    /**
-     * Get the participant list of specific thread
-     *
-     * @param threadId id of the thread we want to ge the participant list
-     */
-    public String getThreadParticipants(Integer count, Long offset, long threadId, ChatHandler handler) {
+    private String getThreadParticipantsMain(Integer count, Long offset, long threadId, String typeCode, ChatHandler handler) {
         String uniqueId;
+        uniqueId = generateUniqueId();
 
         offset = offset != null ? offset : 0;
         count = count != null ? count : 50;
@@ -3728,7 +3616,6 @@ public class Chat extends AsyncAdapter {
             if (participants != null) {
                 long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
                 ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
-
                 ResultParticipant resultParticipant = new ResultParticipant();
 
                 resultParticipant.setContentCount(participants.size());
@@ -3739,14 +3626,18 @@ public class Chat extends AsyncAdapter {
                 }
                 resultParticipant.setParticipants(participants);
                 chatResponse.setResult(resultParticipant);
+                chatResponse.setCache(true);
+
                 resultParticipant.setNextOffset(offset + participants.size());
                 String jsonParticipant = gson.toJson(chatResponse);
                 listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
-                Logger.json(jsonParticipant);
+                if (log) {
+                    Logger.i("Cache Thread Participant");
+                    Logger.json(jsonParticipant);
+                }
             }
         }
 
-        uniqueId = generateUniqueId();
         if (chatReady) {
 
             ChatMessageContent chatMessageContent = new ChatMessageContent();
@@ -3776,6 +3667,10 @@ public class Chat extends AsyncAdapter {
 
             jsonObject.remove("lastMessageId");
             jsonObject.remove("firstMessageId");
+            jsonObject.remove("contentCount");
+            jsonObject.remove("systemMetadata");
+            jsonObject.remove("metadata");
+            jsonObject.remove("repliedTo");
 
             String asyncContent = jsonObject.toString();
 
@@ -3790,6 +3685,16 @@ public class Chat extends AsyncAdapter {
         }
 
         return uniqueId;
+
+    }
+
+    /**
+     * Get the participant list of specific thread
+     *
+     * @param threadId id of the thread we want to ge the participant list
+     */
+    public String getThreadParticipants(Integer count, Long offset, long threadId, ChatHandler handler) {
+        return getThreadParticipantsMain(count, offset, threadId, null, handler);
     }
 
     public String seenMessage(long messageId, long ownerId, ChatHandler handler) {
@@ -3888,8 +3793,8 @@ public class Chat extends AsyncAdapter {
 
         try {
             if (cache) {
-                if (messageDatabaseHelper.getUserInfo() != null) {
-                    UserInfo userInfo = messageDatabaseHelper.getUserInfo();
+                UserInfo userInfo = messageDatabaseHelper.getUserInfo();
+                if (userInfo != null) {
                     ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
 
                     ResultUserInfo result = new ResultUserInfo();
@@ -4426,7 +4331,7 @@ public class Chat extends AsyncAdapter {
 
     private int getExpireAmount() {
         if (Util.isNullOrEmpty(expireAmount)) {
-            expireAmount = 2*24*60*60;
+            expireAmount = 2 * 24 * 60 * 60;
         }
         return expireAmount;
     }
@@ -5279,7 +5184,10 @@ public class Chat extends AsyncAdapter {
         ChatResponse<ResultLeaveThread> chatResponse = new ChatResponse<>();
 
         ResultLeaveThread leaveThread = gson.fromJson(chatMessage.getContent(), ResultLeaveThread.class);
-        leaveThread.setThreadId(chatMessage.getSubjectId());
+
+        long threadId = chatMessage.getSubjectId();
+
+        leaveThread.setThreadId(threadId);
         chatResponse.setErrorCode(0);
         chatResponse.setHasError(false);
         chatResponse.setErrorMessage("");
@@ -5287,6 +5195,10 @@ public class Chat extends AsyncAdapter {
         chatResponse.setResult(leaveThread);
 
         String jsonThread = gson.toJson(chatResponse);
+
+        if (cache) {
+            messageDatabaseHelper.leaveThread(threadId);
+        }
 
         listenerManager.callOnThreadLeaveParticipant(jsonThread, chatResponse);
         if (callback != null) {
