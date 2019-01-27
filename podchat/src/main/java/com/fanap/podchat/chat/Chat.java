@@ -3697,6 +3697,9 @@ public class Chat extends AsyncAdapter {
         return getThreadParticipantsMain(count, offset, threadId, null, handler);
     }
 
+    /**
+     * In order to send seen message you have to call {@link #seenMessage(long, long, ChatHandler)}
+     */
     public String seenMessage(long messageId, long ownerId, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -3718,6 +3721,10 @@ public class Chat extends AsyncAdapter {
                     jsonObject.remove("typeCode");
                     jsonObject.addProperty("typeCode", getTypeCode());
                 }
+                jsonObject.remove("contentCount");
+                jsonObject.remove("systemMetadata");
+                jsonObject.remove("metadata");
+                jsonObject.remove("repliedTo");
 
                 String asyncContent = jsonObject.toString();
 
@@ -3734,55 +3741,14 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * In order to send seen message you have to call {@link #seenMessage(long, long, ChatHandler)}
+     */
     public String seenMessage(RequestSeenMessage request, ChatHandler handler) {
-        String uniqueId;
-        uniqueId = generateUniqueId();
-        try {
-            JsonObject jsonObject = null;
-            if (chatReady) {
-                long ownerId = request.getOwnerId();
-                long messageId = request.getMessageId();
-                String typeCode = request.getTypeCode();
-
-                if (ownerId != getUserId()) {
-                    ChatMessage message = new ChatMessage();
-                    message.setType(Constants.SEEN);
-                    message.setContent(String.valueOf(messageId));
-                    message.setTokenIssuer("1");
-                    message.setToken(getToken());
-                    message.setUniqueId(uniqueId);
-                    message.setTime(1000);
-
-                    jsonObject = (JsonObject) gson.toJsonTree(message);
-                    jsonObject.remove("contentCount");
-                    jsonObject.remove("systemMetadata");
-                    jsonObject.remove("metadata");
-                    jsonObject.remove("repliedTo");
-
-                    if (Util.isNullOrEmpty(typeCode)) {
-                        if (Util.isNullOrEmpty(getTypeCode())) {
-                            jsonObject.remove("typeCode");
-                        } else {
-                            jsonObject.addProperty("typeCode", getTypeCode());
-                        }
-                    } else {
-                        jsonObject.addProperty("typeCode", request.getTypeCode());
-                    }
-                    sendAsyncMessage(jsonObject.toString(), 4, "SEND_SEEN_MESSAGE");
-
-                    if (handler != null) {
-                        handler.onSeen(uniqueId);
-                    }
-                }
-
-            } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                if (log) Logger.e(jsonError);
-            }
-        } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
-        }
-        return uniqueId;
+        long messageId = request.getMessageId();
+        long ownerId = request.getOwnerId();
+        request.getTypeCode();
+        return seenMessage(messageId, ownerId, handler);
     }
 
     /**
