@@ -233,8 +233,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     case 2:
                         presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
-                                381
-                                , getUri(), null, null);
+                                381,
+                                getUri(), null,null, null);
                         break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, getUri());

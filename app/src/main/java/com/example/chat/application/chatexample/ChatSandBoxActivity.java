@@ -407,7 +407,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         String meta = JsonUtil.getJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
                 .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
-        presenter.replyFileMessage(fileMessage);
+        presenter.replyFileMessage(fileMessage,null);
     }
 
     public void deleteMessage() {
@@ -432,10 +432,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
         RequestFileMessage requestFileMessage = new RequestFileMessage
                 .Builder(this, 1105, getUri())
-                .metaData("name")
+                .systemMetadata("name")
                 .build();
 
-        presenter.sendFileMessage(requestFileMessage);
+        presenter.sendFileMessage(requestFileMessage,null);
 
 //      presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
 //        "test file message",
