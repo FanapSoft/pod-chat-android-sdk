@@ -30,7 +30,6 @@ import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -459,13 +458,16 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 //jiji 122
                 //"firstName": "Ziiii",     │         "userId": 121,
                 Invitee[] invite = new Invitee[]{
-                        new Invitee(121, 5)
+                        new Invitee(2952, 2)
 //                        , new Invitee(1967, 2)
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
                 };
+                Inviter inviterw = new Inviter();
+                inviterw.setName("this is sample metadata");
+                String metac = JsonUtil.getJson(inviterw);
                 presenter.createThread(0, invite, null,"sina thread"
-                        ,null,null, new ChatHandler() {
+                        ,null,metac, new ChatHandler() {
                     @Override
                     public void onCreateThread(String uniqueId) {
                         super.onCreateThread(uniqueId);

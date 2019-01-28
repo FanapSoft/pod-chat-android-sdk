@@ -19,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
@@ -38,7 +39,6 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.util.JsonUtil;
@@ -69,7 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "38d5a87b2bb8475aa7031ee05b4667bc";
+    private static String TOKEN = "918f20c34659486084171c640814a08e";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -78,7 +78,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
     private static String fileServer = "http://sandbox.pod.land:8443/";
     private static String TYPE_CODE = "";
-//    SqlScoutServer sqlScoutServer;
 
 
     @Override
@@ -544,10 +543,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                        , new Invitee(2404, 2)
 //                        , new Invitee(824, 2)
                 };
-
+                CacheMessageVO cacheMessageVO = new CacheMessageVO();
+                cacheMessageVO.setConversationId(5464);
+                String metacreat = JsonUtil.getJson(cacheMessageVO);
                 String image = "https://core.pod.land/nzh/image/?imageId=17006&width=476&height=476&hashCode=1666eedb75b-0.7473066083939505";
-                presenter.createThread(0, invite, null, null
-                        , image, "poria", new ChatHandler() {
+                presenter.createThread(0, invite, null, "this is the test description"
+                        , image, metacreat, new ChatHandler() {
                             @Override
                             public void onCreateThread(String uniqueId) {
                                 super.onCreateThread(uniqueId);

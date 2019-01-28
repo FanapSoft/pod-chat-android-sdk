@@ -3,7 +3,6 @@ package com.fanap.podchat.chat;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.arch.lifecycle.LiveData;
-import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -167,7 +166,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -2011,11 +2009,10 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
 
-
+        List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history, threadId);
         if (cache) {
-            if (messageDatabaseHelper.getHistories(history, threadId) != null) {
+            if (messageVOS != null) {
 
-                List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history, threadId);
                 long contentCount = messageDatabaseHelper.getHistoryContentCount(threadId);
 
                 ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
@@ -2174,6 +2171,10 @@ public class Chat extends AsyncAdapter {
                     .firstMessageId(request.getFirstMessageId())
                     .lastMessageId(request.getLastMessageId())
                     .offset(request.getOffset())
+                    .fromTime(request.getFromTime())
+                    .fromTimeNanos(request.getFromTimeNanos())
+                    .toTime(request.getToTime())
+                    .toTimeNanos(request.getToTimeNanos())
                     .order(request.getOrder()).build();
             getHistoryMain(history, request.getThreadId(), handler, uniqueId);
 
@@ -2241,6 +2242,9 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
 
+        count = count != null && count >= 0 ? count : 50;
+        offset = offset != null && offset >= 0 ? offset : 0;
+
         if (cache) {
             ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacts(count, offset));
             ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
@@ -2261,23 +2265,14 @@ public class Chat extends AsyncAdapter {
 
             ChatMessageContent chatMessageContent = new ChatMessageContent();
 
-            if (offset != null) {
-                chatMessageContent.setOffset(offset);
-            } else {
-                chatMessageContent.setOffset(0);
-            }
+            chatMessageContent.setOffset(offset);
 
             JsonObject jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
             jObj.remove("lastMessageId");
             jObj.remove("firstMessageId");
 
-            if (count != null) {
-                jObj.remove("count");
-                jObj.addProperty("size", count);
-            } else {
-                jObj.remove("count");
-                jObj.addProperty("size", 50);
-            }
+            jObj.remove("count");
+            jObj.addProperty("size", count);
 
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setContent(jObj.toString());
@@ -2312,7 +2307,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    //TODO test again
+    //TODO test again on cache
     public String searchContact(SearchContact searchContact) {
         String uniqueId = generateUniqueId();
         String type_code;
@@ -2347,7 +2342,6 @@ public class Chat extends AsyncAdapter {
 
             if (log) Logger.json(jsonContact);
             if (log) Logger.i("CACHE_SEARCH_CONTACT");
-
         }
 
         if (searchContact.getTypeCode() != null && !searchContact.getTypeCode().isEmpty()) {
@@ -2747,6 +2741,12 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
+    /**
+     * String searchTerm ;
+     * double latitude  ;
+     * double longitude ;
+     */
 
     public String mapSearch(RequestMapSearch request) {
         String uniqueId = generateUniqueId();
@@ -3491,6 +3491,7 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
 
     public String updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler) {
         String uniqueId;
@@ -5991,7 +5992,7 @@ public class Chat extends AsyncAdapter {
                     pingAfterSetToken();
                     retryTokenRunOnUIThread(this::run, retrySetToken * 1000);
                     if (log)
-                        Logger.i("Ping for check Token Athentication is retry after " + retrySetToken + " s");
+                        Logger.i("Ping for check Token Authentication is retry after " + retrySetToken + " s");
                 }
             }, retrySetToken * 1000);
         }

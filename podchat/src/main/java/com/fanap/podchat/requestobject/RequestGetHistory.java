@@ -8,6 +8,10 @@ public class RequestGetHistory extends BaseRequestObject {
     private long userId;
     private long id;
     private String query;
+    private long fromTime;
+    private long fromTimeNanos;
+    private long toTime;
+    private long toTimeNanos;
     private NosqlSearchMetadataCriteria metadataCriteria;
     private long firstMessageId;
     private long lastMessageId;
@@ -18,6 +22,15 @@ public class RequestGetHistory extends BaseRequestObject {
         this.order = builder.order;
         this.firstMessageId = builder.firstMessageId;
         this.lastMessageId = builder.lastMessageId;
+        this.query = builder.query;
+        this.userId = builder.userId;
+        this.id = builder.id;
+        this.fromTime = builder.fromTime;
+        this.fromTimeNanos = builder.fromTimeNanos;
+        this.toTime = builder.toTime;
+        this.toTimeNanos = builder.toTimeNanos;
+        this.metadataCriteria = builder.metadataCriteria;
+
     }
 
     public static class Builder extends BaseRequestObject.Builder<Builder> {
@@ -28,6 +41,10 @@ public class RequestGetHistory extends BaseRequestObject {
         private long userId;
         private long id;
         private String query;
+        private long fromTime;
+        private long fromTimeNanos;
+        private long toTime;
+        private long toTimeNanos;
         private NosqlSearchMetadataCriteria metadataCriteria;
 
         public Builder(long threadId) {
@@ -39,6 +56,27 @@ public class RequestGetHistory extends BaseRequestObject {
             return this;
         }
 
+        public Builder fromTime(long fromTime) {
+            this.fromTime = fromTime;
+            return this;
+        }
+
+        public Builder fromTimeNanos(long fromTimeNanos) {
+            this.fromTimeNanos = fromTimeNanos;
+            return this;
+        }
+
+        public Builder toTime(long toTime) {
+            this.toTime = toTime;
+            return this;
+        }
+
+        public Builder toTimeNanos(long toTimeNanos) {
+            this.toTimeNanos = toTimeNanos;
+            return this;
+        }
+
+
         public Builder lastMessageId(long lastMessageId) {
             this.lastMessageId = lastMessageId;
             return this;
@@ -49,7 +87,6 @@ public class RequestGetHistory extends BaseRequestObject {
             return this;
         }
 
-        //    private NosqlSearchMetadataCriteria metadataCriteria;
         public Builder userId(long userId) {
             this.userId = userId;
             return this;
@@ -142,5 +179,37 @@ public class RequestGetHistory extends BaseRequestObject {
 
     public void setMetadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
         this.metadataCriteria = metadataCriteria;
+    }
+
+    public long getFromTime() {
+        return fromTime;
+    }
+
+    public void setFromTime(long fromTime) {
+        this.fromTime = fromTime;
+    }
+
+    public long getFromTimeNanos() {
+        return fromTimeNanos;
+    }
+
+    public void setFromTimeNanos(long fromTimeNanos) {
+        this.fromTimeNanos = fromTimeNanos;
+    }
+
+    public long getToTime() {
+        return toTime;
+    }
+
+    public void setToTime(long toTime) {
+        this.toTime = toTime;
+    }
+
+    public long getToTimeNanos() {
+        return toTimeNanos;
+    }
+
+    public void setToTimeNanos(long toTimeNanos) {
+        this.toTimeNanos = toTimeNanos;
     }
 }
