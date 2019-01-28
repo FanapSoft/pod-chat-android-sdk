@@ -1,81 +1,8 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.LinkedUser;
+import com.fanap.podchat.mainmodel.Contact;
 
-public class ResultContacts {
+public class ResultContacts  extends Contact{
 
-    private Integer id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String cellphoneNumber;
-    private String uniqueId;
-    private long creationDate;
-    private LinkedUser linkedUser;
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCellphoneNumber() {
-        return cellphoneNumber;
-    }
-
-    public void setCellphoneNumber(String cellphoneNumber) {
-        this.cellphoneNumber = cellphoneNumber;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    public long getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(long creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public LinkedUser getLinkedUser() {
-        return linkedUser;
-    }
-
-    public void setLinkedUser(LinkedUser linkedUser) {
-        this.linkedUser = linkedUser;
-    }
 }
 

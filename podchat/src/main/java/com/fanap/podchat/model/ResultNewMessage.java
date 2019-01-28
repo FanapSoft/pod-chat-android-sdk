@@ -1,5 +1,7 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.MessageVO;
+
 public class ResultNewMessage {
     private long threadId;
     private MessageVO messageVO ;

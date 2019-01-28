@@ -5,8 +5,6 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.model.ForwardInfo;
-
 @Entity
 public class CacheLastMessageVO {
     @PrimaryKey

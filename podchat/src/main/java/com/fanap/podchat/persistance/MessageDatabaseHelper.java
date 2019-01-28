@@ -12,17 +12,24 @@ import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
+import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
+import com.fanap.podchat.cachemodel.queue.UploadingQueue;
+import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
+import com.fanap.podchat.cachemodel.queue.WaitQueue;
+import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.LastMessageVO;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
-import com.fanap.podchat.model.ForwardInfo;
-import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
+import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.Util;
 
@@ -34,13 +41,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MessageDatabaseHelper extends BaseDatabaseHelper {
+import javax.inject.Inject;
+
+public class MessageDatabaseHelper {
 
     private MessageDao messageDao;
+    private MessageQueueDao messageQueueDao;
 
-    public MessageDatabaseHelper(Context context) {
-        super(context);
-        messageDao = appDatabase.getMessageDao();
+    @Inject
+    public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao) {
+        this.messageQueueDao = messageQueueDao;
+        this.messageDao = messageDao;
     }
 
     /**
@@ -113,6 +124,184 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
 
         messageDao.insertMessage(cacheMessageVO);
+    }
+
+    /*
+     *
+     * Wait Queue
+     *
+     * */
+
+    public void insertWaitMessageQueue(SendingQueueCache sendingQueue) {
+        WaitQueueCache waitMessageQueue = new WaitQueueCache();
+
+        waitMessageQueue.setUniqueId(sendingQueue.getUniqueId());
+        waitMessageQueue.setId(sendingQueue.getId());
+        waitMessageQueue.setAsyncContent(sendingQueue.getAsyncContent());
+        waitMessageQueue.setMessage(sendingQueue.getMessage());
+        waitMessageQueue.setThreadId(sendingQueue.getThreadId());
+        waitMessageQueue.setMessageType(sendingQueue.getMessageType());
+        waitMessageQueue.setSystemMetadata(sendingQueue.getSystemMetadata());
+        waitMessageQueue.setMetadata(sendingQueue.getMetadata());
+
+        messageQueueDao.insertWaitMessageQueue(waitMessageQueue);
+    }
+
+    public void deleteWaitQueueMsgs(String uniqueId) {
+        messageQueueDao.deleteWaitMessageQueue(uniqueId);
+    }
+
+    public List<WaitQueueCache> getAllWaitQueueMsg() {
+        return messageQueueDao.getAllWaitQueueMsg();
+    }
+
+    public SendingQueueCache getWaitMessageQueue(String uniqueId) {
+        SendingQueueCache sendingQueueCache = new SendingQueueCache();
+
+//        messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
+//
+//        sendingQueueCache.
+//
+        return null;
+    }
+
+    public List<WaitQueue> getAllWaitQueueCacheByThreadId(long threadId) {
+        List<WaitQueue> listQueues = new ArrayList<>();
+        List<WaitQueueCache> listCaches = messageQueueDao.getWaitQueueMsgByThreadId(threadId);
+        for (WaitQueueCache queueCache : listCaches) {
+            WaitQueue waitQueue = new WaitQueue();
+
+            MessageVO messageVO = new MessageVO();
+
+            messageVO.setId(queueCache.getId());
+            messageVO.setMessage(queueCache.getMessage());
+            messageVO.setMessageType(queueCache.getMessageType());
+            messageVO.setMetadata(queueCache.getMetadata());
+            messageVO.setSystemMetadata(queueCache.getSystemMetadata());
+
+            waitQueue.setMessageVo(messageVO);
+            waitQueue.setThreadId(queueCache.getThreadId());
+            waitQueue.setUniqueId(queueCache.getUniqueId());
+
+            listQueues.add(waitQueue);
+        }
+        return listQueues;
+    }
+
+    public void getWaitQueueAsyncContent(String uniqueId) {
+        messageQueueDao.getWaitQueueAsyncContent(uniqueId);
+    }
+
+    /*
+     *
+     * Sending Queue
+     *
+     * */
+    public void insertSendingMessageQueue(SendingQueueCache sendingQueue) {
+        messageQueueDao.insertSendingMessageQueue(sendingQueue);
+    }
+
+    public void deleteSendingMessageQueue(String uniqueId) {
+        messageQueueDao.deleteSendingMessageQueue(uniqueId);
+    }
+
+    public SendingQueueCache getSendingQueueCache(String uniqueId) {
+        return messageQueueDao.getSendingQueue(uniqueId);
+    }
+
+    public List<SendingQueueCache> getAllSendingQueue() {
+        return messageQueueDao.getAllSendingQueue();
+    }
+
+    public List<WaitQueueCache> getListWaitQueueMsg(long threadId) {
+        return messageQueueDao.getWaitQueueMsgByThreadId(threadId);
+    }
+
+
+    public SendingQueueCache getWaitQueueMsgByUnique(String uniqueId) {
+        SendingQueueCache sendingQueueCache = new SendingQueueCache();
+        WaitQueueCache waitQueueCache = messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
+
+        sendingQueueCache.setAsyncContent(waitQueueCache.getAsyncContent());
+        sendingQueueCache.setId(waitQueueCache.getId());
+        sendingQueueCache.setMessage(waitQueueCache.getMessage());
+        sendingQueueCache.setMetadata(waitQueueCache.getMetadata());
+        sendingQueueCache.setThreadId(waitQueueCache.getThreadId());
+        sendingQueueCache.setUniqueId(waitQueueCache.getUniqueId());
+        sendingQueueCache.setSystemMetadata(waitQueueCache.getSystemMetadata());
+
+
+        return sendingQueueCache;
+    }
+
+
+    public List<WaitQueueCache> getWaitQueueMsg(long threadId) {
+        return messageQueueDao.getWaitQueueMsgByThreadId(threadId);
+    }
+
+    public List<SendingQueueCache> getAllSendingQueueCByThreadId(long threadId) {
+        return messageQueueDao.getAllSendingQueue();
+    }
+
+    public List<SendingQueue> getAllSendingQueueByThreadId(long threadId) {
+
+        List<SendingQueue> listQueues = new ArrayList<>();
+        List<SendingQueueCache> listCaches = messageQueueDao.getAllSendingQueue();
+
+        for (SendingQueueCache queueCache : listCaches) {
+            SendingQueue sendingQueue = new SendingQueue();
+            sendingQueue.setThreadId(queueCache.getThreadId());
+
+            MessageVO messageVO = new MessageVO();
+            messageVO.setId(queueCache.getId());
+            messageVO.setMessage(queueCache.getMessage());
+            messageVO.setMessageType(queueCache.getMessageType());
+            messageVO.setMetadata(queueCache.getMetadata());
+            messageVO.setSystemMetadata(queueCache.getSystemMetadata());
+
+            sendingQueue.setMessageVo(messageVO);
+
+            sendingQueue.setUniqueId(queueCache.getUniqueId());
+
+            listQueues.add(sendingQueue);
+        }
+        return listQueues;
+    }
+
+    /*
+     * Uploading Queue
+     * */
+
+    public void insertUploadingQueue(UploadingQueueCache uploadingQueue) {
+        messageQueueDao.insertUploadingQueue(uploadingQueue);
+    }
+
+    public List<UploadingQueue> getAllUploadingQueueByThreadId(long threadId) {
+        List<UploadingQueue> uploadingQueues = new ArrayList<>();
+        List<UploadingQueueCache> uploadingQueueCaches = messageQueueDao.getAllUploadingQueueByThreadId(threadId);
+
+        for (UploadingQueueCache queueCache : uploadingQueueCaches) {
+            UploadingQueue uploadingQueue = new UploadingQueue();
+
+            MessageVO messageVO = new MessageVO();
+
+            messageVO.setId(queueCache.getId());
+            messageVO.setMessage(queueCache.getMessage());
+            messageVO.setMessageType(queueCache.getMessageType());
+            messageVO.setMetadata(queueCache.getMetadata());
+            messageVO.setSystemMetadata(queueCache.getSystemMetadata());
+
+            uploadingQueue.setMessageVo(messageVO);
+            uploadingQueue.setThreadId(queueCache.getThreadId());
+            uploadingQueue.setUniqueId(queueCache.getUniqueId());
+            uploadingQueues.add(uploadingQueue);
+        }
+
+        return uploadingQueues;
+    }
+
+    public void deleteUploadingQueue(String uniqueId) {
+        messageQueueDao.deleteUploadingQueue(uniqueId);
     }
 
     public void deleteMessage(long id) {
@@ -422,7 +611,6 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         long messageId = history.getId();
         long offset = history.getOffset();
         long count = history.getCount();
-
         String query = history.getQuery();
         String order = history.getOrder();
 
@@ -1273,7 +1461,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     /**
      * Cache participant
      */
-    //TODO i have to remove expireDate from Cache Participant Table
+
     public void saveParticipants(List<CacheParticipant> participants, long threadId, int expireSecond) {
         for (CacheParticipant participant : participants) {
             participant.setThreadId(threadId);
@@ -1348,41 +1536,6 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
                     e.printStackTrace();
                 }
             }
-
-//            List<CacheParticipant> cacheParticipants = messageDao.geParticipants(offset, count, threadId);
-//            for (CacheParticipant cParticipant : cacheParticipants) {
-//
-//                try {
-//                    Date expireDate = format.parse(cParticipant.getExpireDate());
-//                    if (expireDate.compareTo(nowDate) < 0) {
-//                        deleteParticipant(threadId, cParticipant.getId());
-//                    } else {
-//                        Participant participant = new Participant(
-//                                cParticipant.getId(),
-//                                cParticipant.getName(),
-//                                cParticipant.getFirstName(),
-//                                cParticipant.getLastName(),
-//                                cParticipant.getImage(),
-//                                cParticipant.getNotSeenDuration(),
-//                                cParticipant.getContactId(),
-//                                cParticipant.getContactName(),
-//                                cParticipant.getContactFirstName(),
-//                                cParticipant.getContactLastName(),
-//                                cParticipant.getSendEnable(),
-//                                cParticipant.getReceiveEnable(),
-//                                cParticipant.getCellphoneNumber(),
-//                                cParticipant.getEmail(),
-//                                cParticipant.getMyFriend(),
-//                                cParticipant.getOnline(),
-//                                cParticipant.getBlocked(),
-//                                cParticipant.getAdmin()
-//                        );
-//                        participants.add(participant);
-//                    }
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//            }
         }
         return participants;
     }

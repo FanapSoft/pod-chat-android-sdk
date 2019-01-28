@@ -140,6 +140,14 @@ public interface ChatContract {
     }
 
     interface presenter {
+        void resendMessage(String uniqueId);
+
+        void cancelMessage(String uniqueId);
+
+        void retryUpload(String uniqueId);
+
+        void cancelUpload(String uniqueId);
+
         void seenMessageList(RequestSeenMessageList requestParam);
 
         void deliveredMessageList(RequestDeliveredMessageList requestParams);
@@ -187,7 +195,7 @@ public interface ChatContract {
 
         void replyMessage(String messageContent, long threadId, long messageId, Integer messageType, ChatHandler handler);
 
-        void replyFileMessage(RequestReplyFileMessage request);
+        void replyFileMessage(RequestReplyFileMessage request, ProgressHandler.sendFileMessage handler);
 
         void replyMessage(RequestReplyMessage request, ChatHandler handler);
 
@@ -219,9 +227,9 @@ public interface ChatContract {
 
         void getBlockList(Long count, Integer offset, ChatHandler handler);
 
-        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType);
+        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
 
-        void sendFileMessage(RequestFileMessage requestFileMessage);
+        void sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler);
 
         void syncContact(Activity activity);
 

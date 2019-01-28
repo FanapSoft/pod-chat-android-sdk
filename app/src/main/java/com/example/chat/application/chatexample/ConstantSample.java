@@ -24,7 +24,7 @@ public class ConstantSample {
     public static final String[] funcSecond = {
             "Choose function"
             , "Sync Contact"
-            , "Send file"
+            , "Send file message"
             , "Upload Image"
             , "Upload File"
             , "Remove Thread Participant"

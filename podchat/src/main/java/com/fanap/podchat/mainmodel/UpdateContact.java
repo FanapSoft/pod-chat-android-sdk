@@ -11,7 +11,7 @@ public class UpdateContact  {
     private Integer errorCode;
     private Integer count;
     private String ott;
-    private List<ResultContacts> result ;
+    private List<Contact> result ;
 
     public Boolean getHasError() {
         return hasError;
@@ -61,11 +61,11 @@ public class UpdateContact  {
         this.ott = ott;
     }
 
-    public List<ResultContacts> getResult() {
+    public List<Contact> getResult() {
         return result;
     }
 
-    public void setResult(List<ResultContacts> result) {
+    public void setResult(List<Contact> result) {
         this.result = result;
     }
 }

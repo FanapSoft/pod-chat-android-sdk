@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.ProgressHandler;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,18 +21,20 @@ public class ProgressRequestBody extends RequestBody {
     private String mimType;
     private UploadCallbacks mListener;
     private static final int DEFAULT_BUFFER_SIZE = 2048;
+    private String uniqueId;
 
-    public ProgressRequestBody(final File file,String mimType, final  UploadCallbacks listener) {
+    public ProgressRequestBody(final File file, String mimType, String uniqueId, final UploadCallbacks listener) {
         mFile = file;
         mListener = listener;
-        mimType = mimType;
+        this.uniqueId = uniqueId;
+        this.mimType = mimType;
     }
 
     @Nullable
     @Override
     public MediaType contentType() {
 //         return MediaType.parse("image/*");
-         return MediaType.parse(mimType);
+        return MediaType.parse(mimType);
     }
 
     @Override
@@ -51,7 +55,7 @@ public class ProgressRequestBody extends RequestBody {
             while ((read = in.read(buffer)) != -1) {
 
                 // update progress on UI thread
-                handler.post(new ProgressUpdater(uploaded, fileLength));
+                handler.post(new ProgressUpdater(uniqueId, uploaded, fileLength));
 
                 uploaded += read;
                 sink.write(buffer, 0, read);
@@ -64,21 +68,35 @@ public class ProgressRequestBody extends RequestBody {
     private class ProgressUpdater implements Runnable {
         private long mUploaded;
         private long mTotal;
-        public ProgressUpdater(long uploaded, long total) {
+        private String uniqueId;
+
+        public ProgressUpdater(String uniqueId, long uploaded, long total) {
             mUploaded = uploaded;
             mTotal = total;
+            this.uniqueId = uniqueId;
         }
 
         @Override
         public void run() {
-            mListener.onProgressUpdate((int)(100 * mUploaded / mTotal));
+
+            mListener.onProgressUpdate((int) (100 * mUploaded / mTotal));
+            mListener.onProgress(uniqueId, (int) (100 * mUploaded / mTotal), (int) mUploaded, (int) (mTotal - mUploaded));
         }
     }
 
     public interface UploadCallbacks {
-        void onProgressUpdate(int percentage);
-        void onError();
-        void onFinish();
+        @Deprecated
+        default void onProgressUpdate(int percentage) {
+        }
+
+        default void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        }
+
+        default void onError() {
+        }
+
+        default void onFinish() {
+        }
     }
 
 }

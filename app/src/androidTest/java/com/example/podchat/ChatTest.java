@@ -48,7 +48,7 @@ public class ChatTest extends ChatAdapter{
     private Activity activity;
     private Context appContext;
 
-    private static String TOKEN = "289d6bcb47474e899ff6c1defc3be511";
+    private static String TOKEN = "9a270004e8f44cff8fd43ae5dca23db0";
     private static String NAME = "SandBox";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";

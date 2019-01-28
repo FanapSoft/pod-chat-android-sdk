@@ -1,6 +1,5 @@
 package com.fanap.podchat.mainmodel;
 
-import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.ReplyInfoVO;
 
 public class LastMessageVO {
