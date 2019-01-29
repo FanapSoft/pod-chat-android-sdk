@@ -646,7 +646,7 @@ public class Chat extends AsyncAdapter {
         String textMessage = requestMessage.getTextMessage();
         long threadId = requestMessage.getThreadId();
         int messageType = requestMessage.getMessageType();
-        String jsonMetaData= requestMessage.getJsonMetaData();
+        String jsonMetaData = requestMessage.getJsonMetaData();
 
         return sendTextMessage(textMessage, threadId, messageType, jsonMetaData, handler);
     }
@@ -911,8 +911,6 @@ public class Chat extends AsyncAdapter {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             if (log) Logger.json(jsonError);
         }
-
-
         return uniqueId;
     }
 
@@ -1021,29 +1019,26 @@ public class Chat extends AsyncAdapter {
 
                             MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
                             Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
-                            uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
-                                @Override
-                                public void call(Response<FileUpload> fileUploadResponse) {
-                                    if (fileUploadResponse.isSuccessful()) {
-                                        boolean hasError = fileUploadResponse.body().isHasError();
-                                        if (hasError) {
-                                            String errorMessage = fileUploadResponse.body().getMessage();
-                                            int errorCode = fileUploadResponse.body().getErrorCode();
-                                            String jsonError = getErrorOutPut(errorMessage, errorCode, uniqueId);
-                                            if (log) Logger.e(jsonError);
-                                        } else {
-                                            ResultFile result = fileUploadResponse.body().getResult();
+                            uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
+                                if (fileUploadResponse.isSuccessful()) {
+                                    boolean hasError = fileUploadResponse.body().isHasError();
+                                    if (hasError) {
+                                        String errorMessage = fileUploadResponse.body().getMessage();
+                                        int errorCode = fileUploadResponse.body().getErrorCode();
+                                        String jsonError = getErrorOutPut(errorMessage, errorCode, uniqueId);
+                                        if (log) Logger.e(jsonError);
+                                    } else {
+                                        ResultFile result = fileUploadResponse.body().getResult();
 
-                                            ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
-                                            result.setSize(fileSize);
-                                            chatResponse.setUniqueId(uniqueId);
-                                            chatResponse.setResult(result);
-                                            String json = gson.toJson(chatResponse);
+                                        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+                                        result.setSize(fileSize);
+                                        chatResponse.setUniqueId(uniqueId);
+                                        chatResponse.setResult(result);
+                                        String json = gson.toJson(chatResponse);
 
-                                            listenerManager.callOnUploadFile(json, chatResponse);
-                                            if (log) Logger.i("RECEIVE_UPLOAD_FILE");
-                                            if (log) Logger.json(json);
-                                        }
+                                        listenerManager.callOnUploadFile(json, chatResponse);
+                                        if (log) Logger.i("RECEIVE_UPLOAD_FILE");
+                                        if (log) Logger.json(json);
                                     }
                                 }
                             }, throwable -> {
@@ -1051,6 +1046,10 @@ public class Chat extends AsyncAdapter {
                                         , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
                                 if (log) Logger.e(jsonError);
                             });
+
+
+                            uploadObservable.unsubscribeOn(Schedulers.io());
+
                         } else {
                             if (log) Logger.e("File is not Exist");
                             return null;
@@ -1235,7 +1234,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-
     //TODO resend Message
     public void resendMessage(String uniqueId) {
 
@@ -1258,8 +1256,11 @@ public class Chat extends AsyncAdapter {
     }
 
     //TODO test cancelUpload
-    public void cancelUpload() {
+    public void cancelUpload(String uniqueId) {
 
+        ProgressHandler.cancelUpload cancelUpload = new ProgressHandler.cancelUpload() {
+        };
+        cancelUpload.cancelUpload(uniqueId);
     }
 
     //TODO test retryUpload
@@ -1724,20 +1725,20 @@ public class Chat extends AsyncAdapter {
         int messageType = request.getMessageType();
         String methodName = ChatConstant.REPLY_MSG_METHOD;
         try {
-                if (fileUri != null) {
-                    File file = new File(fileUri.getPath());
-                    String mimeType = handleMimType(fileUri, file);
-                    if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-                        uploadImageFileMessage(getContext(), activity, messageContent, threadId, fileUri, mimeType, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName, handler);
-                    } else {
-                        String path = FilePick.getSmartFilePath(context, fileUri);
-                        uploadFileMessage(file, activity, messageContent, threadId, mimeType, path, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName, handler);
-                    }
-                    return uniqueId;
+            if (fileUri != null) {
+                File file = new File(fileUri.getPath());
+                String mimeType = handleMimType(fileUri, file);
+                if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+                    uploadImageFileMessage(getContext(), activity, messageContent, threadId, fileUri, mimeType, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName, handler);
                 } else {
-                    String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_URI, ChatConstant.ERROR_CODE_INVALID_URI, uniqueId);
-                    if (log) Logger.json(jsonError);
+                    String path = FilePick.getSmartFilePath(context, fileUri);
+                    uploadFileMessage(file, activity, messageContent, threadId, mimeType, path, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName, handler);
                 }
+                return uniqueId;
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_URI, ChatConstant.ERROR_CODE_INVALID_URI, uniqueId);
+                if (log) Logger.json(jsonError);
+            }
         } catch (Exception e) {
             if (log) Logger.e(e.getCause().getMessage());
             return null;
@@ -1906,7 +1907,7 @@ public class Chat extends AsyncAdapter {
      */
     public String deleteMessage(RequestDeleteMessage request, ChatHandler handler) {
 
-       return deleteMessage(request.getMessageId(),request.isDeleteForAll(),handler);
+        return deleteMessage(request.getMessageId(), request.isDeleteForAll(), handler);
     }
 
     /**
@@ -4276,8 +4277,8 @@ public class Chat extends AsyncAdapter {
     }
 
     /*
-    * The replacement method is getMessageDeliveredList.
-    * */
+     * The replacement method is getMessageDeliveredList.
+     * */
     @Deprecated
     public String deliveredMessageList(RequestDeliveredMessageList requestParams) {
 
@@ -4716,7 +4717,7 @@ public class Chat extends AsyncAdapter {
     //TODO Problem in message id in forwardMessage
     private void handleSent(ChatMessage chatMessage, String messageUniqueId, long threadId) {
 
-            messageDatabaseHelper.deleteWaitQueueMsgs(messageUniqueId);
+        messageDatabaseHelper.deleteWaitQueueMsgs(messageUniqueId);
         try {
             if (threadCallbacks.containsKey(threadId)) {
                 ArrayList<Callback> callbacks = threadCallbacks.get(threadId);
@@ -5870,7 +5871,7 @@ public class Chat extends AsyncAdapter {
         FileImageMetaData fileMetaData = new FileImageMetaData();
         MetaDataImageFile metaData = new MetaDataImageFile();
 
-        if (originalName != null && originalName.contains(".")) {
+        if (originalName.contains(".")) {
             String editedName = originalName.substring(0, originalName.lastIndexOf('.'));
             fileMetaData.setName(editedName);
         }
@@ -5891,6 +5892,22 @@ public class Chat extends AsyncAdapter {
         return gson.toJson(metaData);
     }
 
+    /**
+     * @param description
+     * @param threadId
+     * @param fileUri
+     * @param mimeType
+     * @param systemMetaData
+     * @param uniqueId
+     * @param typeCode
+     * @param messageType
+     * @param messageId
+     * @param methodName
+     * @param handler        description of methods are below
+     *                       bytesSent        - Bytes sent since the last time this callback was called.
+     *                       totalBytesSent   - Total number of bytes sent so far.
+     *                       totalBytesToSend - Total bytes to send.
+     */
     private void uploadImageFileMessage(Context context, Activity activity, String description, long threadId,
                                         Uri fileUri, String mimeType, String systemMetaData, String uniqueId,
                                         String typeCode, Integer messageType, long messageId, String methodName
@@ -5929,72 +5946,82 @@ public class Chat extends AsyncAdapter {
 
                             @Override
                             public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-                                handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
+                                if (handler != null) {
+                                    handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
+                                    if (log)
+                                        Logger.i("uniqueId " + uniqueId + " bytesSent " + bytesSent);
+                                }
+                            }
+
+                            @Override
+                            public void onError() {
+                                if (log)
+                                    Logger.i("Error on upload");
                             }
                         });
 
-//                    RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
                         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
                         RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
 
                         Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
-                        uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileImageUpload>>() {
-                            @Override
-                            public void call(Response<FileImageUpload> fileUploadResponse) {
-                                if (fileUploadResponse.isSuccessful()) {
-                                    boolean hasError = fileUploadResponse.body().isHasError();
-                                    if (hasError) {
-                                        String errorMessage = fileUploadResponse.body().getMessage();
-                                        int errorCode = fileUploadResponse.body().getErrorCode();
-                                        String jsonError = getErrorOutPut(errorMessage, errorCode, uniqueId);
-                                        if (log) Logger.e(jsonError);
-                                        ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
+                        uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
+                            if (fileUploadResponse.isSuccessful()) {
+                                boolean hasError = fileUploadResponse.body().isHasError();
+                                if (hasError) {
+                                    String errorMessage = fileUploadResponse.body().getMessage();
+                                    int errorCode = fileUploadResponse.body().getErrorCode();
+                                    String jsonError = getErrorOutPut(errorMessage, errorCode, uniqueId);
+                                    if (log) Logger.e(jsonError);
+                                    ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
 
+                                    if (handler != null) {
                                         handler.onError(jsonError, error);
-                                    } else {
-
-                                        ResultImageFile result = fileUploadResponse.body().getResult();
-                                        long imageId = result.getId();
-                                        String hashCode = result.getHashCode();
-
-                                        ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
-                                        ResultImageFile resultImageFile = new ResultImageFile();
-                                        chatResponse.setUniqueId(uniqueId);
-                                        resultImageFile.setId(result.getId());
-                                        resultImageFile.setHashCode(result.getHashCode());
-                                        resultImageFile.setName(result.getName());
-                                        resultImageFile.setHeight(result.getHeight());
-                                        resultImageFile.setWidth(result.getWidth());
-                                        resultImageFile.setActualHeight(result.getActualHeight());
-                                        resultImageFile.setActualWidth(result.getActualWidth());
-
-                                        chatResponse.setResult(resultImageFile);
-
-                                        String imageJson = gson.toJson(chatResponse);
-
-                                        listenerManager.callOnUploadImageFile(imageJson, chatResponse);
-
-                                        if (log) Logger.i("RECEIVE_UPLOAD_IMAGE");
-                                        if (log) Logger.json(imageJson);
-
-                                        String metaJson = createImageMetadata(file, hashCode, imageId, result.getActualHeight()
-                                                , result.getActualWidth(), mimeType, fileSize, null);
-
-                                        //remove from Uploading Queue
-                                        messageDatabaseHelper.deleteUploadingQueue(uniqueId);
-
-                                        // send to handler
-                                        handler.onFinishImage(imageJson, chatResponse);
-
-                                        if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.REPLY_MSG_METHOD)) {
-                                            mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, null);
-                                            if (log) Logger.i("SEND_REPLY_FILE_MESSAGE");
-                                            if (log) Logger.json(metaJson);
-                                        } else {
-                                            sendTextMessageWithFile(description, threadId, metaJson, systemMetaData, uniqueId, typeCode, messageType);
-                                        }
-                                        if (log) Logger.json(metaJson);
                                     }
+                                } else {
+
+                                    ResultImageFile result = fileUploadResponse.body().getResult();
+                                    long imageId = result.getId();
+                                    String hashCode = result.getHashCode();
+
+                                    ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                                    ResultImageFile resultImageFile = new ResultImageFile();
+                                    chatResponse.setUniqueId(uniqueId);
+                                    resultImageFile.setId(result.getId());
+                                    resultImageFile.setHashCode(result.getHashCode());
+                                    resultImageFile.setName(result.getName());
+                                    resultImageFile.setHeight(result.getHeight());
+                                    resultImageFile.setWidth(result.getWidth());
+                                    resultImageFile.setActualHeight(result.getActualHeight());
+                                    resultImageFile.setActualWidth(result.getActualWidth());
+
+                                    chatResponse.setResult(resultImageFile);
+
+                                    String imageJson = gson.toJson(chatResponse);
+
+                                    listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+
+                                    if (log) Logger.i("RECEIVE_UPLOAD_IMAGE");
+                                    if (log) Logger.json(imageJson);
+
+                                    String metaJson = createImageMetadata(file, hashCode, imageId, result.getActualHeight()
+                                            , result.getActualWidth(), mimeType, fileSize, null);
+
+                                    //remove from Uploading Queue
+                                    messageDatabaseHelper.deleteUploadingQueue(uniqueId);
+
+                                    // send to handler
+                                    if (handler != null) {
+                                        handler.onFinishImage(imageJson, chatResponse);
+                                    }
+
+                                    if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.REPLY_MSG_METHOD)) {
+                                        mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, null);
+                                        if (log) Logger.i("SEND_REPLY_FILE_MESSAGE");
+                                        if (log) Logger.json(metaJson);
+                                    } else {
+                                        sendTextMessageWithFile(description, threadId, metaJson, systemMetaData, uniqueId, typeCode, messageType);
+                                    }
+                                    if (log) Logger.json(metaJson);
                                 }
                             }
                         }, throwable -> {
@@ -6006,7 +6033,20 @@ public class Chat extends AsyncAdapter {
                             handler.onError(jsonError, error);
 
                         });
-                        //here
+
+//                        new ProgressHandler.cancelUpload() {
+//                            @Override
+//                            public void cancelUpload(String uniqueCancel) {
+//                                if (uniqueCancel.equals(uniqueId)) {
+//                                    uploadObservable.unsubscribeOn(Schedulers.io());
+//                                }
+//                            }
+//                        };
+
+                        /*
+                         *
+                         *
+                         * */
                     } else {
                         if (log) Logger.e("FileServer url Is null");
                     }

@@ -2,7 +2,6 @@ package com.fanap.podchat.persistance;
 
 import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteQuery;
-import android.content.Context;
 
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
@@ -1696,6 +1695,4 @@ public class MessageDatabaseHelper {
         }
         return contacts;
     }
-
-
 }

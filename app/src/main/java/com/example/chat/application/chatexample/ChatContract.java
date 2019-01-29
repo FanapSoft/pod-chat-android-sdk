@@ -140,6 +140,8 @@ public interface ChatContract {
     }
 
     interface presenter {
+
+
         void resendMessage(String uniqueId);
 
         void cancelMessage(String uniqueId);
@@ -227,7 +229,7 @@ public interface ChatContract {
 
         void getBlockList(Long count, Integer offset, ChatHandler handler);
 
-        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
+        String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
 
         void sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler);
 

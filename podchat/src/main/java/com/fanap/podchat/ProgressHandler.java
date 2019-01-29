@@ -51,11 +51,12 @@ public abstract class ProgressHandler {
         }
     }
 
-    /**
-     * @param bytesSent        - Bytes sent since the last time this callback was called.
-     * @param totalBytesSent   - Total number of bytes sent so far.
-     * @param totalBytesToSend - Total bytes to send.
-     */
+    public interface cancelUpload {
+        default void cancelUpload(String uniqueId) {
+
+        }
+    }
+
     public void onProgress(int bytesSent, int totalBytesSent, int totalBytesToSend) {
     }
 }

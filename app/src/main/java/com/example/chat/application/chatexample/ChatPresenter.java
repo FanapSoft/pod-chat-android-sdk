@@ -103,7 +103,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void cancelUpload(String uniqueId) {
-
+        chat.cancelUpload(uniqueId);
     }
 
     @Override
@@ -297,8 +297,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
-        chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, messageType, handler);
+    public String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
+        return chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, messageType, handler);
     }
 
     @Override
