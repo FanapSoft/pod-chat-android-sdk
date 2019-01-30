@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -219,7 +218,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     //Function second
     private void setupSecondSpinner(Spinner spinnerSecond) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcSecond);
-
+        final String[] fileUnique = new String[1];
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSecond.setAdapter(adapterSpinner);
         spinnerSecond.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -233,7 +232,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.syncContact(ChatActivity.this);
                         break;
                     case 2:
-                        String fileUnique = presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
+                        fileUnique[0] = presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 381,
                                 getUri(), null, null, new ProgressHandler.sendFileMessage() {
@@ -243,14 +242,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                     }
                                 });
 
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                presenter.cancelUpload(fileUnique);
-                            }
-                        }, 6000);
-                        break;
+                                          break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, getUri());
                     case 4:
@@ -292,6 +284,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                             }
                         });
 
+                        break;
+                    case 11:
+                        presenter.cancelUpload(fileUnique[0]);
                         break;
                 }
             }

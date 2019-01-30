@@ -58,8 +58,6 @@ import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.orhanobut.logger.Logger;
-import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,8 +71,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
         chat = Chat.init(context);
-        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
-        refWatcher.watch(chat);
+//        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
+//        refWatcher.watch(chat);
 
         chat.addListener(this);
         chat.isCacheables(true);

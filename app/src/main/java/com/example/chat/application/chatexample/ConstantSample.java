@@ -34,6 +34,7 @@ public class ConstantSample {
             , "Search Contact"
             , "Search History"
             ,"Send Reply file Message"
+            ,"Cancel upload"
     };
 
     public static final String[] funcThird = {
