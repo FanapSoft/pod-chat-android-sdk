@@ -242,7 +242,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                     }
                                 });
 
-                                          break;
+                        break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, getUri());
                     case 4:
@@ -286,6 +286,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         break;
                     case 11:
+                        break;
+                    case 12:
                         presenter.cancelUpload(fileUnique[0]);
                         break;
                 }
