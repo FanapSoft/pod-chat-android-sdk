@@ -32,6 +32,7 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
+import com.fanap.podchat.requestobject.RetryUpload;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,6 +142,7 @@ public interface ChatContract {
 
     interface presenter {
 
+        void  retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler);
 
         void resendMessage(String uniqueId);
 

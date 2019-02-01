@@ -1,6 +1,7 @@
 package com.example.podchat;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
@@ -10,12 +11,15 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.util.Callback;
+import com.fanap.podchat.util.FilePick;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +27,7 @@ import java.util.List;
 public class DbTest {
     private Context appContext;
 
-//    @Inject
+    //    @Inject
     public MessageDatabaseHelper messageDatabaseHelper;
 
     @Before
@@ -37,6 +41,17 @@ public class DbTest {
 //                .appModule(new AppModule(appContext))
 //                .build()
 //                .inject(this);
+    }
+
+    @Test
+    public void filePath() {
+        String uri = "/storage/emulated/0/Download/tumblr_pk09kr69kl1vnqkdho1_1280.png";
+        String path = FilePick.getSmartFilePath(appContext, Uri.parse(uri));
+        File file = new File(path);
+
+        if (file.exists()) {
+            Assert.assertTrue(true);
+        }
     }
 
     @Test
@@ -91,7 +106,7 @@ public class DbTest {
                 "",
                 null,
                 null,
-                null ,
+                null,
                 null
 
         );
@@ -229,7 +244,7 @@ public class DbTest {
     }
 
     @Test
-    public void justFirstMsgIdC3(){
+    public void justFirstMsgIdC3() {
         Callback callback = new Callback();
         long threadId = 2;
 
@@ -262,7 +277,6 @@ public class DbTest {
 
 //        messageDatabaseHelper.updateGetHistoryResponse(callback);
     }
-
 
 
 }

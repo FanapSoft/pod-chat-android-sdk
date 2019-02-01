@@ -191,6 +191,7 @@ public class MessageDatabaseHelper {
         messageQueueDao.getWaitQueueAsyncContent(uniqueId);
     }
 
+
     /*
      *
      * Sending Queue
@@ -302,6 +303,15 @@ public class MessageDatabaseHelper {
     public void deleteUploadingQueue(String uniqueId) {
         messageQueueDao.deleteUploadingQueue(uniqueId);
     }
+
+    public UploadingQueueCache getUploadingQ(String uniqueId) {
+        return messageQueueDao.getUploadingQ(uniqueId);
+    }
+
+    /*
+     * MessageVo Cache
+     * */
+
 
     public void deleteMessage(long id) {
         messageDao.deleteMessage(id);

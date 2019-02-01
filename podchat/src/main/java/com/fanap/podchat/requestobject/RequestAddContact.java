@@ -13,7 +13,6 @@ public class RequestAddContact extends GeneralRequestObject {
         this.lastName = builder.lastName;
         this.cellphoneNumber = builder.cellphoneNumber;
         this.email = builder.email;
-
     }
 
     public String getFirstName() {

@@ -57,6 +57,7 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
+import com.fanap.podchat.requestobject.RetryUpload;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -82,6 +83,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         this.activity = activity;
         this.context = context;
         this.view = view;
+    }
+
+    @Override
+    public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
+        chat.retryUpload(retry, handler);
     }
 
     @Override
@@ -121,7 +127,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getThreads(RequestThread requestThread, ChatHandler handler) {
-        chat.getThreads(requestThread,handler);
+        chat.getThreads(requestThread, handler);
     }
 
     @Override

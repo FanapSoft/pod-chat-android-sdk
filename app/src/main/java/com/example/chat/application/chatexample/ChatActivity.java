@@ -27,6 +27,9 @@ import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultFile;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
@@ -35,6 +38,7 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.JsonUtil;
 
 import java.util.ArrayList;
@@ -289,6 +293,32 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 12:
                         presenter.cancelUpload(fileUnique[0]);
+                        break;
+                    case 13:
+
+                        /*
+                         * For file you should override onFinishFile or onFinishImage because their respond is different
+                         *
+                         * */
+                        String uniqueId = "";
+                        RetryUpload retryUpload = new RetryUpload.Builder().activity(ChatActivity.this).uniqueId(uniqueId).build();
+                        presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
+                            @Override
+                            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+
+                            }
+
+                            @Override
+                            public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
+
+                            }
+
+                            @Override
+                            public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
+
+                            }
+
+                        });
                         break;
                 }
             }
