@@ -72,4 +72,6 @@ public interface MessageQueueDao {
     @Query("SELECT * FROM UploadingQueueCache WHERE  threadId= :threadId ORDER by QueueId DESC ")
     List<UploadingQueueCache> getAllUploadingQueueByThreadId(long threadId);
 
+    @Query("SELECT systemMetadata FROM uploadingqueuecache WHERE uniqueId = :uniqueId")
+    String getMetadataUploadingQ(String uniqueId);
 }
