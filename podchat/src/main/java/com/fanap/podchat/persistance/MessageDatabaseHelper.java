@@ -11,11 +11,11 @@ import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.cachemodel.queue.SendingQueue;
+import com.fanap.podchat.cachemodel.queue.Failed;
+import com.fanap.podchat.cachemodel.queue.Sending;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
-import com.fanap.podchat.cachemodel.queue.UploadingQueue;
+import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
-import com.fanap.podchat.cachemodel.queue.WaitQueue;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.ForwardInfo;
@@ -127,7 +127,7 @@ public class MessageDatabaseHelper {
 
     /*
      *
-     * Wait Queue
+     * Failed Queue
      *
      * */
 
@@ -164,11 +164,11 @@ public class MessageDatabaseHelper {
         return null;
     }
 
-    public List<WaitQueue> getAllWaitQueueCacheByThreadId(long threadId) {
-        List<WaitQueue> listQueues = new ArrayList<>();
+    public List<Failed> getAllWaitQueueCacheByThreadId(long threadId) {
+        List<Failed> listQueues = new ArrayList<>();
         List<WaitQueueCache> listCaches = messageQueueDao.getWaitQueueMsgByThreadId(threadId);
         for (WaitQueueCache queueCache : listCaches) {
-            WaitQueue waitQueue = new WaitQueue();
+            Failed failed = new Failed();
 
             MessageVO messageVO = new MessageVO();
 
@@ -178,11 +178,11 @@ public class MessageDatabaseHelper {
             messageVO.setMetadata(queueCache.getMetadata());
             messageVO.setSystemMetadata(queueCache.getSystemMetadata());
 
-            waitQueue.setMessageVo(messageVO);
-            waitQueue.setThreadId(queueCache.getThreadId());
-            waitQueue.setUniqueId(queueCache.getUniqueId());
+            failed.setMessageVo(messageVO);
+            failed.setThreadId(queueCache.getThreadId());
+            failed.setUniqueId(queueCache.getUniqueId());
 
-            listQueues.add(waitQueue);
+            listQueues.add(failed);
         }
         return listQueues;
     }
@@ -243,14 +243,14 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllSendingQueue();
     }
 
-    public List<SendingQueue> getAllSendingQueueByThreadId(long threadId) {
+    public List<Sending> getAllSendingQueueByThreadId(long threadId) {
 
-        List<SendingQueue> listQueues = new ArrayList<>();
+        List<Sending> listQueues = new ArrayList<>();
         List<SendingQueueCache> listCaches = messageQueueDao.getAllSendingQueue();
 
         for (SendingQueueCache queueCache : listCaches) {
-            SendingQueue sendingQueue = new SendingQueue();
-            sendingQueue.setThreadId(queueCache.getThreadId());
+            Sending sending = new Sending();
+            sending.setThreadId(queueCache.getThreadId());
 
             MessageVO messageVO = new MessageVO();
             messageVO.setId(queueCache.getId());
@@ -259,11 +259,11 @@ public class MessageDatabaseHelper {
             messageVO.setMetadata(queueCache.getMetadata());
             messageVO.setSystemMetadata(queueCache.getSystemMetadata());
 
-            sendingQueue.setMessageVo(messageVO);
+            sending.setMessageVo(messageVO);
 
-            sendingQueue.setUniqueId(queueCache.getUniqueId());
+            sending.setUniqueId(queueCache.getUniqueId());
 
-            listQueues.add(sendingQueue);
+            listQueues.add(sending);
         }
         return listQueues;
     }
@@ -276,12 +276,12 @@ public class MessageDatabaseHelper {
         messageQueueDao.insertUploadingQueue(uploadingQueue);
     }
 
-    public List<UploadingQueue> getAllUploadingQueueByThreadId(long threadId) {
-        List<UploadingQueue> uploadingQueues = new ArrayList<>();
+    public List<Uploading> getAllUploadingQueueByThreadId(long threadId) {
+        List<Uploading> uploadingQueues = new ArrayList<>();
         List<UploadingQueueCache> uploadingQueueCaches = messageQueueDao.getAllUploadingQueueByThreadId(threadId);
 
         for (UploadingQueueCache queueCache : uploadingQueueCaches) {
-            UploadingQueue uploadingQueue = new UploadingQueue();
+            Uploading uploadingQueue = new Uploading();
 
             MessageVO messageVO = new MessageVO();
 

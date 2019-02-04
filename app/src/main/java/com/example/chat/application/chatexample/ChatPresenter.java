@@ -58,6 +58,7 @@ import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podnotify.PodNotify;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -74,6 +75,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat = Chat.init(context);
 //        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
 //        refWatcher.watch(chat);
+
+        PodNotify.setApplication(context);
 
         chat.addListener(this);
         chat.isCacheables(true);
@@ -144,6 +147,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
         chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
+//        PodNotify podNotify = new PodNotify.builder()
+//                .setAppId(appId)
+//                .setServerName(severName)
+//                .setSocketServerAddress(serverAddress)
+//                .setSsoHost(ssoHost)
+//                .setToken(token)
+//                .build(context);
+//
+//        podNotify.start(context);
     }
 
     @Override

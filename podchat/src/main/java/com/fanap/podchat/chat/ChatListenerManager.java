@@ -1,9 +1,8 @@
 package com.fanap.podchat.chat;
 
-import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutThread;
@@ -361,10 +360,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSyncContact(String content) {
+    public void callOnSyncContact(String content, ChatResponse<Contacts> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSyncContact(content);
+                listener.onSyncContact(content,chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

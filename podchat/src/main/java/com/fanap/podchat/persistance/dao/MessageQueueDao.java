@@ -35,7 +35,7 @@ public interface MessageQueueDao {
     List<SendingQueueCache> getAllSendingQueueByThredId(long threadId);
 
     /**
-     * Wait Queue
+     * Failed Queue
      */
     @Insert(onConflict = REPLACE)
     void insertWaitMessageQueue(WaitQueueCache waitQueueCache);

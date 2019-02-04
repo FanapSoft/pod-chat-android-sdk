@@ -1,9 +1,9 @@
 package com.fanap.podchat.model;
 
 
-import com.fanap.podchat.cachemodel.queue.SendingQueue;
-import com.fanap.podchat.cachemodel.queue.UploadingQueue;
-import com.fanap.podchat.cachemodel.queue.WaitQueue;
+import com.fanap.podchat.cachemodel.queue.Failed;
+import com.fanap.podchat.cachemodel.queue.Sending;
+import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.mainmodel.MessageVO;
 
 import java.util.List;
@@ -15,11 +15,11 @@ public class ResultHistory {
     private boolean hasNext;
     private long nextOffset;
 
-    private List<SendingQueue> sendingQueue;
+    private List<Sending> sending;
 
-    private List<WaitQueue> failedQueue;
+    private List<Failed> failed;
 
-    private List<UploadingQueue> uploadingQueue;
+    private List<Uploading> uploadingQueue;
 
     public long getContentCount() {
         return contentCount;
@@ -53,27 +53,27 @@ public class ResultHistory {
         this.history = history;
     }
 
-    public List<SendingQueue> getSendingQueue() {
-        return sendingQueue;
+    public List<Sending> getSending() {
+        return sending;
     }
 
-    public void setSendingQueue(List<SendingQueue> sendingQueue) {
-        this.sendingQueue = sendingQueue;
+    public void setSending(List<Sending> sending) {
+        this.sending = sending;
     }
 
-    public List<WaitQueue> getFailedQueue() {
-        return failedQueue;
+    public List<Failed> getFailed() {
+        return failed;
     }
 
-    public void setFailedQueue(List<WaitQueue> failedQueue) {
-        this.failedQueue = failedQueue;
+    public void setFailed(List<Failed> failed) {
+        this.failed = failed;
     }
 
-    public List<UploadingQueue> getUploadingQueue() {
+    public List<Uploading> getUploadingQueue() {
         return uploadingQueue;
     }
 
-    public void setUploadingQueue(List<UploadingQueue> uploadingQueue) {
+    public void setUploadingQueue(List<Uploading> uploadingQueue) {
         this.uploadingQueue = uploadingQueue;
     }
 }

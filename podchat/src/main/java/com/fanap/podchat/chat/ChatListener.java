@@ -1,8 +1,8 @@
 package com.fanap.podchat.chat;
 
-import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutThread;
@@ -134,7 +134,7 @@ public interface ChatListener {
 
     }
 
-    default void onSyncContact(String content) {
+    default void onSyncContact(String content, ChatResponse<Contacts> chatResponse) {
 
     }
 

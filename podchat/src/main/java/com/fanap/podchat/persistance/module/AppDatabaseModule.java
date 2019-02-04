@@ -5,8 +5,10 @@ import android.content.Context;
 
 import com.fanap.podchat.persistance.AppDatabase;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
+import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
+import com.fanap.podchat.persistance.dao.PhoneContactDao;
 
 import javax.inject.Singleton;
 
@@ -20,7 +22,9 @@ public class AppDatabaseModule {
     private static final String DATABASE_DB = "cache.db";
 
     public AppDatabaseModule(Context context) {
-        appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB).allowMainThreadQueries().build();
+//        SupportSQLiteDatabase supportSQLiteDatabase = new SupportSQLiteDatabase(
+//        SafeHelperFactory.rekey();
+                appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB).allowMainThreadQueries().build();
     }
 
     @Singleton
@@ -37,8 +41,14 @@ public class AppDatabaseModule {
 
     @Singleton
     @Provides
-    MessageQueueDao messageQueueDao(AppDatabase appDatabase){
+    MessageQueueDao messageQueueDao(AppDatabase appDatabase) {
         return appDatabase.getMessageQueueDao();
+    }
+
+    @Singleton
+    @Provides
+    PhoneContactDao phoneContactDao(AppDatabase appDatabase){
+        return appDatabase.getPhoneContactDao();
     }
 
     @Singleton
@@ -46,4 +56,11 @@ public class AppDatabaseModule {
     MessageDatabaseHelper messageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao) {
         return new MessageDatabaseHelper(messageDao, messageQueueDao);
     }
+
+    @Singleton
+    @Provides
+    PhoneContactDbHelper phoneContactDbHelper(PhoneContactDao phoneContactDao){
+        return new PhoneContactDbHelper(phoneContactDao);
+    }
+
 }

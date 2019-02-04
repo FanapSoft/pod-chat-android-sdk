@@ -300,7 +300,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                          * For file you should override onFinishFile or onFinishImage because their respond is different
                          *
                          * */
-                        String uniqueId = "";
+                        String uniqueId = "f874f03d-88b7-48b2-ac7f-3796c81d8ef8";
                         RetryUpload retryUpload = new RetryUpload.Builder().activity(ChatActivity.this).uniqueId(uniqueId).build();
                         presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
                             @Override

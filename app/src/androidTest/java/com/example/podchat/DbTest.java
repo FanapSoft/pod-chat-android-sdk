@@ -1,13 +1,15 @@
 package com.example.podchat;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Looper;
+import android.provider.ContactsContract;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.fanap.podchat.cachemodel.CacheMessageVO;
-import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.util.Callback;
@@ -34,13 +36,42 @@ public class DbTest {
     public void setUp() {
         Looper.prepare();
         appContext = InstrumentationRegistry.getTargetContext();
-        Chat.init(appContext);
+//        Chat.init(appContext);
         MockitoAnnotations.initMocks(this);
 //        DaggerMessageComponent.builder()
 //                .appDatabaseModule(new AppDatabaseModule(appContext))
 //                .appModule(new AppModule(appContext))
 //                .build()
 //                .inject(this);
+    }
+
+    @Test
+    public void getPhoneContact(){
+        String name;
+        String phoneNumber;
+        String lastName;
+        int version;
+        Cursor cursor = appContext.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+        if (cursor == null) throw new AssertionError();
+        ArrayList<Contact> storeContacts = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            lastName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+            version = cursor.getInt(cursor.getColumnIndex(ContactsContract.RawContacts.VERSION));
+//            creationDate = Long.valueOf(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP)));
+            phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            Contact contact = new Contact();
+            char ch1 = phoneNumber.charAt(0);
+            if (!Character.toString(ch1).equals("+")) {
+                contact.setCellphoneNumber(phoneNumber.replaceAll(Character.toString(ch1), "+98"));
+            }
+            contact.setCellphoneNumber(phoneNumber.replaceAll(" ", ""));
+            contact.setFirstName(name.replaceAll(" ", ""));
+            contact.setLastName(lastName.replaceAll(" ", ""));
+            storeContacts.add(contact);
+        }
+        cursor.close();
+
     }
 
     @Test

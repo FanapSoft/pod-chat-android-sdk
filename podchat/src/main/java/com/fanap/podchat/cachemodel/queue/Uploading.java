@@ -1,7 +1,5 @@
 package com.fanap.podchat.cachemodel.queue;
 
-
-public class WaitQueue extends SendingQueue {
+public class Uploading extends Sending {
 
 }
-

@@ -2,7 +2,6 @@ package com.fanap.podchat.networking.api;
 
 import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
-import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 
@@ -30,7 +29,7 @@ public interface ContactApi {
             , @Field("cellphoneNumber") String cellphoneNumber
     );
 
-    /* addContacts Without type code */
+    /* addContact Without type code */
     @POST("nzh/addContacts")
     @FormUrlEncoded
     Observable<Response<Contacts>> addContact(@Header("_token_") String token
@@ -46,13 +45,27 @@ public interface ContactApi {
     /* addContacts With type code*/
     @POST("nzh/addContacts")
     @FormUrlEncoded
-    Observable<Response<AddContacts>> addContacts(@Header("_token_") String token
+    Observable<Response<Contacts>> addContacts(@Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Field("firstName") ArrayList<String> firstName
             , @Field("lastName") ArrayList<String> lastName
             , @Field("email") ArrayList<String> email
             , @Field("uniqueId") ArrayList<String> uniqueId
-            , @Field("cellphoneNumber") ArrayList<String> cellphoneNumber);
+            , @Field("cellphoneNumber") ArrayList<String> cellphoneNumber
+            , @Field("typeCode") ArrayList<String> typeCode
+    );
+
+    /* addContacts Without type code*/
+    @POST("nzh/addContacts")
+    @FormUrlEncoded
+    Observable<Response<Contacts>> addContacts(@Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Field("firstName") ArrayList<String> firstName
+            , @Field("lastName") ArrayList<String> lastName
+            , @Field("email") ArrayList<String> email
+            , @Field("uniqueId") ArrayList<String> uniqueId
+            , @Field("cellphoneNumber") ArrayList<String> cellphoneNumber
+    );
 
     /* removeContacts With type code*/
     @POST("nzh/removeContacts")

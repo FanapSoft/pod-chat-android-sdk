@@ -5,6 +5,7 @@ import android.content.Context;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.persistance.AppDatabase;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
+import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 
@@ -25,6 +26,8 @@ public interface MessageComponent {
     AppDatabase appDatabase();
 
     MessageDatabaseHelper messageDatabaseHelper();
+
+    PhoneContactDbHelper PhoneContactDbHelper();
 
     Context context();
 }

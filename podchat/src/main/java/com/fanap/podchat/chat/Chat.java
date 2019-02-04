@@ -27,6 +27,7 @@ import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
+import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
@@ -55,7 +56,6 @@ import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
-import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ChatMessageForward;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ContactRemove;
@@ -102,6 +102,7 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
+import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
@@ -242,6 +243,9 @@ public class Chat extends AsyncAdapter {
 
     @Inject
     public MessageDatabaseHelper messageDatabaseHelper;
+
+    @Inject
+    public PhoneContactDbHelper phoneContactDbHelper;
 
     private Chat() {
     }
@@ -668,18 +672,33 @@ public class Chat extends AsyncAdapter {
      * First we get the contact from server then at the respond of that
      *
      * @param activity its for check the permission of reading the phone contact
-     *                 {@link #handleSyncContact(ChatMessage, Callback)} we add all of the PhoneContact that get from
-     *                 {@link #getPhoneContact(Context)} that's not in the list of serverContact.
+     *                 {@link #getPhoneContact(Context)}
      */
-    public void syncContact(Activity activity) {
+    public String syncContact(Activity activity) {
+        String uniqueId = generateUniqueId();
         if (Permission.Check_READ_CONTACTS(activity)) {
-            syncContact = true;
-            serverContacts = new ArrayList<>();
-            getContactMain(2, 0L, true, null);
+            if (chatReady) {
+                List<PhoneContact> phoneContacts = getPhoneContact(getContext());
+
+                if (phoneContacts.size() > 0) {
+                    addContacts(phoneContacts, uniqueId);
+                } else {
+                    ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+                    listenerManager.callOnSyncContact("", chatResponse);
+
+                    if (log) Logger.i("SYNC_CONTACT_COMPLETED");
+                }
+
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                if (log) Logger.e(jsonError);
+            }
         } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION, null);
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION
+                    , uniqueId);
             if (log) Logger.e(jsonError);
         }
+        return uniqueId;
     }
 
     /**
@@ -1513,8 +1532,8 @@ public class Chat extends AsyncAdapter {
 
     public void cancelUpload(String uniqueId) {
         if (uniqueId != null) {
+            messageDatabaseHelper.deleteUploadingQueue(uniqueId);
             cancelUpload.cancelUpload(uniqueId);
-
         }
     }
 
@@ -2437,9 +2456,9 @@ public class Chat extends AsyncAdapter {
 
                 resultHistory.setHistory(messageVOS);
 
-                resultHistory.setSendingQueue(messageDatabaseHelper.getAllSendingQueueByThreadId(threadId));
+                resultHistory.setSending(messageDatabaseHelper.getAllSendingQueueByThreadId(threadId));
                 resultHistory.setUploadingQueue(messageDatabaseHelper.getAllUploadingQueueByThreadId(threadId));
-                resultHistory.setFailedQueue(messageDatabaseHelper.getAllWaitQueueCacheByThreadId(threadId));
+                resultHistory.setFailed(messageDatabaseHelper.getAllWaitQueueCacheByThreadId(threadId));
 
                 chatResponse.setErrorCode(0);
                 chatResponse.setHasError(false);
@@ -5229,52 +5248,52 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void handleSyncContact(ChatMessage chatMessage, Callback callback) {
-        try {
-
-            List<Contact> contacts = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Contact>>() {
-            }.getType());
-
-            hasNextContact = contacts.size() + callback.getOffset() < chatMessage.getContentCount();
-            nextOffsetContact = callback.getOffset() + contacts.size();
-            serverContacts.addAll(contacts);
-
-            if (hasNextContact) {
-                getContactMain(50, nextOffsetContact, true, null);
-                return;
-            }
-
-            ArrayList<String> firstNames = new ArrayList<>();
-            ArrayList<String> cellphoneNumbers = new ArrayList<>();
-            ArrayList<String> lastNames = new ArrayList<>();
-
-            if (serverContacts != null) {
-                List<Contact> phoneContacts = getPhoneContact(getContext());
-                HashMap<String, String> mapServerContact = new HashMap<>();
-                for (int a = 0; a < serverContacts.size(); a++) {
-                    mapServerContact.put(serverContacts.get(a).getCellphoneNumber(), serverContacts.get(a).getFirstName());
-                }
-                for (int j = 0; j < phoneContacts.size(); j++) {
-                    if (!mapServerContact.containsKey(phoneContacts.get(j).getCellphoneNumber())) {
-                        firstNames.add(phoneContacts.get(j).getFirstName());
-                        cellphoneNumbers.add(phoneContacts.get(j).getCellphoneNumber());
-                        lastNames.add(phoneContacts.get(j).getLastName());
-                    }
-//                    else if (){
+//    private void handleSyncContact(ChatMessage chatMessage, Callback callback) {
+//        try {
 //
+//            List<Contact> contacts = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Contact>>() {
+//            }.getType());
+//
+//            hasNextContact = contacts.size() + callback.getOffset() < chatMessage.getContentCount();
+//            nextOffsetContact = callback.getOffset() + contacts.size();
+//            serverContacts.addAll(contacts);
+//
+//            if (hasNextContact) {
+//                getContactMain(50, nextOffsetContact, true, null);
+//                return;
+//            }
+//
+//            ArrayList<String> firstNames = new ArrayList<>();
+//            ArrayList<String> cellphoneNumbers = new ArrayList<>();
+//            ArrayList<String> lastNames = new ArrayList<>();
+//
+//            if (serverContacts != null) {
+//                List<Contact> phoneContacts = getPhoneContact(getContext());
+//                HashMap<String, String> mapServerContact = new HashMap<>();
+//                for (int a = 0; a < serverContacts.size(); a++) {
+//                    mapServerContact.put(serverContacts.get(a).getCellphoneNumber(), serverContacts.get(a).getFirstName());
+//                }
+//                for (int j = 0; j < phoneContacts.size(); j++) {
+//                    if (!mapServerContact.containsKey(phoneContacts.get(j).getCellphoneNumber())) {
+//                        firstNames.add(phoneContacts.get(j).getFirstName());
+//                        cellphoneNumbers.add(phoneContacts.get(j).getCellphoneNumber());
+//                        lastNames.add(phoneContacts.get(j).getLastName());
 //                    }
-                }
-            }
-
-            if (!firstNames.isEmpty() || !cellphoneNumbers.isEmpty()) {
-                addContacts(firstNames, lastNames, cellphoneNumbers);
-                syncContacts = true;
-            }
-            syncContact = false;
-        } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
-        }
-    }
+////                    else if (){
+////
+////                    }
+//                }
+//            }
+//
+//            if (!firstNames.isEmpty() || !cellphoneNumbers.isEmpty()) {
+////                addContacts(firstNames, lastNames, cellphoneNumbers);
+//                syncContacts = true;
+//            }
+//            syncContact = false;
+//        } catch (Exception e) {
+//            if (log) Logger.e(e.getCause().getMessage());
+//        }
+//    }
 
     private void handleResponseMessage(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
 
@@ -5496,17 +5515,19 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleGetContact(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
-        if (!callback.isResult()) {
-            handleSyncContact(chatMessage, callback);
+//        if (!callback.isResult()) {
+//            handleSyncContact(chatMessage, callback);
+//
+//        } else if (callback.isResult()) {
+//
+//        }
 
-        } else if (callback.isResult()) {
-            ChatResponse<ResultContact> chatResponse = reformatGetContactResponse(chatMessage, callback);
-            String contactJson = gson.toJson(chatResponse);
-            listenerManager.callOnGetContacts(contactJson, chatResponse);
-            messageCallbacks.remove(messageUniqueId);
-            if (log) Logger.i("RECEIVE_GET_CONTACT");
-            if (log) Logger.json(contactJson);
-        }
+        ChatResponse<ResultContact> chatResponse = reformatGetContactResponse(chatMessage, callback);
+        String contactJson = gson.toJson(chatResponse);
+        listenerManager.callOnGetContacts(contactJson, chatResponse);
+        messageCallbacks.remove(messageUniqueId);
+        if (log) Logger.i("RECEIVE_GET_CONTACT");
+        if (log) Logger.json(contactJson);
     }
 
     private void handleCreateThread(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
@@ -5557,7 +5578,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Its check the Wait Queue {@link #checkMessageQueue()} to send all the message that is wait for send.
+     * Its check the Failed Queue {@link #checkMessageQueue()} to send all the message that is wait for send.
      */
     private void handleOnGetUserInfo(ChatMessage chatMessage, String messageUniqueId, Callback callback) {
 
@@ -5776,9 +5797,9 @@ public class Chat extends AsyncAdapter {
 
         ResultHistory resultHistory = new ResultHistory();
 
-        resultHistory.setSendingQueue(messageDatabaseHelper.getAllSendingQueueByThreadId(chatMessage.getSubjectId()));
+        resultHistory.setSending(messageDatabaseHelper.getAllSendingQueueByThreadId(chatMessage.getSubjectId()));
         resultHistory.setUploadingQueue(messageDatabaseHelper.getAllUploadingQueueByThreadId(chatMessage.getSubjectId()));
-        resultHistory.setFailedQueue(messageDatabaseHelper.getAllWaitQueueCacheByThreadId(chatMessage.getSubjectId()));
+        resultHistory.setFailed(messageDatabaseHelper.getAllWaitQueueCacheByThreadId(chatMessage.getSubjectId()));
 
         resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
         resultHistory.setContentCount(chatMessage.getContentCount());
@@ -5986,32 +6007,86 @@ public class Chat extends AsyncAdapter {
      * Get the list of the Device Contact
      */
     // TODO working progress
-    private List<Contact> getPhoneContact(Context context) {
-        String name;
+    private List<PhoneContact> getPhoneContact(Context context) {
+        String firstName;
         String phoneNumber;
         String lastName;
-        String timeStamp;
-        long creationDate;
-        Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        if (cursor == null) throw new AssertionError();
-        ArrayList<Contact> storeContacts = new ArrayList<>();
-        while (cursor.moveToNext()) {
-            name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            lastName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
-            creationDate = Long.valueOf(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP)));
-            phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            Contact contact = new Contact();
-            char ch1 = phoneNumber.charAt(0);
-            if (!Character.toString(ch1).equals("+")) {
-                contact.setCellphoneNumber(phoneNumber.replaceAll(Character.toString(ch1), "+98"));
+        String empty = "";
+        int version;
+        ArrayList<PhoneContact> newPhoneContact = new ArrayList<>();
+
+        try {
+
+            List<PhoneContact> cachePhoneContacts = phoneContactDbHelper.getPhoneContacts();
+
+            HashMap<Long, PhoneContact> map = new HashMap<>();
+
+            if (cachePhoneContacts != null && cachePhoneContacts.size() > 0) {
+                for (PhoneContact contact : cachePhoneContacts) {
+                    map.put(contact.getPhoneNumber(), contact);
+                }
             }
-            contact.setCellphoneNumber(phoneNumber.replaceAll(" ", ""));
-            contact.setFirstName(name.replaceAll(" ", ""));
-            contact.setLastName(lastName.replaceAll(" ", ""));
-            storeContacts.add(contact);
+
+            Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+            if (cursor == null) throw new AssertionError();
+
+
+            /*
+             * get Contact from phone Contact
+             * */
+            while (cursor.moveToNext()) {
+                firstName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                lastName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+                version = cursor.getInt(cursor.getColumnIndex(ContactsContract.RawContacts.VERSION));
+                phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+//                Contact contact = new Contact();
+                char ch1 = phoneNumber.charAt(0);
+
+//            if (!Character.toString(ch1).equals("+")) {
+//                contact.setCellphoneNumber(phoneNumber.replaceAll(Character.toString(ch1), "+98"));
+//            }
+                PhoneContact phoneContact = new PhoneContact();
+
+                if (!Util.isNullOrEmpty(phoneNumber)) {
+                    phoneNumber = phoneNumber.replaceAll(" ", "");
+                    phoneContact.setPhoneNumber(Long.valueOf(phoneNumber));
+
+                    if (!Util.isNullOrEmpty(firstName)) {
+                        phoneContact.setName(firstName.replaceAll(" ", ""));
+                    } else {
+                        phoneContact.setName(empty);
+                    }
+
+                    if (!Util.isNullOrEmpty(lastName)) {
+                        phoneContact.setLastName(lastName.replaceAll(" ", ""));
+                    } else {
+                        phoneContact.setLastName(empty);
+                    }
+                    if (!Util.isNullOrEmpty(version)) {
+                        phoneContact.setVersion(version);
+                    }
+                    if (cachePhoneContacts != null && cachePhoneContacts.size() > 0) {
+                        // if its not in PhoneContactCache and its a contact that added recently
+                        if (map.get(Long.valueOf(phoneNumber)) != null) {
+                            if (version != map.get(Long.valueOf(phoneNumber)).getVersion()) {
+                                newPhoneContact.add(phoneContact);
+                            }
+                        } else {
+                            newPhoneContact.add(phoneContact);
+                        }
+                    } else {
+                        newPhoneContact.add(phoneContact);
+                    }
+                }
+            }
+            cursor.close();
+
+        } catch (Exception e) {
+            Logger.e("error", e.getCause().getMessage());
         }
-        cursor.close();
-        return storeContacts;
+
+        return newPhoneContact;
     }
 
     private String getRealPathFromURI(Context context, Uri contentUri) {
@@ -6086,38 +6161,61 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO make it public
     // Add list of contacts with their mobile numbers and their cellphoneNumbers
-    private void addContacts(ArrayList<String> firstNames, ArrayList<String> lastNames, ArrayList<String> cellphoneNumbers) {
+    private void addContacts(List<PhoneContact> phoneContacts, String uniqueId) {
+
+        ArrayList<String> firstNames = new ArrayList<>();
+        ArrayList<String> cellphoneNumbers = new ArrayList<>();
+        ArrayList<String> lastNames = new ArrayList<>();
+        ArrayList<String> typeCodes = new ArrayList<>();
+
+        for (PhoneContact contact : phoneContacts) {
+            firstNames.add(contact.getName());
+            lastNames.add(contact.getLastName());
+            cellphoneNumbers.add(String.valueOf(contact.getPhoneNumber()));
+        }
+
         ArrayList<String> emails = new ArrayList<>();
         for (int i = 0; i < cellphoneNumbers.size(); i++) {
             emails.add("");
+            typeCodes.add(getTypeCode());
         }
-        Observable<Response<AddContacts>> addContactsObservable;
-        if (getPlatformHost() != null) {
-            addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers, cellphoneNumbers);
-            addContactsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<AddContacts>>() {
-                @Override
-                public void call(Response<AddContacts> contactsResponse) {
-                    boolean error = contactsResponse.body().getHasError();
-                    if (contactsResponse.isSuccessful()) {
-                        if (error) {
-                            String jsonError = getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
-                                    , null);
-                            if (log) Logger.e(jsonError);
-                        } else {
-                            AddContacts contacts = contactsResponse.body();
-                            String contactsJson = gson.toJson(contacts);
-                            if (syncContacts) {
-                                listenerManager.callOnSyncContact(contactsJson);
-                                if (log) Logger.i("SYNC_CONTACT");
-                                syncContacts = false;
-                            } else {
 
-                                if (log) Logger.i("ADD_CONTACTS");
-                            }
-                            if (log) Logger.json(contactsJson);
+        Observable<Response<Contacts>> addContactsObservable;
+        if (getPlatformHost() != null) {
+            if (!Util.isNullOrEmpty(getTypeCode())) {
+                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
+                        , cellphoneNumbers, typeCodes);
+            } else {
+                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
+                        , cellphoneNumbers);
+            }
+            addContactsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(contactsResponse -> {
+                boolean error = contactsResponse.body().getHasError();
+                if (contactsResponse.isSuccessful()) {
+                    if (error) {
+                        String jsonError = getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
+                                , uniqueId);
+                        if (log) Logger.e(jsonError);
+                    } else {
+                        Contacts contacts = contactsResponse.body();
+                        ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+
+                        chatResponse.setResult(contacts);
+                        chatResponse.setUniqueId(uniqueId);
+
+                        String contactsJson = gson.toJson(chatResponse);
+
+                        if (cache) {
+                            messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
                         }
+
+                        listenerManager.callOnSyncContact(contactsJson, chatResponse);
+
+                        phoneContactDbHelper.addPhoneContacts(phoneContacts);
+
+                        if (log) Logger.json(contactsJson);
+                        if (log) Logger.i("SYNC_CONTACT_COMPLETED");
                     }
                 }
             }, new Action1<Throwable>() {
