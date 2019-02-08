@@ -293,8 +293,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void unBlock(long contactId, ChatHandler handler) {
-        chat.unblock(contactId, null);
+    public void unBlock(Long blockId, Long userId, Long threadId, Long contactId, ChatHandler handler) {
+        chat.unblock(blockId, userId, threadId, contactId, handler);
     }
 
     @Override

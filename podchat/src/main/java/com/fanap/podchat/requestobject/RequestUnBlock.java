@@ -2,6 +2,9 @@ package com.fanap.podchat.requestobject;
 
 public class RequestUnBlock extends GeneralRequestObject {
     private long blockId;
+    private long userId;
+    private long threadId;
+    private long contactId;
 
     RequestUnBlock(Builder builder) {
         super(builder);
@@ -14,6 +17,30 @@ public class RequestUnBlock extends GeneralRequestObject {
 
     public void setBlockId(long blockId) {
         this.blockId = blockId;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
+
+    public long getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
+    }
+
+    public long getContactId() {
+        return contactId;
+    }
+
+    public void setContactId(long contactId) {
+        this.contactId = contactId;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {

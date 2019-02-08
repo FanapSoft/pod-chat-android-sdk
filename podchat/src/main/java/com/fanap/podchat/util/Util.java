@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Util {
+    private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     @NonNull
     public static ChatResponse<ResultAddContact> getReformatOutPutAddContact(Contacts contacts, String uniqueId) {
@@ -56,6 +57,15 @@ public class Util {
 
     public static <T extends Number> boolean isNullOrEmptyNumber(List<T> list) {
         return list == null || list.size() == 0;
+    }
+
+    public static String randomAlphaNumeric(int count) {
+        StringBuilder builder = new StringBuilder();
+        while (count-- != 0) {
+            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+        }
+        return builder.toString();
     }
 
 }

@@ -141,7 +141,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
                         break;
                     case 3:
-                        long bThreadId = 1573 ;
+                        long bThreadId = 1573;
                         Long bUserId;
                         Long bContactId;
 
@@ -154,7 +154,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                 });
                         break;
                     case 4:
-                        presenter.unBlock(25L, new ChatHandler() {
+                        Long ubThreadId = 1573L;
+                        Long ubUserId = null;
+                        Long ubContactId = null;
+                        Long unblockId= null;
+                        presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
+                                , new ChatHandler() {
                             @Override
                             public void onUnBlock(String uniqueId) {
                                 super.onUnBlock(uniqueId);

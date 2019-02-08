@@ -1,7 +1,9 @@
 package com.fanap.podchat.networking.api;
 
-import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.model.FileImageUpload;
+
+import java.util.ArrayList;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -32,8 +34,23 @@ public interface FileApi {
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") RequestBody fileName);
 
+    @POST("nzh/drive/uploadFileFromUrl")
+    Observable<Response<FileUpload>> uploadFileFromUrl(
+            @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("fileName") String fileName
+            , @Part("folderHash") String folderHash
+            , @Part("metadata") String metadata
+            , @Part("description") String description
+            , @Part("isPublic") boolean isPublic
+            , @Part("tags") ArrayList<String> tags
+    );
+
     @GET("nzh/file/")
-    Observable<Response<ResponseBody>> getFile(@Query("fileId") int fileId
-            , @Query("downloadable") boolean downloadable
-            , @Query("hashCode") String hashCode);
+    Observable<Response<ResponseBody>> getFile
+            (@Query("fileId") int fileId
+                    , @Query("downloadable") boolean downloadable
+                    , @Query("hashCode") String hashCode);
+
+
 }

@@ -212,7 +212,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void mapStatic() {
 //        String center = "35.7003510,51.3376472";
         String center = "35.7003510,35.7003510";
-        RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder(center).build();
+        RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder()
+                .center(center)
+                .build();
         presenter.mapStaticImage(staticImage);
     }
 

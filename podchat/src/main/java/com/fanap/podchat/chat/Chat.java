@@ -122,6 +122,7 @@ import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestLeaveThread;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapRouting;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -3112,7 +3113,7 @@ public class Chat extends AsyncAdapter {
 
     /**
      * Update contacts
-     * all of the params all required to update
+     * all of the params all required
      */
     public String updateContact(RequestUpdateContact request) {
         String firstName = request.getFirstName();
@@ -3149,7 +3150,8 @@ public class Chat extends AsyncAdapter {
             }, (Throwable throwable) ->
             {
                 if (throwable != null) {
-                    Logger.e("cause" + "" + throwable.getCause());
+                    String jsonError = getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                    if (log) Logger.e(jsonError);
                 }
             });
         } else {
@@ -3215,54 +3217,10 @@ public class Chat extends AsyncAdapter {
      */
 
     public String mapSearch(RequestMapSearch request) {
-        String uniqueId = generateUniqueId();
-        if (chatReady) {
-            String searchTerm = request.getSearchTerm();
-            double latitude = request.getLatitude();
-            double longitude = request.getLongitude();
-
-            RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
-            MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
-            Observable<Response<MapNeshan>> observable = mapApi.mapSearch(API_KEY_MAP
-                    , searchTerm, latitude, longitude);
-            observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<MapNeshan>>() {
-                @Override
-                public void call(Response<MapNeshan> mapNeshanResponse) {
-                    OutPutMapNeshan outPutMapNeshan = new OutPutMapNeshan();
-                    if (mapNeshanResponse.isSuccessful()) {
-                        MapNeshan mapNeshan = mapNeshanResponse.body();
-
-                        outPutMapNeshan = new OutPutMapNeshan();
-                        outPutMapNeshan.setCount(mapNeshan.getCount());
-                        ResultMap resultMap = new ResultMap();
-                        resultMap.setMaps(mapNeshan.getItems());
-                        outPutMapNeshan.setResult(resultMap);
-                        String json = JsonUtil.getJson(outPutMapNeshan);
-                        listenerManager.callOnMapSearch(json, outPutMapNeshan);
-                        if (log) Logger.i("RECEIVE_MAP_SEARCH");
-                        if (log) Logger.json(json);
-                    } else {
-                        ErrorOutPut errorOutPut = new ErrorOutPut();
-                        errorOutPut.setErrorCode(mapNeshanResponse.code());
-                        errorOutPut.setErrorMessage(mapNeshanResponse.message());
-                        errorOutPut.setHasError(true);
-                        String json = JsonUtil.getJson(outPutMapNeshan);
-                        listenerManager.callOnError(json, errorOutPut);
-                    }
-                }
-            }, (Throwable throwable) -> {
-                ErrorOutPut errorOutPut = new ErrorOutPut();
-                errorOutPut.setErrorMessage(throwable.getMessage());
-                errorOutPut.setHasError(true);
-                String json = JsonUtil.getJson(errorOutPut);
-
-                listenerManager.callOnError(json, errorOutPut);
-            });
-        } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-            if (log) Logger.json(jsonError);
-        }
-        return uniqueId;
+        String searchTerm = request.getSearchTerm();
+        double latitude = request.getLatitude();
+        double longitude = request.getLongitude();
+        return mapSearch(searchTerm, latitude, longitude);
     }
 
     public String mapRouting(String origin, String destination) {
@@ -3328,15 +3286,18 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String mapStaticImage(RequestMapStaticImage request) {
-        String uniqueId = null;
+    public String mainMapStaticImage(RequestLocationMessage request, String uniqueId, boolean isMessage) {
+
+        if (Util.isNullOrEmpty(uniqueId)) {
+            uniqueId = generateUniqueId();
+        }
+
         if (chatReady) {
             String type = request.getType();
             int zoom = request.getZoom();
             int width = request.getWidth();
             int height = request.getHeight();
             String center = request.getCenter();
-            uniqueId = generateUniqueId();
             if (Util.isNullOrEmpty(type)) {
                 type = "standard-night";
             }
@@ -3373,6 +3334,10 @@ public class Chat extends AsyncAdapter {
                             chatResponse.setResult(result);
                             listenerManager.callOnStaticMap(chatResponse);
                             if (log) Logger.i("RECEIVE_MAP_STATIC");
+                            if (isMessage) {
+//                                uploadFileFromUrl();
+                            }
+
                         }
                     } else {
 
@@ -3403,6 +3368,60 @@ public class Chat extends AsyncAdapter {
             });
         }
 
+
+        return uniqueId;
+    }
+
+    private void uploadFileFromUrl(String folderHash, String metadata, String description) {
+
+        if (Util.isNullOrEmpty(folderHash)) {
+            folderHash = "";
+        }
+        if (Util.isNullOrEmpty(metadata)) {
+            metadata = "";
+        }
+        if (Util.isNullOrEmpty(description)) {
+            description = "";
+        }
+
+
+        String fileName = Util.randomAlphaNumeric(5);
+//        RetrofitHelperFileServer retrofitHelper = new RetrofitHelperFileServer(BuildConfig.NeshanServer);
+//        FileApi fileApi = retrofitHelper.getService(FileApi.class);
+//        Observable<Response<FileUpload>> observable = fileApi.uploadFileFromUrl(getToken()
+//                , TOKEN_ISSUER, fileName, folderHash, metadata, description,)
+    }
+
+    public String mapStaticImage(RequestMapStaticImage request) {
+
+        int zoom = request.getZoom();
+        int width = request.getWidth();
+        int height = request.getHeight();
+        String center = request.getCenter();
+
+        RequestLocationMessage requestLMsg = new RequestLocationMessage.Builder()
+                .height(height)
+                .width(width)
+                .center(center)
+                .zoom(zoom)
+                .build();
+        return mainMapStaticImage(requestLMsg, null, false);
+    }
+
+    public String sendLocationMessage(RequestLocationMessage request) {
+        String uniqueId = generateUniqueId();
+        String message = request.getMessage();
+        long threadId = request.getThreadId();
+        String center = request.getCenter();
+        int height = request.getHeight();
+        int width = request.getWidth();
+        int zoom = request.getZoom();
+        RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder()
+                .height(height)
+                .width(width)
+                .zoom(zoom)
+                .build();
+        mapStaticImage(staticImage);
 
         return uniqueId;
     }
@@ -3468,6 +3487,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
     /**
      * @param contactId
      * @param threadId
@@ -3530,11 +3550,25 @@ public class Chat extends AsyncAdapter {
         return block(contactId, userId, threadId, handler);
     }
 
-    public String unblock(long blockId, ChatHandler handler) {
-        String uniqueId;
-        uniqueId = generateUniqueId();
+    public String unblock(Long blockId, Long userId, Long threadId, Long contactId, ChatHandler handler) {
+        String uniqueId = generateUniqueId();
         if (chatReady) {
             ChatMessage chatMessage = new ChatMessage();
+
+            JsonObject contentObject = new JsonObject();
+            if (!Util.isNullOrEmpty(contactId)) {
+                contentObject.addProperty("contactId", contactId);
+            }
+            if (!Util.isNullOrEmpty(userId)) {
+                contentObject.addProperty("userId", userId);
+            }
+            if (!Util.isNullOrEmpty(threadId)) {
+                contentObject.addProperty("threadId", threadId);
+            }
+
+            String jsonContent = contentObject.toString();
+
+            chatMessage.setContent(jsonContent);
             chatMessage.setSubjectId(blockId);
             chatMessage.setToken(getToken());
             chatMessage.setUniqueId(uniqueId);
@@ -3542,6 +3576,10 @@ public class Chat extends AsyncAdapter {
             chatMessage.setType(Constants.UNBLOCK);
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+            jsonObject.remove("contentCount");
+            jsonObject.remove("systemMetadata");
+            jsonObject.remove("metadata");
+            jsonObject.remove("repliedTo");
 
             if (Util.isNullOrEmpty(getTypeCode())) {
                 jsonObject.remove("typeCode");
@@ -3566,52 +3604,12 @@ public class Chat extends AsyncAdapter {
     }
 
     public String unblock(RequestUnBlock request, ChatHandler handler) {
-        String uniqueId;
-        JsonObject jsonObject = null;
-        uniqueId = generateUniqueId();
-        try {
-            if (chatReady) {
-                long blockId = request.getBlockId();
-                String typeCode = request.getTypeCode();
+        long contactId = request.getContactId();
+        long threadId = request.getThreadId();
+        long userId = request.getUserId();
+        long blockId = request.getBlockId();
 
-                ChatMessage chatMessage = new ChatMessage();
-                chatMessage.setSubjectId(blockId);
-                chatMessage.setToken(getToken());
-                chatMessage.setUniqueId(uniqueId);
-                chatMessage.setTokenIssuer("1");
-                chatMessage.setType(Constants.UNBLOCK);
-
-                jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-                jsonObject.remove("contentCount");
-                jsonObject.remove("systemMetadata");
-                jsonObject.remove("metadata");
-                jsonObject.remove("repliedTo");
-
-                if (Util.isNullOrEmpty(typeCode)) {
-                    if (Util.isNullOrEmpty(getTypeCode())) {
-                        jsonObject.remove("typeCode");
-                    } else {
-                        jsonObject.addProperty("typeCode", getTypeCode());
-                    }
-                } else {
-                    jsonObject.addProperty("typeCode", request.getTypeCode());
-                }
-
-                setCallBacks(null, null, null, true, Constants.UNBLOCK, null, uniqueId);
-                sendAsyncMessage(jsonObject.toString(), 4, "SEND_UN_BLOCK");
-
-                if (handler != null) {
-                    handler.onUnBlock(uniqueId);
-                }
-            } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                if (log) Logger.e(jsonError);
-            }
-        } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
-        }
-
-        return uniqueId;
+        return unblock(blockId, userId, threadId, contactId, handler);
     }
 
     public String spam(long threadId) {

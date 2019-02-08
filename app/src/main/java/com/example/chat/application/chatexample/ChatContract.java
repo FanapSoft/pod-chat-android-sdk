@@ -223,7 +223,7 @@ public interface ChatContract {
 
         void block(Long contactId, Long userId, Long threadId, ChatHandler handler);
 
-        void unBlock(long contactId, ChatHandler handler);
+        void unBlock(Long blockId, Long userId, Long threadId,Long contactId, ChatHandler handler);
 
         void unBlock(RequestUnBlock request, ChatHandler handler);
 
