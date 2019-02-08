@@ -153,7 +153,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
                         break;
                     case 3:
-                        presenter.block(1382L,null
+                        presenter.block(1382L, null, null, null
                         );
 
                         break;
@@ -274,11 +274,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ArrayList<Integer> threadIds = new ArrayList<>();
 //        threadIds.add(1105);
 //        threadIds.add(1031);
-        long count= 5;
+        long count = 5;
         long offset;
-        long creatorCoreUserId = 2 ;
-        presenter.getThreads(null,null,null,null,creatorCoreUserId
-                ,0,0,null);
+        long creatorCoreUserId = 2;
+        presenter.getThreads(null, null, null, null, creatorCoreUserId
+                , 0, 0, null);
     }
 
     //funcSecond
@@ -407,7 +407,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         String meta = JsonUtil.getJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
                 .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
-        presenter.replyFileMessage(fileMessage,null);
+        presenter.replyFileMessage(fileMessage, null);
     }
 
     public void deleteMessage() {
@@ -435,7 +435,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 .systemMetadata("name")
                 .build();
 
-        presenter.sendFileMessage(requestFileMessage,null);
+        presenter.sendFileMessage(requestFileMessage, null);
 
 //      presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
 //        "test file message",

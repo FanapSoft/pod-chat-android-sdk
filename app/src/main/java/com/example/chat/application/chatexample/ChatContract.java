@@ -221,7 +221,7 @@ public interface ChatContract {
 
         void searchContact(SearchContact searchContact);
 
-        void block(Long contactId, ChatHandler handler);
+        void block(Long contactId, Long userId, Long threadId, ChatHandler handler);
 
         void unBlock(long contactId, ChatHandler handler);
 

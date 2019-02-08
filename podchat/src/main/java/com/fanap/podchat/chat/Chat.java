@@ -3468,13 +3468,30 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String block(Long contactId, ChatHandler handler) {
+    /**
+     * @param contactId
+     * @param threadId
+     * @param userId
+     * @param handler
+     */
+
+    public String block(Long contactId, Long userId, Long threadId, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
-            BlockContactId blockAcount = new BlockContactId();
-            blockAcount.setContactId(contactId);
-            String json = JsonUtil.getJson(blockAcount);
+
+            JsonObject contentObject = new JsonObject();
+            if (!Util.isNullOrEmpty(contactId)) {
+                contentObject.addProperty("contactId", contactId);
+            }
+            if (!Util.isNullOrEmpty(userId)) {
+                contentObject.addProperty("userId", userId);
+            }
+            if (!Util.isNullOrEmpty(threadId)) {
+                contentObject.addProperty("threadId", threadId);
+            }
+
+            String json = contentObject.toString();
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setContent(json);
             chatMessage.setToken(getToken());
@@ -3508,29 +3525,9 @@ public class Chat extends AsyncAdapter {
 
     public String block(RequestBlock request, ChatHandler handler) {
         Long contactId = request.getContactId();
-
-        BlockContactId blockAccount = new BlockContactId();
-        blockAccount.setContactId(contactId);
-        String uniqueId = generateUniqueId();
-        String json = JsonUtil.getJson(blockAccount);
-        ChatMessage chatMessage = new ChatMessage();
-
-        chatMessage.setContent(json);
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setType(Constants.BLOCK);
-
-
-        chatMessage.setTypeCode(getTypeCode());
-
-        setCallBacks(null, null, null, true, Constants.BLOCK, null, uniqueId);
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4, "SEND_BLOCK");
-        if (handler != null) {
-            handler.onBlock(uniqueId);
-        }
-        return uniqueId;
+        long threadId = request.getThreadId();
+        long userId = request.getUserId();
+        return block(contactId, userId, threadId, handler);
     }
 
     public String unblock(long blockId, ChatHandler handler) {
@@ -4795,19 +4792,6 @@ public class Chat extends AsyncAdapter {
 
     public void setTtl(long ttl) {
         this.ttl = ttl;
-    }
-
-
-    private class BlockContactId {
-        private long contactId;
-
-        public long getContactId() {
-            return contactId;
-        }
-
-        public void setContactId(long contactId) {
-            this.contactId = contactId;
-        }
     }
 
     /**

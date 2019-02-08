@@ -3,6 +3,7 @@ package com.fanap.podchat.persistance.module;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 
+import com.commonsware.cwac.saferoom.SafeHelperFactory;
 import com.fanap.podchat.persistance.AppDatabase;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
@@ -22,9 +23,14 @@ public class AppDatabaseModule {
     private static final String DATABASE_DB = "cache.db";
 
     public AppDatabaseModule(Context context) {
-//        SupportSQLiteDatabase supportSQLiteDatabase = new SupportSQLiteDatabase(
-//        SafeHelperFactory.rekey();
-                appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB).allowMainThreadQueries().build();
+
+        String stKey = "slkjgndsjkkdhksdfas";
+        char[] passphrase = stKey.toCharArray();
+        SafeHelperFactory factory = new SafeHelperFactory(passphrase);
+        appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB)
+                .openHelperFactory(factory)
+                .allowMainThreadQueries()
+                .build();
     }
 
     @Singleton
@@ -47,7 +53,7 @@ public class AppDatabaseModule {
 
     @Singleton
     @Provides
-    PhoneContactDao phoneContactDao(AppDatabase appDatabase){
+    PhoneContactDao phoneContactDao(AppDatabase appDatabase) {
         return appDatabase.getPhoneContactDao();
     }
 
@@ -59,7 +65,7 @@ public class AppDatabaseModule {
 
     @Singleton
     @Provides
-    PhoneContactDbHelper phoneContactDbHelper(PhoneContactDao phoneContactDao){
+    PhoneContactDbHelper phoneContactDbHelper(PhoneContactDao phoneContactDao) {
         return new PhoneContactDbHelper(phoneContactDao);
     }
 
