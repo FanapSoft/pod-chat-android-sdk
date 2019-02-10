@@ -89,6 +89,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void isDatabaseOpen() {
+        chat.isDbOpen();
+    }
+
+    @Override
     public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
         chat.retryUpload(retry, handler);
     }

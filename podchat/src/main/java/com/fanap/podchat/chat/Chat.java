@@ -535,6 +535,10 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    public boolean isDbOpen(){
+       return messageDatabaseHelper.isDbOpen();
+    }
+
     /*
      *  Its Remove messages from wait queue after the check in their exist
      * */
@@ -4747,27 +4751,30 @@ public class Chat extends AsyncAdapter {
 
         List<Thread> threads = messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName);
 
-        ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
-        int contentCount = messageDatabaseHelper.getThreadCount();
+        if (!Util.isNullOrEmpty(threads)) {
 
-        ResultThreads resultThreads = new ResultThreads();
-        resultThreads.setThreads(threads);
-        resultThreads.setContentCount(contentCount);
-        chatResponse.setCache(true);
+            ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
+            int contentCount = messageDatabaseHelper.getThreadCount();
 
-        if (threads.size() + offset < contentCount) {
-            resultThreads.setHasNext(true);
-        } else {
-            resultThreads.setHasNext(false);
+            ResultThreads resultThreads = new ResultThreads();
+            resultThreads.setThreads(threads);
+            resultThreads.setContentCount(contentCount);
+            chatResponse.setCache(true);
+
+            if (threads.size() + offset < contentCount) {
+                resultThreads.setHasNext(true);
+            } else {
+                resultThreads.setHasNext(false);
+            }
+            resultThreads.setNextOffset(offset + threads.size());
+            chatResponse.setResult(resultThreads);
+
+            String threadJson = gson.toJson(chatResponse);
+            listenerManager.callOnGetThread(threadJson, chatResponse);
+            if (log) Logger.i("CACHE_GET_THREAD");
+            if (log) Logger.json(threadJson);
         }
-        resultThreads.setNextOffset(offset + threads.size());
-        chatResponse.setResult(resultThreads);
-
-        String threadJson = gson.toJson(chatResponse);
-        listenerManager.callOnGetThread(threadJson, chatResponse);
-        if (log) Logger.i("CACHE_GET_THREAD");
-        if (log) Logger.json(threadJson);
-    }
+         }
 
     private int getExpireAmount() {
         if (Util.isNullOrEmpty(expireAmount)) {

@@ -1,8 +1,13 @@
 package com.fanap.podchat.persistance;
 
 import android.arch.persistence.db.SimpleSQLiteQuery;
+import android.arch.persistence.db.SupportSQLiteDatabase;
+import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteQuery;
+import android.content.Context;
 
+import com.commonsware.cwac.saferoom.SQLCipherUtils;
+import com.commonsware.cwac.saferoom.SafeHelperFactory;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
@@ -32,6 +37,8 @@ import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.Util;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,11 +53,34 @@ public class MessageDatabaseHelper {
 
     private MessageDao messageDao;
     private MessageQueueDao messageQueueDao;
+    private Context context;
+    private AppDatabase appDatabase;
 
     @Inject
-    public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao) {
+    public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao, Context context, AppDatabase appDatabase) {
         this.messageQueueDao = messageQueueDao;
         this.messageDao = messageDao;
+        this.context = context;
+        this.appDatabase = appDatabase;
+    }
+
+    public void getDatabaseState(String dbName) {
+        SQLCipherUtils.getDatabaseState(context, dbName);
+    }
+
+    public void decryptDatabase(File file, char[] passphrase) throws IOException {
+        SQLCipherUtils.decrypt(context, file, passphrase);
+    }
+
+    public void reEcryptKey(char[] passphrase) {
+        SupportSQLiteOpenHelper supportSQLiteOH = appDatabase.getOpenHelper();
+        supportSQLiteOH.getWritableDatabase();
+        SupportSQLiteDatabase supportSQLiteDatabase = supportSQLiteOH.getReadableDatabase();
+        SafeHelperFactory.rekey(supportSQLiteDatabase, passphrase);
+    }
+
+    public boolean isDbOpen() {
+        return appDatabase.isOpen();
     }
 
     /**

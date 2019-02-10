@@ -142,6 +142,7 @@ public interface ChatContract {
 
     interface presenter {
 
+        void isDatabaseOpen();
         void  retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler);
 
         void resendMessage(String uniqueId);

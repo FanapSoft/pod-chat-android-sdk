@@ -146,7 +146,7 @@ public interface MessageDao {
     @RawQuery
     List<ThreadVo> getThreadRaw(SupportSQLiteQuery query);
 
-    @Query("select COUNT(id) FROM THREADVO ")
+    @Query("select COUNT(*) FROM ThreadVo ")
     int getThreadCount();
 
     @Query("select * from ThreadVo  ORDER BY id DESC LIMIT :count OFFSET :offset ")

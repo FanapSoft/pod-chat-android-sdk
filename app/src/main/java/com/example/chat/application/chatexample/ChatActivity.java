@@ -135,7 +135,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     case 0:
                         break;
                     case 1:
-                        presenter.mapSearch("میدان آزادی", 35.7003510, 51.3376472);
+//                        presenter.mapSearch("میدان آزادی", 35.7003510, 51.3376472);
+                        presenter.isDatabaseOpen();
                         break;
                     case 2:
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");

@@ -18,10 +18,28 @@ public class Thread {
     private String image;
     private String description;
     private long unreadCount;
+
+    @Deprecated
     private long lastSeenMessageId;
-    private long partnerLastMessageId;
+
+    private long lastSeenMessageNanos;
+    private long lastSeenMessageTime;
+
+    @Deprecated
     private long partnerLastSeenMessageId;
+
+    private long partnerLastSeenMessageTime;
+    private long partnerLastSeenMessageNanos;
+
+    @Deprecated
     private long partnerLastDeliveredMessageId;
+
+    private long partnerLastDeliveredMessageTime;
+    private long partnerLastDeliveredMessageNanos;
+
+    private long partnerLastMessageId;
+
+
     private int type;
     private boolean mute;
     private String metadata;
@@ -293,5 +311,53 @@ public class Thread {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public long getLastSeenMessageNanos() {
+        return lastSeenMessageNanos;
+    }
+
+    public void setLastSeenMessageNanos(long lastSeenMessageNanos) {
+        this.lastSeenMessageNanos = lastSeenMessageNanos;
+    }
+
+    public long getLastSeenMessageTime() {
+        return lastSeenMessageTime;
+    }
+
+    public void setLastSeenMessageTime(long lastSeenMessageTime) {
+        this.lastSeenMessageTime = lastSeenMessageTime;
+    }
+
+    public long getPartnerLastSeenMessageTime() {
+        return partnerLastSeenMessageTime;
+    }
+
+    public void setPartnerLastSeenMessageTime(long partnerLastSeenMessageTime) {
+        this.partnerLastSeenMessageTime = partnerLastSeenMessageTime;
+    }
+
+    public long getPartnerLastSeenMessageNanos() {
+        return partnerLastSeenMessageNanos;
+    }
+
+    public void setPartnerLastSeenMessageNanos(long partnerLastSeenMessageNanos) {
+        this.partnerLastSeenMessageNanos = partnerLastSeenMessageNanos;
+    }
+
+    public long getPartnerLastDeliveredMessageTime() {
+        return partnerLastDeliveredMessageTime;
+    }
+
+    public void setPartnerLastDeliveredMessageTime(long partnerLastDeliveredMessageTime) {
+        this.partnerLastDeliveredMessageTime = partnerLastDeliveredMessageTime;
+    }
+
+    public long getPartnerLastDeliveredMessageNanos() {
+        return partnerLastDeliveredMessageNanos;
+    }
+
+    public void setPartnerLastDeliveredMessageNanos(long partnerLastDeliveredMessageNanos) {
+        this.partnerLastDeliveredMessageNanos = partnerLastDeliveredMessageNanos;
     }
 }
