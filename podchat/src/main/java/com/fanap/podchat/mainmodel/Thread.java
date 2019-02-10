@@ -37,8 +37,8 @@ public class Thread {
     private long partnerLastDeliveredMessageTime;
     private long partnerLastDeliveredMessageNanos;
 
+    @Deprecated
     private long partnerLastMessageId;
-
 
     private int type;
     private boolean mute;
@@ -67,6 +67,12 @@ public class Thread {
                   long partnerLastMessageId,
                   long partnerLastSeenMessageId,
                   long partnerLastDeliveredMessageId,
+                  long lastSeenMessageNanos,
+                  long lastSeenMessageTime,
+                  long partnerLastSeenMessageTime,
+                  long partnerLastSeenMessageNanos,
+                  long partnerLastDeliveredMessageTime,
+                  long partnerLastDeliveredMessageNanos,
                   int type,
                   boolean mute,
                   String metadata,
@@ -93,6 +99,12 @@ public class Thread {
         this.partnerLastMessageId = partnerLastMessageId;
         this.partnerLastSeenMessageId = partnerLastSeenMessageId;
         this.partnerLastDeliveredMessageId = partnerLastDeliveredMessageId;
+        this.lastSeenMessageNanos = lastSeenMessageNanos;
+        this.lastSeenMessageTime = lastSeenMessageTime;
+        this.partnerLastSeenMessageTime = partnerLastSeenMessageTime;
+        this.partnerLastSeenMessageNanos = partnerLastSeenMessageNanos;
+        this.partnerLastDeliveredMessageTime = partnerLastDeliveredMessageTime;
+        this.partnerLastDeliveredMessageNanos = partnerLastDeliveredMessageNanos;
         this.type = type;
         this.mute = mute;
         this.metadata = metadata;

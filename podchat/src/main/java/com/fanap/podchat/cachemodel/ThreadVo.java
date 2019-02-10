@@ -1,13 +1,10 @@
 package com.fanap.podchat.cachemodel;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.LastMessageVO;
-import com.fanap.podchat.mainmodel.Participant;
 
 import java.util.List;
 
@@ -41,10 +38,25 @@ public class ThreadVo {
     private String image;
     private String description;
     private long unreadCount;
+
+    @Deprecated
     private long lastSeenMessageId;
+    @Deprecated
     private long partnerLastMessageId;
+    @Deprecated
     private long partnerLastSeenMessageId;
+    @Deprecated
     private long partnerLastDeliveredMessageId;
+
+    private long lastSeenMessageNanos;
+    private long lastSeenMessageTime;
+
+    private long partnerLastSeenMessageTime;
+    private long partnerLastSeenMessageNanos;
+
+    private long partnerLastDeliveredMessageTime;
+    private long partnerLastDeliveredMessageNanos;
+
     private int type;
     private boolean mute;
     private String metadata;
@@ -276,5 +288,53 @@ public class ThreadVo {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public long getLastSeenMessageTime() {
+        return lastSeenMessageTime;
+    }
+
+    public void setLastSeenMessageTime(long lastSeenMessageTime) {
+        this.lastSeenMessageTime = lastSeenMessageTime;
+    }
+
+    public long getPartnerLastSeenMessageTime() {
+        return partnerLastSeenMessageTime;
+    }
+
+    public void setPartnerLastSeenMessageTime(long partnerLastSeenMessageTime) {
+        this.partnerLastSeenMessageTime = partnerLastSeenMessageTime;
+    }
+
+    public long getPartnerLastSeenMessageNanos() {
+        return partnerLastSeenMessageNanos;
+    }
+
+    public void setPartnerLastSeenMessageNanos(long partnerLastSeenMessageNanos) {
+        this.partnerLastSeenMessageNanos = partnerLastSeenMessageNanos;
+    }
+
+    public long getPartnerLastDeliveredMessageTime() {
+        return partnerLastDeliveredMessageTime;
+    }
+
+    public void setPartnerLastDeliveredMessageTime(long partnerLastDeliveredMessageTime) {
+        this.partnerLastDeliveredMessageTime = partnerLastDeliveredMessageTime;
+    }
+
+    public long getPartnerLastDeliveredMessageNanos() {
+        return partnerLastDeliveredMessageNanos;
+    }
+
+    public void setPartnerLastDeliveredMessageNanos(long partnerLastDeliveredMessageNanos) {
+        this.partnerLastDeliveredMessageNanos = partnerLastDeliveredMessageNanos;
+    }
+
+    public long getLastSeenMessageNanos() {
+        return lastSeenMessageNanos;
+    }
+
+    public void setLastSeenMessageNanos(long lastSeenMessageNanos) {
+        this.lastSeenMessageNanos = lastSeenMessageNanos;
     }
 }

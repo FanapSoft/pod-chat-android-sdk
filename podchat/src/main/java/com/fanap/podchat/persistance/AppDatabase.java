@@ -38,7 +38,7 @@ import com.fanap.podchat.persistance.dao.PhoneContactDao;
         CacheThreadParticipant.class,
         PhoneContact.class,
         ThreadVo.class
-}, version = 1, exportSchema = false)
+}, version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     static final int VERSION = 1;
