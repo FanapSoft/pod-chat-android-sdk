@@ -34,6 +34,8 @@ import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -158,14 +160,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         Long ubThreadId = 1573L;
                         Long ubUserId = null;
                         Long ubContactId = null;
-                        Long unblockId= null;
+                        Long unblockId = null;
                         presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
                                 , new ChatHandler() {
-                            @Override
-                            public void onUnBlock(String uniqueId) {
-                                super.onUnBlock(uniqueId);
-                            }
-                        });
+                                    @Override
+                                    public void onUnBlock(String uniqueId) {
+                                        super.onUnBlock(uniqueId);
+                                    }
+                                });
                         break;
                     case 5:
                         presenter.getBlockList(null, null, new ChatHandler() {
@@ -220,6 +222,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         getthreadWithCoreUser();
                         break;
+                    case 11:
+                        mapStatic();
+                        break;
+                    case 12:
+                        mapReverse();
+                        break;
                 }
             }
 
@@ -228,6 +236,22 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
+    }
+
+    public void mapReverse() {
+        double lat = 35.7003510;
+        double lng = 51.3376472;
+        RequestMapReverse requestMapReverse = new RequestMapReverse.Builder(lat, lng).build();
+        presenter.mapReverse(requestMapReverse);
+    }
+
+    public void mapStatic() {
+        String center = "35.7003510,51.3376472";
+
+        RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder()
+                .center(center)
+                .build();
+        presenter.mapStaticImage(staticImage);
     }
 
     //Function second

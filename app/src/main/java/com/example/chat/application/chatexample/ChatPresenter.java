@@ -47,6 +47,7 @@ import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
@@ -86,6 +87,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         this.activity = activity;
         this.context = context;
         this.view = view;
+    }
+
+    @Override
+    public void sendLocationMessage(RequestLocationMessage request) {
+        chat.sendLocationMessage(request);
     }
 
     @Override
@@ -152,15 +158,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
         chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
-//        PodNotify podNotify = new PodNotify.builder()
-//                .setAppId(appId)
-//                .setServerName(severName)
-//                .setSocketServerAddress(serverAddress)
-//                .setSsoHost(ssoHost)
-//                .setToken(token)
-//                .build(context);
-//
-//        podNotify.start(context);
+        PodNotify podNotify = new PodNotify.builder()
+                .setAppId(appId)
+                .setServerName(severName)
+                .setSocketServerAddress(serverAddress)
+                .setSsoHost(ssoHost)
+                .setToken(token)
+                .build(context);
+
+        podNotify.start(context);
     }
 
     @Override

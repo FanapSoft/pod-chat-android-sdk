@@ -32,6 +32,7 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.localmodel.LFileUpload;
 import com.fanap.podchat.mainmodel.AddParticipant;
 import com.fanap.podchat.mainmodel.BaseMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -148,6 +149,7 @@ import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
+import com.fanap.podchat.util.FileUtils;
 import com.fanap.podchat.util.LogHelper;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.RequestMapSearch;
@@ -535,8 +537,8 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    public boolean isDbOpen(){
-       return messageDatabaseHelper.isDbOpen();
+    public boolean isDbOpen() {
+        return messageDatabaseHelper.isDbOpen();
     }
 
     /*
@@ -719,19 +721,30 @@ public class Chat extends AsyncAdapter {
     public String sendFileMessage(Context context, Activity activity, String description, long threadId
             , Uri fileUri, String systemMetaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
         String uniqueId;
-        systemMetaData = systemMetaData != null ? systemMetaData : "";
-        description = description != null ? description : "";
-        messageType = messageType != null ? messageType : 0;
+
         uniqueId = generateUniqueId();
+
+        LFileUpload lFileUpload = new LFileUpload();
+        lFileUpload.setActivity(activity);
+        lFileUpload.setDescription(description);
+        lFileUpload.setFileUri(fileUri);
+        lFileUpload.setHandler(handler);
+        lFileUpload.setMessageType(messageType);
+        lFileUpload.setThreadId(threadId);
+        lFileUpload.setUniqueId(uniqueId);
+        lFileUpload.setSystemMetaData(systemMetaData);
+
 
         try {
             if (fileUri != null) {
                 File file = new File(fileUri.getPath());
                 String mimeType = handleMimType(fileUri, file);
-                if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-                    uploadImageFileMessage(context, activity, description, threadId, fileUri, mimeType, systemMetaData, uniqueId, getTypeCode(), messageType, 0, null, handler);
+                lFileUpload.setMimeType(mimeType);
+
+                if (mimeType.equals(FileUtils.MIME_TYPE_IMAGE)) {
+                    uploadImageFileMessage(lFileUpload);
                 } else {
-                    uploadFileMessage(activity, description, threadId, mimeType, fileUri, systemMetaData, uniqueId, getTypeCode(), messageType, 0, null, handler);
+                    uploadFileMessage(lFileUpload);
                 }
                 return uniqueId;
             } else {
@@ -763,26 +776,38 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * @param description    description of the message
-     * @param threadId       id of the thread its wanted to send in
-     * @param fileUri        uri of the file
-     * @param mimeType       mime type of the file
-     * @param systemMetaData metadata of the message
-     * @param messageType    type of a message
-     * @param messageId      id of a message
-     * @param methodName     REPLY_MSG_METHOD or other
-     * @param handler        description of the interface methods are :
-     *                       bytesSent        - Bytes sent since the last time this callback was called.
-     *                       totalBytesSent   - Total number of bytes sent so far.
-     *                       totalBytesToSend - Total bytes to send.
+     * description    description of the message
+     * threadId       id of the thread its wanted to send in
+     * fileUri        uri of the file
+     * mimeType       mime type of the file
+     * systemMetaData metadata of the message
+     * messageType    type of a message
+     * messageId      id of a message
+     * methodName     REPLY_MSG_METHOD or other
+     * handler        description of the interface methods are :
+     * bytesSent        - Bytes sent since the last time this callback was called.
+     * totalBytesSent   - Total number of bytes sent so far.
+     * totalBytesToSend - Total bytes to send.
      */
-    private void uploadImageFileMessage(Context context, Activity activity, String description, long threadId,
-                                        Uri fileUri, String mimeType, String systemMetaData, String uniqueId,
-                                        String typeCode, Integer messageType, long messageId, String methodName
-            , ProgressHandler.sendFileMessage handler) {
+    private void uploadImageFileMessage(LFileUpload lFileUpload) {
+
+        Activity activity = lFileUpload.getActivity();
+        String description = lFileUpload.getDescription();
+        Uri fileUri = lFileUpload.getFileUri();
+        Integer messageType = lFileUpload.getMessageType();
+        long threadId = lFileUpload.getThreadId();
+        String uniqueId = lFileUpload.getUniqueId();
+        String systemMetaData = lFileUpload.getSystemMetaData();
+        long messageId = lFileUpload.getMessageId();
+        String mimeType = lFileUpload.getMimeType();
+
+        systemMetaData = systemMetaData != null ? systemMetaData : "";
+
+        description = description != null ? description : "";
+        messageType = messageType != null ? messageType : 0;
 
         if (Permission.Check_READ_STORAGE(activity)) {
-            String path = FilePick.getSmartFilePath(context, fileUri);
+            String path = FilePick.getSmartFilePath(getContext(), fileUri);
             File file = new File(path);
             if (file.exists()) {
                 long fileSize = file.length();
@@ -794,12 +819,16 @@ public class Chat extends AsyncAdapter {
                 uploadingQueue.setThreadId(threadId);
                 uploadingQueue.setId(messageId);
 
-                String metaData = createImageMetadata(file, null, 0, 0, 0, mimeType, fileSize, fileUri.toString());
+                String metaData = createImageMetadata(file, null, 0, 0, 0,
+                        mimeType, fileSize, fileUri.toString());
                 uploadingQueue.setMetadata(metaData);
                 messageDatabaseHelper.insertUploadingQueue(uploadingQueue);
                 if (log)
                     Logger.i("Message with this" + "  uniqueId  " + uniqueId + "  has been added to Uploading Queue");
-                mainUploadImageFileMsg(description, threadId, mimeType, systemMetaData, uniqueId, typeCode, messageType, messageId, methodName, handler, file, fileSize);
+                lFileUpload.setFile(file);
+                lFileUpload.setFileSize(fileSize);
+
+                mainUploadImageFileMsg(lFileUpload);
 
             } else {
                 if (log) Logger.e("File Is Not Exist");
@@ -811,7 +840,22 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void mainUploadImageFileMsg(String description, long threadId, String mimeType, String systemMetaData, String uniqueId, String typeCode, Integer messageType, long messageId, String methodName, ProgressHandler.sendFileMessage handler, File file, long fileSize) {
+    private void mainUploadImageFileMsg(LFileUpload fileUpload) {
+
+        String description = fileUpload.getDescription();
+        ProgressHandler.sendFileMessage handler = fileUpload.getHandler();
+        Integer messageType = fileUpload.getMessageType();
+        long threadId = fileUpload.getThreadId();
+        String uniqueId = fileUpload.getUniqueId();
+        String systemMetaData = fileUpload.getSystemMetaData();
+        long messageId = fileUpload.getMessageId();
+        String mimeType = fileUpload.getMimeType();
+        String methodName = fileUpload.getMethodName();
+        long fileSize = fileUpload.getFileSize();
+
+
+        File file = fileUpload.getFile();
+
         if (chatReady) {
 
             if (fileServer != null) {
@@ -941,10 +985,20 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void uploadFileMessage(Activity activity, String description, long threadId,
-                                   String mimeType, Uri fileUri, String systemMetadata,
-                                   String uniqueId, String typeCode, Integer messageType, long messageId, String methodName
-            , ProgressHandler.sendFileMessage handler) {
+    private void uploadFileMessage(LFileUpload lFileUpload) {
+
+        Activity activity = lFileUpload.getActivity();
+        String description = lFileUpload.getDescription();
+        Uri fileUri = lFileUpload.getFileUri();
+        Integer messageType = lFileUpload.getMessageType();
+        long threadId = lFileUpload.getThreadId();
+        String uniqueId = lFileUpload.getUniqueId();
+        String systemMetadata = lFileUpload.getSystemMetaData();
+        String mimeType = lFileUpload.getMimeType();
+
+        systemMetadata = systemMetadata != null ? systemMetadata : "";
+        description = description != null ? description : "";
+        messageType = messageType != null ? messageType : 0;
         try {
 
             if (Permission.Check_READ_STORAGE(activity)) {
@@ -967,8 +1021,10 @@ public class Chat extends AsyncAdapter {
                     messageDatabaseHelper.insertUploadingQueue(uploadingQueue);
                     if (log)
                         Logger.i("Message with this" + "  uniqueId  " + uniqueId + "  has been added to Uploading Queue");
-                    mainUploadFileMessage(file, description, threadId, mimeType, systemMetadata, uniqueId, typeCode, messageType
-                            , messageId, methodName, handler, file_size);
+
+                    lFileUpload.setFileSize(file_size);
+
+                    mainUploadFileMessage(lFileUpload);
 
                 } else {
                     if (log) Logger.e("File Is Not Exist");
@@ -983,8 +1039,20 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void mainUploadFileMessage(File file, String description, long threadId, String mimeType, String systemMetadata
-            , String uniqueId, String typeCode, Integer messageType, long messageId, String methodName, ProgressHandler.sendFileMessage handler, long file_size) {
+    private void mainUploadFileMessage(LFileUpload lFileUpload) {
+
+        String description = lFileUpload.getDescription();
+        Integer messageType = lFileUpload.getMessageType();
+        long threadId = lFileUpload.getThreadId();
+        String uniqueId = lFileUpload.getUniqueId();
+        String systemMetadata = lFileUpload.getSystemMetaData();
+        long messageId = lFileUpload.getMessageId();
+        String mimeType = lFileUpload.getMimeType();
+        File file = lFileUpload.getFile();
+        ProgressHandler.sendFileMessage handler = lFileUpload.getHandler();
+        long file_size = lFileUpload.getFileSize();
+        String methodName = lFileUpload.getMethodName();
+
         if (chatReady) {
             if (getFileServer() != null) {
                 RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
@@ -1055,7 +1123,6 @@ public class Chat extends AsyncAdapter {
                         if (uniqueCancel.equals(uniqueId) && !subscription.isUnsubscribed()) {
                             subscription.unsubscribe();
                             if (log) Logger.e("Uploaded Canceled");
-
                         }
                     }
                 };
@@ -1546,6 +1613,7 @@ public class Chat extends AsyncAdapter {
     public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
         String uniqueId = retry.getUniqueId();
         Activity activity = retry.getActivity();
+
         UploadingQueueCache uploadingQ = messageDatabaseHelper.getUploadingQ(uniqueId);
 
         if (uploadingQ != null) {
@@ -1559,15 +1627,29 @@ public class Chat extends AsyncAdapter {
             String mimeType = metaDataFile.getFile().getMimeType();
             String methodName = "";
 
+
+            LFileUpload lFileUpload = new LFileUpload();
+            lFileUpload.setActivity(activity);
+            lFileUpload.setDescription(message);
+            lFileUpload.setFileUri(Uri.parse(link));
+            lFileUpload.setHandler(handler);
+            lFileUpload.setMessageType(messageType);
+            lFileUpload.setThreadId(threadId);
+            lFileUpload.setUniqueId(uniqueId);
+            lFileUpload.setSystemMetaData(systemMetadata);
+            lFileUpload.setHandler(handler);
+            lFileUpload.setMimeType(mimeType);
+
             if (!Util.isNullOrEmpty(messageId)) {
                 methodName = ChatConstant.REPLY_MSG_METHOD;
+                lFileUpload.setMethodName(methodName);
             }
-            if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+            if (mimeType.equals(FileUtils.MIME_TYPE_IMAGE)) {
 
                 messageDatabaseHelper.deleteUploadingQueue(uniqueId);
-                uploadImageFileMessage(getContext(), activity, message, threadId, Uri.parse(link), mimeType, systemMetadata, uniqueId, "", messageType, messageId, methodName, handler);
+                uploadImageFileMessage(lFileUpload);
             } else {
-                uploadFileMessage(activity, message, threadId, mimeType, Uri.parse(link), systemMetadata, uniqueId, "", messageType, messageId, methodName, handler);
+                uploadFileMessage(lFileUpload);
             }
         }
     }
@@ -2029,15 +2111,29 @@ public class Chat extends AsyncAdapter {
         Activity activity = request.getActivity();
         int messageType = request.getMessageType();
         String methodName = ChatConstant.REPLY_MSG_METHOD;
+
+        LFileUpload lFileUpload = new LFileUpload();
+        lFileUpload.setActivity(activity);
+        lFileUpload.setDescription(messageContent);
+        lFileUpload.setFileUri(fileUri);
+        lFileUpload.setHandler(handler);
+        lFileUpload.setMessageType(messageType);
+        lFileUpload.setThreadId(threadId);
+        lFileUpload.setUniqueId(uniqueId);
+        lFileUpload.setSystemMetaData(systemMetaData);
+        lFileUpload.setHandler(handler);
+        lFileUpload.setMessageType(messageType);
+
         try {
             if (fileUri != null) {
                 File file = new File(fileUri.getPath());
                 String mimeType = handleMimType(fileUri, file);
-                if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-                    uploadImageFileMessage(getContext(), activity, messageContent, threadId, fileUri, mimeType, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName, handler);
+                lFileUpload.setMimeType(mimeType);
+                if (mimeType.equals(FileUtils.MIME_TYPE_IMAGE)) {
+                    uploadImageFileMessage(lFileUpload);
                 } else {
                     String path = FilePick.getSmartFilePath(context, fileUri);
-                    uploadFileMessage(activity, messageContent, threadId, mimeType, fileUri, systemMetaData, uniqueId, getTypeCode(), messageType, messageId, methodName, handler);
+                    uploadFileMessage(lFileUpload);
                 }
                 return uniqueId;
             } else {
@@ -3290,87 +3386,121 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String mainMapStaticImage(RequestLocationMessage request, String uniqueId, boolean isMessage) {
+    //TODO back chatready
+
+    /**
+     * if these params don't set they have default values :
+     * [default] type = "standard-night"
+     * [default] zoom = 15
+     * [default] width = 800
+     * [default] height = 500
+     */
+    public String mainMapStaticImage(RequestLocationMessage request, Activity activity, String uniqueId, boolean isMessage) {
 
         if (Util.isNullOrEmpty(uniqueId)) {
             uniqueId = generateUniqueId();
         }
 
-        if (chatReady) {
-            String type = request.getType();
-            int zoom = request.getZoom();
-            int width = request.getWidth();
-            int height = request.getHeight();
-            String center = request.getCenter();
-            if (Util.isNullOrEmpty(type)) {
-                type = "standard-night";
-            }
-            if (Util.isNullOrEmpty(zoom)) {
-                zoom = 15;
-            }
-            if (Util.isNullOrEmpty(width)) {
-                width = 800;
-            }
-            if (Util.isNullOrEmpty(height)) {
-                height = 500;
-            }
+//        if (chatReady) {
+        String type = request.getType();
+        int zoom = request.getZoom();
+        int width = request.getWidth();
+        int height = request.getHeight();
+        String center = request.getCenter();
+        long threadId = request.getThreadId();
+        int messageType = request.getMessageType();
 
-            RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
-            MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
 
-            Call<ResponseBody> call = mapApi.mapStaticCall(API_KEY_MAP,
-                    type,
-                    zoom,
-                    center,
-                    width,
-                    height);
-            String finalUniqueId = uniqueId;
-            call.enqueue(new retrofit2.Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        if (response.body() != null) {
-                            Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                            ChatResponse<ResultStaticMapImage> chatResponse = new ChatResponse<>();
-                            ResultStaticMapImage result = new ResultStaticMapImage();
-                            result.setBitmap(bitmap);
-                            chatResponse.setUniqueId(finalUniqueId);
-                            chatResponse.setResult(result);
-                            listenerManager.callOnStaticMap(chatResponse);
-                            if (log) Logger.i("RECEIVE_MAP_STATIC");
-                            if (isMessage) {
-//                                uploadFileFromUrl();
+        if (Util.isNullOrEmpty(type)) {
+            type = "standard-night";
+        }
+        if (Util.isNullOrEmpty(zoom)) {
+            zoom = 15;
+        }
+        if (Util.isNullOrEmpty(width)) {
+            width = 800;
+        }
+        if (Util.isNullOrEmpty(height)) {
+            height = 500;
+        }
+
+        RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+        MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+
+        Call<ResponseBody> call = mapApi.mapStaticCall(API_KEY_MAP,
+                type,
+                zoom,
+                center,
+                width,
+                height);
+        String finalUniqueId = uniqueId;
+        String finalUniqueId1 = uniqueId;
+        call.enqueue(new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                        ChatResponse<ResultStaticMapImage> chatResponse = new ChatResponse<>();
+                        ResultStaticMapImage result = new ResultStaticMapImage();
+                        result.setBitmap(bitmap);
+                        chatResponse.setUniqueId(finalUniqueId);
+                        chatResponse.setResult(result);
+                        listenerManager.callOnStaticMap(chatResponse);
+                        if (log) Logger.i("RECEIVE_MAP_STATIC");
+
+                        if (isMessage) {
+                            File file = FileUtils.saveBitmap(bitmap, "map");
+                            Uri fileUri = Uri.fromFile(file);
+                            String newPath = FilePick.getSmartFilePath(getContext(), fileUri);
+
+                            String mimType = handleMimType(fileUri, file);
+                            LFileUpload lFileUpload = new LFileUpload();
+
+                            lFileUpload.setFileUri(fileUri);
+                            if (activity != null) {
+                                lFileUpload.setActivity(activity);
                             }
+                            lFileUpload.setThreadId(threadId);
+                            lFileUpload.setUniqueId(finalUniqueId);
+                            lFileUpload.setMessageType(messageType);
+                            lFileUpload.setMimeType(mimType);
 
+                            uploadImageFileMessage(lFileUpload);
                         }
-                    } else {
 
-                        try {
-                            String errorBody;
-                            if (response.errorBody() != null) {
-                                errorBody = response.errorBody().string();
-                                JSONObject jObjError = new JSONObject(errorBody);
-                                String errorMessage = jObjError.getString("message");
-                                int errorCode = jObjError.getInt("code");
-                                String jsonError = getErrorOutPut(errorMessage, errorCode, finalUniqueId);
-                                if (log) Logger.e(jsonError);
-                            }
+                    }
+                } else {
 
-                        } catch (JSONException e) {
-                            if (log) Logger.e(e.getCause().getMessage());
-                        } catch (IOException e) {
-                            if (log) Logger.e(e.getCause().getMessage());
+                    try {
+                        String errorBody;
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                            JSONObject jObjError = new JSONObject(errorBody);
+                            String errorMessage = jObjError.getString("message");
+                            int errorCode = jObjError.getInt("code");
+                            String jsonError = getErrorOutPut(errorMessage, errorCode, finalUniqueId);
+                            if (log) Logger.e(jsonError);
                         }
+
+                    } catch (JSONException e) {
+                        if (log) Logger.e(e.getCause().getMessage());
+                    } catch (IOException e) {
+                        if (log) Logger.e(e.getCause().getMessage());
                     }
                 }
+            }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    String jsonError = getErrorOutPut(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
-                    if (log) Logger.e(jsonError);
-                }
-            });
-        }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                String jsonError = getErrorOutPut(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                if (log) Logger.e(jsonError);
+            }
+        });
+//        } else {
+//            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+//            if (log) Logger.e(jsonError);
+//        }
 
 
         return uniqueId;
@@ -3409,23 +3539,13 @@ public class Chat extends AsyncAdapter {
                 .center(center)
                 .zoom(zoom)
                 .build();
-        return mainMapStaticImage(requestLMsg, null, false);
+        return mainMapStaticImage(requestLMsg, null, null, false);
     }
 
     public String sendLocationMessage(RequestLocationMessage request) {
         String uniqueId = generateUniqueId();
-        String message = request.getMessage();
-        long threadId = request.getThreadId();
-        String center = request.getCenter();
-        int height = request.getHeight();
-        int width = request.getWidth();
-        int zoom = request.getZoom();
-        RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder()
-                .height(height)
-                .width(width)
-                .zoom(zoom)
-                .build();
-        mapStaticImage(staticImage);
+        Activity activity = request.getActivity();
+        mainMapStaticImage(request, activity, uniqueId, true);
 
         return uniqueId;
     }
@@ -4774,7 +4894,7 @@ public class Chat extends AsyncAdapter {
             if (log) Logger.i("CACHE_GET_THREAD");
             if (log) Logger.json(threadJson);
         }
-         }
+    }
 
     private int getExpireAmount() {
         if (Util.isNullOrEmpty(expireAmount)) {

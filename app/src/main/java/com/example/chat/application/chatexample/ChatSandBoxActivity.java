@@ -34,6 +34,7 @@ import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
@@ -191,6 +192,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     case 12:
 
                         mapReverse();
+                        break;
+                    case 13:
+                        RequestLocationMessage requestLocationMessage = new RequestLocationMessage.Builder()
+                                .message("This is location ")
+                                .activity(ChatSandBoxActivity.this)
+                                .threadId(381)
+                                .build();
+                        presenter.sendLocationMessage(requestLocationMessage);
                         break;
                 }
             }

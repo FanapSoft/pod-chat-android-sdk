@@ -22,6 +22,7 @@ import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
@@ -141,6 +142,8 @@ public interface ChatContract {
     }
 
     interface presenter {
+
+        void sendLocationMessage(RequestLocationMessage request);
 
         void isDatabaseOpen();
         void  retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler);

@@ -31,21 +31,27 @@ import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
+import java.util.Random;
 
 /**
- * @version 2009-07-03
  * @author Peli
- * @version 2013-12-11
  * @author paulburke (ipaulpro)
+ * @version 2013-12-11
  */
 public class FileUtils {
-    private FileUtils() {} //private constructor to enforce Singleton pattern
+    private FileUtils() {
+    } //private constructor to enforce Singleton pattern
 
-    /** TAG for log messages. */
+    /**
+     * TAG for log messages.
+     */
     static final String TAG = "FileUtils";
     private static final boolean DEBUG = false; // Set to true to enable logging
 
@@ -62,11 +68,8 @@ public class FileUtils {
      *
      * @param uri
      * @return Extension including the dot("."); "" if there is no extension;
-     *         null if uri was null.
+     * null if uri was null.
      */
-
-
-
 
 
     public static String getExtension(String uri) {
@@ -210,9 +213,9 @@ public class FileUtils {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      * @author paulburke
@@ -252,10 +255,10 @@ public class FileUtils {
      * represents a local file.
      *
      * @param context The context.
-     * @param uri The Uri to query.
+     * @param uri     The Uri to query.
+     * @author paulburke
      * @see #isLocal(String)
      * @see #getFile(Context, Uri)
-     * @author paulburke
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static String getPath(final Context context, final Uri uri) {
@@ -317,7 +320,7 @@ public class FileUtils {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -345,9 +348,9 @@ public class FileUtils {
      * Convert Uri into File, if possible.
      *
      * @return file A local file that the Uri was pointing to, or null if the
-     *         Uri is unsupported or pointed to a remote resource.
-     * @see #getPath(Context, Uri)
+     * Uri is unsupported or pointed to a remote resource.
      * @author paulburke
+     * @see #getPath(Context, Uri)
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static File getFile(Context context, Uri uri) {
@@ -427,7 +430,7 @@ public class FileUtils {
      * @return
      * @author paulburke
      */
-    public static Bitmap getThumbnail(Context context, Uri uri, String mimeType) {
+    private static Bitmap getThumbnail(Context context, Uri uri, String mimeType) {
         if (DEBUG)
             Log.d(TAG, "Attempting to get thumbnail");
 
@@ -453,8 +456,7 @@ public class FileUtils {
                                 id,
                                 MediaStore.Video.Thumbnails.MINI_KIND,
                                 null);
-                    }
-                    else if (mimeType.contains(FileUtils.MIME_TYPE_IMAGE)) {
+                    } else if (mimeType.contains(FileUtils.MIME_TYPE_IMAGE)) {
                         bm = MediaStore.Images.Thumbnails.getThumbnail(
                                 resolver,
                                 id,
@@ -529,5 +531,33 @@ public class FileUtils {
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         return intent;
+    }
+
+    public static File saveBitmap(Bitmap bitmap, String name) {
+        String path = Environment.getExternalStorageDirectory().toString();
+        OutputStream fOut = null;
+//        Integer counter = 0;
+        int counter = randomNumber(1, 1000);
+        // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+        File file = new File(path, name + counter + ".jpg");
+        try {
+            fOut = new FileOutputStream(file);
+
+            // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
+            fOut.flush(); // Not really required
+            fOut.close(); // do not forget to close the stream
+
+        } catch (java.io.IOException e) {
+
+            //TODO logger
+        }
+        return file;
+    }
+
+
+    public static int randomNumber(int low, int high) {
+        Random r = new Random();
+        return r.nextInt(high - low) + low;
     }
 }
