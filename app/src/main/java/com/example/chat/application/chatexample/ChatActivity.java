@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -42,6 +43,8 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.JsonUtil;
+import com.fanap.podnotify.PodNotify;
+import com.fanap.podnotify.service.PodMessagingService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -79,6 +82,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //
+private static String appId = "POD-Chat";
 
     private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
@@ -123,6 +127,28 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         setupSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
         setupThirdSpinner(spinnerThird);
+
+        PodNotify.setApplication(this);
+
+        PodNotify podNotify = new PodNotify.builder()
+                .setAppId(appId)
+                .setServerName(serverName)
+                .setSocketServerAddress("172.16.110.61:8017")
+                .setSsoHost(ssoHost)
+                .setToken(TOKEN)
+                .build(this);
+
+        podNotify.start(this);
+
+    }
+
+    public class Notification extends PodMessagingService{
+        @Override
+        public void onMessageReceived(com.fanap.podnotify.model.Notification notification) {
+            super.onMessageReceived(notification);
+
+            Log.i("NOtification",notification.getText());
+        }
     }
 
     private void setupThirdSpinner(Spinner spinnerThird) {

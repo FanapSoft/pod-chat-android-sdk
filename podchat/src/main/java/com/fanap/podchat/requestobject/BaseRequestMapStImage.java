@@ -15,7 +15,6 @@ abstract class BaseRequestMapStImage {
         this.height = builder.height;
     }
 
-
     static abstract class Builder<T extends Builder> {
         private String type;
         private int zoom;

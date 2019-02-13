@@ -5,7 +5,9 @@ import android.app.Activity;
 public class RequestLocationMessage extends BaseRequestMapStImage {
 
     private long threadId;
+    private long messageId;
     private String message;
+    private String systemMetadata;
     private int messageType;
     private Activity activity;
 
@@ -15,14 +17,28 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
         this.message = builder.message;
         this.messageType = builder.messageType;
         this.activity = builder.activity;
-    }
+        this.systemMetadata = builder.systemMetadata;
+        this.messageId = builder.messageId;
 
+    }
 
     public static class Builder extends BaseRequestMapStImage.Builder<Builder> {
         private long threadId;
         private String message;
         private int messageType;
         private Activity activity;
+        private String systemMetadata;
+        private long messageId;
+
+        public Builder messageId(long messageId){
+            this.messageId = messageId;
+            return this;
+        }
+
+        public Builder systemMetadata(String systemMetadata){
+            this.systemMetadata = systemMetadata;
+            return this;
+        }
 
         public Builder activity(Activity activity) {
             this.activity = activity;
@@ -54,6 +70,14 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
         }
 
 
+    }
+
+    public String getSystemMetadata() {
+        return systemMetadata;
+    }
+
+    public void setSystemMetadata(String systemMetadata) {
+        this.systemMetadata = systemMetadata;
     }
 
     public int getMessageType() {

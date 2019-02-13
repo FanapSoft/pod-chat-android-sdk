@@ -20,9 +20,14 @@ public class RetrofitHelperFileServer {
 
     public RetrofitHelperFileServer(String fileServer) {
 
+//        Request request = new Request().header("Connection", "close");
         retrofit = new Retrofit.Builder()
                 .baseUrl(fileServer)
-                .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+
+                .client(new OkHttpClient().newBuilder()
+                        .retryOnConnectionFailure(true)
+                        .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                        .build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
     }

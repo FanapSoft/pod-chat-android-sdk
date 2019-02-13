@@ -21,6 +21,7 @@ public class LFileUpload {
     private long fileSize;
     private File file;
     private String methodName;
+    private String center;
     private ProgressHandler.sendFileMessage handler;
 
     public Activity getActivity() {
@@ -133,5 +134,13 @@ public class LFileUpload {
 
     public void setFile(File file) {
         this.file = file;
+    }
+
+    public String getCenter() {
+        return center;
+    }
+
+    public void setCenter(String center) {
+        this.center = center;
     }
 }

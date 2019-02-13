@@ -30,7 +30,9 @@ public class ChatConstant {
     public static final String ERROR_USER_NOT_FOUND = "User not found!";
     public static final String ERROR_NETWORK_ERROR = "Network Error";
     public static final String ERROR_CANT_GET_USER_INFO = "Cant get UserInfo!";
-    public static final String ERROR_CONNECTION_NOT_ESTABLISHED = "Getting User Info Retry Count exceeded 5 times; Connection Can Not Estabilish!";
-    public static final String REPLY_MSG_METHOD = "replyMessage";
+    public static final String ERROR_CONNECTION_NOT_ESTABLISHED = "Getting User Info Retry Count exceeded 5 times; Connection Can Not Establish!";
+
+    public static final String METHOD_REPLY_MSG = "replyMessage";
+    public static final String METHOD_LOCATION_MSG = "locationMessage";
 
 }

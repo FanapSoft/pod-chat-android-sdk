@@ -70,7 +70,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "918f20c34659486084171c640814a08e";
+    private static String TOKEN = "3b9aa38b68fb4ff8bb05fef7408f9fa4";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -194,10 +194,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         mapReverse();
                         break;
                     case 13:
+                        String center = "35.7003510,51.3376472";
+
                         RequestLocationMessage requestLocationMessage = new RequestLocationMessage.Builder()
+                                .center(center)
                                 .message("This is location ")
                                 .activity(ChatSandBoxActivity.this)
-                                .threadId(381)
+                                .threadId(2)
                                 .build();
                         presenter.sendLocationMessage(requestLocationMessage);
                         break;
@@ -247,6 +250,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         RequestCreateThread requestCreateThread = new RequestCreateThread
                 .Builder(0
                 , invite)
+                .message(message)
                 .build();
         presenter.createThreadWithMessage(requestCreateThread);
     }
