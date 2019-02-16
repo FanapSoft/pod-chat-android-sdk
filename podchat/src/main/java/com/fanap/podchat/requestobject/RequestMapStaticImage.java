@@ -1,4 +1,7 @@
 package com.fanap.podchat.requestobject;
+
+import android.support.annotation.NonNull;
+
 /**
  * Get Static Image of a GeoLocation
  *
@@ -11,17 +14,19 @@ package com.fanap.podchat.requestobject;
 public class RequestMapStaticImage  extends BaseRequestMapStImage {
 
 
-    public RequestMapStaticImage(Builder builder) {
+    public RequestMapStaticImage(@NonNull Builder builder) {
         super(builder);
     }
 
     public static class Builder extends BaseRequestMapStImage.Builder<Builder>{
 
 
+        @NonNull
         public RequestMapStaticImage build() {
             return new RequestMapStaticImage(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

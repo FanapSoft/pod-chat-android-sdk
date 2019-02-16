@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.NonNull;
+
 public class History {
     private long id;
 
@@ -50,69 +52,82 @@ public class History {
         private long toTime;
         private long toTimeNanos;
 
+        @NonNull
         public Builder id(long id) {
             this.id = id;
             return this;
         }
 
+        @NonNull
         public Builder fromTime(long fromTime) {
             this.fromTime = fromTime;
             return this;
         }
 
+        @NonNull
         public Builder fromTimeNanos(long fromTimeNanos) {
             this.fromTimeNanos = fromTimeNanos;
             return this;
         }
 
+        @NonNull
         public Builder toTime(long toTime) {
             this.toTime = toTime;
             return this;
         }
 
 
+        @NonNull
         public Builder toTimeNanos(long toTimeNanos) {
             this.toTimeNanos = toTimeNanos;
             return this;
         }
 
+        @NonNull
         public Builder query(String query) {
             this.query = query;
             return this;
         }
 
+        @NonNull
         public Builder metadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
             this.metadataCriteria = metadataCriteria;
             return this;
         }
 
+        @NonNull
         public Builder offset(long offset) {
             this.offset = offset;
             return this;
         }
 
+        @NonNull
         public Builder count(long count) {
             this.count = count;
             return this;
         }
 
+        @NonNull
         public Builder order(String order) {
             this.order = order;
             return this;
         }
 
+        @NonNull
         @Deprecated
         public Builder firstMessageId(long firstMessageId) {
             this.firstMessageId = firstMessageId;
             return this;
         }
 
+        @NonNull
         @Deprecated
         public Builder lastMessageId(long lastMessageId) {
             this.lastMessageId = lastMessageId;
             return this;
         }
 
+        @NonNull
         public History build() {
             return new History(this);
         }

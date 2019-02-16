@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 
 public class RequestGetHistory extends BaseRequestObject {
@@ -16,7 +18,7 @@ public class RequestGetHistory extends BaseRequestObject {
     private long firstMessageId;
     private long lastMessageId;
 
-    RequestGetHistory(Builder builder) {
+    RequestGetHistory(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
         this.order = builder.order;
@@ -51,66 +53,79 @@ public class RequestGetHistory extends BaseRequestObject {
             this.threadId = threadId;
         }
 
+        @NonNull
         public Builder firstMessageId(long firstMessageId) {
             this.firstMessageId = firstMessageId;
             return this;
         }
 
+        @NonNull
         public Builder fromTime(long fromTime) {
             this.fromTime = fromTime;
             return this;
         }
 
+        @NonNull
         public Builder fromTimeNanos(long fromTimeNanos) {
             this.fromTimeNanos = fromTimeNanos;
             return this;
         }
 
+        @NonNull
         public Builder toTime(long toTime) {
             this.toTime = toTime;
             return this;
         }
 
+        @NonNull
         public Builder toTimeNanos(long toTimeNanos) {
             this.toTimeNanos = toTimeNanos;
             return this;
         }
 
 
+        @NonNull
         public Builder lastMessageId(long lastMessageId) {
             this.lastMessageId = lastMessageId;
             return this;
         }
 
+        @NonNull
         public Builder order(String order) {
             this.order = order;
             return this;
         }
 
+        @NonNull
         public Builder userId(long userId) {
             this.userId = userId;
             return this;
         }
 
+        @NonNull
         public Builder id(long id) {
             this.id = id;
             return this;
         }
 
+        @NonNull
         public Builder query(String query) {
             this.query = query;
             return this;
         }
 
+        @NonNull
         public Builder metadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
             this.metadataCriteria = metadataCriteria;
             return this;
         }
 
+        @NonNull
         public RequestGetHistory build() {
             return new RequestGetHistory(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

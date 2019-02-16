@@ -28,6 +28,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -38,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -72,7 +75,8 @@ public class FileUtils {
      */
 
 
-    public static String getExtension(String uri) {
+    @Nullable
+    public static String getExtension(@Nullable String uri) {
         if (uri == null) {
             return null;
         }
@@ -89,7 +93,7 @@ public class FileUtils {
     /**
      * @return Whether the URI is a local one.
      */
-    public static boolean isLocal(String url) {
+    public static boolean isLocal(@Nullable String url) {
         if (url != null && !url.startsWith("http://") && !url.startsWith("https://")) {
             return true;
         }
@@ -110,7 +114,8 @@ public class FileUtils {
      * @param file
      * @return uri
      */
-    public static Uri getUri(File file) {
+    @Nullable
+    public static Uri getUri(@Nullable File file) {
         if (file != null) {
             return Uri.fromFile(file);
         }
@@ -123,7 +128,8 @@ public class FileUtils {
      * @param file
      * @return
      */
-    public static File getPathWithoutFilename(File file) {
+    @Nullable
+    public static File getPathWithoutFilename(@Nullable File file) {
         if (file != null) {
             if (file.isDirectory()) {
                 // no file to be split off. Return everything
@@ -147,6 +153,7 @@ public class FileUtils {
     /**
      * @return The MIME type for the given file.
      */
+    @Nullable
     public static String getMimeType(File file) {
 
         String extension = getExtension(file.getName());
@@ -160,8 +167,12 @@ public class FileUtils {
     /**
      * @return The MIME type for the give Uri.
      */
-    public static String getMimeType(Context context, Uri uri) {
-        File file = new File(getPath(context, uri));
+    @Nullable
+    public static String getMimeType(@NonNull Context context, @NonNull Uri uri) {
+        File file = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            file = new File(Objects.requireNonNull(getPath(context, uri)));
+        }
         return getMimeType(file);
     }
 
@@ -220,7 +231,7 @@ public class FileUtils {
      * @return The value of the _data column, which is typically a file path.
      * @author paulburke
      */
-    public static String getDataColumn(Context context, Uri uri, String selection,
+    public static String getDataColumn(Context context, @NonNull Uri uri, String selection,
                                        String[] selectionArgs) {
 
         Cursor cursor = null;
@@ -261,7 +272,7 @@ public class FileUtils {
      * @see #getFile(Context, Uri)
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static String getPath(final Context context, final Uri uri) {
+    public static String getPath(@NonNull final Context context, @NonNull final Uri uri) {
 
         if (DEBUG)
             Log.d(TAG + " File -",
@@ -352,8 +363,9 @@ public class FileUtils {
      * @author paulburke
      * @see #getPath(Context, Uri)
      */
+    @Nullable
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static File getFile(Context context, Uri uri) {
+    public static File getFile(@NonNull Context context, @Nullable Uri uri) {
         if (uri != null) {
             String path = getPath(context, uri);
             if (path != null && isLocal(path)) {
@@ -403,7 +415,8 @@ public class FileUtils {
      * @return
      * @author paulburke
      */
-    public static Bitmap getThumbnail(Context context, File file) {
+    @Nullable
+    public static Bitmap getThumbnail(@NonNull Context context, @NonNull File file) {
         return getThumbnail(context, getUri(file), getMimeType(file));
     }
 
@@ -416,7 +429,8 @@ public class FileUtils {
      * @return
      * @author paulburke
      */
-    public static Bitmap getThumbnail(Context context, Uri uri) {
+    @Nullable
+    public static Bitmap getThumbnail(@NonNull Context context, @NonNull Uri uri) {
         return getThumbnail(context, uri, getMimeType(context, uri));
     }
 
@@ -430,7 +444,7 @@ public class FileUtils {
      * @return
      * @author paulburke
      */
-    private static Bitmap getThumbnail(Context context, Uri uri, String mimeType) {
+    private static Bitmap getThumbnail(@NonNull Context context, @NonNull Uri uri, @NonNull String mimeType) {
         if (DEBUG)
             Log.d(TAG, "Attempting to get thumbnail");
 
@@ -523,6 +537,7 @@ public class FileUtils {
      * @return The intent for opening a file with Intent.createChooser()
      * @author paulburke
      */
+    @NonNull
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -533,6 +548,7 @@ public class FileUtils {
         return intent;
     }
 
+    @NonNull
     public static File saveBitmap(Bitmap bitmap, String name) {
         String path = Environment.getExternalStorageDirectory().toString();
         OutputStream fOut = null;

@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.NonNull;
+
 public class ThreadInfoVO {
     private String image;
     private String name;
@@ -28,26 +30,31 @@ public class ThreadInfoVO {
         private String metadata;
         private String name;
 
+        @NonNull
         public Builder image(String image) {
             this.image = image;
             return this;
         }
 
+        @NonNull
         public Builder title(String title) {
             this.name = title;
             return this;
         }
 
+        @NonNull
         public Builder description(String description) {
             this.description = description;
             return this;
         }
 
+        @NonNull
         public Builder metadat(String metadata) {
             this.metadata = metadata;
             return this;
         }
 
+        @NonNull
         public ThreadInfoVO build() {
             return new ThreadInfoVO(this);
         }

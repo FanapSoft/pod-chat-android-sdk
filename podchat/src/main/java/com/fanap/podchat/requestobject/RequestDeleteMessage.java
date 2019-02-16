@@ -1,11 +1,13 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestDeleteMessage extends GeneralRequestObject {
 
     private long messageId;
     private boolean deleteForAll;
 
-    private RequestDeleteMessage(Builder builder) {
+    private RequestDeleteMessage(@NonNull Builder builder) {
         super(builder);
         this.deleteForAll = builder.deleteForAll;
         this.messageId = builder.messageId;
@@ -19,15 +21,18 @@ public class RequestDeleteMessage extends GeneralRequestObject {
             this.messageId = messageId;
         }
 
+        @NonNull
         public Builder deleteForAll(boolean deleteForAll) {
             this.deleteForAll = deleteForAll;
             return this;
         }
 
+        @NonNull
         public RequestDeleteMessage build() {
             return new RequestDeleteMessage(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

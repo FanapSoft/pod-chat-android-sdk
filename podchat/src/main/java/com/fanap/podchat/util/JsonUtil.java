@@ -1,6 +1,8 @@
 package com.fanap.podchat.util;
 
 
+import android.support.annotation.NonNull;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,7 +26,7 @@ public class JsonUtil {
        }
    }
 
-   public static <T> T fromJSON(byte[] json, Class<T> classOfT) {
+   public static <T> T fromJSON(@NonNull byte[] json, @NonNull Class<T> classOfT) {
        try {
            return mapper.readValue(new String(json, "utf-8"), classOfT);
        } catch (Exception e) {
@@ -32,7 +34,7 @@ public class JsonUtil {
        }
    }
 
-   public static <T> T fromJSON(String json, Class<T> classOfT) {
+   public static <T> T fromJSON(String json, @NonNull Class<T> classOfT) {
        try {
            return mapper.readValue(json, classOfT);
        } catch (Exception e) {
@@ -40,7 +42,7 @@ public class JsonUtil {
        }
    }
 
-   public static <T> T fromJSON(String json, TypeReference<T> typeReference) {
+   public static <T> T fromJSON(String json, @NonNull TypeReference<T> typeReference) {
        try {
            return mapper.readValue(json, typeReference);
        } catch (Exception e) {

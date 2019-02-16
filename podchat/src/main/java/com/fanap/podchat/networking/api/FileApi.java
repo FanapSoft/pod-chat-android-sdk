@@ -1,5 +1,7 @@
 package com.fanap.podchat.networking.api;
 
+import android.support.annotation.NonNull;
+
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.FileImageUpload;
 
@@ -18,6 +20,7 @@ import retrofit2.http.Query;
 import rx.Observable;
 
 public interface FileApi {
+    @NonNull
     @Multipart
     @POST("nzh/uploadFile")
     Observable<Response<FileUpload>> sendFile(
@@ -26,6 +29,7 @@ public interface FileApi {
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") RequestBody fileName);
 
+    @NonNull
     @Multipart
     @POST("nzh/uploadImage")
     Observable<Response<FileImageUpload>> sendImageFile(
@@ -34,6 +38,7 @@ public interface FileApi {
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") RequestBody fileName);
 
+    @NonNull
     @POST("nzh/drive/uploadFileFromUrl")
     Observable<Response<FileUpload>> uploadFileFromUrl(
             @Header("_token_") String token
@@ -46,6 +51,7 @@ public interface FileApi {
             , @Part("tags") ArrayList<String> tags
     );
 
+    @NonNull
     @GET("nzh/file/")
     Observable<Response<ResponseBody>> getFile
             (@Query("fileId") int fileId

@@ -2,6 +2,7 @@ package com.fanap.podchat.requestobject;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 public class RequestReplyFileMessage extends GeneralRequestObject {
 
@@ -14,7 +15,7 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
     private int messageType;
 
 
-    RequestReplyFileMessage(Builder builder) {
+    RequestReplyFileMessage(@NonNull Builder builder) {
         super(builder);
         this.systemMetaData = builder.systemMetaData;
         this.messageContent = builder.messageContent;
@@ -43,20 +44,24 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
             this.activity = activity;
         }
 
+        @NonNull
         public Builder messageType(int messageType){
             this.messageType = messageType;
             return this;
         }
 
+        @NonNull
         public Builder systemMetaData(String systemMetaData) {
             this.systemMetaData = systemMetaData;
             return this;
         }
 
+        @NonNull
         public RequestReplyFileMessage build() {
             return new RequestReplyFileMessage(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

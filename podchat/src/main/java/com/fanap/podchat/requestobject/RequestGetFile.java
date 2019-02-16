@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestGetFile {
     private long fileId;
     private String hashCode;
@@ -21,6 +23,7 @@ public class RequestGetFile {
         this.hashCode = hashCode;
         this.downloadable = downloadable;
         }
+        @NonNull
         public RequestGetFile build(){
             return new RequestGetFile(this);
         }

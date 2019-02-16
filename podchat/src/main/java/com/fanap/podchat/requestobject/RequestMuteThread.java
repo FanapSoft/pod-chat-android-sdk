@@ -1,9 +1,11 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestMuteThread extends GeneralRequestObject {
     private long threadId;
 
-    RequestMuteThread(Builder builder) {
+    RequestMuteThread(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
     }
@@ -23,10 +25,12 @@ public class RequestMuteThread extends GeneralRequestObject {
             this.threadId = threadId;
         }
 
+        @NonNull
         public RequestMuteThread build() {
             return new RequestMuteThread(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

@@ -1,6 +1,7 @@
 package com.fanap.podchat.requestobject;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 
 public class RequestLocationMessage extends BaseRequestMapStImage {
 
@@ -11,7 +12,7 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
     private int messageType;
     private Activity activity;
 
-    public RequestLocationMessage(Builder builder) {
+    public RequestLocationMessage(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
         this.message = builder.message;
@@ -30,40 +31,48 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
         private String systemMetadata;
         private long messageId;
 
+        @NonNull
         public Builder messageId(long messageId){
             this.messageId = messageId;
             return this;
         }
 
+        @NonNull
         public Builder systemMetadata(String systemMetadata){
             this.systemMetadata = systemMetadata;
             return this;
         }
 
+        @NonNull
         public Builder activity(Activity activity) {
             this.activity = activity;
             return this;
         }
 
+        @NonNull
         public Builder messageType(int messageType) {
             this.messageType = messageType;
             return this;
         }
 
+        @NonNull
         public Builder threadId(long threadId) {
             this.threadId = threadId;
             return this;
         }
 
+        @NonNull
         public Builder message(String message) {
             this.message = message;
             return this;
         }
 
+        @NonNull
         public RequestLocationMessage build() {
             return new RequestLocationMessage(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

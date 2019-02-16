@@ -2,18 +2,13 @@ package com.fanap.podchat.networking.retrofithelper;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.fanap.podchat.R;
-
-import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -44,6 +39,7 @@ public class RetrofitHelperPlatformHost {
     private Retrofit.Builder retrofit;
     private Context context;
 
+    @Nullable
     private static OkHttpClient enableTls12OnPreLollipop(Context context) {
         OkHttpClient client = null;
         if (Build.VERSION.SDK_INT < 22) {
@@ -85,7 +81,7 @@ public class RetrofitHelperPlatformHost {
     }
 
 
-    public RetrofitHelperPlatformHost(String platformHost, Context context) {
+    public RetrofitHelperPlatformHost(@NonNull String platformHost, Context context) {
         this.context = context;
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
@@ -95,7 +91,7 @@ public class RetrofitHelperPlatformHost {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
     }
 
-    public <T> T getService(Class<T> tService) {
+    public <T> T getService(@NonNull Class<T> tService) {
         return retrofit.build().create(tService);
     }
 

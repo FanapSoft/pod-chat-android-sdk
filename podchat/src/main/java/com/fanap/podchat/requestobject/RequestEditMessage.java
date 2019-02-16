@@ -1,11 +1,13 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestEditMessage extends GeneralRequestObject {
     private String messageContent;
     private long messageId;
     private String metaData;
 
-     RequestEditMessage(Builder builder) {
+     RequestEditMessage(@NonNull Builder builder) {
         super(builder);
         this.metaData = builder.metaData;
         this.messageContent = builder.messageContent;
@@ -22,15 +24,18 @@ public class RequestEditMessage extends GeneralRequestObject {
             this.messageId = messageId;
         }
 
+        @NonNull
         public Builder metaData(String metaData) {
             this.metaData = metaData;
             return this;
         }
 
+        @NonNull
         public RequestEditMessage build() {
             return new RequestEditMessage(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

@@ -1,6 +1,8 @@
 package com.fanap.podchat.requestobject;
 
 
+import android.support.annotation.NonNull;
+
 public class RequestReplyMessage extends GeneralRequestObject {
     private String messageContent;
     private long threadId;
@@ -8,7 +10,7 @@ public class RequestReplyMessage extends GeneralRequestObject {
     private String systemMetaData;
     private int messageType;
 
-    RequestReplyMessage(Builder builder) {
+    RequestReplyMessage(@NonNull Builder builder) {
         super(builder);
         this.systemMetaData = builder.systemMetaData;
         this.messageContent = builder.messageContent;
@@ -30,20 +32,24 @@ public class RequestReplyMessage extends GeneralRequestObject {
             this.messageId = messageId;
         }
 
+        @NonNull
         public Builder messageType(int messageType) {
             this.messageType = messageType;
             return this;
         }
 
+        @NonNull
         public Builder systemMetaData(String systemMetaData) {
             this.systemMetaData = systemMetaData;
             return this;
         }
 
+        @NonNull
         public RequestReplyMessage build() {
             return new RequestReplyMessage(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

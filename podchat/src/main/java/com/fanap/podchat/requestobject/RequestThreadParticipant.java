@@ -1,11 +1,13 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestThreadParticipant extends GeneralRequestObject {
     private long count;
     private long offset;
     private long threadId;
 
-    RequestThreadParticipant(Builder builder) {
+    RequestThreadParticipant(@NonNull Builder builder) {
         super(builder);
         this.count = builder.count;
         this.offset = builder.offset;
@@ -29,20 +31,24 @@ public class RequestThreadParticipant extends GeneralRequestObject {
             this.threadId = threadId;
         }
 
+        @NonNull
         public Builder count(long count) {
             this.count = count;
             return this;
         }
 
+        @NonNull
         public Builder offset(long offset) {
             this.offset = offset;
             return this;
         }
 
+        @NonNull
         public RequestThreadParticipant build() {
             return new RequestThreadParticipant(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestBlock {
     private long contactId;
     private long userId;
@@ -40,6 +42,7 @@ public class RequestBlock {
             this.contactId = contactId;
         }
 
+        @NonNull
         public RequestBlock build() {
             return new RequestBlock(this);
         }

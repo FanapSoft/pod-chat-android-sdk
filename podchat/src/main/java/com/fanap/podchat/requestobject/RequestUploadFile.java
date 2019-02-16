@@ -2,6 +2,7 @@ package com.fanap.podchat.requestobject;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 public class RequestUploadFile {
 
@@ -22,6 +23,7 @@ public class RequestUploadFile {
             this.fileUri = fileUri;
         }
 
+        @NonNull
         public RequestUploadFile build() {
             return new RequestUploadFile(this);
         }

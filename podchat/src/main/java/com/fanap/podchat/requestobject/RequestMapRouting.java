@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestMapRouting {
     private String origin;
     private String destination;
@@ -35,6 +37,7 @@ public class RequestMapRouting {
             this.destination = destination;
         }
 
+        @NonNull
         public RequestMapRouting build(){
             return new RequestMapRouting(this);
         }

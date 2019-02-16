@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 
@@ -13,7 +15,7 @@ public class RequestCreateThread extends BaseRequestObject {
     private String title;
     private RequestThreadInnerMessage message;
 
-    RequestCreateThread(Builder builder) {
+    RequestCreateThread(@NonNull Builder builder) {
         super(builder);
         this.type = builder.type;
         this.message = builder.message;
@@ -34,22 +36,26 @@ public class RequestCreateThread extends BaseRequestObject {
             this.type = type;
         }
 
+        @NonNull
         public Builder message(RequestThreadInnerMessage message) {
             this.message = message;
             return this;
         }
 
+        @NonNull
         public Builder title(String title) {
             this.title = title;
             return this;
         }
 
+        @NonNull
         @Override
         protected RequestCreateThread.Builder self() {
             return this;
         }
 
 
+        @NonNull
         public RequestCreateThread build() {
             return new RequestCreateThread(this);
         }

@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestConnect extends BaseRequestObject {
 
     private String socketAddress;
@@ -11,7 +13,7 @@ public class RequestConnect extends BaseRequestObject {
     private String fileServer;
 
 
-     RequestConnect(Builder builder) {
+     RequestConnect(@NonNull Builder builder) {
         super(builder);
 
     }
@@ -38,10 +40,12 @@ public class RequestConnect extends BaseRequestObject {
 
         }
 
+        @NonNull
         public RequestConnect build(){
             return new RequestConnect(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -364,7 +365,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void uploadFile(Activity activity, Uri uri) {
+    public void uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
         chat.uploadFile(activity, uri);
     }
 

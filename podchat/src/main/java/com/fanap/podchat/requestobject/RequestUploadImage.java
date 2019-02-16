@@ -2,6 +2,7 @@ package com.fanap.podchat.requestobject;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 public class RequestUploadImage {
 
@@ -23,6 +24,7 @@ public class RequestUploadImage {
             this.fileUri = fileUri;
         }
 
+        @NonNull
         RequestUploadImage build() {
             return new RequestUploadImage(this);
         }

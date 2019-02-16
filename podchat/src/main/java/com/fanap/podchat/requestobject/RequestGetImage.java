@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestGetImage {
     private long imageId;
     private String hashCode;
@@ -23,6 +25,7 @@ public class RequestGetImage {
             this.downloadable = downloadable;
         }
 
+        @NonNull
         public RequestGetImage build() {
             return new RequestGetImage(this);
         }

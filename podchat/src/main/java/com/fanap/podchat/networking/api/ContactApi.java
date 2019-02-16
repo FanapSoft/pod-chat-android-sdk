@@ -1,5 +1,7 @@
 package com.fanap.podchat.networking.api;
 
+import android.support.annotation.NonNull;
+
 import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.model.ContactRemove;
@@ -18,6 +20,7 @@ import rx.Observable;
 
 public interface ContactApi {
 
+    @NonNull
     @POST("nzh/addContacts")
     @FormUrlEncoded
     Observable<Response<Contacts>> addContact(@Header("_token_") String token
@@ -30,6 +33,7 @@ public interface ContactApi {
     );
 
     /* addContact Without type code */
+    @NonNull
     @POST("nzh/addContacts")
     @FormUrlEncoded
     Observable<Response<Contacts>> addContact(@Header("_token_") String token
@@ -43,6 +47,7 @@ public interface ContactApi {
     );
 
     /* addContacts With type code*/
+    @NonNull
     @POST("nzh/addContacts")
     @FormUrlEncoded
     Observable<Response<Contacts>> addContacts(@Header("_token_") String token
@@ -56,6 +61,7 @@ public interface ContactApi {
     );
 
     /* addContacts Without type code*/
+    @NonNull
     @POST("nzh/addContacts")
     @FormUrlEncoded
     Observable<Response<Contacts>> addContacts(@Header("_token_") String token
@@ -68,6 +74,7 @@ public interface ContactApi {
     );
 
     /* removeContacts With type code*/
+    @NonNull
     @POST("nzh/removeContacts")
     @FormUrlEncoded
     Observable<Response<ContactRemove>> removeContact(@Header("_token_") String token
@@ -77,6 +84,7 @@ public interface ContactApi {
     );
 
     /* removeContacts Without type code*/
+    @NonNull
     @POST("nzh/removeContacts")
     @FormUrlEncoded
     Observable<Response<ContactRemove>> removeContact(@Header("_token_") String token
@@ -84,6 +92,7 @@ public interface ContactApi {
             , @Field("id") long userId);
 
     /* Update contact without type code*/
+    @NonNull
     @POST("nzh/updateContacts")
     @FormUrlEncoded
     Observable<Response<UpdateContact>> updateContact(@Header("_token_") String token
@@ -96,6 +105,7 @@ public interface ContactApi {
             , @Field("cellphoneNumber") String cellphoneNumber);
 
     /* Update contact with type code*/
+    @NonNull
     @POST("nzh/updateContacts")
     @FormUrlEncoded
     Observable<Response<UpdateContact>> updateContact(@Header("_token_") String token
@@ -108,6 +118,7 @@ public interface ContactApi {
             , @Field("cellphoneNumber") String cellphoneNumber
             , @Field("typeCode") String typeCode);
 
+    @NonNull
     @GET("nzh/listContacts")
     Observable<Response<SearchContactVO>> searchContact(@Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer

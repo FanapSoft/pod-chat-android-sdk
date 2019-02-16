@@ -1,12 +1,14 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestUnBlock extends GeneralRequestObject {
     private long blockId;
     private long userId;
     private long threadId;
     private long contactId;
 
-    RequestUnBlock(Builder builder) {
+    RequestUnBlock(@NonNull Builder builder) {
         super(builder);
         this.blockId = builder.blockId;
     }
@@ -50,10 +52,12 @@ public class RequestUnBlock extends GeneralRequestObject {
             this.blockId = blockId;
         }
 
+        @NonNull
         public RequestUnBlock build() {
             return new RequestUnBlock(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

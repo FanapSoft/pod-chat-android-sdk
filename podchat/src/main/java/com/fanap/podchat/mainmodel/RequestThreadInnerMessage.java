@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 
 public class RequestThreadInnerMessage {
@@ -32,31 +34,37 @@ public class RequestThreadInnerMessage {
             this.text = text;
         }
 
+        @NonNull
         public Builder type(int type){
             this.type = type;
             return this;
         }
 
+        @NonNull
         public Builder repliedTo(long repliedTo) {
             this.repliedTo = repliedTo;
             return this;
         }
 
+        @NonNull
         public Builder metadata(String metadata) {
             this.metadata = metadata;
             return this;
         }
 
+        @NonNull
         public Builder systemMetadata(String systemMetadata) {
             this.systemMetadata = systemMetadata;
             return this;
         }
 
+        @NonNull
         public  Builder forwardedMessageIds(List<Long> forwardedMessageIds) {
             this.forwardedMessageIds = forwardedMessageIds;
             return this;
         }
 
+        @NonNull
         public RequestThreadInnerMessage build() {
             return new RequestThreadInnerMessage(this);
         }

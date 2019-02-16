@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestAddContact extends GeneralRequestObject {
 
     private String firstName;
@@ -7,7 +9,7 @@ public class RequestAddContact extends GeneralRequestObject {
     private String cellphoneNumber;
     private String email;
 
-    RequestAddContact(Builder builder) {
+    RequestAddContact(@NonNull Builder builder) {
         super(builder);
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
@@ -53,30 +55,36 @@ public class RequestAddContact extends GeneralRequestObject {
         private String cellphoneNumber;
         private String email;
 
+        @NonNull
         public Builder firstName(String firstName) {
             this.firstName = firstName;
             return this;
         }
 
+        @NonNull
         public Builder lastName(String lastName) {
             this.lastName = lastName;
             return this;
         }
 
+        @NonNull
         public Builder cellphoneNumber(String cellphoneNumber) {
             this.cellphoneNumber = cellphoneNumber;
             return this;
         }
 
+        @NonNull
         public Builder email(String email) {
             this.email = email;
             return this;
         }
 
+        @NonNull
         public RequestAddContact build(){
             return new RequestAddContact(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

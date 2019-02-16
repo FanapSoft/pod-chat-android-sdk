@@ -1,12 +1,15 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.List;
 
 public class RequestAddParticipants extends GeneralRequestObject {
     private long threadId;
     private List<Long> contactIds;
 
-    RequestAddParticipants(Builder builder) {
+    RequestAddParticipants(@NonNull Builder builder) {
         super(builder);
         this.contactIds = builder.contactIds;
         this.threadId = builder.threadId;
@@ -22,11 +25,13 @@ public class RequestAddParticipants extends GeneralRequestObject {
             this.threadId = threadId;
         }
 
+        @Nullable
         @Override
         protected Builder self() {
             return null;
         }
 
+        @NonNull
         public RequestAddParticipants build() {
             return new RequestAddParticipants(this);
         }

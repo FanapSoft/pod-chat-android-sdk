@@ -2,6 +2,7 @@ package com.example.chat.application.chatexample;
 
 import android.arch.lifecycle.Observer;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +12,7 @@ import com.fanap.podnotify.PodNotify;
 
 public class PodNotificationActivity extends AppCompatActivity implements ChatContract.view {
 
+    @NonNull
     ChatContract.view view = new ChatContract.view() {
     };
 
@@ -46,7 +48,7 @@ public class PodNotificationActivity extends AppCompatActivity implements ChatCo
     }
 
     @Override
-    public void onRecivedNotification(com.fanap.podnotify.model.Notification notification) {
+    public void onRecivedNotification(@NonNull com.fanap.podnotify.model.Notification notification) {
         Log.d("notification", notification.getText());
     }
 }

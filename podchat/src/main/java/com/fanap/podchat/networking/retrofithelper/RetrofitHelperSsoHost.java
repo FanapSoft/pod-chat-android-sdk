@@ -1,5 +1,7 @@
 package com.fanap.podchat.networking.retrofithelper;
 
+import android.support.annotation.NonNull;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
@@ -19,7 +21,7 @@ public class RetrofitHelperSsoHost {
 
     private Retrofit.Builder retrofit;
 
-    public RetrofitHelperSsoHost(String ssoHost) {
+    public RetrofitHelperSsoHost(@NonNull String ssoHost) {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(ssoHost)
@@ -28,7 +30,7 @@ public class RetrofitHelperSsoHost {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
     }
 
-    public <T> T getService(Class<T> tService) {
+    public <T> T getService(@NonNull Class<T> tService) {
         return retrofit.build().create(tService);
     }
 

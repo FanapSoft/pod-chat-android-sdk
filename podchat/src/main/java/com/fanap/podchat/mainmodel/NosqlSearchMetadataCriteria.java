@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 
 public class NosqlSearchMetadataCriteria {
@@ -44,41 +46,53 @@ public class NosqlSearchMetadataCriteria {
             this.field = field;
         }
 
+        @NonNull
         public Builder has(String has) {
             this.has = has;
             return this;
-        }public Builder is(String is) {
+        }
+
+        @NonNull
+        public Builder is(String is) {
             this.is = is;
             return this;
         }
+        @NonNull
         public Builder gt(String gt) {
             this.gt = gt;
             return this;
         }
+        @NonNull
         public Builder gte(String gte) {
             this.gte = gte;
             return this;
         }
+        @NonNull
         public Builder lt(String lt) {
             this.lt = lt;
             return this;
         }
+        @NonNull
         public Builder lte(String lte) {
             this.lte = lte;
             return this;
         }
+        @NonNull
         public Builder and(List<NosqlSearchMetadataCriteria> and) {
             this.and = and;
             return this;
         }
+        @NonNull
         public Builder or(List<NosqlSearchMetadataCriteria> or) {
             this.or = or;
             return this;
         }
+        @NonNull
         public Builder not(List<NosqlSearchMetadataCriteria> not) {
             this.not = not;
             return this;
         }
+        @NonNull
         public NosqlSearchMetadataCriteria build(){
             return new NosqlSearchMetadataCriteria(this);
         }

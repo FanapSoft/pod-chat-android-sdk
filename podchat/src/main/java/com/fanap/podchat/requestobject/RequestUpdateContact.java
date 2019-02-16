@@ -1,6 +1,8 @@
 package com.fanap.podchat.requestobject;
 
 
+import android.support.annotation.NonNull;
+
 public class RequestUpdateContact extends GeneralRequestObject {
 
     private String firstName;
@@ -10,7 +12,7 @@ public class RequestUpdateContact extends GeneralRequestObject {
     private long userId;
 
 
-    RequestUpdateContact(Builder builder){
+    RequestUpdateContact(@NonNull Builder builder){
         super(builder);
         this.userId = builder.userId;
     }
@@ -23,10 +25,12 @@ public class RequestUpdateContact extends GeneralRequestObject {
             this.userId = userId;
         }
 
+        @NonNull
         public RequestUpdateContact build(){
             return new RequestUpdateContact(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

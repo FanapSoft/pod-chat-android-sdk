@@ -1,10 +1,12 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestSeenMessageList extends BaseRequestObject {
     private long messageId;
 
 
-     RequestSeenMessageList(Builder builder){
+     RequestSeenMessageList(@NonNull Builder builder){
         super(builder);
         this.messageId = builder.messageId;
     }
@@ -24,10 +26,12 @@ public class RequestSeenMessageList extends BaseRequestObject {
             this.messageId = messageId;
         }
 
+        @NonNull
         public RequestSeenMessageList build() {
             return new RequestSeenMessageList(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

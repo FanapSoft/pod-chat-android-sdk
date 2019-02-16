@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.NonNull;
+
 public class NosqlListMessageCriteriaVO {
     private long messageThreadId;
     private long userId;
@@ -41,51 +43,61 @@ public class NosqlListMessageCriteriaVO {
             this.messageThreadId = threadId;
         }
 
+        @NonNull
         public Builder userId(long userId) {
             this.userId = userId;
             return this;
         }
 
+        @NonNull
         public Builder firstMessageId(Long firstMessageId) {
             this.firstMessageId = firstMessageId;
             return this;
         }
 
+        @NonNull
         public Builder lastMessageId(Long lastMessageId) {
             this.lastMessageId = lastMessageId;
             return this;
         }
 
+        @NonNull
         public Builder offset(long offset) {
             this.offset = offset;
             return this;
         }
 
+        @NonNull
         public Builder count(int count) {
             this.count = count;
             return this;
         }
 
+        @NonNull
         public Builder order(String order) {
             this.order = order;
             return this;
         }
 
+        @NonNull
         public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
+        @NonNull
         public Builder query(String query) {
             this.query = query;
             return this;
         }
 
+        @NonNull
         public Builder metadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
             this.metadataCriteria = metadataCriteria;
             return this;
         }
 
+        @NonNull
         public NosqlListMessageCriteriaVO build() {
             return new NosqlListMessageCriteriaVO(this);
         }

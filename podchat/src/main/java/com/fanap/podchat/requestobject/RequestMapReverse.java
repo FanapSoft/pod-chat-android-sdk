@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestMapReverse {
 
     private double lat;
@@ -19,6 +21,7 @@ public class RequestMapReverse {
             this.lng = lng;
         }
 
+        @NonNull
         public RequestMapReverse build(){
             return new RequestMapReverse(this);
         }

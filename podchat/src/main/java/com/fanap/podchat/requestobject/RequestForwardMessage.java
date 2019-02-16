@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 
 public class RequestForwardMessage extends GeneralRequestObject{
@@ -7,7 +9,7 @@ public class RequestForwardMessage extends GeneralRequestObject{
     private long threadId;
     private ArrayList<Long> messageIds;
 
-     RequestForwardMessage(Builder builder){
+     RequestForwardMessage(@NonNull Builder builder){
         super(builder);
         this.threadId = builder.threadId;
         this.messageIds = builder.messageIds;
@@ -23,10 +25,12 @@ public class RequestForwardMessage extends GeneralRequestObject{
             this.messageIds = messageIds;
         }
 
+        @NonNull
         public RequestForwardMessage build(){
             return new RequestForwardMessage(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

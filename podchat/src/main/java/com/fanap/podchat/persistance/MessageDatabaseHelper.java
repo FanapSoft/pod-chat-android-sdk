@@ -5,6 +5,8 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
@@ -68,7 +70,7 @@ public class MessageDatabaseHelper {
         SQLCipherUtils.getDatabaseState(context, dbName);
     }
 
-    public void decryptDatabase(File file, char[] passphrase) throws IOException {
+    public void decryptDatabase(@NonNull File file, char[] passphrase) throws IOException {
         SQLCipherUtils.decrypt(context, file, passphrase);
     }
 
@@ -86,7 +88,7 @@ public class MessageDatabaseHelper {
     /**
      * Cache history
      */
-    public void saveHistory(List<CacheMessageVO> messageVOS, long threadId) {
+    public void saveHistory(@NonNull List<CacheMessageVO> messageVOS, long threadId) {
         for (CacheMessageVO messageVO : messageVOS) {
             messageVO.setThreadVoId(threadId);
 
@@ -126,7 +128,7 @@ public class MessageDatabaseHelper {
         messageDao.insertHistories(messageVOS);
     }
 
-    public void saveMessage(CacheMessageVO cacheMessageVO, long threadId) {
+    public void saveMessage(@NonNull CacheMessageVO cacheMessageVO, long threadId) {
         cacheMessageVO.setThreadVoId(threadId);
 
         if (cacheMessageVO.getParticipant() != null) {
@@ -161,7 +163,7 @@ public class MessageDatabaseHelper {
      *
      * */
 
-    public void insertWaitMessageQueue(SendingQueueCache sendingQueue) {
+    public void insertWaitMessageQueue(@NonNull SendingQueueCache sendingQueue) {
         WaitQueueCache waitMessageQueue = new WaitQueueCache();
 
         waitMessageQueue.setUniqueId(sendingQueue.getUniqueId());
@@ -184,6 +186,7 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllWaitQueueMsg();
     }
 
+    @Nullable
     public SendingQueueCache getWaitMessageQueue(String uniqueId) {
         SendingQueueCache sendingQueueCache = new SendingQueueCache();
 
@@ -194,6 +197,7 @@ public class MessageDatabaseHelper {
         return null;
     }
 
+    @NonNull
     public List<Failed> getAllWaitQueueCacheByThreadId(long threadId) {
         List<Failed> listQueues = new ArrayList<>();
         List<WaitQueueCache> listCaches = messageQueueDao.getWaitQueueMsgByThreadId(threadId);
@@ -248,6 +252,7 @@ public class MessageDatabaseHelper {
     }
 
 
+    @NonNull
     public SendingQueueCache getWaitQueueMsgByUnique(String uniqueId) {
         SendingQueueCache sendingQueueCache = new SendingQueueCache();
         WaitQueueCache waitQueueCache = messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
@@ -273,6 +278,7 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllSendingQueue();
     }
 
+    @NonNull
     public List<Sending> getAllSendingQueueByThreadId(long threadId) {
 
         List<Sending> listQueues = new ArrayList<>();
@@ -306,6 +312,7 @@ public class MessageDatabaseHelper {
         messageQueueDao.insertUploadingQueue(uploadingQueue);
     }
 
+    @NonNull
     public List<Uploading> getAllUploadingQueueByThreadId(long threadId) {
         List<Uploading> uploadingQueues = new ArrayList<>();
         List<UploadingQueueCache> uploadingQueueCaches = messageQueueDao.getAllUploadingQueueByThreadId(threadId);
@@ -347,7 +354,7 @@ public class MessageDatabaseHelper {
         messageDao.deleteMessage(id);
     }
 
-    public void updateGetHistoryResponse(Callback callback, List<MessageVO> messageVOS, long threadId, List<CacheMessageVO> cMessageVOS) {
+    public void updateGetHistoryResponse(@NonNull Callback callback, @NonNull List<MessageVO> messageVOS, long threadId, @NonNull List<CacheMessageVO> cMessageVOS) {
         long count = callback.getCount();
         long offset = callback.getOffset();
         long firstMessageId = callback.getFirstMessageId();
@@ -381,7 +388,7 @@ public class MessageDatabaseHelper {
         }
     }
 
-    private void whereClauseDesc(History history, List<MessageVO> messageVOS, long threadId, List<CacheMessageVO> cMessageVOS) {
+    private void whereClauseDesc(History history, @NonNull List<MessageVO> messageVOS, long threadId, @NonNull List<CacheMessageVO> cMessageVOS) {
         long messageId = history.getId();
         long fromTimeNanos = history.getFromTimeNanos();
         long fromTime = history.getFromTime() + fromTimeNanos;
@@ -414,7 +421,7 @@ public class MessageDatabaseHelper {
                 saveHistory(cMessageVOS, threadId);
             }
 
-            /**
+            /*
              * From time conditions*/
         } else if (!Util.isNullOrEmpty(fromTime)) {
             if (Util.isNullOrEmptyMessageVO(messageVOS)) {
@@ -435,7 +442,7 @@ public class MessageDatabaseHelper {
                 messageDao.deleteMessageBetweenLastAndFirstDESC(threadId, firstMesssageId, lastMesssageId);
                 saveHistory(cMessageVOS, threadId);
             }
-            /**
+            /*
              * To time conditions
              * */
         } else if (!Util.isNullOrEmpty(toTime)) {
@@ -479,7 +486,7 @@ public class MessageDatabaseHelper {
         }
     }
 
-    private void whereClauseAsc(History history, List<MessageVO> messageVOS, long threadId, List<CacheMessageVO> cMessageVOS) {
+    private void whereClauseAsc(History history, @NonNull List<MessageVO> messageVOS, long threadId, @NonNull List<CacheMessageVO> cMessageVOS) {
 
         long messageId = history.getId();
         long fromTimeNanos = history.getFromTimeNanos();
@@ -513,8 +520,9 @@ public class MessageDatabaseHelper {
                 saveHistory(cMessageVOS, threadId);
             }
 
-            /**
-             * From time conditions*/
+            /*
+             * From time conditions
+             * */
         } else if (!Util.isNullOrEmpty(fromTime)) {
             if (Util.isNullOrEmptyMessageVO(messageVOS)) {
                 if (!Util.isNullOrEmptyMessageVO(getHistories(history, threadId))) {
@@ -534,7 +542,7 @@ public class MessageDatabaseHelper {
                 messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
                 saveHistory(cMessageVOS, threadId);
             }
-            /**
+            /*
              * To time conditions
              * */
         } else if (!Util.isNullOrEmpty(toTime)) {
@@ -556,7 +564,7 @@ public class MessageDatabaseHelper {
                 messageDao.deleteMessageBetweenLastAndFirstASC(threadId, firstMesssageId, lastMesssageId);
                 saveHistory(cMessageVOS, threadId);
             }
-            /**
+            /*
              * Query conditions
              * */
         } else if (Util.isNullOrEmpty(query)) {
@@ -639,9 +647,10 @@ public class MessageDatabaseHelper {
     }
 
 
-    public List<MessageVO> getHistories(History history, long threadId) {
+    @NonNull
+    public List<MessageVO> getHistories(@NonNull History history, long threadId) {
         List<MessageVO> messageVOS = new ArrayList<>();
-        List<CacheMessageVO> cacheMessageVOS = new ArrayList<>();
+        List<CacheMessageVO> cacheMessageVOS;
 
         long fromTime = history.getFromTime();
         long fromTimeNanos = history.getFromTimeNanos();
@@ -847,6 +856,7 @@ public class MessageDatabaseHelper {
     /**
      * Cache contact
      */
+    @NonNull
     public List<Contact> getContacts(Integer count, Long offset) {
         List<Contact> contacts = new ArrayList<>();
         List<CacheContact> cacheContacts = messageDao.getContact(count, offset);
@@ -890,7 +900,7 @@ public class MessageDatabaseHelper {
         return messageDao.getContactCount();
     }
 
-    public void saveContacts(List<Contact> contacts, int expireAmount) {
+    public void saveContacts(@NonNull List<Contact> contacts, int expireAmount) {
         List<CacheContact> cacheContacts = new ArrayList<>();
         for (Contact contact : contacts) {
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
@@ -919,7 +929,7 @@ public class MessageDatabaseHelper {
         messageDao.insertContacts(cacheContacts);
     }
 
-    public void saveContact(Contact contact, int expireSecond) {
+    public void saveContact(@NonNull Contact contact, int expireSecond) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
@@ -972,7 +982,8 @@ public class MessageDatabaseHelper {
     }
 
     //TODO test
-    public List<Thread> getThreadRaw(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName) {
+    @NonNull
+    public List<Thread> getThreadRaw(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName) {
 
         String sQuery;
 
@@ -1225,6 +1236,7 @@ public class MessageDatabaseHelper {
         return threads;
     }
 
+    @NonNull
     public List<Thread> getThreadList(SupportSQLiteQuery query) {
         List<Thread> threads = new ArrayList<>();
         messageDao.getThreadRaw(query);
@@ -1345,7 +1357,8 @@ public class MessageDatabaseHelper {
         return threads;
     }
 
-    public List<Thread> getThreadsByThreadIds(ArrayList<Integer> threadIds) {
+    @NonNull
+    public List<Thread> getThreadsByThreadIds(@NonNull ArrayList<Integer> threadIds) {
         List<Thread> threads = new ArrayList<>();
 
         for (int id : threadIds) {
@@ -1456,9 +1469,9 @@ public class MessageDatabaseHelper {
         return threads;
     }
 
-    public void saveThreads(List<ThreadVo> threadVos) {
+    public void saveThreads(@NonNull List<ThreadVo> threadVos) {
 
-        CacheLastMessageVO cacheLastMessageVO = new CacheLastMessageVO();
+        CacheLastMessageVO cacheLastMessageVO;
         CacheReplyInfoVO cacheReplyInfoVO;
         CacheForwardInfo cacheForwardInfo;
         for (ThreadVo threadVo : threadVos) {
@@ -1531,7 +1544,7 @@ public class MessageDatabaseHelper {
      * Cache participant
      */
 
-    public void saveParticipants(List<CacheParticipant> participants, long threadId, int expireSecond) {
+    public void saveParticipants(@NonNull List<CacheParticipant> participants, long threadId, int expireSecond) {
         for (CacheParticipant participant : participants) {
             participant.setThreadId(threadId);
 
@@ -1559,6 +1572,7 @@ public class MessageDatabaseHelper {
     /**
      * Participants have expire date after expTime that you can set it manually
      */
+    @NonNull
     public List<Participant> getThreadParticipant(long offset, long count, long threadId) {
         List<Participant> participants = new ArrayList<>();
         List<CacheThreadParticipant> listCtp = messageDao.getAllThreadParticipants(offset, count, threadId);
@@ -1621,6 +1635,7 @@ public class MessageDatabaseHelper {
     }
 
     //Cache contact
+    @NonNull
     public Contact getContactById(long id) {
         CacheContact cacheContact = messageDao.getContactById(id);
         return new Contact(
@@ -1639,6 +1654,7 @@ public class MessageDatabaseHelper {
         );
     }
 
+    @NonNull
     public List<Contact> getContactsByFirst(String firstName) {
         List<Contact> contacts = new ArrayList<>();
         List<CacheContact> cacheContacts = messageDao.getContactsByFirst(firstName);
@@ -1664,6 +1680,7 @@ public class MessageDatabaseHelper {
         return contacts;
     }
 
+    @NonNull
     public List<Contact> getContactsByLast(String lastName) {
         List<Contact> contacts = new ArrayList<>();
         List<CacheContact> cacheContacts = messageDao.getContactsByLast(lastName);
@@ -1689,6 +1706,7 @@ public class MessageDatabaseHelper {
         return contacts;
     }
 
+    @NonNull
     public List<Contact> getContactsByFirstAndLast(String firstName, String lastName) {
         List<Contact> contacts = new ArrayList<>();
         List<CacheContact> cacheContacts = messageDao.getContactsByFirstAndLast(firstName, lastName);
@@ -1715,6 +1733,7 @@ public class MessageDatabaseHelper {
         return contacts;
     }
 
+    @NonNull
     public List<Contact> getContactByCell(String cellphoneNumber) {
         List<Contact> contacts = new ArrayList<>();
         List<CacheContact> cacheContacts = messageDao.getContactByCell(cellphoneNumber);
@@ -1740,6 +1759,7 @@ public class MessageDatabaseHelper {
         return contacts;
     }
 
+    @NonNull
     public List<Contact> getContactsByEmail(String email) {
         List<Contact> contacts = new ArrayList<>();
         List<CacheContact> cacheContacts = messageDao.getContactsByEmail(email);

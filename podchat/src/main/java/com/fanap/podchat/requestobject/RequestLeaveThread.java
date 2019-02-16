@@ -1,10 +1,12 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestLeaveThread extends GeneralRequestObject {
 
     private long threadId;
 
-     RequestLeaveThread(Builder builder) {
+     RequestLeaveThread(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
 
@@ -25,10 +27,12 @@ public class RequestLeaveThread extends GeneralRequestObject {
             this.threadId = threadId;
         }
 
+        @NonNull
         public RequestLeaveThread build() {
             return new RequestLeaveThread(this);
         }
 
+        @NonNull
         @Override
         protected GeneralRequestObject.Builder self() {
             return this;

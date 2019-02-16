@@ -1,5 +1,8 @@
 package com.fanap.podchat.chat;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
@@ -41,7 +44,7 @@ public class ChatListenerManager {
     public ChatListenerManager() {
     }
 
-    public void addListener(ChatListener listener, boolean log) {
+    public void addListener(@Nullable ChatListener listener, boolean log) {
         if (listener == null) {
             return;
         }
@@ -53,7 +56,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void addListeners(List<ChatListener> listeners) {
+    public void addListeners(@Nullable List<ChatListener> listeners) {
         if (listeners == null) {
             return;
         }
@@ -70,7 +73,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void removeListener(ChatListener listener) {
+    public void removeListener(@Nullable ChatListener listener) {
         if (listener == null) {
             return;
         }
@@ -82,7 +85,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void removeListeners(List<ChatListener> listeners) {
+    public void removeListeners(@Nullable List<ChatListener> listeners) {
         if (listeners == null) {
             return;
         }
@@ -221,7 +224,7 @@ public class ChatListenerManager {
         }
     }
 
-    private void callHandleCallbackError(ChatListener listener, Throwable cause) {
+    private void callHandleCallbackError(@NonNull ChatListener listener, Throwable cause) {
         try {
             listener.handleCallbackError(cause);
         } catch (Throwable t) {

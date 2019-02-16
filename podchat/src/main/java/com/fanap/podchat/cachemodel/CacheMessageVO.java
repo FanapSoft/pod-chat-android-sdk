@@ -48,6 +48,7 @@ public class CacheMessageVO {
     @Ignore
     private CacheForwardInfo forwardInfo;
 
+    @Nullable
     private Long forwardInfoId;
 
     public CacheMessageVO() {

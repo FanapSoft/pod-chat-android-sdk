@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestMessage {
     private String textMessage;
     private int messageType;
@@ -24,16 +26,19 @@ public class RequestMessage {
             this.threadId = threadId;
         }
 
+        @NonNull
         public Builder messageType(int messageType) {
             this.messageType = messageType;
             return this;
         }
 
+        @NonNull
         public Builder jsonMetaData(String jsonMetaData) {
             this.jsonMetaData = jsonMetaData;
             return this;
         }
 
+        @NonNull
         public RequestMessage build() {
             return new RequestMessage(this);
         }

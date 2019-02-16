@@ -1,6 +1,7 @@
 package com.fanap.podchat.persistance;
 
 import android.arch.persistence.room.TypeConverter;
+import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -10,13 +11,15 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Converters {
+    @Nullable
     @TypeConverter
-    public static Date fromTimestamp(Long value) {
+    public static Date fromTimestamp(@Nullable Long value) {
         return value == null ? null : new Date(value);
     }
 
+    @Nullable
     @TypeConverter
-    public static Long dateToTimestamp(Date date) {
+    public static Long dateToTimestamp(@Nullable Date date) {
         return date == null ? null : date.getTime();
     }
 

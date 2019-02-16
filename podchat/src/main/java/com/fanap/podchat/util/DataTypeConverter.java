@@ -1,6 +1,8 @@
 package com.fanap.podchat.util;
 
 import android.arch.persistence.room.TypeConverter;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Participant;
 import com.google.gson.Gson;
@@ -11,9 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class DataTypeConverter {
+    @NonNull
     private static Gson gson = new Gson();
     @TypeConverter
-    public List<Participant> stringToList(String data) {
+    public List<Participant> stringToList(@Nullable String data) {
         if (data == null) {
             return Collections.emptyList();
         }

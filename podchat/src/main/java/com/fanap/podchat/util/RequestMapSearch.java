@@ -1,5 +1,7 @@
 package com.fanap.podchat.util;
 
+import android.support.annotation.NonNull;
+
 public class RequestMapSearch {
     private String searchTerm;
     private double latitude;
@@ -21,6 +23,7 @@ public class RequestMapSearch {
             this.latitude = latitude;
             this.longitude = longitude;
         }
+        @NonNull
         public RequestMapSearch build(){
             return new RequestMapSearch(this);
         }

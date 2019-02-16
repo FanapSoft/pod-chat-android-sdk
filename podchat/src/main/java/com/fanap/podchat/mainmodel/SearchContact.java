@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 public class SearchContact {
@@ -95,41 +97,49 @@ public class SearchContact {
             this.size = size;
         }
 
+        @NonNull
         public Builder lastName(String lastName) {
             this.lastName = lastName;
             return this;
         }
 
+        @NonNull
         public Builder firstName(String firstName) {
             this.firstName = firstName;
             return this;
         }
 
+        @NonNull
         public Builder id(String id) {
             this.id = id;
             return this;
         }
 
+        @NonNull
         public Builder email(String email) {
             this.email = email;
             return this;
         }
 
+        @NonNull
         public Builder typeCode(String typeCode) {
             this.typeCode = typeCode;
             return this;
         }
 
+        @NonNull
         public Builder query(String query) {
             this.query = query;
             return this;
         }
 
+        @NonNull
         public Builder cellphoneNumber(String cellphoneNumber) {
             this.cellphoneNumber = cellphoneNumber;
             return this;
         }
 
+        @NonNull
         public SearchContact build() {
             return new SearchContact(this);
         }

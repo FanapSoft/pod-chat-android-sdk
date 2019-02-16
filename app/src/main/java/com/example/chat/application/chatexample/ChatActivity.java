@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -146,7 +148,7 @@ private static String appId = "POD-Chat";
 
     public class Notification extends PodMessagingService{
         @Override
-        public void onMessageReceived(com.fanap.podnotify.model.Notification notification) {
+        public void onMessageReceived(@NonNull com.fanap.podnotify.model.Notification notification) {
             super.onMessageReceived(notification);
 
             Log.i("NOtification",notification.getText());
@@ -726,7 +728,7 @@ private static String appId = "POD-Chat";
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (data != null) {

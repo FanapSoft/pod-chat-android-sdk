@@ -2,6 +2,7 @@ package com.fanap.podchat.persistance.module;
 
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
@@ -72,28 +73,30 @@ public class AppDatabaseModule {
 
     @Singleton
     @Provides
-    MessageDao provideMessageDao(AppDatabase appDatabase) {
+    MessageDao provideMessageDao(@NonNull AppDatabase appDatabase) {
         return appDatabase.getMessageDao();
     }
 
     @Singleton
     @Provides
-    MessageQueueDao messageQueueDao(AppDatabase appDatabase) {
+    MessageQueueDao messageQueueDao(@NonNull AppDatabase appDatabase) {
         return appDatabase.getMessageQueueDao();
     }
 
     @Singleton
     @Provides
-    PhoneContactDao phoneContactDao(AppDatabase appDatabase) {
+    PhoneContactDao phoneContactDao(@NonNull AppDatabase appDatabase) {
         return appDatabase.getPhoneContactDao();
     }
 
+    @NonNull
     @Singleton
     @Provides
     MessageDatabaseHelper messageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao, Context context, AppDatabase appDatabase) {
         return new MessageDatabaseHelper(messageDao, messageQueueDao, context, appDatabase);
     }
 
+    @NonNull
     @Singleton
     @Provides
     PhoneContactDbHelper phoneContactDbHelper(PhoneContactDao phoneContactDao) {

@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestThreadInfo  extends GeneralRequestObject{
     private String image;
     private long threadId;
@@ -7,7 +9,7 @@ public class RequestThreadInfo  extends GeneralRequestObject{
     private String description;
     private String metadata;
 
-    RequestThreadInfo (Builder builder){
+    RequestThreadInfo (@NonNull Builder builder){
         super(builder);
         this.description = builder.description;
         this.image = builder.image;
@@ -63,35 +65,42 @@ public class RequestThreadInfo  extends GeneralRequestObject{
         private String metadata;
         private long threadId;
 
+        @NonNull
         public Builder image(String image) {
             this.image = image;
             return this;
         }
 
+        @NonNull
         public Builder threadId(long threadId) {
             this.threadId = threadId;
             return this;
         }
 
+        @NonNull
         public Builder name(String name) {
             this.name = name;
             return this;
         }
 
+        @NonNull
         public Builder description(String description) {
             this.description = description;
             return this;
         }
 
+        @NonNull
         public Builder metadat(String metadata) {
             this.metadata = metadata;
             return this;
         }
 
+        @NonNull
         public RequestThreadInfo build(){
             return new RequestThreadInfo(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

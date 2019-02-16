@@ -9,11 +9,14 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 public class FilePick {
 
-        private static String getPathDeprecated(Context ctx, Uri uri) {
+        @Nullable
+        private static String getPathDeprecated(@NonNull Context ctx, @Nullable Uri uri) {
             if( uri == null ) {
                 return null;
             }
@@ -28,7 +31,8 @@ public class FilePick {
             return uri.getPath();
         }
 
-        public static String getSmartFilePath(Context ctx, Uri uri){
+        @Nullable
+        public static String getSmartFilePath(@NonNull Context ctx, @NonNull Uri uri){
 
             if (Build.VERSION.SDK_INT < 19) {
                 return getPathDeprecated(ctx, uri);
@@ -37,7 +41,7 @@ public class FilePick {
         }
 
         @SuppressLint("NewApi")
-        public static String getPath(final Context context, final Uri uri) {
+        public static String getPath(@NonNull final Context context, @NonNull final Uri uri) {
             final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
             // DocumentProvider
             if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
@@ -114,7 +118,7 @@ public class FilePick {
          * @param selectionArgs (Optional) Selection arguments used in the query.
          * @return The value of the _data column, which is typically a file path.
          */
-        public static String getDataColumn(Context context, Uri uri, String selection,
+        public static String getDataColumn(Context context, @NonNull Uri uri, String selection,
                                            String[] selectionArgs) {
             Cursor cursor = null;
             final String column = "_data";

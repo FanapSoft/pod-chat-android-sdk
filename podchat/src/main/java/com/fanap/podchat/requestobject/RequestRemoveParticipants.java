@@ -1,12 +1,14 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 
 public class RequestRemoveParticipants extends GeneralRequestObject {
     private long threadId;
     private List<Long> participantIds;
 
-    RequestRemoveParticipants(Builder builder) {
+    RequestRemoveParticipants(@NonNull Builder builder) {
         super(builder);
         this.participantIds = builder.participantIds;
         this.threadId = builder.threadId;
@@ -38,11 +40,13 @@ public class RequestRemoveParticipants extends GeneralRequestObject {
             this.threadId = threadId;
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;
         }
 
+        @NonNull
         public RequestRemoveParticipants build() {
             return new RequestRemoveParticipants(this);
         }

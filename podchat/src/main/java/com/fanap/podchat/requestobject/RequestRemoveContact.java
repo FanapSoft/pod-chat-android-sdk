@@ -1,9 +1,11 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestRemoveContact extends GeneralRequestObject {
     private long userId;
 
-    RequestRemoveContact(Builder builder) {
+    RequestRemoveContact(@NonNull Builder builder) {
         super(builder);
         this.userId = builder.userId;
     }
@@ -23,10 +25,12 @@ public class RequestRemoveContact extends GeneralRequestObject {
             this.userId = userId;
         }
 
+        @NonNull
         public RequestRemoveContact build() {
             return new RequestRemoveContact(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

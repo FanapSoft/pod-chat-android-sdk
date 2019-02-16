@@ -1,5 +1,7 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 
 public class RequestThread extends BaseRequestObject {
@@ -10,7 +12,7 @@ public class RequestThread extends BaseRequestObject {
     private long partnerCoreUserId;
     private long partnerCoreContactId;
 
-     RequestThread(Builder builder) {
+     RequestThread(@NonNull Builder builder) {
         super(builder);
         this.threadIds = builder.threadIds;
         this.threadName = builder.threadName;
@@ -26,36 +28,43 @@ public class RequestThread extends BaseRequestObject {
         private long partnerCoreUserId;
         private long partnerCoreContactId;
 
+        @NonNull
         public Builder threadName(String threadName) {
             this.threadName = threadName;
             return this;
         }
 
+        @NonNull
         public Builder creatorCoreUserId(long creatorCoreUserId) {
             this.creatorCoreUserId = creatorCoreUserId;
             return this;
         }
 
+        @NonNull
         public Builder partnerCoreUserId(long partnerCoreUserId) {
             this.partnerCoreUserId = partnerCoreUserId;
             return this;
         }
 
+        @NonNull
         public Builder partnerCoreContactId(long partnerCoreContactId) {
             this.partnerCoreContactId = partnerCoreContactId;
             return this;
         }
 
+        @NonNull
         public Builder threadIds(ArrayList<Integer> threadIds) {
             this.threadIds = threadIds;
             return this;
         }
 
 
+        @NonNull
         public RequestThread build() {
             return new RequestThread(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

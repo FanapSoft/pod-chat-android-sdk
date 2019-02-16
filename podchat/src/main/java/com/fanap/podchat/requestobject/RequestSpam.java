@@ -1,9 +1,11 @@
 package com.fanap.podchat.requestobject;
 
+import android.support.annotation.NonNull;
+
 public class RequestSpam extends GeneralRequestObject {
     private long threadId;
 
-    RequestSpam(Builder builder) {
+    RequestSpam(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
     }
@@ -23,10 +25,12 @@ public class RequestSpam extends GeneralRequestObject {
             this.threadId = threadId;
         }
 
+        @NonNull
         public RequestSpam build() {
             return new RequestSpam(this);
         }
 
+        @NonNull
         @Override
         protected Builder self() {
             return this;

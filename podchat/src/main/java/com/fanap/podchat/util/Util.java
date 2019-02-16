@@ -1,6 +1,7 @@
 package com.fanap.podchat.util;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.MessageVO;
@@ -34,28 +35,28 @@ public class Util {
         return chatResponse;
     }
 
-    public static boolean isNullOrEmpty(String string) {
+    public static boolean isNullOrEmpty(@Nullable String string) {
         return string == null || string.isEmpty();
     }
 
-    public static <T extends Number> boolean isNullOrEmpty(ArrayList<T> list) {
+    public static <T extends Number> boolean isNullOrEmpty(@Nullable ArrayList<T> list) {
         return list == null || list.size() == 0;
     }
 
-    public static <T extends Number> boolean isNullOrEmpty(T number) {
+    public static <T extends Number> boolean isNullOrEmpty(@Nullable T number) {
         String num = String.valueOf(number);
         return number == null || num.equals("0");
     }
 
-    public static <T extends Object> boolean isNullOrEmpty(List<T> list) {
+    public static <T extends Object> boolean isNullOrEmpty(@Nullable List<T> list) {
         return list == null || list.size() == 0;
     }
 
-    public static boolean isNullOrEmptyMessageVO(List<MessageVO> list) {
+    public static boolean isNullOrEmptyMessageVO(@Nullable List<MessageVO> list) {
         return list == null || list.size() == 0;
     }
 
-    public static <T extends Number> boolean isNullOrEmptyNumber(List<T> list) {
+    public static <T extends Number> boolean isNullOrEmptyNumber(@Nullable List<T> list) {
         return list == null || list.size() == 0;
     }
 

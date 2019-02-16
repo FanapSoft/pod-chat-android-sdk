@@ -2,6 +2,7 @@ package com.fanap.podchat.requestobject;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 public class RequestFileMessage {
     private Activity activity;
@@ -80,16 +81,19 @@ public class RequestFileMessage {
             this.fileUri = fileUri;
         }
 
+        @NonNull
         public Builder systemMetadata(String systemMetadata) {
             this.systemMetadata = systemMetadata;
             return this;
         }
 
+        @NonNull
         public Builder messageType(int messageType) {
             this.messageType = messageType;
             return this;
         }
 
+        @NonNull
         public RequestFileMessage build() {
             return new RequestFileMessage(this);
         }

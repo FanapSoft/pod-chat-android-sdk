@@ -9,11 +9,14 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
 
 public class RealPathUtil {
 
-    public static String getRealPath(Context context, Uri fileUri) {
+    @Nullable
+    public static String getRealPath(@NonNull Context context, @NonNull Uri fileUri) {
         String realPath;
         // SDK < API11
         if (Build.VERSION.SDK_INT < 11) {
@@ -31,8 +34,9 @@ public class RealPathUtil {
     }
 
 
+    @Nullable
     @SuppressLint("NewApi")
-    public static String getRealPathFromURI_API11to18(Context context, Uri contentUri) {
+    public static String getRealPathFromURI_API11to18(@NonNull Context context, Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
         String result = null;
 
@@ -48,7 +52,7 @@ public class RealPathUtil {
         return result;
     }
 
-    public static String getRealPathFromURI_BelowAPI11(Context context, Uri contentUri) {
+    public static String getRealPathFromURI_BelowAPI11(Context context, @NonNull Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
         Cursor cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
         int column_index = 0;
@@ -73,7 +77,7 @@ public class RealPathUtil {
      * @author paulburke
      */
     @SuppressLint("NewApi")
-    public static String getRealPathFromURI_API19(final Context context, final Uri uri) {
+    public static String getRealPathFromURI_API19(@NonNull final Context context, @NonNull final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
@@ -150,7 +154,7 @@ public class RealPathUtil {
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public static String getDataColumn(Context context, Uri uri, String selection,
+    public static String getDataColumn(Context context, @NonNull Uri uri, String selection,
                                        String[] selectionArgs) {
 
         Cursor cursor = null;
