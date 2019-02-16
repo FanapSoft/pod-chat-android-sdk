@@ -11,6 +11,7 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -76,8 +77,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
 //        refWatcher.watch(chat);
 
-
         chat.addListener(this);
+        chat.addListener(new ChatListener() {
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+
+            }
+        });
+
         chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);

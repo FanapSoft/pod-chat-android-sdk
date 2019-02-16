@@ -43,6 +43,7 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.util.JsonUtil;
+import com.fanap.podnotify.PodNotify;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
@@ -70,7 +71,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "3b9aa38b68fb4ff8bb05fef7408f9fa4";
+    private static String TOKEN = "65b2d6d6068b4a3db0a1c9544a2ab921";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -133,7 +134,23 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         setupThirdSpinner(spinnerThird);
         buttonConnect.setOnClickListener(this);
         buttonToken.setOnClickListener(this);
+
+
+        // PodNotificationActivity
+        //not appId : NotificationService
+        //notification serverName : SendPushByAppId
+
+        PodNotify.setApplication(this);
+
     }
+
+//    public class OnMsgRecieved extends PodMessagingService {
+//        @Override
+//        public void onMessageReceived(PodNotificationActivity notification) {
+//            super.onMessageReceived(notification);
+//            Log.d("notifiy", notification.getText());
+//        }
+//    }
 
     //funcThird
     private void setupThirdSpinner(Spinner spinnerThird) {
@@ -194,15 +211,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         mapReverse();
                         break;
                     case 13:
-                        String center = "35.7003510,51.3376472";
-
-                        RequestLocationMessage requestLocationMessage = new RequestLocationMessage.Builder()
-                                .center(center)
-                                .message("This is location ")
-                                .activity(ChatSandBoxActivity.this)
-                                .threadId(2)
-                                .build();
-                        presenter.sendLocationMessage(requestLocationMessage);
+                        sendLocationMsg();
                         break;
                 }
             }
@@ -212,6 +221,18 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
             }
         });
+    }
+
+    private void sendLocationMsg() {
+        String center = "35.7003510,51.3376472";
+
+        RequestLocationMessage requestLocationMessage = new RequestLocationMessage.Builder()
+                .center(center)
+                .message("This is location ")
+                .activity(ChatSandBoxActivity.this)
+                .threadId(2)
+                .build();
+        presenter.sendLocationMessage(requestLocationMessage);
     }
 
     public void mapReverse() {
@@ -667,6 +688,15 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             presenter.connect(socketAddres,
                     appId, serverName, TOKEN, ssoHost,
                     platformHost, fileServer, TYPE_CODE);
+
+            PodNotify podNotify = new PodNotify.builder()
+                    .setAppId("NotificationService")
+                    .setServerName("SendPushByAppId")
+                    .setSocketServerAddress("http://172.16.110.61:8017")
+                    .setToken(TOKEN)
+                    .build(this);
+
+            podNotify.start(this);
         }
         if (v == buttonToken) {
 

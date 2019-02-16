@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:name="com.example.chat.application.chatexample.BaseApplication"
@@ -17,18 +17,23 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
         <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity">
-
-        </activity>
-
-        <activity android:name="com.example.chat.application.chatexample.ChatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.example.chat.application.chatexample.ChatActivity"></activity>
+        <activity android:name="com.example.chat.application.chatexample.PodNotificationActivity">
+
+        </activity>
+
+        <service android:name="com.example.chat.application.chatexample.MyMessagingService">
+            <intent-filter>
+                <action android:name="com.fanap.podnotify.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
     </application>
 

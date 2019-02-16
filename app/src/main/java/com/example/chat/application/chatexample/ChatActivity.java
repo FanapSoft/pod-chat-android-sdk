@@ -128,6 +128,8 @@ private static String appId = "POD-Chat";
         setupSecondSpinner(spinnerSecond);
         setupThirdSpinner(spinnerThird);
 
+        // PodNotificationActivity
+
         PodNotify.setApplication(this);
 
         PodNotify podNotify = new PodNotify.builder()

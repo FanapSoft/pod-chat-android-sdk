@@ -34,12 +34,17 @@ import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podnotify.model.Notification;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public interface ChatContract {
     interface view {
+
+        default void onRecivedNotification(Notification notification) {
+
+        }
 
         default void onGetUserInfo() {
         }
