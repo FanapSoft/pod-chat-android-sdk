@@ -1,6 +1,5 @@
 package com.example.podchat;
 
-import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.util.Util;
 
 import org.junit.Test;
@@ -10,7 +9,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -55,19 +57,30 @@ public class ExampleUnitTest {
         assertFalse(Util.isNullOrEmpty(srting));
 
     }
+
     @Test
-    public void checkNullOrEmptyNumber(){
+    public void checkNullOrEmptyNumber() {
         assertTrue(Util.isNullOrEmpty(0));
     }
 
     @Test
-    public void addTimeToNanos(){
+    public void addTimeToNanos() {
         long time = 1546954441289L;
         long timeNanos = 289391000;
-        long pow =(long) Math.pow(10,9);
-        long timestamp = ((time/1000)*pow)+timeNanos;
+        long pow = (long) Math.pow(10, 9);
+        long timestamp = ((time / 1000) * pow) + timeNanos;
 
-        assertNotEquals(13351,1546954441289391000L);
+        assertNotEquals(13351, 1546954441289391000L);
+    }
+
+    @Test
+    public void sepratedString() {
+        String center = "35.7003510,51.3376472";
+        String part1 = center.substring(0, center.lastIndexOf(','));
+//        int lastIndex = center.lastIndexOf('2');
+        String part2 = center.substring(center.lastIndexOf(',')+1, center.length());
+
+
     }
 
 }

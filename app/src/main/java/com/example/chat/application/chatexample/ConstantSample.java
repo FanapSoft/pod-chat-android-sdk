@@ -52,6 +52,6 @@ public class ConstantSample {
             , "Get thread with coreUserId"
             ,"map static image"
             ,"map reverse"
-            ,"Send Location Message"
+            ,"Send MapLocation Message"
     };
 }

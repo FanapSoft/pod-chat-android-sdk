@@ -4,4 +4,8 @@
     <string name="server_name">mnot</string>
     <string name="sso_host">sso</string>
     <string name="server_token">641d08846788430fa19292efc60a9a60</string>
+    <string name="tab_function">Function</string>
+    <string name="tab_chat">chat</string>
+    <string name="tab_log">Log</string>
+
 </resources>

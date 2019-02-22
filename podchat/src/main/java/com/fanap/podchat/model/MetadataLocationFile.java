@@ -2,13 +2,14 @@ package com.fanap.podchat.model;
 
 public class MetadataLocationFile extends MetaDataImageFile {
 
-    private String center;
+    private MapLocation location;
 
-    public String getCenter() {
-        return center;
+
+    public MapLocation getLocation() {
+        return location;
     }
 
-    public void setCenter(String center) {
-        this.center = center;
+    public void setLocation(MapLocation location) {
+        this.location = location;
     }
 }

@@ -72,7 +72,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "65b2d6d6068b4a3db0a1c9544a2ab921";
+    private static String TOKEN = "29f0a7ea3b1e42fc9e7cd42cada67da7";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";

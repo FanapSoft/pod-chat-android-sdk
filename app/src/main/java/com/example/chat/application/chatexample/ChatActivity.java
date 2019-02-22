@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -33,10 +34,12 @@ import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
@@ -60,6 +63,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private Button buttonFileChoose;
     private String selectedFilePath;
     private Button buttonConnect;
+    private ImageView imageMap;
 
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
@@ -80,11 +84,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "jiji";
 //    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
 
-//    private String name = "zizi";
+    //    private String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //
-private static String appId = "POD-Chat";
+    private static String appId = "POD-Chat";
 
     private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
@@ -100,6 +104,7 @@ private static String appId = "POD-Chat";
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_chat);
+        imageMap = findViewById(R.id.imageMap);
 
         TextView textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
@@ -121,6 +126,12 @@ private static String appId = "POD-Chat";
         buttonConnect.setOnClickListener(this);
         ChatContract.view view = new ChatContract.view() {
 
+            @Override
+            public void onMapStaticImage(ChatResponse<ResultStaticMapImage> chatResponse) {
+
+                imageMap.setImageBitmap(chatResponse.getResult().getBitmap());
+
+            }
         };
 
         presenter = new ChatPresenter(this, view, this);
@@ -146,15 +157,31 @@ private static String appId = "POD-Chat";
 
     }
 
-    public class Notification extends PodMessagingService{
+    public class Notification extends PodMessagingService {
         @Override
         public void onMessageReceived(@NonNull com.fanap.podnotify.model.Notification notification) {
             super.onMessageReceived(notification);
 
-            Log.i("NOtification",notification.getText());
+            Log.i("NOtification", notification.getText());
         }
     }
 
+    /*
+    "Choose Map function"
+            , "Search Map"
+            , "Map Routing"
+            , "Block"
+            , "UnBlock"
+            , "GetBlockList"
+            , "Update the thread info"
+            , "Seen Message List"
+            , "delivered Message List"
+            , "Create thread with new Message"
+            , "Get thread with coreUserId"
+            ,"map static image"
+            ,"map reverse"
+            ,"Send MapLocation Message"
+            */
     private void setupThirdSpinner(Spinner spinnerThird) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcThird);
 
@@ -258,6 +285,9 @@ private static String appId = "POD-Chat";
                     case 12:
                         mapReverse();
                         break;
+                    case 13:
+                        sendLocationMsg();
+                        break;
                 }
             }
 
@@ -266,6 +296,18 @@ private static String appId = "POD-Chat";
 
             }
         });
+    }
+
+    private void sendLocationMsg() {
+        String center = "35.7003510,51.3376472";
+
+        RequestLocationMessage requestLocationMessage = new RequestLocationMessage.Builder()
+                .center(center)
+                .message("This is location ")
+                .activity(ChatActivity.this)
+                .threadId(2)
+                .build();
+        presenter.sendLocationMessage(requestLocationMessage);
     }
 
     public void mapReverse() {

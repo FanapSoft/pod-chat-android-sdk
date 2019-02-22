@@ -1,0 +1,15 @@
+{
+  "hasError": false,
+  "referenceNumber": "343420",
+  "errorCode": 0,
+  "count": 0,
+  "ott": "41eaaf3d3d1d2f6e",
+  "result": {
+    "id": 1441,
+    "name": "test.txt",
+    "hashCode": "N25MPUOALX4IRZVN",
+    "description": "{\"tags\":[]}",
+    "created": "2019-02-18T08:45:25.540Z",
+    "size": 0
+  }
+}

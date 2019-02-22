@@ -55,7 +55,7 @@ public class FileUtils {
     /**
      * TAG for log messages.
      */
-    static final String TAG = "FileUtils";
+    private static final String TAG = "FileUtils";
     private static final boolean DEBUG = false; // Set to true to enable logging
 
     public static final String MIME_TYPE_AUDIO = "audio/*";
@@ -64,15 +64,20 @@ public class FileUtils {
     public static final String MIME_TYPE_VIDEO = "video/*";
     public static final String MIME_TYPE_APP = "application/*";
 
-    public static final String HIDDEN_PREFIX = ".";
+    private static final String HIDDEN_PREFIX = ".";
 
     /**
      * Gets the extension of a file name, like ".png" or ".jpg".
      *
-     * @param uri
      * @return Extension including the dot("."); "" if there is no extension;
      * null if uri was null.
      */
+
+    public static boolean isImage(String mimType) {
+
+        return mimType.equals("image/jpeg") || mimType.equals("image/bmp") || mimType.equals("image/gif")
+                || mimType.equals("image/jpg") || mimType.equals("image/png");
+    }
 
 
     @Nullable
@@ -94,10 +99,7 @@ public class FileUtils {
      * @return Whether the URI is a local one.
      */
     public static boolean isLocal(@Nullable String url) {
-        if (url != null && !url.startsWith("http://") && !url.startsWith("https://")) {
-            return true;
-        }
-        return false;
+        return url != null && !url.startsWith("http://") && !url.startsWith("https://");
     }
 
     /**
@@ -111,7 +113,6 @@ public class FileUtils {
     /**
      * Convert File into Uri.
      *
-     * @param file
      * @return uri
      */
     @Nullable
@@ -125,7 +126,6 @@ public class FileUtils {
     /**
      * Returns the path only (without file name).
      *
-     * @param file
      * @return
      */
     @Nullable

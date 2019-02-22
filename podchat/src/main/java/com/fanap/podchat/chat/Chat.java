@@ -67,6 +67,7 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
+import com.fanap.podchat.model.MapLocation;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
 import com.fanap.podchat.model.MetadataLocationFile;
@@ -758,7 +759,7 @@ public class Chat extends AsyncAdapter {
                 String mimeType = handleMimType(fileUri, file);
                 lFileUpload.setMimeType(mimeType);
 
-                if (mimeType.equals(FileUtils.MIME_TYPE_IMAGE)) {
+                if (FileUtils.isImage(mimeType)) {
                     uploadImageFileMessage(lFileUpload);
                 } else {
                     uploadFileMessage(lFileUpload);
@@ -839,6 +840,7 @@ public class Chat extends AsyncAdapter {
                 uploadingQueue.setUniqueId(uniqueId);
                 uploadingQueue.setThreadId(threadId);
                 uploadingQueue.setId(messageId);
+
                 String metaData;
                 if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_LOCATION_MSG)) {
 
@@ -990,7 +992,8 @@ public class Chat extends AsyncAdapter {
                 }, throwable -> {
                     String jsonError = getErrorOutPut(throwable.getMessage()
                             , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
-                    ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                    ErrorOutPut error = new ErrorOutPut(true, throwable.getMessage()
+                            , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
 
                     if (log) Logger.e(jsonError);
                     if (handler != null) {
@@ -1192,7 +1195,7 @@ public class Chat extends AsyncAdapter {
                     RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
                     FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
                     File file = new File(getRealPathFromURI(context, fileUri));
-                    if (!Util.isNullOrEmpty(mimeType) && mimeType.equals(FileUtils.MIME_TYPE_IMAGE)) {
+                    if (!Util.isNullOrEmpty(mimeType) && FileUtils.isImage(mimeType)) {
 
                         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
@@ -1692,7 +1695,7 @@ public class Chat extends AsyncAdapter {
                 String methodName = ChatConstant.METHOD_REPLY_MSG;
                 lFileUpload.setMethodName(methodName);
             }
-            if (mimeType.equals(FileUtils.MIME_TYPE_IMAGE)) {
+            if (FileUtils.isImage(mimeType)) {
 
                 messageDatabaseHelper.deleteUploadingQueue(uniqueId);
                 uploadImageFileMessage(lFileUpload);
@@ -2174,7 +2177,7 @@ public class Chat extends AsyncAdapter {
                 File file = new File(fileUri.getPath());
                 String mimeType = handleMimType(fileUri, file);
                 lFileUpload.setMimeType(mimeType);
-                if (mimeType.equals(FileUtils.MIME_TYPE_IMAGE)) {
+                if (FileUtils.isImage(mimeType)) {
                     uploadImageFileMessage(lFileUpload);
                 } else {
                     String path = FilePick.getSmartFilePath(context, fileUri);
@@ -3447,109 +3450,110 @@ public class Chat extends AsyncAdapter {
             if (Util.isNullOrEmpty(uniqueId)) {
                 uniqueId = generateUniqueId();
             }
-//        if (chatReady) {
-            String type = request.getType();
-            int zoom = request.getZoom();
-            int width = request.getWidth();
-            int height = request.getHeight();
-            String center = request.getCenter();
-            long threadId = request.getThreadId();
-            int messageType = request.getMessageType();
-            String systemMetadata = request.getSystemMetadata();
+            if (chatReady) {
+                String type = request.getType();
+                int zoom = request.getZoom();
+                int width = request.getWidth();
+                int height = request.getHeight();
+                String center = request.getCenter();
+                long threadId = request.getThreadId();
+                int messageType = request.getMessageType();
+                String systemMetadata = request.getSystemMetadata();
 
-            if (Util.isNullOrEmpty(type)) {
-                type = "standard-night";
-            }
-            if (Util.isNullOrEmpty(zoom)) {
-                zoom = 15;
-            }
-            if (Util.isNullOrEmpty(width)) {
-                width = 800;
-            }
-            if (Util.isNullOrEmpty(height)) {
-                height = 500;
-            }
+                if (Util.isNullOrEmpty(type)) {
+                    type = "standard-night";
+                }
+                if (Util.isNullOrEmpty(zoom)) {
+                    zoom = 15;
+                }
+                if (Util.isNullOrEmpty(width)) {
+                    width = 800;
+                }
+                if (Util.isNullOrEmpty(height)) {
+                    height = 500;
+                }
 
-            RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
-            MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+                RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+                MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
 
-            Call<ResponseBody> call = mapApi.mapStaticCall(API_KEY_MAP,
-                    type,
-                    zoom,
-                    center,
-                    width,
-                    height);
-            String finalUniqueId = uniqueId;
+                Call<ResponseBody> call = mapApi.mapStaticCall(API_KEY_MAP,
+                        type,
+                        zoom,
+                        center,
+                        width,
+                        height);
+                String finalUniqueId = uniqueId;
 
-            call.enqueue(new retrofit2.Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        if (response.body() != null) {
-                            Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                            ChatResponse<ResultStaticMapImage> chatResponse = new ChatResponse<>();
-                            ResultStaticMapImage result = new ResultStaticMapImage();
-                            result.setBitmap(bitmap);
-                            chatResponse.setUniqueId(finalUniqueId);
-                            chatResponse.setResult(result);
-                            listenerManager.callOnStaticMap(chatResponse);
-                            if (log) Logger.i("RECEIVE_MAP_STATIC");
-                            if (!call.isCanceled()) {
-                                call.cancel();
-                            }
-
-                            if (isMessage) {
-                                File file = FileUtils.saveBitmap(bitmap, "map");
-                                Uri fileUri = Uri.fromFile(file);
-                                String newPath = FilePick.getSmartFilePath(getContext(), fileUri);
-
-                                String mimType = handleMimType(fileUri, file);
-                                LFileUpload lFileUpload = new LFileUpload();
-
-                                lFileUpload.setFileUri(fileUri);
-                                if (activity != null) {
-                                    lFileUpload.setActivity(activity);
+                call.enqueue(new retrofit2.Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if (response.isSuccessful()) {
+                            if (response.body() != null) {
+                                Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                                ChatResponse<ResultStaticMapImage> chatResponse = new ChatResponse<>();
+                                ResultStaticMapImage result = new ResultStaticMapImage();
+                                result.setBitmap(bitmap);
+                                chatResponse.setUniqueId(finalUniqueId);
+                                chatResponse.setResult(result);
+                                listenerManager.callOnStaticMap(chatResponse);
+                                if (log) Logger.i("RECEIVE_MAP_STATIC");
+                                if (!call.isCanceled()) {
+                                    call.cancel();
                                 }
-                                lFileUpload.setThreadId(threadId);
-                                lFileUpload.setUniqueId(finalUniqueId);
-                                lFileUpload.setMessageType(messageType);
-                                lFileUpload.setMimeType(mimType);
-                                lFileUpload.setMethodName(ChatConstant.METHOD_LOCATION_MSG);
-                                lFileUpload.setSystemMetaData(systemMetadata);
 
-                                uploadImageFileMessage(lFileUpload);
-                            }
-                        }
-                    } else {
-                        try {
-                            String errorBody;
-                            if (response.errorBody() != null) {
-                                errorBody = response.errorBody().string();
-                                JSONObject jObjError = new JSONObject(errorBody);
-                                String errorMessage = jObjError.getString("message");
-                                int errorCode = jObjError.getInt("code");
-                                String jsonError = getErrorOutPut(errorMessage, errorCode, finalUniqueId);
-                                if (log) Logger.e(jsonError);
-                            }
+                                if (isMessage) {
+                                    File file = FileUtils.saveBitmap(bitmap, "map");
+                                    Uri fileUri = Uri.fromFile(file);
+                                    String newPath = FilePick.getSmartFilePath(getContext(), fileUri);
 
-                        } catch (JSONException e) {
-                            if (log) Logger.e(e.getCause().getMessage());
-                        } catch (IOException e) {
-                            if (log) Logger.e(e.getCause().getMessage());
+                                    String mimType = handleMimType(fileUri, file);
+                                    LFileUpload lFileUpload = new LFileUpload();
+
+                                    lFileUpload.setFileUri(fileUri);
+                                    if (activity != null) {
+                                        lFileUpload.setActivity(activity);
+                                    }
+                                    lFileUpload.setThreadId(threadId);
+                                    lFileUpload.setUniqueId(finalUniqueId);
+                                    lFileUpload.setMessageType(messageType);
+                                    lFileUpload.setMimeType(mimType);
+                                    lFileUpload.setMethodName(ChatConstant.METHOD_LOCATION_MSG);
+                                    lFileUpload.setSystemMetaData(systemMetadata);
+                                    lFileUpload.setCenter(center);
+
+                                    uploadImageFileMessage(lFileUpload);
+                                }
+                            }
+                        } else {
+                            try {
+                                String errorBody;
+                                if (response.errorBody() != null) {
+                                    errorBody = response.errorBody().string();
+                                    JSONObject jObjError = new JSONObject(errorBody);
+                                    String errorMessage = jObjError.getString("message");
+                                    int errorCode = jObjError.getInt("code");
+                                    String jsonError = getErrorOutPut(errorMessage, errorCode, finalUniqueId);
+                                    if (log) Logger.e(jsonError);
+                                }
+
+                            } catch (JSONException e) {
+                                if (log) Logger.e(e.getCause().getMessage());
+                            } catch (IOException e) {
+                                if (log) Logger.e(e.getCause().getMessage());
+                            }
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    String jsonError = getErrorOutPut(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
-                    if (log) Logger.e(jsonError);
-                }
-            });
-//        } else {
-//            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-//            if (log) Logger.e(jsonError);
-//        }
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        String jsonError = getErrorOutPut(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                        if (log) Logger.e(jsonError);
+                    }
+                });
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                if (log) Logger.e(jsonError);
+            }
 
         } catch (Throwable throwable) {
             if (log) Logger.e(throwable.getMessage());
@@ -3802,7 +3806,7 @@ public class Chat extends AsyncAdapter {
     //TODO SPam test
     public String spam(RequestSpam request) {
         String uniqueId;
-        JsonObject jsonObject ;
+        JsonObject jsonObject;
         uniqueId = generateUniqueId();
         try {
             if (chatReady) {
@@ -3891,7 +3895,7 @@ public class Chat extends AsyncAdapter {
     public String getBlockList(RequestBlockList request, ChatHandler handler) {
         long count = request.getCount();
         String uniqueId = generateUniqueId();
-        JsonObject jsonObject ;
+        JsonObject jsonObject;
 
         try {
             if (chatReady) {
@@ -4027,9 +4031,9 @@ public class Chat extends AsyncAdapter {
      * int CHANNEL = 8;
      */
     public String createThreadWithMessage(RequestCreateThread threadRequest) {
-        List<String> forwardUniqueIds ;
-        JsonObject innerMessageObj ;
-        JsonObject jsonObject ;
+        List<String> forwardUniqueIds;
+        JsonObject innerMessageObj;
+        JsonObject jsonObject;
         String uniqueId;
         uniqueId = generateUniqueId();
 
@@ -6286,8 +6290,16 @@ public class Chat extends AsyncAdapter {
         }
         if (isLocation) {
             MetadataLocationFile locationFile = new MetadataLocationFile();
-            locationFile.setCenter(center);
+            MapLocation mapLocation = new MapLocation();
 
+            if (center.contains(",")) {
+                String latitude = center.substring(0, center.lastIndexOf(','));
+                String longitude = center.substring(center.lastIndexOf(',') + 1, center.length());
+                mapLocation.setLatitude(Double.valueOf(latitude));
+                mapLocation.setLongitude(Double.valueOf(longitude));
+            }
+
+            locationFile.setLocation(mapLocation);
             locationFile.setFile(fileMetaData);
             return gson.toJson(locationFile);
 
