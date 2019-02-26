@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorLightGrey">#1a9e9e9e</color>
+
+    <color name="tabLayout_unselected_text_color">#616161</color>
+    <color name="tabLayout_selected_text_color">#3F51B5</color>
 </resources>

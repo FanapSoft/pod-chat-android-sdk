@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_test"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_weight="1"
@@ -30,6 +30,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
@@ -43,19 +44,24 @@
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:tabTextColor="@color/tabLayout_unselected_text_color"
+            app:tabSelectedTextColor="@color/tabLayout_selected_text_color"
             app:tabMode="fixed">
 
             <android.support.design.widget.TabItem
+                android:id="@+id/tab_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_chat" />
 
             <android.support.design.widget.TabItem
+                android:id="@+id/tab_function"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_function" />
 
             <android.support.design.widget.TabItem
+                android:id="@+id/tab_log"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_log" />

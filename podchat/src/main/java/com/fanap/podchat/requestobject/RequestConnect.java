@@ -13,9 +13,15 @@ public class RequestConnect extends BaseRequestObject {
     private String fileServer;
 
 
-     RequestConnect(@NonNull Builder builder) {
+     public RequestConnect(@NonNull Builder builder) {
         super(builder);
-
+         this.socketAddress = builder.socketAddress;
+         this.appId = builder.appId;
+         this.fileServer = builder.fileServer;
+         this.platformHost = builder.platformHost;
+         this.severName = builder.severName;
+         this.token = builder.token;
+         this.ssoHost = builder.ssoHost;
     }
 
     public static class Builder extends BaseRequestObject.Builder<Builder> {
@@ -37,7 +43,6 @@ public class RequestConnect extends BaseRequestObject {
             this.severName = severName;
             this.token = token;
             this.ssoHost = ssoHost;
-
         }
 
         @NonNull
