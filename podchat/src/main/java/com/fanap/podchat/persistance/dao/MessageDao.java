@@ -15,8 +15,8 @@ import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.chat.mainmodel.Inviter;
+import com.fanap.podchat.chat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 
 import java.util.List;

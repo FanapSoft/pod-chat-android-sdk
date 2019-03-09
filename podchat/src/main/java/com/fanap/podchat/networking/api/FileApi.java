@@ -2,7 +2,7 @@ package com.fanap.podchat.networking.api;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.chat.mainmodel.FileUpload;
 import com.fanap.podchat.model.FileImageUpload;
 
 import java.util.ArrayList;

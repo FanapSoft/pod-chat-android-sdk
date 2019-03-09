@@ -1,6 +1,6 @@
 package com.fanap.podchat.chat;
 
-import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.chat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -34,11 +34,11 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onError(String content, ErrorOutPut errorOutPut) {
+    public void onError(String content, ErrorOutPut error) {
     }
 
     @Override
-    public void onGetContacts(String contentm,  ChatResponse<ResultContact> outPutContact) {
+    public void onGetContacts(String content,  ChatResponse<ResultContact> outPutContact) {
 
     }
 

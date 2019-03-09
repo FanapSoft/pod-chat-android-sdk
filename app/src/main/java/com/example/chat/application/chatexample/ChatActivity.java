@@ -21,35 +21,36 @@ import android.widget.TextView;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.mainmodel.Contact;
+import com.fanap.podchat.chat.mainmodel.History;
+import com.fanap.podchat.chat.mainmodel.Invitee;
+import com.fanap.podchat.chat.mainmodel.Inviter;
+import com.fanap.podchat.chat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.chat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.chat.mainmodel.RequestThreadInnerMessage;
+import com.fanap.podchat.chat.mainmodel.SearchContact;
+import com.fanap.podchat.chat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.chat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.chat.requestobject.RequestCreateThread;
+import com.fanap.podchat.chat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.chat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.chat.requestobject.RequestLocationMessage;
+import com.fanap.podchat.chat.requestobject.RequestMapReverse;
+import com.fanap.podchat.chat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.chat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.chat.requestobject.RequestReplyMessage;
+import com.fanap.podchat.chat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.chat.requestobject.RequestThread;
+import com.fanap.podchat.chat.requestobject.RetryUpload;
 import com.fanap.podchat.example.R;
-import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.History;
-import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
-import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.SearchContact;
-import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.requestobject.RequestCreateThread;
-import com.fanap.podchat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.requestobject.RequestMapReverse;
-import com.fanap.podchat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
-import com.fanap.podchat.requestobject.RequestReplyMessage;
-import com.fanap.podchat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.requestobject.RequestThread;
-import com.fanap.podchat.requestobject.RetryUpload;
-import com.fanap.podchat.util.JsonUtil;
 import com.fanap.podnotify.PodNotify;
 import com.fanap.podnotify.service.PodMessagingService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -64,6 +65,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String selectedFilePath;
     private Button buttonConnect;
     private ImageView imageMap;
+    private Gson gson = new GsonBuilder().create();
 
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
@@ -453,6 +455,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void removeParticipants() {
+
         List<Long> participantIds = new ArrayList<>();
         participantIds.add(123L);
         long threadId = 691;
@@ -498,7 +501,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     public void sendMessage(View view) {
         Inviter inviter = new Inviter();
         inviter.setName("sina");
-        String meta = JsonUtil.getJson(inviter);
+        String meta = gson.toJson(inviter);
 
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
                 , 1576, 2, meta, null);
@@ -615,7 +618,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 };
                 Inviter inviterw = new Inviter();
                 inviterw.setName("this is sample metadata");
-                String metac = JsonUtil.getJson(inviterw);
+                String metac = gson.toJson(inviterw);
                 presenter.createThread(0, invite, null, "sina thread"
                         , null, metac, new ChatHandler() {
                             @Override
@@ -659,7 +662,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 //"edit message"
                 Inviter inviter = new Inviter();
                 inviter.setName("sina");
-                String meta = JsonUtil.getJson(inviter);
+                String meta = gson.toJson(inviter);
                 presenter.editMessage(17552,
                         "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 

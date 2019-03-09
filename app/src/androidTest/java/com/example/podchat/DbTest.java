@@ -9,8 +9,8 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.fanap.podchat.cachemodel.CacheMessageVO;
-import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.mainmodel.Contact;
+import com.fanap.podchat.chat.mainmodel.MessageVO;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.FilePick;

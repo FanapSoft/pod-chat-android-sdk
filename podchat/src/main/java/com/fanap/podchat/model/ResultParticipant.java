@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.chat.mainmodel.Participant;
 
 import java.util.List;
 

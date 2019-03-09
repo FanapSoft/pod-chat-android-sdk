@@ -2,8 +2,8 @@ package com.fanap.podchat.networking.api;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.podchat.mainmodel.SearchContactVO;
-import com.fanap.podchat.mainmodel.UpdateContact;
+import com.fanap.podchat.chat.mainmodel.SearchContactVO;
+import com.fanap.podchat.chat.mainmodel.UpdateContact;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 

@@ -1,6 +1,6 @@
 package com.fanap.podchat.chat;
 
-import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.chat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -29,7 +29,7 @@ import com.fanap.podchat.model.ResultUserInfo;
 
 public interface ChatListener {
 
-    default void onError(String content, ErrorOutPut OutPutError) {
+    default void onError(String content, ErrorOutPut error) {
     }
 
     default void onGetContacts(String content, ChatResponse<ResultContact> response) {
@@ -179,6 +179,10 @@ public interface ChatListener {
     }
 
     default void OnRemovedFromThread(String content, ChatResponse<ResultThread> chatResponse) {
+
+    }
+
+    default void OnLogEvent(String log) {
 
     }
 }

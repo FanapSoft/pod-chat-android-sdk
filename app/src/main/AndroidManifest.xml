@@ -19,7 +19,11 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity"></activity>
         <activity android:name="com.example.chat.application.chatexample.ChatActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name="com.example.chat.application.chatexample.PodNotificationActivity"></activity>
 
@@ -29,11 +33,6 @@
             </intent-filter>
         </service>
 
-        <activity android:name="com.example.chat.application.test.TestActivity">      <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter></activity>
     </application>
 
 </manifest>

@@ -4,7 +4,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
-import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.chat.mainmodel.Inviter;
 
 import java.util.List;
 

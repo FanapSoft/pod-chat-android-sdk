@@ -4,11 +4,29 @@
 
 # Changelog
 All notable changes to this project will be documented here.
-##  Version [] -2018-0-0
+##  Version [0.4.1.0] -2019-3-5
+-  Added Message Queue to
+  *  Reply message
+   - send text message
+   -  file message
+   - reply file message
+-  The methods of the UploadImageProgress's progress interface has been changed to ` default void`
+- [Added]  ERROR_CODE_INVALID_FILE_URI = 6010
+- [Removed] context attribute removed from `syncContact` method
+- - gradle Updated
+-[ Added] block method has 2 new attribute
+ - [Added] unblock method has 2 new attribute , First attribute of unblock was changed to Long
+ - [Deprecated]
+  these fields are deprecated from `Thread` object
+{
+    private long lastSeenMessageId;
+    private long partnerLastSeenMessageId;
+    private long partnerLastDeliveredMessageId;
+    private long partnerLastMessageId;
+}
+[Notice] You have to add `maven { url "https://s3.amazonaws.com/repo.commonsware.com" }`
+to your app Module
 
-- [Add]
-
-##  Version [] -2018-0-0
 
 - [Add] The responses of this listeners were changed 
 onGetContacts

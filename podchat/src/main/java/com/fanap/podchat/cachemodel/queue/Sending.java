@@ -1,6 +1,6 @@
 package com.fanap.podchat.cachemodel.queue;
 
-import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.mainmodel.MessageVO;
 
 public class Sending {
 

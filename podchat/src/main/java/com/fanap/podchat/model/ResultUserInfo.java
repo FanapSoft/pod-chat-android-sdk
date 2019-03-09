@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.chat.mainmodel.UserInfo;
 
 public class ResultUserInfo {
     private UserInfo user;

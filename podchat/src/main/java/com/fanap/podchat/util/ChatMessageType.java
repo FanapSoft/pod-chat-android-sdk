@@ -47,8 +47,13 @@ public class ChatMessageType {
             Constants.DELETE_MESSAGE,
             Constants.ERROR,
             Constants.SPAM_PV_THREAD,
-            Constants.SEEN_MESSAGE_LIST ,
-            Constants.DELIVERED_MESSAGE_LIST
+            Constants.SEEN_MESSAGE_LIST,
+            Constants.DELIVERED_MESSAGE_LIST,
+            Constants.ADD_RULE_TO_USER,
+            Constants.REMOVE_ROLE_FROM_USER,
+            Constants.CLEAR_HISTORY,
+            Constants.UPDATE_USER_PROFILE
+
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -87,6 +92,10 @@ public class ChatMessageType {
         int SEEN_MESSAGE_LIST = 32;
         int DELIVERED_MESSAGE_LIST = 33;
         int SPAM_PV_THREAD = 41;
+        int ADD_RULE_TO_USER = 42;
+        int REMOVE_ROLE_FROM_USER = 43;
+        int CLEAR_HISTORY = 44;
+        int UPDATE_USER_PROFILE = 45;
         int ERROR = 999;
     }
 }

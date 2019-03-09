@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.MapItem;
+import com.fanap.podchat.chat.mainmodel.MapItem;
 
 import java.util.List;
 

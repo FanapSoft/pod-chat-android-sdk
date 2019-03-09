@@ -3,12 +3,15 @@ package com.fanap.podchat.util;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.mainmodel.Contact;
+import com.fanap.podchat.chat.mainmodel.MessageVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ResultAddContact;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,10 +66,16 @@ public class Util {
     public static String randomAlphaNumeric(int count) {
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
-            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
             builder.append(ALPHA_NUMERIC_STRING.charAt(character));
         }
         return builder.toString();
     }
 
+    public static <T> String listToJson(ArrayList<T> list, Gson gson) {
+        Type listType = new TypeToken<List<T>>() {
+        }.getType();
+
+        return gson.toJson(list, listType);
+    }
 }

@@ -4,7 +4,7 @@ package com.fanap.podchat.model;
 import com.fanap.podchat.cachemodel.queue.Failed;
 import com.fanap.podchat.cachemodel.queue.Sending;
 import com.fanap.podchat.cachemodel.queue.Uploading;
-import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.mainmodel.MessageVO;
 
 import java.util.List;
 

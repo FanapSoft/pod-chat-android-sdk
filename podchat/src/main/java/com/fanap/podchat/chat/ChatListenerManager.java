@@ -3,7 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.chat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -576,6 +576,17 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.OnStaticMap(chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
+            }
+        }
+    }
+
+    public void callOnLogEvent(String logEvent) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnLogEvent(logEvent);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

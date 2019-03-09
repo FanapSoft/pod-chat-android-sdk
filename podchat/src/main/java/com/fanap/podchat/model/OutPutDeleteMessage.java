@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.chat.mainmodel.ResultDeleteMessage;
 
 public class OutPutDeleteMessage extends BaseOutPut {
     private ResultDeleteMessage result ;

@@ -22,32 +22,33 @@ import android.widget.Toast;
 
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.mainmodel.History;
+import com.fanap.podchat.chat.mainmodel.Invitee;
+import com.fanap.podchat.chat.mainmodel.Inviter;
+import com.fanap.podchat.chat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.chat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.chat.mainmodel.RequestThreadInnerMessage;
+import com.fanap.podchat.chat.mainmodel.SearchContact;
+import com.fanap.podchat.chat.requestobject.RequestCreateThread;
+import com.fanap.podchat.chat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.chat.requestobject.RequestFileMessage;
+import com.fanap.podchat.chat.requestobject.RequestLocationMessage;
+import com.fanap.podchat.chat.requestobject.RequestMapReverse;
+import com.fanap.podchat.chat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.chat.requestobject.RequestMessage;
+import com.fanap.podchat.chat.requestobject.RequestReplyFileMessage;
+import com.fanap.podchat.chat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.chat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.chat.requestobject.RequestUnBlock;
 import com.fanap.podchat.example.R;
-import com.fanap.podchat.mainmodel.History;
-import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
-import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.requestobject.RequestCreateThread;
-import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestFileMessage;
-import com.fanap.podchat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.requestobject.RequestMapReverse;
-import com.fanap.podchat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.requestobject.RequestThreadInfo;
-import com.fanap.podchat.requestobject.RequestUnBlock;
-import com.fanap.podchat.util.JsonUtil;
 import com.fanap.podnotify.PodNotify;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,6 +69,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private TextView percentage;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
+    private Gson gson = new GsonBuilder().create();
 
     private Uri uri;
     private String fileUri;
@@ -357,7 +359,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                                    }
 //
 //                                    @Override
-//                                    public void onError(String jsonError, ErrorOutPut error) {
+//                                    public void onError(String jsonError, ErrorOutPut ErrorOutPut) {
 //
 //                                    }
 //                                });
@@ -441,7 +443,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         Uri fileUri = getUri();
         Inviter inviter = new Inviter();
         inviter.setName("sina");
-        String meta = JsonUtil.getJson(inviter);
+        String meta = gson.toJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
                 .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
         presenter.replyFileMessage(fileMessage, null);
@@ -483,7 +485,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void sendMessage(View view) {
         Inviter inviter = new Inviter();
         inviter.setName("sina");
-        String meta = JsonUtil.getJson(inviter);
+        String meta = gson.toJson(inviter);
         RequestMessage requestMessage = new RequestMessage
                 .Builder("test at" + " " + new Date().getTime() + name, 1105)
                 .jsonMetaData(meta)
@@ -582,7 +584,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 };
                 CacheMessageVO cacheMessageVO = new CacheMessageVO();
                 cacheMessageVO.setConversationId(5464);
-                String metacreat = JsonUtil.getJson(cacheMessageVO);
+                String metacreat = gson.toJson(cacheMessageVO);
                 String image = "https://core.pod.land/nzh/image/?imageId=17006&width=476&height=476&hashCode=1666eedb75b-0.7473066083939505";
                 presenter.createThread(0, invite, null, "this is the test description"
                         , image, metacreat, new ChatHandler() {
@@ -645,7 +647,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 //"edit message"
                 Inviter inviter = new Inviter();
                 inviter.setName("sina");
-                String meta = JsonUtil.getJson(inviter);
+                String meta = gson.toJson(inviter);
                 presenter.editMessage(9261,
                         "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
