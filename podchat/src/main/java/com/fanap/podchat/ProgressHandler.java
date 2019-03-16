@@ -1,6 +1,6 @@
 package com.fanap.podchat;
 
-import com.fanap.podchat.chat.mainmodel.FileUpload;
+import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;

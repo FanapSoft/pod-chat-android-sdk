@@ -2,9 +2,9 @@ package com.fanap.podchat.networking.api;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.podchat.chat.mainmodel.MapNeshan;
-import com.fanap.podchat.chat.mainmodel.MapReverse;
-import com.fanap.podchat.chat.mainmodel.MapRout;
+import com.fanap.podchat.mainmodel.MapNeshan;
+import com.fanap.podchat.mainmodel.MapReverse;
+import com.fanap.podchat.mainmodel.MapRout;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

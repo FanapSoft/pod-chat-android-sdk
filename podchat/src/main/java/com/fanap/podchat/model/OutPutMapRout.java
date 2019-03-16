@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.chat.mainmodel.MapRout;
+import com.fanap.podchat.mainmodel.MapRout;
 
 public class OutPutMapRout extends BaseOutPut{
 

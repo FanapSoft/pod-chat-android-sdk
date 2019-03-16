@@ -31,68 +31,32 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
-import com.fanap.podchat.chat.mainmodel.AddParticipant;
-import com.fanap.podchat.chat.mainmodel.BaseMessage;
-import com.fanap.podchat.chat.mainmodel.ChatMessage;
-import com.fanap.podchat.chat.mainmodel.ChatMessageContent;
-import com.fanap.podchat.chat.mainmodel.ChatThread;
-import com.fanap.podchat.chat.mainmodel.Contact;
-import com.fanap.podchat.chat.mainmodel.FileUpload;
-import com.fanap.podchat.chat.mainmodel.History;
-import com.fanap.podchat.chat.mainmodel.Invitee;
-import com.fanap.podchat.chat.mainmodel.MapNeshan;
-import com.fanap.podchat.chat.mainmodel.MapReverse;
-import com.fanap.podchat.chat.mainmodel.MapRout;
-import com.fanap.podchat.chat.mainmodel.MessageVO;
-import com.fanap.podchat.chat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.chat.mainmodel.Participant;
-import com.fanap.podchat.chat.mainmodel.RemoveParticipant;
-import com.fanap.podchat.chat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.chat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.chat.mainmodel.SearchContact;
-import com.fanap.podchat.chat.mainmodel.SearchContactVO;
-import com.fanap.podchat.chat.mainmodel.Thread;
-import com.fanap.podchat.chat.mainmodel.ThreadInfoVO;
-import com.fanap.podchat.chat.mainmodel.UpdateContact;
-import com.fanap.podchat.chat.mainmodel.UserInfo;
-import com.fanap.podchat.chat.requestobject.RequestAddContact;
-import com.fanap.podchat.chat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.chat.requestobject.RequestBlock;
-import com.fanap.podchat.chat.requestobject.RequestBlockList;
-import com.fanap.podchat.chat.requestobject.RequestConnect;
-import com.fanap.podchat.chat.requestobject.RequestCreateThread;
-import com.fanap.podchat.chat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.chat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.chat.requestobject.RequestEditMessage;
-import com.fanap.podchat.chat.requestobject.RequestFileMessage;
-import com.fanap.podchat.chat.requestobject.RequestForwardMessage;
-import com.fanap.podchat.chat.requestobject.RequestGetContact;
-import com.fanap.podchat.chat.requestobject.RequestGetFile;
-import com.fanap.podchat.chat.requestobject.RequestGetHistory;
-import com.fanap.podchat.chat.requestobject.RequestGetImage;
-import com.fanap.podchat.chat.requestobject.RequestLeaveThread;
-import com.fanap.podchat.chat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.chat.requestobject.RequestMapReverse;
-import com.fanap.podchat.chat.requestobject.RequestMapRouting;
-import com.fanap.podchat.chat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.chat.requestobject.RequestMessage;
-import com.fanap.podchat.chat.requestobject.RequestMuteThread;
-import com.fanap.podchat.chat.requestobject.RequestRemoveContact;
-import com.fanap.podchat.chat.requestobject.RequestRemoveParticipants;
-import com.fanap.podchat.chat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.chat.requestobject.RequestReplyMessage;
-import com.fanap.podchat.chat.requestobject.RequestSeenMessage;
-import com.fanap.podchat.chat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.chat.requestobject.RequestSpam;
-import com.fanap.podchat.chat.requestobject.RequestThread;
-import com.fanap.podchat.chat.requestobject.RequestThreadInfo;
-import com.fanap.podchat.chat.requestobject.RequestThreadParticipant;
-import com.fanap.podchat.chat.requestobject.RequestUnBlock;
-import com.fanap.podchat.chat.requestobject.RequestUpdateContact;
-import com.fanap.podchat.chat.requestobject.RequestUploadFile;
-import com.fanap.podchat.chat.requestobject.RequestUploadImage;
-import com.fanap.podchat.chat.requestobject.RetryUpload;
 import com.fanap.podchat.localmodel.LFileUpload;
+import com.fanap.podchat.mainmodel.AddParticipant;
+import com.fanap.podchat.mainmodel.BaseMessage;
+import com.fanap.podchat.mainmodel.ChatMessage;
+import com.fanap.podchat.mainmodel.ChatMessageContent;
+import com.fanap.podchat.mainmodel.ChatThread;
+import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.mainmodel.History;
+import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.MapNeshan;
+import com.fanap.podchat.mainmodel.MapReverse;
+import com.fanap.podchat.mainmodel.MapRout;
+import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.RemoveParticipant;
+import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.SearchContactVO;
+import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.mainmodel.UpdateContact;
+import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.mainmodel.UserRoleVO;
 import com.fanap.podchat.model.ChatMessageForward;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ContactRemove;
@@ -145,6 +109,44 @@ import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
+import com.fanap.podchat.requestobject.RequestAddAdmin;
+import com.fanap.podchat.requestobject.RequestAddContact;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestBlock;
+import com.fanap.podchat.requestobject.RequestBlockList;
+import com.fanap.podchat.requestobject.RequestConnect;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestEditMessage;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetContact;
+import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestLeaveThread;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapRouting;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestMuteThread;
+import com.fanap.podchat.requestobject.RequestRemoveContact;
+import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
+import com.fanap.podchat.requestobject.RequestReplyMessage;
+import com.fanap.podchat.requestobject.RequestSeenMessage;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSpam;
+import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestThreadParticipant;
+import com.fanap.podchat.requestobject.RequestUnBlock;
+import com.fanap.podchat.requestobject.RequestUpdateContact;
+import com.fanap.podchat.requestobject.RequestUploadFile;
+import com.fanap.podchat.requestobject.RequestUploadImage;
+import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType.Constants;
@@ -694,9 +696,55 @@ public class Chat extends AsyncAdapter {
 
     }
 
-//    public String AddAdmin(){
-//
-//    }
+    //TODO remove chat ready
+    public String addAdmin(RequestAddAdmin requestAddAdmin) {
+        long threadId = requestAddAdmin.getThreadId();
+        long coreUserId = requestAddAdmin.getCoreUserId();
+        chatReady = true;
+
+//        JsonObject jsonObjectUserRole = new JsonObject();
+//        jsonObjectUserRole.addProperty("userId", 221);
+//        jsonObjectUserRole.addProperty("checkThreadMembership", true);
+
+        JsonArray arrayuserRole = new JsonArray();
+        arrayuserRole.add(RoleType.Constants.THREAD_ADMIN);
+
+//        jsonObjectUserRole.add("roles", arrayuserRole);
+
+        JsonArray arrayRoleType = new JsonArray();
+//        arrayRoleType.add(jsonObjectUserRole);
+
+
+        UserRoleVO userRoleVO = new UserRoleVO();
+        userRoleVO.setCheckThreadMembership(true);
+        userRoleVO.setUserId(2041);
+        userRoleVO.getRoles().add(RoleType.Constants.EDIT_THREAD);
+
+        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+        userRoleVOS.add(userRoleVO);
+
+
+        JsonObject jsonObject = new JsonObject();
+//        jsonObject.addProperty("ssoUserId", coreUserId);
+        jsonObject.add("roleTypes", arrayRoleType);
+
+        String uniqueId = generateUniqueId();
+
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(gson.toJson(userRoleVOS));
+        chatMessage.setSubjectId(1981);
+        chatMessage.setToken(getToken());
+        chatMessage.setType(Constants.ADD_RULE_TO_USER);
+        chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
+        chatMessage.setUniqueId(uniqueId);
+
+        setCallBacks(null, null, null, true, Constants.ADD_RULE_TO_USER, null, uniqueId);
+        String asyncContent = gson.toJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4, "ADD_RULE_TO_USER");
+
+        return uniqueId;
+    }
 
     /**
      * Its sent message but it gets Object as an attribute
@@ -2863,7 +2911,7 @@ public class Chat extends AsyncAdapter {
         String uniqueId;
         uniqueId = generateUniqueId();
 
-        count = count != null && count >= 0 ? count : 50;
+        count = count != null && count > 0 ? count : 50;
         offset = offset != null && offset >= 0 ? offset : 0;
 
         if (cache) {
@@ -3050,7 +3098,7 @@ public class Chat extends AsyncAdapter {
             email = "";
         }
         if (Util.isNullOrEmpty(cellphoneNumber)) {
-            cellphoneNumber="";
+            cellphoneNumber = "";
         }
 
         String uniqueId = generateUniqueId();
@@ -3114,7 +3162,7 @@ public class Chat extends AsyncAdapter {
 
         typeCode = getTypeCode();
 
-        return addContact(firstName,lastName,cellphoneNumber,email);
+        return addContact(firstName, lastName, cellphoneNumber, email);
     }
 
     /**
@@ -3183,6 +3231,23 @@ public class Chat extends AsyncAdapter {
     public String updateContact(long userId, String firstName, String lastName, String cellphoneNumber, String email) {
 
         String uniqueId = generateUniqueId();
+
+        if (Util.isNullOrEmpty(firstName)) {
+            firstName = "";
+        }
+
+        if (Util.isNullOrEmpty(lastName)) {
+            lastName = "";
+        }
+
+        if (Util.isNullOrEmpty(cellphoneNumber)) {
+            cellphoneNumber = "";
+        }
+
+        if (Util.isNullOrEmpty(email)) {
+            email = "";
+        }
+
         if (chatReady) {
             Observable<Response<UpdateContact>> updateContactObservable;
             if (Util.isNullOrEmpty(getTypeCode())) {
@@ -3265,46 +3330,9 @@ public class Chat extends AsyncAdapter {
         String lastName = request.getLastName();
         String email = request.getEmail();
         String cellphoneNumber = request.getCellphoneNumber();
-        String uniqueId = generateUniqueId();
+        long userId = request.getUserId();
 
-        if (chatReady) {
-            Observable<Response<UpdateContact>> updateContactObservable = contactApi.updateContact(getToken(), 1
-                    , userId, firstName, lastName, email, uniqueId, cellphoneNumber);
-            updateContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
-                if (response.body() != null && response.isSuccessful()) {
-                    UpdateContact updateContact = response.body();
-                    if (!response.body().getHasError()) {
-                        ChatResponse<ResultUpdateContact> chatResponse = new ChatResponse<>();
-                        chatResponse.setUniqueId(uniqueId);
-                        ResultUpdateContact resultUpdateContact = new ResultUpdateContact();
-
-                        resultUpdateContact.setContentCount(updateContact.getCount());
-                        resultUpdateContact.setContacts(updateContact.getResult());
-                        chatResponse.setResult(resultUpdateContact);
-
-                        String json = gson.toJson(chatResponse);
-                        listenerManager.callOnUpdateContact(json, chatResponse);
-                        if (log) Logger.json(json);
-                        if (log) Logger.i("RECEIVE_UPDATE_CONTACT");
-
-                    } else {
-                        String jsonError = getErrorOutPut(response.body().getMessage(), response.body().getErrorCode(), uniqueId);
-                        if (log) Logger.e(jsonError);
-                    }
-                }
-            }, (Throwable throwable) ->
-            {
-                if (throwable != null) {
-                    String jsonError = getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
-                    if (log) Logger.e(jsonError);
-                }
-            });
-        } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-            if (log) Logger.json(jsonError);
-        }
-
-        return uniqueId;
+        return updateContact(userId, firstName, lastName, cellphoneNumber, email);
     }
 
     public String mapSearch(String searchTerm, Double latitude, Double longitude) {
@@ -3722,8 +3750,8 @@ public class Chat extends AsyncAdapter {
 
             String jsonContent = contentObject.toString();
 
+
             chatMessage.setContent(jsonContent);
-            chatMessage.setSubjectId(blockId);
             chatMessage.setToken(getToken());
             chatMessage.setUniqueId(uniqueId);
             chatMessage.setTokenIssuer("1");
@@ -3734,6 +3762,14 @@ public class Chat extends AsyncAdapter {
             jsonObject.remove("systemMetadata");
             jsonObject.remove("metadata");
             jsonObject.remove("repliedTo");
+
+            if (Util.isNullOrEmpty(blockId)) {
+                jsonObject.remove("subjectId");
+            } else {
+                jsonObject.remove("subjectId");
+                jsonObject.addProperty("subjectId", blockId);
+            }
+
 
             if (Util.isNullOrEmpty(getTypeCode())) {
                 jsonObject.remove("typeCode");
@@ -5008,7 +5044,7 @@ public class Chat extends AsyncAdapter {
             Logger.i(i);
             if (!Util.isNullOrEmpty(json)) {
                 Logger.json(json);
-            listenerManager.callOnLogEvent(json);
+                listenerManager.callOnLogEvent(json);
             }
             listenerManager.callOnLogEvent(i);
         }
@@ -5695,7 +5731,7 @@ public class Chat extends AsyncAdapter {
                     if (retryStepUserInfo < 60) retryStepUserInfo *= 4;
                     getUserInfo(null);
                     runOnUIUserInfoThread(this, retryStepUserInfo * 1000);
-                    showLog("getUserInfo " + " retry in " + retryStepUserInfo + " s ","");
+                    showLog("getUserInfo " + " retry in " + retryStepUserInfo + " s ", "");
                 }
             }
         }, retryStepUserInfo * 1000);
@@ -5784,7 +5820,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             messageDatabaseHelper.deleteMessage(messageId);
-            showLog("DeleteMessage from dataBase with this messageId" + " " + messageId,"");
+            showLog("DeleteMessage from dataBase with this messageId" + " " + messageId, "");
         }
 
         listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
@@ -5804,7 +5840,7 @@ public class Chat extends AsyncAdapter {
 
         String jsonBlock = gson.toJson(chatResponse);
         listenerManager.callOnBlock(jsonBlock, chatResponse);
-        showLog("RECEIVE_BLOCK",jsonBlock);
+        showLog("RECEIVE_BLOCK", jsonBlock);
         messageCallbacks.remove(messageUniqueId);
     }
 
@@ -5849,7 +5885,7 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnThreadRemoveParticipant(jsonRmParticipant, chatResponse);
         messageCallbacks.remove(messageUniqueId);
-        showLog("RECEIVE_REMOVE_PARTICIPANT",jsonRmParticipant);
+        showLog("RECEIVE_REMOVE_PARTICIPANT", jsonRmParticipant);
     }
 
     private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
@@ -6065,7 +6101,7 @@ public class Chat extends AsyncAdapter {
             pingWithDelay();
 
         } else {
-           getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, null);
+            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, null);
         }
     }
 
@@ -6303,7 +6339,7 @@ public class Chat extends AsyncAdapter {
             }, new Action1<Throwable>() {
                 @Override
                 public void call(Throwable throwable) {
-                    getErrorOutPut(throwable.getCause().getMessage(),ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,uniqueId);
+                    getErrorOutPut(throwable.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
                 }
             });
         }
@@ -6394,7 +6430,7 @@ public class Chat extends AsyncAdapter {
 
     private void deviceIdRequest(String ssoHost, String serverAddress, String appId, String severName) {
 
-        showLog("GET_DEVICE_ID","");
+        showLog("GET_DEVICE_ID", "");
         currentDeviceExist = false;
 
         RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
@@ -6406,7 +6442,7 @@ public class Chat extends AsyncAdapter {
                 for (Device device : devices) {
                     if (device.isCurrent()) {
                         currentDeviceExist = true;
-                        showLog("DEVICE_ID :" + device.getUid(),"");
+                        showLog("DEVICE_ID :" + device.getUid(), "");
                         async.connect(serverAddress, appId, severName, token, ssoHost, device.getUid());
                         break;
                     }
@@ -6416,10 +6452,10 @@ public class Chat extends AsyncAdapter {
                 }
             } else {
                 if (deviceResults.code() == 401) {
-                   getErrorOutPut("unauthorized", deviceResults.code(), null);
+                    getErrorOutPut("unauthorized", deviceResults.code(), null);
 
                 } else {
-                   getErrorOutPut(deviceResults.message(), deviceResults.code(), null);
+                    getErrorOutPut(deviceResults.message(), deviceResults.code(), null);
                 }
             }
 
@@ -6520,7 +6556,7 @@ public class Chat extends AsyncAdapter {
                     if (retrySetToken < 60) retrySetToken *= 4;
                     pingAfterSetToken();
                     retryTokenRunOnUIThread(this::run, retrySetToken * 1000);
-                    showLog("Ping for check Token Authentication is retry after " + retrySetToken + " s","");
+                    showLog("Ping for check Token Authentication is retry after " + retrySetToken + " s", "");
                 }
             }, retrySetToken * 1000);
         }

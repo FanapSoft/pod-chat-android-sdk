@@ -1,10 +1,10 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.chat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.Contact;
 
 public class ResultAddContact {
 
-    private com.fanap.podchat.chat.mainmodel.Contact contact;
+    private com.fanap.podchat.mainmodel.Contact contact;
     private long contentCount;
 
     public long getContentCount() {

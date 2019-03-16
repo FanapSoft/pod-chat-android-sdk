@@ -21,32 +21,34 @@ import android.widget.TextView;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.mainmodel.Contact;
-import com.fanap.podchat.chat.mainmodel.History;
-import com.fanap.podchat.chat.mainmodel.Invitee;
-import com.fanap.podchat.chat.mainmodel.Inviter;
-import com.fanap.podchat.chat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.chat.mainmodel.NosqlSearchMetadataCriteria;
-import com.fanap.podchat.chat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.chat.mainmodel.SearchContact;
-import com.fanap.podchat.chat.mainmodel.ThreadInfoVO;
-import com.fanap.podchat.chat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.chat.requestobject.RequestCreateThread;
-import com.fanap.podchat.chat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.chat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.chat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.chat.requestobject.RequestMapReverse;
-import com.fanap.podchat.chat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.chat.requestobject.RequestRemoveParticipants;
-import com.fanap.podchat.chat.requestobject.RequestReplyMessage;
-import com.fanap.podchat.chat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.chat.requestobject.RequestThread;
-import com.fanap.podchat.chat.requestobject.RetryUpload;
+import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.example.R;
+import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.History;
+import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
+import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.requestobject.RequestAddAdmin;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyMessage;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podnotify.PodNotify;
 import com.fanap.podnotify.service.PodMessagingService;
 import com.google.gson.Gson;
@@ -92,10 +94,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //
     private static String appId = "POD-Chat";
 
+    //Mehrara
     private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
+//    private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
+//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
+//    private String serverName = "chat-server2";
     private String serverName = "chat-server";
     private String typeCode = null;
 
@@ -130,9 +136,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onMapStaticImage(ChatResponse<ResultStaticMapImage> chatResponse) {
-
                 imageMap.setImageBitmap(chatResponse.getResult().getBitmap());
-
             }
         };
 
@@ -183,6 +187,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             ,"map static image"
             ,"map reverse"
             ,"Send MapLocation Message"
+            ,"Add Admin"
             */
     private void setupThirdSpinner(Spinner spinnerThird) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcThird);
@@ -216,17 +221,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                 });
                         break;
                     case 4:
-                        Long ubThreadId = 1573L;
-                        Long ubUserId = null;
+                        Long ubThreadId = null;
+                        Long ubUserId = 103L;
                         Long ubContactId = null;
                         Long unblockId = null;
                         presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
-                                , new ChatHandler() {
-                                    @Override
-                                    public void onUnBlock(String uniqueId) {
-                                        super.onUnBlock(uniqueId);
-                                    }
-                                });
+                                ,null);
                         break;
                     case 5:
                         presenter.getBlockList(null, null, new ChatHandler() {
@@ -290,6 +290,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     case 13:
                         sendLocationMsg();
                         break;
+                    case 14:
+                        addAdmin();
+                        break;
                 }
             }
 
@@ -298,6 +301,16 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
+    }
+
+    private void addAdmin() {
+        //core 1507
+        // thread id 1961
+        ArrayList<String> typeRoles = new ArrayList<>();
+        typeRoles.add(RoleType.Constants.THREAD_ADMIN);
+
+        RequestAddAdmin requestAddAdmin = new RequestAddAdmin.Builder(1961,1507,typeRoles).build();
+        presenter.addAdmin(requestAddAdmin);
     }
 
     private void sendLocationMsg() {
@@ -584,7 +597,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(20, null, 351, new ChatHandler() {
+                presenter.getThreadParticipant(20, null, 1981, new ChatHandler() {
                     @Override
                     public void onGetThreadParticipant(String uniqueId) {
                         super.onGetThreadParticipant(uniqueId);
@@ -593,39 +606,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 break;
             case 8:
-                /**
-                 * int TO_BE_USER_SSO_ID = 1;
-                 * int TO_BE_USER_CONTACT_ID = 2;
-                 * int TO_BE_USER_CELLPHONE_NUMBER = 3;
-                 * int TO_BE_USER_USERNAME = 4;
-                 * int TO_BE_USER_ID = 5;
-                 */
-                /**"create thread"
-                 * This is Invitee object
-                 * ---->private int id;
-                 * ---->private int idType;
-                 *
-                 */
-                //alexi 570
-                //felfeli 571
-                //jiji 122
-                //"firstName": "Ziiii",     │         "userId": 121,
-                Invitee[] invite = new Invitee[]{
-                        new Invitee(2952, 2)
-//                        , new Invitee(1967, 2)
-//                        ,new Invitee(123, 5)
-//                        , new Invitee(824, 2)
-                };
-                Inviter inviterw = new Inviter();
-                inviterw.setName("this is sample metadata");
-                String metac = gson.toJson(inviterw);
-                presenter.createThread(0, invite, null, "sina thread"
-                        , null, metac, new ChatHandler() {
-                            @Override
-                            public void onCreateThread(String uniqueId) {
-                                super.onCreateThread(uniqueId);
-                            }
-                        });
+                createThread();
 
                 break;
             case 9:
@@ -681,8 +662,48 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    private void createThread() {
+        /**
+         * int TO_BE_USER_SSO_ID = 1;
+         * int TO_BE_USER_CONTACT_ID = 2;
+         * int TO_BE_USER_CELLPHONE_NUMBER = 3;
+         * int TO_BE_USER_USERNAME = 4;
+         * int TO_BE_USER_ID = 5;
+         */
+        /**"create thread"
+         * This is Invitee object
+         * ---->private int id;
+         * ---->private int idType;
+         *
+         * createThreadTypes = {
+         *         NORMAL: 0,
+         *         OWNER_GROUP: 1,
+         *         PUBLIC_GROUP: 2,
+         *         CHANNEL_GROUP: 4,
+         *         CHANNEL: 8
+         *       }
+         */
+        //alexi 570
+        //felfeli 571
+        //jiji 122
+        //"firstName": "Ziiii",
+        // masoud  : 2951
+        // │         "userId": 121,
+        Invitee[] invite = new Invitee[]{
+                new Invitee(2951, 2)
+//                        , new Invitee(1967, 2)
+//                        ,new Invitee(123, 5)
+//                        , new Invitee(824, 2)
+        };
+        Inviter inviterw = new Inviter();
+        inviterw.setName("this is sample metadata");
+        String metac = gson.toJson(inviterw);
+        presenter.createThread(1, invite, null, "sina thread"
+                , null, metac, null);
+    }
+
     private void updateContact() {
-        presenter.updateContact(2404, "Farhad Amjadi", "Amjadi", "09148401824", "zi@gmail.com"
+        presenter.updateContact(2951, "Farhad Amjadi", "Amjadi", "09148401824", "zi@gmail.com"
         );
     }
 
@@ -747,7 +768,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void getContacts() {
-        presenter.getContact(15, 0L, null);
+        presenter.getContact(0, 0L, null);
     }
 
     @Override

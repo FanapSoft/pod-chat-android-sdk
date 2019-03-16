@@ -4,7 +4,7 @@ import android.arch.persistence.room.TypeConverter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.chat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.Participant;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

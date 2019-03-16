@@ -8,7 +8,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 27
         versionCode 26
-        versionName "0.4.1.4"
+        versionName "0.4.1.7"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -37,7 +37,7 @@ ext {
 
     publishedGroupId = 'com.fanap.podchat'
     artifact = 'podchat'
-    libraryVersion = '0.4.1.4'
+    libraryVersion = '0.4.1.7'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
     gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'

@@ -4,7 +4,7 @@ import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
-import com.fanap.podchat.chat.mainmodel.LinkedUser;
+import com.fanap.podchat.mainmodel.LinkedUser;
 
 @Entity
 public class CacheContact {

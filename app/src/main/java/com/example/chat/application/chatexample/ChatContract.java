@@ -7,33 +7,35 @@ import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.mainmodel.History;
-import com.fanap.podchat.chat.mainmodel.Invitee;
-import com.fanap.podchat.chat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.chat.mainmodel.SearchContact;
-import com.fanap.podchat.chat.mainmodel.ThreadInfoVO;
-import com.fanap.podchat.chat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.chat.requestobject.RequestCreateThread;
-import com.fanap.podchat.chat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.chat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.chat.requestobject.RequestFileMessage;
-import com.fanap.podchat.chat.requestobject.RequestForwardMessage;
-import com.fanap.podchat.chat.requestobject.RequestGetHistory;
-import com.fanap.podchat.chat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.chat.requestobject.RequestMapReverse;
-import com.fanap.podchat.chat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.chat.requestobject.RequestMessage;
-import com.fanap.podchat.chat.requestobject.RequestRemoveParticipants;
-import com.fanap.podchat.chat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.chat.requestobject.RequestReplyMessage;
-import com.fanap.podchat.chat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.chat.requestobject.RequestThread;
-import com.fanap.podchat.chat.requestobject.RequestThreadInfo;
-import com.fanap.podchat.chat.requestobject.RequestUnBlock;
-import com.fanap.podchat.chat.requestobject.RetryUpload;
+import com.fanap.podchat.mainmodel.History;
+import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestAddAdmin;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
+import com.fanap.podchat.requestobject.RequestReplyMessage;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestUnBlock;
+import com.fanap.podchat.requestobject.RequestUpdateContact;
+import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podnotify.model.Notification;
 
 import java.util.ArrayList;
@@ -252,6 +254,8 @@ public interface ChatContract {
 
         void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email);
 
+        void updateContact(RequestUpdateContact updateContact);
+
         void uploadImage(Activity activity, Uri fileUri);
 
         void uploadFile(Activity activity, Uri uri);
@@ -279,5 +283,7 @@ public interface ChatContract {
         void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler);
 
         void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler);
+
+        void addAdmin(RequestAddAdmin requestAddAdmin);
     }
 }

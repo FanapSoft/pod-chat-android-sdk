@@ -53,5 +53,6 @@ public class ConstantSample {
             ,"map static image"
             ,"map reverse"
             ,"Send MapLocation Message"
+            ,"Add Admin"
     };
 }

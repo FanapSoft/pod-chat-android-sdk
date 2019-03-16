@@ -1,7 +1,7 @@
 package com.fanap.podchat.model;
 
 
-import com.fanap.podchat.chat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.Contact;
 
 import java.util.ArrayList;
 
