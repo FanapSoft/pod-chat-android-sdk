@@ -136,6 +136,7 @@ import com.fanap.podchat.requestobject.RequestRemoveContact;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
+import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestSpam;
@@ -544,17 +545,14 @@ public class Chat extends AsyncAdapter {
             case Constants.SEEN_MESSAGE_LIST:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
-            case Constants.ADD_RULE_TO_USER:
+            case Constants.SET_RULE_TO_USER:
 
                 break;
             case Constants.CLEAR_HISTORY:
 
                 break;
-            case Constants.REMOVE_ROLE_FROM_USER:
-
-                break;
             case Constants.UPDATE_USER_PROFILE:
-
+//                listenerManager.callOn
                 break;
         }
     }
@@ -699,15 +697,34 @@ public class Chat extends AsyncAdapter {
     //TODO remove chat ready
     public String addAdmin(RequestAddAdmin requestAddAdmin) {
         long threadId = requestAddAdmin.getThreadId();
-        long coreUserId = requestAddAdmin.getCoreUserId();
+        ArrayList<RequestRole> roles = requestAddAdmin.getRoles();
+//        long id = requestAddAdmin.getId();
+        ArrayList<String> rolesTypes = new ArrayList<>();
+        rolesTypes.add("edit_thread");
         chatReady = true;
 
-//        JsonObject jsonObjectUserRole = new JsonObject();
-//        jsonObjectUserRole.addProperty("userId", 221);
-//        jsonObjectUserRole.addProperty("checkThreadMembership", true);
+//        JsonArray arrayuserRole = new JsonArray();
+//        arrayuserRole.add(RoleType.Constants.THREAD_ADMIN);
 
-        JsonArray arrayuserRole = new JsonArray();
-        arrayuserRole.add(RoleType.Constants.THREAD_ADMIN);
+        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+//        for (RequestRole requestRole : roles) {
+//
+//            UserRoleVO userRoleVO = new UserRoleVO();
+//            userRoleVO.setCheckThreadMembership(true);
+//            userRoleVO.setUserId(requestRole.getId());
+//            userRoleVO.setRoles(requestRole.getRoleTypes());
+//
+//            userRoleVOS.add(userRoleVO);
+//        }
+
+
+        UserRoleVO userRoleVO = new UserRoleVO();
+        userRoleVO.setCheckThreadMembership(true);
+        userRoleVO.setUserId(221);
+        userRoleVO.setRoles(rolesTypes);
+
+        userRoleVOS.add(userRoleVO);
+
 
 //        jsonObjectUserRole.add("roles", arrayuserRole);
 
@@ -715,18 +732,11 @@ public class Chat extends AsyncAdapter {
 //        arrayRoleType.add(jsonObjectUserRole);
 
 
-        UserRoleVO userRoleVO = new UserRoleVO();
-        userRoleVO.setCheckThreadMembership(true);
-        userRoleVO.setUserId(2041);
-        userRoleVO.getRoles().add(RoleType.Constants.EDIT_THREAD);
-
-        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
-        userRoleVOS.add(userRoleVO);
-
-
-        JsonObject jsonObject = new JsonObject();
-//        jsonObject.addProperty("ssoUserId", coreUserId);
-        jsonObject.add("roleTypes", arrayRoleType);
+//
+//
+//        JsonObject jsonObject = new JsonObject();
+////        jsonObject.addProperty("ssoUserId", coreUserId);
+//        jsonObject.add("roleTypes", arrayRoleType);
 
         String uniqueId = generateUniqueId();
 
@@ -734,14 +744,15 @@ public class Chat extends AsyncAdapter {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(gson.toJson(userRoleVOS));
         chatMessage.setSubjectId(1981);
+//        chatMessage.setSubjectId(threadId);
         chatMessage.setToken(getToken());
-        chatMessage.setType(Constants.ADD_RULE_TO_USER);
+        chatMessage.setType(Constants.SET_RULE_TO_USER);
         chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
         chatMessage.setUniqueId(uniqueId);
 
-        setCallBacks(null, null, null, true, Constants.ADD_RULE_TO_USER, null, uniqueId);
+        setCallBacks(null, null, null, true, Constants.SET_RULE_TO_USER, null, uniqueId);
         String asyncContent = gson.toJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4, "ADD_RULE_TO_USER");
+        sendAsyncMessage(asyncContent, 4, "SET_RULE_TO_USER");
 
         return uniqueId;
     }

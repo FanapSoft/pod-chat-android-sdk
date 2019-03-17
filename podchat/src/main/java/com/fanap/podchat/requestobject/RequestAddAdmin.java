@@ -5,24 +5,28 @@ import java.util.ArrayList;
 public class RequestAddAdmin {
 
     private long threadId;
-    private long coreUserId;
-    private ArrayList<String> roleTypes;
+    private ArrayList<RequestRole> roles;
 
     private RequestAddAdmin(Builder builder){
         this.threadId = builder.threadId;
-        this.coreUserId = builder.coreUserId;
-        this.roleTypes = builder.roleTypes;
+        this.roles = builder.roles;
+    }
+
+    public ArrayList<RequestRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(ArrayList<RequestRole> roles) {
+        this.roles = roles;
     }
 
     public static class Builder {
         private long threadId;
-        private long coreUserId;
-        private ArrayList<String> roleTypes;
+        private ArrayList<RequestRole> roles;
 
-        public Builder(long threadId, long coreUserId, ArrayList<String> roleTypes){
+        public Builder(long threadId, long id, ArrayList<RequestRole> roles){
            this.threadId = threadId;
-           this.coreUserId = coreUserId;
-           this.roleTypes = roleTypes;
+           this.roles = roles;
         }
 
         public RequestAddAdmin build(){
@@ -38,19 +42,5 @@ public class RequestAddAdmin {
         this.threadId = threadId;
     }
 
-    public long getCoreUserId() {
-        return coreUserId;
-    }
 
-    public void setCoreUserId(long coreUserId) {
-        this.coreUserId = coreUserId;
-    }
-
-    public ArrayList<String> getRoleTypes() {
-        return roleTypes;
-    }
-
-    public void setRoleTypes(ArrayList<String> roleTypes) {
-        this.roleTypes = roleTypes;
-    }
 }
