@@ -292,7 +292,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         sendLocationMsg();
                         break;
                     case 14:
-                        addAdmin();
+                        setAdmin();
                         break;
                 }
             }
@@ -304,14 +304,24 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
-    private void addAdmin() {
+    private void setAdmin() {
         //core 1507
         // thread id 1961
         ArrayList<String> typeRoles = new ArrayList<>();
         typeRoles.add(RoleType.Constants.THREAD_ADMIN);
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+
+        RequestRole requestRole = new RequestRole();
+        requestRole.setId(221);
+        requestRole.setRoleOperation("remove");
+        requestRole.setRoleTypes(typeRoles);
+
         ArrayList<RequestRole> requestRoles = new ArrayList<>();
-        RequestAddAdmin requestAddAdmin = new RequestAddAdmin.Builder(1961,1507,requestRoles).build();
-        presenter.addAdmin(requestAddAdmin);
+
+        requestRoles.add(requestRole);
+
+        RequestAddAdmin requestAddAdmin = new RequestAddAdmin.Builder(1981,requestRoles).build();
+        presenter.setAdmin(requestAddAdmin);
     }
 
     private void sendLocationMsg() {

@@ -78,4 +78,10 @@ public class Util {
 
         return gson.toJson(list, listType);
     }
+
+    public static <T> List<T> JsonToList(String json,Gson gson){
+
+      return  gson.fromJson(json, new TypeToken<List<T>>() {
+        }.getType());
+    }
 }

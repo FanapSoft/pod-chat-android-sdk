@@ -7,7 +7,7 @@ public class RequestAddAdmin {
     private long threadId;
     private ArrayList<RequestRole> roles;
 
-    private RequestAddAdmin(Builder builder){
+    private RequestAddAdmin(Builder builder) {
         this.threadId = builder.threadId;
         this.roles = builder.roles;
     }
@@ -24,12 +24,12 @@ public class RequestAddAdmin {
         private long threadId;
         private ArrayList<RequestRole> roles;
 
-        public Builder(long threadId, long id, ArrayList<RequestRole> roles){
-           this.threadId = threadId;
-           this.roles = roles;
+        public Builder(long threadId, ArrayList<RequestRole> roles) {
+            this.threadId = threadId;
+            this.roles = roles;
         }
 
-        public RequestAddAdmin build(){
+        public RequestAddAdmin build() {
             return new RequestAddAdmin(this);
         }
     }

@@ -6,6 +6,7 @@ public class UserRoleVO {
         private long userId;
         private boolean checkThreadMembership;
         private ArrayList<String> roles;
+        private String roleOperation;
 
     public UserRoleVO() {
         roles = new ArrayList<>();
@@ -33,5 +34,13 @@ public class UserRoleVO {
 
     public void setRoles(ArrayList<String> roles) {
         this.roles = roles;
+    }
+
+    public String getRoleOperation() {
+        return roleOperation;
+    }
+
+    public void setRoleOperation(String roleOperation) {
+        this.roleOperation = roleOperation;
     }
 }

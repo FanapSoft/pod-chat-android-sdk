@@ -438,8 +438,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void addAdmin(RequestAddAdmin requestAddAdmin) {
-        chat.addAdmin(requestAddAdmin);
+    public void setAdmin(RequestAddAdmin requestAddAdmin) {
+        chat.setAdmin(requestAddAdmin);
     }
 
 

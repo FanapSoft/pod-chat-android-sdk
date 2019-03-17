@@ -284,6 +284,6 @@ public interface ChatContract {
 
         void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler);
 
-        void addAdmin(RequestAddAdmin requestAddAdmin);
+        void setAdmin(RequestAddAdmin requestAddAdmin);
     }
 }

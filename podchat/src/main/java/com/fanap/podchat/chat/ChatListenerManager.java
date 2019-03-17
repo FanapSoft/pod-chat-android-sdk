@@ -24,6 +24,7 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultRemoveContact;
+import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -592,5 +593,9 @@ public class ChatListenerManager {
                 Logger.e(t, t.getMessage());
             }
         }
+    }
+
+    public void callonSetRuleToUser(String toJson, ChatResponse<ResultSetAdmin> chatResponse) {
+
     }
 }

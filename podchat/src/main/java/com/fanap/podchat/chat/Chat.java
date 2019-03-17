@@ -57,6 +57,7 @@ import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.mainmodel.UserRoleVO;
+import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.model.ChatMessageForward;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ContactRemove;
@@ -90,6 +91,7 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultRemoveContact;
+import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -205,8 +207,9 @@ public class Chat extends AsyncAdapter {
     private static Async async;
     private String token;
     private String typeCode;
-    private static Chat instance;
     private String platformHost;
+    private String fileServer;
+    private static Chat instance;
     private static ChatListenerManager listenerManager;
     private long userId;
     private ContactApi contactApi;
@@ -228,7 +231,6 @@ public class Chat extends AsyncAdapter {
     private static final Handler pingHandler;
     private static final Handler tokenHandler;
     private boolean currentDeviceExist;
-    private String fileServer;
     private Context context;
     private boolean log;
     private int expireAmount;
@@ -547,12 +549,19 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.SET_RULE_TO_USER:
 
+                ChatResponse<ResultSetAdmin> chatResponse = new ChatResponse<>();
+                ResultSetAdmin resultSetAdmin = new ResultSetAdmin();
+                List<Admin> admins;
+                admins = Util.JsonToList(chatMessage.getContent(), gson);
+                resultSetAdmin.setAdmins(admins);
+
+                listenerManager.callonSetRuleToUser(gson.toJson(chatResponse), chatResponse);
+
                 break;
             case Constants.CLEAR_HISTORY:
 
                 break;
             case Constants.UPDATE_USER_PROFILE:
-//                listenerManager.callOn
                 break;
         }
     }
@@ -691,60 +700,29 @@ public class Chat extends AsyncAdapter {
         } catch (Throwable throwable) {
             if (log) Logger.e(throwable.getCause().getMessage());
         }
-
     }
 
     //TODO remove chat ready
-    public String addAdmin(RequestAddAdmin requestAddAdmin) {
+    public String setAdmin(RequestAddAdmin requestAddAdmin) {
         long threadId = requestAddAdmin.getThreadId();
         ArrayList<RequestRole> roles = requestAddAdmin.getRoles();
-//        long id = requestAddAdmin.getId();
-        ArrayList<String> rolesTypes = new ArrayList<>();
-        rolesTypes.add("edit_thread");
         chatReady = true;
 
-//        JsonArray arrayuserRole = new JsonArray();
-//        arrayuserRole.add(RoleType.Constants.THREAD_ADMIN);
-
         ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
-//        for (RequestRole requestRole : roles) {
-//
-//            UserRoleVO userRoleVO = new UserRoleVO();
-//            userRoleVO.setCheckThreadMembership(true);
-//            userRoleVO.setUserId(requestRole.getId());
-//            userRoleVO.setRoles(requestRole.getRoleTypes());
-//
-//            userRoleVOS.add(userRoleVO);
-//        }
-
-
-        UserRoleVO userRoleVO = new UserRoleVO();
-        userRoleVO.setCheckThreadMembership(true);
-        userRoleVO.setUserId(221);
-        userRoleVO.setRoles(rolesTypes);
-
-        userRoleVOS.add(userRoleVO);
-
-
-//        jsonObjectUserRole.add("roles", arrayuserRole);
-
-        JsonArray arrayRoleType = new JsonArray();
-//        arrayRoleType.add(jsonObjectUserRole);
-
-
-//
-//
-//        JsonObject jsonObject = new JsonObject();
-////        jsonObject.addProperty("ssoUserId", coreUserId);
-//        jsonObject.add("roleTypes", arrayRoleType);
+        for (RequestRole requestRole : roles) {
+            UserRoleVO userRoleVO = new UserRoleVO();
+            userRoleVO.setCheckThreadMembership(true);
+            userRoleVO.setUserId(requestRole.getId());
+            userRoleVO.setRoles(requestRole.getRoleTypes());
+            userRoleVO.setRoleOperation(requestRole.getRoleOperation());
+            userRoleVOS.add(userRoleVO);
+        }
 
         String uniqueId = generateUniqueId();
 
-
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(gson.toJson(userRoleVOS));
-        chatMessage.setSubjectId(1981);
-//        chatMessage.setSubjectId(threadId);
+        chatMessage.setSubjectId(threadId);
         chatMessage.setToken(getToken());
         chatMessage.setType(Constants.SET_RULE_TO_USER);
         chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
@@ -2708,6 +2686,14 @@ public class Chat extends AsyncAdapter {
             if (log) Logger.e(jsonError);
         }
         return uniqueId;
+    }
+
+    private void getEncryptionKey(String ssoHost) {
+        String algorithm = "AES";
+        int keySize = 256;
+//        RetrofitHelperSsoHost ssoHost = new RetrofitHelperSsoHost()
+//        TokenApi api =
+//        Observable<Response<EncResponse>> observable =
     }
 
     /**
