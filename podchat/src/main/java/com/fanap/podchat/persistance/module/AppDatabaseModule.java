@@ -30,10 +30,10 @@ public class AppDatabaseModule {
     private AppDatabase appDatabase;
     private static final String DATABASE_DB = "cache.db";
 
-    public AppDatabaseModule(Context context) {
+    public AppDatabaseModule(Context context,String secretKey) {
 
-        String stKey = "slkjgndsjkkdhksdfas";
-        char[] passphrase = stKey.toCharArray();
+//        String stKey = "slkjgndsjkkdhksdfas";
+        char[] passphrase = secretKey.toCharArray();
         SafeHelperFactory factory = new SafeHelperFactory(passphrase);
 
         File file = new File(String.valueOf(context.getDatabasePath("cache.db")));

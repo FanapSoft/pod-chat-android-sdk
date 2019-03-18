@@ -971,6 +971,7 @@ public class MessageDatabaseHelper {
     }
 
     public UserInfo getUserInfo() {
+
         UserInfo userInfo = new UserInfo();
         if (messageDao.getUserInfo() != null) {
             userInfo = messageDao.getUserInfo();

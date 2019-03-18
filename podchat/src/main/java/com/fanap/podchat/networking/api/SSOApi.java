@@ -12,16 +12,20 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import rx.Observable;
 
-public interface TokenApi {
+public interface SSOApi {
 
     @NonNull
     @GET("/oauth2/grants/devices")
     Observable<Response<DeviceResult>> getDeviceId(@Header("Authorization") String token);
 
     @POST("/users/handshake")
-    Observable<Response<EncResponse>> getEncryptionKey(
-            @Header("Authorization") String token,
-            @Part("algorithm") String algorithm,
-            @Part("keyBitSize") int keyBitSize
+    Observable<Response<EncResponse>> generateEncryptionKey(
+            @Header("Authorization") String bearerToken,
+            @Part("keyAlgorithm") String keyAlgorithm,
+            @Part("keySize") int keySize,
+            @Part("renew") boolean renew,
+            @Part("validity") long validity
     );
+
+
 }

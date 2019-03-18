@@ -63,6 +63,7 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.DeleteMessageContent;
+import com.fanap.podchat.model.EncResponse;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageMetaData;
@@ -101,7 +102,7 @@ import com.fanap.podchat.networking.ProgressRequestBody;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.api.MapApi;
-import com.fanap.podchat.networking.api.TokenApi;
+import com.fanap.podchat.networking.api.SSOApi;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
@@ -260,11 +261,7 @@ public class Chat extends AsyncAdapter {
             instance.setContext(context);
             listenerManager = new ChatListenerManager();
             threadCallbacks = new HashMap<>();
-            DaggerMessageComponent.builder()
-                    .appDatabaseModule(new AppDatabaseModule(context))
-                    .appModule(new AppModule(context))
-                    .build()
-                    .inject(instance);
+
         }
         return instance;
     }
@@ -303,6 +300,7 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String socketAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost, String fileServer, String typeCode) {
+        generateEncryptionKey(ssoHost);
         try {
             if (platformHost.endsWith("/")) {
                 messageCallbacks = new HashMap<>();
@@ -2688,12 +2686,35 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    private void getEncryptionKey(String ssoHost) {
+    private void generateEncryptionKey(String ssoHost) {
         String algorithm = "AES";
         int keySize = 256;
-//        RetrofitHelperSsoHost ssoHost = new RetrofitHelperSsoHost()
-//        TokenApi api =
-//        Observable<Response<EncResponse>> observable =
+        long validity = 31536000;
+        RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
+        SSOApi api = retrofitHelperSsoHost.getService(SSOApi.class);
+        Observable<Response<EncResponse>> observable = api.generateEncryptionKey("bearer " + getToken(),
+                algorithm, keySize, false, validity);
+
+        observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<EncResponse>>() {
+            @Override
+            public void call(Response<EncResponse> encResponseResponse) {
+                String secretKey = encResponseResponse.body().getSecretKey();
+
+                DaggerMessageComponent.builder()
+                        .appDatabaseModule(new AppDatabaseModule(getContext(), secretKey))
+                        .appModule(new AppModule(context))
+                        .build()
+                        .inject(instance);
+                saveKey(secretKey);
+            }
+        }, throwable ->
+        {
+            getErrorOutPut(throwable.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+        });
+    }
+
+    private void saveKey(String secretKey) {
+
     }
 
     /**
@@ -6431,8 +6452,8 @@ public class Chat extends AsyncAdapter {
         currentDeviceExist = false;
 
         RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
-        TokenApi tokenApi = retrofitHelperSsoHost.getService(TokenApi.class);
-        rx.Observable<Response<DeviceResult>> listObservable = tokenApi.getDeviceId("Bearer" + " " + getToken());
+        SSOApi SSOApi = retrofitHelperSsoHost.getService(SSOApi.class);
+        rx.Observable<Response<DeviceResult>> listObservable = SSOApi.getDeviceId("Bearer" + " " + getToken());
         listObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(deviceResults -> {
             if (deviceResults.isSuccessful()) {
                 ArrayList<Device> devices = deviceResults.body().getDevices();

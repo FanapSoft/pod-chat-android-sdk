@@ -700,6 +700,20 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         //"firstName": "Ziiii",
         // masoud  : 2951
         // │         "userId": 121,
+//        Invitee[] invite = new Invitee[]{
+//                new Invitee(2951, 2)
+//                        , new Invitee(1967, 2)
+//                        ,new Invitee(123, 5)
+//                        , new Invitee(824, 2)
+//        };
+//        Inviter inviterw = new Inviter();
+//        inviterw.setName("this is sample metadata");
+//        String metac = gson.toJson(inviterw);
+//        presenter.createThread(1, invite, null, "sina thread"
+//                , null, metac, null);
+
+        /**CHANNEL_GROUP: 4,
+         */
         Invitee[] invite = new Invitee[]{
                 new Invitee(2951, 2)
 //                        , new Invitee(1967, 2)
@@ -709,12 +723,16 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Inviter inviterw = new Inviter();
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
-        presenter.createThread(1, invite, null, "sina thread"
+        presenter.createThread(4, invite, null, "sina thread"
                 , null, metac, null);
+
+
+
     }
 
     private void updateContact() {
-        presenter.updateContact(2951, "Farhad Amjadi", "Amjadi", "09148401824", "zi@gmail.com"
+        presenter.updateContact(2951, "Farhad Amjadi",
+                "Amjadi", "09148401824", "zi@gmail.com"
         );
     }
 
