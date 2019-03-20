@@ -143,6 +143,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public ArrayList<String> createThread(RequestCreateThread threadRequest) {
+       return chat.createThread(threadRequest);
+    }
+
+    @Override
     public void deliveredMessageList(RequestDeliveredMessageList requestParams) {
         chat.deliveredMessageList(requestParams);
     }

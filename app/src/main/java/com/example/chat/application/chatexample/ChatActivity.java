@@ -268,15 +268,16 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         listForwardIds.add(1346L);
                         RequestThreadInnerMessage message = new RequestThreadInnerMessage
                                 .Builder("hello")
-                                .forwardedMessageIds(listForwardIds)
+//                                .forwardedMessageIds(listForwardIds)
                                 .build();
 
                         RequestCreateThread requestCreateThread = new RequestCreateThread
                                 .Builder(0
                                 , invite)
-//                                .message(message)
+                                .message(message)
                                 .build();
-                        presenter.createThreadWithMessage(requestCreateThread);
+                        ArrayList<String> uniqueIds=presenter.createThread(requestCreateThread);
+                        Log.d("uniqueIds", uniqueIds.toString());
                         break;
                     case 10:
 

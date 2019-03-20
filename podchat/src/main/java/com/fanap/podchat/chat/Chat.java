@@ -261,7 +261,11 @@ public class Chat extends AsyncAdapter {
             instance.setContext(context);
             listenerManager = new ChatListenerManager();
             threadCallbacks = new HashMap<>();
-
+            DaggerMessageComponent.builder()
+                    .appDatabaseModule(new AppDatabaseModule(context))
+                    .appModule(new AppModule(context))
+                    .build()
+                    .inject(instance);
         }
         return instance;
     }
@@ -300,7 +304,7 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String socketAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost, String fileServer, String typeCode) {
-        generateEncryptionKey(ssoHost);
+//        generateEncryptionKey(ssoHost);
         try {
             if (platformHost.endsWith("/")) {
                 messageCallbacks = new HashMap<>();
@@ -4078,6 +4082,7 @@ public class Chat extends AsyncAdapter {
      * <p>
      * int CHANNEL = 8;
      */
+    @Deprecated
     public String createThreadWithMessage(RequestCreateThread threadRequest) {
         List<String> forwardUniqueIds;
         JsonObject innerMessageObj;
@@ -4159,6 +4164,93 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * @return first UniqueId is for create thread and the rest is for message or forward message
+     */
+
+    public ArrayList<String> createThread(RequestCreateThread threadRequest) {
+        List<String> forwardUniqueIds;
+        JsonObject innerMessageObj;
+        JsonObject jsonObject;
+        String threadUniqueId;
+        threadUniqueId = generateUniqueId();
+        ArrayList<String> uniqueIds = new ArrayList<>();
+        uniqueIds.add(threadUniqueId);
+        try {
+            if (chatReady) {
+                if (threadRequest.getMessage() != null) {
+                    RequestThreadInnerMessage innerMessage = threadRequest.getMessage();
+                    innerMessageObj = (JsonObject) gson.toJsonTree(innerMessage);
+
+                    if (!Util.isNullOrEmptyNumber(threadRequest.getMessage().getForwardedMessageIds())) {
+
+                        List<Long> messageIds = threadRequest.getMessage().getForwardedMessageIds();
+                        forwardUniqueIds = new ArrayList<>();
+                        for (long ids : messageIds) {
+                            String forwardUnique = generateUniqueId();
+                            uniqueIds.add(forwardUnique);
+                            forwardUniqueIds.add(forwardUnique);
+                        }
+                        JsonElement element = gson.toJsonTree(forwardUniqueIds, new TypeToken<List<Long>>() {}.getType());
+
+                        JsonArray jsonArray = element.getAsJsonArray();
+                        innerMessageObj.add("forwardedUniqueIds", jsonArray);
+                    } else {
+
+                        innerMessageObj.remove("forwardedUniqueIds");
+                        innerMessageObj.remove("forwardedMessageIds");
+                        String singleMsgUniqueId = generateUniqueId();
+                        uniqueIds.add(singleMsgUniqueId);
+                        innerMessageObj.addProperty("uniqueId", singleMsgUniqueId);
+                    }
+                    JsonObject jsonObjectCreateThread = (JsonObject) gson.toJsonTree(threadRequest);
+
+                    jsonObjectCreateThread.remove("message");
+                    jsonObjectCreateThread.remove("count");
+                    jsonObjectCreateThread.remove("offset");
+                    jsonObjectCreateThread.add("message", innerMessageObj);
+
+                    ChatMessage chatMessage = new ChatMessage();
+                    chatMessage.setContent(jsonObjectCreateThread.toString());
+                    chatMessage.setType(Constants.INVITATION);
+                    chatMessage.setUniqueId(threadUniqueId);
+                    chatMessage.setToken(getToken());
+                    chatMessage.setTokenIssuer("1");
+
+                    jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+                    jsonObject.remove("repliedTo");
+                    jsonObject.remove("subjectId");
+                    jsonObject.remove("systemMetadata");
+                    jsonObject.remove("contentCount");
+
+                    String typeCode = threadRequest.getTypeCode();
+
+                    if (Util.isNullOrEmpty(typeCode)) {
+                        if (Util.isNullOrEmpty(getTypeCode())) {
+                            jsonObject.remove("typeCode");
+                        } else {
+                            jsonObject.addProperty("typeCode", getTypeCode());
+                        }
+                    } else {
+                        jsonObject.addProperty("typeCode", typeCode);
+                    }
+
+                    setCallBacks(null, null, null, true, Constants.INVITATION, null, threadUniqueId);
+                    sendAsyncMessage(jsonObject.toString(), 4, "SEND_CREATE_THREAD_WITH_MESSAGE");
+                } else {
+                    if (log) Logger.e("RequestThreadInnerMessage object can not be null/Empty");
+                }
+            } else {
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, threadUniqueId);
+                if (log) Logger.e(jsonError);
+            }
+
+        } catch (Throwable e) {
+            if (log) Logger.e(e.getCause().getMessage());
+        }
+        return uniqueIds;
+    }
 
     public String updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler) {
         String uniqueId;
