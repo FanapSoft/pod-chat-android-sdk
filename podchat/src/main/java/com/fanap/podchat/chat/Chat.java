@@ -223,7 +223,9 @@ public class Chat extends AsyncAdapter {
     private boolean chatReady = false;
     private boolean rawLog = false;
     private boolean asyncReady = false;
+
     private boolean cache = false;
+    private static boolean permit = false;
     private static final int TOKEN_ISSUER = 1;
     private long retryStepUserInfo = 1;
     private long retrySetToken = 1;
@@ -261,11 +263,15 @@ public class Chat extends AsyncAdapter {
             instance.setContext(context);
             listenerManager = new ChatListenerManager();
             threadCallbacks = new HashMap<>();
-            DaggerMessageComponent.builder()
-                    .appDatabaseModule(new AppDatabaseModule(context))
-                    .appModule(new AppModule(context))
-                    .build()
-                    .inject(instance);
+
+            if (Util.isNullOrEmpty(instance.getKey())) {
+                DaggerMessageComponent.builder()
+                        .appDatabaseModule(new AppDatabaseModule(context, instance.getKey()))
+                        .appModule(new AppModule(context))
+                        .build()
+                        .inject(instance);
+                permit = true;
+            }
         }
         return instance;
     }
@@ -2709,17 +2715,14 @@ public class Chat extends AsyncAdapter {
                         .appModule(new AppModule(context))
                         .build()
                         .inject(instance);
-                saveKey(secretKey);
+                setKey(secretKey);
             }
         }, throwable ->
         {
-            getErrorOutPut(throwable.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+            if (log) Logger.e(throwable.getCause().getMessage());
         });
     }
 
-    private void saveKey(String secretKey) {
-
-    }
 
     /**
      * It is sent uniqueIds of messages from waitQueue to ensure all of them have been sent.
@@ -4191,7 +4194,8 @@ public class Chat extends AsyncAdapter {
                             uniqueIds.add(forwardUnique);
                             forwardUniqueIds.add(forwardUnique);
                         }
-                        JsonElement element = gson.toJsonTree(forwardUniqueIds, new TypeToken<List<Long>>() {}.getType());
+                        JsonElement element = gson.toJsonTree(forwardUniqueIds, new TypeToken<List<Long>>() {
+                        }.getType());
 
                         JsonArray jsonArray = element.getAsJsonArray();
                         innerMessageObj.add("forwardedUniqueIds", jsonArray);
@@ -4517,7 +4521,7 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
         try {
-            if (cache) {
+            if (cache && permit) {
                 UserInfo userInfo = messageDatabaseHelper.getUserInfo();
                 if (userInfo != null) {
                     ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
@@ -5805,7 +5809,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Its check the Failed Queue {@link #checkMessageQueue()} to send all the message that is wait for send.
+     * Its check the Failed Queue {@link #checkMessageQueue()} to send all the message that is waiting to be send.
      */
     private void handleOnGetUserInfo(ChatMessage chatMessage, String messageUniqueId, Callback callback) {
 
@@ -5818,6 +5822,14 @@ public class Chat extends AsyncAdapter {
             messageCallbacks.remove(messageUniqueId);
             showLog("RECEIVE_USER_INFO", userInfoJson);
 
+
+//            if there is a key its ok if not it go for the key and then chat ready
+
+            if (Util.isNullOrEmpty(getKey())) {
+
+            }
+
+
             listenerManager.callOnChatState("CHAT_READY");
             async.setStateLiveData("CHAT_READY");
             chatReady = true;
@@ -5827,6 +5839,14 @@ public class Chat extends AsyncAdapter {
             //ping start after the response of the get userInfo
             pingWithDelay();
         }
+    }
+
+    private String getKey() {
+        return App.get().getSharedPreferences().getString("KEY", null);
+    }
+
+    private void setKey(String key) {
+        App.get().getSharedPreferences().edit().putString("KEY", key).apply();
     }
 
     private void retryOnGetUserInfo() {

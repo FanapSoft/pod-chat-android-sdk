@@ -96,14 +96,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private static String appId = "POD-Chat";
 
     //Mehrara
-//    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
+    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
 //    private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
-    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
+//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
-    private String serverName = "chat-server2";
-//    private String serverName = "chat-server";
+//    private String serverName = "chat-server2";
+    private String serverName = "chat-server";
     private String typeCode = null;
 
     private String fileUri;
@@ -724,7 +724,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Inviter inviterw = new Inviter();
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
-        presenter.createThread(4, invite, null, "sina thread"
+        presenter.createThread(8, invite, null, "sina thread"
                 , null, metac, null);
 
 
