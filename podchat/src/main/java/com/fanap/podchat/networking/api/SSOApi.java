@@ -7,6 +7,7 @@ import com.fanap.podchat.model.EncResponse;
 
 import retrofit2.Response;
 import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -19,6 +20,7 @@ public interface SSOApi {
     Observable<Response<DeviceResult>> getDeviceId(@Header("Authorization") String token);
 
     @POST("/users/handshake")
+    @FormUrlEncoded
     Observable<Response<EncResponse>> generateEncryptionKey(
             @Header("Authorization") String bearerToken,
             @Field("keyAlgorithm") String keyAlgorithm,

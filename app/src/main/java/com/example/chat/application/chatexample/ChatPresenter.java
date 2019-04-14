@@ -44,6 +44,7 @@ import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestAddAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
@@ -445,6 +446,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void setAdmin(RequestAddAdmin requestAddAdmin) {
         chat.setAdmin(requestAddAdmin);
+    }
+
+    @Override
+    public void clearHistory(RequestClearHistory requestClearHistory) {
+        chat.clearHistory(requestClearHistory);
     }
 
 

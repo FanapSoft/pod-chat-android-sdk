@@ -15,6 +15,8 @@ import java.security.GeneralSecurityException;
 /**
  * Sample app
  */
+public
+
 class App extends Application {
 
 

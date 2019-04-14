@@ -25,13 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.chat.application.chatexample.PodNotificationActivity"></activity>
 
-        <service android:name="com.example.chat.application.chatexample.MyMessagingService">
-            <intent-filter>
-                <action android:name="com.fanap.podnotify.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
 
     </application>
 

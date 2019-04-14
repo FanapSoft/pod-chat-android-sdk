@@ -25,7 +25,7 @@ public class RequestUploadImage {
         }
 
         @NonNull
-        RequestUploadImage build() {
+        private RequestUploadImage build() {
             return new RequestUploadImage(this);
         }
     }

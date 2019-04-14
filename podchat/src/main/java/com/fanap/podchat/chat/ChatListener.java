@@ -185,4 +185,8 @@ public interface ChatListener {
     default void OnLogEvent(String log) {
 
     }
+
+    default void OnClearHistory(String content) {
+
+    }
 }

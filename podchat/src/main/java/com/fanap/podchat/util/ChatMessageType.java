@@ -94,6 +94,8 @@ public class ChatMessageType {
         int SET_RULE_TO_USER = 42;
         int CLEAR_HISTORY = 44;
         int UPDATE_USER_PROFILE = 45;
+        int GET_THREAD_ADMINS = 48;
         int ERROR = 999;
     }
+
 }

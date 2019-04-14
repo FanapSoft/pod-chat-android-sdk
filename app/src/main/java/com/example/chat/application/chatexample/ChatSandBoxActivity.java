@@ -44,7 +44,6 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
-import com.fanap.podnotify.PodNotify;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
@@ -144,7 +143,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         //not appId : NotificationService
         //notification serverName : SendPushByAppId
 
-        PodNotify.setApplication(this);
+//        PodNotify.setApplication(this);
 
     }
 
@@ -700,14 +699,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     appId, serverName, TOKEN, ssoHost,
                     platformHost, fileServer, TYPE_CODE);
 
-            PodNotify podNotify = new PodNotify.builder()
-                    .setAppId("NotificationService")
-                    .setServerName("SendPushByAppId")
-                    .setSocketServerAddress("http://172.16.110.61:8017")
-                    .setToken(TOKEN)
-                    .build(this);
-
-            podNotify.start(this);
+//            PodNotify podNotify = new PodNotify.builder()
+//                    .setAppId("NotificationService")
+//                    .setServerName("SendPushByAppId")
+//                    .setSocketServerAddress("http://172.16.110.61:8017")
+//                    .setToken(TOKEN)
+//                    .build(this);
+//
+//            podNotify.start(this);
         }
         if (v == buttonToken) {
 

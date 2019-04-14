@@ -36,6 +36,7 @@ public class ConstantSample {
             ,"Send Reply file Message"
             ,"Cancel upload"
             ,"Retry upload"
+            ,"Clear History"
     };
 
     public static final String[] funcThird = {

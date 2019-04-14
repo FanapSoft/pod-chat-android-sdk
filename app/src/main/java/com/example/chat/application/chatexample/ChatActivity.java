@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +37,7 @@ import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestAddAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
@@ -50,8 +50,6 @@ import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RetryUpload;
-import com.fanap.podnotify.PodNotify;
-import com.fanap.podnotify.service.PodMessagingService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -96,14 +94,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private static String appId = "POD-Chat";
 
     //Mehrara
-    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
-//    private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
-//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
+//    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
+    //    private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
+    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
-//    private String serverName = "chat-server2";
-    private String serverName = "chat-server";
+        private String serverName = "chat-server2";
+//    private String serverName = "chat-server";
     private String typeCode = null;
 
     private String fileUri;
@@ -150,28 +148,28 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // PodNotificationActivity
 
-        PodNotify.setApplication(this);
-
-        PodNotify podNotify = new PodNotify.builder()
-                .setAppId(appId)
-                .setServerName(serverName)
-                .setSocketServerAddress("172.16.110.61:8017")
-                .setSsoHost(ssoHost)
-                .setToken(TOKEN)
-                .build(this);
-
-        podNotify.start(this);
+//        PodNotify.setApplication(this);
+//
+//        PodNotify podNotify = new PodNotify.builder()
+//                .setAppId(appId)
+//                .setServerName(serverName)
+//                .setSocketServerAddress("172.16.110.61:8017")
+//                .setSsoHost(ssoHost)
+//                .setToken(TOKEN)
+//                .build(this);
+//
+//        podNotify.start(this);
 
     }
 
-    public class Notification extends PodMessagingService {
-        @Override
-        public void onMessageReceived(@NonNull com.fanap.podnotify.model.Notification notification) {
-            super.onMessageReceived(notification);
-
-            Log.i("NOtification", notification.getText());
-        }
-    }
+//    public class Notification extends PodMessagingService {
+//        @Override
+//        public void onMessageReceived(@NonNull com.fanap.podnotify.model.Notification notification) {
+//            super.onMessageReceived(notification);
+//
+//            Log.i("NOtification", notification.getText());
+//        }
+//    }
 
     /*
     "Choose Map function"
@@ -227,7 +225,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         Long ubContactId = null;
                         Long unblockId = null;
                         presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
-                                ,null);
+                                , null);
                         break;
                     case 5:
                         presenter.getBlockList(null, null, new ChatHandler() {
@@ -276,7 +274,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                                 , invite)
                                 .message(message)
                                 .build();
-                        ArrayList<String> uniqueIds=presenter.createThread(requestCreateThread);
+                        ArrayList<String> uniqueIds = presenter.createThread(requestCreateThread);
                         Log.d("uniqueIds", uniqueIds.toString());
                         break;
                     case 10:
@@ -321,7 +319,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
         requestRoles.add(requestRole);
 
-        RequestAddAdmin requestAddAdmin = new RequestAddAdmin.Builder(1981,requestRoles).build();
+        RequestAddAdmin requestAddAdmin = new RequestAddAdmin.Builder(1981, requestRoles).build();
         presenter.setAdmin(requestAddAdmin);
     }
 
@@ -453,6 +451,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                             }
 
                         });
+                        break;
+                    case 14:
+                        long threadId = 1245;
+                        RequestClearHistory requestClearHistory = new RequestClearHistory.Builder(threadId).build();
+                        presenter.clearHistory(requestClearHistory);
                         break;
                 }
             }
@@ -728,7 +731,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 , null, metac, null);
 
 
-
     }
 
     private void updateContact() {
@@ -736,6 +738,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 "Amjadi", "09148401824", "zi@gmail.com"
         );
     }
+
 
     public void getHistory() {
 //        RequestGetHistory request = new RequestGetHistory

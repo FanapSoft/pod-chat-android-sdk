@@ -17,6 +17,7 @@ import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestAddAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
@@ -36,7 +37,6 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
-import com.fanap.podnotify.model.Notification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +44,9 @@ import java.util.List;
 public interface ChatContract {
     interface view {
 
-        default void onRecivedNotification(Notification notification) {
+//        default void onRecivedNotification(Notification notification) {
 
-        }
+//        }
 
         default void onGetUserInfo() {
         }
@@ -288,5 +288,7 @@ public interface ChatContract {
         void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler);
 
         void setAdmin(RequestAddAdmin requestAddAdmin);
+
+        void clearHistory(RequestClearHistory requestClearHistory);
     }
 }

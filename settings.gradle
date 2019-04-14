@@ -1,2 +1,2 @@
 include ':app', ':podchat'
-include ':app', ':podnotify'
+include ':app'

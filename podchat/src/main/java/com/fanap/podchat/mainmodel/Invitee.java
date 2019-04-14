@@ -1,5 +1,11 @@
 package com.fanap.podchat.mainmodel;
 
+/**     TO_BE_USER_SSO_ID: 1,
+        TO_BE_USER_CONTACT_ID: 2,
+        TO_BE_USER_CELLPHONE_NUMBER: 3,
+        TO_BE_USER_USERNAME: 4,
+        TO_BE_USER_ID: 5 // only in P2P mode
+        */
 public class Invitee  {
 
     private long id;

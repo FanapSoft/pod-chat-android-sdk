@@ -148,10 +148,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetThreadHistory(String content, ChatResponse<ResultHistory> history) {
+    public void callOnGetThreadHistory(String content, ChatResponse<ResultHistory> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onGetHistory(content, history);
+                listener.onGetHistory(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());
@@ -218,6 +218,17 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetThreadParticipant(content, outPutParticipant);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
+            }
+        }
+    }
+
+    public void callOnClearHistory(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnClearHistory(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

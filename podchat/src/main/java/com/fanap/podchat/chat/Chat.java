@@ -117,6 +117,7 @@ import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
 import com.fanap.podchat.requestobject.RequestBlockList;
+import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
@@ -169,6 +170,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.orhanobut.logger.Logger;
+import com.securepreferences.SecurePreferences;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -211,6 +213,7 @@ public class Chat extends AsyncAdapter {
     private String platformHost;
     private String fileServer;
     private static Chat instance;
+    private static SecurePreferences mSecurePrefs;
     private static ChatListenerManager listenerManager;
     private long userId;
     private ContactApi contactApi;
@@ -224,7 +227,7 @@ public class Chat extends AsyncAdapter {
     private boolean rawLog = false;
     private boolean asyncReady = false;
 
-    private boolean cache = false;
+    private static boolean cache = false;
     private static boolean permit = false;
     private static final int TOKEN_ISSUER = 1;
     private long retryStepUserInfo = 1;
@@ -241,6 +244,7 @@ public class Chat extends AsyncAdapter {
     private boolean checkToken = false;
     private boolean userInfoResponse = false;
     private long ttl;
+    private String ssoHost;
 
     @Inject
     public MessageDatabaseHelper messageDatabaseHelper;
@@ -263,8 +267,10 @@ public class Chat extends AsyncAdapter {
             instance.setContext(context);
             listenerManager = new ChatListenerManager();
             threadCallbacks = new HashMap<>();
+            mSecurePrefs = new SecurePreferences(context, "", "chat_prefs.xml");
+            SecurePreferences.setLoggingEnabled(true);
 
-            if (Util.isNullOrEmpty(instance.getKey())) {
+            if (!Util.isNullOrEmpty(instance.getKey()) && cache) {
                 DaggerMessageComponent.builder()
                         .appDatabaseModule(new AppDatabaseModule(context, instance.getKey()))
                         .appModule(new AppModule(context))
@@ -276,13 +282,15 @@ public class Chat extends AsyncAdapter {
         return instance;
     }
 
+    // {userIds: [1,2,3,4]
+
     /**
      * It's showed the log
      */
     public void isLoggable(boolean log) {
         this.log = log;
         LogHelper.init(log);
-        async.isLoggable(log);
+//        async.isLoggable(log);
     }
 
     public void socketLog(boolean log) {
@@ -310,7 +318,6 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String socketAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost, String fileServer, String typeCode) {
-//        generateEncryptionKey(ssoHost);
         try {
             if (platformHost.endsWith("/")) {
                 messageCallbacks = new HashMap<>();
@@ -320,6 +327,7 @@ public class Chat extends AsyncAdapter {
                 contactApi = retrofitHelperPlatformHost.getService(ContactApi.class);
                 setPlatformHost(platformHost);
                 setToken(token);
+                setSsoHost(ssoHost);
                 setTypeCode(typeCode);
                 setFileServer(fileServer);
                 gson = new GsonBuilder().create();
@@ -567,7 +575,7 @@ public class Chat extends AsyncAdapter {
 
                 break;
             case Constants.CLEAR_HISTORY:
-
+                listenerManager.callOnClearHistory(chatMessage.getContent());
                 break;
             case Constants.UPDATE_USER_PROFILE:
                 break;
@@ -2696,6 +2704,10 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * After getting the key ChatState is 'CHAT_READY' and cache is working
+     */
+
     private void generateEncryptionKey(String ssoHost) {
         String algorithm = "AES";
         int keySize = 256;
@@ -2708,14 +2720,25 @@ public class Chat extends AsyncAdapter {
         observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<EncResponse>>() {
             @Override
             public void call(Response<EncResponse> encResponseResponse) {
-                String secretKey = encResponseResponse.body().getSecretKey();
+                if (encResponseResponse.body() != null) {
+                    String secretKey = encResponseResponse.body().getSecretKey();
+                    DaggerMessageComponent.builder()
+                            .appDatabaseModule(new AppDatabaseModule(getContext(), secretKey))
+                            .appModule(new AppModule(context))
+                            .build()
+                            .inject(instance);
+                    setKey(secretKey);
 
-                DaggerMessageComponent.builder()
-                        .appDatabaseModule(new AppDatabaseModule(getContext(), secretKey))
-                        .appModule(new AppModule(context))
-                        .build()
-                        .inject(instance);
-                setKey(secretKey);
+                    listenerManager.callOnChatState("CHAT_READY");
+                    async.setStateLiveData("CHAT_READY");
+                    chatReady = true;
+                    checkMessageQueue();
+                    showLog("CHAT_READY", "");
+                    permit = true;
+
+                } else if (encResponseResponse.errorBody() != null) {
+
+                }
             }
         }, throwable ->
         {
@@ -2933,8 +2956,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private String getContactMain(Integer count, Long offset, boolean syncContact, ChatHandler handler) {
-        String uniqueId;
-        uniqueId = generateUniqueId();
+        String uniqueId = generateUniqueId();
 
         count = count != null && count > 0 ? count : 50;
         offset = offset != null && offset >= 0 ? offset : 0;
@@ -3217,12 +3239,12 @@ public class Chat extends AsyncAdapter {
                         chatResponse.setResult(resultRemoveContact);
 
                         String json = gson.toJson(chatResponse);
-
                         if (cache) {
                             messageDatabaseHelper.deleteContactById(userId);
                         }
                         listenerManager.callOnRemoveContact(json, chatResponse);
                         if (log) Logger.json(json);
+                        if (log) Logger.i("RECEIVED_REMOVE_CONTACT");
                     } else {
                         String jsonError = getErrorOutPut(contactRemove.getErrorMessage(), contactRemove.getErrorCode(), uniqueId);
                         if (log) Logger.e(jsonError);
@@ -4076,14 +4098,8 @@ public class Chat extends AsyncAdapter {
 
 
     /**
-     * Create the thread to p to p/channel/group. The list below is showing all of the thread type
+     * Create the thread with message is just for  p to p.
      * int NORMAL = 0;
-     * int OWNER_GROUP = 1;
-     * int PUBLIC_GROUP = 2;
-     * int CHANNEL_GROUP = 4;
-     * int TO_BE_USER_ID = 5;
-     * <p>
-     * int CHANNEL = 8;
      */
     @Deprecated
     public String createThreadWithMessage(RequestCreateThread threadRequest) {
@@ -5823,30 +5839,29 @@ public class Chat extends AsyncAdapter {
             showLog("RECEIVE_USER_INFO", userInfoJson);
 
 
-//            if there is a key its ok if not it go for the key and then chat ready
-
-            if (Util.isNullOrEmpty(getKey())) {
-
+//            if there is a key its ok if not it will go for the key and then chat ready
+            if (permit) {
+                listenerManager.callOnChatState("CHAT_READY");
+                async.setStateLiveData("CHAT_READY");
+                chatReady = true;
+                checkMessageQueue();
+                showLog("CHAT_READY", "");
+            } else {
+                generateEncryptionKey(getSsoHost());
             }
 
 
-            listenerManager.callOnChatState("CHAT_READY");
-            async.setStateLiveData("CHAT_READY");
-            chatReady = true;
-
-            checkMessageQueue();
-            showLog("CHAT_READY", "");
             //ping start after the response of the get userInfo
             pingWithDelay();
         }
     }
 
     private String getKey() {
-        return App.get().getSharedPreferences().getString("KEY", null);
+        return mSecurePrefs.getString("KEY", null);
     }
 
     private void setKey(String key) {
-        App.get().getSharedPreferences().edit().putString("KEY", key).apply();
+        mSecurePrefs.edit().putString("KEY", key).apply();
     }
 
     private void retryOnGetUserInfo() {
@@ -6057,7 +6072,7 @@ public class Chat extends AsyncAdapter {
 
         String json = gson.toJson(chatResponse);
         listenerManager.callOnGetThreadHistory(json, chatResponse);
-
+        showLog("RECEIVE_GET_HISTORY", json);
         messageCallbacks.remove(messageUniqueId);
     }
 
@@ -6189,6 +6204,49 @@ public class Chat extends AsyncAdapter {
         } catch (Exception e) {
             if (log) Logger.e(e.getCause().getMessage());
         }
+    }
+
+    public String clearHistory(RequestClearHistory requestClearHistory) {
+        String uniqueId = generateUniqueId();
+        long threadId = requestClearHistory.getThreadId();
+        if (chatReady) {
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setType(Constants.CLEAR_HISTORY);
+            chatMessage.setToken(getToken());
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setSubjectId(threadId);
+            chatMessage.setUniqueId(uniqueId);
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+            jsonObject.remove("systemMetadata");
+            jsonObject.remove("metadata");
+            jsonObject.remove("repliedTo");
+            jsonObject.remove("contentCount");
+
+            if (Util.isNullOrEmpty(getTypeCode())) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.remove("typeCode");
+                jsonObject.addProperty("typeCode", getTypeCode());
+            }
+
+            String asyncContent = jsonObject.toString();
+
+            setCallBacks(null, null, null, true, Constants.CLEAR_HISTORY, null, uniqueId);
+
+            sendAsyncMessage(asyncContent, 4, "SEND_CLEAR_HISTORY");
+        }
+        return uniqueId;
+    }
+
+    private String getAdminList(){
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+        }
+
+        return uniqueId;
     }
 
     private void setCallBacks(long firstMessageId, long lastMessageId, String order, long count
@@ -6518,7 +6576,7 @@ public class Chat extends AsyncAdapter {
 
         ResultUserInfo result = new ResultUserInfo();
 
-        if (cache) {
+        if (cache && permit) {
             messageDatabaseHelper.saveUserInfo(userInfo);
         }
 
@@ -6699,6 +6757,14 @@ public class Chat extends AsyncAdapter {
 
     private long getUserId() {
         return userId;
+    }
+
+    private String getSsoHost() {
+        return ssoHost;
+    }
+
+    private void setSsoHost(String ssoHost) {
+        this.ssoHost = ssoHost;
     }
 
     private void setUserId(long userId) {
