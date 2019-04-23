@@ -59,8 +59,7 @@ public class MessageDatabaseHelper {
     private AppDatabase appDatabase;
 
     @Inject
-    public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao, Context context, AppDatabase appDatabase)
-    {
+    public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao, Context context, AppDatabase appDatabase) {
         this.messageQueueDao = messageQueueDao;
         this.messageDao = messageDao;
         this.context = context;
@@ -785,7 +784,9 @@ public class MessageDatabaseHelper {
                         cacheReplyInfoVO.getRepliedToMessage(),
                         cacheReplyInfoVO.getSystemMetadata(),
                         cacheReplyInfoVO.getMetadata(),
-                        cacheReplyInfoVO.getMessage()
+                        cacheReplyInfoVO.getMessage(),
+                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                        cacheReplyInfoVO.getRepliedToMessageNanos()
                 );
             }
             if (cacheMessageVO.getForwardInfo() != null) {
@@ -1063,7 +1064,9 @@ public class MessageDatabaseHelper {
                                 cacheReplyInfoVO.getRepliedToMessage(),
                                 cacheReplyInfoVO.getSystemMetadata(),
                                 cacheReplyInfoVO.getMetadata(),
-                                cacheReplyInfoVO.getMessage()
+                                cacheReplyInfoVO.getMessage(),
+                                cacheReplyInfoVO.getRepliedToMessageTime(),
+                                cacheReplyInfoVO.getRepliedToMessageNanos()
                         );
                     }
                     lastMessageVO = new LastMessageVO(
@@ -1174,7 +1177,9 @@ public class MessageDatabaseHelper {
                                 cacheReplyInfoVO.getRepliedToMessage(),
                                 cacheReplyInfoVO.getSystemMetadata(),
                                 cacheReplyInfoVO.getMetadata(),
-                                cacheReplyInfoVO.getMessage()
+                                cacheReplyInfoVO.getMessage(),
+                                cacheReplyInfoVO.getRepliedToMessageTime(),
+                                cacheReplyInfoVO.getRepliedToMessageNanos()
                         );
                     }
                     lastMessageVO = new LastMessageVO(
@@ -1294,7 +1299,9 @@ public class MessageDatabaseHelper {
                                 cacheReplyInfoVO.getRepliedToMessage(),
                                 cacheReplyInfoVO.getSystemMetadata(),
                                 cacheReplyInfoVO.getMetadata(),
-                                cacheReplyInfoVO.getMessage()
+                                cacheReplyInfoVO.getMessage(),
+                                cacheReplyInfoVO.getRepliedToMessageTime(),
+                                cacheReplyInfoVO.getRepliedToMessageNanos()
                         );
                     }
 
@@ -1409,7 +1416,9 @@ public class MessageDatabaseHelper {
                                 cacheReplyInfoVO.getRepliedToMessage(),
                                 cacheReplyInfoVO.getSystemMetadata(),
                                 cacheReplyInfoVO.getMetadata(),
-                                cacheReplyInfoVO.getMessage()
+                                cacheReplyInfoVO.getMessage(),
+                                cacheReplyInfoVO.getRepliedToMessageTime(),
+                                cacheReplyInfoVO.getRepliedToMessageNanos()
                         );
                     }
 

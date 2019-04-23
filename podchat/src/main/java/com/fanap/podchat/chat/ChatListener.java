@@ -10,6 +10,7 @@ import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.ResultClearHistory;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
@@ -186,7 +187,10 @@ public interface ChatListener {
 
     }
 
-    default void OnClearHistory(String content) {
+    default void OnClearHistory(String content, ChatResponse<ResultClearHistory> chatResponse) {
 
+    }
+
+    default void OnGetThreadAdmin(String content) {
     }
 }

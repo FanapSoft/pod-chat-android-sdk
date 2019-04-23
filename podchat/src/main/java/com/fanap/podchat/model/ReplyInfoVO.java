@@ -5,6 +5,8 @@ import com.fanap.podchat.mainmodel.Participant;
 public class ReplyInfoVO {
     private Participant participant;
     private long repliedToMessageId;
+    private long repliedToMessageTime;
+    private long repliedToMessageNanos;
     private String repliedToMessage;
     private long messageType;
     private boolean deleted;
@@ -19,7 +21,9 @@ public class ReplyInfoVO {
             String repliedToMessage,
             String systemMetadata,
             String metadata,
-            String message
+            String message,
+            long repliedToMessageTime,
+            long repliedToMessageNanos
     ) {
         this.repliedToMessageId = repliedToMessageId;
         this.messageType = messageType;
@@ -28,6 +32,8 @@ public class ReplyInfoVO {
         this.systemMetadata = systemMetadata;
         this.metadata = metadata;
         this.message = message;
+        this.repliedToMessageTime = repliedToMessageTime;
+        this.repliedToMessageNanos = repliedToMessageNanos;
     }
 
     public ReplyInfoVO() {
@@ -95,5 +101,21 @@ public class ReplyInfoVO {
 
     public void setMessageType(long messageType) {
         this.messageType = messageType;
+    }
+
+    public long getRepliedToMessageTime() {
+        return repliedToMessageTime;
+    }
+
+    public void setRepliedToMessageTime(long repliedToMessageTime) {
+        this.repliedToMessageTime = repliedToMessageTime;
+    }
+
+    public long getRepliedToMessageNanos() {
+        return repliedToMessageNanos;
+    }
+
+    public void setRepliedToMessageNanos(long repliedToMessageNanos) {
+        this.repliedToMessageNanos = repliedToMessageNanos;
     }
 }

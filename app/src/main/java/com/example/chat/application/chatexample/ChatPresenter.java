@@ -50,6 +50,7 @@ import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
@@ -89,7 +90,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
             }
         });
 
-        chat.isCacheables(true);
+        chat.isCacheables(false);
         chat.isLoggable(true);
         chat.rawLog(true);
 //        chat.setExpireAmount(180);
@@ -451,6 +452,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void clearHistory(RequestClearHistory requestClearHistory) {
         chat.clearHistory(requestClearHistory);
+    }
+
+    @Override
+    public void getAdminList(RequestGetAdmin requestGetAdmin) {
+        chat.getAdminList(requestGetAdmin);
     }
 
 

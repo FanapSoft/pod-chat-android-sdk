@@ -13,6 +13,7 @@ import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.ResultClearHistory;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
@@ -225,10 +226,22 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnClearHistory(String content) {
+    public void callOnClearHistory(String content, ChatResponse<ResultClearHistory> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnClearHistory(content);
+                listener.OnClearHistory(content,chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
+            }
+        }
+    }
+
+
+    public void callOnGetThreadAdmin(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnGetThreadAdmin(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
                 Logger.e(t, t.getMessage());

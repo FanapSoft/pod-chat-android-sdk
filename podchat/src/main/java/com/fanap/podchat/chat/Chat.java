@@ -80,6 +80,7 @@ import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.ResultClearHistory;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
@@ -125,6 +126,7 @@ import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestEditMessage;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
@@ -280,96 +282,6 @@ public class Chat extends AsyncAdapter {
             }
         }
         return instance;
-    }
-
-    // {userIds: [1,2,3,4]
-
-    /**
-     * It's showed the log
-     */
-    public void isLoggable(boolean log) {
-        this.log = log;
-        LogHelper.init(log);
-//        async.isLoggable(log);
-    }
-
-    public void socketLog(boolean log) {
-        async.isLoggable(log);
-    }
-
-    /**
-     * It's showed the message that come from Async without any changes
-     * *
-     */
-    public void rawLog(boolean rawLog) {
-        this.rawLog = rawLog;
-    }
-
-    /**
-     * It's Connected to the Async .
-     *
-     * @param socketAddress {**REQUIRED**}
-     * @param platformHost  {**REQUIRED**}
-     * @param severName     {**REQUIRED**}
-     * @param appId         {**REQUIRED**}
-     * @param token         {**REQUIRED**}
-     * @param fileServer    {**REQUIRED**}
-     * @param ssoHost       {**REQUIRED**}
-     */
-    public void connect(String socketAddress, String appId, String severName, String token,
-                        String ssoHost, String platformHost, String fileServer, String typeCode) {
-        try {
-            if (platformHost.endsWith("/")) {
-                messageCallbacks = new HashMap<>();
-                handlerSend = new HashMap<>();
-                async.addListener(this);
-                RetrofitHelperPlatformHost retrofitHelperPlatformHost = new RetrofitHelperPlatformHost(platformHost, getContext());
-                contactApi = retrofitHelperPlatformHost.getService(ContactApi.class);
-                setPlatformHost(platformHost);
-                setToken(token);
-                setSsoHost(ssoHost);
-                setTypeCode(typeCode);
-                setFileServer(fileServer);
-                gson = new GsonBuilder().create();
-                async.connect(socketAddress, appId, severName, token, ssoHost, "");
-//            deviceIdRequest(ssoHost, socketAddress, appId, severName);
-            } else {
-                String jsonError = getErrorOutPut("PlatformHost " + ChatConstant.ERROR_CHECK_URL
-                        , ChatConstant.ERROR_CODE_CHECK_URL, null);
-                if (log) {
-                    Logger.e(jsonError);
-                    listenerManager.callOnLogEvent(jsonError);
-                }
-            }
-        } catch (Throwable throwable) {
-            if (log) {
-                Logger.e(throwable.getMessage());
-                listenerManager.callOnLogEvent(throwable.getMessage());
-            }
-        }
-    }
-
-    /**
-     * It's Connected to the Async .
-     * <p>
-     * socketAddress {**REQUIRED**}
-     * platformHost  {**REQUIRED**}
-     * severName     {**REQUIRED**}
-     * appId         {**REQUIRED**}
-     * token         {**REQUIRED**}
-     * fileServer    {**REQUIRED**}
-     * ssoHost       {**REQUIRED**}
-     */
-    public void connect(RequestConnect requestConnect) {
-        String platformHost = requestConnect.getPlatformHost();
-        String token = requestConnect.getToken();
-        String fileServer = requestConnect.getFileServer();
-        String socketAddress = requestConnect.getSocketAddress();
-        String appId = requestConnect.getAppId();
-        String severName = requestConnect.getSeverName();
-        String ssoHost = requestConnect.getSsoHost();
-
-        connect(socketAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
     }
 
     /**
@@ -570,17 +482,118 @@ public class Chat extends AsyncAdapter {
                 List<Admin> admins;
                 admins = Util.JsonToList(chatMessage.getContent(), gson);
                 resultSetAdmin.setAdmins(admins);
-
+                chatResponse.setResult(resultSetAdmin);
+                chatResponse.setUniqueId(chatMessage.getUniqueId());
                 listenerManager.callonSetRuleToUser(gson.toJson(chatResponse), chatResponse);
 
                 break;
             case Constants.CLEAR_HISTORY:
-                listenerManager.callOnClearHistory(chatMessage.getContent());
+                ChatResponse<ResultClearHistory> chatResponseClrHistory = new ChatResponse<>();
+
+                ResultClearHistory resultClearHistory = new ResultClearHistory();
+                long clrHistoryThreadId = gson.fromJson(chatMessage.getContent(),Long.class);
+                resultClearHistory.setThreadId(clrHistoryThreadId);
+                chatResponseClrHistory.setResult(resultClearHistory);
+                chatResponseClrHistory.setUniqueId(chatMessage.getUniqueId());
+                listenerManager.callOnClearHistory(gson.toJson(chatResponseClrHistory),chatResponseClrHistory);
                 break;
             case Constants.UPDATE_USER_PROFILE:
                 break;
+
+            case Constants.GET_THREAD_ADMINS:
+                listenerManager.callOnGetThreadAdmin(chatMessage.getContent());
+                break;
         }
     }
+
+    /**
+     * It's Connected to the Async .
+     * <p>
+     * socketAddress {**REQUIRED**}
+     * platformHost  {**REQUIRED**}
+     * severName     {**REQUIRED**}
+     * appId         {**REQUIRED**}
+     * token         {**REQUIRED**}
+     * fileServer    {**REQUIRED**}
+     * ssoHost       {**REQUIRED**}
+     */
+    public void connect(RequestConnect requestConnect) {
+        String platformHost = requestConnect.getPlatformHost();
+        String token = requestConnect.getToken();
+        String fileServer = requestConnect.getFileServer();
+        String socketAddress = requestConnect.getSocketAddress();
+        String appId = requestConnect.getAppId();
+        String severName = requestConnect.getSeverName();
+        String ssoHost = requestConnect.getSsoHost();
+
+        connect(socketAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
+    }
+
+    /**
+     * It's showed the log
+     */
+    public void isLoggable(boolean log) {
+        this.log = log;
+        LogHelper.init(log);
+        async.isLoggable(log);
+    }
+
+    public void socketLog(boolean log) {
+        async.isLoggable(log);
+    }
+
+    /**
+     * It's showed the message that come from Async without any changes
+     * *
+     */
+    public void rawLog(boolean rawLog) {
+        this.rawLog = rawLog;
+    }
+
+    /**
+     * It's Connected to the Async .
+     *
+     * @param socketAddress {**REQUIRED**}
+     * @param platformHost  {**REQUIRED**}
+     * @param severName     {**REQUIRED**}
+     * @param appId         {**REQUIRED**}
+     * @param token         {**REQUIRED**}
+     * @param fileServer    {**REQUIRED**}
+     * @param ssoHost       {**REQUIRED**}
+     */
+    public void connect(String socketAddress, String appId, String severName, String token,
+                        String ssoHost, String platformHost, String fileServer, String typeCode) {
+        try {
+            if (platformHost.endsWith("/")) {
+                messageCallbacks = new HashMap<>();
+                handlerSend = new HashMap<>();
+                async.addListener(this);
+                RetrofitHelperPlatformHost retrofitHelperPlatformHost = new RetrofitHelperPlatformHost(platformHost, getContext());
+                contactApi = retrofitHelperPlatformHost.getService(ContactApi.class);
+                setPlatformHost(platformHost);
+                setToken(token);
+                setSsoHost(ssoHost);
+                setTypeCode(typeCode);
+                setFileServer(fileServer);
+                gson = new GsonBuilder().create();
+                async.connect(socketAddress, appId, severName, token, ssoHost, "");
+//            deviceIdRequest(ssoHost, socketAddress, appId, severName);
+            } else {
+                String jsonError = getErrorOutPut("PlatformHost " + ChatConstant.ERROR_CHECK_URL
+                        , ChatConstant.ERROR_CODE_CHECK_URL, null);
+                if (log) {
+                    Logger.e(jsonError);
+                    listenerManager.callOnLogEvent(jsonError);
+                }
+            }
+        } catch (Throwable throwable) {
+            if (log) {
+                Logger.e(throwable.getMessage());
+                listenerManager.callOnLogEvent(throwable.getMessage());
+            }
+        }
+    }
+
 
     /*
      * Its showed the state of the cache Database
@@ -718,36 +731,34 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO remove chat ready
     public String setAdmin(RequestAddAdmin requestAddAdmin) {
         long threadId = requestAddAdmin.getThreadId();
         ArrayList<RequestRole> roles = requestAddAdmin.getRoles();
-        chatReady = true;
-
-        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
-        for (RequestRole requestRole : roles) {
-            UserRoleVO userRoleVO = new UserRoleVO();
-            userRoleVO.setCheckThreadMembership(true);
-            userRoleVO.setUserId(requestRole.getId());
-            userRoleVO.setRoles(requestRole.getRoleTypes());
-            userRoleVO.setRoleOperation(requestRole.getRoleOperation());
-            userRoleVOS.add(userRoleVO);
-        }
-
         String uniqueId = generateUniqueId();
 
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(gson.toJson(userRoleVOS));
-        chatMessage.setSubjectId(threadId);
-        chatMessage.setToken(getToken());
-        chatMessage.setType(Constants.SET_RULE_TO_USER);
-        chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
-        chatMessage.setUniqueId(uniqueId);
+        if (chatReady) {
+            ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+            for (RequestRole requestRole : roles) {
+                UserRoleVO userRoleVO = new UserRoleVO();
+                userRoleVO.setCheckThreadMembership(true);
+                userRoleVO.setUserId(requestRole.getId());
+                userRoleVO.setRoles(requestRole.getRoleTypes());
+                userRoleVO.setRoleOperation(requestRole.getRoleOperation());
+                userRoleVOS.add(userRoleVO);
+            }
 
-        setCallBacks(null, null, null, true, Constants.SET_RULE_TO_USER, null, uniqueId);
-        String asyncContent = gson.toJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4, "SET_RULE_TO_USER");
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(gson.toJson(userRoleVOS));
+            chatMessage.setSubjectId(threadId);
+            chatMessage.setToken(getToken());
+            chatMessage.setType(Constants.SET_RULE_TO_USER);
+            chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
+            chatMessage.setUniqueId(uniqueId);
 
+            setCallBacks(null, null, null, true, Constants.SET_RULE_TO_USER, null, uniqueId);
+            String asyncContent = gson.toJson(chatMessage);
+            sendAsyncMessage(asyncContent, 4, "SET_RULE_TO_USER");
+        }
         return uniqueId;
     }
 
@@ -855,11 +866,6 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-    //TODO getAdmin List
-//    public String getAdminList(){
-//
-//    }
-
 
     public String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
         long threadId = requestFileMessage.getThreadId();
@@ -1263,7 +1269,6 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO test
     public String uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -1757,7 +1762,6 @@ public class Chat extends AsyncAdapter {
             String link = metaDataFile.getFile().getLink();
             String mimeType = metaDataFile.getFile().getMimeType();
 
-
             LFileUpload lFileUpload = new LFileUpload();
             lFileUpload.setActivity(activity);
             lFileUpload.setDescription(message);
@@ -1895,7 +1899,6 @@ public class Chat extends AsyncAdapter {
                 if (handler != null) {
                     handler.onAddParticipants(uniqueId);
                 }
-
 
             } else {
                 String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -2178,7 +2181,6 @@ public class Chat extends AsyncAdapter {
 
     private String CreateAsyncContentForQueue(long threadId, long messageId, String uniqueId) {
         ChatMessageForward chatMessageForward = new ChatMessageForward();
-//        ObjectMapper mapper = new ObjectMapper();
         chatMessageForward.setSubjectId(threadId);
 
         ArrayList<String> uniqueIds = new ArrayList<>();
@@ -2346,15 +2348,18 @@ public class Chat extends AsyncAdapter {
 
         sendingQueue.setAsyncContent(asyncContent);
 
-        messageDatabaseHelper.insertSendingMessageQueue(sendingQueue);
+        if (cache) {
+            messageDatabaseHelper.insertSendingMessageQueue(sendingQueue);
+        }
         if (log)
             Logger.i("Message with this" + "uniqueId" + uniqueId + "has been added to Message Queue");
         if (chatReady) {
+            if (cache) {
+                messageDatabaseHelper.deleteSendingMessageQueue(uniqueId);
+                sendingQueue.setAsyncContent(asyncContent);
+                messageDatabaseHelper.insertWaitMessageQueue(sendingQueue);
+            }
 
-            messageDatabaseHelper.deleteSendingMessageQueue(uniqueId);
-
-            sendingQueue.setAsyncContent(asyncContent);
-            messageDatabaseHelper.insertWaitMessageQueue(sendingQueue);
 
             setThreadCallbacks(threadId, uniqueId);
             sendAsyncMessage(asyncContent, 4, "SEND_REPLY_MESSAGE");
@@ -2654,9 +2659,9 @@ public class Chat extends AsyncAdapter {
 //            offsets = 0;
         }
 
-        checkMessagesValidation(threadId);
-        List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history, threadId);
         if (cache) {
+            List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history, threadId);
+            checkMessagesValidation(threadId);
             if (messageVOS != null) {
 
                 long contentCount = messageDatabaseHelper.getHistoryContentCount(threadId);
@@ -5840,16 +5845,24 @@ public class Chat extends AsyncAdapter {
 
 
 //            if there is a key its ok if not it will go for the key and then chat ready
-            if (permit) {
+
+            if (cache) {
+                if (permit) {
+                    listenerManager.callOnChatState("CHAT_READY");
+                    async.setStateLiveData("CHAT_READY");
+                    chatReady = true;
+                    checkMessageQueue();
+                    showLog("CHAT_READY", "");
+                } else {
+                    generateEncryptionKey(getSsoHost());
+                }
+            } else {
                 listenerManager.callOnChatState("CHAT_READY");
                 async.setStateLiveData("CHAT_READY");
                 chatReady = true;
-                checkMessageQueue();
+//                checkMessageQueue();
                 showLog("CHAT_READY", "");
-            } else {
-                generateEncryptionKey(getSsoHost());
             }
-
 
             //ping start after the response of the get userInfo
             pingWithDelay();
@@ -6239,13 +6252,36 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    private String getAdminList(){
+    public String getAdminList(RequestGetAdmin requestGetAdmin) {
         String uniqueId = generateUniqueId();
-
+        long threadId = requestGetAdmin.getThreadId();
         if (chatReady) {
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setType(Constants.GET_THREAD_ADMINS);
+            chatMessage.setToken(getToken());
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setSubjectId(threadId);
+            chatMessage.setUniqueId(uniqueId);
 
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+            jsonObject.remove("systemMetadata");
+            jsonObject.remove("metadata");
+            jsonObject.remove("repliedTo");
+            jsonObject.remove("contentCount");
+
+            if (Util.isNullOrEmpty(getTypeCode())) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.remove("typeCode");
+                jsonObject.addProperty("typeCode", getTypeCode());
+            }
+
+            String asyncContent = jsonObject.toString();
+
+            setCallBacks(null, null, null, true, Constants.CLEAR_HISTORY, null, uniqueId);
+
+            sendAsyncMessage(asyncContent, 4, "SEND_GET_THREAD_ADMINS");
         }
-
         return uniqueId;
     }
 

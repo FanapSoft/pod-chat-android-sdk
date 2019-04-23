@@ -153,6 +153,11 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void OnGetThreadAdmin(String content) {
+
+    }
+
+    @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> outPutNewMessage) {
 
     }

@@ -3,7 +3,6 @@ package com.fanap.podchat.cachemodel;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.Nullable;
 
 /**
  * deleted /Delete state of Replied Message
@@ -26,6 +25,8 @@ public class CacheReplyInfoVO {
     private Long participantId;
 
     private long repliedToMessageId;
+    private long repliedToMessageTime;
+    private long repliedToMessageNanos;
     private long messageType;
     private boolean deleted;
     private String repliedToMessage;
@@ -112,5 +113,21 @@ public class CacheReplyInfoVO {
 
     public void setSystemMetadata(String systemMetadata) {
         this.systemMetadata = systemMetadata;
+    }
+
+    public long getRepliedToMessageTime() {
+        return repliedToMessageTime;
+    }
+
+    public void setRepliedToMessageTime(long repliedToMessageTime) {
+        this.repliedToMessageTime = repliedToMessageTime;
+    }
+
+    public long getRepliedToMessageNanos() {
+        return repliedToMessageNanos;
+    }
+
+    public void setRepliedToMessageNanos(long repliedToMessageNanos) {
+        this.repliedToMessageNanos = repliedToMessageNanos;
     }
 }

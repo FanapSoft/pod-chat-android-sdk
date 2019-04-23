@@ -37,6 +37,7 @@ public class ConstantSample {
             ,"Cancel upload"
             ,"Retry upload"
             ,"Clear History"
+            ,"Get Admin List"
     };
 
     public static final String[] funcThird = {

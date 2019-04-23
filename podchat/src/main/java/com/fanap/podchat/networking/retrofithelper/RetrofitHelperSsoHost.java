@@ -2,6 +2,8 @@ package com.fanap.podchat.networking.retrofithelper;
 
 import android.support.annotation.NonNull;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
@@ -25,7 +27,12 @@ public class RetrofitHelperSsoHost {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(ssoHost)
-                .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+                .client(new OkHttpClient().newBuilder()
+                        .connectTimeout(1, TimeUnit.MINUTES) // connect timeout
+                        .writeTimeout(1, TimeUnit.MINUTES) // write timeout
+                        .readTimeout(1, TimeUnit.MINUTES) // read timeout
+                        .addNetworkInterceptor(new HttpLoggingInterceptor()
+                                .setLevel(HttpLoggingInterceptor.Level.BODY)).build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
     }

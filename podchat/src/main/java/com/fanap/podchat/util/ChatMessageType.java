@@ -51,6 +51,7 @@ public class ChatMessageType {
             Constants.DELIVERED_MESSAGE_LIST,
             Constants.SET_RULE_TO_USER,
             Constants.CLEAR_HISTORY,
+            Constants.GET_THREAD_ADMINS,
             Constants.UPDATE_USER_PROFILE
 
     })

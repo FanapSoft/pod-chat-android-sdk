@@ -23,6 +23,7 @@ import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
@@ -145,6 +146,9 @@ public interface ChatContract {
         }
 
         default void onSpam() {
+        }
+
+        default void onGetThreadAdmin() {
         }
     }
 
@@ -290,5 +294,7 @@ public interface ChatContract {
         void setAdmin(RequestAddAdmin requestAddAdmin);
 
         void clearHistory(RequestClearHistory requestClearHistory);
+
+        void getAdminList(RequestGetAdmin requestGetAdmin);
     }
 }

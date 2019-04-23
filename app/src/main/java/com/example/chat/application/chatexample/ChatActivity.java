@@ -41,6 +41,7 @@ import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -95,7 +96,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //Mehrara
 //    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
-    //    private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
+//        private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
     private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
@@ -453,9 +454,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         });
                         break;
                     case 14:
-                        long threadId = 1245;
+                        long threadId = 312;
                         RequestClearHistory requestClearHistory = new RequestClearHistory.Builder(threadId).build();
                         presenter.clearHistory(requestClearHistory);
+                        break;
+                    case 15:
+                        //2139
+                        RequestGetAdmin requestGetAdmin = new RequestGetAdmin.Builder(2139).build();
+                        presenter.getAdminList(requestGetAdmin);
                         break;
                 }
             }
@@ -669,7 +675,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 15:
                 // remove contact
-                presenter.removeContact(890);
+                presenter.removeContact(2847);
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
@@ -719,15 +725,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         /**CHANNEL_GROUP: 4,
          */
         Invitee[] invite = new Invitee[]{
-                new Invitee(2951, 2)
-//                        , new Invitee(1967, 2)
+                new Invitee(3361, 2)
+//                        , new Invitee(3102, 2)
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
         };
         Inviter inviterw = new Inviter();
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
-        presenter.createThread(8, invite, null, "sina thread"
+        presenter.createThread(1, invite, "new  thread", "sina thread"
                 , null, metac, null);
 
 
@@ -752,7 +758,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //        presenter.getHistory(request, null);
 
         History history = new History.Builder().build();
-        presenter.getHistory(history, 1288, new ChatHandler() {
+        presenter.getHistory(history, 312, new ChatHandler() {
             @Override
             public void onGetHistory(String uniqueId) {
                 super.onGetHistory(uniqueId);
@@ -772,11 +778,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                .build();
 //        presenter.getThreads(requestThread);
 
-        presenter.getThreads(6, null, null, null, null);
+        presenter.getThreads(40, null, null, null, null);
     }
 
     public void replyMessage() {
-        RequestReplyMessage message = new RequestReplyMessage.Builder("this is reply from john", 381, 14103).build();
+        RequestReplyMessage message = new RequestReplyMessage.Builder("this is reply from john", 312, 31849).build();
         presenter.replyMessage(message, null);
 //        presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
 //            @Override
