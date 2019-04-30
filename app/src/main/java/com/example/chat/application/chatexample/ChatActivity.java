@@ -8,7 +8,6 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -49,8 +48,11 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.ThreadType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -101,11 +103,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
-        private String serverName = "chat-server2";
-//    private String serverName = "chat-server";
+    private String serverName = "chat-server2";
+    //    private String serverName = "chat-server";
     private String typeCode = null;
 
     private String fileUri;
+    private String signalUniq;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +191,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             ,"map reverse"
             ,"Send MapLocation Message"
             ,"Add Admin"
+            ,"Signal Message"
             */
     private void setupThirdSpinner(Spinner spinnerThird) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcThird);
@@ -266,17 +270,17 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         List<Long> listForwardIds = new ArrayList<>();
                         listForwardIds.add(1346L);
                         RequestThreadInnerMessage message = new RequestThreadInnerMessage
-                                .Builder("hello")
+                                .Builder()
+                                .message("this is create thread with message")
 //                                .forwardedMessageIds(listForwardIds)
                                 .build();
 
                         RequestCreateThread requestCreateThread = new RequestCreateThread
-                                .Builder(0
+                                .Builder(ThreadType.Constants.NORMAL
                                 , invite)
                                 .message(message)
                                 .build();
-                        ArrayList<String> uniqueIds = presenter.createThread(requestCreateThread);
-                        Log.d("uniqueIds", uniqueIds.toString());
+                        presenter.createThreadWithMessage(requestCreateThread);
                         break;
                     case 10:
 
@@ -294,6 +298,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     case 14:
                         setAdmin();
                         break;
+                    case 15:
+                        startSignalMessage();
+                        break;
+                    case 16:
+                        stopSignalMessage();
+                        break;
                 }
             }
 
@@ -302,6 +312,19 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
+    }
+
+    private void stopSignalMessage() {
+        presenter.stopSignalMessage(getSignalUniq());
+    }
+
+    private void startSignalMessage() {
+        RequestSignalMsg requestSignalMsg = new RequestSignalMsg.Builder()
+                .signalType(ChatMessageType.SignalMsg.IS_TYPING)
+                .threadId(1961)
+                .build();
+        String uniq = presenter.startSignalMessage(requestSignalMsg);
+        setSignalUniq(uniq);
     }
 
     private void setAdmin() {
@@ -460,8 +483,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 15:
                         //2139
-                        RequestGetAdmin requestGetAdmin = new RequestGetAdmin.Builder(2139).build();
-                        presenter.getAdminList(requestGetAdmin);
+                        getAdminList();
                         break;
                 }
             }
@@ -472,9 +494,21 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
+    private void getAdminList() {
+        //2116
+        //2115
+        //2107
+        RequestGetAdmin requestGetAdmin = new RequestGetAdmin.Builder(2117).build();
+        presenter.getAdminList(requestGetAdmin);
+    }
+
     public void deleteMessage() {
+        ArrayList<Long> msgIds = new ArrayList<>();
+        msgIds.add(33124L);
+        msgIds.add(33125L);
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
-                .Builder(17462)
+                .Builder()
+                .messageIds(msgIds)
 //                .deleteForAll(true)
                 .typeCode("5")
                 .build();
@@ -726,7 +760,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
          */
         Invitee[] invite = new Invitee[]{
                 new Invitee(3361, 2)
-//                        , new Invitee(3102, 2)
+                , new Invitee(3102, 2)
 //                        ,new Invitee(123, 5)
 //                        , new Invitee(824, 2)
         };
@@ -735,7 +769,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         String metac = gson.toJson(inviterw);
         presenter.createThread(1, invite, "new  thread", "sina thread"
                 , null, metac, null);
-
 
     }
 
@@ -758,7 +791,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //        presenter.getHistory(request, null);
 
         History history = new History.Builder().build();
-        presenter.getHistory(history, 312, new ChatHandler() {
+        presenter.getHistory(history, 1576, new ChatHandler() {
             @Override
             public void onGetHistory(String uniqueId) {
                 super.onGetHistory(uniqueId);
@@ -881,5 +914,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     public void getthreadWithCoreUser() {
         RequestThread requestThread = new RequestThread.Builder().partnerCoreContactId(566).build();
         presenter.getThreads(requestThread, null);
+    }
+
+    public void setSignalUniq(String signalUniq) {
+        this.signalUniq = signalUniq;
+    }
+
+    public String getSignalUniq() {
+        return signalUniq;
     }
 }

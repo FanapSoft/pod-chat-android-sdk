@@ -95,8 +95,18 @@ public class ChatMessageType {
         int SET_RULE_TO_USER = 42;
         int CLEAR_HISTORY = 44;
         int UPDATE_USER_PROFILE = 45;
+        int SIGNAL_MESSAGE = 45;
         int GET_THREAD_ADMINS = 48;
         int ERROR = 999;
+
+    }@Retention(RetentionPolicy.SOURCE)
+    public @interface SignalMsg {
+        int IS_TYPING = 1;
+        int RECORD_VOICE = 2;
+        int UPLOAD_PICTURE = 3;
+        int UPLOAD_VIDEO = 4;
+        int UPLOAD_SOUND = 5;
+        int UPLOAD_FILE = 6;
     }
 
 }

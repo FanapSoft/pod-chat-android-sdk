@@ -9,6 +9,8 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ResultAddContact;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -77,6 +79,14 @@ public class Util {
         }.getType();
 
         return gson.toJson(list, listType);
+    }
+
+    public static <T> JsonArray listToJsonArray(ArrayList<T> list, Gson gson) {
+
+        JsonElement element = gson.toJsonTree(list, new TypeToken<List<T>>() {
+        }.getType());
+
+        return element.getAsJsonArray();
     }
 
     public static <T> List<T> JsonToList(String json,Gson gson){

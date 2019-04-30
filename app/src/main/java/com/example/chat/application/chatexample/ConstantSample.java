@@ -56,5 +56,7 @@ public class ConstantSample {
             ,"map reverse"
             ,"Send MapLocation Message"
             ,"Add Admin"
+            ,"start Signal Message"
+            ,"stop Signal Message"
     };
 }

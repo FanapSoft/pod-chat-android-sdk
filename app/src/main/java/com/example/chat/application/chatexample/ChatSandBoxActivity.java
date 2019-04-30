@@ -33,6 +33,7 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
@@ -74,7 +75,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "39c802e1a3ce488788f9408901568247";
+    private static String TOKEN = "56367b8e67004e6d8a904f0d4588c366";
 
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
@@ -216,6 +217,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     case 13:
                         sendLocationMsg();
                         break;
+                    case 14:
+//                        add admin
+                        break;
                 }
             }
 
@@ -267,7 +271,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //        List<Long> listForwardIds = new ArrayList<>();
 //        listForwardIds.add(1346L);
         RequestThreadInnerMessage message = new RequestThreadInnerMessage
-                .Builder("hello")
+                .Builder()
+                .message("create thread with msg")
 //                .forwardedMessageIds(listForwardIds)
                 .build();
 
@@ -450,12 +455,15 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     public void deleteMessage() {
-        presenter.deleteMessage(9261, false, new ChatHandler() {
-            @Override
-            public void onDeleteMessage(String uniqueId) {
-                super.onDeleteMessage(uniqueId);
-            }
-        });
+        ArrayList<Long> msgIds = new ArrayList<>();
+        msgIds.add(37443L);
+        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
+                .Builder()
+                .messageIds(msgIds)
+//                .deleteForAll(true)
+                .typeCode("5")
+                .build();
+        presenter.deleteMessage(requestDeleteMessage, null);
     }
 
     private void setupSpinner(Spinner spinner) {
@@ -555,7 +563,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 presenter.forwardMessage(2, messageIds);
                 break;
             case 6:
-                //"send text message",
+
                 break;
             case 7:
                 //"get thread participant",

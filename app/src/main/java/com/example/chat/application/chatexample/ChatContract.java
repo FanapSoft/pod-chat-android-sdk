@@ -33,6 +33,7 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
@@ -174,7 +175,8 @@ public interface ChatContract {
 
         void createThreadWithMessage(RequestCreateThread threadRequest);
 
-        ArrayList<String> createThread(RequestCreateThread threadRequest);
+        String createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
+                , String metadata);
 
 
         void getThreads(RequestThread requestThread, ChatHandler handler);
@@ -285,7 +287,7 @@ public interface ChatContract {
 
         void updateThreadInfo(RequestThreadInfo request, ChatHandler handler);
 
-        void deleteMessage(long messageId, Boolean deleteForAll, ChatHandler handler);
+        void deleteMessage(ArrayList<Long> messageIds, Boolean deleteForAll, ChatHandler handler);
 
         void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler);
 
@@ -296,5 +298,9 @@ public interface ChatContract {
         void clearHistory(RequestClearHistory requestClearHistory);
 
         void getAdminList(RequestGetAdmin requestGetAdmin);
+
+        String startSignalMessage(RequestSignalMsg requestSignalMsg);
+
+        void stopSignalMessage(String uniqueId);
     }
 }

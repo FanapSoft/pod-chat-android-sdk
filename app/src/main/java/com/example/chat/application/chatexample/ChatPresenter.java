@@ -60,6 +60,7 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
@@ -93,6 +94,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isCacheables(false);
         chat.isLoggable(true);
         chat.rawLog(true);
+        chat.setSignalIntervalTime(2000);
 //        chat.setExpireAmount(180);
         this.activity = activity;
         this.context = context;
@@ -145,8 +147,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public ArrayList<String> createThread(RequestCreateThread threadRequest) {
-       return chat.createThread(threadRequest);
+    public String createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
+            , String metadata) {
+        return chat.createThread(threadType, invitee, threadTitle, description, image, metadata, null);
     }
 
     @Override
@@ -429,8 +432,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void deleteMessage(long messageId, Boolean deleteForAll, ChatHandler handler) {
-        chat.deleteMessage(messageId, deleteForAll, handler);
+    public void deleteMessage(ArrayList<Long> messageIds, Boolean deleteForAll, ChatHandler handler) {
+        chat.deleteMessage(messageIds, deleteForAll, handler);
     }
 
     @Override
@@ -457,6 +460,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getAdminList(RequestGetAdmin requestGetAdmin) {
         chat.getAdminList(requestGetAdmin);
+    }
+
+    @Override
+    public String startSignalMessage(RequestSignalMsg requestSignalMsg) {
+        return chat.startSignalMessage(requestSignalMsg);
+    }
+
+    @Override
+    public void stopSignalMessage(String uniqueId) {
+        chat.stopSignalMessage(uniqueId);
     }
 
 
