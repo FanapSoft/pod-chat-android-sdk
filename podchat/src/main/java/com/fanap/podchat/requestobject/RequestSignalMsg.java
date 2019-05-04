@@ -30,7 +30,6 @@ public class RequestSignalMsg {
         }
     }
 
-
     public long getThreadId() {
         return threadId;
     }

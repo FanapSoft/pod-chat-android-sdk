@@ -12,9 +12,12 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
         android:text="Connect"
+        app:layout_constraintEnd_toStartOf="@+id/buttonFileChoose"
+        app:layout_constraintHorizontal_bias="0.076"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -59,13 +62,11 @@
         android:id="@+id/imageMap"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/colorLightGrey"
-        app:layout_constraintEnd_toStartOf="@+id/percentage"
-        app:layout_constraintStart_toEndOf="@+id/textViewStateChat"
-        app:layout_constraintTop_toBottomOf="@+id/editTextToken" />
+        app:layout_constraintBottom_toTopOf="@+id/spinner"
+        app:layout_constraintStart_toEndOf="@+id/textViewStateChat" />
 
     <EditText
         android:id="@+id/editTextThread"
@@ -88,8 +89,8 @@
         android:id="@+id/textViewUserId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
         android:text="User Id"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -143,8 +144,8 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="70dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
         android:text="ChooseImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -153,13 +154,14 @@
         android:id="@+id/buttonChooseFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="88dp"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="144dp"
         android:onClick="ChooseFile"
         android:text="ChooseFile"
         app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/buttonToken"
         app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 
     <ProgressBar
@@ -176,18 +178,18 @@
         android:id="@+id/percentage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="29dp"
-        android:layout_marginEnd="37dp"
-        app:layout_constraintBottom_toTopOf="@+id/spinner"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="this is 100" />
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonUploadImageProgress"
+        app:layout_constraintStart_toEndOf="@+id/buttonUploadImageProgress"
+        app:layout_constraintTop_toTopOf="@+id/buttonUploadImageProgress"
+        android:text="this is 100" />
 
     <Button
         android:id="@+id/buttonToken"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="13dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:text="setToken"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonChooseFile" />
@@ -203,4 +205,39 @@
         app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
         app:layout_constraintStart_toStartOf="@+id/buttonSendMessage"
         app:layout_constraintTop_toBottomOf="@+id/buttonSendMessage" />
+
+    <Button
+        android:id="@+id/buttonUploadImageProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:onClick="onUploadImage"
+        android:text="Upload image Progress"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/buttonToken"
+        app:layout_constraintTop_toBottomOf="@+id/buttonToken" />
+
+    <Button
+        android:id="@+id/buttonUploadFileProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:onClick="onUploadFile"
+        android:text="Upload image Progress"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/buttonUploadImageProgress"
+        app:layout_constraintTop_toBottomOf="@+id/buttonUploadImageProgress" />
+
+
+    <TextView
+        android:id="@+id/percentageFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="this is 0"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonUploadFileProgress"
+        app:layout_constraintStart_toEndOf="@+id/buttonUploadFileProgress"
+        app:layout_constraintTop_toTopOf="@+id/buttonUploadFileProgress" />
+
 </android.support.constraint.ConstraintLayout>

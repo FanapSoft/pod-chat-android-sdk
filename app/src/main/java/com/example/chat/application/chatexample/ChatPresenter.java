@@ -448,6 +448,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
+        chat.uploadFileProgress(context, activity, null, fileUri, handler);
+    }
+
+    @Override
     public void setAdmin(RequestAddAdmin requestAddAdmin) {
         chat.setAdmin(requestAddAdmin);
     }

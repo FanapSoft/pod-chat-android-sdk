@@ -93,15 +93,11 @@ public class ProgressRequestBody extends RequestBody {
         @Override
         public void run() {
 
-            mListener.onProgressUpdate((int) (100 * mUploaded / mTotal));
             mListener.onProgress(uniqueId, (int) (100 * mUploaded / mTotal), (int) mUploaded, (int) (mTotal - mUploaded));
         }
     }
 
     public interface UploadCallbacks {
-        @Deprecated
-        default void onProgressUpdate(int percentage) {
-        }
 
         default void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
         }

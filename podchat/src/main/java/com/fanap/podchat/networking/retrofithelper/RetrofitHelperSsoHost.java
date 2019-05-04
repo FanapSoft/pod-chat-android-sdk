@@ -28,9 +28,9 @@ public class RetrofitHelperSsoHost {
         retrofit = new Retrofit.Builder()
                 .baseUrl(ssoHost)
                 .client(new OkHttpClient().newBuilder()
-                        .connectTimeout(1, TimeUnit.MINUTES) // connect timeout
-                        .writeTimeout(1, TimeUnit.MINUTES) // write timeout
-                        .readTimeout(1, TimeUnit.MINUTES) // read timeout
+                        .connectTimeout(5, TimeUnit.MINUTES) // connect timeout
+                        .writeTimeout(5, TimeUnit.MINUTES) // write timeout
+                        .readTimeout(5, TimeUnit.MINUTES) // read timeout
                         .addNetworkInterceptor(new HttpLoggingInterceptor()
                                 .setLevel(HttpLoggingInterceptor.Level.BODY)).build())
                 .addConverterFactory(GsonConverterFactory.create())

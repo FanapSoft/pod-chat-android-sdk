@@ -16,12 +16,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
@@ -69,6 +71,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String selectedFilePath;
     private Button buttonConnect;
     private ImageView imageMap;
+    private TextView percentage;
+    private TextView percentageFile;
     private Gson gson = new GsonBuilder().create();
 
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
@@ -104,7 +108,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
     private String serverName = "chat-server2";
-    //    private String serverName = "chat-server";
+//        private String serverName = "chat-server";
     private String typeCode = null;
 
     private String fileUri;
@@ -119,6 +123,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
         TextView textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
+        percentage = findViewById(R.id.percentage);
+        percentageFile = findViewById(R.id.percentageFile);
         editText = findViewById(R.id.editTextMessage);
         editTextThread = findViewById(R.id.editTextThread);
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
@@ -922,5 +928,66 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public String getSignalUniq() {
         return signalUniq;
+    }
+
+    public void onUploadImage(View view) {
+        presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
+            @Override
+            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        percentage.setText(bytesSent);
+                    }
+                });
+            }
+
+            @Override
+            public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+                Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
+                percentage.setTextColor(getResources().getColor(R.color.colorAccent));
+                percentage.setText("100");
+
+            }
+        });
+    }
+
+    public void onUploadFile(View view) {
+        if (getUri() != null) {
+            presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
+                @Override
+                public void onProgressUpdate(int bytesSent) {
+                }
+
+                @Override
+                public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    percentageFile.setText(bytesSent);
+                                }
+                            });
+
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onFinish(String imageJson, FileUpload fileImageUpload) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            percentageFile.setText("100");
+                            percentage.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        }
+                    });
+
+                }
+            });
+        }
     }
 }

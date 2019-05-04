@@ -20,9 +20,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.example.R;
+import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
@@ -31,6 +33,7 @@ import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
@@ -75,8 +78,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private Uri uri;
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "56367b8e67004e6d8a904f0d4588c366";
-
+    private static String TOKEN = "0cc5b265bb8b4ab59aeaf818143a3e88";
+    private TextView percentageFile;
     private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -99,7 +102,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         }
         TextView textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
+
         percentage = findViewById(R.id.percentage);
+        percentageFile = findViewById(R.id.percentageFile);
+
+
         buttonConnect = findViewById(R.id.buttonConnect);
         buttonToken = findViewById(R.id.buttonToken);
         editText = findViewById(R.id.editTextMessage);
@@ -695,6 +702,67 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
+    }
+
+    public void onUploadImage(View view) {
+        presenter.uploadImageProgress(this, ChatSandBoxActivity.this, getUri(), new ProgressHandler.onProgress() {
+            @Override
+            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        percentage.setText(bytesSent);
+                    }
+                });
+            }
+
+            @Override
+            public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+                Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
+                percentage.setTextColor(getResources().getColor(R.color.colorAccent));
+                percentage.setText("100");
+
+            }
+        });
+    }
+
+    public void onUploadFile(View view) {
+        if (getUri() != null) {
+            presenter.uploadFileProgress(ChatSandBoxActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
+                @Override
+                public void onProgressUpdate(int bytesSent) {
+                }
+
+                @Override
+                public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    percentageFile.setText(bytesSent);
+                                }
+                            });
+
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onFinish(String imageJson, FileUpload fileImageUpload) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            percentageFile.setText("100");
+                            percentage.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        }
+                    });
+
+                }
+            });
+        }
     }
 
     @Override
