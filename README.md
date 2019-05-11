@@ -47,15 +47,43 @@ And now it's ready for chat .
 |12|`getUserInfo()`         | Get information about the current user        | 
 |13|`isLoggable(boolean log)`         | shows log        |     
 |14|`rawLog(boolean rawLog)`         | shows log without any changes         |     
-|14| `setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
-|14|  `addParticipants(RequestAddParticipants request, ChatHandler handler)`               |               |
-|14|  `removeParticipants(RequestRemoveParticipants request, ChatHandler handler)`               |               |
-|14|   `leaveThread(RequestLeaveThread request, ChatHandler handler)`              |               |
-|14|    `forwardMessage(RequestForwardMessage request)`             |               |
-|14|     ``            |               |
-|14|     ``            |               |
-|14|     ``            |               |
+|14|`setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
+|14|`addParticipants(RequestAddParticipants request, ChatHandler handler)`               |               |
+|14|`removeParticipants(RequestRemoveParticipants request, ChatHandler handler)`               |               |
+|14|`leaveThread(RequestLeaveThread request, ChatHandler handler)`              |               |
+|14|`forwardMessage(RequestForwardMessage request)`             |               |
+|14|`getHistory(RequestGetHistory request, ChatHandler handler)`            |               |
+|14|`searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler)`            |               |
+|14|     `startSignalMessage(RequestSignalMsg requestSignalMsg)`            |               |
+| |` stopSignalMessage(String uniqueId)` | |
+| |`getContacts(RequestGetContact request, ChatHandler handler)` | |
+| |`searchContact(SearchContact searchContact)` | |
+| |`addContact(RequestAddContact request)` | |
+| |`removeContact(RequestRemoveContact request)` | |
+| |`updateContact(RequestUpdateContact request)` | |
+| |`block(RequestBlock request, ChatHandler handler)` | |
+| |`unblock(RequestUnBlock request, ChatHandler handler)` | |
+| |` spam(RequestSpam request)` | |
+| |` getBlockList(RequestBlockList request, ChatHandler handler)` | |
+| |`createThreadWithMessage(RequestCreateThread threadRequest) ` | |
+| |`getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) ` | |
+| |`seenMessage(RequestSeenMessage request, ChatHandler handler)` | |
+| |`getUserInfo(ChatHandler handler) ` | |
+| |` unMuteThread(RequestMuteThread request, ChatHandler handler)` | |
+| |`editMessage(RequestEditMessage request, ChatHandler handler)` | |
+| |`getMessageDeliveredList(RequestDeliveredMessageList requestParams)` | |
+| |`getMessageSeenList(RequestSeenMessageList requestParams)` | |
+| |`` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
 
+muteThread(RequestMuteThread request, ChatHandler handler)
+
+## isCacheables(boolean cache)
+## setTypeCode(String typeCode)
+## setExpireAmount(int expireSecond)
+## setTtl(long ttl)
 
 ### getUserInfo
 ```java
@@ -237,6 +265,12 @@ chat.getContact(50,0);
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1|`mapSearch(String searchTerm, Double latitude, Double longitude)`         | search in the map     |
 |2|`mapRouting(String origin, String destination)`         | give you the direction     |
+mapSearch(RequestMapSearch request)
+mapRouting(RequestMapRouting request)
+mapStaticImage(RequestMapStaticImage request)
+sendLocationMessage(RequestLocationMessage request)
+mapReverse(RequestMapReverse request)
+
 
 
 
