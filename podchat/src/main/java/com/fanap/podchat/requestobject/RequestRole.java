@@ -7,10 +7,6 @@ public class RequestRole {
     private ArrayList<String> roleTypes;
     private String roleOperation;
 
-    public static final String ADD = "add";
-    public static final String REMOVE = "remove";
-
-
     public long getId() {
         return id;
     }

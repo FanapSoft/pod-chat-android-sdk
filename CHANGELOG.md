@@ -4,6 +4,41 @@
 
 # Changelog
 All notable changes to this project will be documented here.
+
+## Deprecation Methods
+|Num|Deprecated Methods          | Description                                                            |
+|:--|:------------------------------|:-----------------------------------------------------------------------------------|
+|1|`createThread(int threadType, Invitee[] invitee, String threadTitle)` |  Create the threadVo.|
+|2|`getHistory(int count, int offset, String order, long threadId)` | get the history of the specific threadVo|
+|3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`| gets the list of threadVo|
+|4|`muteThread(int threadId)` | Mute the threadVo   |
+|5|`unmuteThread(int threadId)` | Un Mute the threadVo  |
+|6|`getThreadParticipants(int count, int offset, long threadId)`  | Gets the participant list      |
+|7|`addParticipants(long threadId, List<Long> contactIds)`  |  adds participant of the group    |
+|8|`removeParticipants(long threadId, List<Long> participantIds)` |  removes participant of the group    |
+|9|`leaveThread(long threadId)` |  removes participant of the group  |
+|10|`logOutSocket()`    | log out of the socket.  |
+|11|`renameThread(long threadId, String title)` |  Rename the threadVo if you are the owner. |
+|4|`muteThread(int threadId)`         | Mute the threadVo      |
+|5|`unmuteThread(int threadId)`         | Un Mute the threadVo      |
+|6|`getThreadParticipants(int count, int offset, long threadId)`         | Gets the participant list      |
+|7|`addParticipants(long threadId, List<Long> contactIds)`         |  adds participant of the group    |
+|8|`removeParticipants(long threadId, List<Long> participantIds)`         |  removes participant of the group    |
+|9|`leaveThread(long threadId)`         | leave any threadVo you want     |
+|11|`renameThread(long threadId, String title)`  |  Rename the threadVo if you are the owner. |
+|12|`getUserInfo()`         | Get information about the current user        |
+|7|`@deprecated uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
+|8|`@deprecated uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+|5|`@Deprecated sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`| Send file with message|
+|2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
+|3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the threadVo       |
+|4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
+|6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
+|1|`@Deprecated  sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)`| Send text message to threadVo.|
+|1|`mapSearch(String searchTerm, Double latitude, Double longitude)`         | search in the map     |
+|2|`mapRouting(String origin, String destination)`         | give you the direction     |
+
+
 ##  Version [0.4.2.1] -2019-3-5
 - Added Queue Message
 - Removed liveData library and Logger library in order to prevent some issue like size of the apk
@@ -36,7 +71,7 @@ All notable changes to this project will be documented here.
 to your app Module
 
 
-- [Add] The responses of this listeners were changed 
+- [Add] The responses of this listeners were changed
 onGetContacts
 onGetHistory
 onGetThread
@@ -52,7 +87,7 @@ onUpdateThreadInfo
 
 ##  Version [0.1.2.15] -2018-10-21
 -   [Add]In order to receive a response by UpdateThreadInfo,
- you can use onUpdateThreadInfo listener. 
+ you can use onUpdateThreadInfo listener.
 And beaware that you just see updated fields not the entire thread.
 - [bug fix] `onNewmessage`
 - [add] image to `inviter` model
@@ -67,11 +102,11 @@ And beaware that you just see updated fields not the entire thread.
 -   [Add] We added `uniqueId` to [ErrorOutPut,]
 -   [Add] We added instant `uniqueId` to `sendFileMessage,deleteMessage,replyMessage,forwardMessage
           seenMessage`.
--   [BugFix] Bug has been fixed in sendText message when put null in handler. 
+-   [BugFix] Bug has been fixed in sendText message when put null in handler.
 
 ##  Version [0.1.2.6] -2018-10-08
 -   [Add] The project has been added to Maven
--   [Add] Unique id was added to Most of the functions as return. 
+-   [Add] Unique id was added to Most of the functions as return.
 -   [Add] Unique id was added to Most responses.
 
 ##  Version [0.1.2.5] -09/26/2018
@@ -80,7 +115,7 @@ And beaware that you just see updated fields not the entire thread.
 -   [Add] Async has *ASYNC_READY* state now.
 -   [Add] Add `lastMessageId` and `firstMessageId` to the *GetHistory*
 -   [Replace] Replace most of the *integer* params to *long*.
--   [Removed] CHAT_READY state removed from Async and added to Chat and state changes 
+-   [Removed] CHAT_READY state removed from Async and added to Chat and state changes
      to *CHAT_READY* when response of the *getUserInfo* arrives.
 -   [BugFix]  Some fields has been added to `createThread`'s response
 -   [Add]  Now you can get instant unique id when you send text messages
@@ -90,7 +125,7 @@ And beaware that you just see updated fields not the entire thread.
 
 ## Version [0.1.2.4] -2018-09-15
 -   [BugFix]OnError Listener
--   [BugFix]Create ThreadVo 
+-   [BugFix]Create ThreadVo
 
 ## Version [0.1.2.3] -2018-09-03
 -   [Add]Implement Cache for get Contact
@@ -114,7 +149,7 @@ And beaware that you just see updated fields not the entire thread.
 -   [Add]onThreadInfoUpdated listener
 -   [Add]onLastSeenUpdated listener
 -   [Add]Search in threadVos with name:
-    We sdd a new param to the getThread so you can search through threadVos by their name. 
+    We sdd a new param to the getThread so you can search through threadVos by their name.
 -   [Add]Remove participant
 -   [Add]Add participant
 -   [Add]Sync Contact listener
@@ -122,11 +157,11 @@ And beaware that you just see updated fields not the entire thread.
 
 ## Version [0.0.7.0] -2018-07-22
 
--   Check Permission on SendFile and SyncContact 
--   UploadImage 
--   UploadFile 
+-   Check Permission on SendFile and SyncContact
+-   UploadImage
+-   UploadFile
 -   Refactor SyncContact
 -   Add Permission Class for request permission and check permission
--   Add FileServer param to Connect 
+-   Add FileServer param to Connect
 
 ## Version [0.6.6.0] - 2018-07-18

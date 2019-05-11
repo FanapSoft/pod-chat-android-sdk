@@ -10,7 +10,7 @@ You need to Add this module to your project and after that set the `internet` pe
 ```java
 <uses-permission android:name="android.permission.INTERNET" />
 ```
-There is two another permission you need to add to your manifest 
+There is two another permission you need to add to your manifest
 ```java
 <uses-permission android:name="android.permission.READ_CONTACTS" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -20,143 +20,72 @@ The first step is to initialize the Chat module.
 ```java
 chat.init(context);
 ```
-Then you need to connect.
+Then you need to connect to chat server with this method.
 
 ```java
-connect(String socketServerAddress,String appId,String  serverName,String token, String ssoHost, String platformHost, String fileServer)
-chat.connect("ws://172.16.106.26:8003/ws",
-                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080","http://172.16.106.26:8080")
+@deprecated
+chat.connect(String socketServerAddress,String appId,String  serverName,String token, String ssoHost, String platformHost, String fileServer)@deprecated
 
+        //or
+chat.connect(RequestConnect requestConnect) {}
 ```
 And now it's ready for chat .
 
-|Num|ThreadVo & Base Method           | Description                                                                            |
-|:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the threadVo.                |
-|2|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific threadVo       |
-|3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`         | gets the list of threadVo       |
-|4|`muteThread(int threadId)`         | Mute the threadVo      |
-|5|`unmuteThread(int threadId)`         | Un Mute the threadVo      |
-|6|`getThreadParticipants(int count, int offset, long threadId)`         | Get the participant list      |
-|7|`addParticipants(long threadId, List<Long> contactIds)`         |  add participant of the group    |
-|8|`removeParticipants(long threadId, List<Long> participantIds)`         |  remove participant of the group    |
-|9|`leaveThread(long threadId)`         | leave any threadVo you want     |
+|Num|Thread & Base Method           | Description                                                                            |
+|:--|:------------------------------|:------------------------------------------------------------------------------------|
+|1|`getThreads(RequestThread requestThread, ChatHandler handler)`| Gets thread list|
 |10|`logOutSocket()`    | log out of the socket.      |
-|11|`renameThread(long threadId, String title)`                |  Rename the threadVo if you are the owner.                |
-|12|`getUserInfo()`         | Get information about the current user        |     
-
-### getUserInfo
-```java
-chat.getUserInfo();
-```
-
-### createThread
-Id types :
-```java
-*int TO_BE_USER_SSO_ID = 1;
-* int TO_BE_USER_CONTACT_ID = 2;
-* int TO_BE_USER_CELLPHONE_NUMBER = 3;
-* int TO_BE_USER_USERNAME = 4;
-*/
-```
-Id can be :
-USER_SSO_ID,CONTACT_ID,CELLPHONE_NUMBER or USERNAME.
-```java
-Invitee[] invite = new Invitee[]{new Invitee(id, idType)};
-chat.createThread(0, invite, "");
-```
-or
-```java
- Invitee[] invite = new Invitee[]{new Invitee(822, 2)
-, new Invitee(577, 2)
-, new Invitee(578, 2)
-, new Invitee(824, 2)
-                };
-```
-
-### getThreads
-```java
-chat.getThread(10, 0, [235,589]);
-chat.getThread(10, 0, null);
-```
-
-### getHistory
-```java
-presenter.getHistory(50, 0, null, 312);
-presenter.getHistory(50, 0, "desc", 312);
-```
-### getThreadParticipant
-```java
-chat.getThreadParticipants(50, 5, 235);
-```
-
-### renameThread
-```java
-chat.renameThread(379, "new group name");
-```
-
-### muteThread
-```java
-chat.muteThread(232);
-```
-
-### unmuteThread
-```java
-chat.unmuteThread(232);
-```
+|13|`isLoggable(boolean log)`         | shows log        |
+|14|`rawLog(boolean rawLog)`         | shows log without any changes         |
+|15|`setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
+|16|`addParticipants(RequestAddParticipants request, ChatHandler handler)`    | adds participant to the group      |
+|17|`removeParticipants(RequestRemoveParticipants request, ChatHandler handler)` |  removes participant of the group |
+|18|`leaveThread(RequestLeaveThread request, ChatHandler handler)`|leaves from the thread      |
+|19|`forwardMessage(RequestForwardMessage request)`             |Forwards messages to another thread    |
+|20|`getHistory(RequestGetHistory request, ChatHandler handler)`    |Gets list of conversation         |
+|21|`searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler)`  |search through conversation history|
+|22|`startSignalMessage(RequestSignalMsg requestSignalMsg)`| Starts sending signal message like `IS_TYPING`|
+|23|`stopSignalMessage(String uniqueId)` | Starts sending signal message like `IS_TYPING`|
+|24|`getContacts(RequestGetContact request, ChatHandler handler)` |Gets contact list |
+|25|`searchContact(SearchContact searchContact)` |search through contact list|
+|26|`addContact(RequestAddContact request)` |Adds contact|
+|27|`removeContact(RequestRemoveContact request)` |Removes contact|
+|28|`updateContact(RequestUpdateContact request)` |Updates contacs|
+|29|`block(RequestBlock request, ChatHandler handler)` |Block thread or contact|
+|30|`unblock(RequestUnBlock request, ChatHandler handler)` |Unblock|
+|31|`spam(RequestSpam request)` | |
+|32|`getBlockList(RequestBlockList request, ChatHandler handler)` | |
+|33|`createThreadWithMessage(RequestCreateThread threadRequest) ` | |
+|34|`getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) ` | |
+|35|`seenMessage(RequestSeenMessage request, ChatHandler handler)` | |
+|36|`getUserInfo(ChatHandler handler) ` | |
+|37|`unMuteThread(RequestMuteThread request, ChatHandler handler)` | |
+|38|`editMessage(RequestEditMessage request, ChatHandler handler)` | |
+|39|`getMessageDeliveredList(RequestDeliveredMessageList requestParams)` | |
+|40|`getMessageSeenList(RequestSeenMessageList requestParams)` | |
+|40|`muteThread(RequestMuteThread request, ChatHandler handler)` | |
 
 
 ⭐️
 
-|Num|Message Method           | Description                                                                            |
-|:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)`       | Send text message to threadVo.           |
-|2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
-|3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the threadVo       |
-|4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
-|5|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`         | Send file      |
-|6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
-|7|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
-|8|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+|Num|Message Method           | Description   (All of the methods returns string as Unique id)|
+|:--|:------------------------------|:----------------------------------------------------------------------------------|
 |9|`getFile(int fileId, String hashCode, boolean downloadable)`         | Get file with return url     |
 |10|`getImage(int imageId, String hashCode, boolean downloadable)`         | Get image with return url     |
-
-### replyMessage
-```java
-chat.sendReplyMessage("Reply to the text", 235, 532);
-```
-
-### editMessage
-```java
-chat.editMessage(533, "edited_at" + new Date().getTime());
-```
-### sendTextMessage
-```java
-chat.sendTextMessage(TEXT MESSAGE, THREAD_ID, META_DATA, new Chat.SendTextMessageHandler() {
- @Override
- public void onSent(String uniqueId, long threadId) {
- 
- }
- });
-```
-
-### forwardMessage
-```java
-ArrayList<Long> messageIds = new ArrayList<>();
-messageIds.add(11956L);
-chat.forwardMessage(312, messageIds);
-```
-
-### replyMessage
-```java
-chat.replyMessage("Reply to the text", 235, 532);
-```
-
-### editMessage
-```java
-chat.editMessage(533, "edited_at" + new Date().getTime());
-```
+|11|`sendTextMessage(RequestMessage requestMessage, ChatHandler handler)`               |  send Text message      |
+|12|`sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler)`|Send file with message|
+|13 |`uploadImageProgress(RequestUploadImage requestUploadImage,ProgressHandler.onProgress handler) ` | |
+| |`uploadImage(RequestUploadImage requestUploadImage) ` | |
+| |`uploadFile(@NonNull RequestUploadFile requestUploadFile) ` | |
+| |`String uploadFileProgress(Context context, Activity activity, String fileUri, Uri uri, ProgressHandler.onProgressFile handler) ` | |
+| |`resendMessage(String uniqueId) ` | |
+| |`cancelUpload(String uniqueId) ` | |
+| |` retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler)` | |
+| |`getFile(RequestGetFile requestGetFile) ` | |
+| |` getImage(RequestGetImage requestGetImage)` | |
+| |` replyMessage(RequestReplyMessage request, ChatHandler handler)` | |
+| |` deleteMessage(RequestDeleteMessage request, ChatHandler handler)` | |
+| |`getThreads(RequestThread requestThread, ChatHandler handler) ` | |
 
 
 ⭐️
@@ -165,55 +94,35 @@ chat.editMessage(533, "edited_at" + new Date().getTime());
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1|`getContacts(int count, int offset)`         | get contact list      |
 |2|`removeContact(long userId)`         | remove user in contact list      |
-|3|`updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact 
+|3|`updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact
 |4|`addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
-|5|`syncContact(Context context, Activity activity)`         | Sync mobile's Contact with server contact      |
+|5|`syncContact(Activity activity)`         | Sync mobile's Contact with server contact      |
 |6|`getBlockList(Integer count, Integer offset)`         |  get your block list    |
 |7|`block(Long contactId)`         | block the contact     |
 |8|`unblock(long blockId)`         | unblock the contact     |
 |9|`searchContact(SearchContact searchContact)`         |  search through the contacts    |
 
-### getContacts
-```java
-chat.getContact(50,0);
-```
-
-### removeContact
-```java
-chat.removeContact(long userId)
-```
-
-### addContact
-```java
-chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
-```
-### syncContact
-```java
-chat.syncContact(this, this);
-```
-### getContacts
-```java
-chat.getContact(50,0);
-```
 
 ⭐️
 
 |Num|Map Method           | Description                                                                            |
-|:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`mapSearch(String searchTerm, Double latitude, Double longitude)`         | search in the map     |
-|2|`mapRouting(String origin, String destination)`         | give you the direction     |
+|:--|:------------------------------|:-----------------------------------------------------------------------------|
 
+|2|`mapSearch(RequestMapSearch request)`         | give you the direction     |
+|2|`mapRouting(RequestMapRouting request)`         | give you the direction     |
+|2|`mapStaticImage(RequestMapStaticImage request)`         | gives  the image of the map|
+|2|`sendLocationMessage(RequestLocationMessage request)`         | send message with the image of the map|
+|2|`mapReverse(RequestMapReverse request)`         | give you the direction     |
 
-
-
+⭐️
 ### Register Listener
 After creating a Chat instance, you should call addListener method to register a ChatListener that receives Chat events.
 ChatAdapter is an empty implementation of ChatListener interface.
-For getting call back you should extend your class from `ChatAdapter`. 
+For getting call back you should extend your class from `ChatAdapter`.
 
 ###The table below is the list of callback methods defined in ChatListener interface.
 
-|Num|ThreadVo & Base Method           | Listener Description       |
+|Num|Thread & Base Method           | Listener Description       |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1| `onGetHistory()`| Called when history of the threadVo is return.      |
 |2| `onGetThread()`       |  Called when get threadVos is return.          |
@@ -267,11 +176,16 @@ For getting call back you should extend your class from `ChatAdapter`.
 
 ## Built With :heart:
 
-* [moshi](https://github.com/square/moshi) - Moshi
-* [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
-* [lifecycle](https://developer.android.com/reference/android/arch/lifecycle/LiveData) - LiveData
 * [Retrofit2](https://square.github.io/retrofit/) - Retrofit2
 * [Rxjava](https://github.com/ReactiveX/RxAndroid) - Rxjava
+gson
+rxandroid
+room
+saferoom
+dagger
+secure-preferences
+podasync
+
 
 ## License
 
