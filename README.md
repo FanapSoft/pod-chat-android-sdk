@@ -33,6 +33,7 @@ And now it's ready for chat .
 
 |Num|Thread & Base Method           | Description                                                                            |
 |:--|:------------------------------|:------------------------------------------------------------------------------------|
+|1|`getThreads(RequestThread requestThread, ChatHandler handler)`| Gets thread list|
 |10|`logOutSocket()`    | log out of the socket.      |
 |13|`isLoggable(boolean log)`         | shows log        |     
 |14|`rawLog(boolean rawLog)`         | shows log without any changes         |     
