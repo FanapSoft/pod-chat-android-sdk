@@ -48,10 +48,10 @@ And now it's ready for chat .
 |13|`isLoggable(boolean log)`         | shows log        |     
 |14|`rawLog(boolean rawLog)`         | shows log without any changes         |     
 |14| `setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
-|14|  ``               |               |
-|14|  ``               |               |
-|14|   ``              |               |
-|14|    ``             |               |
+|14|  `addParticipants(RequestAddParticipants request, ChatHandler handler)`               |               |
+|14|  `removeParticipants(RequestRemoveParticipants request, ChatHandler handler)`               |               |
+|14|   `leaveThread(RequestLeaveThread request, ChatHandler handler)`              |               |
+|14|    `forwardMessage(RequestForwardMessage request)`             |               |
 |14|     ``            |               |
 |14|     ``            |               |
 |14|     ``            |               |
@@ -121,30 +121,39 @@ chat.unmuteThread(232);
 ⭐️
 
 |Num|Message Method           | Description   (All of the methods returns string as Unique id)                                                                         |
-|:--|:------------------------------|:---------------------------------------------------------------------|
-|1|`@Deprecated  sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)` 
-
-| Send text message to threadVo.           |
+|:--|:------------------------------|:----------------------------------------------------------------------------------|
+|1|`@Deprecated  sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)`| Send text message to threadVo.|
 |2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
 |3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the threadVo       |
 |4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
-|5|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`| Send file with message
-
+|5|`@Deprecated sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`| Send file with message|
 |6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
-|7|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
-|8|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+|7|`@deprecated uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
+|8|`@deprecated uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
 |9|`getFile(int fileId, String hashCode, boolean downloadable)`         | Get file with return url     |
 |10|`getImage(int imageId, String hashCode, boolean downloadable)`         | Get image with return url     |
 |11|`sendTextMessage(RequestMessage requestMessage, ChatHandler handler)`               |  send Text message      |
+|12|`sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler)`|Send file with message|
 
-| |` ` | |
-| |` ` | |
-| |` ` | |
-| |` ` | |
-| |` ` | |
-| |` ` | |
-| |` ` | |
 
+|13 |`uploadImageProgress(RequestUploadImage requestUploadImage,ProgressHandler.onProgress handler) ` | |
+| |`uploadImage(RequestUploadImage requestUploadImage) ` | |
+| |`uploadFile(@NonNull RequestUploadFile requestUploadFile) ` | |
+| |`String uploadFileProgress(Context context, Activity activity, String fileUri, Uri uri, ProgressHandler.onProgressFile handler) ` | |
+| |`resendMessage(String uniqueId) ` | |
+| |`cancelUpload(String uniqueId) ` | |
+| |` retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler)` | |
+| |`getFile(RequestGetFile requestGetFile) ` | |
+| |` getImage(RequestGetImage requestGetImage)` | |
+| |` replyMessage(RequestReplyMessage request, ChatHandler handler)` | |
+| |` deleteMessage(RequestDeleteMessage request, ChatHandler handler)` | |
+| |`getThreads(RequestThread requestThread, ChatHandler handler) ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
 
 
 
