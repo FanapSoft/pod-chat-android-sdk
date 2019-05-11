@@ -20,18 +20,18 @@ The first step is to initialize the Chat module.
 ```java
 chat.init(context);
 ```
-Then you need to connect.
+Then you need to connect to chat server with this method.
 
 ```java
-connect(String socketServerAddress,String appId,String  serverName,String token, String ssoHost, String platformHost, String fileServer)
-chat.connect("ws://172.16.106.26:8003/ws",
-                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080","http://172.16.106.26:8080")
+@deprecated
+chat.connect(String socketServerAddress,String appId,String  serverName,String token, String ssoHost, String platformHost, String fileServer)@deprecated
 
+        //or
+chat.connect(RequestConnect requestConnect) {}
 ```
 And now it's ready for chat .
 
-|Num|ThreadVo & Base Method           | Description                                                                            |
+|Num|Thread & Base Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the threadVo.                |
 |2|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific threadVo       |
@@ -44,7 +44,18 @@ And now it's ready for chat .
 |9|`leaveThread(long threadId)`         | leave any threadVo you want     |
 |10|`logOutSocket()`    | log out of the socket.      |
 |11|`renameThread(long threadId, String title)`                |  Rename the threadVo if you are the owner.                |
-|12|`getUserInfo()`         | Get information about the current user        |     
+|12|`getUserInfo()`         | Get information about the current user        | 
+|13|`isLoggable(boolean log)`         | shows log        |     
+|14|`rawLog(boolean rawLog)`         | shows log without any changes         |     
+|14| `setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
+|14|  ``               |               |
+|14|  ``               |               |
+|14|   ``              |               |
+|14|    ``             |               |
+|14|     ``            |               |
+|14|     ``            |               |
+|14|     ``            |               |
+
 
 ### getUserInfo
 ```java
@@ -109,18 +120,33 @@ chat.unmuteThread(232);
 
 ⭐️
 
-|Num|Message Method           | Description                                                                            |
-|:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)`       | Send text message to threadVo.           |
+|Num|Message Method           | Description   (All of the methods returns string as Unique id)                                                                         |
+|:--|:------------------------------|:---------------------------------------------------------------------|
+|1|`@Deprecated  sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)` 
+
+| Send text message to threadVo.           |
 |2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
 |3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the threadVo       |
 |4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
-|5|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`         | Send file      |
+|5|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`| Send file with message
+
 |6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
 |7|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
 |8|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
 |9|`getFile(int fileId, String hashCode, boolean downloadable)`         | Get file with return url     |
 |10|`getImage(int imageId, String hashCode, boolean downloadable)`         | Get image with return url     |
+|11|`sendTextMessage(RequestMessage requestMessage, ChatHandler handler)`               |  send Text message      |
+
+| |` ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
+| |` ` | |
+
+
+
 
 ### replyMessage
 ```java
@@ -167,7 +193,7 @@ chat.editMessage(533, "edited_at" + new Date().getTime());
 |2|`removeContact(long userId)`         | remove user in contact list      |
 |3|`updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact 
 |4|`addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
-|5|`syncContact(Context context, Activity activity)`         | Sync mobile's Contact with server contact      |
+|5|`syncContact(Activity activity)`         | Sync mobile's Contact with server contact      |
 |6|`getBlockList(Integer count, Integer offset)`         |  get your block list    |
 |7|`block(Long contactId)`         | block the contact     |
 |8|`unblock(long blockId)`         | unblock the contact     |
@@ -267,11 +293,16 @@ For getting call back you should extend your class from `ChatAdapter`.
 
 ## Built With :heart:
 
-* [moshi](https://github.com/square/moshi) - Moshi
-* [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
-* [lifecycle](https://developer.android.com/reference/android/arch/lifecycle/LiveData) - LiveData
 * [Retrofit2](https://square.github.io/retrofit/) - Retrofit2
 * [Rxjava](https://github.com/ReactiveX/RxAndroid) - Rxjava
+gson
+rxandroid
+room
+saferoom
+dagger
+secure-preferences
+podasync
+
 
 ## License
 
