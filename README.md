@@ -37,21 +37,21 @@ And now it's ready for chat .
 |13|`isLoggable(boolean log)`         | shows log        |     
 |14|`rawLog(boolean rawLog)`         | shows log without any changes         |     
 |15|`setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
-|16|`addParticipants(RequestAddParticipants request, ChatHandler handler)`               |               |
-|17|`removeParticipants(RequestRemoveParticipants request, ChatHandler handler)`               |               |
-|18|`leaveThread(RequestLeaveThread request, ChatHandler handler)`              |               |
-|19|`forwardMessage(RequestForwardMessage request)`             |               |
-|20|`getHistory(RequestGetHistory request, ChatHandler handler)`            |               |
-|21|`searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler)`            |               |
-|22|`startSignalMessage(RequestSignalMsg requestSignalMsg)`            |               |
-|23|`stopSignalMessage(String uniqueId)` | |
-|24|`getContacts(RequestGetContact request, ChatHandler handler)` | |
-|25|`searchContact(SearchContact searchContact)` | |
-|26|`addContact(RequestAddContact request)` | |
-|27|`removeContact(RequestRemoveContact request)` | |
-|28|`updateContact(RequestUpdateContact request)` | |
-|29|`block(RequestBlock request, ChatHandler handler)` | |
-|30|`unblock(RequestUnBlock request, ChatHandler handler)` | |
+|16|`addParticipants(RequestAddParticipants request, ChatHandler handler)`    | adds participant to the group      |
+|17|`removeParticipants(RequestRemoveParticipants request, ChatHandler handler)` |  removes participant of the group |
+|18|`leaveThread(RequestLeaveThread request, ChatHandler handler)`|leaves from the thread      |
+|19|`forwardMessage(RequestForwardMessage request)`             |Forwards messages to another thread    |
+|20|`getHistory(RequestGetHistory request, ChatHandler handler)`    |Gets list of conversation         |
+|21|`searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler)`  |search through conversation history|
+|22|`startSignalMessage(RequestSignalMsg requestSignalMsg)`| Starts sending signal message like `IS_TYPING`|
+|23|`stopSignalMessage(String uniqueId)` | Starts sending signal message like `IS_TYPING`|
+|24|`getContacts(RequestGetContact request, ChatHandler handler)` |Gets contact list |
+|25|`searchContact(SearchContact searchContact)` |search through contact list|
+|26|`addContact(RequestAddContact request)` |Adds contact|
+|27|`removeContact(RequestRemoveContact request)` |Removes contact|
+|28|`updateContact(RequestUpdateContact request)` |Updates contacs|
+|29|`block(RequestBlock request, ChatHandler handler)` |Block thread or contact|
+|30|`unblock(RequestUnBlock request, ChatHandler handler)` |Unblock|
 |31|`spam(RequestSpam request)` | |
 |32|`getBlockList(RequestBlockList request, ChatHandler handler)` | |
 |33|`createThreadWithMessage(RequestCreateThread threadRequest) ` | |
