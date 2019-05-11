@@ -16,7 +16,7 @@ All notable changes to this project will be documented here.
 |6|`getThreadParticipants(int count, int offset, long threadId)`  | Gets the participant list      |
 |7|`addParticipants(long threadId, List<Long> contactIds)`  |  adds participant of the group    |
 |8|`removeParticipants(long threadId, List<Long> participantIds)` |  removes participant of the group    |
-|9|`leaveThread(long threadId)` | leave any threadVo you want  |
+|9|`leaveThread(long threadId)` |  removes participant of the group  |
 |10|`logOutSocket()`    | log out of the socket.  |
 |11|`renameThread(long threadId, String title)` |  Rename the threadVo if you are the owner. |
 |4|`muteThread(int threadId)`         | Mute the threadVo      |
@@ -35,6 +35,8 @@ All notable changes to this project will be documented here.
 |4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
 |6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
 |1|`@Deprecated  sendTextMessage(String textMessage, long threadId, String systemMetaData,SendTextMessageHandler handler)`| Send text message to threadVo.|
+|1|`mapSearch(String searchTerm, Double latitude, Double longitude)`         | search in the map     |
+|2|`mapRouting(String origin, String destination)`         | give you the direction     |
 
 
 ##  Version [0.4.2.1] -2019-3-5
