@@ -62,17 +62,12 @@ And now it's ready for chat .
 |38|`editMessage(RequestEditMessage request, ChatHandler handler)` | |
 |39|`getMessageDeliveredList(RequestDeliveredMessageList requestParams)` | |
 |40|`getMessageSeenList(RequestSeenMessageList requestParams)` | |
-
-muteThread(RequestMuteThread request, ChatHandler handler)
-
-## isCacheables(boolean cache)
-## setTypeCode(String typeCode)
-## setExpireAmount(int expireSecond)
-## setTtl(long ttl)
+|40|`muteThread(RequestMuteThread request, ChatHandler handler)` | |
 
 
 ⭐️
-|Num|Message Method           | Description   (All of the methods returns string as Unique id)                                                                         |
+
+|Num|Message Method           | Description   (All of the methods returns string as Unique id)|                                                                
 |:--|:------------------------------|:----------------------------------------------------------------------------------|
 |9|`getFile(int fileId, String hashCode, boolean downloadable)`         | Get file with return url     |
 |10|`getImage(int imageId, String hashCode, boolean downloadable)`         | Get image with return url     |
@@ -90,7 +85,6 @@ muteThread(RequestMuteThread request, ChatHandler handler)
 | |` replyMessage(RequestReplyMessage request, ChatHandler handler)` | |
 | |` deleteMessage(RequestDeleteMessage request, ChatHandler handler)` | |
 | |`getThreads(RequestThread requestThread, ChatHandler handler) ` | |
-
 
 
 ⭐️
@@ -111,14 +105,13 @@ muteThread(RequestMuteThread request, ChatHandler handler)
 ⭐️
 
 |Num|Map Method           | Description                                                                            |
-|:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`mapSearch(String searchTerm, Double latitude, Double longitude)`         | search in the map     |
-|2|`mapRouting(String origin, String destination)`         | give you the direction     |
-mapSearch(RequestMapSearch request)
-mapRouting(RequestMapRouting request)
-mapStaticImage(RequestMapStaticImage request)
-sendLocationMessage(RequestLocationMessage request)
-mapReverse(RequestMapReverse request)
+|:--|:------------------------------|:-----------------------------------------------------------------------------|
+
+|2|`mapSearch(RequestMapSearch request)`         | give you the direction     |
+|2|`mapRouting(RequestMapRouting request)`         | give you the direction     |
+|2|`mapStaticImage(RequestMapStaticImage request)`         | gives  the image of the map|
+|2|`sendLocationMessage(RequestLocationMessage request)`         | send message with the image of the map|
+|2|`mapReverse(RequestMapReverse request)`         | give you the direction     |
 
 ⭐️
 ### Register Listener
