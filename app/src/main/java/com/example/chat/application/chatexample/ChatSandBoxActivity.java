@@ -138,7 +138,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             }
         };
         presenter = new ChatPresenter(this, view, this);
-        presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
@@ -440,7 +439,6 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                 }
             }
-
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {

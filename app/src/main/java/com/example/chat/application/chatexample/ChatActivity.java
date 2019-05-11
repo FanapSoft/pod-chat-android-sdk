@@ -57,12 +57,14 @@ import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ThreadType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
     private static final int FILE_REQUEST_CODE = 2;
     private ChatContract.presenter presenter;
     private EditText editText;
@@ -71,6 +73,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String selectedFilePath;
     private Button buttonConnect;
     private ImageView imageMap;
+    private TextView textViewState;
     private TextView percentage;
     private TextView percentageFile;
     private Gson gson = new GsonBuilder().create();
@@ -108,7 +111,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String platformHost = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} Platform Core Address
     private String fileServer = "http://172.16.106.26:8080/hamsam/"; // {**REQUIRED**} File Server Address
     private String serverName = "chat-server2";
-//        private String serverName = "chat-server";
+//            private String serverName = "chat-server";
     private String typeCode = null;
 
     private String fileUri;
@@ -118,10 +121,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Logger.addLogAdapter(new AndroidLogAdapter());
         setContentView(R.layout.activity_chat);
         imageMap = findViewById(R.id.imageMap);
 
-        TextView textViewState = findViewById(R.id.textViewStateChat);
+        textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
         percentage = findViewById(R.id.percentage);
         percentageFile = findViewById(R.id.percentageFile);
@@ -149,8 +153,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         };
 
-        presenter = new ChatPresenter(this, view, this);
-        presenter.getLiveState().observe(this, textViewState::setText);
+        presenter = new ChatPresenter(this, this, this);
 
         setupSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
@@ -199,6 +202,22 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             ,"Add Admin"
             ,"Signal Message"
             */
+
+    @Override
+    public void onLogEvent(String log) {
+        Logger.json(log);
+    }
+
+    @Override
+    public void onState(String state) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textViewState.setText(state);
+            }
+        });
+    }
+
     private void setupThirdSpinner(Spinner spinnerThird) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ConstantSample.funcThird);
 
@@ -510,8 +529,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void deleteMessage() {
         ArrayList<Long> msgIds = new ArrayList<>();
-        msgIds.add(33124L);
-        msgIds.add(33125L);
+        msgIds.add(34973L);
+//        msgIds.add(33125L);
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
                 .Builder()
                 .messageIds(msgIds)

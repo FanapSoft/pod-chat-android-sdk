@@ -89,7 +89,7 @@ public class Util {
         return element.getAsJsonArray();
     }
 
-    public static <T> List<T> JsonToList(String json,Gson gson){
+    public static <T extends List> List<T> JsonToList(String json,Gson gson){
 
       return  gson.fromJson(json, new TypeToken<List<T>>() {
         }.getType());

@@ -52,8 +52,6 @@ public class ChatMessageType {
             Constants.SET_RULE_TO_USER,
             Constants.CLEAR_HISTORY,
             Constants.GET_THREAD_ADMINS,
-            Constants.UPDATE_USER_PROFILE
-
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -94,7 +92,6 @@ public class ChatMessageType {
         int SPAM_PV_THREAD = 41;
         int SET_RULE_TO_USER = 42;
         int CLEAR_HISTORY = 44;
-        int UPDATE_USER_PROFILE = 45;
         int SIGNAL_MESSAGE = 45;
         int GET_THREAD_ADMINS = 48;
         int ERROR = 999;

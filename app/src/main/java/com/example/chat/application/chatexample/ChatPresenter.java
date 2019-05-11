@@ -1,7 +1,6 @@
 package com.example.chat.application.chatexample;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -66,7 +65,6 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
-import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +105,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void OnLogEvent(String log) {
+        view.onLogEvent(log);
+    }
+
+
+
+    @Override
     public void isDatabaseOpen() {
         chat.isDbOpen();
     }
@@ -131,6 +136,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+
     @Override
     public void cancelUpload(String uniqueId) {
         chat.cancelUpload(uniqueId);
@@ -138,7 +144,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void seenMessageList(RequestSeenMessageList requestParams) {
-        chat.seenMessageList(requestParams);
+    }
+
+    @Override
+    public void deliveredMessageList(RequestDeliveredMessageList requestParams) {
+
     }
 
     @Override
@@ -150,11 +160,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public String createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
             , String metadata) {
         return chat.createThread(threadType, invitee, threadTitle, description, image, metadata, null);
-    }
-
-    @Override
-    public void deliveredMessageList(RequestDeliveredMessageList requestParams) {
-        chat.deliveredMessageList(requestParams);
     }
 
     @Override
@@ -272,11 +277,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public LiveData<String> getLiveState() {
-        return chat.getState();
-    }
-
-    @Override
     public void muteThread(int threadId, ChatHandler handler) {
         chat.muteThread(threadId, handler);
     }
@@ -337,13 +337,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getBlockList(Long count, Integer offset, ChatHandler handler) {
+    public void getBlockList(Long count, Long offset, ChatHandler handler) {
         chat.getBlockList(count, offset, handler);
     }
 
     @Override
     public String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
-        return chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData, messageType, handler);
+        return chat.sendFileMessage( activity, description, threadId, fileUri, metaData, messageType, handler);
     }
 
     @Override
@@ -498,8 +498,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
         super.onGetContacts(content, outPutContact);
-        Logger.json(content);
-        Logger.d(outPutContact);
+
         view.onGetContacts();
     }
 
@@ -632,7 +631,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onChatState(String state) {
-
+        view.onState(state);
     }
 
     @Override

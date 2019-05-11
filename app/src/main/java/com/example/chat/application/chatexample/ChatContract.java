@@ -1,7 +1,6 @@
 package com.example.chat.application.chatexample;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
 
@@ -51,6 +50,9 @@ public interface ChatContract {
 //        }
 
         default void onGetUserInfo() {
+        }
+
+        default void onLogEvent(String log) {
         }
 
         default void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
@@ -126,6 +128,9 @@ public interface ChatContract {
         }
 
         default void onSearchHisory() {
+        }
+
+        default void onState(String state) {
         }
 
         default void ongetBlockList() {
@@ -223,8 +228,6 @@ public interface ChatContract {
 
         void replyMessage(RequestReplyMessage request, ChatHandler handler);
 
-        LiveData<String> getLiveState();
-
         void muteThread(int threadId, ChatHandler handler);
 
         void renameThread(long threadId, String title, ChatHandler handler);
@@ -249,7 +252,7 @@ public interface ChatContract {
 
         void spam(long threadId);
 
-        void getBlockList(Long count, Integer offset, ChatHandler handler);
+        void getBlockList(Long count, Long offset, ChatHandler handler);
 
         String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
 

@@ -4,6 +4,14 @@
 
 # Changelog
 All notable changes to this project will be documented here.
+##  Version [0.4.2.1] -2019-3-5
+- Added Queue Message
+- Removed liveData library and Logger library in order to prevent some issue like size of the apk
+- Added SetRule to Admin (Both of the Remove and Add rule to admin are have a same method )
+- Added Get Admin List
+- Added Signal Message like `Is_Typing` or `recording_voice`
+
+
 ##  Version [0.4.1.0] -2019-3-5
 -  Added Message Queue to
   *  Reply message

@@ -8,7 +8,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 27
         versionCode 26
-        versionName "0.4.1.8"
+        versionName "0.4.2.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -38,7 +38,7 @@ ext {
 
     publishedGroupId = 'com.fanap.podchat'
     artifact = 'podchat'
-    libraryVersion = '0.4.1.8'
+    libraryVersion = '0.4.2.1'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
     gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'
@@ -57,11 +57,6 @@ dependencies {
     implementation 'com.android.support:support-annotations:28.0.0'
     implementation 'com.google.code.gson:gson:2.8.2'
 
-    //test
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
@@ -71,16 +66,17 @@ dependencies {
     //Rx
     implementation 'io.reactivex:rxjava:1.1.6'
     implementation 'io.reactivex:rxandroid:1.2.1'
+
     implementation 'android.arch.persistence.room:runtime:1.1.0'
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.0'
+
     implementation 'com.commonsware.cwac:saferoom:1.0.0'
     implementation 'com.google.dagger:dagger:2.16'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.16'
 
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
-    //logger
-    api 'com.orhanobut:logger:2.2.0'
-    api 'com.fanap.podasync:podasync:0.2.6.1'
+
+    api 'com.fanap.podasync:podasync:0.2.8.0'
 }
 
 if (project.rootProject.file('local.properties').exists()) {
