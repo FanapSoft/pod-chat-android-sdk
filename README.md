@@ -64,10 +64,41 @@ And now it's ready for chat .
 |39|`getMessageDeliveredList(RequestDeliveredMessageList requestParams)` | |
 |40|`getMessageSeenList(RequestSeenMessageList requestParams)` | |
 |40|`muteThread(RequestMuteThread request, ChatHandler handler)` | |
+|13|`isLoggable(boolean log)`         | shows log        |
+|14|`rawLog(boolean rawLog)`         | shows log without any changes         |
+|15|`setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
+|16|`addParticipants(RequestAddParticipants request, ChatHandler handler)`    | adds participant to the group      |
+|17|`removeParticipants(RequestRemoveParticipants request, ChatHandler handler)` |  removes participant of the group |
+|18|`leaveThread(RequestLeaveThread request, ChatHandler handler)`|leaves from the thread      |
+|19|`forwardMessage(RequestForwardMessage request)`             |Forwards messages to another thread    |
+|20|`getHistory(RequestGetHistory request, ChatHandler handler)`    |Gets list of conversation         |
+|21|`searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler)`  |search through conversation history|
+|22|`startSignalMessage(RequestSignalMsg requestSignalMsg)`| Starts sending signal message like `IS_TYPING`|
+|23|`stopSignalMessage(String uniqueId)` | Starts sending signal message like `IS_TYPING`|
+|24|`getContacts(RequestGetContact request, ChatHandler handler)` |Gets contact list |
+|25|`searchContact(SearchContact searchContact)` |search through contact list|
+|26|`addContact(RequestAddContact request)` |Adds contact|
+|27|`removeContact(RequestRemoveContact request)` |Removes contact|
+|28|`updateContact(RequestUpdateContact request)` |Updates contacs|
+|29|`block(RequestBlock request, ChatHandler handler)` |Block thread or contact|
+|30|`unblock(RequestUnBlock request, ChatHandler handler)` |Unblock|
+|31|`spam(RequestSpam request)` | |
+|32|`getBlockList(RequestBlockList request, ChatHandler handler)` | |
+|33|`createThreadWithMessage(RequestCreateThread threadRequest) ` | |
+|34|`getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) ` | |
+|35|`seenMessage(RequestSeenMessage request, ChatHandler handler)` | |
+|36|`getUserInfo(ChatHandler handler) ` | |
+|37|`unMuteThread(RequestMuteThread request, ChatHandler handler)` | |
+|38|`editMessage(RequestEditMessage request, ChatHandler handler)` | |
+|39|`getMessageDeliveredList(RequestDeliveredMessageList requestParams)` | |
+|40|`getMessageSeenList(RequestSeenMessageList requestParams)` | |
+|40|`muteThread(RequestMuteThread request, ChatHandler handler)` | |
 
 
 ⭐️
 
+|Num|Message Method           | Description   (All of the methods returns string as Unique id)|
+|:--|:------------------------------|:----------------------------------------------------------------------------------|
 |Num|Message Method           | Description   (All of the methods returns string as Unique id)|
 |:--|:------------------------------|:----------------------------------------------------------------------------------|
 |9|`getFile(int fileId, String hashCode, boolean downloadable)`         | Get file with return url     |
