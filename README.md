@@ -34,48 +34,48 @@ And now it's ready for chat .
 |Num|Thread & Base Method           | Description                                                                            |
 |:--|:------------------------------|:------------------------------------------------------------------------------------|
 |1|`getThreads(RequestThread requestThread, ChatHandler handler)`| Gets thread list|
-|10|`logOutSocket()`    | log out of the socket.      |
-|13|`isLoggable(boolean log)`         | shows log        |
-|14|`rawLog(boolean rawLog)`         | shows log without any changes         |
-|20|`getHistory(RequestGetHistory request, ChatHandler handler)`    |Gets list of conversation         |
-|21|`searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler)`  |search through conversation history|
-|31|`spam(RequestSpam request)` | |
-|36|`getUserInfo(ChatHandler handler) ` | |
-|18|`leaveThread(RequestLeaveThread request, ChatHandler handler)`|leaves from the thread      |
-|20|`getHistory(RequestGetHistory request, ChatHandler handler)`    |Gets list of conversation         |
-|33|`createThreadWithMessage(RequestCreateThread threadRequest) ` | |
-|37|`unMuteThread(RequestMuteThread request, ChatHandler handler)` | |
-|40|`muteThread(RequestMuteThread request, ChatHandler handler)` | |
+|2|`logOutSocket()`    | log out of the socket.      |
+|3|`isLoggable(boolean log)`         | shows log        |
+|4|`rawLog(boolean rawLog)`         | shows log without any changes         |
+|5|`getHistory(RequestGetHistory request, ChatHandler handler)`    |Gets list of conversation         |
+|6|`searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler)`  |search through conversation history|
+|7|`spam(RequestSpam request)` | |
+|8|`getUserInfo(ChatHandler handler) ` | |
+|9|`leaveThread(RequestLeaveThread request, ChatHandler handler)`|leaves from the thread      |
+|10|`getHistory(RequestGetHistory request, ChatHandler handler)`    |Gets list of conversation         |
+|11|`createThreadWithMessage(RequestCreateThread threadRequest) ` | |
+|12|`unMuteThread(RequestMuteThread request, ChatHandler handler)` | |
+|13|`muteThread(RequestMuteThread request, ChatHandler handler)` | |
 
 |Num|Admin Method           | Description                                                                            |
 |:--|:------------------------------|:------------------------------------------------------------------------------------|
-|15|`setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
+|1|`setAdmin(RequestAddAdmin requestAddAdmin)`        |  Adds admin with rules or removes them           |
 
 |Num|Participant Method           | Description                                                                            |
 |:--|:------------------------------|:------------------------------------------------------------------------------------|
-|34|`getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) ` | |
-|16|`addParticipants(RequestAddParticipants request, ChatHandler handler)`    | adds participant to the group      |
-|17|`removeParticipants(RequestRemoveParticipants request, ChatHandler handler)` |  removes participant of the group |
+|1|`getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) ` | |
+|2|`addParticipants(RequestAddParticipants request, ChatHandler handler)`    | adds participant to the group      |
+|3|`removeParticipants(RequestRemoveParticipants request, ChatHandler handler)` |  removes participant of the group |
 
 ⭐️
 
 |Num|Message Method           | Description   (All of the methods returns string as Unique id)|
 |:--|:------------------------------|:----------------------------------------------------------------------------------|
-|11|`sendTextMessage(RequestMessage requestMessage, ChatHandler handler)`               |  send Text message      |
-|12|`sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler)`|Send file with message|
-| |`resendMessage(String uniqueId) ` | |
-| |`replyMessage(RequestReplyMessage request, ChatHandler handler)` | |
-| |`deleteMessage(RequestDeleteMessage request, ChatHandler handler)` | |
+|1|`sendTextMessage(RequestMessage requestMessage, ChatHandler handler)`               |  send Text message      |
+|2|`sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler)`|Send file with message|
+|3|`resendMessage(String uniqueId) ` | |
+|4|`replyMessage(RequestReplyMessage request, ChatHandler handler)` | |
+|5|`deleteMessage(RequestDeleteMessage request, ChatHandler handler)` | |
 
 |Num|File Method           | Description   (All of the methods returns string as Unique id)|
 |:--|:------------------------------|:----------------------------------------------------------------------------------|
-| |`uploadImage(RequestUploadImage requestUploadImage) ` | |
-| |`uploadFile(@NonNull RequestUploadFile requestUploadFile) ` | |
-| |`cancelUpload(String uniqueId) ` | |
-| |`retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler)` | |
-| |`getFile(RequestGetFile requestGetFile) ` | |
-| |`getImage(RequestGetImage requestGetImage)` | |
-|13 |`uploadImageProgress(RequestUploadImage requestUploadImage,ProgressHandler.onProgress handler) ` | |
+|1|`uploadImage(RequestUploadImage requestUploadImage) ` | |
+|2 |`uploadFile(@NonNull RequestUploadFile requestUploadFile) ` | |
+|3|`cancelUpload(String uniqueId) ` | |
+|4|`retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler)` | |
+|5|`getFile(RequestGetFile requestGetFile) ` | |
+|6|`getImage(RequestGetImage requestGetImage)` | |
+|7|`uploadImageProgress(RequestUploadImage requestUploadImage,ProgressHandler.onProgress handler) ` | |
 
 
 
@@ -83,26 +83,26 @@ And now it's ready for chat .
 
 |Num|Contact Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|24|`getContacts(RequestGetContact request, ChatHandler handler)` |Gets contact list |
-|26|`addContact(RequestAddContact request)` |Adds contact|
-|27|`removeContact(RequestRemoveContact request)` |Removes contact|
-|28|`updateContact(RequestUpdateContact request)` |Updates contacs|
-|29|`block(RequestBlock request, ChatHandler handler)` |Block thread or contact|
-|30|`unblock(RequestUnBlock request, ChatHandler handler)` |Unblock|
-|5|`syncContact(Activity activity)`         | Sync mobile's Contact with server contact      |
-|9|`searchContact(SearchContact searchContact)`         |  search through the contacts    |
-|32|`getBlockList(RequestBlockList request, ChatHandler handler)` | |
+|1|`getContacts(RequestGetContact request, ChatHandler handler)` |Gets contact list |
+|2|`addContact(RequestAddContact request)` |Adds contact|
+|3|`removeContact(RequestRemoveContact request)` |Removes contact|
+|4|`updateContact(RequestUpdateContact request)` |Updates contacs|
+|5|`block(RequestBlock request, ChatHandler handler)` |Block thread or contact|
+|6|`unblock(RequestUnBlock request, ChatHandler handler)` |Unblock|
+|7|`syncContact(Activity activity)`         | Sync mobile's Contact with server contact      |
+|8|`searchContact(SearchContact searchContact)`         |  search through the contacts    |
+|9|`getBlockList(RequestBlockList request, ChatHandler handler)` | |
 
 
 ⭐️
 
 |Num|Map Method           | Description                                                                            |
 |:--|:------------------------------|:-----------------------------------------------------------------------------|
-|2|`mapSearch(RequestMapSearch request)`         | give you the direction     |
+|1|`mapSearch(RequestMapSearch request)`         | give you the direction     |
 |2|`mapRouting(RequestMapRouting request)`         | give you the direction     |
-|2|`mapStaticImage(RequestMapStaticImage request)`         | gives  the image of the map|
-|2|`sendLocationMessage(RequestLocationMessage request)`         | send message with the image of the map|
-|2|`mapReverse(RequestMapReverse request)`         | give you the direction     |
+|3|`mapStaticImage(RequestMapStaticImage request)`         | gives  the image of the map|
+|4|`sendLocationMessage(RequestLocationMessage request)`         | send message with the image of the map|
+|5|`mapReverse(RequestMapReverse request)`         | give you the direction     |
 
 ⭐️⭐️
 
