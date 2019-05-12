@@ -10,19 +10,12 @@ public class RequestSpam extends GeneralRequestObject {
         this.threadId = builder.threadId;
     }
 
-    public long getThreadId() {
-        return threadId;
-    }
-
-    public void setThreadId(long threadId) {
-        this.threadId = threadId;
-    }
-
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
         private long threadId;
 
-        public Builder(long threadId) {
+        public Builder threadId(long threadId) {
             this.threadId = threadId;
+            return this;
         }
 
         @NonNull
@@ -35,5 +28,13 @@ public class RequestSpam extends GeneralRequestObject {
         protected Builder self() {
             return this;
         }
+    }
+
+    public long getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
     }
 }

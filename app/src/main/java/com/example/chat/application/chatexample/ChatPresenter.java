@@ -51,6 +51,7 @@ import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -298,6 +299,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler) {
+//        RequestThreadParticipant participant = new RequestThreadParticipant.Builder(threadId)
+//                .count()
+//                .offset()
+//                .build();
+//        chat.getThreadParticipants()
         chat.getThreadParticipants(count, offset, threadId, handler);
     }
 
@@ -318,21 +324,46 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void block(Long contactId, Long userId, Long threadId, ChatHandler handler) {
+//        RequestBlock requestBlock = new RequestBlock.Builder()
+//                .contactId()
+//                .threadId()
+//                .userId()
+//                .build();
+//        chat.block(requestBlock,null);
         chat.block(contactId, userId, threadId, handler);
     }
 
     @Override
     public void unBlock(Long blockId, Long userId, Long threadId, Long contactId, ChatHandler handler) {
+
         chat.unblock(blockId, userId, threadId, contactId, handler);
     }
 
     @Override
     public void unBlock(RequestUnBlock request, ChatHandler handler) {
+
+//        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder()
+//                .blockId()
+//                .contactId()
+//                .threadId()
+//                .userId()
+//                .build();requestUnBlock = new RequestUnBlock.Builder()
+//                .blockId()
+//                .contactId()
+//                .threadId()
+//                .userId()
+//                .build();
+
         chat.unblock(request, handler);
     }
 
     @Override
     public void spam(long threadId) {
+
+//        RequestSpam requestSpam = new RequestSpam.Builder()
+//                .threadId()
+//                .build();
+
         chat.spam(threadId);
     }
 
@@ -418,6 +449,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
+
+        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId)
+                .build();
+        chat.leaveThread(leaveThread,null);
+
         chat.leaveThread(threadId, handler);
     }
 
