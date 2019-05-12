@@ -23,8 +23,9 @@ public class RequestUnBlock extends GeneralRequestObject {
         private long threadId;
         private long contactId;
 
-        public Builder(long blockId) {
+        public Builder blockId(long blockId) {
             this.blockId = blockId;
+            return this;
         }
 
         public Builder userId(long userId) {
@@ -43,8 +44,6 @@ public class RequestUnBlock extends GeneralRequestObject {
             this.contactId = contactId;
             return this;
         }
-
-
 
         @NonNull
         public RequestUnBlock build() {

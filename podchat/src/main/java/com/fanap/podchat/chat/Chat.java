@@ -1627,7 +1627,8 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * It leaves the thread that you are in there
+     * leaves the thread
+     * @ param threadId id of the thread
      */
     public String leaveThread(RequestLeaveThread request, ChatHandler handler) {
 
@@ -1984,6 +1985,9 @@ public class Chat extends AsyncAdapter {
      *                             it gets threads of p2p not groups
      * @param count                Count of the list
      * @param offset               Offset of the list
+     * @param handler              Its not working yet
+     * @param threadIds            List of thread ids that you want to get
+     * @param threadName           Name of the thread that you want to get
      */
     @Deprecated
     public String getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,
@@ -2101,6 +2105,7 @@ public class Chat extends AsyncAdapter {
      *
      * @param threadId Id of the thread that we want to get the history
      */
+    @Deprecated
     public String getHistory(History history, long threadId, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -2115,7 +2120,6 @@ public class Chat extends AsyncAdapter {
             history.setOffset(history.getOffset());
         } else {
             history.setOffset(0);
-//            offsets = 0;
         }
 
         if (cache) {
@@ -2160,18 +2164,27 @@ public class Chat extends AsyncAdapter {
         if (chatReady) {
             getHistoryMain(history, threadId, handler, uniqueId);
         } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
 
     /**
-     * Get history of the thread
+     * Gets history of the thread
      * <p>
-     * count    count of the messages
-     * order    If order is empty [default = desc] and also you have two option [ asc | desc ]
+     *
+     * @Param count    count of the messages
+     * @Param order    If order is empty [default = desc] and also you have two option [ asc | desc ]
      * lastMessageId
      * FirstMessageId
+     * @Param long threadId   Id of the thread
+     * @Param long fromTime    Start Time of the messages
+     * @Param long fromTimeNanos  Start Time of the messages in Nano second
+     * @Param long toTime         End time of the messages
+     * @Param long toTimeNanos    End time of the messages
+     * @Param @Deprecated long firstMessageId
+     * @Param @Deprecated long lastMessageId
+     *
      * <p>
      * threadId Id of the thread that we want to get the history
      */
@@ -2198,6 +2211,34 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * Gets history of the thread
+     * <p>
+     *
+     * @Param count    count of the messages
+     * @Param order    If order is empty [default = desc] and also you have two option [ asc | desc ]
+     * lastMessageId
+     * FirstMessageId
+     * @Param long threadId   Id of the thread
+     * @Param long userId
+     * @Param long id         Id of the message
+     * @Param String query
+     * @Param long fromTime    Start Time of the messages
+     * @Param long fromTimeNanos  Start Time of the messages in Nano second
+     * @Param long toTime         End time of the messages
+     * @Param long toTimeNanos    End time of the messages
+     * @Param NosqlSearchMetadataCriteria metadataCriteria
+     * ------ String field
+     * ------ String is
+     * ------ String has
+     * ------ String gt
+     * ------ String gte
+     * ------ String lt
+     * ------ String lte
+     * ------ List<NosqlSearchMetadataCriteria> and
+     * ------ List<NosqlSearchMetadataCriteria> or
+     * ------ List<NosqlSearchMetadataCriteria> not
+     **/
     public String searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -3028,7 +3069,6 @@ public class Chat extends AsyncAdapter {
      * @param threadId  id of the thread
      * @param userId    id of the user
      */
-
     public String block(Long contactId, Long userId, Long threadId, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -3078,9 +3118,9 @@ public class Chat extends AsyncAdapter {
 
     /**
      * It blocks the thread
-     * contactId id of the contact
-     * threadId  id of the thread
-     * userId    id of the user
+     * @ param contactId id of the contact
+     * @ param threadId  id of the thread
+     * @ param userId    id of the user
      */
     public String block(RequestBlock request, ChatHandler handler) {
         Long contactId = request.getContactId();
@@ -3159,10 +3199,10 @@ public class Chat extends AsyncAdapter {
 
     /**
      * It unblocks thread with three way
-     * blockId the id that came from getblockList
-     * userId
-     * threadId Id of the thread
-     * contactId Id of the contact
+     * @ param blockId it can be found in the response of getBlockList
+     * @ param userId Id of the user
+     * @ param threadId Id of the thread
+     * @ param contactId Id of the contact
      */
     public String unblock(RequestUnBlock request, ChatHandler handler) {
         long contactId = request.getContactId();
@@ -3177,6 +3217,7 @@ public class Chat extends AsyncAdapter {
      * If someone that is not in your contacts send message to you
      * their spam is false
      */
+    @Deprecated
     public String spam(long threadId) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -3202,14 +3243,15 @@ public class Chat extends AsyncAdapter {
             setCallBacks(null, null, null, true, Constants.SPAM_PV_THREAD, null, uniqueId);
             sendAsyncMessage(asyncContent, 4, "SEND_REPORT_SPAM");
         } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
 
     /**
-     * If someone that is not in your contacts send message to you
-     * their spam value is false and you can call this method in order to set that to true
+     * If someone that is not in your contact list tries to send message to you
+     * their spam value is true and you can call this method in order to set that to false
+     * @ param long threadId Id of the thread
      */
     public String spam(RequestSpam request) {
         String uniqueId;
@@ -3387,6 +3429,20 @@ public class Chat extends AsyncAdapter {
      * @return The first UniqueId is for create thread and the rest of them are for new message or forward messages
      * Its have three kind of Unique Ids. One of them is for message. One of them for Create Thread
      * and the others for Forward Message or Messages.
+     * <p>
+     * int type  Type of the Thread (You can have Thread Type from ThreadType.class)
+     * String ownerSsoId  [Optional]
+     * List<Invitee> invitees  you can add your invite list here
+     * String title  [Optional] title of the group thread
+     * <p>
+     * RequestThreadInnerMessage message{  object of the inner message
+     * <p>
+     * -------------  String text  text of the message
+     * -------------  int type  type of the message  [Optional]
+     * -------------  String metadata  [Optional]
+     * -------------  String systemMetadata  [Optional]
+     * -------------  List<Long> forwardedMessageIds  [Optional]
+     * }
      */
     public ArrayList<String> createThreadWithMessage(RequestCreateThread threadRequest) {
         List<String> forwardUniqueIds;
@@ -3562,7 +3618,10 @@ public class Chat extends AsyncAdapter {
     /**
      * Get the participant list of specific thread
      * <p>
-     * threadId id of the thread we want to get the participant list
+     *
+     * @ param long threadId id of the thread we want to get the participant list
+     * @ param long count number of the participant wanted to get
+     * @ param long offset offset of the participant list
      */
     public String getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) {
 
@@ -3579,6 +3638,7 @@ public class Chat extends AsyncAdapter {
      *
      * @param threadId id of the thread we want to ge the participant list
      */
+    @Deprecated
     public String getThreadParticipants(Integer count, Long offset, long threadId, ChatHandler handler) {
         return getThreadParticipantsMain(count, offset, threadId, null, handler);
     }
@@ -4148,6 +4208,7 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
     /**
      * This Function sends ping message to keep user connected to
      * chat server and updates its status

@@ -459,15 +459,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.searchContact(searchContact);
                         break;
                     case 10:
-                        NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria.Builder("name").is("sina").build();
+                        NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria
+                                .Builder("name")
+                                .is("sina")
+                                .build();
                         NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(231)
-                                .count(10).metadataCriteria(builderMeta).build();
-                        presenter.searchHistory(criteriaVO, new ChatHandler() {
-                            @Override
-                            public void onSearchHistory(String uniqueId) {
-                                super.onSearchHistory(uniqueId);
-                            }
-                        });
+                                .count(10)
+                                .metadataCriteria(builderMeta)
+                                .build();
+                        presenter.searchHistory(criteriaVO, null);
 
                         break;
                     case 11:
@@ -684,6 +684,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
 
+
+
                 break;
             case 8:
                 createThread();
@@ -815,6 +817,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //
 //        presenter.getHistory(request, null);
 
+//        RequestGetHistory requestGetHistory = new RequestGetHistory.Builder(threadId)
+//                .fromTime()
+//                .fromTimeNanos()
+//                .id()
+//                .toTime()
+//                .toTimeNanos()
+//                .build();
+
         History history = new History.Builder().build();
         presenter.getHistory(history, 1576, new ChatHandler() {
             @Override
@@ -937,7 +947,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void getthreadWithCoreUser() {
-        RequestThread requestThread = new RequestThread.Builder().partnerCoreContactId(566).build();
+        RequestThread requestThread = new RequestThread.Builder().partnerCoreContactId(566)
+//                .threadIds()
+//                .threadName()
+//                .partnerCoreContactId()
+//                .creatorCoreUserId()
+//                .partnerCoreUserId()
+//                .count()
+//                .offset()
+                .build();
         presenter.getThreads(requestThread, null);
     }
 

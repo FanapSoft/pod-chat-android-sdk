@@ -20,6 +20,7 @@ public class ChatStateType {
             ChatSateConstant.CHAT_READY,
             ChatSateConstant.ASYNC_READY})
     @Retention(RetentionPolicy.SOURCE)
+
     public @interface ChatSateConstant {
         String CHAT_READY = "CHAT_READY";
         String CONNECTING = "CONNECTING";
