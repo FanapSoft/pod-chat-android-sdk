@@ -5,11 +5,16 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
+import com.fanap.podchat.model.OutPutNotSeenDurations;
+import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutputSetRoleToUser;
+import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
 import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.ResultClearHistory;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
@@ -28,6 +33,9 @@ import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 
 public class ChatAdapter implements ChatListener {
+
+
+
     @Override
     public void onDeliver(String content, ChatResponse<ResultMessage> chatResponse) {
 
@@ -230,6 +238,31 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
+
+    }
+
+    @Override
+    public void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
+
+    }
+
+    @Override
+    public void OnClearHistory(String content, ChatResponse<ResultClearHistory> chatResponse) {
+
+    }
+
+    @Override
+    public void OnSignalMessageReceive(OutputSignalMessage output) {
+
+    }
+
+    @Override
+    public void OnSetRule(OutputSetRoleToUser outputSetRoleToUser) {
+
+    }
+
+    @Override
+    public void onGetThreadParticipant( OutPutParticipant outPutParticipant) {
 
     }
 }

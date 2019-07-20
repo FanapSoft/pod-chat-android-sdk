@@ -85,7 +85,9 @@ public class RetrofitHelperPlatformHost {
         this.context = context;
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
-                .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+                .client(new OkHttpClient()
+                        .newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor()
+                                .setLevel(HttpLoggingInterceptor.Level.BODY)).build())
 //                .client(enableTls12OnPreLollipop(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());

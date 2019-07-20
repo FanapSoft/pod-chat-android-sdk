@@ -17,6 +17,7 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestAddAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
+import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
@@ -32,7 +33,6 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface ChatContract {
+
     interface view {
 
 //        default void onRecivedNotification(Notification notification) {
@@ -197,6 +198,8 @@ public interface ChatContract {
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
                 , String platformHost, String fileServer, String typeCode);
 
+        void connect(RequestConnect requestConnect);
+
         void mapSearch(String searchTerm, Double latitude, Double longitude);
 
         void mapRouting(String origin, String destination);
@@ -300,12 +303,22 @@ public interface ChatContract {
 
         void setAdmin(RequestAddAdmin requestAddAdmin);
 
+        void removeAdminRules(RequestAddAdmin requestAddAdmin);
+
         void clearHistory(RequestClearHistory requestClearHistory);
 
         void getAdminList(RequestGetAdmin requestGetAdmin);
 
-        String startSignalMessage(RequestSignalMsg requestSignalMsg);
+//        String startSignalMessage(RequestSignalMsg requestSignalMsg);
 
-        void stopSignalMessage(String uniqueId);
+//        void stopSignalMessage(String uniqueId);
+
+        void getNotSeenDuration(ArrayList<Integer> userIds);
+
+        String startTyping(long threadId);
+
+        boolean stopTyping(String signalUniqueId);
+
+        void stopAllSignalMessages();
     }
 }

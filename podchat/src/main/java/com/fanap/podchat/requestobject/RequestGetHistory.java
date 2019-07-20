@@ -53,6 +53,14 @@ public class RequestGetHistory extends BaseRequestObject {
             this.threadId = threadId;
         }
 
+        public Builder() {
+        }
+
+        public Builder threadId(long threadId) {
+            this.threadId = threadId;
+            return this;
+        }
+
         @NonNull
         public Builder firstMessageId(long firstMessageId) {
             this.firstMessageId = firstMessageId;

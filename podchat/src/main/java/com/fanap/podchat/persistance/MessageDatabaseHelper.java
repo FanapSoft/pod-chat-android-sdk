@@ -89,6 +89,7 @@ public class MessageDatabaseHelper {
      * Cache history
      */
     public void saveHistory(@NonNull List<CacheMessageVO> messageVOS, long threadId) {
+
         for (CacheMessageVO messageVO : messageVOS) {
             messageVO.setThreadVoId(threadId);
 
@@ -129,6 +130,7 @@ public class MessageDatabaseHelper {
     }
 
     public void saveMessage(@NonNull CacheMessageVO cacheMessageVO, long threadId) {
+
         cacheMessageVO.setThreadVoId(threadId);
 
         if (cacheMessageVO.getParticipant() != null) {
@@ -861,7 +863,7 @@ public class MessageDatabaseHelper {
     @NonNull
     public List<Contact> getContacts(Integer count, Long offset) {
         List<Contact> contacts = new ArrayList<>();
-        List<CacheContact> cacheContacts = messageDao.getContact(count, offset);
+        List<CacheContact> cacheContacts = messageDao.getContacts(count, offset);
         if (cacheContacts != null && cacheContacts.size() > 0) {
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
@@ -1601,7 +1603,7 @@ public class MessageDatabaseHelper {
                     long participantId = threadParticipant.getParticipantId();
 
                     if (expireDate.compareTo(nowDate) < 0) {
-                        messageDao.deleteCacheThreadParticipnat(participantId);
+                        messageDao.deleteCacheThreadParticipant(participantId);
                     } else {
                         CacheParticipant cParticipant = messageDao.getParticipant(participantId);
                         Participant participant = new Participant(

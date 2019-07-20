@@ -5,9 +5,12 @@ import com.fanap.podchat.util.Util;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -78,9 +81,95 @@ public class ExampleUnitTest {
         String center = "35.7003510,51.3376472";
         String part1 = center.substring(0, center.lastIndexOf(','));
 //        int lastIndex = center.lastIndexOf('2');
-        String part2 = center.substring(center.lastIndexOf(',')+1, center.length());
+        String part2 = center.substring(center.lastIndexOf(',') + 1, center.length());
+
+    }
 
 
+    @Test
+    public void listTest() {
+
+
+        ArrayList<String> list = new ArrayList<>();
+
+        list.add("1");
+
+        list.add("23");
+
+
+        if (list.contains("4")) {
+
+            list.remove("4");
+
+        } else {
+
+            list.add("4");
+
+        }
+
+
+        assertEquals(3, list.size());
+
+
+    }
+
+
+    @Test
+    public void testFindKeyWithValue() {
+
+
+        HashMap<String, ArrayList<String>> map = new HashMap<>();
+
+        ArrayList<String> a1 = new ArrayList<>();
+        ArrayList<String> a2 = new ArrayList<>();
+        ArrayList<String> a3 = new ArrayList<>();
+
+        a1.add("a1val1");
+        a1.add("a1val2");
+        a1.add("a1val3");
+
+        a2.add("a2val1");
+        a2.add("a2val2");
+        a2.add("a2val3");
+
+        a3.add("a3val1");
+        a3.add("a3val2");
+        a3.add("a3val3");
+
+
+        map.put("key1", a1);
+        map.put("key2", a2);
+        map.put("key3", a3);
+
+
+//       assertEquals( findKeyWithUniqueValue(map,"a3val3"),"key3");
+//       assertEquals( findKeyWithUniqueValue(map,"a3val4"),"");
+//       assertEquals( findKeyWithUniqueValue(map,"a1val2"),"key1");
+//
+        assertEquals(Util.findKeyWithUniqueValue(map, "a3val3"), "key3");
+        assertEquals(Util.findKeyWithUniqueValue(map, "a3val4"), "");
+        assertEquals(Util.findKeyWithUniqueValue(map, "a1val2"), "key1");
+        assertNotEquals(Util.findKeyWithUniqueValue(map, "a1val2"), "");
+
+
+    }
+
+    private String findKeyWithValue(Map<String, ArrayList<String>> map,String query) {
+
+        for (String key : map.keySet()) {
+
+            for (String value :
+                    map.get(key)) {
+
+                    if(value.equals(query))
+                        return key;
+
+            }
+
+
+        }
+
+        return "";
     }
 
 }

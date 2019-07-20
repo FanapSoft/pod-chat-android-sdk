@@ -5,7 +5,11 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
+import com.fanap.podchat.model.OutPutNotSeenDurations;
+import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutputSetRoleToUser;
+import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
@@ -31,6 +35,8 @@ import com.fanap.podchat.model.ResultUserInfo;
 public interface ChatListener {
 
     default void onError(String content, ErrorOutPut error) {
+
+
     }
 
     default void onGetContacts(String content, ChatResponse<ResultContact> response) {
@@ -84,6 +90,10 @@ public interface ChatListener {
     }
 
     default void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> response) {
+
+    }
+
+    default void onGetThreadParticipant(OutPutParticipant outPutParticipant) {
 
     }
 
@@ -192,5 +202,15 @@ public interface ChatListener {
     }
 
     default void OnGetThreadAdmin(String content) {
+    }
+
+    default void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
+    }
+
+
+    default void OnSignalMessageReceive(OutputSignalMessage output) {
+    }
+
+    default void OnSetRule(OutputSetRoleToUser outputSetRoleToUser) {
     }
 }

@@ -1,2 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fanap.podchat" />
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.fanap.podchat"
+    tools:targetApi="n">
+</manifest>

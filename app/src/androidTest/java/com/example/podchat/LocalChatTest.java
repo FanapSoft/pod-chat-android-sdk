@@ -83,7 +83,7 @@ public class LocalChatTest {
 
         long threadId = 1288;
         History history = new History.Builder().fromTime(235566).fromTimeNanos(2).build();
-        presenter.getHistory(history, threadId,null);
+        presenter.getHistory(history, threadId, null);
 
         try {
             Thread.sleep(3000);

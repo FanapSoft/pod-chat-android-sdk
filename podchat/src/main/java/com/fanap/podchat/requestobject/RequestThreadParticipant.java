@@ -31,6 +31,10 @@ public class RequestThreadParticipant extends GeneralRequestObject {
             this.threadId = threadId;
         }
 
+
+        public Builder() {
+        }
+
         @NonNull
         public Builder count(long count) {
             this.count = count;
@@ -40,6 +44,12 @@ public class RequestThreadParticipant extends GeneralRequestObject {
         @NonNull
         public Builder offset(long offset) {
             this.offset = offset;
+            return this;
+        }
+
+        @NonNull
+        public Builder threadId(long threadId) {
+            this.threadId = threadId;
             return this;
         }
 

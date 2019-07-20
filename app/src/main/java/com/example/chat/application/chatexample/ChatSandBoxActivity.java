@@ -23,7 +23,6 @@ import android.widget.Toast;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -53,6 +52,8 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.fanap.podchat.example.R;
+
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -306,7 +307,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     public void unBlock() {
-        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder(1382).build();
+        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder().build();
+//        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder(1382).build();
         presenter.unBlock(requestUnBlock, null);
 
 //        presenter.unBlock(1382L, new ChatHandler() {

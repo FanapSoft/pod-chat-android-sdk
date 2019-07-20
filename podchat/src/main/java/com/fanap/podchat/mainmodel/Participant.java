@@ -1,8 +1,12 @@
 package com.fanap.podchat.mainmodel;
 
-public class Participant {
-    private long id;
+import java.util.ArrayList;
+import java.util.List;
 
+public class Participant {
+
+
+    private long id;
     private String name;
     private String firstName;
     private String lastName;
@@ -25,6 +29,7 @@ public class Participant {
     private Boolean online;
     private Boolean blocked;
     private Boolean admin;
+    private ArrayList<String> roles;
 
 
     public Participant() {
@@ -71,6 +76,13 @@ public class Participant {
         this.admin=admin;
     }
 
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(ArrayList<String> roles) {
+        this.roles = roles;
+    }
 
     public long getId() {
         return id;

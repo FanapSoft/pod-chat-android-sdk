@@ -10,14 +10,14 @@ import org.junit.runner.RunWith;
 import okhttp3.mockwebserver.MockWebServer;
 
 @RunWith(AndroidJUnit4.class)
-public class RetrofitApiTest   {
+public class RetrofitApiTest {
 
     private MockWebServer mockWebServer;
     private Context appContext;
 
 
     @Before
-    public void  setUp() throws Exception{
+    public void setUp() throws Exception {
         appContext = InstrumentationRegistry.getContext();
         mockWebServer = new MockWebServer();
         mockWebServer.start();

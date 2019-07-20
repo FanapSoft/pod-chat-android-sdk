@@ -40,7 +40,7 @@ public interface MessageDao {
     void deleteContactById(long id);
 
     @Query("select * from CacheContact LIMIT :count OFFSET :offset")
-    List<CacheContact> getContact(Integer count, Long offset);
+    List<CacheContact> getContacts(Integer count, Long offset);
 
 
     @Query("SELECT COUNT(id) FROM CacheContact")
@@ -218,7 +218,7 @@ public interface MessageDao {
     void insertThreadParticipant(CacheThreadParticipant cacheThreadParticipant);
 
     @Query("DELETE FROM CacheThreadParticipant WHERE participantId =:participantId")
-    void deleteCacheThreadParticipnat(long participantId);
+    void deleteCacheThreadParticipant(long participantId);
 
     @Query("SELECT * FROM cachethreadparticipant WHERE threadId = :threadId LIMIT :count OFFSET :offset ")
     List<CacheThreadParticipant> getAllThreadParticipants(long offset, long count, long threadId);

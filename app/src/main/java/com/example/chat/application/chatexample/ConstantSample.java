@@ -1,6 +1,8 @@
 package com.example.chat.application.chatexample;
 
 public class ConstantSample {
+
+
     public static final String[] func = {
             "Choose function",
             "get thread",
@@ -19,6 +21,7 @@ public class ConstantSample {
             , "add contact"
             , "remove contact"
             , "update contact"
+            , "get not seen duration"
     };
 
     public static final String[] funcSecond = {
@@ -33,11 +36,11 @@ public class ConstantSample {
             , "Delete Message"
             , "Search Contact"
             , "Search History"
-            ,"Send Reply file Message"
-            ,"Cancel upload"
-            ,"Retry upload"
-            ,"Clear History"
-            ,"Get Admin List"
+            , "Send Reply file Message"
+            , "Cancel upload"
+            , "Retry upload"
+            , "Clear History"
+            , "Get Admin List"
     };
 
     public static final String[] funcThird = {
@@ -52,11 +55,13 @@ public class ConstantSample {
             , "delivered Message List"
             , "Create thread with new Message"
             , "Get thread with coreUserId"
-            ,"map static image"
-            ,"map reverse"
-            ,"Send MapLocation Message"
-            ,"Add Admin"
-            ,"start Signal Message"
-            ,"stop Signal Message"
+            , "map static image"
+            , "map reverse"
+            , "Send MapLocation Message"
+            , "Add Admin"
+            , "Start Typing"
+            , "Stop Typing"
+            , "Remove Admin Rules"
+
     };
 }

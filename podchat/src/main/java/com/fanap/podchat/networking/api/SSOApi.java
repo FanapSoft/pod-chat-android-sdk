@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.model.EncResponse;
 
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -21,7 +23,7 @@ public interface SSOApi {
 
     @POST("/users/handshake")
     @FormUrlEncoded
-    Observable<Response<EncResponse>> generateEncryptionKey(
+    Call<EncResponse> generateEncryptionKey(
             @Header("Authorization") String bearerToken,
             @Field("keyAlgorithm") String keyAlgorithm,
             @Field("keySize") int keySize,

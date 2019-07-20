@@ -15,7 +15,9 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Util {
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -94,4 +96,25 @@ public class Util {
       return  gson.fromJson(json, new TypeToken<List<T>>() {
         }.getType());
     }
+
+
+    public static <T,V> T findKeyWithUniqueValue(HashMap<T, ArrayList<V> > map, Object query) {
+
+        for (T key: map.keySet()) {
+
+            for (V t:
+                    map.get(key)) {
+
+                if(t.equals(query))
+                    return key;
+
+            }
+
+
+        }
+
+        return null;
+
+    }
+
 }

@@ -1,30 +1,54 @@
 package com.fanap.podchat.requestobject;
 
-public class RequestGetAdmin {
-    private long threadId;
+import android.support.annotation.NonNull;
 
-    private RequestGetAdmin(Builder builder) {
-        this.threadId = builder.threadId;
+public class RequestGetAdmin extends RequestThreadParticipant {
+
+    boolean admin;
+
+
+    public RequestGetAdmin(Builder builder) {
+        super(builder);
+        this.admin = builder.admin;
+
     }
 
 
-    public static class Builder {
-        private long threadId;
+    public static class Builder extends RequestThreadParticipant.Builder  {
 
-        public Builder(long threadId) {
-            this.threadId = threadId;
+        boolean admin;
+
+        public Builder(long threadId, boolean admin) {
+            super(threadId);
+            this.admin = admin;
         }
+
+        public Builder() { }
+
+        public Builder admin(boolean admin) {
+            this.admin = admin;
+            return this;
+        }
+
+        @NonNull
+        public Builder threadId(long threadId) {
+            super.threadId(threadId);
+            return this;
+        }
+
+
+
 
         public RequestGetAdmin build() {
             return new RequestGetAdmin(this);
         }
     }
 
-    public long getThreadId() {
-        return threadId;
+    public boolean isAdmin() {
+        return admin;
     }
 
-    public void setThreadId(long threadId) {
-        this.threadId = threadId;
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 }

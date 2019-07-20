@@ -29,10 +29,25 @@ public class Converters {
         return new Gson().fromJson(value, listType);
     }
 
+    //   @TypeConverter
+//    public static <T> ArrayList<T> fromString(String value) {
+//        Type listType = new TypeToken<ArrayList<T>>() {}.getType();
+//        return new Gson().fromJson(value, listType);
+//    }
+
+
     @TypeConverter
     public static String fromArrayList(ArrayList<String> list) {
         Gson gson = new Gson();
         String json = gson.toJson(list);
         return json;
     }
+
+//    @TypeConverter
+//    public static <T> String fromArrayList(ArrayList<T> list) {
+//        Gson gson = new Gson();
+//        String json = gson.toJson(list);
+//        return json;
+//    }
+
 }

@@ -24,7 +24,9 @@ public class RetrofitHelperMap {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(mapServer)
-                .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+                .client(new OkHttpClient().newBuilder()
+                        .addNetworkInterceptor(new HttpLoggingInterceptor()
+                                .setLevel(HttpLoggingInterceptor.Level.BODY)).build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
     }

@@ -39,7 +39,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="17dp"
         android:onClick="sendMessage"
-        android:text="Send message"
+        android:text="Send message!"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 
@@ -70,19 +70,38 @@
 
     <EditText
         android:id="@+id/editTextThread"
-        android:layout_width="0dp"
+        android:layout_width="216dp"
         android:layout_height="46dp"
-        android:layout_marginBottom="37dp"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="34dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="37dp"
         android:ems="10"
         android:hint="Thread id"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerSecond" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerSecond"
+        app:layout_constraintVertical_bias="1.0" />
+
+
+    <Button
+        android:onClick="SetThreadId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Set Thread ID"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextThread"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.416"
+        app:layout_constraintStart_toEndOf="@+id/editTextThread"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerThird"
+        app:layout_constraintVertical_bias="1.0" />
 
 
     <TextView
@@ -152,7 +171,7 @@
 
     <Button
         android:id="@+id/buttonChooseFile"
-        android:layout_width="wrap_content"
+        android:layout_width="114dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
@@ -160,7 +179,7 @@
         android:onClick="ChooseFile"
         android:text="ChooseFile"
         app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.166"
         app:layout_constraintStart_toStartOf="@+id/buttonToken"
         app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 

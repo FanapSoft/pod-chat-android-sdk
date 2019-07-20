@@ -46,7 +46,7 @@ public class DbTest {
     }
 
     @Test
-    public void getPhoneContact(){
+    public void getPhoneContact() {
         String name;
         String phoneNumber;
         String lastName;
