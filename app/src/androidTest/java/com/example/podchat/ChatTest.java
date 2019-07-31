@@ -622,7 +622,7 @@ public class ChatTest extends ChatAdapter {
         ArrayList<Long> messageIds = new ArrayList<>();
         messageIds.add(14380L);
 
-        presenter.deleteMessage(messageIds, true, null);
+        presenter.deleteMessage(messageIds,0L, true, null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {

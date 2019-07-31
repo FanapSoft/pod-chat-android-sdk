@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 26
-        versionName "0.4.2.1"
+        versionCode 28
+        versionName "0.4.2.5"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -34,18 +34,18 @@ ext {
     bintrayRepo = "maven"
     bintrayName = "com.fanap.podchat"
 
-    libraryName = 'podchat'
+    libraryName = 'PodChat'
 
     publishedGroupId = 'com.fanap.podchat'
     artifact = 'podchat'
-    libraryVersion = '0.4.2.1'
+    libraryVersion = '0.4.2.5'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
-    gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'
-    siteUrl = 'https://github.com/Sinarahimi/Chat-Pod'
-    developerId = 'sinara'
-    developerName = 'Sina Rahimi'
-    developerEmail = 'develop.rahimi95@gmail.com'
+    gitUrl = 'https://github.com/Farhad7d7/Pod-Chat-Android-SDK.git'
+    siteUrl = 'https://github.com/Farhad7d7/Pod-Chat-Android-SDK'
+    developerId = 'farhad7d7'
+    developerName = 'Farhad Kheirkhah'
+    developerEmail = 'farhadkheirkhah7@gmail.com'
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
@@ -77,9 +77,91 @@ dependencies {
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
 
     api 'com.fanap.podasync:podasync:0.2.8.0'
+
+
 }
 
-if (project.rootProject.file('local.properties').exists()) {
-    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/bintrayv1.gradle'
-    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/installv1.gradle'
+group = publishedGroupId
+version = libraryVersion
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging 'aar'
+            groupId publishedGroupId
+            artifactId artifact
+
+            name libraryName
+            description libraryDescription
+            url siteUrl
+
+            licenses {
+                license {
+                    name licenseName
+                    url licenseUrl
+                }
+            }
+            developers {
+                developer {
+                    id developerId
+                    name developerName
+                    email developerEmail
+                }
+            }
+            scm {
+                connection gitUrl
+                developerConnection gitUrl
+                url siteUrl
+            }
+        }
+    }
 }
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = bintrayRepo
+        name = bintrayName
+        desc = libraryDescription
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = allLicenses
+        dryRun = false
+        publish = true
+        override = true
+        publicDownloadNumbers = true
+        version {
+            desc = libraryDescription
+        }
+    }
+}
+//if (project.rootProject.file('local.properties').exists()) {
+//    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/bintrayv1.gradle'
+//    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/installv1.gradle'
+//}

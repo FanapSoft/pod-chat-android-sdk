@@ -1,5 +1,6 @@
 package com.example.podchat;
 
+import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.Util;
 
 import org.junit.Test;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -170,6 +172,38 @@ public class ExampleUnitTest {
         }
 
         return "";
+    }
+
+
+
+    @Test
+    public void converters(){
+
+        String s = "[\"thread_admin\",\"add_new_user\",\"remove_user\"]";
+
+//        String s = "[role1,role2,role3,role4]";
+
+        DataTypeConverter dataTypeConverter = new DataTypeConverter();
+
+        List<String> lst = new ArrayList<>();
+
+        lst.add("thread_admin");
+        lst.add("add_new_user");
+        lst.add("remove_user");
+
+        System.out.println(s);
+        System.out.println(lst.toString());
+        System.out.println("***");
+        System.out.println(dataTypeConverter.dataToList(s));
+        System.out.println(dataTypeConverter.convertListToString(lst));
+
+        assertEquals(lst,dataTypeConverter.dataToList(s));
+        assertEquals(s,dataTypeConverter.convertListToString(lst));
+
+
+
+
+
     }
 
 }

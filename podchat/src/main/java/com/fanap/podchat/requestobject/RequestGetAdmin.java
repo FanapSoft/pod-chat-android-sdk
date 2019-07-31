@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 public class RequestGetAdmin extends RequestThreadParticipant {
 
-    boolean admin;
+    private boolean admin;
 
 
     public RequestGetAdmin(Builder builder) {

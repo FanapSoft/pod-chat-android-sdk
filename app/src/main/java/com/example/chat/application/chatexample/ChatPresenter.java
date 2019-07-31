@@ -69,6 +69,7 @@ import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
+import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestThreadParticipant;
@@ -96,17 +97,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.addListener(this);
 
-        chat.addListener(new ChatListener() {
-            @Override
-            public void onSent(String content, ChatResponse<ResultMessage> response) {
+//        chat.addListener(new ChatListener() {
+//            @Override
+//            public void onSent(String content, ChatResponse<ResultMessage> response) {
+//
+//            }
+//
+//
+//        });
 
-            }
 
-
-        });
-
-
-        chat.isCacheables(false);
+        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
@@ -121,6 +122,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void sendLocationMessage(RequestLocationMessage request) {
         chat.sendLocationMessage(request);
+    }
+
+    @Override
+    public void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage handler) {
+
+        chat.sendLocationMessage(requestLocationMessage,handler);
     }
 
     @Override
@@ -162,10 +169,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void seenMessageList(RequestSeenMessageList requestParams) {
+
+        chat.getMessageSeenList(requestParams);
+
     }
 
     @Override
     public void deliveredMessageList(RequestDeliveredMessageList requestParams) {
+
+        chat.getMessageDeliveredList(requestParams);
 
     }
 
@@ -410,11 +422,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void spam(long threadId) {
 
-//        RequestSpam requestSpam = new RequestSpam.Builder()
-//                .threadId()
-//                .build();
+        RequestSpam requestSpam = new RequestSpam.Builder()
+                .threadId(threadId)
+                .build();
 
-        chat.spam(threadId);
+        chat.spam(requestSpam);
+
+
+    }
+
+    @Override
+    public String spam(RequestSpam requestSpam) {
+
+
+
+        return chat.spam(requestSpam);
     }
 
     @Override
@@ -518,8 +540,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void deleteMessage(ArrayList<Long> messageIds, Boolean deleteForAll, ChatHandler handler) {
-        chat.deleteMessage(messageIds, deleteForAll, handler);
+    public void deleteMessage(ArrayList<Long> messageIds, long threadId, Boolean deleteForAll, ChatHandler handler) {
+        chat.deleteMessage(messageIds, threadId, deleteForAll, handler);
     }
 
     @Override

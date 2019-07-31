@@ -2,6 +2,7 @@ package com.fanap.podchat.persistance;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
+import android.arch.persistence.room.TypeConverters;
 
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
@@ -21,6 +22,7 @@ import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.persistance.dao.PhoneContactDao;
+import com.fanap.podchat.util.DataTypeConverter;
 
 @Database(entities = {
         CacheContact.class,
@@ -39,6 +41,7 @@ import com.fanap.podchat.persistance.dao.PhoneContactDao;
         PhoneContact.class,
         ThreadVo.class
 }, version = 2, exportSchema = false)
+@TypeConverters({DataTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 
     static final int VERSION = 1;
