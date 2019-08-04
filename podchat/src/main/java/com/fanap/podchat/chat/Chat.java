@@ -7901,6 +7901,58 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    @Override
+    public void onDisconnected(String textMessage) {
+        super.onDisconnected(textMessage);
+
+        listenerManager.callOnLogEvent(textMessage);
+
+
+        ErrorOutPut errorOutPut = new ErrorOutPut();
+        errorOutPut.setErrorMessage(textMessage);
+        errorOutPut.setHasError(true);
+        errorOutPut.setErrorCode(0);
+        errorOutPut.setUniqueId("");
+
+
+        listenerManager.callOnError(getErrorOutPut(textMessage,1L,""),errorOutPut);
+    }
+
+    @Override
+    public void onError(String textMessage) {
+        super.onError(textMessage);
+
+        listenerManager.callOnLogEvent(textMessage);
+
+
+        ErrorOutPut errorOutPut = new ErrorOutPut();
+        errorOutPut.setErrorMessage(textMessage);
+        errorOutPut.setHasError(true);
+        errorOutPut.setErrorCode(0);
+        errorOutPut.setUniqueId("");
+
+
+        listenerManager.callOnError(getErrorOutPut(textMessage,1L,""),errorOutPut);
+
+
+    }
+
+    @Override
+    public void handleCallbackError(Throwable cause) {
+        super.handleCallbackError(cause);
+
+        listenerManager.callOnLogEvent(cause.getMessage());
+
+
+        ErrorOutPut errorOutPut = new ErrorOutPut();
+        errorOutPut.setErrorMessage(cause.getMessage());
+        errorOutPut.setHasError(true);
+        errorOutPut.setErrorCode(0);
+        errorOutPut.setUniqueId("");
+
+
+        listenerManager.callOnError(getErrorOutPut(cause.getMessage(),1L,""),errorOutPut);
+    }
 
     private String getToken() {
         return token;
