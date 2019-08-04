@@ -29,7 +29,7 @@ public class Participant {
     private Boolean online;
     private Boolean blocked;
     private Boolean admin;
-    private ArrayList<String> roles;
+    private List<String> roles;
 
 
     public Participant() {
@@ -53,7 +53,8 @@ public class Participant {
             Boolean myFriend,
             Boolean online,
             Boolean blocked,
-            Boolean admin
+            Boolean admin,
+            List<String> roles
     ) {
 
         this.id=id;
@@ -74,6 +75,7 @@ public class Participant {
         this.online=online;
         this.blocked=blocked;
         this.admin=admin;
+        this.roles = roles;
     }
 
     public List<String> getRoles() {

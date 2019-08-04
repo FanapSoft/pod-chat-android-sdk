@@ -3,6 +3,8 @@ package com.fanap.podchat.cachemodel;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.util.List;
+
 @Entity()
 public class CacheParticipant {
     @PrimaryKey
@@ -35,10 +37,44 @@ public class CacheParticipant {
     private boolean blocked;
     private boolean admin;
 
+    private List<String> roles;
+
+
+
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
     @Override
     public String toString() {
-        return super.toString();
-
+        return "CacheParticipant{" +
+                "id=" + id +
+                ", threadId=" + threadId +
+                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", image='" + image + '\'' +
+                ", notSeenDuration=" + notSeenDuration +
+                ", contactId=" + contactId +
+                ", coreUserId=" + coreUserId +
+                ", contactName='" + contactName + '\'' +
+                ", contactFirstName='" + contactFirstName + '\'' +
+                ", contactLastName='" + contactLastName + '\'' +
+                ", sendEnable=" + sendEnable +
+                ", receiveEnable=" + receiveEnable +
+                ", cellphoneNumber='" + cellphoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", myFriend=" + myFriend +
+                ", online=" + online +
+                ", blocked=" + blocked +
+                ", admin=" + admin +
+                ", roles=" + roles +
+                '}';
     }
 
     public long getId() {

@@ -33,6 +33,7 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
@@ -163,6 +164,9 @@ public interface ChatContract {
 
         void sendLocationMessage(RequestLocationMessage request);
 
+        void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
+
+
         void isDatabaseOpen();
 
         void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler);
@@ -255,6 +259,8 @@ public interface ChatContract {
 
         void spam(long threadId);
 
+        String spam(RequestSpam requestSpam);
+
         void getBlockList(Long count, Long offset, ChatHandler handler);
 
         String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
@@ -293,7 +299,7 @@ public interface ChatContract {
 
         void updateThreadInfo(RequestThreadInfo request, ChatHandler handler);
 
-        void deleteMessage(ArrayList<Long> messageIds, Boolean deleteForAll, ChatHandler handler);
+        void deleteMessage(ArrayList<Long> messageIds,long threadId, Boolean deleteForAll, ChatHandler handler);
 
         void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler);
 

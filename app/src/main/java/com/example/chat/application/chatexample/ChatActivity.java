@@ -1,12 +1,17 @@
 package com.example.chat.application.chatexample;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +37,7 @@ import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -42,6 +48,7 @@ import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
@@ -51,10 +58,12 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ThreadType;
 import com.fanap.podchat.util.Util;
+import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.orhanobut.logger.AndroidLogAdapter;
@@ -72,7 +81,8 @@ public class ChatActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
-    public static int TEST_THREAD_ID = 10835;
+    public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
+    public static int TEST_THREAD_ID = 10955;
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextThread;
@@ -107,25 +117,91 @@ public class ChatActivity extends AppCompatActivity
 //    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
 
 
-    //used for 122,123 id to get not seen
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
-    //Token Alexi
-//
-    private static String appId = "POD-Chat";
+    /**
+     *
+     *
+     *
+     * Sandbox setting:
+     *
+     */
 
-    //Mehrara
+
+    private static String name = "SandBox";
+    private static String TOKEN = "0ea6fb7167ac43e1bf7c3eefdd38939a";
+    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
+    private static String serverName = "chat-server";
+    private static String appId = "POD-Chat";
+    private static String ssoHost = "https://accounts.pod.land/";
+    //    private static String platformHost = "http://sandbox.pod.land:8080/";
+    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
+    private static String fileServer = "https://sandbox.pod.land:8443/";
+
+
+
+
+
+
+
+//    //used for 122,123 id to get not seen
+
+//    //Token Alexi
+////
+////    private static String appId = "POD-Chat";
+
+//    Mehrara
 //    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
 //        private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
-    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
-    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
-    private String platformHost = "http://172.16.110.131:8080/";
-    //    private String platformHost = "http://172.16.110.131:8080/"; // {**REQUIRED**} Platform Core Address
-    // {**REQUIRED**} Platform Core Address
-    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
-    private String serverName = "chat-server2";
-    //            private String serverName = "chat-server";
-    private String typeCode = null;
+//        private String platformHost = "http://172.16.106.26:8080/hamsam/";
+//        private String platformHost = "http://172.16.110.131:8080/"; // {**REQUIRED**} Platform Core Address
+//     {**REQUIRED**} Platform Core Address
+
+//     private String serverName = "chat-server";
+
+
+
+    /**
+     * Mehdi Sheikh Hosseini
+     */
+
+//    works:
+//
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
+//    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
+//    private String platformHost = "http://172.16.110.131:8080/";
+//    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
+//    private String serverName = "chat-server2";
+//    private String typeCode = null;
+//
+//
+
+
+
+    /**
+     *
+     *
+     *
+     *  SERVICE_ADDRESSES = {
+     *         SSO_ADDRESS: params.ssoHost || 'http://172.16.110.76',
+     *                 PLATFORM_ADDRESS: params.platformHost || 'http://172.16.106.26:8080/hamsam',
+     *                 FILESERVER_ADDRESS: params.fileServer || 'http://172.16.106.26:8080/hamsam',
+     *                 POD_DRIVE_ADDRESS: params.podDrive || 'http://172.16.106.26:8080/hamsam',
+     *                 MAP_ADDRESS: params.mapServer || 'https://api.neshan.org/v1'
+     *     },
+     *
+     */
+
+
+
+
+
+
+
+
+
+
+
 
     private String fileUri;
 
@@ -134,10 +210,15 @@ public class ChatActivity extends AppCompatActivity
 
     ArrayList<String> runningSignals = new ArrayList<>();
 
+    Faker faker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        faker = new Faker();
+
 
         Logger.addLogAdapter(new AndroidLogAdapter());
         setContentView(R.layout.activity_chat);
@@ -272,7 +353,7 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             case 4: {
                                 Long ubThreadId = null;
-                                Long ubUserId = 103L;
+                                Long ubUserId = 121L;
                                 Long ubContactId = null;
                                 Long unblockId = null;
                                 presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
@@ -305,20 +386,37 @@ public class ChatActivity extends AppCompatActivity
                             }
 
                             case 7: {
-                                RequestSeenMessageList requests = new RequestSeenMessageList.Builder(17374).build();
+                                RequestSeenMessageList requests = new RequestSeenMessageList
+                                        .Builder(50532).build();
                                 presenter.seenMessageList(requests);
                                 break;
 
                             }
                             case 8: {
-                                RequestDeliveredMessageList requestD = new RequestDeliveredMessageList.Builder(17374).build();
+                                RequestDeliveredMessageList requestD = new RequestDeliveredMessageList
+                                        .Builder(50532).build();
                                 presenter.deliveredMessageList(requestD);
                             }
                             break;
                             case 9: {
+
+                                /*available invitee types*/
+                                /*int TO_BE_USER_SSO_ID = 1;
+                                 *int TO_BE_USER_CONTACT_ID = 2;
+                                 *int TO_BE_USER_CELLPHONE_NUMBER = 3;
+                                 *int TO_BE_USER_USERNAME = 4;
+                                 *TO_BE_USER_ID = 5  // just for p2p
+                                 */
+
                                 List<Invitee> invite = new ArrayList<>();
                                 // add by user SSO_ID
-                                invite.add(new Invitee(122, 1));
+//                                invite.add(new Invitee(122, 1));  //user jiji
+                                invite.add(new Invitee(121, 1)); // user zizi
+//                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
+//                                invite.add(new Invitee(123, 5)); //user fifi
+//                                invite.add(new Invitee(121, 5)); // user zizi
+
+//                                invite.add(new Invitee(122, 1));  //user jiji
 
 
                                 //add by user contact id:
@@ -331,9 +429,10 @@ public class ChatActivity extends AppCompatActivity
 //                        , new Invitee(824, 2)
 //                        List<Long> listForwardIds = new ArrayList<>();
 //                        listForwardIds.add(1346L);
+
                                 RequestThreadInnerMessage message = new RequestThreadInnerMessage
                                         .Builder()
-                                        .message("this is create thread with message")
+                                        .message("Hi at " + new Date().toString())
 //                                .forwardedMessageIds(listForwardIds)
                                         .build();
 
@@ -342,6 +441,7 @@ public class ChatActivity extends AppCompatActivity
                                         , invite)
                                         .message(message)
                                         .build();
+
                                 presenter.createThreadWithMessage(requestCreateThread);
 
                                 break;
@@ -465,7 +565,7 @@ public class ChatActivity extends AppCompatActivity
         ArrayList<String> typeRoles = new ArrayList<>();
         typeRoles.add(RoleType.Constants.THREAD_ADMIN);
 //        typeRoles.add(RoleType.Constants.READ_THREAD);
-        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
+//        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
         typeRoles.add(RoleType.Constants.REMOVE_USER);
 
         RequestRole requestRole = new RequestRole();
@@ -495,6 +595,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void sendLocationMsg() {
+
         String center = "35.7003510,51.3376472";
 
         RequestLocationMessage requestLocationMessage = new RequestLocationMessage
@@ -505,7 +606,77 @@ public class ChatActivity extends AppCompatActivity
                 .threadId(TEST_THREAD_ID)
                 .build();
 
-        presenter.sendLocationMessage(requestLocationMessage);
+
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                != PackageManager.PERMISSION_GRANTED) {
+//
+////            ActivityCompat.requestPermissions(this,
+////                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+////                    REQUEST_WRITE_EXTERNAL_STORAGE);
+//
+//
+//
+//
+//            return;
+//
+//        }
+
+//        presenter.sendLocationMessage(requestLocationMessage);
+
+        presenter.sendLocationMessage(requestLocationMessage, new ProgressHandler.sendFileMessage(){
+
+            @Override
+            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+
+                Log.d("MTAG","Update progress: " + "Total Bytes sent: "+totalBytesSent + " Total Bytes left " + totalBytesToSend);
+            }
+
+            @Override
+            public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
+
+                Log.d("MTAG","Finish upload");
+
+            }
+
+            @Override
+            public void onError(String jsonError, ErrorOutPut error) {
+
+                Log.d("MTAG","Error upload");
+
+            }
+        });
+
+
+
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
+
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                String center = "35.7003510,51.3376472";
+
+                RequestLocationMessage requestLocationMessage = new RequestLocationMessage
+                        .Builder()
+                        .center(center)
+                        .message("This is location ")
+                        .activity(ChatActivity.this)
+                        .threadId(TEST_THREAD_ID)
+                        .build();
+
+                presenter.sendLocationMessage(requestLocationMessage);
+
+
+            }
+        }
+
+
     }
 
     public void mapReverse() {
@@ -521,6 +692,7 @@ public class ChatActivity extends AppCompatActivity
         RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder()
                 .center(center)
                 .build();
+
         presenter.mapStaticImage(staticImage);
     }
 
@@ -580,7 +752,13 @@ public class ChatActivity extends AppCompatActivity
 
                         break;
                     case 9:
-                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
+                        SearchContact searchContact = new SearchContact
+                                .Builder("0", "50")
+//                                .id("1063")
+//                                .cellphoneNumber("09")
+//                                .lastName("Khei")
+                                .firstName("Moha")
+                                .build();
                         presenter.searchContact(searchContact);
                         break;
                     case 10:
@@ -635,9 +813,17 @@ public class ChatActivity extends AppCompatActivity
                     }
                     break;
                     case 15:
+                    {
                         //2139
                         getAdminList();
                         break;
+                    }
+                    case 16:{
+
+                        spamThread();
+                        break;
+                    }
+
                 }
             }
 
@@ -645,6 +831,19 @@ public class ChatActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    private void spamThread() {
+
+        RequestSpam requestSpam = new RequestSpam.Builder()
+                .threadId(TEST_THREAD_ID)
+                .build();
+
+        presenter.spam(requestSpam);
+
+
+
+
     }
 
     private void getAdminList() {
@@ -655,6 +854,7 @@ public class ChatActivity extends AppCompatActivity
 //                .Builder(10654,true)
                 .Builder()
                 .admin(true)
+                .count(50)
                 .threadId(TEST_THREAD_ID)
                 .build();
 
@@ -662,15 +862,23 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void deleteMessage() {
+
+
+
         ArrayList<Long> msgIds = new ArrayList<>();
-        msgIds.add(34973L);
-//        msgIds.add(33125L);
+
+        msgIds.add(50531L);
+        msgIds.add(50530L);
+        msgIds.add(50529L);
+
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
                 .Builder()
                 .messageIds(msgIds)
-//                .deleteForAll(true)
+                .threadId((long) TEST_THREAD_ID)
+                .deleteForAll(true)
                 .typeCode("5")
                 .build();
+
         presenter.deleteMessage(requestDeleteMessage, null);
 
 //        presenter.deleteMessage(16804, true, new ChatHandler() {
@@ -875,10 +1083,10 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Farhad",
-                        "Kheirkhah",
-                        "09157770684",
-                        "farhadkheirkhah7@gmail.com");
+                presenter.addContact(faker.name().firstName(),
+                        faker.name().lastName(),
+                        faker.phoneNumber().cellPhone(),
+                        faker.name().username() + "@gmail.com");
                 break;
             case 15:
                 // remove contact
@@ -1009,8 +1217,8 @@ public class ChatActivity extends AppCompatActivity
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
         presenter.createThread(1, invite,
-                "another thread", "zizi thread." +
-                        " this thread created to test admin rules"
+                "Thread "+ ( new Date().getTime() / 1000 ), "Description created at "
+                + new Date().getTime()
                 , null, metac, null);
 
     }
@@ -1064,18 +1272,19 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void getThreads() {
-        ArrayList<Integer> threadIds = new ArrayList<>();
-        threadIds.add(TEST_THREAD_ID);
+//        ArrayList<Integer> threadIds = new ArrayList<>();
+//        threadIds.add(TEST_THREAD_ID);
 //                threadIds.add(1573);
 //                threadIds.add(351);
-//        RequestThread requestThread = new RequestThread
-//                .Builder()
+        RequestThread requestThread = new RequestThread
+                .Builder()
+
 //                .partnerCoreContactId(566)
 //                .count(5)
-//                .build();
-//        presenter.getThreads(requestThread);
+                .build();
+        presenter.getThreads(requestThread,null);
 
-        presenter.getThreads(40, null, null, null, null);
+//        presenter.getThreads(5, null, null, null, null);
     }
 
     public void replyMessage() {
@@ -1100,9 +1309,9 @@ public class ChatActivity extends AppCompatActivity
         long threadId = TEST_THREAD_ID;
         presenter.forwardMessage(threadId, messageIds);
 
-//        RequestForwardMessage forwardMessage = new RequestForwardMessage
-//                .Builder(threadId, messageIds)
-//                .build();
+        RequestForwardMessage forwardMessage = new RequestForwardMessage
+                .Builder(threadId, messageIds)
+                .build();
 //        presenter.forwardMessage(forwardMessage);
 
 
