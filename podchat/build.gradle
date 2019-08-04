@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 26
-        versionName "0.4.2.1"
+        versionCode 27
+        versionName "0.4.2.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -32,13 +32,13 @@ android {
 
 ext {
     bintrayRepo = "maven"
-    bintrayName = "com.fanap.podchat"
+    bintrayName = "chat"
 
     libraryName = 'podchat'
 
-    publishedGroupId = 'com.fanap.podchat'
+    publishedGroupId = 'com.fanap.chat'
     artifact = 'podchat'
-    libraryVersion = '0.4.2.1'
+    libraryVersion = '0.4.2.2'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
     gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'
