@@ -8318,25 +8318,35 @@ public class Chat extends AsyncAdapter {
     @Override
     public void onDisconnected(String textMessage) {
         super.onDisconnected(textMessage);
+
+        listenerManager.callOnLogEvent(textMessage);
+        listenerManager.callOnError(textMessage,null);
     }
 
     @Override
     public void onError(String textMessage) {
         super.onError(textMessage);
+
+        listenerManager.callOnLogEvent(textMessage);
+        listenerManager.callOnError(textMessage,null);
     }
 
     @Override
     public void handleCallbackError(Throwable cause) {
         super.handleCallbackError(cause);
+
+        listenerManager.callOnLogEvent(cause.getMessage());
+        listenerManager.callOnError(cause.getMessage(),null);
+
     }
 
-    public interface GetThreadHandler {
-        void onGetThread();
-    }
-
-    public interface SendTextMessageHandler {
-        void onSent(String uniqueId, long threadId);
-
-        void onSentResult(String content);
-    }
+//    public interface GetThreadHandler {
+//        void onGetThread();
+//    }
+//
+//    public interface SendTextMessageHandler {
+//        void onSent(String uniqueId, long threadId);
+//
+//        void onSentResult(String content);
+//    }
 }

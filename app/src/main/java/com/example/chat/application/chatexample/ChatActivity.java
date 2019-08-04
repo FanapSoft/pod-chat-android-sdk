@@ -100,6 +100,8 @@ public class ChatActivity extends AppCompatActivity
 
     private Uri uri;
 
+
+
     //fel token
 //    private String name = "felfeli";
 //    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
