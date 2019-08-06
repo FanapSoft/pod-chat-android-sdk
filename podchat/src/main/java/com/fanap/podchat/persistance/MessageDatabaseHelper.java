@@ -7,6 +7,7 @@ import android.arch.persistence.db.SupportSQLiteQuery;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
@@ -15,6 +16,7 @@ import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
+import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -756,7 +758,7 @@ public class MessageDatabaseHelper {
             }
             if (cacheMessageVO.getParticipantId() != null) {
                 CacheParticipant cacheParticipant = messageDao.getParticipant(cacheMessageVO.getParticipantId());
-                participant = cacheToParticipantMapper(cacheParticipant);
+                participant = cacheToParticipantMapper(cacheParticipant, null, null);
 
             }
             if (cacheMessageVO.getReplyInfoVOId() != null) {
@@ -777,7 +779,7 @@ public class MessageDatabaseHelper {
                 CacheForwardInfo cacheForwardInfo = messageDao.getForwardInfo(cacheMessageVO.getForwardInfoId());
                 if (cacheForwardInfo.getParticipantId() != null) {
                     CacheParticipant cacheParticipant = messageDao.getParticipant(cacheForwardInfo.getParticipantId());
-                    participant = cacheToParticipantMapper(cacheParticipant);
+                    participant = cacheToParticipantMapper(cacheParticipant, null, null);
                 }
                 if (Util.isNullOrEmpty(cacheForwardInfo.getConversationId())) {
                     conversationSummery = messageDao.getConversationSummery(cacheForwardInfo.getConversationId());
@@ -1001,7 +1003,7 @@ public class MessageDatabaseHelper {
                     if (cacheLastMessageVO.getParticipantId() != null) {
                         cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
                         if (cacheParticipant != null) {
-                            participant = cacheToParticipantMapper(cacheParticipant);
+                            participant = cacheToParticipantMapper(cacheParticipant, null, null);
                         }
 
                     }
@@ -1076,7 +1078,9 @@ public class MessageDatabaseHelper {
     }
 
     @NonNull
-    private Participant cacheToParticipantMapper(CacheParticipant cacheParticipant) {
+    private Participant cacheToParticipantMapper(CacheParticipant cacheParticipant, Boolean getAdmin, List<String> roles) {
+
+
         return new Participant(
                 cacheParticipant.getId(),
                 cacheParticipant.getName(),
@@ -1096,7 +1100,7 @@ public class MessageDatabaseHelper {
                 cacheParticipant.getOnline(),
                 cacheParticipant.getBlocked(),
                 cacheParticipant.getAdmin(),
-                cacheParticipant.getRoles()
+                getAdmin ? roles : null
         );
     }
 
@@ -1120,7 +1124,7 @@ public class MessageDatabaseHelper {
                     if (cacheLastMessageVO.getParticipantId() != null) {
                         cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
                         if (cacheParticipant != null) {
-                            participant = cacheToParticipantMapper(cacheParticipant);
+                            participant = cacheToParticipantMapper(cacheParticipant, null, null);
                         }
 
                     }
@@ -1225,7 +1229,7 @@ public class MessageDatabaseHelper {
                     CacheLastMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
                         cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                        participant = cacheToParticipantMapper(cacheParticipant);
+                        participant = cacheToParticipantMapper(cacheParticipant, null, null);
                     }
                     if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                         cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
@@ -1323,7 +1327,7 @@ public class MessageDatabaseHelper {
                     CacheLastMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
                         cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                        participant = cacheToParticipantMapper(cacheParticipant);
+                        participant = cacheToParticipantMapper(cacheParticipant, null, null);
                     }
                     if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                         cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
@@ -1474,7 +1478,9 @@ public class MessageDatabaseHelper {
      */
 
     public void saveParticipants(@NonNull List<CacheParticipant> participants, long threadId, int expireSecond) {
+
         for (CacheParticipant participant : participants) {
+
             participant.setThreadId(threadId);
 
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
@@ -1491,6 +1497,22 @@ public class MessageDatabaseHelper {
             ctp.setThreadId(threadId);
 
             messageDao.insertThreadParticipant(ctp);
+
+            if (!Util.isNullOrEmpty(participant.getRoles())) {
+
+                CacheParticipantRoles cpr = new CacheParticipantRoles();
+
+                cpr.setId(participant.getId());
+
+                cpr.setThreadId(threadId);
+
+                cpr.setRoles(participant.getRoles());
+
+                Log.d("MTAG","SAVE CPR: " + cpr);
+
+                messageDao.insertRoles(cpr);
+
+            }
         }
     }
 
@@ -1501,8 +1523,31 @@ public class MessageDatabaseHelper {
     /**
      * Participants have expire date after expTime that you can set it manually
      */
+
+
+    public void updateParticipantRoles(long participantId,long threadId, List<String> roles) {
+
+        CacheParticipantRoles cpr = new CacheParticipantRoles();
+
+        cpr.setId(participantId);
+
+        cpr.setThreadId(threadId);
+
+        cpr.setRoles(roles);
+
+        Log.d("MTAG","UPDATE CPR: " + cpr);
+
+
+        messageDao.insertRoles(cpr);
+
+    }
+
+
     @NonNull
-    public List<Participant> getThreadParticipant(long offset, long count, long threadId) {
+    public List<Participant> getThreadParticipant(long offset, long count, long threadId, @Nullable Boolean getAdmin) {
+
+        getAdmin = getAdmin != null ? getAdmin : false;
+
 
         List<Participant> participants = new ArrayList<>();
 
@@ -1510,6 +1555,8 @@ public class MessageDatabaseHelper {
         if (listCtp == null) {
             return participants;
         } else {
+
+
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
@@ -1526,8 +1573,51 @@ public class MessageDatabaseHelper {
 
                         CacheParticipant cParticipant = messageDao.getParticipant(participantId);
 
-                        Participant participant = cacheToParticipantMapper(cParticipant);
-                        participants.add(participant);
+//                        if (getAdmin && !cParticipant.getAdmin()) {
+//
+//                            return participants;
+//                        }
+
+                        List<String> roles = new ArrayList<>();
+
+                        if (getAdmin) {
+
+                            CacheParticipantRoles cpr = messageDao.getParticipantRoles(participantId,threadId);
+
+                            Log.d("MTAG","CPR: " + cpr );
+
+
+                            if (cpr != null) {
+
+
+                                if (cpr.getRoles().size() > 0)
+                                    roles = cpr.getRoles();
+
+                            }
+
+
+
+
+                        }
+
+
+                        if(getAdmin ){
+
+                            if(roles.size()> 0){
+
+
+                                Participant participant = cacheToParticipantMapper(cParticipant, getAdmin, roles);
+                                participants.add(participant);
+
+                            }
+
+                        }else {
+
+                            Participant participant = cacheToParticipantMapper(cParticipant, getAdmin, roles);
+                            participants.add(participant);
+                        }
+
+
                     }
 
                 } catch (ParseException e) {

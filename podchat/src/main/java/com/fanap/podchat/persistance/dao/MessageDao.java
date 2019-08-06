@@ -12,6 +12,7 @@ import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
+import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -194,6 +195,14 @@ public interface MessageDao {
      */
     @Insert(onConflict = REPLACE)
     void insertParticipant(CacheParticipant participant);
+
+    @Insert(onConflict = REPLACE)
+    void insertRoles(CacheParticipantRoles roles);
+
+    @Query("select * from CacheParticipantRoles where id = :id AND threadId = :threadId")
+    CacheParticipantRoles getParticipantRoles(long id,long threadId);
+
+
 
     @Query("DELETE FROM CacheParticipant where threadId = :threadId AND id = :id")
     void deleteParticipant(long threadId, long id);

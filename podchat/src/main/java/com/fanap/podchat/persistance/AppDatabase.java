@@ -11,6 +11,7 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
+import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
@@ -39,8 +40,9 @@ import com.fanap.podchat.util.DataTypeConverter;
         SendingQueueCache.class,
         CacheThreadParticipant.class,
         PhoneContact.class,
-        ThreadVo.class
-}, version = 2, exportSchema = false)
+        ThreadVo.class,
+        CacheParticipantRoles.class
+}, version = 1, exportSchema = false)
 @TypeConverters({DataTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 

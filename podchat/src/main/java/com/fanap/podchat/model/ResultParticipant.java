@@ -7,6 +7,7 @@ import java.util.List;
 public class ResultParticipant {
 
     private List<Participant> participants;
+    private long threadId;
     private boolean hasNext;
     private long nextOffset;
     private int contentCount;
@@ -41,5 +42,13 @@ public class ResultParticipant {
 
     public void setContentCount(int contentCount) {
         this.contentCount = contentCount;
+    }
+
+    public long getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
     }
 }

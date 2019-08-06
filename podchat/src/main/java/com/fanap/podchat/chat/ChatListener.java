@@ -8,7 +8,6 @@ import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
-import com.fanap.podchat.model.OutputSetRoleToUser;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
@@ -26,6 +25,7 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultRemoveContact;
+import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -93,7 +93,7 @@ public interface ChatListener {
 
     }
 
-    default void onGetThreadParticipant(OutPutParticipant outPutParticipant) {
+    default void onGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {
 
     }
 
@@ -201,7 +201,7 @@ public interface ChatListener {
 
     }
 
-    default void OnGetThreadAdmin(String content) {
+    default void onGetThreadAdmin(String content) {
     }
 
     default void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
@@ -211,6 +211,8 @@ public interface ChatListener {
     default void OnSignalMessageReceive(OutputSignalMessage output) {
     }
 
-    default void OnSetRule(OutputSetRoleToUser outputSetRoleToUser) {
+    default void OnSetRule(ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
     }
+
+    default void onGetThreadAdmin(String jsonData, OutPutParticipant output){}
 }

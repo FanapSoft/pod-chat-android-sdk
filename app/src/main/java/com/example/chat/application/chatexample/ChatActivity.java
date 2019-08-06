@@ -48,6 +48,7 @@ import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
@@ -81,7 +82,7 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
-    public static int TEST_THREAD_ID = 10956;
+    public static int TEST_THREAD_ID = 10955;
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextThread;
@@ -98,6 +99,8 @@ public class ChatActivity extends AppCompatActivity
     private static final int PICK_FILE_REQUEST = 2;
 
     private Uri uri;
+
+
 
     //fel token
 //    private String name = "felfeli";
@@ -124,9 +127,9 @@ public class ChatActivity extends AppCompatActivity
      *
      */
 
-
+//
 //    private static String name = "SandBox";
-//    private static String TOKEN = "81e5632d6c8b41efbabed1f5a5af7fdb";
+//    private static String TOKEN = "dd794c13cf814126b33a63a617d4996f";
 //    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
 //    private static String serverName = "chat-server";
 //    private static String appId = "POD-Chat";
@@ -134,7 +137,7 @@ public class ChatActivity extends AppCompatActivity
 //    //    private static String platformHost = "http://sandbox.pod.land:8080/";
 //    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
 //    private static String fileServer = "https://sandbox.pod.land:8443/";
-//
+
 
 
 
@@ -147,14 +150,14 @@ public class ChatActivity extends AppCompatActivity
 ////
 ////    private static String appId = "POD-Chat";
 
-////    Mehrara
+//    Mehrara
 //    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
 //        private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
-    //    private String platformHost = "http://172.16.106.26:8080/hamsam/";
+//        private String platformHost = "http://172.16.106.26:8080/hamsam/";
 //        private String platformHost = "http://172.16.110.131:8080/"; // {**REQUIRED**} Platform Core Address
 //     {**REQUIRED**} Platform Core Address
 
-    // private String serverName = "chat-server";
+//     private String serverName = "chat-server";
 
 
 
@@ -163,6 +166,8 @@ public class ChatActivity extends AppCompatActivity
      */
 
 //    works:
+//
+//
 
     private String name = "zizi";
     private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
@@ -172,7 +177,6 @@ public class ChatActivity extends AppCompatActivity
     private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
     private String serverName = "chat-server2";
     private String typeCode = null;
-//
 
 
 
@@ -386,13 +390,14 @@ public class ChatActivity extends AppCompatActivity
 
                             case 7: {
                                 RequestSeenMessageList requests = new RequestSeenMessageList
-                                        .Builder(46482).build();
+                                        .Builder(50532).build();
                                 presenter.seenMessageList(requests);
                                 break;
 
                             }
                             case 8: {
-                                RequestDeliveredMessageList requestD = new RequestDeliveredMessageList.Builder(46482).build();
+                                RequestDeliveredMessageList requestD = new RequestDeliveredMessageList
+                                        .Builder(50532).build();
                                 presenter.deliveredMessageList(requestD);
                             }
                             break;
@@ -409,9 +414,10 @@ public class ChatActivity extends AppCompatActivity
                                 List<Invitee> invite = new ArrayList<>();
                                 // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
-//                                invite.add(new Invitee(121, 1)); // user zizi
+                                invite.add(new Invitee(121, 1)); // user zizi
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
-                                invite.add(new Invitee(123, 5)); //user fifi
+//                                invite.add(new Invitee(123, 5)); //user fifi
+//                                invite.add(new Invitee(121, 5)); // user zizi
 
 //                                invite.add(new Invitee(122, 1));  //user jiji
 
@@ -429,7 +435,7 @@ public class ChatActivity extends AppCompatActivity
 
                                 RequestThreadInnerMessage message = new RequestThreadInnerMessage
                                         .Builder()
-                                        .message("Hello fifi " + new Date().toString())
+                                        .message("Hi at " + new Date().toString())
 //                                .forwardedMessageIds(listForwardIds)
                                         .build();
 
@@ -562,7 +568,7 @@ public class ChatActivity extends AppCompatActivity
         ArrayList<String> typeRoles = new ArrayList<>();
         typeRoles.add(RoleType.Constants.THREAD_ADMIN);
 //        typeRoles.add(RoleType.Constants.READ_THREAD);
-        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
+//        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
         typeRoles.add(RoleType.Constants.REMOVE_USER);
 
         RequestRole requestRole = new RequestRole();
@@ -851,6 +857,7 @@ public class ChatActivity extends AppCompatActivity
 //                .Builder(10654,true)
                 .Builder()
                 .admin(true)
+                .count(50)
                 .threadId(TEST_THREAD_ID)
                 .build();
 
@@ -863,9 +870,9 @@ public class ChatActivity extends AppCompatActivity
 
         ArrayList<Long> msgIds = new ArrayList<>();
 
-        msgIds.add(50513L);
-//        msgIds.add(50508L);
-//        msgIds.add(50507L);
+        msgIds.add(50531L);
+        msgIds.add(50530L);
+        msgIds.add(50529L);
 
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
                 .Builder()
@@ -1213,8 +1220,8 @@ public class ChatActivity extends AppCompatActivity
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
         presenter.createThread(1, invite,
-                "another thread", "zizi thread." +
-                        " this thread created to test admin rules"
+                "Thread "+ ( new Date().getTime() / 1000 ), "Description created at "
+                + new Date().getTime()
                 , null, metac, null);
 
     }
@@ -1305,9 +1312,9 @@ public class ChatActivity extends AppCompatActivity
         long threadId = TEST_THREAD_ID;
         presenter.forwardMessage(threadId, messageIds);
 
-//        RequestForwardMessage forwardMessage = new RequestForwardMessage
-//                .Builder(threadId, messageIds)
-//                .build();
+        RequestForwardMessage forwardMessage = new RequestForwardMessage
+                .Builder(threadId, messageIds)
+                .build();
 //        presenter.forwardMessage(forwardMessage);
 
 

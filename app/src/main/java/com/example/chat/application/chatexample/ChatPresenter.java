@@ -11,7 +11,6 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -24,7 +23,6 @@ import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
-import com.fanap.podchat.model.OutputSetRoleToUser;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
@@ -41,6 +39,7 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultRemoveContact;
+import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -562,7 +561,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void setAdmin(RequestAddAdmin requestAddAdmin) {
-        chat.setAdmin(requestAddAdmin);
+        chat.addAdminRoles(requestAddAdmin);
     }
 
     @Override
@@ -851,8 +850,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void OnGetThreadAdmin(String content) {
-        super.OnGetThreadAdmin(content);
+    public void onGetThreadAdmin(String content) {
+        super.onGetThreadAdmin(content);
     }
 
     @Override
@@ -871,12 +870,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void OnSetRule(OutputSetRoleToUser outputSetRoleToUser) {
+    public void OnSetRule(ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
         super.OnSetRule(outputSetRoleToUser);
     }
 
     @Override
-    public void onGetThreadParticipant(OutPutParticipant outPutParticipant) {
+    public void onGetThreadAdmin(String jsonData, OutPutParticipant output) {
+        super.onGetThreadAdmin(jsonData,output);
+    }
+
+    @Override
+    public void onGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {
         super.onGetThreadParticipant(outPutParticipant);
 
 

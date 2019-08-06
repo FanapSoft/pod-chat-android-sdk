@@ -29,6 +29,7 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultRemoveContact;
+import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -217,7 +218,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetThreadParticipant(OutPutParticipant outPutParticipant) {
+    public void callOnGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetThreadParticipant(outPutParticipant);
@@ -238,10 +239,10 @@ public class ChatListenerManager {
     }
 
 
-    public void callOnGetThreadAdmin(String content) {
+    public void callOnGetThreadAdmin(String content, ChatResponse<ResultParticipant> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnGetThreadAdmin(content);
+                listener.onGetThreadAdmin(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -585,7 +586,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSetRoleToUser(String content, OutputSetRoleToUser outputSetRoleToUser) {
+    public void callOnSetRoleToUser(String content, ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
 
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -618,6 +619,19 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.OnSignalMessageReceive(output);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetThreadAdmin(jsonData,output);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

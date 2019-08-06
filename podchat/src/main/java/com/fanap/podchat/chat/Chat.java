@@ -570,8 +570,8 @@ public class Chat extends AsyncAdapter {
                 break;
 
             case Constants.GET_THREAD_ADMINS:
-                //TODO handle response
-                listenerManager.callOnGetThreadAdmin(chatMessage.getContent());
+                //there is no message type of GET_THREAD_ADMINS
+//                listenerManager.callOnGetThreadAdmin(chatMessage.getContent());
                 break;
 
             case Constants.GET_NOT_SEEN_DURATION:
@@ -785,7 +785,7 @@ public class Chat extends AsyncAdapter {
      *                        and roles to them
      *                        `setRoleOperation` could be `Add` or `remove`
      */
-    public String setAdmin(RequestAddAdmin requestAddAdmin) {
+    public String addAdminRoles(RequestAddAdmin requestAddAdmin) {
 
         long threadId = requestAddAdmin.getThreadId();
         ArrayList<RequestRole> roles = requestAddAdmin.getRoles();
@@ -4059,6 +4059,7 @@ public class Chat extends AsyncAdapter {
                 chatThreadObject.addProperty("image", image);
             }
 
+
             if (Util.isNullOrEmpty(metadata)) {
                 chatThreadObject.remove("metadata");
 
@@ -4335,11 +4336,11 @@ public class Chat extends AsyncAdapter {
         uniqueId = generateUniqueId();
 
         offset = offset != null ? offset : 0;
-        count = count != null ? count : 50;
+        count = count != null ? count != 0 ? count : 50 : 50;
 
 
         if (cache) {
-            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId);
+            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId,false);
             if (participants != null) {
                 long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
                 ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
@@ -4358,7 +4359,7 @@ public class Chat extends AsyncAdapter {
                 resultParticipant.setNextOffset(offset + participants.size());
                 String jsonParticipant = gson.toJson(chatResponse);
                 listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
-                showLog("Cache Thread Participant", jsonParticipant);
+                showLog("PARTICIPANT FROM CACHE", jsonParticipant);
 
             }
         }
@@ -4418,19 +4419,26 @@ public class Chat extends AsyncAdapter {
 
     private String getThreadParticipantsMain(Integer count, Long offset, long threadId, boolean getAdmin, String typeCode, ChatHandler handler) {
 
+
+
+        if(!chatReady) return null;
+
+
         String uniqueId;
         uniqueId = generateUniqueId();
 
         offset = offset != null ? offset : 0;
-        count = count != null ? count : 50;
+        count = count != null ? count != 0 ? count : 50 : 50;
 
 
         if (cache) {
-            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId);
+            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId,getAdmin);
             if (participants != null) {
                 long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
                 ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
+
                 ResultParticipant resultParticipant = new ResultParticipant();
+                resultParticipant.setThreadId(threadId);
 
                 resultParticipant.setContentCount(participants.size());
                 if (participants.size() + offset < participantCount) {
@@ -4444,8 +4452,15 @@ public class Chat extends AsyncAdapter {
 
                 resultParticipant.setNextOffset(offset + participants.size());
                 String jsonParticipant = gson.toJson(chatResponse);
-                listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
-                showLog("Cache Thread Participant", jsonParticipant);
+
+
+                OutPutParticipant outPutParticipant = new OutPutParticipant();
+
+                outPutParticipant.setResult(resultParticipant);
+
+
+                listenerManager.callOnGetThreadAdmin(jsonParticipant, outPutParticipant);
+                showLog("ADMINS FROM CACHE", jsonParticipant);
 
             }
         }
@@ -5437,7 +5452,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } catch (Throwable throwable) {
-            if (log) Log.e(TAG, throwable.getCause().getMessage());
+            if (log) Log.e(TAG, throwable.getMessage());
         }
     }
 
@@ -5709,17 +5724,37 @@ public class Chat extends AsyncAdapter {
 
             String jsonParticipant = gson.toJson(chatResponse);
 
-            listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
 
-            OutPutParticipant output = new OutPutParticipant();
+//            OutPutParticipant output = new OutPutParticipant();
+//
+//            output.setResult(chatResponse.getResult());
+//
+//            output.setSubjectId(chatMessage.getSubjectId());
+//
+//
 
-            output.setResult(chatResponse.getResult());
 
-            listenerManager.callOnGetThreadParticipant(output);
+            if(!Util.isNullOrEmpty(chatResponse.getResult().getParticipants().get(0).getRoles())){
+
+
+                listenerManager.callOnGetThreadAdmin(jsonParticipant,chatResponse);
+
+                showLog("RECEIVE_ADMINS", jsonParticipant);
+
+
+            }else{
+
+                listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
+
+                listenerManager.callOnGetThreadParticipant(chatResponse);
+
+                showLog("RECEIVE_PARTICIPANT", jsonParticipant);
+
+            }
+
 
             messageCallbacks.remove(messageUniqueId);
 
-            showLog("RECEIVE_PARTICIPANT", jsonParticipant);
 
         }
     }
@@ -6761,6 +6796,7 @@ public class Chat extends AsyncAdapter {
         resultClearHistory.setThreadId(clrHistoryThreadId);
         chatResponseClrHistory.setResult(resultClearHistory);
         chatResponseClrHistory.setUniqueId(chatMessage.getUniqueId());
+        chatResponseClrHistory.setSubjectId(chatMessage.getSubjectId());
         String jsonClrHistory = gson.toJson(chatResponseClrHistory);
         listenerManager.callOnClearHistory(jsonClrHistory, chatResponseClrHistory);
         showLog("RECEIVE_CLEAR_HISTORY", jsonClrHistory);
@@ -6777,11 +6813,16 @@ public class Chat extends AsyncAdapter {
                 .fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Admin>>() {
                 }.getType());
 
+
+
+
         resultSetAdmin.setAdmins(admins);
 
         chatResponse.setResult(resultSetAdmin);
 
         chatResponse.setUniqueId(chatMessage.getUniqueId());
+
+        chatResponse.setSubjectId(chatMessage.getSubjectId());
 
         String responseJson = gson.toJson(chatResponse);
 
@@ -6789,7 +6830,21 @@ public class Chat extends AsyncAdapter {
 
         output.setResultSetAdmin(resultSetAdmin);
 
-        listenerManager.callOnSetRoleToUser(responseJson, output);
+        long threadId = chatMessage.getSubjectId();
+
+
+        if(cache){
+
+            for (Admin a :
+                    admins) {
+
+                messageDatabaseHelper.updateParticipantRoles(a.getId(),threadId,a.getRoles());
+
+            }
+
+        }
+
+        listenerManager.callOnSetRoleToUser(responseJson, chatResponse);
 
         showLog("RECEIVE_SET_ROLE", responseJson);
     }
@@ -7126,7 +7181,7 @@ public class Chat extends AsyncAdapter {
             cacheParticipants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheParticipant>>() {
             }.getType());
 
-            Log.d("MTAG","Cache Participant to Save: " + cacheParticipants.toString() );
+//            Log.d("MTAG","Cache Participant to Save: " + cacheParticipants.toString() );
 
             messageDatabaseHelper.saveParticipants(cacheParticipants, chatMessage.getSubjectId(), getExpireAmount());
         }
@@ -7136,10 +7191,14 @@ public class Chat extends AsyncAdapter {
         outPutParticipant.setErrorMessage("");
         outPutParticipant.setHasError(false);
         outPutParticipant.setUniqueId(chatMessage.getUniqueId());
+        outPutParticipant.setSubjectId(chatMessage.getSubjectId());
 
         ResultParticipant resultParticipant = new ResultParticipant();
 
         resultParticipant.setContentCount(chatMessage.getContentCount());
+
+        resultParticipant.setThreadId(chatMessage.getSubjectId());
+
 
         if (callback != null) {
             if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
@@ -8293,25 +8352,35 @@ public class Chat extends AsyncAdapter {
     @Override
     public void onDisconnected(String textMessage) {
         super.onDisconnected(textMessage);
+
+        listenerManager.callOnLogEvent(textMessage);
+        listenerManager.callOnError(textMessage,null);
     }
 
     @Override
     public void onError(String textMessage) {
         super.onError(textMessage);
+
+        listenerManager.callOnLogEvent(textMessage);
+        listenerManager.callOnError(textMessage,null);
     }
 
     @Override
     public void handleCallbackError(Throwable cause) {
         super.handleCallbackError(cause);
+
+        listenerManager.callOnLogEvent(cause.getMessage());
+        listenerManager.callOnError(cause.getMessage(),null);
+
     }
 
-    public interface GetThreadHandler {
-        void onGetThread();
-    }
-
-    public interface SendTextMessageHandler {
-        void onSent(String uniqueId, long threadId);
-
-        void onSentResult(String content);
-    }
+//    public interface GetThreadHandler {
+//        void onGetThread();
+//    }
+//
+//    public interface SendTextMessageHandler {
+//        void onSent(String uniqueId, long threadId);
+//
+//        void onSentResult(String content);
+//    }
 }
