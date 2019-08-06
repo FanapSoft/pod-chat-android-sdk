@@ -854,6 +854,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onGetThreadAdmin(content, chatResponse);
     }
 
+
+
     @Override
     public void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
         super.OnNotSeenDuration(resultNotSeen);
@@ -874,10 +876,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.OnSetRule(outputSetRoleToUser);
     }
 
-    @Override
-    public void onGetThreadAdmin(String jsonData, OutPutParticipant output) {
-        super.onGetThreadAdmin(jsonData,output);
-    }
 
     @Override
     public void onGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {

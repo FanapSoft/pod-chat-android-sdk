@@ -2283,9 +2283,9 @@ public class Chat extends AsyncAdapter {
 
                 jObj.remove("lastMessageId");
                 jObj.remove("firstMessageId");
-                jObj.remove("new");
-
-                jObj.addProperty("summary", true);
+//                jObj.remove("new");
+//
+//                jObj.addProperty("summary", true);
 
                 ChatMessage chatMessage = new ChatMessage();
                 chatMessage.setContent(jObj.toString());
@@ -6923,6 +6923,8 @@ public class Chat extends AsyncAdapter {
             resultHistory.setHasNext(false);
         }
 
+
+        chatResponse.setSubjectId(chatMessage.getSubjectId());
         resultHistory.setHistory(messageVOS);
         chatResponse.setErrorCode(0);
         chatResponse.setHasError(false);

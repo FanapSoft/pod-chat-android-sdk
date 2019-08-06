@@ -127,9 +127,9 @@ public class ChatActivity extends AppCompatActivity
      *
      */
 
-//
+
 //    private static String name = "SandBox";
-//    private static String TOKEN = "dd794c13cf814126b33a63a617d4996f";
+//    private static String TOKEN = "12daca68a7e3454b89e2b55d93ca1ac6";
 //    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
 //    private static String serverName = "chat-server";
 //    private static String appId = "POD-Chat";
