@@ -785,7 +785,7 @@ public class Chat extends AsyncAdapter {
      *                        and roles to them
      *                        `setRoleOperation` could be `Add` or `remove`
      */
-    public String setAdmin(RequestAddAdmin requestAddAdmin) {
+    public String addAdminRoles(RequestAddAdmin requestAddAdmin) {
 
         long threadId = requestAddAdmin.getThreadId();
         ArrayList<RequestRole> roles = requestAddAdmin.getRoles();
