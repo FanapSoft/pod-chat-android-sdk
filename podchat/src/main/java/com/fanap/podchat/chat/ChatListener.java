@@ -201,7 +201,8 @@ public interface ChatListener {
 
     }
 
-    default void onGetThreadAdmin(String content) {
+
+    default void onGetThreadAdmin(String content, ChatResponse<ResultParticipant> chatResponse) {
     }
 
     default void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
@@ -214,5 +215,6 @@ public interface ChatListener {
     default void OnSetRule(ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
     }
 
-    default void onGetThreadAdmin(String jsonData, OutPutParticipant output){}
+    @Deprecated
+    default void onGetThreadAdmin(String jsonData){}
 }

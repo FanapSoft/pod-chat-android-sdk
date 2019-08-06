@@ -171,7 +171,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetThreadAdmin(String content) {
+    public void onGetThreadAdmin(String content, ChatResponse<ResultParticipant> chatResponse) {
+
+    }
+
+    @Override
+    public void onGetThreadAdmin(String jsonData) {
 
     }
 
@@ -271,10 +276,8 @@ public class ChatAdapter implements ChatListener {
 
     }
 
-    @Override
-    public void onGetThreadAdmin(String jsonData, OutPutParticipant output) {
 
-    }
+
 
     @Override
     public void onGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {

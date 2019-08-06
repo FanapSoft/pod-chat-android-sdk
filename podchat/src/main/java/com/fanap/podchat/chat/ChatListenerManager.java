@@ -240,9 +240,10 @@ public class ChatListenerManager {
 
 
     public void callOnGetThreadAdmin(String content, ChatResponse<ResultParticipant> chatResponse) {
+
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onGetThreadAdmin(content);
+                listener.onGetThreadAdmin(content,chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

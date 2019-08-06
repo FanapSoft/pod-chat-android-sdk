@@ -850,8 +850,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetThreadAdmin(String content) {
-        super.onGetThreadAdmin(content);
+    public void onGetThreadAdmin(String content, ChatResponse<ResultParticipant> chatResponse) {
+        super.onGetThreadAdmin(content, chatResponse);
     }
 
     @Override
