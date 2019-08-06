@@ -628,16 +628,18 @@ public class ChatListenerManager {
 
     }
 
-    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
+//    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
+//
+//        for (ChatListener listener : getSynchronizedListeners()) {
+//            try {
+//                listener.onGetThreadAdmin(jsonData,output);
+//            } catch (Throwable t) {
+//                callHandleCallbackError(listener, t);
+//            }
+//        }
+//
+//
+//    }
+//
 
-        for (ChatListener listener : getSynchronizedListeners()) {
-            try {
-                listener.onGetThreadAdmin(jsonData,output);
-            } catch (Throwable t) {
-                callHandleCallbackError(listener, t);
-            }
-        }
-
-
-    }
 }

@@ -4459,7 +4459,7 @@ public class Chat extends AsyncAdapter {
                 outPutParticipant.setResult(resultParticipant);
 
 
-                listenerManager.callOnGetThreadAdmin(jsonParticipant, outPutParticipant);
+                listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
                 showLog("ADMINS FROM CACHE", jsonParticipant);
 
             }
