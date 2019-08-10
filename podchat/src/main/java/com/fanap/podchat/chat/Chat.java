@@ -2114,9 +2114,13 @@ public class Chat extends AsyncAdapter {
 
 
         if (request.getMessageIds().size() > 1)
-            return deleteMessage(request.getMessageIds(), request.getThreadId(), request.isDeleteForAll(), handler);
+            return deleteMessage(request.getMessageIds(),
+                    request.getThreadId(),
+                    request.isDeleteForAll(),
+                    handler);
         else if (request.getMessageIds().size() == 1) {
-            return deleteMessage(request.getMessageIds().get(0), request.isDeleteForAll(), handler);
+            return deleteMessage(request.getMessageIds().get(0),
+                    request.isDeleteForAll(), handler);
         } else {
 
             return null;
@@ -5286,6 +5290,7 @@ public class Chat extends AsyncAdapter {
 
                 String asyncContent = gson.toJson(message);
                 async.sendMessage(asyncContent, 4);
+                setThreadCallbacks(chatMessage.getSubjectId(),chatMessage.getUniqueId());
                 Log.i(TAG, "SEND_DELIVERY_MESSAGE");
                 listenerManager.callOnLogEvent(asyncContent);
             }
@@ -5327,13 +5332,12 @@ public class Chat extends AsyncAdapter {
                             String json = gson.toJson(chatResponse);
                             listenerManager.callOnSentMessage(json, chatResponse);
 
-                            runOnUIThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (handlerSend.get(callback.getUniqueId()) != null) {
-                                        handlerSend.get(callback.getUniqueId())
-                                                .onSentResult(chatMessage.getContent());
-                                    }
+                            runOnUIThread(() -> {
+                                if (handlerSend
+                                        .get(callback.getUniqueId()) != null) {
+                                    handlerSend
+                                            .get(callback.getUniqueId())
+                                            .onSentResult(chatMessage.getContent());
                                 }
                             });
 
@@ -5346,10 +5350,51 @@ public class Chat extends AsyncAdapter {
                             callbacks.set(indexUnique, callbackUpdateSent);
                             threadCallbacks.put(threadId, callbacks);
                             showLog("RECEIVED_SENT_MESSAGE", json);
+
                         }
                         break;
                     }
                 }
+            }else{
+
+                ChatResponse<ResultMessage> chatResponse = new ChatResponse<>();
+
+                ResultMessage resultMessage = new ResultMessage();
+
+                chatResponse.setErrorCode(0);
+                chatResponse.setErrorMessage("");
+                chatResponse.setHasError(false);
+                chatResponse.setUniqueId(messageUniqueId);
+
+                resultMessage.setConversationId(chatMessage.getSubjectId());
+                resultMessage.setMessageId(Long.valueOf(chatMessage.getContent()));
+                chatResponse.setResult(resultMessage);
+
+                String json = gson.toJson(chatResponse);
+                listenerManager.callOnSentMessage(json, chatResponse);
+
+                Log.d("MTAG","threadid isn't in callbacks!");
+
+
+                runOnUIThread(() -> {
+                    if (handlerSend
+                            .get(messageUniqueId) != null) {
+                        handlerSend
+                                .get(messageUniqueId)
+                                .onSentResult(chatMessage.getContent());
+                    }
+                });
+
+                Callback callbackUpdateSent = new Callback();
+                callbackUpdateSent.setSent(false);
+                callbackUpdateSent.setUniqueId(messageUniqueId);
+
+//                callbacks.set(indexUnique, callbackUpdateSent);
+//                threadCallbacks.put(threadId, callbacks);
+                showLog("RECEIVED_SENT_MESSAGE", json);
+
+
+
             }
         } catch (Throwable e) {
             if (log) Log.e(TAG, e.getCause().getMessage());
@@ -7683,6 +7728,8 @@ public class Chat extends AsyncAdapter {
      * totalBytesSent   - Total number of bytes sent so far.
      * totalBytesToSend - Total bytes to send.
      */
+
+
     private void uploadImageFileMessage(LFileUpload lFileUpload) {
 
         Activity activity = lFileUpload.getActivity();
