@@ -129,7 +129,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     private static String name = "SandBox";
-    private static String TOKEN = "f906d38c6a67426d9213b4da430209d5";
+    private static String TOKEN = "bc840e34865c4e2f93500b4876d73c7c";
     private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -168,7 +168,7 @@ public class ChatActivity extends AppCompatActivity
 //    works:
 //
 //
-
+//
 //    private String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
 //    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
@@ -178,7 +178,7 @@ public class ChatActivity extends AppCompatActivity
 //    private String serverName = "chat-server2";
 //    private String typeCode = null;
 //
-
+//
 
 
     /**
@@ -870,9 +870,9 @@ public class ChatActivity extends AppCompatActivity
 
         ArrayList<Long> msgIds = new ArrayList<>();
 
-        msgIds.add(50531L);
-        msgIds.add(50530L);
-        msgIds.add(50529L);
+        msgIds.add(47432L);
+        msgIds.add(47429L);
+        msgIds.add(47428L);
 
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
                 .Builder()

@@ -14,6 +14,7 @@ public class RequestDeleteMessage extends GeneralRequestObject {
         super(builder);
         this.deleteForAll = builder.deleteForAll;
         this.messageIds = builder.messageIds;
+        this.threadId = builder.threadId;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {

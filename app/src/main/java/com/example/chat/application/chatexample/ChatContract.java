@@ -3,6 +3,7 @@ package com.example.chat.application.chatexample;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
@@ -64,6 +65,7 @@ public interface ChatContract {
         }
 
         default void onGetContacts() {
+            Log.d("MTAG","MESSAGE SENT in CH-L");
         }
 
         default void onGetThreadParticipant() {

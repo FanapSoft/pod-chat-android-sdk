@@ -3489,7 +3489,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
     private String mainMapStaticImage(RequestLocationMessage request,
                                       Activity activity,
                                       String uniqueId,
@@ -3617,7 +3616,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
     public String mapStaticImage(RequestMapStaticImage request) {
 
         int zoom = request.getZoom();
@@ -3652,7 +3650,7 @@ public class Chat extends AsyncAdapter {
 
         Activity activity = request.getActivity();
 
-        mainMapStaticImage(request, activity, uniqueId, true,handler);
+        mainMapStaticImage(request, activity, uniqueId, true, handler);
 
         return uniqueId;
 
@@ -4344,7 +4342,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (cache) {
-            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId,false);
+            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId, false);
             if (participants != null) {
                 long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
                 ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
@@ -4424,8 +4422,7 @@ public class Chat extends AsyncAdapter {
     private String getThreadParticipantsMain(Integer count, Long offset, long threadId, boolean getAdmin, String typeCode, ChatHandler handler) {
 
 
-
-        if(!chatReady) return null;
+        if (!chatReady) return null;
 
 
         String uniqueId;
@@ -4436,7 +4433,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (cache) {
-            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId,getAdmin);
+            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId, getAdmin);
             if (participants != null) {
                 long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
                 ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
@@ -5290,7 +5287,7 @@ public class Chat extends AsyncAdapter {
 
                 String asyncContent = gson.toJson(message);
                 async.sendMessage(asyncContent, 4);
-                setThreadCallbacks(chatMessage.getSubjectId(),chatMessage.getUniqueId());
+                setThreadCallbacks(chatMessage.getSubjectId(), chatMessage.getUniqueId());
                 Log.i(TAG, "SEND_DELIVERY_MESSAGE");
                 listenerManager.callOnLogEvent(asyncContent);
             }
@@ -5308,6 +5305,9 @@ public class Chat extends AsyncAdapter {
         } else {
             waitQList.remove(messageUniqueId);
         }
+
+
+        boolean found = false;
         try {
             if (threadCallbacks.containsKey(threadId)) {
                 ArrayList<Callback> callbacks = threadCallbacks.get(threadId);
@@ -5315,6 +5315,8 @@ public class Chat extends AsyncAdapter {
                     if (messageUniqueId.equals(callback.getUniqueId())) {
                         int indexUnique = callbacks.indexOf(callback);
                         if (callbacks.get(indexUnique).isSent()) {
+
+                            found = true;
 
                             ChatResponse<ResultMessage> chatResponse = new ChatResponse<>();
 
@@ -5324,7 +5326,7 @@ public class Chat extends AsyncAdapter {
                             chatResponse.setErrorMessage("");
                             chatResponse.setHasError(false);
                             chatResponse.setUniqueId(callback.getUniqueId());
-
+                            chatResponse.setSubjectId(chatMessage.getSubjectId());
                             resultMessage.setConversationId(chatMessage.getSubjectId());
                             resultMessage.setMessageId(Long.valueOf(chatMessage.getContent()));
                             chatResponse.setResult(resultMessage);
@@ -5355,7 +5357,10 @@ public class Chat extends AsyncAdapter {
                         break;
                     }
                 }
-            }else{
+            }
+
+            if (!found) {
+
 
                 ChatResponse<ResultMessage> chatResponse = new ChatResponse<>();
 
@@ -5365,7 +5370,7 @@ public class Chat extends AsyncAdapter {
                 chatResponse.setErrorMessage("");
                 chatResponse.setHasError(false);
                 chatResponse.setUniqueId(messageUniqueId);
-
+                chatResponse.setSubjectId(chatMessage.getSubjectId());
                 resultMessage.setConversationId(chatMessage.getSubjectId());
                 resultMessage.setMessageId(Long.valueOf(chatMessage.getContent()));
                 chatResponse.setResult(resultMessage);
@@ -5373,7 +5378,7 @@ public class Chat extends AsyncAdapter {
                 String json = gson.toJson(chatResponse);
                 listenerManager.callOnSentMessage(json, chatResponse);
 
-                Log.d("MTAG","threadid isn't in callbacks!");
+//                Log.d("MTAG", "threadid isn't in callbacks!");
 
 
                 runOnUIThread(() -> {
@@ -5394,8 +5399,8 @@ public class Chat extends AsyncAdapter {
                 showLog("RECEIVED_SENT_MESSAGE", json);
 
 
-
             }
+
         } catch (Throwable e) {
             if (log) Log.e(TAG, e.getCause().getMessage());
         }
@@ -5779,15 +5784,15 @@ public class Chat extends AsyncAdapter {
 //
 
 
-            if(!Util.isNullOrEmpty(chatResponse.getResult().getParticipants().get(0).getRoles())){
+            if (!Util.isNullOrEmpty(chatResponse.getResult().getParticipants().get(0).getRoles())) {
 
 
-                listenerManager.callOnGetThreadAdmin(jsonParticipant,chatResponse);
+                listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
 
                 showLog("RECEIVE_ADMINS", jsonParticipant);
 
 
-            }else{
+            } else {
 
                 listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
 
@@ -5884,7 +5889,6 @@ public class Chat extends AsyncAdapter {
                 if (response.body() != null) {
 
                     if (response.isSuccessful()) {
-
 
 
                         String secretKey = response.body().getSecretKey();
@@ -6859,8 +6863,6 @@ public class Chat extends AsyncAdapter {
                 }.getType());
 
 
-
-
         resultSetAdmin.setAdmins(admins);
 
         chatResponse.setResult(resultSetAdmin);
@@ -6878,12 +6880,12 @@ public class Chat extends AsyncAdapter {
         long threadId = chatMessage.getSubjectId();
 
 
-        if(cache){
+        if (cache) {
 
             for (Admin a :
                     admins) {
 
-                messageDatabaseHelper.updateParticipantRoles(a.getId(),threadId,a.getRoles());
+                messageDatabaseHelper.updateParticipantRoles(a.getId(), threadId, a.getRoles());
 
             }
 
@@ -7832,7 +7834,7 @@ public class Chat extends AsyncAdapter {
                 FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
 
-                showLog("UPLOAD_FILE_TO_SERVER","");
+                showLog("UPLOAD_FILE_TO_SERVER", "");
 
                 ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId,
 
@@ -7840,9 +7842,6 @@ public class Chat extends AsyncAdapter {
 
                             @Override
                             public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-
-
-
 
 
                                 if (handler != null) {
@@ -8403,7 +8402,7 @@ public class Chat extends AsyncAdapter {
         super.onDisconnected(textMessage);
 
         listenerManager.callOnLogEvent(textMessage);
-        listenerManager.callOnError(textMessage,null);
+        listenerManager.callOnError(textMessage, null);
     }
 
     @Override
@@ -8411,7 +8410,7 @@ public class Chat extends AsyncAdapter {
         super.onError(textMessage);
 
         listenerManager.callOnLogEvent(textMessage);
-        listenerManager.callOnError(textMessage,null);
+        listenerManager.callOnError(textMessage, null);
     }
 
     @Override
@@ -8419,7 +8418,7 @@ public class Chat extends AsyncAdapter {
         super.handleCallbackError(cause);
 
         listenerManager.callOnLogEvent(cause.getMessage());
-        listenerManager.callOnError(cause.getMessage(),null);
+        listenerManager.callOnError(cause.getMessage(), null);
 
     }
 
