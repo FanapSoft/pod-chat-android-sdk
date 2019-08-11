@@ -2924,8 +2924,8 @@ public class Chat extends AsyncAdapter {
 
             String jsonContact = gson.toJson(chatResponse);
 
-            listenerManager.callOnLogEvent(jsonContact);
-            if (log) Log.i(TAG, "CACHE_SEARCH_CONTACT");
+            showLog("CACHE_SEARCH_CONTACT",jsonContact);
+
 
         }
 
@@ -2971,9 +2971,11 @@ public class Chat extends AsyncAdapter {
 
                                 String content = gson.toJson(chatResponse);
 
+
+                                showLog("RECEIVE_SEARCH_CONTACT",content);
+
                                 listenerManager.callOnSearchContact(content, chatResponse);
-                                listenerManager.callOnLogEvent(content);
-                                if (log) Log.i(TAG, "RECEIVE_SEARCH_CONTACT");
+
                             }
 
                         } else {
@@ -7843,11 +7845,16 @@ public class Chat extends AsyncAdapter {
                             @Override
                             public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
-
+                                Log.i(TAG, "on progress");
                                 if (handler != null) {
                                     handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
                                     if (log)
                                         Log.i(TAG, "uniqueId " + uniqueId + " bytesSent " + bytesSent);
+                                }else{
+
+                                    if (log)
+                                        Log.i(TAG, "Handler is null");
+
                                 }
                             }
 

@@ -22,7 +22,7 @@ public class ProgressRequestBody extends RequestBody {
     private String uniqueId;
     private Handler handler;
     private int numWriteToCalls;
-    private int ignoreFirstNumberOfWriteToCalls = 2;
+    private int ignoreFirstNumberOfWriteToCalls = 1;
 
     public ProgressRequestBody(final File file, String mimType, String uniqueId, final UploadCallbacks listener) {
         mFile = file;
@@ -47,12 +47,10 @@ public class ProgressRequestBody extends RequestBody {
     public void writeTo(BufferedSink sink) throws IOException {
         long fileLength = mFile.length();
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        FileInputStream in = new FileInputStream(mFile);
-        long uploaded = 0;
 
-        numWriteToCalls++;
-
-        try {
+        try (FileInputStream in = new FileInputStream(mFile)) {
+            long uploaded = 0;
+            numWriteToCalls++;
             int read;
             float lastProgressPercentUpdate = 0.0f;
             while ((read = in.read(buffer)) != -1) {
@@ -74,8 +72,6 @@ public class ProgressRequestBody extends RequestBody {
                     }
                 }
             }
-        } finally {
-            in.close();
         }
     }
 
