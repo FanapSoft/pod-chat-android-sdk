@@ -128,15 +128,15 @@ public class ChatActivity extends AppCompatActivity
      */
 
 
-//    private static String name = "SandBox";
-//    private static String TOKEN = "51557f6dfbf543fd89425dabbc1ac19f";
-//    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
-//    private static String serverName = "chat-server";
-//    private static String appId = "POD-Chat";
-//    private static String ssoHost = "https://accounts.pod.land/";
-//    //    private static String platformHost = "http://sandbox.pod.land:8080/";
-//    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
-//    private static String fileServer = "https://sandbox.pod.land:8443/";
+    private static String name = "SandBox";
+    private static String TOKEN = "3693187884274a9c841276379dd6d477";
+    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
+    private static String serverName = "chat-server";
+    private static String appId = "POD-Chat";
+    private static String ssoHost = "https://accounts.pod.land/";
+    //    private static String platformHost = "http://sandbox.pod.land:8080/";
+    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
+    private static String fileServer = "https://sandbox.pod.land:8443/";
 
 
 
@@ -168,17 +168,17 @@ public class ChatActivity extends AppCompatActivity
 //    works:
 //
 //
-////
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
-    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
-    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
-    private String platformHost = "http://172.16.110.131:8080/";
-    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
-    private String serverName = "chat-server2";
-    private String typeCode = null;
-
+//////
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
+//    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
+//    private String platformHost = "http://172.16.110.131:8080/";
+//    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
+//    private String serverName = "chat-server2";
+//    private String typeCode = null;
 //
+////
 
 
     /**
@@ -870,9 +870,9 @@ public class ChatActivity extends AppCompatActivity
 
         ArrayList<Long> msgIds = new ArrayList<>();
 
-        msgIds.add(50640L);
-        msgIds.add(50641L);
-        msgIds.add(50643L);
+        msgIds.add(47569L);
+//        msgIds.add(47566L);
+//        msgIds.add(47564L);
 
 
 
@@ -880,9 +880,7 @@ public class ChatActivity extends AppCompatActivity
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
                 .Builder()
                 .messageIds(msgIds)
-                .threadId((long) TEST_THREAD_ID)
                 .deleteForAll(true)
-                .typeCode("5")
                 .build();
 
         presenter.deleteMessage(requestDeleteMessage, null);

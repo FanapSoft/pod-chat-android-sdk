@@ -8,29 +8,27 @@ public class RequestDeleteMessage extends GeneralRequestObject {
 
     private ArrayList<Long> messageIds;
     private boolean deleteForAll;
-    private long threadId;
 
     private RequestDeleteMessage(@NonNull Builder builder) {
         super(builder);
         this.deleteForAll = builder.deleteForAll;
         this.messageIds = builder.messageIds;
-        this.threadId = builder.threadId;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
+
         private boolean deleteForAll;
         private ArrayList<Long> messageIds;
-        private Long threadId;
+
+
+
 
         public Builder messageIds(ArrayList<Long> messageIds) {
             this.messageIds = messageIds;
             return this;
         }
 
-        public Builder threadId(Long threadId) {
-            this.threadId = threadId;
-            return this;
-        }
+
 
         @NonNull
         public Builder deleteForAll(boolean deleteForAll) {
@@ -67,11 +65,4 @@ public class RequestDeleteMessage extends GeneralRequestObject {
         this.deleteForAll = deleteForAll;
     }
 
-    public long getThreadId() {
-        return threadId;
-    }
-
-    public void setThreadId(long threadId) {
-        this.threadId = threadId;
-    }
 }

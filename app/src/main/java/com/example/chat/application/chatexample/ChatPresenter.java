@@ -540,12 +540,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void deleteMessage(ArrayList<Long> messageIds, long threadId, Boolean deleteForAll, ChatHandler handler) {
-        chat.deleteMessage(messageIds, threadId, deleteForAll, handler);
+
+        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
+                .Builder()
+                .messageIds(messageIds)
+                .deleteForAll(deleteForAll)
+                .build();
+
+
+        String un = chat.deleteMessage(requestDeleteMessage, handler);
+
     }
 
     @Override
     public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
-        chat.deleteMessage(deleteMessage, handler);
+        String un = chat.deleteMultipleMessage(deleteMessage, handler);
     }
 
     @Override

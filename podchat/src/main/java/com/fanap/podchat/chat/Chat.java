@@ -1968,10 +1968,10 @@ public class Chat extends AsyncAdapter {
      */
 
 
-    public String deleteMessage(ArrayList<Long> messageIds, long threadId, Boolean deleteForAll, ChatHandler handler) {
+    public String deleteMessage(ArrayList<Long> messageIds, Boolean deleteForAll, ChatHandler handler) {
 
 
-        Log.d(MTAG, "Multiple Message delete");
+//        Log.d(MTAG, "Multiple Message delete");
 
 
         String uniqueId = generateUniqueId();
@@ -2010,7 +2010,7 @@ public class Chat extends AsyncAdapter {
             }.getType());
 
 
-            contentObj.add("ids", messageIdsElement.getAsJsonArray());
+            contentObj.add("id", messageIdsElement.getAsJsonArray());
             contentObj.add("uniqueIds", uniqueIdsElement.getAsJsonArray());
             contentObj.addProperty("deleteForAll", deleteForAll);
 
@@ -2019,13 +2019,10 @@ public class Chat extends AsyncAdapter {
             baseMessage.setToken(getToken());
             baseMessage.setTokenIssuer("1");
             baseMessage.setType(Constants.DELETE_MESSAGE);
-//            baseMessage.setUniqueId(uniqueId);
-            baseMessage.setSubjectId(threadId);
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(baseMessage);
 
-
-//            jsonObject.remove("subjectId");
+            jsonObject.remove("subjectId");
             if (Util.isNullOrEmpty(getTypeCode())) {
                 jsonObject.remove("typeCode");
             } else {
@@ -2050,7 +2047,7 @@ public class Chat extends AsyncAdapter {
     private String deleteMessage(Long messageId, Boolean deleteForAll, ChatHandler handler) {
 
 
-        Log.d(MTAG, "Single Message delete");
+//        Log.d(MTAG, "Single Message delete");
         String uniqueId;
         uniqueId = generateUniqueId();
 
@@ -2115,9 +2112,9 @@ public class Chat extends AsyncAdapter {
 
         if (request.getMessageIds().size() > 1)
             return deleteMessage(request.getMessageIds(),
-                    request.getThreadId(),
                     request.isDeleteForAll(),
                     handler);
+
         else if (request.getMessageIds().size() == 1) {
             return deleteMessage(request.getMessageIds().get(0),
                     request.isDeleteForAll(), handler);
@@ -2125,6 +2122,15 @@ public class Chat extends AsyncAdapter {
 
             return null;
         }
+    }
+
+
+    public String deleteMultipleMessage(RequestDeleteMessage request, ChatHandler handler){
+
+        return deleteMessage(request.getMessageIds(),
+                request.isDeleteForAll(),
+                handler);
+
     }
 
 
