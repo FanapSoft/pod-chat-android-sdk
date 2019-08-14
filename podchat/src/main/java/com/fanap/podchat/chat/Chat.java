@@ -4452,6 +4452,7 @@ public class Chat extends AsyncAdapter {
                 resultParticipant.setParticipants(participants);
                 chatResponse.setResult(resultParticipant);
                 chatResponse.setCache(true);
+                chatResponse.setSubjectId(threadId);
 
                 resultParticipant.setNextOffset(offset + participants.size());
                 String jsonParticipant = gson.toJson(chatResponse);
@@ -4463,6 +4464,7 @@ public class Chat extends AsyncAdapter {
 
 
                 listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
+
                 showLog("ADMINS FROM CACHE", jsonParticipant);
 
             }
@@ -6633,6 +6635,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleAddParticipant(ChatMessage chatMessage, String messageUniqueId) {
+
         Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
 
         if (cache) {
@@ -7229,6 +7232,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             List<CacheParticipant> cacheParticipants;
+
             cacheParticipants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheParticipant>>() {
             }.getType());
 

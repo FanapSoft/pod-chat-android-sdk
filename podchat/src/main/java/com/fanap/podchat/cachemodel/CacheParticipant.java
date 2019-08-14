@@ -9,15 +9,12 @@ import java.util.List;
 public class CacheParticipant {
     @PrimaryKey
     private long id;
-
     private long threadId;
-
     private String name;
     private String firstName;
     private String lastName;
 
     private String image;
-
     private long notSeenDuration;
 
     private long contactId;
@@ -32,8 +29,10 @@ public class CacheParticipant {
 
     private String cellphoneNumber;
     private String email;
+
     private boolean myFriend;
     private boolean online;
+
     private boolean blocked;
     private boolean admin;
 

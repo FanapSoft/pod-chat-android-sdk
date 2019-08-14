@@ -1089,6 +1089,7 @@ public class MessageDatabaseHelper {
                 cacheParticipant.getImage(),
                 cacheParticipant.getNotSeenDuration(),
                 cacheParticipant.getContactId(),
+                cacheParticipant.getCoreUserId(),
                 cacheParticipant.getContactName(),
                 cacheParticipant.getContactFirstName(),
                 cacheParticipant.getContactLastName(),
@@ -1606,7 +1607,7 @@ public class MessageDatabaseHelper {
                             if(roles.size()> 0){
 
 
-                                Participant participant = cacheToParticipantMapper(cParticipant, getAdmin, roles);
+                                Participant participant = cacheToParticipantMapper(cParticipant, true, roles);
                                 participants.add(participant);
 
                             }

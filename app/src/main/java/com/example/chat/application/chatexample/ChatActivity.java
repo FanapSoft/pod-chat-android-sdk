@@ -129,7 +129,7 @@ public class ChatActivity extends AppCompatActivity
 
 
 //    private static String name = "SandBox";
-//    private static String TOKEN = "bc840e34865c4e2f93500b4876d73c7c";
+//    private static String TOKEN = "51557f6dfbf543fd89425dabbc1ac19f";
 //    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
 //    private static String serverName = "chat-server";
 //    private static String appId = "POD-Chat";
@@ -137,7 +137,7 @@ public class ChatActivity extends AppCompatActivity
 //    //    private static String platformHost = "http://sandbox.pod.land:8080/";
 //    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
 //    private static String fileServer = "https://sandbox.pod.land:8443/";
-//
+
 
 
 //
@@ -168,7 +168,7 @@ public class ChatActivity extends AppCompatActivity
 //    works:
 //
 //
-//
+////
     private String name = "zizi";
     private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
@@ -874,6 +874,9 @@ public class ChatActivity extends AppCompatActivity
         msgIds.add(50641L);
         msgIds.add(50643L);
 
+
+
+
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
                 .Builder()
                 .messageIds(msgIds)
@@ -1082,7 +1085,7 @@ public class ChatActivity extends AppCompatActivity
                 Inviter inviter = new Inviter();
                 inviter.setName("sina");
                 String meta = gson.toJson(inviter);
-                presenter.editMessage(17552,
+                presenter.editMessage(47501,
                         "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
 
                 break;

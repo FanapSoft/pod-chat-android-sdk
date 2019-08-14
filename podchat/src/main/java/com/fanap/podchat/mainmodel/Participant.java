@@ -23,12 +23,16 @@ public class Participant {
 
     private Boolean sendEnable;
     private Boolean receiveEnable;
+
     private String cellphoneNumber;
     private String email;
+
     private Boolean myFriend;
     private Boolean online;
+
     private Boolean blocked;
     private Boolean admin;
+
     private List<String> roles;
 
 
@@ -43,6 +47,7 @@ public class Participant {
             String image,
             long notSeenDuration,
             long contactId,
+            long coreUserId,
             String contactName,
             String contactFirstName,
             String contactLastName,
@@ -64,6 +69,7 @@ public class Participant {
         this.image=image;
         this.notSeenDuration=notSeenDuration;
         this.contactId=contactId;
+        this.coreUserId = coreUserId;
         this.contactName=contactName;
         this.contactFirstName=contactFirstName;
         this.contactLastName=contactLastName;
