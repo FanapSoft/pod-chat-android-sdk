@@ -9,9 +9,7 @@ import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
-import com.fanap.podchat.model.OutputSetRoleToUser;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
@@ -243,7 +241,7 @@ public class ChatListenerManager {
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onGetThreadAdmin(content,chatResponse);
+                listener.onGetThreadAdmin(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -580,7 +578,17 @@ public class ChatListenerManager {
     public void callOnLogEvent(String logEvent) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnLogEvent(logEvent);
+                listener.onLogEvent(logEvent);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnLogEvent(String logName, String json) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onLogEvent(logName,json);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -627,6 +635,7 @@ public class ChatListenerManager {
 
 
     }
+
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
 //

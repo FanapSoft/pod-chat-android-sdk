@@ -130,7 +130,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void OnLogEvent(String log) {
+    public void onLogEvent(String log) {
         view.onLogEvent(log);
     }
 
@@ -554,7 +554,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
-        String un = chat.deleteMultipleMessage(deleteMessage, handler);
+        List<String> un = chat.deleteMultipleMessage(deleteMessage, handler);
     }
 
     @Override

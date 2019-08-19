@@ -193,7 +193,7 @@ public interface ChatListener {
 
     }
 
-    default void OnLogEvent(String log) {
+    default void onLogEvent(String log) {
 
     }
 
@@ -217,4 +217,6 @@ public interface ChatListener {
 
     @Deprecated
     default void onGetThreadAdmin(String jsonData){}
+
+    void onLogEvent(String logName, String json);
 }

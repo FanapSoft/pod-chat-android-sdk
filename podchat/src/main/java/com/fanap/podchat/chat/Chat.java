@@ -1968,7 +1968,7 @@ public class Chat extends AsyncAdapter {
      */
 
 
-    public String deleteMessage(ArrayList<Long> messageIds, Boolean deleteForAll, ChatHandler handler) {
+    public List<String> deleteMessage(ArrayList<Long> messageIds, Boolean deleteForAll, ChatHandler handler) {
 
 
 //        Log.d(MTAG, "Multiple Message delete");
@@ -2031,7 +2031,6 @@ public class Chat extends AsyncAdapter {
             }
 
             String asyncContent = jsonObject.toString();
-
             sendAsyncMessage(asyncContent, 4, "SEND_DELETE_MESSAGE");
 
 
@@ -2039,9 +2038,9 @@ public class Chat extends AsyncAdapter {
                 handler.onDeleteMessage(uniqueId);
             }
         } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
-        return uniqueId;
+        return uniqueIds;
     }
 
     private String deleteMessage(Long messageId, Boolean deleteForAll, ChatHandler handler) {
@@ -2110,22 +2109,36 @@ public class Chat extends AsyncAdapter {
     public String deleteMessage(RequestDeleteMessage request, ChatHandler handler) {
 
 
-        if (request.getMessageIds().size() > 1)
-            return deleteMessage(request.getMessageIds(),
-                    request.isDeleteForAll(),
-                    handler);
+        if (request.getMessageIds().size() > 1) {
 
-        else if (request.getMessageIds().size() == 1) {
-            return deleteMessage(request.getMessageIds().get(0),
-                    request.isDeleteForAll(), handler);
-        } else {
 
-            return null;
+            return getErrorOutPut(ChatConstant.ERROR_NUMBER_MESSAGEID, ChatConstant.ERROR_CODE_NUMBER_MESSAGEID, null);
+
         }
+
+
+        return deleteMessage(request.getMessageIds().get(0),
+                request.isDeleteForAll(), handler);
+
+
+//        if (request.getMessageIds().size() > 1)
+//            return deleteMessage(request.getMessageIds(),
+//                    request.isDeleteForAll(),
+//                    handler);
+//
+//        else if (request.getMessageIds().size() == 1) {
+//            return deleteMessage(request.getMessageIds().get(0),
+//                    request.isDeleteForAll(), handler);
+//        } else {
+//
+//            return null;
+//        }
+
+
     }
 
 
-    public String deleteMultipleMessage(RequestDeleteMessage request, ChatHandler handler){
+    public List<String> deleteMultipleMessage(RequestDeleteMessage request, ChatHandler handler) {
 
         return deleteMessage(request.getMessageIds(),
                 request.isDeleteForAll(),
@@ -2930,7 +2943,7 @@ public class Chat extends AsyncAdapter {
 
             String jsonContact = gson.toJson(chatResponse);
 
-            showLog("CACHE_SEARCH_CONTACT",jsonContact);
+            showLog("CACHE_SEARCH_CONTACT", jsonContact);
 
 
         }
@@ -2978,7 +2991,7 @@ public class Chat extends AsyncAdapter {
                                 String content = gson.toJson(chatResponse);
 
 
-                                showLog("RECEIVE_SEARCH_CONTACT",content);
+                                showLog("RECEIVE_SEARCH_CONTACT", content);
 
                                 listenerManager.callOnSearchContact(content, chatResponse);
 
@@ -5148,6 +5161,7 @@ public class Chat extends AsyncAdapter {
             Log.i(TAG, json);
             if (!Util.isNullOrEmpty(json)) {
                 listenerManager.callOnLogEvent(json);
+                listenerManager.callOnLogEvent(i,json);
             }
         }
     }
@@ -7860,7 +7874,7 @@ public class Chat extends AsyncAdapter {
                                     handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
                                     if (log)
                                         Log.i(TAG, "uniqueId " + uniqueId + " bytesSent " + bytesSent);
-                                }else{
+                                } else {
 
                                     if (log)
                                         Log.i(TAG, "Handler is null");

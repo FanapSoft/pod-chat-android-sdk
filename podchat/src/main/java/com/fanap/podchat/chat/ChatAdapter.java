@@ -166,7 +166,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void OnLogEvent(String log) {
+    public void onLogEvent(String log) {
 
     }
 
