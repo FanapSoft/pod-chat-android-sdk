@@ -181,6 +181,11 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onLogEvent(String logName, String json) {
+
+    }
+
+    @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> outPutNewMessage) {
 
     }
