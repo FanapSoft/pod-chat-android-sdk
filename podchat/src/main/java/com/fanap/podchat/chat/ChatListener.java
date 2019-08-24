@@ -196,6 +196,7 @@ public interface ChatListener {
     default void onLogEvent(String log) {
 
     }
+    default void onLogEvent(String logName, String json){}
 
     default void OnClearHistory(String content, ChatResponse<ResultClearHistory> chatResponse) {
 
@@ -218,5 +219,5 @@ public interface ChatListener {
     @Deprecated
     default void onGetThreadAdmin(String jsonData){}
 
-    default void onLogEvent(String logName, String json){}
+
 }

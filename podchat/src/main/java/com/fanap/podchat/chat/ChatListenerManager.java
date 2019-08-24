@@ -200,6 +200,7 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onError(content, errorOutPut);
+                listener.onLogEvent("Error",content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -579,6 +580,7 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onLogEvent(logEvent);
+                listener.onLogEvent("",logEvent);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

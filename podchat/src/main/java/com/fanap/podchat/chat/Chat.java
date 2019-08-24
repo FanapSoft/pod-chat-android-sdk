@@ -2470,6 +2470,7 @@ public class Chat extends AsyncAdapter {
                     .fromTimeNanos(request.getFromTimeNanos())
                     .toTime(request.getToTime())
                     .toTimeNanos(request.getToTimeNanos())
+                    .id(request.getId())
                     .order(request.getOrder()).build();
             getHistoryMain(history, request.getThreadId(), handler, uniqueId);
 
@@ -8371,7 +8372,8 @@ public class Chat extends AsyncAdapter {
             }, retrySetToken * 1000);
         } else {
 
-            Log.d(TAG, "can't set token bc async is not ready");
+            //            Log.d(TAG, "can't set token bc async is not ready");
+
         }
     }
 
