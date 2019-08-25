@@ -11,7 +11,7 @@ public class ChatConstant {
     public static final int ERROR_CODE_UNKNOWN_EXCEPTION = 6008;
     public static final int ERROR_CODE_INVALID_URI = 6009;
     public static final int ERROR_CODE_INVALID_FILE_URI = 6010;
-    public static final int ERROR_CODE_NUMBER_MESSAGEID = 6011;
+    public static final int ERROR_CODE_NUMBER_MESSAGE_ID = 6011;
     public static final int ERROR_CODE_CANT_GET_USER_INFO = 6100;
     public static final int ERROR_CODE_CONNECTION_NOT_ESTABLISHED = 6101;
     public static final int ERROR_CODE_NETWORK_ERROR = 6200;
