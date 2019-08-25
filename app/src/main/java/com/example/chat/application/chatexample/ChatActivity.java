@@ -1440,6 +1440,8 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void onUploadImage(View view) {
+
+
         presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
             public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
