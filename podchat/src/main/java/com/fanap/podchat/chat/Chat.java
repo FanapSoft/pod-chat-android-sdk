@@ -3057,6 +3057,10 @@ public class Chat extends AsyncAdapter {
                 addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber, typeCode);
 
             }
+
+
+
+
             addContactObservable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(addContactResponse -> {
@@ -3107,6 +3111,10 @@ public class Chat extends AsyncAdapter {
         String cellphoneNumber = request.getCellphoneNumber();
 
         typeCode = getTypeCode();
+
+
+        showLog("SEND_ADD_CONTACT", gson.toJson(request));
+
 
         return addContact(firstName, lastName, cellphoneNumber, email);
     }
@@ -4030,7 +4038,7 @@ public class Chat extends AsyncAdapter {
             String asyncContent = jsonObject.toString();
 
             setCallBacks(null, null, null, true, Constants.GET_BLOCKED, null, uniqueId);
-            sendAsyncMessage(asyncContent, 4, "SEND_BLOCK_List");
+            sendAsyncMessage(asyncContent, 4, "SEND_GET_BLOCK_LIST");
             if (handler != null) {
                 handler.onGetBlockList(uniqueId);
             }
