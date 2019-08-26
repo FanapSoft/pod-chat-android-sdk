@@ -3171,6 +3171,8 @@ public class Chat extends AsyncAdapter {
      */
     public String removeContact(RequestRemoveContact request) {
         long userId = request.getUserId();
+
+        showLog("SEND_REMOVE_CONTACT",gson.toJson(request));
         return removeContact(userId);
     }
 
@@ -8041,6 +8043,8 @@ public class Chat extends AsyncAdapter {
                     }
 
                 };
+
+
 
 
             } else {
