@@ -3278,6 +3278,9 @@ public class Chat extends AsyncAdapter {
         String cellphoneNumber = request.getCellphoneNumber();
         long userId = request.getUserId();
 
+        showLog("SEND_UPDATE_CONTACT", gson.toJson(request));
+
+
         return updateContact(userId, firstName, lastName, cellphoneNumber, email);
     }
 
