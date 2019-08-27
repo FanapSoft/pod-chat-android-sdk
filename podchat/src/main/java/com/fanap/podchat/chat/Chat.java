@@ -49,9 +49,9 @@ import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
@@ -2915,23 +2915,23 @@ public class Chat extends AsyncAdapter {
 
 
     //TODO test again on cache
-    public String searchContact(SearchContact searchContact) {
+    public String searchContact(RequestSearchContact requestSearchContact) {
         String uniqueId = generateUniqueId();
         String type_code;
 
         if (cache) {
             List<Contact> contacts = new ArrayList<>();
-            if (searchContact.getId() != null) {
-                Contact contact = messageDatabaseHelper.getContactById(Long.valueOf(searchContact.getId()));
+            if (requestSearchContact.getId() != null) {
+                Contact contact = messageDatabaseHelper.getContactById(Long.valueOf(requestSearchContact.getId()));
                 contacts.add(contact);
-            } else if (searchContact.getFirstName() != null) {
-                contacts = messageDatabaseHelper.getContactsByFirst(searchContact.getFirstName());
-            } else if (searchContact.getFirstName() != null && searchContact.getLastName() != null && !searchContact.getFirstName().isEmpty() && !searchContact.getLastName().isEmpty()) {
-                contacts = messageDatabaseHelper.getContactsByFirstAndLast(searchContact.getFirstName(), searchContact.getLastName());
-            } else if (searchContact.getEmail() != null && !searchContact.getEmail().isEmpty()) {
-                contacts = messageDatabaseHelper.getContactsByEmail(searchContact.getEmail());
-            } else if (searchContact.getCellphoneNumber() != null && !searchContact.getCellphoneNumber().isEmpty()) {
-                contacts = messageDatabaseHelper.getContactByCell(searchContact.getCellphoneNumber());
+            } else if (requestSearchContact.getFirstName() != null) {
+                contacts = messageDatabaseHelper.getContactsByFirst(requestSearchContact.getFirstName());
+            } else if (requestSearchContact.getFirstName() != null && requestSearchContact.getLastName() != null && !requestSearchContact.getFirstName().isEmpty() && !requestSearchContact.getLastName().isEmpty()) {
+                contacts = messageDatabaseHelper.getContactsByFirstAndLast(requestSearchContact.getFirstName(), requestSearchContact.getLastName());
+            } else if (requestSearchContact.getEmail() != null && !requestSearchContact.getEmail().isEmpty()) {
+                contacts = messageDatabaseHelper.getContactsByEmail(requestSearchContact.getEmail());
+            } else if (requestSearchContact.getCellphoneNumber() != null && !requestSearchContact.getCellphoneNumber().isEmpty()) {
+                contacts = messageDatabaseHelper.getContactByCell(requestSearchContact.getCellphoneNumber());
             }
 
             ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
@@ -2952,8 +2952,8 @@ public class Chat extends AsyncAdapter {
 
         }
 
-        if (searchContact.getTypeCode() != null && !searchContact.getTypeCode().isEmpty()) {
-            type_code = searchContact.getTypeCode();
+        if (requestSearchContact.getTypeCode() != null && !requestSearchContact.getTypeCode().isEmpty()) {
+            type_code = requestSearchContact.getTypeCode();
         } else {
             type_code = "1";
         }
@@ -2961,23 +2961,23 @@ public class Chat extends AsyncAdapter {
         if (chatReady) {
 
 
-            String json = gson.toJson(searchContact);
+            String json = gson.toJson(requestSearchContact);
 
             showLog("SEND_SEARCH_CONTACT",json);
 
             Observable<Response<SearchContactVO>> observable = contactApi.searchContact(
                     getToken(),
                     TOKEN_ISSUER,
-                    searchContact.getId()
-                    , searchContact.getFirstName()
-                    , searchContact.getLastName()
-                    , searchContact.getEmail()
+                    requestSearchContact.getId()
+                    , requestSearchContact.getFirstName()
+                    , requestSearchContact.getLastName()
+                    , requestSearchContact.getEmail()
                     , null
-                    , searchContact.getOffset()
-                    , searchContact.getSize()
+                    , requestSearchContact.getOffset()
+                    , requestSearchContact.getSize()
                     , null
-                    , searchContact.getQuery()
-                    , searchContact.getCellphoneNumber());
+                    , requestSearchContact.getQuery()
+                    , requestSearchContact.getCellphoneNumber());
 
             observable
                     .subscribeOn(Schedulers.io())

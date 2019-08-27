@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SearchContact {
+public class RequestSearchContact {
     private String firstName;
     private String lastName;
     private String cellphoneNumber;
@@ -16,7 +16,7 @@ public class SearchContact {
     private final String offset;
     private final String size;
 
-    public SearchContact(Builder builder) {
+    public RequestSearchContact(Builder builder) {
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.size = builder.size;
@@ -28,7 +28,7 @@ public class SearchContact {
         this.query = builder.query;
     }
 
-    public SearchContact(String size, String offset) {
+    public RequestSearchContact(String size, String offset) {
         this.offset = offset;
         this.size = size;
     }
@@ -140,8 +140,8 @@ public class SearchContact {
         }
 
         @NonNull
-        public SearchContact build() {
-            return new SearchContact(this);
+        public RequestSearchContact build() {
+            return new RequestSearchContact(this);
         }
     }
 }

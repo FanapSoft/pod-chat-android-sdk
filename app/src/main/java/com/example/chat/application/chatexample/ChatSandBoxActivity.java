@@ -29,8 +29,8 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -420,8 +420,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 9:
-                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
-                        presenter.searchContact(searchContact);
+                        RequestSearchContact requestSearchContact = new RequestSearchContact.Builder("0", "2").id("1063").build();
+                        presenter.searchContact(requestSearchContact);
                         break;
                     case 10:
                         NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria.Builder("name").is("sina").build();

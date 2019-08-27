@@ -83,7 +83,7 @@ All notable changes to this project will be documented here.
 - [Added] delete multiple message ability to deleteMessage()
 - Separate addAdminRoles() and removeAdminRoles()
 - getAdminList() output resolved.
-- searchContact() problem resolved.
+- requestSearchContact() problem resolved.
 - upload progress bug resolved. 
 
 

@@ -10,7 +10,7 @@ import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -251,7 +251,7 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void searchContact(SearchContact searchContact);
+        void searchContact(RequestSearchContact requestSearchContact);
 
         void block(Long contactId, Long userId, Long threadId, ChatHandler handler);
 

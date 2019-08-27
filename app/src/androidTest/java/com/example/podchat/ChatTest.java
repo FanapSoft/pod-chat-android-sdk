@@ -17,7 +17,7 @@ import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultImageFile;
@@ -725,8 +725,8 @@ public class ChatTest extends ChatAdapter {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
-        presenter.searchContact(searchContact);
+        RequestSearchContact requestSearchContact = new RequestSearchContact.Builder("0", "2").id("1063").build();
+        presenter.searchContact(requestSearchContact);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

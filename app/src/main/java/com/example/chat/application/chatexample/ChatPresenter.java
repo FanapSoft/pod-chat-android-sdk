@@ -15,13 +15,12 @@ import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
@@ -379,8 +378,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void searchContact(SearchContact searchContact) {
-        chat.searchContact(searchContact);
+    public void searchContact(RequestSearchContact requestSearchContact) {
+        chat.searchContact(requestSearchContact);
     }
 
     @Override

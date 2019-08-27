@@ -1,6 +1,5 @@
 package com.example.chat.application.chatexample;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,8 +9,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -33,8 +30,8 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -62,7 +59,6 @@ import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ThreadType;
-import com.fanap.podchat.util.Util;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -72,9 +68,7 @@ import com.fanap.podchat.example.R;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 public class ChatActivity extends AppCompatActivity
@@ -755,14 +749,14 @@ public class ChatActivity extends AppCompatActivity
 
                         break;
                     case 9:
-                        SearchContact searchContact = new SearchContact
+                        RequestSearchContact requestSearchContact = new RequestSearchContact
                                 .Builder("0", "50")
 //                                .id("1063")
 //                                .cellphoneNumber("09")
 //                                .lastName("Khei")
                                 .firstName("Pooria")
                                 .build();
-                        presenter.searchContact(searchContact);
+                        presenter.searchContact(requestSearchContact);
                         break;
                     case 10:
                         NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria
