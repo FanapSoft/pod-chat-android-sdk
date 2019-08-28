@@ -2917,6 +2917,12 @@ public class Chat extends AsyncAdapter {
     //TODO test again on cache
     public String searchContact(RequestSearchContact requestSearchContact) {
         String uniqueId = generateUniqueId();
+
+
+
+
+
+
         String type_code;
 
         if (cache) {
@@ -2960,10 +2966,14 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(requestSearchContact);
 
-            String json = gson.toJson(requestSearchContact);
+            jsonObject.addProperty("uniqueId",uniqueId);
 
-            showLog("SEND_SEARCH_CONTACT",json);
+            jsonObject.addProperty("tokenIssuer",1);
+
+            showLog("SEND_SEARCH_CONTACT", gson.toJson(jsonObject));
+
 
             Observable<Response<SearchContactVO>> observable = contactApi.searchContact(
                     getToken(),
@@ -3048,6 +3058,22 @@ public class Chat extends AsyncAdapter {
         }
 
         String uniqueId = generateUniqueId();
+
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("uniqueId",uniqueId);
+        jsonObject.addProperty("tokenIssuer",1);
+        jsonObject.addProperty("firstName",firstName);
+        jsonObject.addProperty("lastName",lastName);
+        jsonObject.addProperty("cellphoneNumber",cellphoneNumber);
+        jsonObject.addProperty("email",email);
+
+
+        showLog("SEND_ADD_CONTACT", gson.toJson(jsonObject));
+
+
+
+
         Observable<Response<Contacts>> addContactObservable;
         if (chatReady) {
             if (Util.isNullOrEmpty(getTypeCode())) {
@@ -3113,7 +3139,6 @@ public class Chat extends AsyncAdapter {
         typeCode = getTypeCode();
 
 
-        showLog("SEND_ADD_CONTACT", gson.toJson(request));
 
 
         return addContact(firstName, lastName, cellphoneNumber, email);
@@ -3126,6 +3151,19 @@ public class Chat extends AsyncAdapter {
      */
     public String removeContact(long userId) {
         String uniqueId = generateUniqueId();
+
+
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("uniqueId",uniqueId);
+        jsonObject.addProperty("id",userId);
+        jsonObject.addProperty("tokenIssuer",1);
+
+        showLog("SEND_REMOVE_CONTACT",gson.toJson(jsonObject));
+
+
+
+
         Observable<Response<ContactRemove>> removeContactObservable;
         if (chatReady) {
             if (Util.isNullOrEmpty(getTypeCode())) {
@@ -3170,9 +3208,9 @@ public class Chat extends AsyncAdapter {
      * userId id of the user that we want to remove from contact list
      */
     public String removeContact(RequestRemoveContact request) {
+
         long userId = request.getUserId();
 
-        showLog("SEND_REMOVE_CONTACT",gson.toJson(request));
         return removeContact(userId);
     }
 
@@ -3183,6 +3221,19 @@ public class Chat extends AsyncAdapter {
     public String updateContact(long userId, String firstName, String lastName, String cellphoneNumber, String email) {
 
         String uniqueId = generateUniqueId();
+
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("uniqueId",uniqueId);
+        jsonObject.addProperty("id",userId);
+        jsonObject.addProperty("tokenIssuer",1);
+        jsonObject.addProperty("firstName",firstName);
+        jsonObject.addProperty("lastName",lastName);
+        jsonObject.addProperty("cellphoneNumber",cellphoneNumber);
+        jsonObject.addProperty("email",email);
+
+
+        showLog("SEND_UPDATE_CONTACT", gson.toJson(jsonObject));
 
         if (Util.isNullOrEmpty(firstName)) {
             firstName = "";
@@ -3280,7 +3331,6 @@ public class Chat extends AsyncAdapter {
         String cellphoneNumber = request.getCellphoneNumber();
         long userId = request.getUserId();
 
-        showLog("SEND_UPDATE_CONTACT", gson.toJson(request));
 
 
         return updateContact(userId, firstName, lastName, cellphoneNumber, email);
@@ -3418,10 +3468,24 @@ public class Chat extends AsyncAdapter {
                                       String uniqueId,
                                       boolean isMessage) {
 
+
+
         try {
             if (Util.isNullOrEmpty(uniqueId)) {
                 uniqueId = generateUniqueId();
             }
+
+            if (!Permission.Check_READ_STORAGE(activity)) {
+
+                Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
+
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+                        , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
+
+
+                return uniqueId;
+            }
+
             if (chatReady) {
                 String type = request.getType();
                 int zoom = request.getZoom();
@@ -3445,6 +3509,17 @@ public class Chat extends AsyncAdapter {
                     height = 500;
                 }
 
+
+
+                JsonObject jsonObject = (JsonObject) gson.toJsonTree(request);
+
+                jsonObject.addProperty("uniqueId",uniqueId);
+
+                showLog("SEND_GET_MAP_STATIC",gson.toJson(jsonObject));
+
+
+
+
                 RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
                 MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
 
@@ -3454,6 +3529,8 @@ public class Chat extends AsyncAdapter {
                         center,
                         width,
                         height);
+
+
                 String finalUniqueId = uniqueId;
 
                 call.enqueue(new retrofit2.Callback<ResponseBody>() {
@@ -3470,7 +3547,7 @@ public class Chat extends AsyncAdapter {
                                 chatResponse.setUniqueId(finalUniqueId);
                                 chatResponse.setResult(result);
                                 listenerManager.callOnStaticMap(chatResponse);
-                                showLog("RECEIVE_MAP_STATIC", "");
+                                showLog("RECEIVE_MAP_STATIC", gson.toJson(chatResponse));
                                 if (!call.isCanceled()) {
                                     call.cancel();
                                 }
@@ -3542,9 +3619,23 @@ public class Chat extends AsyncAdapter {
                                       ProgressHandler.sendFileMessage handler) {
 
         try {
+
             if (Util.isNullOrEmpty(uniqueId)) {
                 uniqueId = generateUniqueId();
             }
+
+
+            if (!Permission.Check_READ_STORAGE(activity)) {
+
+                Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
+
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+                        , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
+
+
+                return uniqueId;
+            }
+
             if (chatReady) {
                 String type = request.getType();
                 int zoom = request.getZoom();
@@ -3677,14 +3768,14 @@ public class Chat extends AsyncAdapter {
                 .build();
 
 
-        return mainMapStaticImage(requestLMsg, null, null, false);
+        return mainMapStaticImage(requestLMsg, null, null, false,null);
     }
 
     public String sendLocationMessage(RequestLocationMessage request) {
 
         String uniqueId = generateUniqueId();
         Activity activity = request.getActivity();
-        mainMapStaticImage(request, activity, uniqueId, true);
+        mainMapStaticImage(request, activity, uniqueId, true, null);
 
         return uniqueId;
     }
@@ -7888,7 +7979,12 @@ public class Chat extends AsyncAdapter {
                 FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
 
-                showLog("UPLOAD_FILE_TO_SERVER", "");
+
+                JsonObject jsonObject = (JsonObject) gson.toJsonTree(fileUpload);
+
+                jsonObject.addProperty("uniqueId",uniqueId);
+
+                showLog("UPLOAD_FILE_TO_SERVER", gson.toJson(jsonObject));
 
                 ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId,
 
@@ -7984,7 +8080,10 @@ public class Chat extends AsyncAdapter {
                                         , result.getActualWidth(), mimeType, fileSize, null, false, null);
                             }
 
-                            //TODO null object reference is here
+
+                            JsonObject js = (JsonObject) gson.toJsonTree(metaJson);
+                            js.addProperty("uniqueId",uniqueId);
+
                             //remove from Uploading Queue
                             if (cache) {
                                 messageDatabaseHelper.deleteUploadingQueue(uniqueId);
@@ -7998,10 +8097,12 @@ public class Chat extends AsyncAdapter {
                             }
 
                             if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
+
+                                showLog("SEND_REPLY_FILE_MESSAGE",gson.toJson(js));
+
                                 mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, null);
 //                                if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
 //                                listenerManager.callOnLogEvent(metaJson);
-                                showLog("SEND_REPLY_FILE_MESSAGE",metaJson);
                             } else {
                                 sendTextMessageWithFile(description, threadId, metaJson, systemMetaData, uniqueId, typeCode, messageType);
                             }

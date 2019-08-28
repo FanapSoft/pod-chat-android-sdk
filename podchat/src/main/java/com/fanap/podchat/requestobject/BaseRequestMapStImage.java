@@ -21,6 +21,7 @@ abstract class BaseRequestMapStImage {
         private int width;
         private int height;
         private String center;
+
         abstract BaseRequestMapStImage build();
 
         public T center(String center){
