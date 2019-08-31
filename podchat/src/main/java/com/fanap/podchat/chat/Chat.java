@@ -667,7 +667,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable throwable) {
             if (log) {
-                showLog("CONNECTION_ERROR",throwable.getMessage());
+                showLog("CONNECTION_ERROR", throwable.getMessage());
 //                Log.e(TAG, throwable.getMessage());
 //                listenerManager.callOnLogEvent(throwable.getMessage());
             }
@@ -1038,7 +1038,7 @@ public class Chat extends AsyncAdapter {
 
 //                                    if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
 //                                    listenerManager.callOnLogEvent(imageJson);
-                                    showLog("RECEIVE_UPLOAD_IMAGE",imageJson);
+                                    showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
 
                                     handler.onFinish(imageJson, chatResponse);
                                 }
@@ -1136,7 +1136,7 @@ public class Chat extends AsyncAdapter {
                                                 String imageJson = gson.toJson(chatResponse);
 
                                                 listenerManager.callOnUploadImageFile(imageJson, chatResponse);
-                                                showLog("RECEIVE_UPLOAD_IMAGE",imageJson);
+                                                showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
 //                                                if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
 //                                                listenerManager.callOnLogEvent(imageJson);
                                             }
@@ -1232,7 +1232,7 @@ public class Chat extends AsyncAdapter {
                                         String json = gson.toJson(chatResponse);
 
                                         listenerManager.callOnUploadFile(json, chatResponse);
-                                        showLog("RECEIVE_UPLOAD_FILE",json);
+                                        showLog("RECEIVE_UPLOAD_FILE", json);
 //                                        if (log) Log.i(TAG, "RECEIVE_UPLOAD_FILE");
 //                                        listenerManager.callOnLogEvent(json);
                                     }
@@ -1328,7 +1328,7 @@ public class Chat extends AsyncAdapter {
 
                                         handler.onFinish(json, result);
 
-                                        showLog("FINISH_UPLOAD_FILE",json);
+                                        showLog("FINISH_UPLOAD_FILE", json);
 //                                        listenerManager.callOnLogEvent(json);
                                     }
                                 }
@@ -1336,7 +1336,7 @@ public class Chat extends AsyncAdapter {
                         }, throwable -> {
                             ErrorOutPut error = new ErrorOutPut(true, throwable.getMessage(), 0, uniqueId);
                             String json = gson.toJson(error);
-                            getErrorOutPut(ChatConstant.ERROR_UPLOAD_FILE +" " +throwable.getMessage(),ChatConstant.ERROR_CODE_UPLOAD_FILE,uniqueId);
+                            getErrorOutPut(ChatConstant.ERROR_UPLOAD_FILE + " " + throwable.getMessage(), ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
                             handler.onError(json, error);
 
                         });
@@ -1980,6 +1980,8 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
         List<String> uniqueIds = new ArrayList<>();
+
+        uniqueIds.add(uniqueId);
 
 
         if (chatReady) {
@@ -2919,10 +2921,6 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
 
-
-
-
-
         String type_code;
 
         if (cache) {
@@ -2968,9 +2966,9 @@ public class Chat extends AsyncAdapter {
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(requestSearchContact);
 
-            jsonObject.addProperty("uniqueId",uniqueId);
+            jsonObject.addProperty("uniqueId", uniqueId);
 
-            jsonObject.addProperty("tokenIssuer",1);
+            jsonObject.addProperty("tokenIssuer", 1);
 
             showLog("SEND_SEARCH_CONTACT", gson.toJson(jsonObject));
 
@@ -3061,17 +3059,15 @@ public class Chat extends AsyncAdapter {
 
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("uniqueId",uniqueId);
-        jsonObject.addProperty("tokenIssuer",1);
-        jsonObject.addProperty("firstName",firstName);
-        jsonObject.addProperty("lastName",lastName);
-        jsonObject.addProperty("cellphoneNumber",cellphoneNumber);
-        jsonObject.addProperty("email",email);
+        jsonObject.addProperty("uniqueId", uniqueId);
+        jsonObject.addProperty("tokenIssuer", 1);
+        jsonObject.addProperty("firstName", firstName);
+        jsonObject.addProperty("lastName", lastName);
+        jsonObject.addProperty("cellphoneNumber", cellphoneNumber);
+        jsonObject.addProperty("email", email);
 
 
         showLog("SEND_ADD_CONTACT", gson.toJson(jsonObject));
-
-
 
 
         Observable<Response<Contacts>> addContactObservable;
@@ -3083,8 +3079,6 @@ public class Chat extends AsyncAdapter {
                 addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber, typeCode);
 
             }
-
-
 
 
             addContactObservable.subscribeOn(Schedulers.io())
@@ -3139,8 +3133,6 @@ public class Chat extends AsyncAdapter {
         typeCode = getTypeCode();
 
 
-
-
         return addContact(firstName, lastName, cellphoneNumber, email);
     }
 
@@ -3155,13 +3147,11 @@ public class Chat extends AsyncAdapter {
 
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("uniqueId",uniqueId);
-        jsonObject.addProperty("id",userId);
-        jsonObject.addProperty("tokenIssuer",1);
+        jsonObject.addProperty("uniqueId", uniqueId);
+        jsonObject.addProperty("id", userId);
+        jsonObject.addProperty("tokenIssuer", 1);
 
-        showLog("SEND_REMOVE_CONTACT",gson.toJson(jsonObject));
-
-
+        showLog("SEND_REMOVE_CONTACT", gson.toJson(jsonObject));
 
 
         Observable<Response<ContactRemove>> removeContactObservable;
@@ -3224,13 +3214,13 @@ public class Chat extends AsyncAdapter {
 
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("uniqueId",uniqueId);
-        jsonObject.addProperty("id",userId);
-        jsonObject.addProperty("tokenIssuer",1);
-        jsonObject.addProperty("firstName",firstName);
-        jsonObject.addProperty("lastName",lastName);
-        jsonObject.addProperty("cellphoneNumber",cellphoneNumber);
-        jsonObject.addProperty("email",email);
+        jsonObject.addProperty("uniqueId", uniqueId);
+        jsonObject.addProperty("id", userId);
+        jsonObject.addProperty("tokenIssuer", 1);
+        jsonObject.addProperty("firstName", firstName);
+        jsonObject.addProperty("lastName", lastName);
+        jsonObject.addProperty("cellphoneNumber", cellphoneNumber);
+        jsonObject.addProperty("email", email);
 
 
         showLog("SEND_UPDATE_CONTACT", gson.toJson(jsonObject));
@@ -3332,7 +3322,6 @@ public class Chat extends AsyncAdapter {
         long userId = request.getUserId();
 
 
-
         return updateContact(userId, firstName, lastName, cellphoneNumber, email);
     }
 
@@ -3367,7 +3356,7 @@ public class Chat extends AsyncAdapter {
 //                        errorOutPut.setHasError(true);
 //                        String json = gson.toJson(outPutMapNeshan);
 //                        listenerManager.callOnError(json, errorOutPut);
-                        getErrorOutPut(mapNeshanResponse.message(),mapNeshanResponse.code(),uniqueId);
+                        getErrorOutPut(mapNeshanResponse.message(), mapNeshanResponse.code(), uniqueId);
                     }
                 }
             }, (Throwable throwable) -> {
@@ -3377,7 +3366,7 @@ public class Chat extends AsyncAdapter {
 //                String json = gson.toJson(errorOutPut);
 //
 //                listenerManager.callOnError(json, errorOutPut);
-                getErrorOutPut(throwable.getMessage(),ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,uniqueId);
+                getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
 
             });
         } else {
@@ -3469,7 +3458,6 @@ public class Chat extends AsyncAdapter {
                                       boolean isMessage) {
 
 
-
         try {
             if (Util.isNullOrEmpty(uniqueId)) {
                 uniqueId = generateUniqueId();
@@ -3510,14 +3498,11 @@ public class Chat extends AsyncAdapter {
                 }
 
 
-
                 JsonObject jsonObject = (JsonObject) gson.toJsonTree(request);
 
-                jsonObject.addProperty("uniqueId",uniqueId);
+                jsonObject.addProperty("uniqueId", uniqueId);
 
-                showLog("SEND_GET_MAP_STATIC",gson.toJson(jsonObject));
-
-
+                showLog("SEND_GET_MAP_STATIC", gson.toJson(jsonObject));
 
 
                 RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
@@ -3768,7 +3753,7 @@ public class Chat extends AsyncAdapter {
                 .build();
 
 
-        return mainMapStaticImage(requestLMsg, null, null, false,null);
+        return mainMapStaticImage(requestLMsg, null, null, false, null);
     }
 
     public String sendLocationMessage(RequestLocationMessage request) {
@@ -5277,7 +5262,7 @@ public class Chat extends AsyncAdapter {
             Log.i(TAG, json);
             if (!Util.isNullOrEmpty(json)) {
                 listenerManager.callOnLogEvent(json);
-                listenerManager.callOnLogEvent(i,json);
+                listenerManager.callOnLogEvent(i, json);
             }
         }
     }
@@ -5428,7 +5413,7 @@ public class Chat extends AsyncAdapter {
                 String asyncContent = gson.toJson(message);
                 async.sendMessage(asyncContent, 4);
                 setThreadCallbacks(chatMessage.getSubjectId(), chatMessage.getUniqueId());
-                showLog("SEND_DELIVERY_MESSAGE",asyncContent);
+                showLog("SEND_DELIVERY_MESSAGE", asyncContent);
 //                Log.i(TAG, "SEND_DELIVERY_MESSAGE");
 //                listenerManager.callOnLogEvent(asyncContent);
             }
@@ -5925,15 +5910,25 @@ public class Chat extends AsyncAdapter {
 //
 
 
-            if (!Util.isNullOrEmpty(chatResponse.getResult().getParticipants().get(0).getRoles())) {
+            if (chatResponse.getResult().getParticipants().size() > 0)
+                if (!Util.isNullOrEmpty(chatResponse.getResult().getParticipants().get(0).getRoles())) {
 
 
-                listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
+                    listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
 
-                showLog("RECEIVE_ADMINS", jsonParticipant);
+                    showLog("RECEIVE_ADMINS", jsonParticipant);
 
 
-            } else {
+                } else {
+
+                    listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
+
+                    listenerManager.callOnGetThreadParticipant(chatResponse);
+
+                    showLog("RECEIVE_PARTICIPANT", jsonParticipant);
+
+                }
+            else {
 
                 listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
 
@@ -6463,7 +6458,7 @@ public class Chat extends AsyncAdapter {
             signalMessage = gson.fromJson(chatMessage.getContent(), ResultSignalMessage.class);
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
-            getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION,ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,chatMessage.getUniqueId());
+            getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId());
 //            listenerManager.callOnError("Exception in reformatting signal message content", null);
 
             return null;
@@ -6508,7 +6503,7 @@ public class Chat extends AsyncAdapter {
 
         } else {
 
-            getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION,ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,chatMessage.getUniqueId());
+            getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId());
 
         }
 
@@ -6532,7 +6527,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             e.printStackTrace();
-            getErrorOutPut(e.getMessage(),ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,chatMessage.getUniqueId());
+            getErrorOutPut(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId());
             return null;
 
         }
@@ -7204,7 +7199,7 @@ public class Chat extends AsyncAdapter {
         String jsonError = gson.toJson(error);
         listenerManager.callOnError(jsonError, error);
 //        listenerManager.callOnLogEvent(jsonError);
-        showLog("Error",jsonError);
+        showLog("Error", jsonError);
 
         if (log) {
             Log.e(TAG, "ErrorMessage: " + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId);
@@ -7246,7 +7241,7 @@ public class Chat extends AsyncAdapter {
 
             String threadJson = gson.toJson(chatResponse);
             listenerManager.callOnGetThread(threadJson, chatResponse);
-            showLog("CACHE_GET_THREAD",threadJson);
+            showLog("CACHE_GET_THREAD", threadJson);
 //            if (log) Log.i(TAG, "CACHE_GET_THREAD");
 //            listenerManager.callOnLogEvent(threadJson);
         }
@@ -7365,19 +7360,40 @@ public class Chat extends AsyncAdapter {
     //TODO test cache
     private ChatResponse<ResultParticipant> reformatThreadParticipants(Callback callback, ChatMessage chatMessage) {
 
-        ArrayList<Participant> participants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Participant>>() {
-        }.getType());
+
+        ArrayList<Participant> participants = new ArrayList<>();
+
+        if (!Util.isNullOrEmpty(chatMessage.getContent())) {
+
+            try {
+                participants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Participant>>() {
+                }.getType());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
 
 
         if (cache) {
-            List<CacheParticipant> cacheParticipants;
+            List<CacheParticipant> cacheParticipants = new ArrayList<>();
 
-            cacheParticipants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheParticipant>>() {
-            }.getType());
+            if (!Util.isNullOrEmpty(chatMessage.getContent())) {
+
+                try {
+                    cacheParticipants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheParticipant>>() {
+                    }.getType());
+                } catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+
 
 //            Log.d("MTAG","Cache Participant to Save: " + cacheParticipants.toString() );
 
-            messageDatabaseHelper.saveParticipants(cacheParticipants, chatMessage.getSubjectId(), getExpireAmount());
+            if (!cacheParticipants.isEmpty())
+                messageDatabaseHelper.saveParticipants(cacheParticipants, chatMessage.getSubjectId(), getExpireAmount());
         }
 
         ChatResponse<ResultParticipant> outPutParticipant = new ChatResponse<>();
@@ -7404,7 +7420,10 @@ public class Chat extends AsyncAdapter {
         }
 
         resultParticipant.setParticipants(participants);
+
         outPutParticipant.setResult(resultParticipant);
+
+
         return outPutParticipant;
     }
 
@@ -7979,10 +7998,9 @@ public class Chat extends AsyncAdapter {
                 FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
 
-
                 JsonObject jsonObject = (JsonObject) gson.toJsonTree(fileUpload);
 
-                jsonObject.addProperty("uniqueId",uniqueId);
+                jsonObject.addProperty("uniqueId", uniqueId);
 
                 showLog("UPLOAD_FILE_TO_SERVER", gson.toJson(jsonObject));
 
@@ -8067,7 +8085,7 @@ public class Chat extends AsyncAdapter {
 
                             listenerManager.callOnUploadImageFile(imageJson, chatResponse);
 
-                            showLog("RECEIVE_UPLOAD_IMAGE",imageJson);
+                            showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
 //                            if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
 //                            listenerManager.callOnLogEvent(imageJson);
                             String metaJson;
@@ -8082,7 +8100,7 @@ public class Chat extends AsyncAdapter {
 
 
                             JsonObject js = (JsonObject) gson.toJsonTree(metaJson);
-                            js.addProperty("uniqueId",uniqueId);
+                            js.addProperty("uniqueId", uniqueId);
 
                             //remove from Uploading Queue
                             if (cache) {
@@ -8098,7 +8116,7 @@ public class Chat extends AsyncAdapter {
 
                             if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
 
-                                showLog("SEND_REPLY_FILE_MESSAGE",gson.toJson(js));
+                                showLog("SEND_REPLY_FILE_MESSAGE", gson.toJson(js));
 
                                 mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, null);
 //                                if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
@@ -8144,8 +8162,6 @@ public class Chat extends AsyncAdapter {
                     }
 
                 };
-
-
 
 
             } else {
@@ -8271,7 +8287,7 @@ public class Chat extends AsyncAdapter {
                                         String json = gson.toJson(chatResponse);
 
                                         listenerManager.callOnUploadFile(json, chatResponse);
-                                        showLog("RECEIVE_UPLOAD_FILE",json);
+                                        showLog("RECEIVE_UPLOAD_FILE", json);
 //                                        if (log) Log.i(TAG, "RECEIVE_UPLOAD_FILE");
 //                                        listenerManager.callOnLogEvent(json);
 
@@ -8281,7 +8297,7 @@ public class Chat extends AsyncAdapter {
                                         if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
                                             mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta, null);
 //                                            if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
-                                            showLog("SEND_REPLY_FILE_MESSAGE",jsonMeta);
+                                            showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
 
                                         } else {
                                             sendTextMessageWithFile(description, threadId, jsonMeta, systemMetadata, uniqueId, typeCode, messageType);
@@ -8582,7 +8598,7 @@ public class Chat extends AsyncAdapter {
 //        listenerManager.callOnLogEvent(textMessage);
 //        listenerManager.callOnError(textMessage, null);
 //        showLog("On Async Disconnected", textMessage);
-        getErrorOutPut("On Async Disconnected " + textMessage,ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,"");
+        getErrorOutPut("On Async Disconnected " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
     }
 
     @Override
@@ -8592,7 +8608,7 @@ public class Chat extends AsyncAdapter {
 //        listenerManager.callOnLogEvent(textMessage);
 //        listenerManager.callOnError(textMessage, null);
 //        showLog("On Async Error",textMessage);
-        getErrorOutPut("On Async Error " + textMessage,ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,"");
+        getErrorOutPut("On Async Error " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
 
     }
 
@@ -8604,7 +8620,7 @@ public class Chat extends AsyncAdapter {
         try {
 //            listenerManager.callOnError(cause.getMessage(), null);
 //            showLog("Async Callback Error",cause.getMessage());
-            getErrorOutPut("Async Callback Error " + cause.getMessage(),ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,"");
+            getErrorOutPut("Async Callback Error " + cause.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
 
         } catch (Exception e) {
             e.printStackTrace();

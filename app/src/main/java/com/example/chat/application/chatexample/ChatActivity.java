@@ -76,7 +76,7 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
-    public static int TEST_THREAD_ID = 10634;
+    public static int TEST_THREAD_ID = 11274;
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextThread;
