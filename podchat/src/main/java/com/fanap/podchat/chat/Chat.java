@@ -2918,6 +2918,7 @@ public class Chat extends AsyncAdapter {
 
     //TODO test again on cache
     public String searchContact(RequestSearchContact requestSearchContact) {
+
         String uniqueId = generateUniqueId();
 
 
@@ -4431,7 +4432,7 @@ public class Chat extends AsyncAdapter {
         String typeCode = request.getTypeCode();
         boolean getAdmin = admin != null ? admin : false;
 
-        return getThreadParticipantsMain((int) count, offset, threadId, getAdmin, typeCode, handler);
+        return getThreadAdminsMain((int) count, offset, threadId, getAdmin, typeCode, handler);
     }
 
     public String getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) {
@@ -4527,7 +4528,7 @@ public class Chat extends AsyncAdapter {
 
             setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
 
-            sendAsyncMessage(asyncContent, 3, "SEND_THREAD_PARTICIPANT");
+            sendAsyncMessage(asyncContent, 3, "SEND_GET_THREAD_PARTICIPANT");
 
             if (handler != null) {
                 handler.onGetThreadParticipant(uniqueId);
@@ -4541,7 +4542,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    private String getThreadParticipantsMain(Integer count, Long offset, long threadId, boolean getAdmin, String typeCode, ChatHandler handler) {
+    private String getThreadAdminsMain(Integer count, Long offset, long threadId, boolean getAdmin, String typeCode, ChatHandler handler) {
 
 
         if (!chatReady) return null;
@@ -4585,7 +4586,7 @@ public class Chat extends AsyncAdapter {
 
                 listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
 
-                showLog("ADMINS FROM CACHE", jsonParticipant);
+                showLog("RECEIVE ADMINS FROM CACHE", jsonParticipant);
 
             }
         }
@@ -4631,7 +4632,7 @@ public class Chat extends AsyncAdapter {
             String asyncContent = jsonObject.toString();
 
             setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
-            sendAsyncMessage(asyncContent, 3, "SEND_THREAD_PARTICIPANT");
+            sendAsyncMessage(asyncContent, 3, "SEND_GET_THREAD_ADMINS");
             if (handler != null) {
                 handler.onGetThreadParticipant(uniqueId);
             }
@@ -5164,6 +5165,48 @@ public class Chat extends AsyncAdapter {
 
 
         return getThreadParticipants(requestGetAdmin, requestGetAdmin.isAdmin(), null);
+//        String uniqueId = generateUniqueId();
+//        long threadId = requestGetAdmin.getThreadId();
+//        if (chatReady) {
+//            ChatMessage chatMessage = new ChatMessage();
+//            chatMessage.setType(Constants.GET_THREAD_ADMINS);
+//            chatMessage.setToken(getToken());
+//            chatMessage.setTokenIssuer("1");
+//            chatMessage.setSubjectId(threadId);
+//            chatMessage.setUniqueId(uniqueId);
+//
+//            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+//            jsonObject.remove("systemMetadata");
+//            jsonObject.remove("metadata");
+//            jsonObject.remove("repliedTo");
+//            jsonObject.remove("contentCount");
+//
+//            if (Util.isNullOrEmpty(getTypeCode())) {
+//                jsonObject.remove("typeCode");
+//            } else {
+//                jsonObject.remove("typeCode");
+//                jsonObject.addProperty("typeCode", getTypeCode());
+//            }
+//
+//            String asyncContent = jsonObject.toString();
+//
+//
+////            setCallBacks(null, null, null, true, Constants.CLEAR_HISTORY, null, uniqueId);
+//
+//            setCallBacks(null, null, null, true, Constants.GET_THREAD_ADMINS, null, uniqueId);
+//
+//            sendAsyncMessage(asyncContent, 4, "SEND_GET_THREAD_ADMINS");
+//
+//
+//        }
+//        return uniqueId;
+    }
+
+
+    public String getAdminList(RequestGetAdmin requestGetAdmin,ChatHandler handler) {
+
+
+        return getThreadParticipants(requestGetAdmin, requestGetAdmin.isAdmin(), handler);
 //        String uniqueId = generateUniqueId();
 //        long threadId = requestGetAdmin.getThreadId();
 //        if (chatReady) {
@@ -5930,12 +5973,9 @@ public class Chat extends AsyncAdapter {
                 }
             else {
 
-                listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
+                listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
 
-                listenerManager.callOnGetThreadParticipant(chatResponse);
-
-                showLog("RECEIVE_PARTICIPANT", jsonParticipant);
-
+                showLog("RECEIVE_ADMINS", jsonParticipant);
             }
 
 
