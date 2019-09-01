@@ -237,7 +237,7 @@ public class Chat extends AsyncAdapter {
     private HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
     private HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
     private HashMap<Long, ArrayList<String>> threadSignalsKeeper = new HashMap<>();
-
+    private static JsonParser parser;
     private static HashMap<String, ChatHandler> handlerSend;
     private static HashMap<String, SendingQueueCache> sendingQList;
     private static HashMap<String, UploadingQueueCache> uploadingQList;
@@ -297,6 +297,7 @@ public class Chat extends AsyncAdapter {
             async = Async.getInstance(context);
             instance = new Chat();
             gson = new GsonBuilder().setPrettyPrinting().create();
+            parser = new JsonParser();
             instance.setContext(context);
             listenerManager = new ChatListenerManager();
             threadCallbacks = new HashMap<>();
@@ -2974,7 +2975,7 @@ public class Chat extends AsyncAdapter {
 
             jsonObject.addProperty("tokenIssuer", 1);
 
-            showLog("SEND_SEARCH_CONTACT", gson.toJson(jsonObject));
+            showLog("SEND_SEARCH_CONTACT", getJsonForLog(jsonObject));
 
 
             Observable<Response<SearchContactVO>> observable = contactApi.searchContact(
@@ -3071,7 +3072,7 @@ public class Chat extends AsyncAdapter {
         jsonObject.addProperty("email", email);
 
 
-        showLog("SEND_ADD_CONTACT", gson.toJson(jsonObject));
+        showLog("SEND_ADD_CONTACT", getJsonForLog(jsonObject));
 
 
         Observable<Response<Contacts>> addContactObservable;
@@ -3155,7 +3156,7 @@ public class Chat extends AsyncAdapter {
         jsonObject.addProperty("id", userId);
         jsonObject.addProperty("tokenIssuer", 1);
 
-        showLog("SEND_REMOVE_CONTACT", gson.toJson(jsonObject));
+        showLog("SEND_REMOVE_CONTACT", getJsonForLog(jsonObject));
 
 
         Observable<Response<ContactRemove>> removeContactObservable;
@@ -3227,7 +3228,7 @@ public class Chat extends AsyncAdapter {
         jsonObject.addProperty("email", email);
 
 
-        showLog("SEND_UPDATE_CONTACT", gson.toJson(jsonObject));
+        showLog("SEND_UPDATE_CONTACT", getJsonForLog(jsonObject));
 
         if (Util.isNullOrEmpty(firstName)) {
             firstName = "";
@@ -3506,7 +3507,7 @@ public class Chat extends AsyncAdapter {
 
                 jsonObject.addProperty("uniqueId", uniqueId);
 
-                showLog("SEND_GET_MAP_STATIC", gson.toJson(jsonObject));
+                showLog("SEND_GET_MAP_STATIC", getJsonForLog(jsonObject));
 
 
                 RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
@@ -8018,17 +8019,52 @@ public class Chat extends AsyncAdapter {
 
     private void mainUploadImageFileMsg(LFileUpload fileUpload) {
 
+        JsonObject jsonLog = new JsonObject();
+
+
         String description = fileUpload.getDescription();
+
+        jsonLog.addProperty("description",description);
+
+
         ProgressHandler.sendFileMessage handler = fileUpload.getHandler();
+
         Integer messageType = fileUpload.getMessageType();
+
+        jsonLog.addProperty("messageType",messageType);
+
         long threadId = fileUpload.getThreadId();
+
+        jsonLog.addProperty("threadId",threadId);
+
         String uniqueId = fileUpload.getUniqueId();
+
+        jsonLog.addProperty("uniqueId",uniqueId);
+
         String systemMetaData = fileUpload.getSystemMetaData();
+
+        jsonLog.addProperty("systemMetaData",systemMetaData);
+
         long messageId = fileUpload.getMessageId();
+
+        jsonLog.addProperty("messageId",messageId);
+
         String mimeType = fileUpload.getMimeType();
+
+        jsonLog.addProperty("mimeType",mimeType);
+
         String methodName = fileUpload.getMethodName();
+
+        jsonLog.addProperty("methodName",methodName);
+
         long fileSize = fileUpload.getFileSize();
+
+        jsonLog.addProperty("fileSize",fileSize);
+
         String center = fileUpload.getCenter();
+
+        jsonLog.addProperty("center",center);
+
         File file = fileUpload.getFile();
 
         if (chatReady) {
@@ -8041,11 +8077,11 @@ public class Chat extends AsyncAdapter {
                 FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
 
-                JsonObject jsonObject = (JsonObject) gson.toJsonTree(fileUpload);
-
-                jsonObject.addProperty("uniqueId", uniqueId);
-
-                showLog("UPLOAD_FILE_TO_SERVER", gson.toJson(jsonObject));
+                try {
+                    showLog("UPLOAD_FILE_TO_SERVER", getJsonForLog(jsonLog));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId,
 
@@ -8141,8 +8177,8 @@ public class Chat extends AsyncAdapter {
                                         , result.getActualWidth(), mimeType, fileSize, null, false, null);
                             }
 
+                            JsonObject js = Util.objectToJson(metaJson,parser);
 
-                            JsonObject js = (JsonObject) gson.toJsonTree(metaJson);
                             js.addProperty("uniqueId", uniqueId);
 
                             //remove from Uploading Queue
@@ -8159,7 +8195,7 @@ public class Chat extends AsyncAdapter {
 
                             if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
 
-                                showLog("SEND_REPLY_FILE_MESSAGE", gson.toJson(js));
+                                showLog("SEND_REPLY_FILE_MESSAGE", getJsonForLog(js));
 
                                 mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, null);
 //                                if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
@@ -8215,6 +8251,10 @@ public class Chat extends AsyncAdapter {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
 //            listenerManager.callOnLogEvent(jsonError);
         }
+    }
+
+    private String getJsonForLog(JsonObject jsonLog) {
+        return gson.toJson(jsonLog);
     }
 
     private void uploadFileMessage(LFileUpload lFileUpload) {

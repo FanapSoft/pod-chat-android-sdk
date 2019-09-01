@@ -11,6 +11,8 @@ import com.fanap.podchat.model.ResultAddContact;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Util {
+
     private static final String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     @NonNull
@@ -95,6 +98,13 @@ public class Util {
 
       return  gson.fromJson(json, new TypeToken<List<T>>() {
         }.getType());
+    }
+
+    public static JsonObject objectToJson(String jsonString,JsonParser parser){
+
+        return parser.parse(jsonString).getAsJsonObject();
+
+
     }
 
 
