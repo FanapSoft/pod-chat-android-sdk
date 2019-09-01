@@ -7,9 +7,11 @@ import com.fanap.podchat.model.FileImageUpload;
 
 import java.util.ArrayList;
 
+import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
@@ -28,6 +30,17 @@ public interface FileApi {
             , @Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") RequestBody fileName);
+
+
+    @NonNull
+    @Multipart
+    @POST("nzh/uploadFile")
+    Call<Response<FileUpload>> sendFileRet(
+            @Part MultipartBody.Part file
+            , @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("fileName") RequestBody fileName);
+
 
     @NonNull
     @Multipart
