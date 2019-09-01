@@ -1981,8 +1981,6 @@ public class Chat extends AsyncAdapter {
 
         List<String> uniqueIds = new ArrayList<>();
 
-        uniqueIds.add(uniqueId);
-
 
         if (chatReady) {
 
@@ -2039,12 +2037,17 @@ public class Chat extends AsyncAdapter {
             sendAsyncMessage(asyncContent, 4, "SEND_DELETE_MESSAGE");
 
 
+
+
             if (handler != null) {
                 handler.onDeleteMessage(uniqueId);
             }
         } else {
             getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
+
+//        uniqueIds.add(uniqueId);
+
         return uniqueIds;
     }
 
