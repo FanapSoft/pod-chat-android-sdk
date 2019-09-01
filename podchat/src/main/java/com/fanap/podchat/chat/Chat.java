@@ -3622,6 +3622,7 @@ public class Chat extends AsyncAdapter {
                                       boolean isMessage,
                                       ProgressHandler.sendFileMessage handler) {
 
+
         try {
 
             if (Util.isNullOrEmpty(uniqueId)) {
@@ -3641,14 +3642,32 @@ public class Chat extends AsyncAdapter {
             }
 
             if (chatReady) {
+
+                JsonObject jsonLog = new JsonObject();
+
+
                 String type = request.getType();
+
+
                 int zoom = request.getZoom();
+
+
                 int width = request.getWidth();
+
+
                 int height = request.getHeight();
+
+
                 String center = request.getCenter();
+
+
                 long threadId = request.getThreadId();
+
                 int messageType = request.getMessageType();
+
+
                 String systemMetadata = request.getSystemMetadata();
+
 
                 if (Util.isNullOrEmpty(type)) {
                     type = "standard-night";
@@ -3674,8 +3693,18 @@ public class Chat extends AsyncAdapter {
                         height);
                 String finalUniqueId = uniqueId;
 
+                jsonLog.addProperty("type", type);
+                jsonLog.addProperty("zoom", zoom);
+                jsonLog.addProperty("width", width);
+                jsonLog.addProperty("height", height);
+                jsonLog.addProperty("center", center);
+                jsonLog.addProperty("threadId", threadId);
+                jsonLog.addProperty("messageType", messageType);
+                jsonLog.addProperty("systemMetadata", systemMetadata);
+                jsonLog.addProperty("uniqueId", uniqueId);
 
-                showLog("SEND_LOCATION_MESSAGE", "");
+
+                showLog("SEND_LOCATION_MESSAGE", getJsonForLog(jsonLog));
 
                 call.enqueue(new retrofit2.Callback<ResponseBody>() {
                     @Override
@@ -3691,7 +3720,9 @@ public class Chat extends AsyncAdapter {
                                 chatResponse.setUniqueId(finalUniqueId);
                                 chatResponse.setResult(result);
                                 listenerManager.callOnStaticMap(chatResponse);
-                                showLog("RECEIVE_MAP_STATIC", "");
+
+                                showLog("RECEIVE_MAP_STATIC", gson.toJson(chatResponse));
+
                                 if (!call.isCanceled()) {
                                     call.cancel();
                                 }
@@ -8343,17 +8374,48 @@ public class Chat extends AsyncAdapter {
 
     private void mainUploadFileMessage(LFileUpload lFileUpload) {
 
+
+        JsonObject jsonLog = new JsonObject();
+
         String description = lFileUpload.getDescription();
+
+        jsonLog.addProperty("description", description);
+
+
         Integer messageType = lFileUpload.getMessageType();
+        jsonLog.addProperty("messageType", messageType);
+
         long threadId = lFileUpload.getThreadId();
+
+        jsonLog.addProperty("threadId", threadId);
+
         String uniqueId = lFileUpload.getUniqueId();
+
+        jsonLog.addProperty("uniqueId", uniqueId);
+
         String systemMetadata = lFileUpload.getSystemMetaData();
+
+        jsonLog.addProperty("systemMetadata", systemMetadata);
+
         long messageId = lFileUpload.getMessageId();
+
+        jsonLog.addProperty("messageId", messageId);
+
         String mimeType = lFileUpload.getMimeType();
+        jsonLog.addProperty("mimeType", mimeType);
+
         File file = lFileUpload.getFile();
         ProgressHandler.sendFileMessage handler = lFileUpload.getHandler();
         long file_size = lFileUpload.getFileSize();
+
+        jsonLog.addProperty("file_size", file_size);
+
         String methodName = lFileUpload.getMethodName();
+        jsonLog.addProperty("methodName", methodName);
+
+
+        showLog("UPLOADING_FILE_TO_SERVER", getJsonForLog(jsonLog));
+
 
         if (chatReady) {
             if (getFileServer() != null) {
@@ -8391,16 +8453,20 @@ public class Chat extends AsyncAdapter {
                                         chatResponse.setResult(result);
                                         chatResponse.setUniqueId(uniqueId);
                                         result.setSize(file_size);
+
                                         String json = gson.toJson(chatResponse);
 
+                                        showLog("FILE_UPLOADED_TO_SERVER", json);
+
+                                        listenerManager.callOnUploadFile(json, chatResponse);
 
                                         String jsonMeta = createFileMetadata(finalFile, hashCode, fileId, mimeType, file_size, "");
 
 //                                        listenerManager.callOnLogEvent(jsonMeta);
                                         if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
+                                            showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
                                             mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta, null);
 //                                            if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
-                                            showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
 
                                         } else {
                                             sendTextMessageWithFile(description, threadId, jsonMeta, systemMetadata, uniqueId, typeCode, messageType);
