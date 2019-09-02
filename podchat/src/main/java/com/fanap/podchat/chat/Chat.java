@@ -1931,7 +1931,7 @@ public class Chat extends AsyncAdapter {
 
         Activity activity = request.getActivity();
 
-        if (Permission.Check_READ_STORAGE(activity)) {
+        if (!Permission.Check_READ_STORAGE(activity)) {
 
 
             getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
