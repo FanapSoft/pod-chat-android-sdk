@@ -1231,12 +1231,10 @@ public class Chat extends AsyncAdapter {
 
                             JsonObject jLog = new JsonObject();
 
-                            jLog.addProperty("file",file.getName());
-                            jLog.addProperty("file_size",fileSize);
-                            jLog.addProperty("uniqueId",uniqueId);
-                            showLog("UPLOADING_FILE",getJsonForLog(jLog));
-
-
+                            jLog.addProperty("file", file.getName());
+                            jLog.addProperty("file_size", fileSize);
+                            jLog.addProperty("uniqueId", uniqueId);
+                            showLog("UPLOADING_FILE", getJsonForLog(jLog));
 
 
                             RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
@@ -1927,13 +1925,30 @@ public class Chat extends AsyncAdapter {
      * metaData       meta data of the message
      */
     public String replyFileMessage(RequestReplyFileMessage request, ProgressHandler.sendFileMessage handler) {
+
+
         String uniqueId = generateUniqueId();
+
+        Activity activity = request.getActivity();
+
+        if (Permission.Check_READ_STORAGE(activity)) {
+
+
+            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
+
+            Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
+
+
+            return uniqueId;
+
+        }
+
+
         long threadId = request.getThreadId();
         String messageContent = request.getMessageContent();
         String systemMetaData = request.getSystemMetaData();
         Uri fileUri = request.getFileUri();
         long messageId = request.getMessageId();
-        Activity activity = request.getActivity();
         int messageType = request.getMessageType();
         String methodName = ChatConstant.METHOD_REPLY_MSG;
 
@@ -1988,7 +2003,7 @@ public class Chat extends AsyncAdapter {
         String systemMetaData = request.getSystemMetaData();
         int messageType = request.getMessageType();
 
-        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null, handler);
+        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null,null, handler);
     }
 
     /**
@@ -2000,7 +2015,7 @@ public class Chat extends AsyncAdapter {
      * @param systemMetaData meta data of the message
      */
     public String replyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, ChatHandler handler) {
-        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null, handler);
+        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null,null, handler);
     }
 
     /**
@@ -6719,9 +6734,13 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private String mainReplyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, String metaData, ChatHandler handler) {
-        String uniqueId;
-        uniqueId = generateUniqueId();
+    private String mainReplyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, String metaData, String iUniqueId, ChatHandler handler) {
+
+
+        String uniqueId = iUniqueId;
+
+        if (iUniqueId == null)
+            uniqueId = generateUniqueId();
 
         /* Add to sending Queue*/
         SendingQueueCache sendingQueue = new SendingQueueCache();
@@ -8274,7 +8293,7 @@ public class Chat extends AsyncAdapter {
 
                                 showLog("SEND_REPLY_FILE_MESSAGE", getJsonForLog(js));
 
-                                mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, null);
+                                mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, uniqueId, null);
 //                                if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
 //                                listenerManager.callOnLogEvent(metaJson);
                             } else {
@@ -8349,7 +8368,6 @@ public class Chat extends AsyncAdapter {
         description = description != null ? description : "";
         messageType = messageType != null ? messageType : 0;
         try {
-
             if (Permission.Check_READ_STORAGE(activity)) {
                 String path = FilePick.getSmartFilePath(context, fileUri);
                 if (Util.isNullOrEmpty(path)) {
@@ -8387,6 +8405,7 @@ public class Chat extends AsyncAdapter {
                     if (log) Log.e(TAG, "File Is Not Exist");
                 }
             } else {
+                Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
                 String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                         , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
                 if (log) Log.e(TAG, jsonError);
@@ -8495,7 +8514,7 @@ public class Chat extends AsyncAdapter {
 //                                        listenerManager.callOnLogEvent(jsonMeta);
                                         if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
                                             showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
-                                            mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta, null);
+                                            mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta,uniqueId, null);
 //                                            if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
 
                                         } else {
