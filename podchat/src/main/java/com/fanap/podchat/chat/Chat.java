@@ -1210,10 +1210,13 @@ public class Chat extends AsyncAdapter {
     public String uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
 
         String uniqueId;
+
         uniqueId = generateUniqueId();
+
         if (chatReady) {
             try {
                 if (Permission.Check_READ_STORAGE(activity)) {
+
                     if (getFileServer() != null) {
                         String path = FilePick.getSmartFilePath(getContext(), uri);
                         if (Util.isNullOrEmpty(path)) {
@@ -1224,13 +1227,29 @@ public class Chat extends AsyncAdapter {
                         String mimeType = handleMimType(uri, file);
                         if (file.exists()) {
                             long fileSize = file.length();
+
+
+                            JsonObject jLog = new JsonObject();
+
+                            jLog.addProperty("file",file.getName());
+                            jLog.addProperty("file_size",fileSize);
+                            jLog.addProperty("uniqueId",uniqueId);
+                            showLog("UPLOADING_FILE",getJsonForLog(jLog));
+
+
+
+
                             RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
                             FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
                             RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
                             RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
 
                             MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+
                             Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
+
+
                             uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
                                 if (fileUploadResponse.body() != null && fileUploadResponse.isSuccessful()) {
                                     boolean hasError = fileUploadResponse.body().isHasError();
@@ -1262,20 +1281,25 @@ public class Chat extends AsyncAdapter {
 //                            uploadObservable.unsubscribeOn(Schedulers.io());
 
                         } else {
+                            getErrorOutPut("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                             if (log) Log.e(TAG, "File is not Exist");
                             return null;
                         }
                     } else {
+                        getErrorOutPut("FileServer url Is null", ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+
                         if (log) Log.e(TAG, "FileServer url Is null");
                         return null;
                     }
                 } else {
+                    Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
                     String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
                     if (log) Log.e(TAG, jsonError);
                     return uniqueId;
                 }
             } catch (Exception e) {
-                if (log) Log.e(TAG, e.getCause().getMessage());
+                getErrorOutPut(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                if (log) Log.e(TAG, e.getMessage());
                 return uniqueId;
             }
         } else {
@@ -8383,6 +8407,7 @@ public class Chat extends AsyncAdapter {
 
 
         Integer messageType = lFileUpload.getMessageType();
+
         jsonLog.addProperty("messageType", messageType);
 
         long threadId = lFileUpload.getThreadId();
@@ -8405,14 +8430,18 @@ public class Chat extends AsyncAdapter {
         jsonLog.addProperty("mimeType", mimeType);
 
         File file = lFileUpload.getFile();
+
         ProgressHandler.sendFileMessage handler = lFileUpload.getHandler();
+
         long file_size = lFileUpload.getFileSize();
 
         jsonLog.addProperty("file_size", file_size);
 
         String methodName = lFileUpload.getMethodName();
+
         jsonLog.addProperty("methodName", methodName);
 
+        jsonLog.addProperty("name", file.getName());
 
         showLog("UPLOADING_FILE_TO_SERVER", getJsonForLog(jsonLog));
 
@@ -8432,6 +8461,7 @@ public class Chat extends AsyncAdapter {
                 });
 
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
                 Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
                 File finalFile = file;
                 Subscription subscription = uploadObservable
