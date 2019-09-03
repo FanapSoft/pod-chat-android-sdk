@@ -40,7 +40,8 @@ public class ConstantSample {
             , "Cancel upload"
             , "Retry upload"
             , "Clear History"
-            , "Get Admin List"
+            , "Get Admin List",
+            "Spam Thread"
     };
 
     public static final String[] funcThird = {

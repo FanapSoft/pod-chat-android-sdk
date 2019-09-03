@@ -450,7 +450,7 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.BLOCK:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
+                handleOutPutBlock(chatMessage, messageUniqueId);
                 break;
             case Constants.CHANGE_TYPE:
                 break;
@@ -498,10 +498,7 @@ public class Chat extends AsyncAdapter {
                 handleRemoveFromThread(chatMessage);
                 break;
             case Constants.LEAVE_THREAD:
-                if (callback == null) {
-                    handleOutPutLeaveThread(null, chatMessage, messageUniqueId);
-                }
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
+                handleOutPutLeaveThread(null,chatMessage,messageUniqueId);
                 break;
             case Constants.MESSAGE: {
                 handleNewMessage(chatMessage);
@@ -1145,16 +1142,15 @@ public class Chat extends AsyncAdapter {
 
 
                                 JsonObject jLog = new JsonObject();
-
                                 jLog.addProperty("name",file.getName());
                                 jLog.addProperty("token",getToken());
                                 jLog.addProperty("tokenIssuer",TOKEN_ISSUER);
                                 jLog.addProperty("uniqueId",uniqueId);
-
                                 showLog("UPLOADING_IMAGE",getJsonForLog(jLog));
 
 
                                 Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
+
                                 String finalUniqueId = uniqueId;
                                 String finalUniqueId1 = uniqueId;
                                 uploadObservable
@@ -6926,6 +6922,7 @@ public class Chat extends AsyncAdapter {
         }
 
         listenerManager.callOnThreadLeaveParticipant(jsonThread, chatResponse);
+
         if (callback != null) {
             messageCallbacks.remove(messageUniqueId);
         }
