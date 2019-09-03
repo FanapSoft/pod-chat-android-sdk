@@ -1001,6 +1001,10 @@ public class Chat extends AsyncAdapter {
                     File file = new File(getRealPathFromURI(context, fileUri));
                     if (!Util.isNullOrEmpty(mimeType) && FileUtils.isImage(mimeType)) {
 
+
+
+
+
                         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
                             @Override
@@ -1018,6 +1022,19 @@ public class Chat extends AsyncAdapter {
 
                             }
                         });
+
+
+                        JsonObject jLog = new JsonObject();
+
+
+                        jLog.addProperty("name",file.getName());
+                        jLog.addProperty("token",getToken());
+                        jLog.addProperty("tokenIssuer",TOKEN_ISSUER);
+                        jLog.addProperty("uniqueId",uniqueId);
+
+                        showLog("UPLOADING_IMAGE",getJsonForLog(jLog));
+
+
 
                         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
                         RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
@@ -1126,6 +1143,17 @@ public class Chat extends AsyncAdapter {
                                 MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
                                 RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
 
+
+                                JsonObject jLog = new JsonObject();
+
+                                jLog.addProperty("name",file.getName());
+                                jLog.addProperty("token",getToken());
+                                jLog.addProperty("tokenIssuer",TOKEN_ISSUER);
+                                jLog.addProperty("uniqueId",uniqueId);
+
+                                showLog("UPLOADING_IMAGE",getJsonForLog(jLog));
+
+
                                 Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
                                 String finalUniqueId = uniqueId;
                                 String finalUniqueId1 = uniqueId;
@@ -1158,6 +1186,7 @@ public class Chat extends AsyncAdapter {
                                                     String imageJson = gson.toJson(chatResponse);
 
                                                     listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+
                                                     showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
                                                     //                                                if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
                                                     //                                                listenerManager.callOnLogEvent(imageJson);
@@ -1170,21 +1199,23 @@ public class Chat extends AsyncAdapter {
                             } else {
                                 String jsonError = getErrorOutPut(ChatConstant.ERROR_NOT_IMAGE, ChatConstant.ERROR_CODE_NOT_IMAGE, null);
                                 if (log) Log.e(TAG, jsonError);
-                                uniqueId = null;
+//                                uniqueId = null;
                             }
                         }
                     } else {
                         String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
                         if (log) Log.e(TAG, jsonError);
-                        uniqueId = null;
+//                        uniqueId = null;
                     }
                 } else {
+                    getErrorOutPut("FileServer url Is null", ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
                     if (log) Log.e(TAG, "FileServer url Is null");
-                    uniqueId = null;
+//                    uniqueId = null;
                 }
             } catch (Exception e) {
+                getErrorOutPut(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
                 if (log) Log.e(TAG, e.getCause().getMessage());
-                uniqueId = null;
+//                uniqueId = null;
             }
         } else {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -8481,11 +8512,21 @@ public class Chat extends AsyncAdapter {
                     public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
                         handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
                     }
+
+                    @Override
+                    public void onError() {
+
+                    }
+
+                    @Override
+                    public void onFinish() {
+                    }
                 });
 
                 MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
                 Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
+
                 File finalFile = file;
                 Subscription subscription = uploadObservable
                         .subscribeOn(Schedulers.io())
