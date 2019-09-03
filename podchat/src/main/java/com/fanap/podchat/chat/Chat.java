@@ -1055,8 +1055,10 @@ public class Chat extends AsyncAdapter {
 
 //                                    if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
 //                                    listenerManager.callOnLogEvent(imageJson);
+
                                     showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
 
+                                    listenerManager.callOnUploadImageFile(imageJson,chatResponse);
                                     handler.onFinish(imageJson, chatResponse);
                                 }
                             }
@@ -1074,25 +1076,27 @@ public class Chat extends AsyncAdapter {
                         ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_NOT_IMAGE, ChatConstant.ERROR_CODE_NOT_IMAGE, null);
                         handler.onError(jsonError, error);
                         if (log) Log.e(TAG, jsonError);
-                        return null;
+                        return uniqueId;
                     }
                 } else {
                     String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
                     ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_NOT_IMAGE, ChatConstant.ERROR_CODE_NOT_IMAGE, null);
                     handler.onError(jsonError, error);
+                    Permission.Request_STORAGE(activity,WRITE_EXTERNAL_STORAGE_CODE);
                     if (log) Log.e(TAG, jsonError);
-                    return null;
+                    return uniqueId;
                 }
             } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
+                String jsonError = getErrorOutPut("FileServer url Is null", ChatConstant.ERROR_CODE_UPLOAD_FILE, null);
                 ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
                 handler.onError(jsonError, error);
                 if (log) Log.e(TAG, "FileServer url Is null");
-                return null;
+                return uniqueId;
             }
         } else {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
 //            listenerManager.callOnLogEvent(jsonError);
+            return uniqueId;
         }
         return uniqueId;
     }
