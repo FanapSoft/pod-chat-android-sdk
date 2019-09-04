@@ -1018,6 +1018,7 @@ public class Chat extends AsyncAdapter {
                             @Override
                             public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
                                 handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
+                                handler.onProgressUpdate(bytesSent);
                             }
 
                             @Override
@@ -1398,6 +1399,7 @@ public class Chat extends AsyncAdapter {
                             @Override
                             public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
                                 handler.onProgress(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
+                                handler.onProgressUpdate(bytesSent);
                             }
 
                             @Override
@@ -1421,8 +1423,8 @@ public class Chat extends AsyncAdapter {
                                     if (hasError) {
                                         String errorMessage = fileUploadResponse.body().getMessage();
                                         int errorCode = fileUploadResponse.body().getErrorCode();
-                                        String jsonError = getErrorOutPut(errorMessage, errorCode, null);
-                                        ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, null);
+                                        String jsonError = getErrorOutPut(errorMessage, errorCode, uniqueId);
+                                        ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
                                         handler.onError(jsonError, error);
                                     } else {
 
@@ -1433,6 +1435,8 @@ public class Chat extends AsyncAdapter {
                                         ResultFile resultFile = result.getResult();
 
                                         chatResponse.setResult(resultFile);
+
+                                        chatResponse.setUniqueId(uniqueId);
 
                                         String json = gson.toJson(result);
 
@@ -1455,6 +1459,9 @@ public class Chat extends AsyncAdapter {
                     } else {
 
                         if (log) Log.e(TAG, "FileServer url Is null");
+
+                        getErrorOutPut("File Server url Is null", ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+
                     }
 
                 } else {
@@ -1471,6 +1478,8 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable throwable) {
             if (log) Log.e(TAG, throwable.getMessage());
+            getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+
         }
         return uniqueId;
     }
