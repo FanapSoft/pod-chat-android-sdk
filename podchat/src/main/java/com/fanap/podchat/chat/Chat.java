@@ -1438,7 +1438,7 @@ public class Chat extends AsyncAdapter {
 
                                         chatResponse.setUniqueId(uniqueId);
 
-                                        String json = gson.toJson(result);
+                                        String json = gson.toJson(chatResponse);
 
                                         handler.onFinish(json, result);
 
