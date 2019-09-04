@@ -29,7 +29,7 @@ public class RetrofitHelperFileServer {
                 .baseUrl(fileServer)
 
                 .client(new OkHttpClient().newBuilder()
-                        .retryOnConnectionFailure(true)
+//                        .retryOnConnectionFailure(true)
                         .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
                         .writeTimeout(20, TimeUnit.SECONDS) // write timeout
                         .readTimeout(20, TimeUnit.SECONDS) // read timeout
