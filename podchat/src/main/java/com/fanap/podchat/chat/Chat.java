@@ -498,7 +498,7 @@ public class Chat extends AsyncAdapter {
                 handleRemoveFromThread(chatMessage);
                 break;
             case Constants.LEAVE_THREAD:
-                handleOutPutLeaveThread(null,chatMessage,messageUniqueId);
+                handleOutPutLeaveThread(null, chatMessage, messageUniqueId);
                 break;
             case Constants.MESSAGE: {
                 handleNewMessage(chatMessage);
@@ -552,6 +552,7 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.SPAM_PV_THREAD:
+                handleOutPutSpamPVThread(chatMessage, messageUniqueId);
                 break;
             case Constants.DELIVERED_MESSAGE_LIST:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
@@ -580,6 +581,15 @@ public class Chat extends AsyncAdapter {
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleOutPutSpamPVThread(ChatMessage chatMessage, String messageUniqueId) {
+
+
+        chatMessage.setUniqueId(messageUniqueId);
+
+        showLog("RECEIVE_SPAM_PV_THREAD", gson.toJson(chatMessage));
+
     }
 
 
@@ -986,20 +996,21 @@ public class Chat extends AsyncAdapter {
     }
 
     @Deprecated
-    public String uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
+    public String uploadImageProgress(Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
             if (fileServer != null) {
                 if (Permission.Check_READ_STORAGE(activity)) {
-                    String mimeType = context.getContentResolver().getType(fileUri);
+                    String mimeType = getContext().getContentResolver().getType(fileUri);
                     RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
                     FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-                    File file = new File(getRealPathFromURI(context, fileUri));
+
+                    String path = FilePick.getSmartFilePath(getContext(), fileUri);
+
+                    File file = new File(path);
+
                     if (!Util.isNullOrEmpty(mimeType) && FileUtils.isImage(mimeType)) {
-
-
-
 
 
                         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
@@ -1024,13 +1035,12 @@ public class Chat extends AsyncAdapter {
                         JsonObject jLog = new JsonObject();
 
 
-                        jLog.addProperty("name",file.getName());
-                        jLog.addProperty("token",getToken());
-                        jLog.addProperty("tokenIssuer",TOKEN_ISSUER);
-                        jLog.addProperty("uniqueId",uniqueId);
+                        jLog.addProperty("name", file.getName());
+                        jLog.addProperty("token", getToken());
+                        jLog.addProperty("tokenIssuer", TOKEN_ISSUER);
+                        jLog.addProperty("uniqueId", uniqueId);
 
-                        showLog("UPLOADING_IMAGE",getJsonForLog(jLog));
-
+                        showLog("UPLOADING_IMAGE", getJsonForLog(jLog));
 
 
                         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
@@ -1072,7 +1082,7 @@ public class Chat extends AsyncAdapter {
 
                                     showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
 
-                                    listenerManager.callOnUploadImageFile(imageJson,chatResponse);
+                                    listenerManager.callOnUploadImageFile(imageJson, chatResponse);
                                     handler.onFinish(imageJson, chatResponse);
                                 }
                             }
@@ -1096,7 +1106,7 @@ public class Chat extends AsyncAdapter {
                     String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
                     ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_NOT_IMAGE, ChatConstant.ERROR_CODE_NOT_IMAGE, null);
                     handler.onError(jsonError, error);
-                    Permission.Request_STORAGE(activity,WRITE_EXTERNAL_STORAGE_CODE);
+                    Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
                     if (log) Log.e(TAG, jsonError);
                     return uniqueId;
                 }
@@ -1142,11 +1152,11 @@ public class Chat extends AsyncAdapter {
 
 
                                 JsonObject jLog = new JsonObject();
-                                jLog.addProperty("name",file.getName());
-                                jLog.addProperty("token",getToken());
-                                jLog.addProperty("tokenIssuer",TOKEN_ISSUER);
-                                jLog.addProperty("uniqueId",uniqueId);
-                                showLog("UPLOADING_IMAGE",getJsonForLog(jLog));
+                                jLog.addProperty("name", file.getName());
+                                jLog.addProperty("token", getToken());
+                                jLog.addProperty("tokenIssuer", TOKEN_ISSUER);
+                                jLog.addProperty("uniqueId", uniqueId);
+                                showLog("UPLOADING_IMAGE", getJsonForLog(jLog));
 
 
                                 Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
@@ -1231,7 +1241,7 @@ public class Chat extends AsyncAdapter {
     public String uploadImageProgress(RequestUploadImage requestUploadImage, ProgressHandler.onProgress handler) {
         Activity activity = requestUploadImage.getActivity();
         Uri fileUri = requestUploadImage.getFileUri();
-        return uploadImageProgress(getContext(), activity, fileUri, handler);
+        return uploadImageProgress(activity, fileUri, handler);
     }
 
     /**
@@ -1347,16 +1357,38 @@ public class Chat extends AsyncAdapter {
     /**
      * It uploads file and it shows progress of the file downloading
      */
-    public String uploadFileProgress(Context context, Activity activity, String fileUri, Uri uri, ProgressHandler.onProgressFile handler) {
+
+
+    public String uploadFileProgress(RequestUploadFile requestUploadFile, ProgressHandler.onProgressFile handler) {
+
+
+        return uploadFileProgress(requestUploadFile.getActivity(), requestUploadFile.getFileUri(), handler);
+
+
+    }
+
+
+    @Deprecated
+    public String uploadFileProgress(Activity activity, Uri uri, ProgressHandler.onProgressFile handler) {
         String uniqueId = generateUniqueId();
         try {
             if (chatReady) {
                 if (Permission.Check_READ_STORAGE(activity)) {
                     if (getFileServer() != null) {
-                        String mimeType = context.getContentResolver().getType(uri);
+                        String mimeType = getContext().getContentResolver().getType(uri);
 //                    File file = new File(getRealPathFromURI(context, uri));
                         String path = FilePick.getSmartFilePath(getContext(), uri);
                         File file = new File(path);
+
+
+                        JsonObject jLog = new JsonObject();
+
+                        jLog.addProperty("name", file.getName());
+                        jLog.addProperty("token", getToken());
+                        jLog.addProperty("tokenIssuer", TOKEN_ISSUER);
+                        jLog.addProperty("uniqueId", uniqueId);
+
+                        showLog("UPLOADING_FILE", getJsonForLog(jLog));
 
                         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
                         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
@@ -1393,13 +1425,23 @@ public class Chat extends AsyncAdapter {
                                         ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, null);
                                         handler.onError(jsonError, error);
                                     } else {
+
                                         FileUpload result = fileUploadResponse.body();
+
+                                        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+
+                                        ResultFile resultFile = result.getResult();
+
+                                        chatResponse.setResult(resultFile);
+
                                         String json = gson.toJson(result);
 
                                         handler.onFinish(json, result);
 
                                         showLog("FINISH_UPLOAD_FILE", json);
-//                                        listenerManager.callOnLogEvent(json);
+
+                                        listenerManager.callOnUploadFile(json, chatResponse);
+
                                     }
                                 }
                             }
@@ -1421,6 +1463,7 @@ public class Chat extends AsyncAdapter {
                     ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                             , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
                     handler.onError(jsonError, error);
+                    Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
                 }
             } else {
                 getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -2034,7 +2077,7 @@ public class Chat extends AsyncAdapter {
         String systemMetaData = request.getSystemMetaData();
         int messageType = request.getMessageType();
 
-        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null,null, handler);
+        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null, null, handler);
     }
 
     /**
@@ -2046,7 +2089,7 @@ public class Chat extends AsyncAdapter {
      * @param systemMetaData meta data of the message
      */
     public String replyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, ChatHandler handler) {
-        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null,null, handler);
+        return mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, null, null, handler);
     }
 
     /**
@@ -8556,7 +8599,7 @@ public class Chat extends AsyncAdapter {
 //                                        listenerManager.callOnLogEvent(jsonMeta);
                                         if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
                                             showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
-                                            mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta,uniqueId, null);
+                                            mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta, uniqueId, null);
 //                                            if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
 
                                         } else {

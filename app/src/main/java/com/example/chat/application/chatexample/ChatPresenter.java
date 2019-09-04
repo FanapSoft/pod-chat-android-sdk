@@ -558,13 +558,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
-        chat.uploadImageProgress(context, activity, fileUri, handler);
+        chat.uploadImageProgress(activity, fileUri, handler);
 
     }
 
     @Override
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
-        chat.uploadFileProgress(context, activity, null, fileUri, handler);
+        chat.uploadFileProgress(activity, fileUri, handler);
     }
 
     @Override

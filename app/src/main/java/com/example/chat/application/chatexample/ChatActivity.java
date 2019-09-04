@@ -94,6 +94,10 @@ public class ChatActivity extends AppCompatActivity
 
     private Uri uri;
 
+    private Button btnUploadFile;
+
+    private Button btnUploadImage;
+
 
 
     //fel token
@@ -122,16 +126,16 @@ public class ChatActivity extends AppCompatActivity
      */
 
 
-    private static String name = "SandBox";
-    private static String TOKEN = "9e47087536504ed7b6d10773bdf8935f";
-    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
-    private static String serverName = "chat-server";
-    private static String appId = "POD-Chat";
-    private static String ssoHost = "https://accounts.pod.land/";
-    //    private static String platformHost = "http://sandbox.pod.land:8080/";
-    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
-    private static String fileServer = "https://sandbox.pod.land:8443/";
-
+//    private static String name = "SandBox";
+//    private static String TOKEN = "5efe4158c14c4f3d9dc18163b8f0e004";
+//    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
+//    private static String serverName = "chat-server";
+//    private static String appId = "POD-Chat";
+//    private static String ssoHost = "https://accounts.pod.land/";
+//    //    private static String platformHost = "http://sandbox.pod.land:8080/";
+//    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
+//    private static String fileServer = "https://sandbox.pod.land:8443/";
+//
 
 
 //
@@ -163,15 +167,15 @@ public class ChatActivity extends AppCompatActivity
 //
 //
 //////
-//    private String name = "zizi";
-//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
-//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
-//    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
-//    private String platformHost = "http://172.16.110.131:8080/";
-//    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
-//    private String serverName = "chat-server2";
-//    private String typeCode = null;
-//
+    private String name = "zizi";
+    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
+    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
+    private String platformHost = "http://172.16.110.131:8080/";
+    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
+    private String serverName = "chat-server2";
+    private String typeCode = null;
+
 ////
 
 
@@ -188,16 +192,6 @@ public class ChatActivity extends AppCompatActivity
      *     },
      *
      */
-
-
-
-
-
-
-
-
-
-
 
 
     private String fileUri;
@@ -230,6 +224,11 @@ public class ChatActivity extends AppCompatActivity
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
         buttonFileChoose = findViewById(R.id.buttonFileChoose);
         buttonConnect = findViewById(R.id.buttonConnect);
+
+        btnUploadFile = findViewById(R.id.buttonUploadFileProgress);
+
+        btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
+
         buttonFileChoose.setOnClickListener(this);
 
         ArrayList<Contact> contacts = new ArrayList<>();
@@ -254,6 +253,10 @@ public class ChatActivity extends AppCompatActivity
         setupSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
         setupThirdSpinner(spinnerThird);
+
+        btnUploadFile.setOnClickListener(this::onUploadFile);
+
+        btnUploadImage.setOnClickListener(this::onUploadImage);
 
         // PodNotificationActivity
 
@@ -350,8 +353,9 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             case 4: {
                                 Long ubThreadId = null;
-                                Long ubUserId = 121L;
-                                Long ubContactId = null;
+//                                Long ubUserId = 121L;
+                                Long ubUserId = null;
+                                Long ubContactId = 1302L;
                                 Long unblockId = null;
                                 presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
                                         , null);
@@ -1437,20 +1441,24 @@ public class ChatActivity extends AppCompatActivity
         presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
             public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-                runOnUiThread(() -> percentage.setText(bytesSent));
+                runOnUiThread(() -> percentage.setText(bytesSent + "%"));
             }
 
             @Override
             public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
-                Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
-                percentage.setTextColor(getResources().getColor(R.color.colorAccent));
-                percentage.setText("100");
+
+               runOnUiThread(()->{
+                    Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
+                    percentage.setTextColor(getResources().getColor(R.color.colorAccent));
+                    percentage.setText("100");
+                });
 
             }
         });
     }
 
     public void onUploadFile(View view) {
+
         if (getUri() != null) {
             presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
@@ -1459,15 +1467,21 @@ public class ChatActivity extends AppCompatActivity
 
                 @Override
                 public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-                    runOnUiThread(() -> runOnUiThread(() -> percentageFile.setText(bytesSent)));
+
+
+                    runOnUiThread(()-> percentageFile.setText(bytesSent + "%"));
+
+
+
 
                 }
 
                 @Override
                 public void onFinish(String imageJson, FileUpload fileImageUpload) {
                     runOnUiThread(() -> {
+                        Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                         percentageFile.setText("100");
-                        percentage.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        percentageFile.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
                     });
 
                 }

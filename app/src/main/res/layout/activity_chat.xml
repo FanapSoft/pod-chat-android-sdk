@@ -230,7 +230,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:onClick="onUploadImage"
         android:text="Upload image Progress"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="@+id/buttonToken"
@@ -242,8 +241,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:onClick="onUploadFile"
-        android:text="Upload image Progress"
+        android:text="Upload file Progress"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="@+id/buttonUploadImageProgress"
         app:layout_constraintTop_toBottomOf="@+id/buttonUploadImageProgress" />
