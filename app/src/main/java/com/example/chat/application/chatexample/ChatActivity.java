@@ -79,10 +79,12 @@ public class ChatActivity extends AppCompatActivity
     public static int TEST_THREAD_ID = 11274;
     private ChatContract.presenter presenter;
     private EditText editText;
+    private EditText editTextToken;
     private EditText editTextThread;
     private Button buttonFileChoose;
     private String selectedFilePath;
     private Button buttonConnect;
+    private Button buttonToken;
     private ImageView imageMap;
     private TextView textViewState;
     private TextView percentage;
@@ -97,7 +99,6 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadFile;
 
     private Button btnUploadImage;
-
 
 
     //fel token
@@ -141,7 +142,6 @@ public class ChatActivity extends AppCompatActivity
 //
 
 
-
 //    //used for 122,123 id to get not seen
 
 //    //Token Alexi
@@ -156,7 +156,6 @@ public class ChatActivity extends AppCompatActivity
 //     {**REQUIRED**} Platform Core Address
 
 //     private String serverName = "chat-server";
-
 
 
     /**
@@ -180,17 +179,13 @@ public class ChatActivity extends AppCompatActivity
 
 
     /**
-     *
-     *
-     *
-     *  SERVICE_ADDRESSES = {
-     *         SSO_ADDRESS: params.ssoHost || 'http://172.16.110.76',
-     *                 PLATFORM_ADDRESS: params.platformHost || 'http://172.16.106.26:8080/hamsam',
-     *                 FILESERVER_ADDRESS: params.fileServer || 'http://172.16.106.26:8080/hamsam',
-     *                 POD_DRIVE_ADDRESS: params.podDrive || 'http://172.16.106.26:8080/hamsam',
-     *                 MAP_ADDRESS: params.mapServer || 'https://api.neshan.org/v1'
-     *     },
-     *
+     * SERVICE_ADDRESSES = {
+     * SSO_ADDRESS: params.ssoHost || 'http://172.16.110.76',
+     * PLATFORM_ADDRESS: params.platformHost || 'http://172.16.106.26:8080/hamsam',
+     * FILESERVER_ADDRESS: params.fileServer || 'http://172.16.106.26:8080/hamsam',
+     * POD_DRIVE_ADDRESS: params.podDrive || 'http://172.16.106.26:8080/hamsam',
+     * MAP_ADDRESS: params.mapServer || 'https://api.neshan.org/v1'
+     * },
      */
 
 
@@ -220,10 +215,12 @@ public class ChatActivity extends AppCompatActivity
         percentage = findViewById(R.id.percentage);
         percentageFile = findViewById(R.id.percentageFile);
         editText = findViewById(R.id.editTextMessage);
+        editTextToken = findViewById(R.id.editTextToken);
         editTextThread = findViewById(R.id.editTextThread);
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
         buttonFileChoose = findViewById(R.id.buttonFileChoose);
         buttonConnect = findViewById(R.id.buttonConnect);
+        buttonToken = findViewById(R.id.buttonToken);
 
         btnUploadFile = findViewById(R.id.buttonUploadFileProgress);
 
@@ -257,6 +254,8 @@ public class ChatActivity extends AppCompatActivity
         btnUploadFile.setOnClickListener(this::onUploadFile);
 
         btnUploadImage.setOnClickListener(this::onUploadImage);
+
+        buttonToken.setOnClickListener(v -> TOKEN = editTextToken.getText().toString());
 
         // PodNotificationActivity
 
@@ -355,8 +354,8 @@ public class ChatActivity extends AppCompatActivity
                                 Long ubThreadId = null;
 //                                Long ubUserId = 121L;
                                 Long ubUserId = null;
-                                Long ubContactId = 1302L;
-                                Long unblockId = null;
+                                Long ubContactId = null;
+                                Long unblockId = (long) TEST_THREAD_ID;
                                 presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
                                         , null);
                                 break;
@@ -531,10 +530,6 @@ public class ChatActivity extends AppCompatActivity
 //        typeRoles2.add(RoleType.Constants.ADD_RULE_TO_USER);
 
 
-
-
-
-
         RequestRole requestRole = new RequestRole();
         requestRole.setId(123);
         requestRole.setRoleOperation("add");
@@ -624,29 +619,28 @@ public class ChatActivity extends AppCompatActivity
 
 //        presenter.sendLocationMessage(requestLocationMessage);
 
-        presenter.sendLocationMessage(requestLocationMessage, new ProgressHandler.sendFileMessage(){
+        presenter.sendLocationMessage(requestLocationMessage, new ProgressHandler.sendFileMessage() {
 
             @Override
             public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
-                Log.d("MTAG","Update progress: " + "Total Bytes sent: "+totalBytesSent + " Total Bytes left " + totalBytesToSend);
+                Log.d("MTAG", "Update progress: " + "Total Bytes sent: " + totalBytesSent + " Total Bytes left " + totalBytesToSend);
             }
 
             @Override
             public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
 
-                Log.d("MTAG","Finish upload");
+                Log.d("MTAG", "Finish upload");
 
             }
 
             @Override
             public void onError(String jsonError, ErrorOutPut error) {
 
-                Log.d("MTAG","Error upload");
+                Log.d("MTAG", "Error upload");
 
             }
         });
-
 
 
     }
@@ -813,13 +807,12 @@ public class ChatActivity extends AppCompatActivity
                         presenter.clearHistory(requestClearHistory);
                     }
                     break;
-                    case 15:
-                    {
+                    case 15: {
                         //2139
                         getAdminList();
                         break;
                     }
-                    case 16:{
+                    case 16: {
 
                         spamThread();
                         break;
@@ -863,15 +856,11 @@ public class ChatActivity extends AppCompatActivity
     public void deleteMessage() {
 
 
-
         ArrayList<Long> msgIds = new ArrayList<>();
 
         msgIds.add(47569L);
 //        msgIds.add(47566L);
 //        msgIds.add(47564L);
-
-
-
 
 
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
@@ -1220,8 +1209,8 @@ public class ChatActivity extends AppCompatActivity
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
         presenter.createThread(1, invite,
-                "Thread "+ ( new Date().getTime() / 1000 ), "Description created at "
-                + new Date().getTime()
+                "Thread " + (new Date().getTime() / 1000), "Description created at "
+                        + new Date().getTime()
                 , null, metac, null);
 
     }
@@ -1251,7 +1240,6 @@ public class ChatActivity extends AppCompatActivity
 //                .toTime()
 //                .toTimeNanos()
 //                .build();
-
 
 
         RequestGetHistory request = new RequestGetHistory
@@ -1286,7 +1274,7 @@ public class ChatActivity extends AppCompatActivity
 //                .partnerCoreContactId(566)
 //                .count(5)
                 .build();
-        presenter.getThreads(requestThread,null);
+        presenter.getThreads(requestThread, null);
 
 //        presenter.getThreads(5, null, null, null, null);
     }
@@ -1447,7 +1435,7 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
 
-               runOnUiThread(()->{
+                runOnUiThread(() -> {
                     Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                     percentage.setTextColor(getResources().getColor(R.color.colorAccent));
                     percentage.setText("100");
@@ -1469,9 +1457,7 @@ public class ChatActivity extends AppCompatActivity
                 public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
 
-                    runOnUiThread(()-> percentageFile.setText(bytesSent + "%"));
-
-
+                    runOnUiThread(() -> percentageFile.setText(bytesSent + "%"));
 
 
                 }
