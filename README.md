@@ -4,6 +4,16 @@
 
 # Changelog
 All notable changes to this project will be documented here.
+
+## Version [0.4.2.4] 21-9-2019
+- [ADDED] `isTyping()` and `stopTyping()`
+- [ADDED] `getNotSeenDuration()`
+- [ADDED] Admin Services Cache
+- [BugFix] file upload progress update listeners
+- [BugFix] `sendFileMessage()` bugs fixed
+- [CHANGED] `SearchContact` to `RequestSearchContact`
+- other minor bug fixed
+
 ##  Version [0.3.1.2] 28-11-2018
 - In the `getHistory` function  lastMessageId and firstMessageIs is going to deprecate 
 - [BugFixed]  Listener of `LeaveThread`
