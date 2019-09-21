@@ -5,7 +5,10 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
+import com.fanap.podchat.model.OutPutNotSeenDurations;
+import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
@@ -22,6 +25,7 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultRemoveContact;
+import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -31,6 +35,8 @@ import com.fanap.podchat.model.ResultUserInfo;
 public interface ChatListener {
 
     default void onError(String content, ErrorOutPut error) {
+
+
     }
 
     default void onGetContacts(String content, ChatResponse<ResultContact> response) {
@@ -84,6 +90,10 @@ public interface ChatListener {
     }
 
     default void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> response) {
+
+    }
+
+    default void onGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {
 
     }
 
@@ -183,14 +193,31 @@ public interface ChatListener {
 
     }
 
-    default void OnLogEvent(String log) {
+    default void onLogEvent(String log) {
 
     }
+    default void onLogEvent(String logName, String json){}
 
     default void OnClearHistory(String content, ChatResponse<ResultClearHistory> chatResponse) {
 
     }
 
-    default void OnGetThreadAdmin(String content) {
+
+    default void onGetThreadAdmin(String content, ChatResponse<ResultParticipant> chatResponse) {
     }
+
+    default void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
+    }
+
+
+    default void OnSignalMessageReceive(OutputSignalMessage output) {
+    }
+
+    default void OnSetRule(ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
+    }
+
+    @Deprecated
+    default void onGetThreadAdmin(String jsonData){}
+
+
 }

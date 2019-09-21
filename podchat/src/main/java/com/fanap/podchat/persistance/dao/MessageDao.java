@@ -12,6 +12,7 @@ import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
+import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -40,7 +41,7 @@ public interface MessageDao {
     void deleteContactById(long id);
 
     @Query("select * from CacheContact LIMIT :count OFFSET :offset")
-    List<CacheContact> getContact(Integer count, Long offset);
+    List<CacheContact> getContacts(Integer count, Long offset);
 
 
     @Query("SELECT COUNT(id) FROM CacheContact")
@@ -195,6 +196,14 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertParticipant(CacheParticipant participant);
 
+    @Insert(onConflict = REPLACE)
+    void insertRoles(CacheParticipantRoles roles);
+
+    @Query("select * from CacheParticipantRoles where id = :id AND threadId = :threadId")
+    CacheParticipantRoles getParticipantRoles(long id,long threadId);
+
+
+
     @Query("DELETE FROM CacheParticipant where threadId = :threadId AND id = :id")
     void deleteParticipant(long threadId, long id);
 
@@ -218,7 +227,7 @@ public interface MessageDao {
     void insertThreadParticipant(CacheThreadParticipant cacheThreadParticipant);
 
     @Query("DELETE FROM CacheThreadParticipant WHERE participantId =:participantId")
-    void deleteCacheThreadParticipnat(long participantId);
+    void deleteCacheThreadParticipant(long participantId);
 
     @Query("SELECT * FROM cachethreadparticipant WHERE threadId = :threadId LIMIT :count OFFSET :offset ")
     List<CacheThreadParticipant> getAllThreadParticipants(long offset, long count, long threadId);

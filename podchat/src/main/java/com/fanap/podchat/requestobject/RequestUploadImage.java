@@ -24,8 +24,19 @@ public class RequestUploadImage {
             this.fileUri = fileUri;
         }
 
+
+        public Builder setActivity(Activity activity) {
+            this.activity = activity;
+            return this;
+        }
+
+        public Builder setFileUri(Uri fileUri) {
+            this.fileUri = fileUri;
+            return this;
+        }
+
         @NonNull
-        private RequestUploadImage build() {
+        public RequestUploadImage build() {
             return new RequestUploadImage(this);
         }
     }

@@ -6,6 +6,7 @@ public abstract class BaseOutPut {
     private String errorMessage;
     private long errorCode;
     private String uniqueId;
+    private long subjectId;
 
     public boolean isHasError() {
         return hasError;
@@ -45,5 +46,13 @@ public abstract class BaseOutPut {
 
     public void setCache(boolean cache) {
         this.cache = cache;
+    }
+
+    public long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(long subjectId) {
+        this.subjectId = subjectId;
     }
 }

@@ -12,12 +12,13 @@ public class RequestFileMessage {
     private int messageType;
     private String description;
 
-     RequestFileMessage(Builder builder) {
+    RequestFileMessage(Builder builder) {
         this.setActivity(builder.activity);
         this.setThreadId(builder.threadId);
         this.setFileUri(builder.fileUri);
         this.setSystemMetadata(builder.systemMetadata);
         this.setMessageType(builder.messageType);
+        this.setDescription(builder.description);
     }
 
     public Activity getActivity() {
@@ -69,6 +70,7 @@ public class RequestFileMessage {
     }
 
     public static class Builder {
+        public String description;
         private Activity activity;
         private long threadId;
         private Uri fileUri;
@@ -81,9 +83,27 @@ public class RequestFileMessage {
             this.fileUri = fileUri;
         }
 
+        public Builder(Activity activity, long threadId, Uri fileUri, String description, String systemMetadata, int messageType) {
+            this.activity = activity;
+            this.threadId = threadId;
+            this.fileUri = fileUri;
+            this.description = description;
+            this.systemMetadata = systemMetadata;
+
+            this.messageType = messageType;
+
+
+        }
+
         @NonNull
         public Builder systemMetadata(String systemMetadata) {
             this.systemMetadata = systemMetadata;
+            return this;
+        }
+
+        @NonNull
+        public Builder threadId(long threadId) {
+            this.threadId = threadId;
             return this;
         }
 
@@ -92,6 +112,25 @@ public class RequestFileMessage {
             this.messageType = messageType;
             return this;
         }
+
+        @NonNull
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        @NonNull
+        public Builder activity(Activity activity) {
+            this.activity = activity;
+            return this;
+        }
+
+        @NonNull
+        public Builder fileUri(Uri uri) {
+            this.fileUri = uri;
+            return this;
+        }
+
 
         @NonNull
         public RequestFileMessage build() {

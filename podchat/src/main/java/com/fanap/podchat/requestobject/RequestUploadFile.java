@@ -9,7 +9,7 @@ public class RequestUploadFile {
     private Activity activity;
     private Uri fileUri;
 
-     RequestUploadFile(Builder builder) {
+    RequestUploadFile(Builder builder) {
         this.activity = builder.activity;
         this.fileUri = builder.fileUri;
     }
@@ -21,6 +21,16 @@ public class RequestUploadFile {
         public Builder(Activity activity, Uri fileUri) {
             this.activity = activity;
             this.fileUri = fileUri;
+        }
+
+        public Builder setActivity(Activity activity) {
+            this.activity = activity;
+            return this;
+        }
+
+        public Builder setFileUri(Uri fileUri) {
+            this.fileUri = fileUri;
+            return this;
         }
 
         @NonNull

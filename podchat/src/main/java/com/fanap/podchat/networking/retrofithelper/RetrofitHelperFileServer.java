@@ -29,10 +29,10 @@ public class RetrofitHelperFileServer {
                 .baseUrl(fileServer)
 
                 .client(new OkHttpClient().newBuilder()
-                        .retryOnConnectionFailure(true)
-                        .connectTimeout(5, TimeUnit.MINUTES) // connect timeout
-                        .writeTimeout(5, TimeUnit.MINUTES) // write timeout
-                        .readTimeout(5, TimeUnit.MINUTES) // read timeout
+//                        .retryOnConnectionFailure(true)
+                        .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
+                        .writeTimeout(20, TimeUnit.SECONDS) // write timeout
+                        .readTimeout(20, TimeUnit.SECONDS) // read timeout
                         .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                         .build())
                 .addConverterFactory(GsonConverterFactory.create())

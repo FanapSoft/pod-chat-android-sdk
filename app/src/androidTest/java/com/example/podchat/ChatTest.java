@@ -17,7 +17,7 @@ import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultImageFile;
@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class ChatTest extends ChatAdapter{
+public class ChatTest extends ChatAdapter {
 
     private static ChatContract.presenter presenter;
     @Mock
@@ -56,14 +56,14 @@ public class ChatTest extends ChatAdapter{
     private static String fileServer = "http://sandbox.pod.land:8080/";
     private static String TYPE_CODE = "";
 
-    private ChatSandBoxActivity activy;
+    private ChatSandBoxActivity chatSandBoxActivity;
 
     @Before
     public void setUp() {
         Looper.prepare();
         appContext = InstrumentationRegistry.getTargetContext();
         MockitoAnnotations.initMocks(this);
-        presenter = new ChatPresenter(appContext, view, activy);
+        presenter = new ChatPresenter(appContext, view, chatSandBoxActivity);
         presenter.connect(socketAddres,
                 appId, serverName, TOKEN, ssoHost,
                 platformHost, fileServer, "");
@@ -94,7 +94,7 @@ public class ChatTest extends ChatAdapter{
 
     @Test
     @MediumTest
-    public void createThreadWuithMetaData(){
+    public void createThreadWithMetaData() {
         try {
             Thread.sleep(7000);
         } catch (InterruptedException e) {
@@ -113,6 +113,7 @@ public class ChatTest extends ChatAdapter{
 //        String  metaData =
 //                JsonUtil.getJson(contac);
 //        presenter.createThread(0,invite,null,null,null,metaData,null);
+
     }
 
     @Test
@@ -141,7 +142,7 @@ public class ChatTest extends ChatAdapter{
     // long creatorCoreUserId
     @Test
     @MediumTest
-    public void threadWithCreatorCoreUserId(){
+    public void threadWithCreatorCoreUserId() {
         try {
             Thread.sleep(7000);
         } catch (InterruptedException e) {
@@ -150,11 +151,11 @@ public class ChatTest extends ChatAdapter{
         ArrayList<Integer> threadIds = new ArrayList<>();
 //        threadIds.add(1105);
 //        threadIds.add(1031);
-        long count= 5;
+        long count = 5;
         long offset;
-        long creatorCoreUserId = 2 ;
-        presenter.getThreads(null,null,null,null,creatorCoreUserId
-                ,0,0,null);
+        long creatorCoreUserId = 2;
+        presenter.getThreads(null, null, null, null, creatorCoreUserId
+                , 0, 0, null);
         try {
             Thread.sleep(7000);
         } catch (InterruptedException e) {
@@ -166,14 +167,14 @@ public class ChatTest extends ChatAdapter{
     //long partnerCoreUserId
     @Test
     @MediumTest
-    public void threadWithPartnerCoreUserId(){
+    public void threadWithPartnerCoreUserId() {
 
     }
 
     //long partnerCoreContactId
     @Test
     @MediumTest
-    public void threadWithPartnerCoreContactId(){
+    public void threadWithPartnerCoreContactId() {
 
     }
 
@@ -323,7 +324,7 @@ public class ChatTest extends ChatAdapter{
             e.printStackTrace();
         }
         Invitee[] invite = new Invitee[]{new Invitee(566, 2)};
-        presenter.createThread(0, invite, "yes", "first description",null,null,null);
+        presenter.createThread(0, invite, "yes", "first description", null, null, null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -376,7 +377,7 @@ public class ChatTest extends ChatAdapter{
         }
 
         presenter.replyMessage("this is reply to all of you at" + new Date().getTime()
-                , 381, 14103,null, null);
+                , 381, 14103, null, null);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -616,7 +617,12 @@ public class ChatTest extends ChatAdapter{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.deleteMessage(14380, true, null);
+
+
+        ArrayList<Long> messageIds = new ArrayList<>();
+        messageIds.add(14380L);
+
+        presenter.deleteMessage(messageIds,0L, true, null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -719,8 +725,8 @@ public class ChatTest extends ChatAdapter{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
-        presenter.searchContact(searchContact);
+        RequestSearchContact requestSearchContact = new RequestSearchContact.Builder("0", "2").id("1063").build();
+        presenter.searchContact(requestSearchContact);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

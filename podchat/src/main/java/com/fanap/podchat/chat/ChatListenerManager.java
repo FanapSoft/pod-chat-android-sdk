@@ -8,7 +8,9 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
+import com.fanap.podchat.model.OutPutNotSeenDurations;
 import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.model.ResultBlock;
@@ -214,10 +216,20 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetThreadParticipant(outPutParticipant);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
     public void callOnClearHistory(String content, ChatResponse<ResultClearHistory> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnClearHistory(content,chatResponse);
+                listener.OnClearHistory(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -225,10 +237,11 @@ public class ChatListenerManager {
     }
 
 
-    public void callOnGetThreadAdmin(String content) {
+    public void callOnGetThreadAdmin(String content, ChatResponse<ResultParticipant> chatResponse) {
+
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnGetThreadAdmin(content);
+                listener.onGetThreadAdmin(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -242,10 +255,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnEditedMessage(String content,ChatResponse<ResultNewMessage> chatResponse) {
+    public void callOnEditedMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onEditedMessage(content,chatResponse);
+                listener.onEditedMessage(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -265,7 +278,7 @@ public class ChatListenerManager {
     public void callOnRemoveContact(String content, ChatResponse<ResultRemoveContact> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onRemoveContact(content,response);
+                listener.onRemoveContact(content, response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -315,7 +328,7 @@ public class ChatListenerManager {
     public void callOnUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUpdateContact(content,chatResponse);
+                listener.onUpdateContact(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -365,7 +378,7 @@ public class ChatListenerManager {
     public void callOnSyncContact(String content, ChatResponse<Contacts> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSyncContact(content,chatResponse);
+                listener.onSyncContact(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -412,10 +425,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnThreadInfoUpdated(String content,ChatResponse<ResultThread> response) {
+    public void callOnThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadInfoUpdated(content,response);
+                listener.onThreadInfoUpdated(content, response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -505,7 +518,7 @@ public class ChatListenerManager {
     public void callOnRemovedFromThread(String content, ChatResponse<ResultThread> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnRemovedFromThread(content,chatResponse);
+                listener.OnRemovedFromThread(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -525,7 +538,7 @@ public class ChatListenerManager {
     public void callOnDeliveredMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnDeliveredMessageList(content,chatResponse);
+                listener.OnDeliveredMessageList(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -535,7 +548,7 @@ public class ChatListenerManager {
     public void callOnSeenMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnSeenMessageList(content,chatResponse);
+                listener.OnSeenMessageList(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -545,7 +558,7 @@ public class ChatListenerManager {
     public void callOnMapReverse(String json, ChatResponse<ResultMapReverse> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnMapReverse(json,chatResponse);
+                listener.OnMapReverse(json, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -565,14 +578,77 @@ public class ChatListenerManager {
     public void callOnLogEvent(String logEvent) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.OnLogEvent(logEvent);
+                listener.onLogEvent(logEvent);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callonSetRuleToUser(String toJson, ChatResponse<ResultSetAdmin> chatResponse) {
+    public void callOnLogEvent(String logName, String json) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onLogEvent(logName,json);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnSetRoleToUser(String content, ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnSetRule(outputSetRoleToUser);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
 
     }
+
+    public void callOnGetNotSeenDuration(OutPutNotSeenDurations content) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnNotSeenDuration(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+
+    public void callOnGetSignalMessage(OutputSignalMessage output) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnSignalMessageReceive(output);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+
+//    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
+//
+//        for (ChatListener listener : getSynchronizedListeners()) {
+//            try {
+//                listener.onGetThreadAdmin(jsonData,output);
+//            } catch (Throwable t) {
+//                callHandleCallbackError(listener, t);
+//            }
+//        }
+//
+//
+//    }
+//
+
 }

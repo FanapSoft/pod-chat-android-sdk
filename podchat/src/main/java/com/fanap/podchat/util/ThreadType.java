@@ -17,8 +17,7 @@ public class ThreadType {
     @IntDef({Constants.NORMAL, Constants.OWNER_GROUP,
             Constants.PUBLIC_GROUP,
             Constants.CHANNEL_GROUP,
-            Constants.CHANNEL,
-    })
+            Constants.CHANNEL,})
 
     @Retention(RetentionPolicy.SOURCE)
     public @interface Constants {
@@ -28,4 +27,6 @@ public class ThreadType {
         int CHANNEL_GROUP = 4;
         int CHANNEL = 8;
     }
+
+
 }

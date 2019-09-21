@@ -49,9 +49,12 @@ public class ChatMessageType {
             Constants.SPAM_PV_THREAD,
             Constants.SEEN_MESSAGE_LIST,
             Constants.DELIVERED_MESSAGE_LIST,
-            Constants.SET_RULE_TO_USER,
+            Constants.SET_ROLE_TO_USER,
             Constants.CLEAR_HISTORY,
+//            Constants.SIGNAL_MESSAGE,
+            Constants.SYSTEM_MESSAGE,
             Constants.GET_THREAD_ADMINS,
+            Constants.GET_NOT_SEEN_DURATION
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -90,13 +93,17 @@ public class ChatMessageType {
         int SEEN_MESSAGE_LIST = 32;
         int DELIVERED_MESSAGE_LIST = 33;
         int SPAM_PV_THREAD = 41;
-        int SET_RULE_TO_USER = 42;
+        int SET_ROLE_TO_USER = 42;
         int CLEAR_HISTORY = 44;
-        int SIGNAL_MESSAGE = 45;
+//        int SIGNAL_MESSAGE = 45;
+        int SYSTEM_MESSAGE = 46;
+        int GET_NOT_SEEN_DURATION = 47;
         int GET_THREAD_ADMINS = 48;
         int ERROR = 999;
 
-    }@Retention(RetentionPolicy.SOURCE)
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
     public @interface SignalMsg {
         int IS_TYPING = 1;
         int RECORD_VOICE = 2;

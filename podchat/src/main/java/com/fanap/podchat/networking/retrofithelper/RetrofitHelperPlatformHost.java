@@ -9,6 +9,7 @@ import android.util.Log;
 import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -69,6 +70,9 @@ public class RetrofitHelperPlatformHost {
                         .build();
 
                 client = new OkHttpClient.Builder()
+                        .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
+                        .writeTimeout(20, TimeUnit.SECONDS) // write timeout
+                        .readTimeout(20, TimeUnit.SECONDS) // read timeout
                         .sslSocketFactory(sslSocketFactory, trustManager)
                         .connectionSpecs(Collections.singletonList(spec))
                         .build();
@@ -85,7 +89,9 @@ public class RetrofitHelperPlatformHost {
         this.context = context;
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
-                .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+                .client(new OkHttpClient()
+                        .newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor()
+                                .setLevel(HttpLoggingInterceptor.Level.BODY)).build())
 //                .client(enableTls12OnPreLollipop(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());

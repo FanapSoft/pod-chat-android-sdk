@@ -8,7 +8,7 @@ import java.util.List;
 //    DELETE_MESSAGE_OF_OTHERS("delete_message_of_others"),
 //    ADD_NEW_USER("add_new_user"),
 //    REMOVE_USER("remove_user"),
-//    SET_RULE_TO_USER("add_rule_to_user"),
+//    SET_ROLE_TO_USER("add_rule_to_user"),
 //    REMOVE_ROLE_FROM_USER("remove_role_from_user"),
 //    READ_THREAD("read_thread"),
 //    EDIT_THREAD("edit_thread"),

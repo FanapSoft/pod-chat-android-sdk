@@ -74,10 +74,23 @@ All notable changes to this project will be documented here.
 |2|`mapRouting(String origin, String destination)`         | give you the direction     |
 
 
+## Version [0.4.2.2] -2019-6-8
+- [Added] Admin services cache (update cache on getAdminList, addAdminRoles and removeAdminRoles)
+- [Added] startTyping() and stopTyping()
+- [Added] getNotSeenDuration()
+- [Added] clearHistory()
+- [Added] onGetThreadAdmin(String, OutPutParticipant) in ChatListener
+- [Added] delete multiple message ability to deleteMessage()
+- Separate addAdminRoles() and removeAdminRoles()
+- getAdminList() output resolved.
+- requestSearchContact() problem resolved.
+- upload progress bug resolved. 
+
+
 ##  Version [0.4.2.1] -2019-3-5
 - Added Queue Message
 - Removed liveData library and Logger library in order to prevent some issue like size of the apk
-- Added SetRule to Admin (Both of the Remove and Add rule to admin are have a same method )
+- Added SetRole to Admin (Both of the Remove and Add rule to admin are have a same method )
 - Added Get Admin List
 - Added Signal Message like `Is_Typing` or `recording_voice`
 

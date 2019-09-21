@@ -16,13 +16,19 @@ public class RequestDeleteMessage extends GeneralRequestObject {
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
+
         private boolean deleteForAll;
         private ArrayList<Long> messageIds;
+
+
+
 
         public Builder messageIds(ArrayList<Long> messageIds) {
             this.messageIds = messageIds;
             return this;
         }
+
+
 
         @NonNull
         public Builder deleteForAll(boolean deleteForAll) {
@@ -58,4 +64,5 @@ public class RequestDeleteMessage extends GeneralRequestObject {
     public void setDeleteForAll(boolean deleteForAll) {
         this.deleteForAll = deleteForAll;
     }
+
 }

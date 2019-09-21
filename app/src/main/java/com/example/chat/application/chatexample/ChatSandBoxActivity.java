@@ -23,15 +23,14 @@ import android.widget.Toast;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -53,6 +52,8 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.fanap.podchat.example.R;
+
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -306,7 +307,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     public void unBlock() {
-        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder(1382).build();
+        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder().build();
+//        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder(1382).build();
         presenter.unBlock(requestUnBlock, null);
 
 //        presenter.unBlock(1382L, new ChatHandler() {
@@ -418,8 +420,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 9:
-                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
-                        presenter.searchContact(searchContact);
+                        RequestSearchContact requestSearchContact = new RequestSearchContact.Builder("0", "2").id("1063").build();
+                        presenter.searchContact(requestSearchContact);
                         break;
                     case 10:
                         NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria.Builder("name").is("sina").build();
