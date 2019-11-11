@@ -127,16 +127,16 @@ public class ChatActivity extends AppCompatActivity
      */
 
 
-//    private static String name = "SandBox";
-//    private static String TOKEN = "5efe4158c14c4f3d9dc18163b8f0e004";
-//    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
-//    private static String serverName = "chat-server";
-//    private static String appId = "POD-Chat";
-//    private static String ssoHost = "https://accounts.pod.land/";
-//    //    private static String platformHost = "http://sandbox.pod.land:8080/";
-//    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
-//    private static String fileServer = "https://sandbox.pod.land:8443/";
-//
+    private static String name = "SandBox";
+    private static String TOKEN = "8b03fed3274a4e08b2ea8d370951c9f9";
+    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
+    private static String serverName = "chat-server";
+    private static String appId = "POD-Chat";
+    private static String ssoHost = "https://accounts.pod.land/";
+    //    private static String platformHost = "http://sandbox.pod.land:8080/";
+    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
+    private static String fileServer = "https://sandbox.pod.land:8443/";
+
 
 
 //
@@ -166,14 +166,14 @@ public class ChatActivity extends AppCompatActivity
 //
 //
 //////
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
-    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
-    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
-    private String platformHost = "http://172.16.110.131:8080/";
-    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
-    private String serverName = "chat-server2";
-    private String typeCode = null;
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
+//    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
+//    private String platformHost = "http://172.16.110.131:8080/";
+//    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
+//    private String serverName = "chat-server2";
+//    private String typeCode = null;
 
 ////
 

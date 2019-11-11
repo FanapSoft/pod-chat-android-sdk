@@ -6909,21 +6909,36 @@ public class Chat extends AsyncAdapter {
 
         sendingQueue.setAsyncContent(asyncContent);
 
+
+
+        //todo need more check
+
         if (cache) {
             messageDatabaseHelper.insertSendingMessageQueue(sendingQueue);
         } else {
             sendingQList.put(uniqueId, sendingQueue);
         }
+
+
+
         if (log)
             Log.i(TAG, "Message with this" + "uniqueId" + uniqueId + "has been added to Message Queue");
+
+
+
+
         if (chatReady) {
+
             if (cache) {
                 messageDatabaseHelper.deleteSendingMessageQueue(uniqueId);
+
                 messageDatabaseHelper.insertWaitMessageQueue(sendingQueue);
+
+
             } else {
                 sendingQList.remove(uniqueId);
-                WaitQueueCache waitMessageQueue = new WaitQueueCache();
 
+                WaitQueueCache waitMessageQueue = new WaitQueueCache();
                 waitMessageQueue.setUniqueId(sendingQueue.getUniqueId());
                 waitMessageQueue.setId(sendingQueue.getId());
                 waitMessageQueue.setAsyncContent(sendingQueue.getAsyncContent());
@@ -6936,6 +6951,7 @@ public class Chat extends AsyncAdapter {
             }
 
             setThreadCallbacks(threadId, uniqueId);
+
             sendAsyncMessage(asyncContent, 4, "SEND_REPLY_MESSAGE");
 
             if (handler != null) {
@@ -7416,6 +7432,9 @@ public class Chat extends AsyncAdapter {
             chatMessage.setType(Constants.GET_CONTACTS);
             chatMessage.setToken(getToken());
             chatMessage.setUniqueId(uniqueId);
+            //added
+
+            chatMessage.setTokenIssuer("1");
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
             jsonObject.remove("contentCount");
@@ -7696,6 +7715,7 @@ public class Chat extends AsyncAdapter {
             sendingQueue.setMessageType(messageType);
         else
             sendingQueue.setMessageType(0);
+
         sendingQueue.setThreadId(threadId);
         sendingQueue.setUniqueId(uniqueId);
         sendingQueue.setMessage(description);

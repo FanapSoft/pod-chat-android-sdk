@@ -2,13 +2,20 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
+
+
+ext{
+
+    libraryVersion = '0.4.2.401'
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 5
-        versionName "0.4.2.4"
+        versionCode 6
+        versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -38,7 +45,6 @@ ext {
 
     publishedGroupId = 'com.fanap.chat'
     artifact = 'podchat'
-    libraryVersion = '0.4.2.354'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
     gitUrl = 'https://github.com/Farhad7d7/Pod-Chat-Android-SDK.git'
@@ -82,6 +88,7 @@ dependencies {
 }
 
 group = publishedGroupId
+
 version = libraryVersion
 
 install {
