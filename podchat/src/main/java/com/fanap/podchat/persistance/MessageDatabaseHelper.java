@@ -1101,6 +1101,7 @@ public class MessageDatabaseHelper {
                 cacheParticipant.getOnline(),
                 cacheParticipant.getBlocked(),
                 cacheParticipant.getAdmin(),
+                cacheParticipant.isAuditor(),
                 getAdmin ? roles : null
         );
     }

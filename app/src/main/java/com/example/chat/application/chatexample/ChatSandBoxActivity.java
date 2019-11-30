@@ -81,12 +81,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static String name = "SandBox";
     private static String TOKEN = "0cc5b265bb8b4ab59aeaf818143a3e88";
     private TextView percentageFile;
-    private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
+    private static String socketAddres = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
-    private static String ssoHost = "https://accounts.pod.land/";
-    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
-    private static String fileServer = "http://sandbox.pod.land:8443/";
+    private static String ssoHost = "https://accounts.pod.ir/";
+    private static String platformHost = "https://sandbox.pod.ir:8043/srv/basic-platform/";
+    private static String fileServer = "http://sandbox.pod.ir:8443/";
     private static String TYPE_CODE = "";
 
 
@@ -600,7 +600,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 CacheMessageVO cacheMessageVO = new CacheMessageVO();
                 cacheMessageVO.setConversationId(5464);
                 String metacreat = gson.toJson(cacheMessageVO);
-                String image = "https://core.pod.land/nzh/image/?imageId=17006&width=476&height=476&hashCode=1666eedb75b-0.7473066083939505";
+                String image = "https://core.pod.ir/nzh/image/?imageId=17006&width=476&height=476&hashCode=1666eedb75b-0.7473066083939505";
                 presenter.createThread(0, invite, null, "this is the test description"
                         , image, metacreat, new ChatHandler() {
                             @Override

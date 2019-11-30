@@ -13,6 +13,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.fanap.podchat.util.Permission;
+
 public class FilePick {
 
     @Nullable
@@ -125,6 +127,7 @@ public class FilePick {
         final String[] projection = {
                 column
         };
+
 
         try {
             cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,

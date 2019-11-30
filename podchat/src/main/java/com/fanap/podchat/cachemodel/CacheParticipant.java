@@ -34,7 +34,9 @@ public class CacheParticipant {
     private boolean online;
 
     private boolean blocked;
+
     private boolean admin;
+    private boolean auditor;
 
     private List<String> roles;
 
@@ -72,8 +74,17 @@ public class CacheParticipant {
                 ", online=" + online +
                 ", blocked=" + blocked +
                 ", admin=" + admin +
+                ", auditor=" + auditor +
                 ", roles=" + roles +
                 '}';
+    }
+
+    public boolean isAuditor() {
+        return auditor;
+    }
+
+    public void setAuditor(boolean auditor) {
+        this.auditor = auditor;
     }
 
     public long getId() {

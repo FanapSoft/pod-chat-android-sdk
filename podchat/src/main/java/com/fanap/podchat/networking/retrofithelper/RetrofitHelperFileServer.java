@@ -20,6 +20,8 @@ import rx.schedulers.Schedulers;
 
 public class RetrofitHelperFileServer {
 
+    private static final int TIMEOUT = 120;
+    public static final TimeUnit TIME_UNIT = TimeUnit.MINUTES;
     private Retrofit.Builder retrofit;
 
     public RetrofitHelperFileServer(@NonNull String fileServer) {
@@ -30,10 +32,10 @@ public class RetrofitHelperFileServer {
 
                 .client(new OkHttpClient().newBuilder()
 //                        .retryOnConnectionFailure(true)
-                        .connectTimeout(20, TimeUnit.SECONDS) // connect timeout
-                        .writeTimeout(20, TimeUnit.SECONDS) // write timeout
-                        .readTimeout(20, TimeUnit.SECONDS) // read timeout
-                        .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                        .connectTimeout(TIMEOUT, TIME_UNIT) // connect timeout
+                        .writeTimeout(TIMEOUT, TIME_UNIT) // write timeout
+                        .readTimeout(TIMEOUT, TIME_UNIT) // read timeout
+//                        .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                         .build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());

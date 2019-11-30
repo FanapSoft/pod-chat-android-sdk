@@ -76,7 +76,7 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
-    public static int TEST_THREAD_ID = 11274;
+    public static int TEST_THREAD_ID = 5701;
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextToken;
@@ -128,14 +128,15 @@ public class ChatActivity extends AppCompatActivity
 
 
     private static String name = "SandBox";
-    private static String TOKEN = "8b03fed3274a4e08b2ea8d370951c9f9";
-    private static String socketAddress = "wss://chat-sandbox.pod.land/ws";
+    private static String TOKEN = "2100a28df27f4a0cadd154bc80009fed";
+    private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
-    private static String ssoHost = "https://accounts.pod.land/";
-    //    private static String platformHost = "http://sandbox.pod.land:8080/";
-    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
-    private static String fileServer = "https://sandbox.pod.land:8443/";
+    private static String ssoHost = "http://accounts.pod.ir/";
+    //    private static String platformHost = "http://sandbox.pod.ir:8080/";
+    private static String platformHost = "https://sandbox.pod.ir:8043/srv/basic-platform/";
+    private static String fileServer = "https://sandbox.pod.ir:8443/";
+
 
 
 
@@ -706,6 +707,7 @@ public class ChatActivity extends AppCompatActivity
 //            "Choose function",
                         break;
                     case 1:
+
                         presenter.syncContact(ChatActivity.this);
                         break;
                     case 2:
@@ -1075,9 +1077,9 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 14:
                 // add contact
-                presenter.addContact(faker.name().firstName(),
-                        faker.name().lastName(),
-                        faker.phoneNumber().cellPhone(),
+                presenter.addContact("Pooria",
+                        "Pahlavani",
+                        "+989387181694",
                         faker.name().username() + "@gmail.com");
                 break;
             case 15:
@@ -1085,7 +1087,7 @@ public class ChatActivity extends AppCompatActivity
                 presenter.removeContact(2847);
                 break;
             case 16:
-                /**UPDATE CONTACTS*/
+                /** UPDATE CONTACTS*/
                 updateContact();
             case 17: {
                 /** GET LAST SEEN **/
@@ -1196,19 +1198,26 @@ public class ChatActivity extends AppCompatActivity
 //        presenter.createThread(1, invite, null, "sina thread"
 //                , null, metac, null);
 
-        /**CHANNEL_GROUP: 4,
+        /**
+         *
+         *
+         * CHANNEL_GROUP: 4,
+         *
+         *
          */
+
         Invitee[] invite = new Invitee[]{
 //                new Invitee(3361, 2)
 //                , new Invitee(3102, 2)
 //                        new Invitee(123, 5),
-                new Invitee(824, 2),
-                new Invitee(5638, 2),
+                new Invitee(4101, 5),
+//                new Invitee(5638, 2),
         };
         Inviter inviterw = new Inviter();
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
-        presenter.createThread(1, invite,
+
+        presenter.createThread(0, invite,
                 "Thread " + (new Date().getTime() / 1000), "Description created at "
                         + new Date().getTime()
                 , null, metac, null);
@@ -1242,10 +1251,18 @@ public class ChatActivity extends AppCompatActivity
 //                .build();
 
 
+        String[] uniqueIds = new String[2];
+
+        uniqueIds[0] = "9dc1025b-94ea-47e2-8847-335aaa277f64";
+        uniqueIds[1] = "5e4f5f88-2387-497c-8768-c6189e4eb6a2";
+//        uniqueIds[1] = "212ls;dfk";
+//        uniqueIds[2] = "212ls;dfk";
+
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
                 .count(50)
+                .uniqueIds(uniqueIds)
                 .build();
 
         presenter.getHistory(request, null);

@@ -217,6 +217,7 @@ public class Chat extends AsyncAdapter {
     private static final String MTAG = "MTAG";
     public static final String PING = "PING";
     public static final int WRITE_EXTERNAL_STORAGE_CODE = 1007;
+    public static final int READ_CONTACTS_CODE = 1008;
     private static Async async;
     private String token;
     private String typeCode;
@@ -878,18 +879,29 @@ public class Chat extends AsyncAdapter {
      *                 {@link #getPhoneContact(Context)}
      */
     public String syncContact(Activity activity) {
+
+
+        Log.i(TAG, ">>> Start Syncing... " + new Date());
+
         String uniqueId = generateUniqueId();
         if (Permission.Check_READ_CONTACTS(activity)) {
             if (chatReady) {
+
                 List<PhoneContact> phoneContacts = getPhoneContact(getContext());
+
+                Log.i(TAG, ">>> Phone contacts loaded " + new Date());
+
 
                 if (phoneContacts.size() > 0) {
                     addContacts(phoneContacts, uniqueId);
                 } else {
+
                     ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+
                     listenerManager.callOnSyncContact("", chatResponse);
 
-                    if (log) Log.i(TAG, "SYNC_CONTACT_COMPLETED");
+                    if (log)
+                        Log.i(TAG, "SYNC_CONTACT_COMPLETED");
                 }
 
             } else {
@@ -897,8 +909,12 @@ public class Chat extends AsyncAdapter {
                 if (log) Log.e(TAG, jsonError);
             }
         } else {
+
             String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION
                     , uniqueId);
+
+            Permission.Request_READ_CONTACTS(activity, READ_CONTACTS_CODE);
+
             if (log) Log.e(TAG, jsonError);
         }
         return uniqueId;
@@ -1088,7 +1104,7 @@ public class Chat extends AsyncAdapter {
                                 }
                             }
                         }, throwable -> {
-                            getErrorOutPut(throwable.getMessage(),0,uniqueId);
+                            getErrorOutPut(throwable.getMessage(), 0, uniqueId);
 
                             ErrorOutPut error = new ErrorOutPut(true, throwable.getMessage(), 0, null);
                             String jsonError = gson.toJson(error);
@@ -1287,7 +1303,11 @@ public class Chat extends AsyncAdapter {
                             Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
 
 
-                            uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
+                            uploadObservable.subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(fileUploadResponse -> {
+
+
                                 if (fileUploadResponse.body() != null && fileUploadResponse.isSuccessful()) {
                                     boolean hasError = fileUploadResponse.body().isHasError();
                                     if (hasError) {
@@ -1412,7 +1432,8 @@ public class Chat extends AsyncAdapter {
 
                         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
                         Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
-                        uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
+                        uploadObservable.subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
                             if (fileUploadResponse.isSuccessful()) {
                                 boolean hasError = fileUploadResponse.body().isHasError();
                                 if (hasError) {
@@ -2617,7 +2638,9 @@ public class Chat extends AsyncAdapter {
                     .fromTimeNanos(request.getFromTimeNanos())
                     .toTime(request.getToTime())
                     .toTimeNanos(request.getToTimeNanos())
+                    .uniqueIds(request.getUniqueIds())
                     .id(request.getId())
+
                     .order(request.getOrder()).build();
             getHistoryMain(history, request.getThreadId(), handler, uniqueId);
 
@@ -3435,7 +3458,7 @@ public class Chat extends AsyncAdapter {
 
                             errorMsg = errorMsg != null ? errorMsg : "";
 
-                           getErrorOutPut(errorMsg, errorCodeMsg, uniqueId);
+                            getErrorOutPut(errorMsg, errorCodeMsg, uniqueId);
                         }
                     }
                 }
@@ -4941,7 +4964,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } catch (Exception e) {
-            if (log) Log.e(TAG, e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getMessage());
         }
         return uniqueId;
     }
@@ -6482,6 +6505,12 @@ public class Chat extends AsyncAdapter {
             jObj.remove("toTimeNanos");
         }
 
+        if(history.getUniqueIds() == null){
+
+            jObj.remove("uniqueIds");
+
+        }
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(jObj.toString());
         chatMessage.setType(Constants.GET_HISTORY);
@@ -6910,7 +6939,6 @@ public class Chat extends AsyncAdapter {
         sendingQueue.setAsyncContent(asyncContent);
 
 
-
         //todo need more check
 
         if (cache) {
@@ -6920,11 +6948,8 @@ public class Chat extends AsyncAdapter {
         }
 
 
-
         if (log)
             Log.i(TAG, "Message with this" + "uniqueId" + uniqueId + "has been added to Message Queue");
-
-
 
 
         if (chatReady) {
@@ -7865,6 +7890,8 @@ public class Chat extends AsyncAdapter {
         int version;
         ArrayList<PhoneContact> newPhoneContact = new ArrayList<>();
 
+        Log.i(TAG, ">>> Getting phone contacts " + new Date());
+
         try {
 
             List<PhoneContact> cachePhoneContacts = phoneContactDbHelper.getPhoneContacts();
@@ -7878,7 +7905,8 @@ public class Chat extends AsyncAdapter {
             }
 
             Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-            if (cursor == null) throw new AssertionError();
+            if (cursor == null)
+                throw new AssertionError();
 
 
             /*
@@ -8022,6 +8050,8 @@ public class Chat extends AsyncAdapter {
      */
     private void addContacts(List<PhoneContact> phoneContacts, String uniqueId) {
 
+        Log.i(TAG, ">>> Start Adding Contacts " + new Date());
+
         ArrayList<String> firstNames = new ArrayList<>();
         ArrayList<String> cellphoneNumbers = new ArrayList<>();
         ArrayList<String> lastNames = new ArrayList<>();
@@ -8048,36 +8078,44 @@ public class Chat extends AsyncAdapter {
                 addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
                         , cellphoneNumbers);
             }
-            addContactsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(contactsResponse -> {
-                boolean error = false;
-                if (contactsResponse.body() != null) {
-                    error = contactsResponse.body().getHasError();
-                }
-                if (contactsResponse.isSuccessful()) {
-                    if (error) {
-                        getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
-                                , uniqueId);
-                    } else {
-                        Contacts contacts = contactsResponse.body();
-                        ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+            addContactsObservable.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(contactsResponse -> {
 
-                        chatResponse.setResult(contacts);
-                        chatResponse.setUniqueId(uniqueId);
+                        Log.i(TAG, ">>> Adding Contact Respond " + new Date());
 
-                        String contactsJson = gson.toJson(chatResponse);
 
-                        if (cache) {
-                            messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
+                        boolean error = false;
+
+                        if (contactsResponse.body() != null) {
+                            error = contactsResponse.body().getHasError();
                         }
+                        if (contactsResponse.isSuccessful()) {
+                            if (error) {
+                                getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
+                                        , uniqueId);
+                            } else {
+                                Contacts contacts = contactsResponse.body();
+                                ChatResponse<Contacts> chatResponse = new ChatResponse<>();
 
-                        listenerManager.callOnSyncContact(contactsJson, chatResponse);
+                                chatResponse.setResult(contacts);
+                                chatResponse.setUniqueId(uniqueId);
 
-                        phoneContactDbHelper.addPhoneContacts(phoneContacts);
+                                String contactsJson = gson.toJson(chatResponse);
 
-                        showLog("SYNC_CONTACT_COMPLETED", contactsJson);
-                    }
-                }
-            }, throwable -> getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
+                                if (cache) {
+                                    messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
+                                }
+
+                                listenerManager.callOnSyncContact(contactsJson, chatResponse);
+
+                                phoneContactDbHelper.addPhoneContacts(phoneContacts);
+
+                                showLog("SYNC_CONTACT_COMPLETED", contactsJson);
+                            }
+                        }
+                    }, throwable ->
+                            getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
         }
     }
 
@@ -8248,7 +8286,7 @@ public class Chat extends AsyncAdapter {
 
             Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
 
-           getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
 //            listenerManager.callOnLogEvent(jsonError);
         }
@@ -8485,7 +8523,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-          getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
 //            listenerManager.callOnLogEvent(jsonError);
         }
     }
@@ -8697,7 +8735,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-           getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
 //            listenerManager.callOnLogEvent(jsonError);
         }
     }

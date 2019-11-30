@@ -17,6 +17,7 @@ public class RequestGetHistory extends BaseRequestObject {
     private NosqlSearchMetadataCriteria metadataCriteria;
     private long firstMessageId;
     private long lastMessageId;
+    private String[] uniqueIds;
 
     RequestGetHistory(@NonNull Builder builder) {
         super(builder);
@@ -32,6 +33,7 @@ public class RequestGetHistory extends BaseRequestObject {
         this.toTime = builder.toTime;
         this.toTimeNanos = builder.toTimeNanos;
         this.metadataCriteria = builder.metadataCriteria;
+        this.uniqueIds = builder.uniqueIds;
 
     }
 
@@ -47,6 +49,7 @@ public class RequestGetHistory extends BaseRequestObject {
         private long fromTimeNanos;
         private long toTime;
         private long toTimeNanos;
+        private String[] uniqueIds;
         private NosqlSearchMetadataCriteria metadataCriteria;
 
         public Builder(long threadId) {
@@ -119,6 +122,12 @@ public class RequestGetHistory extends BaseRequestObject {
         @NonNull
         public Builder query(String query) {
             this.query = query;
+            return this;
+        }
+
+        @NonNull
+        public Builder uniqueIds(String... uniqueIds) {
+            this.uniqueIds = uniqueIds;
             return this;
         }
 
@@ -234,5 +243,13 @@ public class RequestGetHistory extends BaseRequestObject {
 
     public void setToTimeNanos(long toTimeNanos) {
         this.toTimeNanos = toTimeNanos;
+    }
+
+    public String[] getUniqueIds() {
+        return uniqueIds;
+    }
+
+    public void setUniqueIds(String[] uniqueIds) {
+        this.uniqueIds = uniqueIds;
     }
 }

@@ -48,12 +48,12 @@ public class ChatTest extends ChatAdapter {
     private static String TOKEN = "9a270004e8f44cff8fd43ae5dca23db0";
     private static String NAME = "SandBox";
 
-    private static String socketAddres = "wss://chat-sandbox.pod.land/ws";
+    private static String socketAddres = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
-    private static String ssoHost = "https://accounts.pod.land/";
-    private static String platformHost = "https://sandbox.pod.land:8043/srv/basic-platform/";
-    private static String fileServer = "http://sandbox.pod.land:8080/";
+    private static String ssoHost = "https://accounts.pod.ir/";
+    private static String platformHost = "https://sandbox.pod.ir:8043/srv/basic-platform/";
+    private static String fileServer = "http://sandbox.pod.ir:8080/";
     private static String TYPE_CODE = "";
 
     private ChatSandBoxActivity chatSandBoxActivity;

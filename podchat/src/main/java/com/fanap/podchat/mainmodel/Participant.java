@@ -33,6 +33,8 @@ public class Participant {
     private Boolean blocked;
     private Boolean admin;
 
+    private Boolean auditor;
+
     private List<String> roles;
 
 
@@ -59,6 +61,7 @@ public class Participant {
             Boolean online,
             Boolean blocked,
             Boolean admin,
+            Boolean auditor,
             List<String> roles
     ) {
 
@@ -82,6 +85,7 @@ public class Participant {
         this.blocked=blocked;
         this.admin=admin;
         this.roles = roles;
+        this.auditor = auditor;
     }
 
     public List<String> getRoles() {
@@ -242,5 +246,13 @@ public class Participant {
 
     public void setCoreUserId(long coreUserId) {
         this.coreUserId = coreUserId;
+    }
+
+    public Boolean getAuditor() {
+        return auditor;
+    }
+
+    public void setAuditor(Boolean auditor) {
+        this.auditor = auditor;
     }
 }

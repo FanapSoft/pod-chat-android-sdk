@@ -18,6 +18,7 @@ public class History {
     private long count;
     private String order;
     private String query;
+    private String[] uniqueIds;
     private NosqlSearchMetadataCriteria metadataCriteria;
 
     public History(Builder builder) {
@@ -33,6 +34,7 @@ public class History {
         this.fromTimeNanos = builder.fromTimeNanos;
         this.toTime = builder.toTime;
         this.toTimeNanos = builder.toTimeNanos;
+        this.uniqueIds = builder.uniqueIds;
     }
 
     private History() {
@@ -51,12 +53,22 @@ public class History {
         private long fromTimeNanos;
         private long toTime;
         private long toTimeNanos;
+        private String[] uniqueIds;
+
+
 
         @NonNull
         public Builder id(long id) {
             this.id = id;
             return this;
         }
+
+        @NonNull
+        public Builder uniqueIds(String... uniqueIds) {
+            this.uniqueIds = uniqueIds;
+            return this;
+        }
+
 
         @NonNull
         public Builder fromTime(long fromTime) {
@@ -227,5 +239,13 @@ public class History {
 
     public void setMetadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
         this.metadataCriteria = metadataCriteria;
+    }
+
+    public String[] getUniqueIds() {
+        return uniqueIds;
+    }
+
+    public void setUniqueIds(String[] uniqueIds) {
+        this.uniqueIds = uniqueIds;
     }
 }
