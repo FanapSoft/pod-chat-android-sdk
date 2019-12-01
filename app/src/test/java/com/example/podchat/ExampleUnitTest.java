@@ -156,15 +156,15 @@ public class ExampleUnitTest {
 
     }
 
-    private String findKeyWithValue(Map<String, ArrayList<String>> map,String query) {
+    private String findKeyWithValue(Map<String, ArrayList<String>> map, String query) {
 
         for (String key : map.keySet()) {
 
             for (String value :
                     map.get(key)) {
 
-                    if(value.equals(query))
-                        return key;
+                if (value.equals(query))
+                    return key;
 
             }
 
@@ -175,9 +175,8 @@ public class ExampleUnitTest {
     }
 
 
-
     @Test
-    public void converters(){
+    public void converters() {
 
         String s = "[\"thread_admin\",\"add_new_user\",\"remove_user\"]";
 
@@ -197,12 +196,47 @@ public class ExampleUnitTest {
         System.out.println(dataTypeConverter.dataToList(s));
         System.out.println(dataTypeConverter.convertListToString(lst));
 
-        assertEquals(lst,dataTypeConverter.dataToList(s));
-        assertEquals(s,dataTypeConverter.convertListToString(lst));
+        assertEquals(lst, dataTypeConverter.dataToList(s));
+        assertEquals(s, dataTypeConverter.convertListToString(lst));
+
+
+    }
+
+
+    @Test
+    public void testListEquality() {
+
+
+        ArrayList<String> parentList = new ArrayList<>();
+        parentList.add("10");
+        parentList.add("9");
+        parentList.add("8");
+        parentList.add("7");
+        parentList.add("6");
+        parentList.add("5");
+
+
+        ArrayList<String> childList = new ArrayList<>();
+        childList.add("6");
+        childList.add("5");
+        childList.add("4");
+        childList.add("3");
+        childList.add("2");
+        childList.add("1");
 
 
 
+        ArrayList<String> answer = new ArrayList<>();
+        answer.add("10");
+        answer.add("9");
+        answer.add("8");
+        answer.add("7");
 
+
+
+        parentList.removeAll(childList);
+
+        assertEquals(parentList,answer);
 
     }
 

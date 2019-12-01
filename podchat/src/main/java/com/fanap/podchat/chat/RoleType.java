@@ -19,9 +19,7 @@ public class RoleType {
             Constants.READ_THREAD,
             Constants.REMOVE_ROLE_FROM_USER,
             Constants.REMOVE_USER,
-            Constants.THREAD_ADMIN,
-            Constants.AUDITOR
-    })
+            Constants.THREAD_ADMIN})
 
     @Retention(RetentionPolicy.SOURCE)
     public @interface Constants{
@@ -36,6 +34,5 @@ public class RoleType {
         String READ_THREAD = "read_thread";
         String EDIT_THREAD = "edit_thread";
         String THREAD_ADMIN = "thread_admin";
-        String AUDITOR = "auditor";
     }
 }

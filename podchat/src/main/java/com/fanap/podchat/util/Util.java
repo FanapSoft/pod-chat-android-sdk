@@ -100,14 +100,14 @@ public class Util {
         return element.getAsJsonArray();
     }
 
-    public static <T extends List> List<T> JsonToList(String json,Gson gson){
+    public static <T extends List> List<T> JsonToList(String json, Gson gson) {
 
-      return  gson.fromJson(json, new TypeToken<List<T>>() {
+        return gson.fromJson(json, new TypeToken<List<T>>() {
         }.getType());
     }
 
 
-    public static String getFileName(String uriString, Uri uri, Context context){
+    public static String getFileName(String uriString, Uri uri, Context context) {
 
         String displayName = "";
 
@@ -137,7 +137,7 @@ public class Util {
 
     }
 
-    public static JsonObject objectToJson(String jsonString,JsonParser parser){
+    public static JsonObject objectToJson(String jsonString, JsonParser parser) {
 
         return parser.parse(jsonString).getAsJsonObject();
 
@@ -145,14 +145,14 @@ public class Util {
     }
 
 
-    public static <T,V> T findKeyWithUniqueValue(HashMap<T, ArrayList<V> > map, Object query) {
+    public static <T, V> T findKeyWithUniqueValue(HashMap<T, ArrayList<V>> map, Object query) {
 
-        for (T key: map.keySet()) {
+        for (T key : map.keySet()) {
 
-            for (V t:
+            for (V t :
                     map.get(key)) {
 
-                if(t.equals(query))
+                if (t.equals(query))
                     return key;
 
             }
@@ -164,4 +164,11 @@ public class Util {
 
     }
 
+    public static boolean isNullOrEmpty(String[] uniqueIds) {
+
+
+        if(uniqueIds == null) return true;
+        else return uniqueIds.length == 0;
+
+    }
 }

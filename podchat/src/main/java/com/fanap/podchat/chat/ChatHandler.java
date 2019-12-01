@@ -1,12 +1,17 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultHistory;
+
 public abstract class ChatHandler {
 
     public void onSent(String uniqueId, long threadId) {
     }
 
-    public void onSentResult( String content) {
+    public void onSentResult(String content) {
     }
+
+
 
     public void onDelivered(String i){}
 
@@ -31,6 +36,9 @@ public abstract class ChatHandler {
     }
 
     public  void onGetHistory(String uniqueId){}
+
+    public  void onGetHistory(String uniqueId, ChatResponse<ResultHistory> result){}
+
 
     public  void onSearchHistory(String uniqueId){}
 

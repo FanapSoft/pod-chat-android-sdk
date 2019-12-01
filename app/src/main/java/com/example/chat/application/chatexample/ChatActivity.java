@@ -128,7 +128,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     private static String name = "SandBox";
-    private static String TOKEN = "2100a28df27f4a0cadd154bc80009fed";
+    private static String TOKEN = "7210ac1eba8e4a61b3355d15d8a310d0";
     private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -512,16 +512,23 @@ public class ChatActivity extends AppCompatActivity
         //core 1507
         // thread id 1961
         ArrayList<String> typeRoles = new ArrayList<>();
-        typeRoles.add(RoleType.Constants.THREAD_ADMIN);
-        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
-        typeRoles.add(RoleType.Constants.REMOVE_USER);
 
-        //        typeRoles.add(RoleType.Constants.READ_THREAD);
+
+
+//        typeRoles.add(RoleType.Constants.THREAD_ADMIN);
+//        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
+//        typeRoles.add(RoleType.Constants.REMOVE_USER);
+
+
+        //roles to set auditor
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+
+
 //        typeRoles.add(RoleType.Constants.ADD_RULE_TO_USER);
 //        typeRoles.add(RoleType.Constants.CHANGE_THREAD_INFO);
 //        typeRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS);
 //        typeRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS);
-//        typeRoles.add(RoleType.Constants.EDIT_THREAD);
 //        typeRoles.add(RoleType.Constants.POST_CHANNEL_MESSAGE);
 //        typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
 //
@@ -532,7 +539,7 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestRole requestRole = new RequestRole();
-        requestRole.setId(123);
+        requestRole.setId(2);
         requestRole.setRoleOperation("add");
         requestRole.setRoleTypes(typeRoles);
 
@@ -1250,11 +1257,11 @@ public class ChatActivity extends AppCompatActivity
 //                .toTimeNanos()
 //                .build();
 
-
-        String[] uniqueIds = new String[2];
-
-        uniqueIds[0] = "9dc1025b-94ea-47e2-8847-335aaa277f64";
-        uniqueIds[1] = "5e4f5f88-2387-497c-8768-c6189e4eb6a2";
+//
+//        String[] uniqueIds = new String[2];
+//
+//        uniqueIds[0] = "9dc1025b-94ea-47e2-8847-335aaa277f64";
+//        uniqueIds[1] = "5e4f5f88-2387-497c-8768-c6189e4eb6a2";
 //        uniqueIds[1] = "212ls;dfk";
 //        uniqueIds[2] = "212ls;dfk";
 
@@ -1262,7 +1269,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
                 .count(50)
-                .uniqueIds(uniqueIds)
+//                .uniqueIds(uniqueIds)
                 .build();
 
         presenter.getHistory(request, null);
