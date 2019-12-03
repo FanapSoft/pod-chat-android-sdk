@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -17,6 +19,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
+import android.text.PrecomputedText;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -866,7 +869,7 @@ public class Chat extends AsyncAdapter {
      * First we get the contact from server then at the respond of that
      *
      * @param activity its for check the permission of reading the phone contact
-     *                 {@link #getPhoneContact(Context)}
+     *                 {@link #getPhoneContact(Context, OnContactLoaded)}
      */
     public String syncContact(Activity activity) {
 
@@ -874,25 +877,31 @@ public class Chat extends AsyncAdapter {
         Log.i(TAG, ">>> Start Syncing... " + new Date());
 
         String uniqueId = generateUniqueId();
+
         if (Permission.Check_READ_CONTACTS(activity)) {
             if (chatReady) {
 
-                List<PhoneContact> phoneContacts = getPhoneContact(getContext());
-
-                Log.i(TAG, ">>> Phone contacts loaded " + new Date());
+                getPhoneContact(getContext(), phoneContacts -> {
 
 
-                if (phoneContacts.size() > 0) {
-                    addContacts(phoneContacts, uniqueId);
-                } else {
+                    if (phoneContacts.size() > 0) {
 
-                    ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+                        Log.i(TAG, ">>> Adding " + phoneContacts.size() + " Contacts to Server at " + new Date());
 
-                    listenerManager.callOnSyncContact("", chatResponse);
+                        addContacts(phoneContacts, uniqueId);
+                    } else {
 
-                    if (log)
-                        Log.i(TAG, "SYNC_CONTACT_COMPLETED");
-                }
+                        Log.i(TAG, ">>> No New Contact Found. Everything synced " + new Date());
+
+                        ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+                        listenerManager.callOnSyncContact("", chatResponse);
+
+                        if (log)
+                            Log.i(TAG, "SYNC_CONTACT_COMPLETED");
+                    }
+
+
+                });
 
             } else {
                 String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -2537,7 +2546,7 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
 
-        if(chatReady) {
+        if (chatReady) {
 
             if (history.getCount() != 0) {
                 history.setCount(history.getCount());
@@ -2573,7 +2582,7 @@ public class Chat extends AsyncAdapter {
                 }
             });
 
-        }else {
+        } else {
 
             getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
 
@@ -2679,9 +2688,6 @@ public class Chat extends AsyncAdapter {
                     .uniqueIds(request.getUniqueIds())
                     .id(request.getId())
                     .order(request.getOrder()).build();
-
-
-
 
 
             updateWaitingQ(request.getThreadId(), uniqueId, new ChatHandler() {
@@ -6525,7 +6531,7 @@ public class Chat extends AsyncAdapter {
 //            String listUniqueIds = gson.toJson(uniqueIds, uniqueIdsType);
             getHistoryWithUniqueIds(threadId, uniqueId, uniqueIds);
 
-        }else {
+        } else {
 
             handler.onGetHistory(uniqueId);
 
@@ -6535,8 +6541,7 @@ public class Chat extends AsyncAdapter {
     private void getHistoryWithUniqueIds(long threadId, String uniqueId, String[] uniqueIds) {
 
 
-
-              RequestGetHistory request = new RequestGetHistory
+        RequestGetHistory request = new RequestGetHistory
                 .Builder(threadId)
                 .offset(0)
                 .count(uniqueIds.length)
@@ -7995,89 +8000,144 @@ public class Chat extends AsyncAdapter {
      * Get the list of the Device Contact
      */
     // TODO working progress
-    private List<PhoneContact> getPhoneContact(Context context) {
-        String firstName;
-        String phoneNumber;
-        String lastName;
-        String empty = "";
-        int version;
-        ArrayList<PhoneContact> newPhoneContact = new ArrayList<>();
+    private void getPhoneContact(Context context, OnContactLoaded listener) {
 
-        Log.i(TAG, ">>> Getting phone contacts " + new Date());
 
         try {
 
-            List<PhoneContact> cachePhoneContacts = phoneContactDbHelper.getPhoneContacts();
+            Log.i(TAG, ">>> Getting phone contacts " + new Date());
 
-            HashMap<Long, PhoneContact> map = new HashMap<>();
 
-            if (cachePhoneContacts != null && cachePhoneContacts.size() > 0) {
-                for (PhoneContact contact : cachePhoneContacts) {
-                    map.put(contact.getPhoneNumber(), contact);
+            List<PhoneContact> cachePhoneContacts = new ArrayList<>();
+
+//            List<PhoneContact> cachePhoneContacts = phoneContactDbHelper.getPhoneContacts();
+
+            PhoneContactAsyncTask task = new PhoneContactAsyncTask(phoneContactDbHelper, contacts -> {
+
+                String firstName;
+                String phoneNumber;
+                String lastName;
+                String empty = "";
+                int version;
+                ArrayList<PhoneContact> newPhoneContact = new ArrayList<>();
+
+                Log.d(TAG, "#" + contacts.size() + " Contacts Loaded From Cache");
+
+                cachePhoneContacts.addAll(contacts);
+
+                HashMap<Long, PhoneContact> mapCacheContactKeeper = new HashMap<>();
+
+                if (cachePhoneContacts.size() > 0) {
+                    for (PhoneContact contact : cachePhoneContacts) {
+                        mapCacheContactKeeper.put(contact.getPhoneNumber(), contact);
+                    }
                 }
-            }
 
-            Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-            if (cursor == null)
-                throw new AssertionError();
+                Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                if (cursor == null)
+                    throw new AssertionError();
 
 
-            /*
-             * get Contact from phone Contact
-             * */
-            while (cursor.moveToNext()) {
-                firstName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                lastName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
-                version = cursor.getInt(cursor.getColumnIndex(ContactsContract.RawContacts.VERSION));
-                phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                while (cursor.moveToNext()) {
+                    firstName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    lastName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+                    version = cursor.getInt(cursor.getColumnIndex(ContactsContract.RawContacts.VERSION));
+                    phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
 //                char ch1 = phoneNumber.charAt(0);
 
 //            if (!Character.toString(ch1).equals("+")) {
 //                contact.setCellphoneNumber(phoneNumber.replaceAll(Character.toString(ch1), "+98"));
 //            }
-                PhoneContact phoneContact = new PhoneContact();
+                    PhoneContact phoneContact = new PhoneContact();
 
-                if (!Util.isNullOrEmpty(phoneNumber)) {
-                    phoneNumber = phoneNumber.replaceAll(" ", "");
-                    phoneContact.setPhoneNumber(Long.valueOf(phoneNumber));
+                    if (!Util.isNullOrEmpty(phoneNumber)) {
+                        phoneNumber = phoneNumber.replaceAll(" ", "");
+                        phoneContact.setPhoneNumber(Long.valueOf(phoneNumber));
 
-                    if (!Util.isNullOrEmpty(firstName)) {
-                        phoneContact.setName(firstName.replaceAll(" ", ""));
-                    } else {
-                        phoneContact.setName(empty);
-                    }
+                        if (!Util.isNullOrEmpty(firstName)) {
+                            phoneContact.setName(firstName.replaceAll(" ", ""));
+                        } else {
+                            phoneContact.setName(empty);
+                        }
 
-                    if (!Util.isNullOrEmpty(lastName)) {
-                        phoneContact.setLastName(lastName.replaceAll(" ", ""));
-                    } else {
-                        phoneContact.setLastName(empty);
-                    }
-                    if (!Util.isNullOrEmpty(version)) {
-                        phoneContact.setVersion(version);
-                    }
-                    if (cachePhoneContacts != null && cachePhoneContacts.size() > 0) {
-                        // if its not in PhoneContactCache and its a contact that added recently
-                        if (map.get(Long.valueOf(phoneNumber)) != null) {
-                            if (version != map.get(Long.valueOf(phoneNumber)).getVersion()) {
+                        if (!Util.isNullOrEmpty(lastName)) {
+                            phoneContact.setLastName(lastName.replaceAll(" ", ""));
+                        } else {
+                            phoneContact.setLastName(empty);
+                        }
+                        if (!Util.isNullOrEmpty(version)) {
+                            phoneContact.setVersion(version);
+                        }
+                        if (cachePhoneContacts.size() > 0) {
+                            // if its not in PhoneContactCache and its a contact that added recently
+                            if (mapCacheContactKeeper.get(Long.valueOf(phoneNumber)) != null) {
+                                if (version != mapCacheContactKeeper.get(Long.valueOf(phoneNumber)).getVersion()) {
+                                    newPhoneContact.add(phoneContact);
+                                }
+                            } else {
                                 newPhoneContact.add(phoneContact);
                             }
                         } else {
                             newPhoneContact.add(phoneContact);
                         }
-                    } else {
-                        newPhoneContact.add(phoneContact);
                     }
                 }
-            }
-            cursor.close();
+                cursor.close();
+
+
+                Log.d(TAG, "#" + newPhoneContact.size() + " New Contact Found");
+
+                listener.onLoad(newPhoneContact);
+
+            });
+
+            task.execute();
 
         } catch (Exception e) {
             Log.e(TAG, e.getCause().getMessage());
         }
 
-        return newPhoneContact;
     }
+
+
+    private static class PhoneContactAsyncTask extends AsyncTask<Void, Void, List<PhoneContact>> {
+
+        private PhoneContactDbHelper pcDbHelper;
+
+        private OnContactLoaded listener;
+
+        PhoneContactAsyncTask(PhoneContactDbHelper dbHelper, OnContactLoaded onContactLoaded) {
+
+            pcDbHelper = dbHelper;
+
+            listener = onContactLoaded;
+        }
+
+
+        @Override
+        protected List<PhoneContact> doInBackground(Void... voidd) {
+
+
+            return pcDbHelper.getPhoneContacts();
+
+        }
+
+        @Override
+        protected void onPostExecute(List<PhoneContact> contacts) {
+            super.onPostExecute(contacts);
+
+            listener.onLoad(contacts);
+
+        }
+    }
+
+
+    interface OnContactLoaded {
+
+        void onLoad(List<PhoneContact> contacts);
+    }
+
 
     private String getRealPathFromURI(Context context, Uri contentUri) {
         String[] strings = {MediaStore.Images.Media.DATA};
@@ -8163,7 +8223,10 @@ public class Chat extends AsyncAdapter {
      */
     private void addContacts(List<PhoneContact> phoneContacts, String uniqueId) {
 
-        Log.i(TAG, ">>> Start Adding Contacts " + new Date());
+
+        HandlerThread handlerThread = new HandlerThread("contacts-thread");
+        handlerThread.start();
+
 
         ArrayList<String> firstNames = new ArrayList<>();
         ArrayList<String> cellphoneNumbers = new ArrayList<>();
@@ -8183,10 +8246,14 @@ public class Chat extends AsyncAdapter {
         }
 
         Observable<Response<Contacts>> addContactsObservable;
+
         if (getPlatformHost() != null) {
+
             if (!Util.isNullOrEmpty(getTypeCode())) {
+
                 addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
                         , cellphoneNumbers, typeCodes);
+
             } else {
                 addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
                         , cellphoneNumbers);
@@ -8195,19 +8262,24 @@ public class Chat extends AsyncAdapter {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(contactsResponse -> {
 
-                        Log.i(TAG, ">>> Adding Contact Respond " + new Date());
-
+                        Log.i(TAG, ">>> Server Respond at " + new Date());
 
                         boolean error = false;
 
                         if (contactsResponse.body() != null) {
                             error = contactsResponse.body().getHasError();
                         }
+
                         if (contactsResponse.isSuccessful()) {
+
                             if (error) {
                                 getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
                                         , uniqueId);
+
+
+                                //successful response
                             } else {
+
                                 Contacts contacts = contactsResponse.body();
                                 ChatResponse<Contacts> chatResponse = new ChatResponse<>();
 
@@ -8217,14 +8289,21 @@ public class Chat extends AsyncAdapter {
                                 String contactsJson = gson.toJson(chatResponse);
 
                                 if (cache) {
-                                    messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
+
+                                    new Handler(handlerThread.getLooper()).post(() -> messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount()));
                                 }
 
                                 listenerManager.callOnSyncContact(contactsJson, chatResponse);
 
-                                phoneContactDbHelper.addPhoneContacts(phoneContacts);
+                                new Handler(handlerThread.getLooper()).post(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
 
                                 showLog("SYNC_CONTACT_COMPLETED", contactsJson);
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                                    handlerThread.quitSafely();
+                                } else {
+                                    handlerThread.quit();
+                                }
                             }
                         }
                     }, throwable ->
@@ -9007,7 +9086,7 @@ public class Chat extends AsyncAdapter {
             }
         } finally {
 
-            if (handlerSend.get(chatMessage.getUniqueId()) != null){
+            if (handlerSend.get(chatMessage.getUniqueId()) != null) {
 
                 Objects.requireNonNull(handlerSend.get(chatMessage.getUniqueId()))
                         .onGetHistory(chatMessage.getUniqueId());

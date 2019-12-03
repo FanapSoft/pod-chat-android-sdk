@@ -74,6 +74,13 @@ All notable changes to this project will be documented here.
 |2|`mapRouting(String origin, String destination)`         | give you the direction     |
 
 
+## Version [0.4.2.402] -2019-12-1
+- [BugFixed] Duplicated Messages
+- [Added] Set Auditor for p2p thread
+- [Added] getHistory with uniqueId
+- [Added] getHistory from cache
+- Waiting queue update before getHistory()
+
 ## Version [0.4.2.2] -2019-6-8
 - [Added] Admin services cache (update cache on getAdminList, addAdminRoles and removeAdminRoles)
 - [Added] startTyping() and stopTyping()
