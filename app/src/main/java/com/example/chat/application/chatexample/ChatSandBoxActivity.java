@@ -788,7 +788,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
             String freshtoken = editTextToken.getText().toString();
             if (!freshtoken.isEmpty()) {
-                presenter.setToke(freshtoken);
+                presenter.setToken(freshtoken);
             }
         }
     }
@@ -870,4 +870,5 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //        sqlScoutServer.destroy();
         super.onStop();
     }
+
 }

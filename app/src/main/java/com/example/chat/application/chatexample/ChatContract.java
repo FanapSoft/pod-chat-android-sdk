@@ -199,7 +199,7 @@ public interface ChatContract {
 
         void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
 
-        void setToke(String token);
+        void setToken(String token);
 
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
                 , String platformHost, String fileServer, String typeCode);

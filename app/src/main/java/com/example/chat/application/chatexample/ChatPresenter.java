@@ -105,7 +105,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //        });
 
 
-        chat.isCacheables(true);
+        chat.isCacheables(false);
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
@@ -204,7 +204,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void setToke(String token) {
+    public void setToken(String token) {
         chat.setToken(token);
     }
 

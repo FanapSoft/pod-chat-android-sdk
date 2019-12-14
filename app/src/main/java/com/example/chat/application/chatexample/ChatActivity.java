@@ -128,7 +128,8 @@ public class ChatActivity extends AppCompatActivity
 
 
     private static String name = "SandBox";
-    private static String TOKEN = "a79553c7220443afb882ccb8f405b4c5";
+    private static String TOKEN = "5566befdba224362b73bd53a25dad34c";
+    //refresh token: 20319e0605ff4e05ace19c261eeec058
     private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -256,7 +257,14 @@ public class ChatActivity extends AppCompatActivity
 
         btnUploadImage.setOnClickListener(this::onUploadImage);
 
-        buttonToken.setOnClickListener(v -> TOKEN = editTextToken.getText().toString());
+        buttonToken.setOnClickListener(v -> {
+
+
+            TOKEN = editTextToken.getText().toString();
+
+            presenter.setToken(TOKEN);
+
+        });
 
         // PodNotificationActivity
 
@@ -1356,8 +1364,7 @@ public class ChatActivity extends AppCompatActivity
                     TOKEN,
                     ssoHost,
                     platformHost,
-                    fileServer)
-                    .build();
+                    fileServer).build();
 
 //            presenter.connect(socketAddress,
 //                    APP_ID, serverName, TOKEN, ssoHost,

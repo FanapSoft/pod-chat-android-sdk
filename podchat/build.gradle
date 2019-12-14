@@ -6,7 +6,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 ext{
 
-    libraryVersion = '0.4.2.402'
+    libraryVersion = '0.4.2.404'
 }
 
 android {

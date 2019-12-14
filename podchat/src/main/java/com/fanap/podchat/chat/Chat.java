@@ -156,6 +156,7 @@ import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -192,6 +193,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -583,6 +585,8 @@ public class Chat extends AsyncAdapter {
         String severName = requestConnect.getSeverName();
         String ssoHost = requestConnect.getSsoHost();
 
+
+
         connect(socketAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
     }
 
@@ -623,6 +627,14 @@ public class Chat extends AsyncAdapter {
                         String ssoHost, String platformHost, String fileServer, String typeCode) {
         try {
             if (platformHost.endsWith("/")) {
+
+                try {
+                    async.clearListeners();
+                    async.logOut();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
 
                 messageCallbacks = new HashMap<>();
                 handlerSend = new HashMap<>();
@@ -782,6 +794,7 @@ public class Chat extends AsyncAdapter {
      *                        and roles to them
      *                        `setRoleOperation` could be `Add` or `remove`
      */
+
     public String addAdminRoles(RequestAddAdmin requestAddAdmin) {
 
         long threadId = requestAddAdmin.getThreadId();
@@ -5923,8 +5936,8 @@ public class Chat extends AsyncAdapter {
                     }
                 }
             } else {
-
                 if (!sendingQList.isEmpty()) {
+
                     for (SendingQueueCache sendingQueue : sendingQList.values()) {
                         String uniqueId = sendingQueue.getUniqueId();
                         long threadId = sendingQueue.getThreadId();
@@ -6357,23 +6370,9 @@ public class Chat extends AsyncAdapter {
 
                     if (response.isSuccessful()) {
 
+                        initDatabaseWithKey(response);
 
-                        String secretKey = response.body().getSecretKey();
-
-
-                        DaggerMessageComponent.builder()
-                                .appDatabaseModule(new AppDatabaseModule(getContext(), secretKey))
-                                .appModule(new AppModule(context))
-                                .build()
-                                .inject(instance);
-
-                        setKey(secretKey);
-
-                        listenerManager.callOnChatState("CHAT_READY");
-                        chatReady = true;
-                        checkMessageQueue();
-                        showLog("CHAT_READY", "");
-                        permit = true;
+                        setChatReady("CHAT_READY");
 
 
                     } else {
@@ -6383,18 +6382,9 @@ public class Chat extends AsyncAdapter {
                             Log.e(TAG, response.errorBody().toString());
                         }
 
-                        DaggerMessageComponent.builder()
-                                .appDatabaseModule(new AppDatabaseModule(getContext()))
-                                .appModule(new AppModule(context))
-                                .build()
-                                .inject(instance);
+                        initDatabase();
 
-                        listenerManager.callOnChatState("CHAT_READY");
-                        chatReady = true;
-
-                        checkMessageQueue();
-                        showLog("CHAT_READY_WITHOUT_ENCRYPTION_US", "");
-                        permit = true;
+                        setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_US");
 
 
                     }
@@ -6406,19 +6396,10 @@ public class Chat extends AsyncAdapter {
                     if (log) if (response.errorBody() != null) {
                         Log.e(TAG, response.errorBody().toString());
                     }
-                    DaggerMessageComponent.builder()
-                            .appDatabaseModule(new AppDatabaseModule(getContext()))
-                            .appModule(new AppModule(context))
-                            .build()
-                            .inject(instance);
+                    initDatabase();
 
 
-                    listenerManager.callOnChatState("CHAT_READY");
-                    chatReady = true;
-                    checkMessageQueue();
-                    showLog("CHAT_READY_WITHOUT_ENCRYPTION_NS", "");
-
-                    permit = true;
+                    setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_NS");
 
                 }
 
@@ -6428,7 +6409,7 @@ public class Chat extends AsyncAdapter {
             @Override
             public void onFailure(Call<EncResponse> call, Throwable t) {
 
-                Log.d(TAG, "Failure On: " + t.getMessage());
+                Log.e(TAG, "Failure On: " + t.getMessage());
 
             }
         });
@@ -6478,6 +6459,48 @@ public class Chat extends AsyncAdapter {
 //                    }
 //                });
 //
+
+
+    }
+
+    private void setChatReady(String state) {
+
+        listenerManager.callOnChatState("CHAT_READY");
+        chatReady = true;
+        checkMessageQueue();
+        showLog(state, "");
+        permit = true;
+    }
+
+
+
+
+
+
+
+    private void initDatabase() {
+        DaggerMessageComponent.builder()
+                .appDatabaseModule(new AppDatabaseModule(getContext()))
+                .appModule(new AppModule(context))
+                .build()
+                .inject(instance);
+    }
+
+    private void initDatabaseWithKey(Response<EncResponse> response) {
+
+        String secretKey;
+        if (response.body() != null) {
+            secretKey = response.body().getSecretKey();
+            DaggerMessageComponent.builder()
+                    .appDatabaseModule(new AppDatabaseModule(getContext(), secretKey))
+                    .appModule(new AppModule(context))
+                    .build()
+                    .inject(instance);
+
+            setKey(secretKey);
+        }else {
+            initDatabase();
+        }
 
 
     }
@@ -7319,6 +7342,36 @@ public class Chat extends AsyncAdapter {
     }
 
 
+
+    public String setAuditor(RequestSetAuditor request){
+
+
+        ArrayList<String> typeRoles = new ArrayList<>();
+
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+
+
+        RequestRole requestRole = new RequestRole();
+        requestRole.setId(request.getUserId());
+        requestRole.setRoleOperation("add");
+        requestRole.setRoleTypes(typeRoles);
+
+        ArrayList<RequestRole> requestRoles = new ArrayList<>();
+
+        requestRoles.add(requestRole);
+
+        RequestAddAdmin requestAddAdmin = new RequestAddAdmin
+                .Builder(request.getThreadId(), requestRoles)
+                .build();
+
+
+        return addAdminRoles(requestAddAdmin);
+
+
+    }
+
+
     public boolean stopTyping(String uniqueId) {
 
         return stopSignalMessage(uniqueId);
@@ -8053,16 +8106,18 @@ public class Chat extends AsyncAdapter {
 
                     if (!Util.isNullOrEmpty(phoneNumber)) {
                         phoneNumber = phoneNumber.replaceAll(" ", "");
+                        phoneNumber = phoneNumber.replaceAll("\\+", "");
+                        phoneNumber = phoneNumber.replaceAll("-","");
                         phoneContact.setPhoneNumber(Long.valueOf(phoneNumber));
 
                         if (!Util.isNullOrEmpty(firstName)) {
-                            phoneContact.setName(firstName.replaceAll(" ", ""));
+                            phoneContact.setName(firstName);
                         } else {
                             phoneContact.setName(empty);
                         }
 
                         if (!Util.isNullOrEmpty(lastName)) {
-                            phoneContact.setLastName(lastName.replaceAll(" ", ""));
+                            phoneContact.setLastName(lastName);
                         } else {
                             phoneContact.setLastName(empty);
                         }
@@ -8119,7 +8174,12 @@ public class Chat extends AsyncAdapter {
         protected List<PhoneContact> doInBackground(Void... voidd) {
 
 
-            return pcDbHelper.getPhoneContacts();
+            try {
+                return pcDbHelper.getPhoneContacts();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Collections.emptyList();
+            }
 
         }
 
@@ -8258,6 +8318,9 @@ public class Chat extends AsyncAdapter {
                 addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
                         , cellphoneNumbers);
             }
+
+            Log.e(TAG,"Call to add contact");
+
             addContactsObservable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(contactsResponse -> {
@@ -8290,12 +8353,20 @@ public class Chat extends AsyncAdapter {
 
                                 if (cache) {
 
-                                    new Handler(handlerThread.getLooper()).post(() -> messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount()));
+                                    try {
+                                        new Handler(handlerThread.getLooper()).post(() -> messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount()));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
 
                                 listenerManager.callOnSyncContact(contactsJson, chatResponse);
 
-                                new Handler(handlerThread.getLooper()).post(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                try {
+                                    new Handler(handlerThread.getLooper()).post(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
 
                                 showLog("SYNC_CONTACT_COMPLETED", contactsJson);
 
@@ -8308,6 +8379,12 @@ public class Chat extends AsyncAdapter {
                         }
                     }, throwable ->
                             getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
+
+
+
+
+
+
         }
     }
 
@@ -9132,7 +9209,6 @@ public class Chat extends AsyncAdapter {
     public void setToken(String token) {
         this.token = token;
 
-        //TODO unreachable lines bc async is not ready here =>
         if (asyncReady) {
             retryTokenRunOnUIThread(new Runnable() {
                 @Override
