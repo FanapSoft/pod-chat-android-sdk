@@ -22,6 +22,8 @@ public class ConstantSample {
             , "remove contact"
             , "update contact"
             , "get not seen duration"
+            , "pin thread"
+            ,"unpin thread"
     };
 
     public static final String[] funcSecond = {

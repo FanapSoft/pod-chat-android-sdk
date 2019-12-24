@@ -51,6 +51,7 @@ import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.requestobject.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
@@ -62,6 +63,7 @@ import com.fanap.podchat.util.ThreadType;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.fanap.podchat.example.R;
@@ -76,7 +78,7 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
-    public static int TEST_THREAD_ID = 5701;
+    public static int TEST_THREAD_ID = 12257;
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextToken;
@@ -119,16 +121,36 @@ public class ChatActivity extends AppCompatActivity
 
 
     /**
+     * Main Server Setting
+     */
+
+//
+//    private static String name = "MainServer";
+//    private static String TOKEN = "0e60742cb6ad40b3b04ceef5fd2b4c40";
+////    private static String TOKEN = "2a7574c155434988909ccb61563002e4";
+//    //refresh token: 20319e0605ff4e05ace19c261eeec058
+//    private static String socketAddress = "wss://msg.pod.ir/ws";
+//    private static String serverName = "chat-server";
+//    private static String appId = "POD-Chat";
+//    private static String ssoHost = "http://accounts.pod.ir/";
+//    //    private static String platformHost = "http://sandbox.pod.ir:8080/";
+//    private static String platformHost = "https://api.pod.ir/srv/core/";
+//    private static String fileServer = "https://core.pod.ir/";
+
+
+    /**
      *
      *
      *
      * Sandbox setting:
      *
+     *
+     *
      */
-
+//
 
     private static String name = "SandBox";
-    private static String TOKEN = "5566befdba224362b73bd53a25dad34c";
+    private static String TOKEN = "c43980c97b5342068d1a9dc43b584a4b";
     //refresh token: 20319e0605ff4e05ace19c261eeec058
     private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
@@ -141,13 +163,14 @@ public class ChatActivity extends AppCompatActivity
 
 
 
+
 //
 
 
 //    //used for 122,123 id to get not seen
 
 //    //Token Alexi
-////
+
 ////    private static String appId = "POD-Chat";
 
 //    Mehrara
@@ -161,7 +184,12 @@ public class ChatActivity extends AppCompatActivity
 
 
     /**
+     *
+     * Local
+     *
      * Mehdi Sheikh Hosseini
+     *
+     * Setting
      */
 
 //    works:
@@ -245,11 +273,13 @@ public class ChatActivity extends AppCompatActivity
             public void onMapStaticImage(ChatResponse<ResultStaticMapImage> chatResponse) {
                 imageMap.setImageBitmap(chatResponse.getResult().getBitmap());
             }
+
+
         };
 
         presenter = new ChatPresenter(this, this, this);
 
-        setupSpinner(spinner);
+        setupFirstSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
         setupThirdSpinner(spinnerThird);
 
@@ -520,7 +550,6 @@ public class ChatActivity extends AppCompatActivity
         //core 1507
         // thread id 1961
         ArrayList<String> typeRoles = new ArrayList<>();
-
 
 
 //        typeRoles.add(RoleType.Constants.THREAD_ADMIN);
@@ -875,7 +904,7 @@ public class ChatActivity extends AppCompatActivity
 
         ArrayList<Long> msgIds = new ArrayList<>();
 
-        msgIds.add(47569L);
+        msgIds.add(126611L);
 //        msgIds.add(47566L);
 //        msgIds.add(47564L);
 
@@ -887,6 +916,9 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         presenter.deleteMessage(requestDeleteMessage, null);
+
+
+
 
 //        presenter.deleteMessage(16804, true, new ChatHandler() {
 //            @Override
@@ -936,7 +968,7 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-    private void setupSpinner(Spinner spinner) {
+    private void setupFirstSpinner(Spinner spinner) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, ConstantSample.func);
 
@@ -948,9 +980,18 @@ public class ChatActivity extends AppCompatActivity
 
     public void sendMessage(View view) {
 
-        Inviter inviter = new Inviter();
-        inviter.setName("farhad");
-        String meta = gson.toJson(inviter);
+//        Inviter inviter = new Inviter();
+//        inviter.setName("farhad");
+//        String meta = gson.toJson(inviter);
+
+        JsonObject a = new JsonObject();
+
+        a.addProperty("name","farhad");
+        a.addProperty("family","kheirkhah");
+        a.addProperty("phoneNumber","989157770684");
+
+        String meta = gson.toJson(a);
+
 
         presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, 2, meta, null);
 
@@ -1084,10 +1125,12 @@ public class ChatActivity extends AppCompatActivity
             case 13:
                 //"edit message"
                 Inviter inviter = new Inviter();
-                inviter.setName("sina");
+                inviter.setName("farhad");
                 String meta = gson.toJson(inviter);
-                presenter.editMessage(47501,
-                        "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
+
+
+                presenter.editMessage(TEST_THREAD_ID,
+                        "hi message edited at " + new Date().getTime() + " by " + name, meta, null);
 
                 break;
             case 14:
@@ -1099,7 +1142,7 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 15:
                 // remove contact
-                presenter.removeContact(2847);
+                presenter.removeContact(TEST_THREAD_ID);
                 break;
             case 16:
                 /** UPDATE CONTACTS*/
@@ -1113,6 +1156,32 @@ public class ChatActivity extends AppCompatActivity
                 getNotSeenDuration(testArray);
 
                 break;
+            }
+            case 18:{
+                /**
+                 * Pin Thread
+                 */
+
+                RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
+                        .build();
+
+                presenter.pinThread(requestPinThread);
+
+                break;
+
+            }
+            case 19: {
+                /**
+                 * UnPin Thread
+                 */
+
+                RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
+                        .build();
+
+                presenter.unPinThread(requestPinThread);
+
+                break;
+
             }
 
 
@@ -1224,15 +1293,16 @@ public class ChatActivity extends AppCompatActivity
         Invitee[] invite = new Invitee[]{
 //                new Invitee(3361, 2)
 //                , new Invitee(3102, 2)
-//                        new Invitee(123, 5),
-                new Invitee(4101, 5),
+                        new Invitee(21035, 2),
+                new Invitee(21061, 2),
+//                new Invitee(5638, 2),
 //                new Invitee(5638, 2),
         };
         Inviter inviterw = new Inviter();
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
 
-        presenter.createThread(0, invite,
+        presenter.createThread(2, invite,
                 "Thread " + (new Date().getTime() / 1000), "Description created at "
                         + new Date().getTime()
                 , null, metac, null);
@@ -1513,6 +1583,24 @@ public class ChatActivity extends AppCompatActivity
 
         if (!tId.isEmpty())
             TEST_THREAD_ID = Integer.valueOf(tId);
+
+    }
+
+    @Override
+    public void onEditMessage() {
+
+        runOnUiThread(() -> Toast.makeText(this, "Message Edited!", Toast.LENGTH_LONG
+        ).show());
+
+
+    }
+
+
+    @Override
+    public void onDeleteMessage() {
+
+        runOnUiThread(() -> Toast.makeText(this, "Message Deleted!", Toast.LENGTH_LONG)
+                .show());
 
     }
 }

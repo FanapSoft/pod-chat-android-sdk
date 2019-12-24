@@ -90,4 +90,8 @@ public abstract class ChatHandler {
 
 
     }
+
+    public void onPinThread(String uniqueId) {
+
+    }
 }

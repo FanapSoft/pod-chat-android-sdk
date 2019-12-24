@@ -6,7 +6,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 ext{
 
-    libraryVersion = '0.4.2.404'
+    libraryVersion = '0.5.1.0'
 }
 
 android {
@@ -81,8 +81,7 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.16'
 
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
-
-    api 'com.fanap.podasync:podasync:0.2.8.0'
+    api project(path: ':podasync')
 
 
 }

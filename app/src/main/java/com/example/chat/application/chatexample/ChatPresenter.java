@@ -37,6 +37,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -62,6 +63,7 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -75,9 +77,11 @@ import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.NetworkPingSender;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -88,6 +92,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private Activity activity;
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
+
 
         chat = Chat.init(context);
 //        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
@@ -109,6 +114,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
+
+        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
+                .setHostName("8.8.4.4")
+                .setPort(53)
+                .setDisConnectionThreshold(2)
+                .setInterval(7000)
+                .setConnectTimeout(10000)
+                .build();
+
+        chat.setNetworkStateConfig(build);
+
+//        chat.setNetworkStateListenerEnabling(false);
+//        chat.setReconnectOnClose(false);
 //        chat.setExpireAmount(180);
         this.activity = activity;
         this.context = context;
@@ -637,6 +655,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void stopAllSignalMessages() {
 
         chat.stopAllSignalMessages();
+    }
+
+    @Override
+    public void pinThread(RequestPinThread requestPinThread) {
+
+        chat.pinThread(requestPinThread,null);
+    }
+
+
+    @Override
+    public void unPinThread(RequestPinThread requestPinThread) {
+        chat.unPinThread(requestPinThread,null);
     }
 
     //View

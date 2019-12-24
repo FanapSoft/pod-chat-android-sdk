@@ -1,5 +1,7 @@
 package com.fanap.podchat.model;
 
+import android.support.annotation.Nullable;
+
 public class OutputSetRoleToUser {
 
     ResultSetAdmin resultSetAdmin;

@@ -30,6 +30,7 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -328,5 +329,9 @@ public interface ChatContract {
         boolean stopTyping(String signalUniqueId);
 
         void stopAllSignalMessages();
+
+        void pinThread(RequestPinThread requestPinThread);
+
+        void unPinThread(RequestPinThread requestPinThread);
     }
 }
