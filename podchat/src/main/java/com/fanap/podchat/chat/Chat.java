@@ -1068,6 +1068,10 @@ public class Chat extends AsyncAdapter {
 
     public String pinThread(RequestPinThread request,ChatHandler handler) {
 
+
+
+
+
         String uniqueId = generateUniqueId();
 
         long threadId = request.getThreadId();
@@ -1124,6 +1128,9 @@ public class Chat extends AsyncAdapter {
 
 
     public String unPinThread(RequestPinThread request, ChatHandler handler) {
+
+
+
 
         String uniqueId = generateUniqueId();
 
@@ -8145,6 +8152,7 @@ public class Chat extends AsyncAdapter {
         chatMessage.setTokenIssuer("1");
         chatMessage.setToken(getToken());
         chatMessage.setMetadata(metaData);
+        chatMessage.setSystemMetadata(systemMetadata);
 
         chatMessage.setUniqueId(uniqueId);
         chatMessage.setTime(1000);
@@ -9218,11 +9226,14 @@ public class Chat extends AsyncAdapter {
 
 //                                        listenerManager.callOnLogEvent(jsonMeta);
                                         if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
+
                                             showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
+
                                             mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta, uniqueId, null);
 //                                            if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
 
                                         } else {
+
                                             sendTextMessageWithFile(description, threadId, jsonMeta, systemMetadata, uniqueId, typeCode, messageType);
                                         }
                                     }

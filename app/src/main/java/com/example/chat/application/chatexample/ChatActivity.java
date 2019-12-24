@@ -150,7 +150,7 @@ public class ChatActivity extends AppCompatActivity
 //
 
     private static String name = "SandBox";
-    private static String TOKEN = "c43980c97b5342068d1a9dc43b584a4b";
+    private static String TOKEN = "de08f0bb2fb6440ab185c5c325d3d528";
     //refresh token: 20319e0605ff4e05ace19c261eeec058
     private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
@@ -639,8 +639,13 @@ public class ChatActivity extends AppCompatActivity
 
         String center = "35.7003510,51.3376472";
 
+
+        String meta = getMetaData();
+
+
         RequestLocationMessage requestLocationMessage = new RequestLocationMessage
                 .Builder()
+                .systemMetadata(meta)
                 .center(center)
                 .message("This is location ")
                 .activity(ChatActivity.this)
@@ -688,6 +693,15 @@ public class ChatActivity extends AppCompatActivity
         });
 
 
+    }
+
+    private String getMetaData() {
+        JsonObject a = new JsonObject();
+
+        a.addProperty("name", "farhad");
+        a.addProperty("family", "kheirkhah");
+        a.addProperty("phoneNumber", "989157770684");
+        return gson.toJson(a);
     }
 
 
@@ -758,7 +772,7 @@ public class ChatActivity extends AppCompatActivity
                         fileUnique[0] = presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 TEST_THREAD_ID,
-                                getUri(), null, null, new ProgressHandler.sendFileMessage() {
+                                getUri(), getMetaData(), null, new ProgressHandler.sendFileMessage() {
                                     @Override
                                     public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
@@ -984,13 +998,7 @@ public class ChatActivity extends AppCompatActivity
 //        inviter.setName("farhad");
 //        String meta = gson.toJson(inviter);
 
-        JsonObject a = new JsonObject();
-
-        a.addProperty("name","farhad");
-        a.addProperty("family","kheirkhah");
-        a.addProperty("phoneNumber","989157770684");
-
-        String meta = gson.toJson(a);
+        String meta = getMetaData();
 
 
         presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, 2, meta, null);
