@@ -7,7 +7,7 @@ All notable changes to this project will be documented here.
 
 
 
-## Version [0.5.1.0] -2020-1-12
+## Version [0.5.2.0] -2020-1-12
 - Cache Structure Improved
 - [ADDED] pinThread() and unPinThread functions and onPinThread onUnPinThread events
 - [CHANGED] RequestAddAdmin => RequestSetAdmin
