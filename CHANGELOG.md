@@ -74,6 +74,30 @@ All notable changes to this project will be documented here.
 |2|`mapRouting(String origin, String destination)`         | give you the direction     |
 
 
+
+## Version [0.5.1.0] -2020-1-12
+- Cache Structure Improved
+- [ADDED] pinThread() and unPinThread functions and onPinThread onUnPinThread events
+- [CHANGED] RequestAddAdmin => RequestSetAdmin
+- [CHANGED] addAdminRoles => addAdmin(RequestSetAdmin)
+- [CHANGED] removeAdminRoles => removeAdmin(RequestSetAdmin)
+- [REMOVED] roleOperation from RequestRole
+-
+- [ADDED] RequestSetAuditor request = new RequestSetAuditor
+                .Builder(Long, ArrayList<RequestRole>)
+                .build();
+
+	chat.addAuditor(request);
+
+	chat.removeAuditor(request);
+
+
+
+## Version [0.5.1.0] -2019-12-20
+- [BugFixed] editMessage() and sendFileMessage() metadata bug fixed
+- [ADDED] Network Connection State Manager
+
+
 ## Version [0.4.2.402] -2019-12-1
 - [BugFixed] Duplicated Messages
 - [Added] Set Auditor for p2p conversationVO
