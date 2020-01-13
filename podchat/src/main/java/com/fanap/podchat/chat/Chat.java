@@ -1852,6 +1852,8 @@ public class Chat extends AsyncAdapter {
     /**
      * It uploads file to file server
      */
+
+
     @Deprecated
     public String uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
 
