@@ -5,6 +5,8 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.mainmodel.MessageVO;
+
 @Entity()
 public class CacheMessageVO {
 
@@ -27,6 +29,7 @@ public class CacheMessageVO {
     private String message;
     private String metadata;
     private String systemMetadata;
+    private boolean hasGap = false;
 
     @Ignore
     private CacheParticipant participant;
@@ -50,6 +53,14 @@ public class CacheMessageVO {
 
     @Nullable
     private Long forwardInfoId;
+
+    public boolean hasGap() {
+        return hasGap;
+    }
+
+    public void setHasGap(boolean hasGap) {
+        this.hasGap = hasGap;
+    }
 
     public CacheMessageVO() {
     }
@@ -246,4 +257,55 @@ public class CacheMessageVO {
     public void setTimeNanos(long timeNanos) {
         this.timeNanos = timeNanos;
     }
+
+
+    public CacheMessageVO(MessageVO messageVO) {
+
+        this.message = messageVO.getMessage();
+        this.id = messageVO.getId();
+        this.previousId = messageVO.getPreviousId();
+        this.time = messageVO.getTime();
+        this.timeNanos = messageVO.getTimeNanos();
+        this.edited = messageVO.isEdited();
+        this.editable = messageVO.isEditable();
+        this.delivered = messageVO.isDelivered();
+        this.deletable = messageVO.isDeletable();
+        this.seen = messageVO.isSeen();
+        this.messageType = messageVO.getMessageType();
+        this.uniqueId = messageVO.getUniqueId();
+        this.metadata = messageVO.getMetadata();
+        this.systemMetadata = messageVO.getSystemMetadata();
+        this.hasGap = messageVO.hasGap();
+        try {
+
+
+            long time = messageVO.getTime();
+            long timeNanos = messageVO.getTimeNanos();
+            long pow = (long) Math.pow(10, 9);
+            this.timeStamp = ((time / 1000) * pow) + timeNanos;
+
+
+            if (messageVO.getParticipant() != null)
+                this.participantId = messageVO.getParticipant().getId();
+
+            if (messageVO.getConversation() != null) {
+                this.conversationId = messageVO.getConversation().getId();
+                this.threadVoId = this.conversationId;
+            }
+
+            if (messageVO.getReplyInfoVO() != null)
+                this.replyInfoVOId = messageVO.getReplyInfoVO().getRepliedToMessageId();
+
+            if (messageVO.getForwardInfo() != null && messageVO.getForwardInfo().getConversation() != null)
+                this.forwardInfoId = messageVO.getForwardInfo().getConversation().getId();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+    }
+
+
 }

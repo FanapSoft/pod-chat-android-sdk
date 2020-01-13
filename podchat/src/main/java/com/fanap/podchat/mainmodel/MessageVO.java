@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.text.TextUtils;
+
 import com.fanap.podchat.model.ReplyInfoVO;
 
 public class MessageVO {
@@ -14,15 +16,15 @@ public class MessageVO {
     private long previousId;
     private String message;
     private Participant participant;
-
     private long time;
     private long timeNanos;
-
     private String metadata;
     private String systemMetadata;
     private Thread conversation;
     private ReplyInfoVO replyInfoVO;
     private ForwardInfo forwardInfo;
+    private boolean hasGap = false;
+    private boolean mentioned = false;
 
     public MessageVO() {
     }
@@ -45,7 +47,9 @@ public class MessageVO {
             String systemMetadata,
             Thread conversation,
             ReplyInfoVO replyInfoVO,
-            ForwardInfo forwardInfo
+            ForwardInfo forwardInfo,
+            boolean mentioned,
+            boolean hasGap
     ) {
         this.id = id;
         this.edited = edited;
@@ -65,6 +69,45 @@ public class MessageVO {
         this.conversation = conversation;
         this.replyInfoVO = replyInfoVO;
         this.forwardInfo = forwardInfo;
+        this.mentioned = mentioned;
+        this.hasGap = hasGap;
+    }
+
+
+//    public MessageVO(
+//            long id,
+//            String uniqueId,
+//            String message,
+//            boolean edited,
+//            boolean editable,
+//            boolean delivered,
+//            boolean seen,
+//            boolean deletable,
+//            long time,
+//            Participant participant,
+//            ReplyInfoVO replyInfoVO,
+//            ForwardInfo forwardInfo) {
+//        this.id = id;
+//        this.uniqueId = uniqueId;
+//        this.message = message;
+//        this.edited = edited;
+//        this.editable = editable;
+//        this.delivered = delivered;
+//        this.seen = seen;
+//        this.deletable = deletable;
+//        this.time = time;
+//        this.participant = participant;
+//        this.replyInfoVO = replyInfoVO;
+//        this.forwardInfo = forwardInfo;
+//
+//    }
+
+    public boolean hasGap() {
+        return hasGap;
+    }
+
+    public void setHasGap(boolean hasGap) {
+        this.hasGap = hasGap;
     }
 
     public boolean isEdited() {
@@ -210,4 +253,61 @@ public class MessageVO {
     public void setTimeNanos(long timeNanos) {
         this.timeNanos = timeNanos;
     }
+
+    public boolean isMentioned() {
+        return mentioned;
+    }
+
+    public void setMentioned(boolean mentioned) {
+        this.mentioned = mentioned;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MessageVO messageVO = (MessageVO) o;
+        return id == messageVO.id;
+    }
+
+    private boolean isMetadataEquals(MessageVO messageVO) {
+
+        if(this.systemMetadata != null && messageVO.systemMetadata == null) return false;
+
+        if(messageVO.systemMetadata != null && this.systemMetadata == null) return false;
+
+        if(this.systemMetadata == null) return true;
+
+        return TextUtils.equals(this.systemMetadata, messageVO.getSystemMetadata());
+    }
+
+     private boolean isMessageEquals(MessageVO messageVO) {
+
+         if (this.message != null && messageVO.message == null) return false;
+
+         if (messageVO.message != null && this.message == null) return false;
+
+         if (this.message == null) return true;
+
+         return TextUtils.equals(this.message, messageVO.getMessage());
+     }
+
+
+
+    public boolean isEdited(MessageVO messageVO){
+
+
+        if(messageVO.equals(this)){
+
+            return !isMessageEquals(messageVO) || !isMetadataEquals(messageVO);
+
+        }
+
+        return false;
+
+    }
+
+
+
+
 }

@@ -1,16 +1,17 @@
 package com.fanap.podchat.mainmodel;
 
+import com.fanap.podchat.cachemodel.ThreadVo;
+
 import java.util.List;
 
 public class Thread {
     private long id;
     private long joinDate;
     private Inviter inviter;
-    private LastMessageVO lastMessageVO;
+    private MessageVO lastMessageVO;
     private String title;
     private List<Participant> participants;
     private long time;
-    private String lastMessage;
     private String lastParticipantName;
     private String lastParticipantImage;
     private boolean group;
@@ -18,28 +19,20 @@ public class Thread {
     private String image;
     private String description;
     private long unreadCount;
-
-    @Deprecated
+    private boolean pin;
+    private boolean mentioned;
+    //last seen message info
+    private String lastMessage;
     private long lastSeenMessageId;
-
     private long lastSeenMessageNanos;
     private long lastSeenMessageTime;
-
-    @Deprecated
+    //partner last seen message info
     private long partnerLastSeenMessageId;
-
     private long partnerLastSeenMessageTime;
     private long partnerLastSeenMessageNanos;
-
-    @Deprecated
     private long partnerLastDeliveredMessageId;
-
     private long partnerLastDeliveredMessageTime;
     private long partnerLastDeliveredMessageNanos;
-
-    @Deprecated
-    private long partnerLastMessageId;
-
     private int type;
     private boolean mute;
     private String metadata;
@@ -48,38 +41,43 @@ public class Thread {
     private Boolean canSpam;
     private Boolean admin;
 
-    public Thread(long id,
-                  long joinDate,
-                  Inviter inviter,
-                  LastMessageVO lastMessageVO,
-                  String title,
-                  List<Participant> participants,
-                  long time,
-                  String lastMessage,
-                  String lastParticipantName,
-                  String lastParticipantImage,
-                  boolean group,
-                  long partner,
-                  String image,
-                  String description,
-                  long unreadCount,
-                  long lastSeenMessageId,
-                  long partnerLastMessageId,
-                  long partnerLastSeenMessageId,
-                  long partnerLastDeliveredMessageId,
-                  long lastSeenMessageNanos,
-                  long lastSeenMessageTime,
-                  long partnerLastSeenMessageTime,
-                  long partnerLastSeenMessageNanos,
-                  long partnerLastDeliveredMessageTime,
-                  long partnerLastDeliveredMessageNanos,
-                  int type,
-                  boolean mute,
-                  String metadata,
-                  boolean canEditInfo,
-                  long participantCount,
-                  Boolean canSpam,
-                  Boolean admin) {
+//    private Participant inviter;
+//    private ChatMessage lastMessageVO;
+
+    public Thread(
+            long id,
+            long joinDate,
+            Inviter inviter,
+            MessageVO lastMessageVO,
+            String title,
+            List<Participant> participants,
+            long time,
+            String lastMessage,
+            String lastParticipantName,
+            String lastParticipantImage,
+            boolean group,
+            long partner,
+            String image,
+            String description,
+            long unreadCount,
+            long lastSeenMessageId,
+            long partnerLastSeenMessageId,
+            long partnerLastDeliveredMessageId,
+            long lastSeenMessageNanos,
+            long lastSeenMessageTime,
+            long partnerLastSeenMessageTime,
+            long partnerLastSeenMessageNanos,
+            long partnerLastDeliveredMessageTime,
+            long partnerLastDeliveredMessageNanos,
+            int type,
+            boolean mute,
+            String metadata,
+            boolean canEditInfo,
+            long participantCount,
+            Boolean canSpam,
+            Boolean admin,
+            Boolean pin,
+            Boolean mentioned) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -96,7 +94,6 @@ public class Thread {
         this.description = description;
         this.unreadCount = unreadCount;
         this.lastSeenMessageId = lastSeenMessageId;
-        this.partnerLastMessageId = partnerLastMessageId;
         this.partnerLastSeenMessageId = partnerLastSeenMessageId;
         this.partnerLastDeliveredMessageId = partnerLastDeliveredMessageId;
         this.lastSeenMessageNanos = lastSeenMessageNanos;
@@ -112,9 +109,28 @@ public class Thread {
         this.participantCount = participantCount;
         this.canSpam = canSpam;
         this.admin = admin;
+        this.pin = pin;
+        this.mentioned = mentioned;
     }
 
+
     public Thread() {
+    }
+
+    public boolean isPin() {
+        return pin;
+    }
+
+    public void setPin(boolean pin) {
+        this.pin = pin;
+    }
+
+    public boolean isMentioned() {
+        return mentioned;
+    }
+
+    public void setMentioned(boolean mentioned) {
+        this.mentioned = mentioned;
     }
 
     public long getId() {
@@ -213,20 +229,12 @@ public class Thread {
         this.image = image;
     }
 
-    public LastMessageVO getLastMessageVO() {
+    public MessageVO getLastMessageVO() {
         return lastMessageVO;
     }
 
-    public void setLastMessageVO(LastMessageVO lastMessageVO) {
+    public void setLastMessageVO(MessageVO lastMessageVO) {
         this.lastMessageVO = lastMessageVO;
-    }
-
-    public long getPartnerLastMessageId() {
-        return partnerLastMessageId;
-    }
-
-    public void setPartnerLastMessageId(long partnerLastMessageId) {
-        this.partnerLastMessageId = partnerLastMessageId;
     }
 
     public long getPartnerLastDeliveredMessageId() {

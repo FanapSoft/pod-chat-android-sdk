@@ -26,6 +26,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -112,6 +113,11 @@ public class ChatListenerManager {
             mListeners.clear();
             mSyncNeeded = true;
         }
+    }
+
+
+    public List<ChatListener> getListeners() {
+        return mListeners;
     }
 
     private List<ChatListener> getSynchronizedListeners() {
@@ -609,6 +615,20 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnRemoveRoleFromUser(String content, ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRemoveRoleFromUser(outputSetRoleToUser);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
     public void callOnGetNotSeenDuration(OutPutNotSeenDurations content) {
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -633,6 +653,36 @@ public class ChatListenerManager {
             }
         }
 
+
+    }
+
+    public void callOnPinThread(ChatResponse<ResultPinThread> response) {
+
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onPinThread(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+
+
+    public void callOnUnPinThread(ChatResponse<ResultPinThread> response) {
+
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUnPinThread(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
 
     }
 

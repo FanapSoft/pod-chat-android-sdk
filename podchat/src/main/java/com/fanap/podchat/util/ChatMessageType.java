@@ -50,10 +50,12 @@ public class ChatMessageType {
             Constants.SEEN_MESSAGE_LIST,
             Constants.DELIVERED_MESSAGE_LIST,
             Constants.SET_ROLE_TO_USER,
+            Constants.REMOVE_ROLE_FROM_USER,
             Constants.CLEAR_HISTORY,
 //            Constants.SIGNAL_MESSAGE,
             Constants.SYSTEM_MESSAGE,
-            Constants.GET_THREAD_ADMINS,
+            Constants.PIN_THREAD,
+            Constants.UNPIN_THREAD,
             Constants.GET_NOT_SEEN_DURATION
     })
 
@@ -94,11 +96,13 @@ public class ChatMessageType {
         int DELIVERED_MESSAGE_LIST = 33;
         int SPAM_PV_THREAD = 41;
         int SET_ROLE_TO_USER = 42;
+        int REMOVE_ROLE_FROM_USER = 43;
         int CLEAR_HISTORY = 44;
 //        int SIGNAL_MESSAGE = 45;
         int SYSTEM_MESSAGE = 46;
         int GET_NOT_SEEN_DURATION = 47;
-        int GET_THREAD_ADMINS = 48;
+        int PIN_THREAD = 48;
+        int UNPIN_THREAD = 49;
         int ERROR = 999;
 
     }

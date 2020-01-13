@@ -2,12 +2,12 @@ package com.fanap.podchat.requestobject;
 
 import java.util.ArrayList;
 
-public class RequestAddAdmin {
+public class RequestSetAdmin {
 
     private long threadId;
     private ArrayList<RequestRole> roles;
 
-    private RequestAddAdmin(Builder builder) {
+    private RequestSetAdmin(Builder builder) {
         this.threadId = builder.threadId;
         this.roles = builder.roles;
     }
@@ -29,8 +29,8 @@ public class RequestAddAdmin {
             this.roles = roles;
         }
 
-        public RequestAddAdmin build() {
-            return new RequestAddAdmin(this);
+        public RequestSetAdmin build() {
+            return new RequestSetAdmin(this);
         }
     }
 

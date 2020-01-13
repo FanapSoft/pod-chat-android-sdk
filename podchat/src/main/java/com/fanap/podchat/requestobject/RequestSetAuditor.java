@@ -5,21 +5,28 @@ import java.util.ArrayList;
 public class RequestSetAuditor {
 
     private long threadId;
-    private long userId;
+    private ArrayList<RequestRole> roles;
 
     private RequestSetAuditor(Builder builder) {
         this.threadId = builder.threadId;
-        this.userId = builder.userId;
+        this.roles = builder.roles;
     }
 
+    public ArrayList<RequestRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(ArrayList<RequestRole> roles) {
+        this.roles = roles;
+    }
 
     public static class Builder {
         private long threadId;
-        private long userId;
+        private ArrayList<RequestRole> roles;
 
-        public Builder(long threadId, long userId) {
+        public Builder(long threadId, ArrayList<RequestRole> roles) {
             this.threadId = threadId;
-            this.userId = userId;
+            this.roles = roles;
         }
 
         public RequestSetAuditor build() {
@@ -35,11 +42,5 @@ public class RequestSetAuditor {
         this.threadId = threadId;
     }
 
-    public long getUserId() {
-        return userId;
-    }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
 }

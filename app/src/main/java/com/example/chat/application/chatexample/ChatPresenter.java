@@ -44,7 +44,7 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
-import com.fanap.podchat.requestobject.RequestAddAdmin;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
@@ -62,10 +62,12 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -75,9 +77,11 @@ import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.NetworkPingSender;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -88,6 +92,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private Activity activity;
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
+
 
         chat = Chat.init(context);
 //        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
@@ -105,10 +110,27 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //        });
 
 
-        chat.isCacheables(false);
+        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
+
+
+        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
+                .setHostName("msg.pod.ir")
+//                .setHostName("8.8.4.4") //google
+//                .setPort(53)
+//                .setPort(80) //msg.pod.ir port
+                .setPort(443) //msg.pod.ir port
+                .setDisConnectionThreshold(2)
+                .setInterval(7000)
+                .setConnectTimeout(10000)
+                .build();
+
+        chat.setNetworkStateConfig(build);
+
+//        chat.setNetworkStateListenerEnabling(false);
+//        chat.setReconnectOnClose(false);
 //        chat.setExpireAmount(180);
         this.activity = activity;
         this.context = context;
@@ -568,14 +590,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void setAdmin(RequestAddAdmin requestAddAdmin) {
-        chat.addAdminRoles(requestAddAdmin);
+    public void setAdmin(RequestSetAdmin requestAddAdmin) {
+        chat.addAdmin(requestAddAdmin);
     }
 
     @Override
-    public void removeAdminRules(RequestAddAdmin requestAddAdmin) {
+    public void removeAdminRules(RequestSetAdmin requestAddAdmin) {
 
-        chat.removeAdminRoles(requestAddAdmin);
+        chat.removeAdmin(requestAddAdmin);
     }
 
     @Override
@@ -637,6 +659,31 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void stopAllSignalMessages() {
 
         chat.stopAllSignalMessages();
+    }
+
+    @Override
+    public void pinThread(RequestPinThread requestPinThread) {
+
+        chat.pinThread(requestPinThread,null);
+    }
+
+
+    @Override
+    public void unPinThread(RequestPinThread requestPinThread) {
+        chat.unPinThread(requestPinThread,null);
+    }
+
+    @Override
+    public void setAuditor(RequestSetAuditor requestAddAdmin) {
+
+        chat.addAuditor(requestAddAdmin);
+
+    }
+
+    @Override
+    public void removeAuditor(RequestSetAuditor requestAddAdmin) {
+
+        chat.removeAuditor(requestAddAdmin);
     }
 
     //View

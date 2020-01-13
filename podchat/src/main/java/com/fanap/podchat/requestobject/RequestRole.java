@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class RequestRole {
     private long id;
     private ArrayList<String> roleTypes;
-    private String roleOperation;
 
     public long getId() {
         return id;
@@ -23,11 +22,4 @@ public class RequestRole {
         this.roleTypes = roleTypes;
     }
 
-    public String getRoleOperation() {
-        return roleOperation;
-    }
-
-    public void setRoleOperation(String roleOperation) {
-        this.roleOperation = roleOperation;
-    }
 }

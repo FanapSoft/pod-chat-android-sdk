@@ -76,7 +76,7 @@ public class AppDatabaseModule {
                 .openHelperFactory(factory)
                 .allowMainThreadQueries()
                 .build();
-        SQLCipherUtils.State  state = SQLCipherUtils.getDatabaseState(file);
+        SQLCipherUtils.State state = SQLCipherUtils.getDatabaseState(file);
         if (state.equals(UNENCRYPTED)) {
             try {
                 SQLCipherUtils.encrypt(context,file,passphrase);

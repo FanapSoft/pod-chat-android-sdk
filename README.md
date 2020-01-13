@@ -45,7 +45,7 @@ minor `BugFixed`
 
 ```java{
 ReplyInfoVO {
-    private Participant participant;
+    private Participant participantVO;
     private long repliedToMessageId;
     private String repliedToMessage;
     private long messageType;
@@ -111,8 +111,8 @@ ReplyInfoVO {
 -   [Add]onLastSeenUpdated listener
 -   [Add]Search in threadVos with name:
     We sdd a new param to the getThread so you can search through threadVos by their name. 
--   [Add]Remove participant
--   [Add]Add participant
+-   [Add]Remove participantVO
+-   [Add]Add participantVO
 -   [Add]Sync Contact listener
 -   [Add]onChatState listener
 

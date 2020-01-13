@@ -6,7 +6,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 ext{
 
-    libraryVersion = '0.4.2.404'
+    libraryVersion = '0.5.2.0'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 6
+        versionCode 23
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -46,7 +46,7 @@ ext {
     publishedGroupId = 'com.fanap.chat'
     artifact = 'podchat'
 
-    libraryDescription = 'Fanaps POD Async service (DIRANA)'
+    libraryDescription = 'Fanaps POD Chat service (DIRANA)'
     gitUrl = 'https://github.com/Farhad7d7/Pod-Chat-Android-SDK.git'
     siteUrl = 'https://github.com/Farhad7d7/Pod-Chat-Android-SDK'
     developerId = 'farhad7d7'
@@ -81,8 +81,8 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.16'
 
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
-
-    api 'com.fanap.podasync:podasync:0.2.8.0'
+//    api project(path: ':podasync')
+    api 'com.fanap.async:podasync:0.2.8.1'
 
 
 }
@@ -90,6 +90,27 @@ dependencies {
 group = publishedGroupId
 
 version = libraryVersion
+
+
+
+def updateDependencies(pom){
+
+//    println("....::: start of updating dependencies :::....")
+//
+//    pom.dependencies.forEach { dep ->
+//        println(">>>>dependencies::: $dep")
+//        if (dep.getVersion() == "unspecified") {
+//
+//            println("dep version unspecified ::: $dep")
+//
+//            dep.setGroupId("com.fanap.async")
+//            dep.setVersion("0.2.8.3")
+//
+//            println("dep version set!! :::> $dep")
+//
+//        }
+//    }
+}
 
 install {
     repositories.mavenInstaller {
@@ -120,9 +141,84 @@ install {
                 developerConnection gitUrl
                 url siteUrl
             }
+
+            println("end of setting")
+
+        }
+        pom.whenConfigured { pom ->
+            println("######### when config $pom")
+
+            updateDependencies(pom)
+
         }
     }
 }
+
+
+afterEvaluate { project ->
+    println(">>>after eval $project")
+
+    uploadArchives {
+        println(">>>upload archives")
+
+        repositories {
+            println(">>>repo")
+
+            mavenDeployer {
+
+                repository(url: "file://${buildDir}/outputs/maven")
+
+
+                println(">>>maven deployer")
+
+
+                pom.groupId = group
+                pom.artifactId = artifact
+                pom.version = libraryVersion
+                pom.project {
+
+                    println(">>>pom project")
+
+                    packaging 'aar'
+                    groupId publishedGroupId
+                    artifactId artifact
+
+                    name libraryName
+                    description libraryDescription
+                    url siteUrl
+
+                    licenses {
+                        license {
+                            name licenseName
+                            url licenseUrl
+                        }
+                    }
+                    developers {
+                        developer {
+                            id developerId
+                            name developerName
+                            email developerEmail
+                        }
+                    }
+                    scm {
+                        connection gitUrl
+                        developerConnection gitUrl
+                        url siteUrl
+                    }
+                }
+
+                println(">>>>end of pom")
+
+
+                pom.whenConfigured { pom ->
+                    println(">>>>when configuered")
+
+                    updateDependencies(pom)
+                }
+            }
+        }
+    }
+
 
 task sourcesJar(type: Jar) {
     classifier = 'sources'
@@ -167,7 +263,7 @@ bintray {
             desc = libraryDescription
         }
     }
-}
+}}
 //if (project.rootProject.file('local.properties').exists()) {
 //    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/bintrayv1.gradle'
 //    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/installv1.gradle'

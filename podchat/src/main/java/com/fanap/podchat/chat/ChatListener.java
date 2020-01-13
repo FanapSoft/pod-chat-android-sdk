@@ -1,5 +1,7 @@
 package com.fanap.podchat.chat;
 
+import android.util.Log;
+
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
@@ -24,6 +26,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -172,6 +175,7 @@ public interface ChatListener {
     }
 
     default void onChatState(String state) {
+
     }
 
     default void onGetBlockList(String content, ChatResponse<ResultBlockList> response) {
@@ -220,4 +224,9 @@ public interface ChatListener {
     default void onGetThreadAdmin(String jsonData){}
 
 
+    default void onPinThread(ChatResponse<ResultPinThread> response){}
+
+    default void onUnPinThread(ChatResponse<ResultPinThread> response){}
+
+    default void onRemoveRoleFromUser(ChatResponse<ResultSetAdmin> outputSetRoleToUser){}
 }

@@ -13,22 +13,15 @@ public class ThreadVo {
     @PrimaryKey
     private long id;
     private long joinDate;
-
     @Ignore
     private Inviter inviter;
-
     private Long inviterId;
-
     @Ignore
-    private CacheLastMessageVO lastMessageVO;
-
+    private CacheMessageVO lastMessageVO;
     private Long lastMessageVOId;
-
     private String title;
-
     @Ignore
     private List<CacheParticipant> participants;
-
     private long time;
     private String lastMessage;
     private String lastParticipantName;
@@ -38,7 +31,6 @@ public class ThreadVo {
     private String image;
     private String description;
     private long unreadCount;
-
     @Deprecated
     private long lastSeenMessageId;
     @Deprecated
@@ -47,16 +39,12 @@ public class ThreadVo {
     private long partnerLastSeenMessageId;
     @Deprecated
     private long partnerLastDeliveredMessageId;
-
     private long lastSeenMessageNanos;
     private long lastSeenMessageTime;
-
     private long partnerLastSeenMessageTime;
     private long partnerLastSeenMessageNanos;
-
     private long partnerLastDeliveredMessageTime;
     private long partnerLastDeliveredMessageNanos;
-
     private int type;
     private boolean mute;
     private String metadata;
@@ -64,7 +52,25 @@ public class ThreadVo {
     private long participantCount;
     private boolean canSpam;
     private boolean admin;
+    private boolean pin;
+    private boolean mentioned;
 
+
+    public boolean isPin() {
+        return pin;
+    }
+
+    public void setPin(boolean pin) {
+        this.pin = pin;
+    }
+
+    public boolean isMentioned() {
+        return mentioned;
+    }
+
+    public void setMentioned(boolean mentioned) {
+        this.mentioned = mentioned;
+    }
 
     public long getId() {
         return id;
@@ -162,11 +168,11 @@ public class ThreadVo {
         this.image = image;
     }
 
-    public CacheLastMessageVO getLastMessageVO() {
+    public CacheMessageVO getLastMessageVO() {
         return lastMessageVO;
     }
 
-    public void setLastMessageVO(CacheLastMessageVO lastMessageVO) {
+    public void setLastMessageVO(CacheMessageVO lastMessageVO) {
         this.lastMessageVO = lastMessageVO;
     }
 

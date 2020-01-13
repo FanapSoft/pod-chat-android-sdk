@@ -2,12 +2,14 @@ package com.fanap.podchat.cachemodel;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 
 @Entity
 public class PhoneContact {
 
+    @NonNull
     @PrimaryKey
-    private long phoneNumber;
+    private String phoneNumber;
 
     private String name;
     private String lastName;
@@ -22,11 +24,11 @@ public class PhoneContact {
         this.name = name;
     }
 
-    public long getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(long phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
