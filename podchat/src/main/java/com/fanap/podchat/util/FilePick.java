@@ -54,9 +54,8 @@ public class FilePick {
 
                         if ("primary".equalsIgnoreCase(type)) {
                             return Environment.getExternalStorageDirectory() + "/" + split[1];
-                        }
-
-                        // TODO handle non-primary volumes
+                        }else
+                            return Environment.getExternalStorageDirectory().getPath() + "/" + split[1];
                     }
 
                     // MediaProvider

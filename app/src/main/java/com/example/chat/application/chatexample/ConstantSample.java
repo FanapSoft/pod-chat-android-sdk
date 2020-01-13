@@ -32,9 +32,9 @@ public class ConstantSample {
             , "Send file message"
             , "Upload Image"
             , "Upload File"
-            , "Remove Thread Participant"
-            , "Add Thread Participant"
-            , "Leave Thread"
+            , "Remove ConversationVO Participant"
+            , "Add ConversationVO Participant"
+            , "Leave ConversationVO"
             , "Delete Message"
             , "Search Contact"
             , "Search History"
@@ -43,7 +43,8 @@ public class ConstantSample {
             , "Retry upload"
             , "Clear History"
             , "Get Admin List",
-            "Spam Thread"
+            "Spam ConversationVO",
+            "Seen Message"
     };
 
     public static final String[] funcThird = {
@@ -65,6 +66,8 @@ public class ConstantSample {
             , "Start Typing"
             , "Stop Typing"
             , "Remove Admin Rules"
+            , "Add Auditor"
+            , "Remove Auditor"
 
     };
 }

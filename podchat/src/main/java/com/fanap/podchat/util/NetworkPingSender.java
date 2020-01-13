@@ -5,17 +5,19 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 
 public class NetworkPingSender {
 
     private int connectTimeout = 10000;
 
-    private String hostName = "8.8.8.8";
+    private String hostName = "msg.pod.ir";
 
-    private int port = 53;
+    private int port = 80;
 
     private HandlerThread handlerThread;
 
@@ -73,15 +75,15 @@ public class NetworkPingSender {
 
         if(config != null){
 
-            this.disConnectionThreshold = config.disConnectionThreshold != null ? config.disConnectionThreshold : 2;
+            this.disConnectionThreshold = config.disConnectionThreshold != null ? config.disConnectionThreshold : disConnectionThreshold;
 
-            this.port = config.port != null ? config.port : 53 ;
+            this.port = config.port != null ? config.port : port ;
 
-            this.hostName = config.hostName != null ? config.hostName : "8.8.8.8";
+            this.hostName = config.hostName != null ? config.hostName : hostName;
 
-            this.interval = config.interval != null ? config.interval : 7000;
+            this.interval = config.interval != null ? config.interval : interval;
 
-            this.connectTimeout = config.connectTimeout != null ? config.connectTimeout : 10000;
+            this.connectTimeout = config.connectTimeout != null ? config.connectTimeout : connectTimeout;
 
         }
 
@@ -189,6 +191,12 @@ public class NetworkPingSender {
         connected = true;
     }
 
+    //todo test it
+    public void asyncIsClosedOrClosing() {
+
+        connected = false;
+
+    }
 
 
     public static class NetworkStateConfig{

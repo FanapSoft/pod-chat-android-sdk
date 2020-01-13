@@ -37,7 +37,6 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -45,7 +44,7 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
-import com.fanap.podchat.requestobject.RequestAddAdmin;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
@@ -68,6 +67,7 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -110,14 +110,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //        });
 
 
-        chat.isCacheables(false);
+        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
 
+
         NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-                .setHostName("8.8.4.4")
-                .setPort(53)
+                .setHostName("msg.pod.ir")
+//                .setHostName("8.8.4.4") //google
+//                .setPort(53)
+//                .setPort(80) //msg.pod.ir port
+                .setPort(443) //msg.pod.ir port
                 .setDisConnectionThreshold(2)
                 .setInterval(7000)
                 .setConnectTimeout(10000)
@@ -586,14 +590,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void setAdmin(RequestAddAdmin requestAddAdmin) {
-        chat.addAdminRoles(requestAddAdmin);
+    public void setAdmin(RequestSetAdmin requestAddAdmin) {
+        chat.addAdmin(requestAddAdmin);
     }
 
     @Override
-    public void removeAdminRules(RequestAddAdmin requestAddAdmin) {
+    public void removeAdminRules(RequestSetAdmin requestAddAdmin) {
 
-        chat.removeAdminRoles(requestAddAdmin);
+        chat.removeAdmin(requestAddAdmin);
     }
 
     @Override
@@ -667,6 +671,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void unPinThread(RequestPinThread requestPinThread) {
         chat.unPinThread(requestPinThread,null);
+    }
+
+    @Override
+    public void setAuditor(RequestSetAuditor requestAddAdmin) {
+
+        chat.addAuditor(requestAddAdmin);
+
+    }
+
+    @Override
+    public void removeAuditor(RequestSetAuditor requestAddAdmin) {
+
+        chat.removeAuditor(requestAddAdmin);
     }
 
     //View

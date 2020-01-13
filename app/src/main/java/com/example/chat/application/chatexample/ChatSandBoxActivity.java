@@ -321,7 +321,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     private void getthreadWithCoreUser() {
 //        RequestThread requestThread = new RequestThread.Builder().partnerCoreUserId(982).build();
-//        presenter.getThreads(requestThread);
+//        presenter.getConversationVOS(requestThread);
 
         ArrayList<Integer> threadIds = new ArrayList<>();
 //        threadIds.add(1105);

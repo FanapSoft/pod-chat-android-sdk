@@ -631,7 +631,7 @@ public class ChatTest extends ChatAdapter {
         Mockito.verify(view, Mockito.times(1)).onDeleteMessage();
     }
 
-    //getThread possibility test
+    //getConversationVO possibility test
 
     @Test
     @MediumTest

@@ -4,34 +4,29 @@ import android.app.Activity;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-public class RequestUploadImage {
+public class RequestUploadImage extends RequestUploadFile {
 
-    private Activity activity;
-    private Uri fileUri;
 
     RequestUploadImage(Builder builder) {
-        this.activity = builder.activity;
-        this.fileUri = builder.fileUri;
-
+       super(builder);
     }
 
-    public static class Builder {
-        private Activity activity;
-        private Uri fileUri;
+    public static class Builder extends RequestUploadFile.Builder {
 
         public Builder(Activity activity, Uri fileUri) {
-            this.activity = activity;
-            this.fileUri = fileUri;
+            super(activity,fileUri);
         }
 
 
         public Builder setActivity(Activity activity) {
-            this.activity = activity;
+
+            super.setActivity(activity);
+
             return this;
         }
 
         public Builder setFileUri(Uri fileUri) {
-            this.fileUri = fileUri;
+            super.setFileUri(fileUri);
             return this;
         }
 
@@ -39,22 +34,5 @@ public class RequestUploadImage {
         public RequestUploadImage build() {
             return new RequestUploadImage(this);
         }
-    }
-
-
-    public Activity getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Activity activity) {
-        this.activity = activity;
-    }
-
-    public Uri getFileUri() {
-        return fileUri;
-    }
-
-    public void setFileUri(Uri fileUri) {
-        this.fileUri = fileUri;
     }
 }

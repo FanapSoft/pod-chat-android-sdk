@@ -37,6 +37,9 @@ public class Participant {
 
     private List<String> roles;
 
+    private String keyId ;
+
+    private String username;
 
     public Participant() {
     }
@@ -62,7 +65,9 @@ public class Participant {
             Boolean blocked,
             Boolean admin,
             Boolean auditor,
-            List<String> roles
+            List<String> roles,
+            String keyId,
+            String username
     ) {
 
         this.id=id;
@@ -86,6 +91,26 @@ public class Participant {
         this.admin=admin;
         this.roles = roles;
         this.auditor = auditor;
+        this.keyId = keyId;
+        this.username = username;
+
+    }
+
+
+    public String getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(String keyId) {
+        this.keyId = keyId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public List<String> getRoles() {

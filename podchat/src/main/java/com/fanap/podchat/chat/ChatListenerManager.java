@@ -615,6 +615,20 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnRemoveRoleFromUser(String content, ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRemoveRoleFromUser(outputSetRoleToUser);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
     public void callOnGetNotSeenDuration(OutPutNotSeenDurations content) {
 
         for (ChatListener listener : getSynchronizedListeners()) {

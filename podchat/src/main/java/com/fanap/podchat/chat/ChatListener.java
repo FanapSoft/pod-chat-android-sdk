@@ -227,4 +227,6 @@ public interface ChatListener {
     default void onPinThread(ChatResponse<ResultPinThread> response){}
 
     default void onUnPinThread(ChatResponse<ResultPinThread> response){}
+
+    default void onRemoveRoleFromUser(ChatResponse<ResultSetAdmin> outputSetRoleToUser){}
 }

@@ -4,19 +4,22 @@ import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
+import android.arch.persistence.room.Update;
 
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
-import com.fanap.podchat.cachemodel.CacheLastMessageVO;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
+import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 
@@ -52,6 +55,9 @@ public interface MessageDao {
      */
     @Insert(onConflict = REPLACE)
     void insertMessage(CacheMessageVO messageVO);
+
+    @Update
+    void updateMessage(CacheMessageVO messageVO);
 
     @Query("DELETE FROM CacheMessageVO WHERE id = :id ")
     void deleteMessage(long id);
@@ -147,6 +153,9 @@ public interface MessageDao {
     @RawQuery
     List<ThreadVo> getThreadRaw(SupportSQLiteQuery query);
 
+    @RawQuery
+    List<Long> getThreadIds(SupportSQLiteQuery query);
+
     @Query("select COUNT(*) FROM ThreadVo ")
     int getThreadCount();
 
@@ -182,12 +191,12 @@ public interface MessageDao {
      * cache LastMessageVO
      */
     @Insert(onConflict = REPLACE)
-    void insertLastMessageVO(CacheLastMessageVO lastMessageVO);
+    void insertLastMessageVO(CacheMessageVO lastMessageVO);
 
-    @Query("select * from CacheLastMessageVO where id = :LastMessageVOId")
-    CacheLastMessageVO getLastMessageVO(long LastMessageVOId);
+    @Query("select * from CacheMessageVO where id = :LastMessageVOId")
+    CacheMessageVO getLastMessageVO(long LastMessageVOId);
 
-    @Query("DELETE FROM cachelastmessagevo WHERE id = :id ")
+    @Query("DELETE FROM cachemessagevo WHERE id = :id ")
     void deleteLastMessage(long id);
 
     /**
@@ -200,8 +209,7 @@ public interface MessageDao {
     void insertRoles(CacheParticipantRoles roles);
 
     @Query("select * from CacheParticipantRoles where id = :id AND threadId = :threadId")
-    CacheParticipantRoles getParticipantRoles(long id,long threadId);
-
+    CacheParticipantRoles getParticipantRoles(long id, long threadId);
 
 
     @Query("DELETE FROM CacheParticipant where threadId = :threadId AND id = :id")
@@ -277,4 +285,39 @@ public interface MessageDao {
 
     @Insert(onConflict = REPLACE)
     void insertConversationSummery(ConversationSummery conversationSummery);
+
+    @RawQuery
+    String deleteMessages(SupportSQLiteQuery sqLiteQuery);
+
+    @Delete
+    void deleteMessages(List<CacheMessageVO> cacheMessageVOS);
+
+
+
+
+    //GapMessages Queries
+
+    @Insert(onConflict = REPLACE)
+    void insertGap(GapMessageVO gap);
+
+    @Query("select * from gapmessagevo where threadId = :threadId")
+    List<GapMessageVO> getGapMessages(long threadId);
+
+    @Delete
+    void deleteGapMessages(GapMessageVO gapMessageVO);
+
+    @Query("Delete from gapmessagevo where id = :id")
+    void deleteGap(long id);
+
+    @Query("Delete from gapmessagevo where threadId = :threadId")
+    void deleteAllGapMessagesFrom(long threadId);
+
+    @Insert(onConflict = REPLACE)
+    void insertAllGapMessages(List<GapMessageVO> gapMessageVOS);
+
+    @Query("Select * from gapmessagevo where id = :id")
+    GapMessageVO getGap(long id);
+
+
+
 }

@@ -1,1 +1,1 @@
-include ':app', ':podchat', ':podasync'
+include ':app', ':podchat'

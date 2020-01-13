@@ -14,6 +14,15 @@ public class Inviter  {
     private String lastName;
     private long notSeenDuration;
     private long coreUserId;
+    private boolean blocked;
+
+    public boolean isBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
 
     public long getId() {
         return id;

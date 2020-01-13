@@ -13,17 +13,17 @@ All notable changes to this project will be documented here.
 |3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`| gets the list of threadVo|
 |4|`muteThread(int threadId)` | Mute the threadVo   |
 |5|`unmuteThread(int threadId)` | Un Mute the threadVo  |
-|6|`getThreadParticipants(int count, int offset, long threadId)`  | Gets the participant list      |
-|7|`addParticipants(long threadId, List<Long> contactIds)`  |  adds participant of the group    |
-|8|`removeParticipants(long threadId, List<Long> participantIds)` |  removes participant of the group    |
-|9|`leaveThread(long threadId)` |  removes participant of the group  |
+|6|`getThreadParticipants(int count, int offset, long threadId)`  | Gets the participantVO list      |
+|7|`addParticipants(long threadId, List<Long> contactIds)`  |  adds participantVO of the group    |
+|8|`removeParticipants(long threadId, List<Long> participantIds)` |  removes participantVO of the group    |
+|9|`leaveThread(long threadId)` |  removes participantVO of the group  |
 |10|`logOutSocket()`    | log out of the socket.  |
 |11|`renameThread(long threadId, String title)` |  Rename the threadVo if you are the owner. |
 |4|`muteThread(int threadId)`         | Mute the threadVo      |
 |5|`unmuteThread(int threadId)`         | Un Mute the threadVo      |
-|6|`getThreadParticipants(int count, int offset, long threadId)`         | Gets the participant list      |
-|7|`addParticipants(long threadId, List<Long> contactIds)`         |  adds participant of the group    |
-|8|`removeParticipants(long threadId, List<Long> participantIds)`         |  removes participant of the group    |
+|6|`getThreadParticipants(int count, int offset, long threadId)`         | Gets the participantVO list      |
+|7|`addParticipants(long threadId, List<Long> contactIds)`         |  adds participantVO of the group    |
+|8|`removeParticipants(long threadId, List<Long> participantIds)`         |  removes participantVO of the group    |
 |9|`leaveThread(long threadId)`         | leave any threadVo you want     |
 |11|`renameThread(long threadId, String title)`  |  Rename the threadVo if you are the owner. |
 |12|`getUserInfo()`         | Get information about the current user        |
@@ -48,17 +48,17 @@ All notable changes to this project will be documented here.
 |3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`| gets the list of threadVo|
 |4|`muteThread(int threadId)` | Mute the threadVo   |
 |5|`unmuteThread(int threadId)` | Un Mute the threadVo  |
-|6|`getThreadParticipants(int count, int offset, long threadId)`  | Gets the participant list      |
-|7|`addParticipants(long threadId, List<Long> contactIds)`  |  adds participant of the group    |
-|8|`removeParticipants(long threadId, List<Long> participantIds)` |  removes participant of the group    |
-|9|`leaveThread(long threadId)` |  removes participant of the group  |
+|6|`getThreadParticipants(int count, int offset, long threadId)`  | Gets the participantVO list      |
+|7|`addParticipants(long threadId, List<Long> contactIds)`  |  adds participantVO of the group    |
+|8|`removeParticipants(long threadId, List<Long> participantIds)` |  removes participantVO of the group    |
+|9|`leaveThread(long threadId)` |  removes participantVO of the group  |
 |10|`logOutSocket()`    | log out of the socket.  |
 |11|`renameThread(long threadId, String title)` |  Rename the threadVo if you are the owner. |
 |4|`muteThread(int threadId)`         | Mute the threadVo      |
 |5|`unmuteThread(int threadId)`         | Un Mute the threadVo      |
-|6|`getThreadParticipants(int count, int offset, long threadId)`         | Gets the participant list      |
-|7|`addParticipants(long threadId, List<Long> contactIds)`         |  adds participant of the group    |
-|8|`removeParticipants(long threadId, List<Long> participantIds)`         |  removes participant of the group    |
+|6|`getThreadParticipants(int count, int offset, long threadId)`         | Gets the participantVO list      |
+|7|`addParticipants(long threadId, List<Long> contactIds)`         |  adds participantVO of the group    |
+|8|`removeParticipants(long threadId, List<Long> participantIds)`         |  removes participantVO of the group    |
 |9|`leaveThread(long threadId)`         | leave any threadVo you want     |
 |11|`renameThread(long threadId, String title)`  |  Rename the threadVo if you are the owner. |
 |12|`getUserInfo()`         | Get information about the current user        |
@@ -76,7 +76,7 @@ All notable changes to this project will be documented here.
 
 ## Version [0.4.2.402] -2019-12-1
 - [BugFixed] Duplicated Messages
-- [Added] Set Auditor for p2p thread
+- [Added] Set Auditor for p2p conversationVO
 - [Added] getHistory with uniqueId
 - [Added] getHistory from cache
 - Waiting queue update before getHistory()
@@ -143,7 +143,7 @@ onUpdateThreadInfo
 ##  Version [0.1.2.15] -2018-10-21
 -   [Add]In order to receive a response by UpdateThreadInfo,
  you can use onUpdateThreadInfo listener. 
-And beaware that you just see updated fields not the entire thread.
+And beaware that you just see updated fields not the entire conversationVO.
 - [bug fix] `onNewmessage`
 - [add] image to `inviter` model
 - [add] `messageType1 to messageVo model
@@ -205,8 +205,8 @@ And beaware that you just see updated fields not the entire thread.
 -   [Add]onLastSeenUpdated listener
 -   [Add]Search in threadVos with name:
     We sdd a new param to the getThread so you can search through threadVos by their name. 
--   [Add]Remove participant
--   [Add]Add participant
+-   [Add]Remove participantVO
+-   [Add]Add participantVO
 -   [Add]Sync Contact listener
 -   [Add]onChatState listener
 

@@ -1,7 +1,10 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.util.Callback;
 
 public abstract class ChatHandler {
 
@@ -16,6 +19,8 @@ public abstract class ChatHandler {
     public void onDelivered(String i){}
 
     public void onGetThread(String uniqueId){}
+
+    public void onGetThread(ChatResponse<ResultThreads> thread){}
 
     public void onRenameThread(String uniqueId){}
 
@@ -92,6 +97,10 @@ public abstract class ChatHandler {
     }
 
     public void onPinThread(String uniqueId) {
+
+    }
+
+    public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
 
     }
 }

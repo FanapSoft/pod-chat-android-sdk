@@ -50,6 +50,7 @@ public class ChatMessageType {
             Constants.SEEN_MESSAGE_LIST,
             Constants.DELIVERED_MESSAGE_LIST,
             Constants.SET_ROLE_TO_USER,
+            Constants.REMOVE_ROLE_FROM_USER,
             Constants.CLEAR_HISTORY,
 //            Constants.SIGNAL_MESSAGE,
             Constants.SYSTEM_MESSAGE,

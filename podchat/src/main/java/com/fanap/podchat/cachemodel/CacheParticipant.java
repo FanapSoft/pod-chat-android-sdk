@@ -37,6 +37,9 @@ public class CacheParticipant {
 
     private boolean admin;
     private boolean auditor;
+    private String keyId ;
+
+    private String username;
 
     private List<String> roles;
 
@@ -245,5 +248,21 @@ public class CacheParticipant {
 
     public void setCoreUserId(long coreUserId) {
         this.coreUserId = coreUserId;
+    }
+
+    public String getKeyId() {
+        return keyId;
+    }
+
+    public void setKeyId(String keyId) {
+        this.keyId = keyId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

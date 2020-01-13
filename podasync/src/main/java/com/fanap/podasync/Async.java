@@ -41,6 +41,9 @@ import static com.neovisionaries.ws.client.WebSocketState.OPEN;
  */
 public class Async {
 
+
+    long currentTime = 0;
+
     private WebSocket webSocket;
     private static final int SOCKET_CLOSE_TIMEOUT = 110000;
     private WebSocket webSocketReconnect;
@@ -791,7 +794,7 @@ public class Async {
      * After a delay Time it calls the method in the Run
      */
     private void scheduleCloseSocket() {
-        long currentTime = new Date().getTime();
+        currentTime = new Date().getTime();
         socketCloseHandler.postDelayed(new Runnable() {
             @Override
             public void run() {

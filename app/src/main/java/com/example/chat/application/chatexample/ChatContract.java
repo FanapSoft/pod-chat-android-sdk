@@ -15,7 +15,7 @@ import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
-import com.fanap.podchat.requestobject.RequestAddAdmin;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
@@ -35,6 +35,7 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
@@ -310,9 +311,9 @@ public interface ChatContract {
 
         void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler);
 
-        void setAdmin(RequestAddAdmin requestAddAdmin);
+        void setAdmin(RequestSetAdmin requestAddAdmin);
 
-        void removeAdminRules(RequestAddAdmin requestAddAdmin);
+        void removeAdminRules(RequestSetAdmin requestAddAdmin);
 
         void clearHistory(RequestClearHistory requestClearHistory);
 
@@ -333,5 +334,9 @@ public interface ChatContract {
         void pinThread(RequestPinThread requestPinThread);
 
         void unPinThread(RequestPinThread requestPinThread);
+
+        void setAuditor(RequestSetAuditor requestAddAdmin);
+
+        void removeAuditor(RequestSetAuditor requestAddAdmin);
     }
 }

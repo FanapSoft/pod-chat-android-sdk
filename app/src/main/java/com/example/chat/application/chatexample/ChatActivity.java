@@ -38,7 +38,7 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.requestobject.RequestAddAdmin;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
@@ -56,11 +56,14 @@ import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.ThreadType;
 import com.github.javafaker.Faker;
+import com.github.javafaker.Yoda;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -78,7 +81,16 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
-    public static int TEST_THREAD_ID = 12257;
+
+
+    //sand box / group
+    public static int TEST_THREAD_ID = 6630;
+
+    //main server / p2p
+//    public static int TEST_THREAD_ID = 12257;
+
+
+
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextToken;
@@ -126,8 +138,8 @@ public class ChatActivity extends AppCompatActivity
 
 //
 //    private static String name = "MainServer";
-//    private static String TOKEN = "0e60742cb6ad40b3b04ceef5fd2b4c40";
-////    private static String TOKEN = "2a7574c155434988909ccb61563002e4";
+//    private static String TOKEN = "a7ba73b1bb554082a6add3eebfedf774";
+//    //    private static String TOKEN = "2a7574c155434988909ccb61563002e4";
 //    //refresh token: 20319e0605ff4e05ace19c261eeec058
 //    private static String socketAddress = "wss://msg.pod.ir/ws";
 //    private static String serverName = "chat-server";
@@ -150,7 +162,7 @@ public class ChatActivity extends AppCompatActivity
 //
 
     private static String name = "SandBox";
-    private static String TOKEN = "de08f0bb2fb6440ab185c5c325d3d528";
+    private static String TOKEN = "065673df8acf4882bff880b8f578912a";
     //refresh token: 20319e0605ff4e05ace19c261eeec058
     private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
     private static String serverName = "chat-server";
@@ -159,8 +171,6 @@ public class ChatActivity extends AppCompatActivity
     //    private static String platformHost = "http://sandbox.pod.ir:8080/";
     private static String platformHost = "https://sandbox.pod.ir:8043/srv/basic-platform/";
     private static String fileServer = "https://sandbox.pod.ir:8443/";
-
-
 
 
 
@@ -378,10 +388,10 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             case 3:
                                 long bThreadId = TEST_THREAD_ID;
-                                Long bUserId;
-                                Long bContactId;
+                                long bUserId = TEST_THREAD_ID;
+                                long bContactId = TEST_THREAD_ID;
 
-                                presenter.block(null, null, bThreadId
+                                presenter.block(null, null, null
                                         , new ChatHandler() {
                                             @Override
                                             public void onBlock(String uniqueId) {
@@ -426,7 +436,7 @@ public class ChatActivity extends AppCompatActivity
 
                             case 7: {
                                 RequestSeenMessageList requests = new RequestSeenMessageList
-                                        .Builder(50532).build();
+                                        .Builder(TEST_THREAD_ID).build();
                                 presenter.seenMessageList(requests);
                                 break;
 
@@ -522,6 +532,22 @@ public class ChatActivity extends AppCompatActivity
                                 removeAdminRules();
                                 break;
                             }
+
+                            case 18: {
+
+                                addAuditor();
+
+                                break;
+                            }
+
+                            case 19: {
+
+                                removeAuditor();
+
+                                break;
+                            }
+
+
                         }
                     }
 
@@ -530,6 +556,51 @@ public class ChatActivity extends AppCompatActivity
 
                     }
                 });
+    }
+
+    private void removeAuditor() {
+
+
+        ArrayList<String> typeRoles = new ArrayList<>();
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+
+        RequestRole requestRole = new RequestRole();
+        requestRole.setId(2);
+        requestRole.setRoleTypes(typeRoles);
+
+        ArrayList<RequestRole> requestRoles = new ArrayList<>();
+
+        requestRoles.add(requestRole);
+
+        RequestSetAuditor requestAddAdmin = new RequestSetAuditor
+                .Builder(TEST_THREAD_ID, requestRoles)
+                .build();
+
+        presenter.removeAuditor(requestAddAdmin);
+
+
+    }
+
+    private void addAuditor() {
+
+        ArrayList<String> typeRoles = new ArrayList<>();
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+        RequestRole requestRole = new RequestRole();
+        requestRole.setId(2);
+        requestRole.setRoleTypes(typeRoles);
+        ArrayList<RequestRole> requestRoles = new ArrayList<>();
+        requestRoles.add(requestRole);
+
+
+        RequestSetAuditor requestAddAdmin = new RequestSetAuditor
+                .Builder(TEST_THREAD_ID, requestRoles)
+                .build();
+
+        presenter.setAuditor(requestAddAdmin);
+
+
     }
 
 
@@ -577,7 +648,6 @@ public class ChatActivity extends AppCompatActivity
 
         RequestRole requestRole = new RequestRole();
         requestRole.setId(2);
-        requestRole.setRoleOperation("add");
         requestRole.setRoleTypes(typeRoles);
 
 //
@@ -594,7 +664,7 @@ public class ChatActivity extends AppCompatActivity
 //        requestRoles.add(requestRole2);
 
 
-        RequestAddAdmin requestAddAdmin = new RequestAddAdmin
+        RequestSetAdmin requestAddAdmin = new RequestSetAdmin
                 .Builder(TEST_THREAD_ID, requestRoles)
                 .build();
 
@@ -610,8 +680,7 @@ public class ChatActivity extends AppCompatActivity
         typeRoles.add(RoleType.Constants.REMOVE_USER);
 
         RequestRole requestRole = new RequestRole();
-        requestRole.setId(123);
-        requestRole.setRoleOperation("remove");
+        requestRole.setId(2);
         requestRole.setRoleTypes(typeRoles);
 
 
@@ -626,7 +695,7 @@ public class ChatActivity extends AppCompatActivity
         requestRoles.add(requestRole);
 //        requestRoles.add(requestRole2);
 
-        RequestAddAdmin requestAddAdmin = new RequestAddAdmin
+        RequestSetAdmin requestAddAdmin = new RequestSetAdmin
                 .Builder(TEST_THREAD_ID, requestRoles)
                 .build();
 
@@ -698,10 +767,19 @@ public class ChatActivity extends AppCompatActivity
     private String getMetaData() {
         JsonObject a = new JsonObject();
 
-        a.addProperty("name", "farhad");
-        a.addProperty("family", "kheirkhah");
-        a.addProperty("phoneNumber", "989157770684");
+        a.addProperty("actionType", 1);
+        a.addProperty("amount", 100);
+        a.addProperty("id", 161);
+        a.addProperty("state", 1);
+        a.addProperty("destUserId", 1900896);
         return gson.toJson(a);
+
+//
+//        a.addProperty("name", "farhad");
+//        a.addProperty("family", "kheirkhah");
+//        a.addProperty("phoneNumber", "989157770684");
+
+//        return "{\"actionType\":1,\"data\":\"{\"amount\":100,\"description\":\"\",\"id\":161,\"state\":1,\"destUserId\":1900896}\"}";
     }
 
 
@@ -877,6 +955,11 @@ public class ChatActivity extends AppCompatActivity
                         spamThread();
                         break;
                     }
+                    case 17: {
+
+                        seenMessage();
+
+                    }
 
                 }
             }
@@ -885,6 +968,12 @@ public class ChatActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    private void seenMessage() {
+
+
+        presenter.seenMessage(TEST_THREAD_ID, 0, null);
     }
 
     private void spamThread() {
@@ -930,8 +1019,6 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         presenter.deleteMessage(requestDeleteMessage, null);
-
-
 
 
 //        presenter.deleteMessage(16804, true, new ChatHandler() {
@@ -1134,7 +1221,22 @@ public class ChatActivity extends AppCompatActivity
                 //"edit message"
                 Inviter inviter = new Inviter();
                 inviter.setName("farhad");
-                String meta = gson.toJson(inviter);
+//                String meta = "\"{\\\"actionType\\\":1,\\\"data\\\":\\\"{\\\"amount\\\":1500,\\\"description\\\":\\\"\\\",\\\"id\\\":161,\\\"state\\\":2,\\\"destUserId\\\":1900896}\\\"}\"";
+
+                JsonObject a = new JsonObject();
+//
+                a.addProperty("actionType",1);
+                a.addProperty("amount",100);
+                a.addProperty("id",161);
+                a.addProperty("state",1);
+                a.addProperty("destUserId",1900896);
+
+//                a.addProperty("name", "farhad");
+//                a.addProperty("family", "kheirkhah");
+//                a.addProperty("phoneNumber", "989157770684");
+
+
+                String meta = gson.toJson(a);
 
 
                 presenter.editMessage(TEST_THREAD_ID,
@@ -1143,9 +1245,9 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Pooria",
-                        "Pahlavani",
-                        "+989387181694",
+                presenter.addContact("Fateme ",
+                        "Khojaste",
+                        "+989151242904",
                         faker.name().username() + "@gmail.com");
                 break;
             case 15:
@@ -1165,9 +1267,9 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
-            case 18:{
+            case 18: {
                 /**
-                 * Pin Thread
+                 * Pin ConversationVO
                  */
 
                 RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
@@ -1180,7 +1282,7 @@ public class ChatActivity extends AppCompatActivity
             }
             case 19: {
                 /**
-                 * UnPin Thread
+                 * UnPin ConversationVO
                  */
 
                 RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
@@ -1301,8 +1403,8 @@ public class ChatActivity extends AppCompatActivity
         Invitee[] invite = new Invitee[]{
 //                new Invitee(3361, 2)
 //                , new Invitee(3102, 2)
-                        new Invitee(21035, 2),
-                new Invitee(21061, 2),
+//                new Invitee(091, 1),
+                new Invitee(22835, InviteType.Constants.TO_BE_USER_CONTACT_ID),
 //                new Invitee(5638, 2),
 //                new Invitee(5638, 2),
         };
@@ -1310,8 +1412,8 @@ public class ChatActivity extends AppCompatActivity
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
 
-        presenter.createThread(2, invite,
-                "Thread " + (new Date().getTime() / 1000), "Description created at "
+        presenter.createThread(1, invite,
+                "Test for spam thread " + (new Date().getTime() / 1000), "Description created at "
                         + new Date().getTime()
                 , null, metac, null);
 
@@ -1356,7 +1458,15 @@ public class ChatActivity extends AppCompatActivity
                 .offset(0)
                 .count(50)
 //                .uniqueIds(uniqueIds)
+                .toTime(System.currentTimeMillis())
+                .count(25)
                 .build();
+
+        //            history.setToTime(System.currentTimeMillis());
+//
+//            history.setFromTimeNanos(298708000);
+
+//            history.setCount(7);
 
         presenter.getHistory(request, null);
 
@@ -1386,7 +1496,7 @@ public class ChatActivity extends AppCompatActivity
                 .build();
         presenter.getThreads(requestThread, null);
 
-//        presenter.getThreads(5, null, null, null, null);
+//        presenter.getConversationVOS(5, null, null, null, null);
     }
 
     public void replyMessage() {
@@ -1405,16 +1515,18 @@ public class ChatActivity extends AppCompatActivity
     public void ForwardMessage() {
 
         ArrayList<Long> messageIds = new ArrayList<>();
-        messageIds.add(15255L);
-        messageIds.add(15256L);
-        messageIds.add(15257L);
+        messageIds.add(73328L);
+        messageIds.add(73327L);
+        messageIds.add(73326L);
         long threadId = TEST_THREAD_ID;
-        presenter.forwardMessage(threadId, messageIds);
+//        presenter.forwardMessage(threadId, messageIds);
 
         RequestForwardMessage forwardMessage = new RequestForwardMessage
                 .Builder(threadId, messageIds)
                 .build();
-//        presenter.forwardMessage(forwardMessage);
+
+
+        presenter.forwardMessage(forwardMessage);
 
 
     }
