@@ -11,6 +11,10 @@ public abstract class BaseRequestObject {
         this.typeCode = builder.typeCode;
     }
 
+
+    public BaseRequestObject() {
+    }
+
     public String getTypeCode() {
         return typeCode;
     }

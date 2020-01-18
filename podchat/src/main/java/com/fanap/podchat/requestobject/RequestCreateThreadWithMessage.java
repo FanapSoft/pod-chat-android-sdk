@@ -4,6 +4,7 @@ package com.fanap.podchat.requestobject;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class RequestCreateThreadWithMessage extends BaseRequestObject {
@@ -25,6 +26,13 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
         this.description = builder.description;
         this.image = builder.image;
 
+    }
+
+    public RequestCreateThreadWithMessage(BaseRequestObject.Builder<?> builder) {
+        super(builder);
+    }
+
+    public RequestCreateThreadWithMessage() {
     }
 
     public RequestThreadInnerMessage getMessage() {
@@ -95,6 +103,8 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
             this.invitees = invitees;
             this.type = type;
         }
+
+
 
         public Builder message(RequestThreadInnerMessage message) {
             this.message = message;

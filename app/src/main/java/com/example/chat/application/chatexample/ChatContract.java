@@ -15,6 +15,8 @@ import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
@@ -162,6 +164,8 @@ public interface ChatContract {
 
         default void onGetThreadAdmin() {
         }
+
+        default void onTokenExpired(){}
     }
 
     interface presenter {
@@ -338,5 +342,9 @@ public interface ChatContract {
         void setAuditor(RequestSetAuditor requestAddAdmin);
 
         void removeAuditor(RequestSetAuditor requestAddAdmin);
+
+        void createThreadWithFile(RequestCreateThreadWithFile request);
+
+        void getUserRoles(RequestGetUserRoles req);
     }
 }

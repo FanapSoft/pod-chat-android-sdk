@@ -1,6 +1,7 @@
 package com.example.chat.application.chatexample;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.mainmodel.Contact;
@@ -38,6 +40,8 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
@@ -59,6 +63,8 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestUploadFile;
+import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.ThreadType;
@@ -83,12 +89,15 @@ public class ChatActivity extends AppCompatActivity
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
 
 
-    //sand box / group
+//    //sand box / group
+
     public static int TEST_THREAD_ID = 6630;
 
-    //main server / p2p
-//    public static int TEST_THREAD_ID = 12257;
 
+
+//    main server / p2p
+
+//    public static int TEST_THREAD_ID = 12257;
 
 
     private ChatContract.presenter presenter;
@@ -136,42 +145,34 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting
      */
 
-//
-//    private static String name = "MainServer";
-//    private static String TOKEN = "a7ba73b1bb554082a6add3eebfedf774";
-//    //    private static String TOKEN = "2a7574c155434988909ccb61563002e4";
+
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String TOKEN = "e17967e5f14543fbaf962e0a995aefbe";
+    //    private static String TOKEN = "2a7574c155434988909ccb61563002e4";
+    //refresh token: 20319e0605ff4e05ace19c261eeec058
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.serverName);
+    private static String appId = BaseApplication.getInstance().getString(R.string.appId);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+
+
+    /**
+     * Sandbox setting:
+     */
+
+
+//    private static String name = "SandBox";
+//    private static String TOKEN = "7b51bca08079443a89fd706e6166a3d6";
 //    //refresh token: 20319e0605ff4e05ace19c261eeec058
-//    private static String socketAddress = "wss://msg.pod.ir/ws";
+//    private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
 //    private static String serverName = "chat-server";
 //    private static String appId = "POD-Chat";
 //    private static String ssoHost = "http://accounts.pod.ir/";
 //    //    private static String platformHost = "http://sandbox.pod.ir:8080/";
-//    private static String platformHost = "https://api.pod.ir/srv/core/";
-//    private static String fileServer = "https://core.pod.ir/";
-
-
-    /**
-     *
-     *
-     *
-     * Sandbox setting:
-     *
-     *
-     *
-     */
-//
-
-    private static String name = "SandBox";
-    private static String TOKEN = "065673df8acf4882bff880b8f578912a";
-    //refresh token: 20319e0605ff4e05ace19c261eeec058
-    private static String socketAddress = "wss://chat-sandbox.pod.ir/ws";
-    private static String serverName = "chat-server";
-    private static String appId = "POD-Chat";
-    private static String ssoHost = "http://accounts.pod.ir/";
-    //    private static String platformHost = "http://sandbox.pod.ir:8080/";
-    private static String platformHost = "https://sandbox.pod.ir:8043/srv/basic-platform/";
-    private static String fileServer = "https://sandbox.pod.ir:8443/";
-
+//    private static String platformHost = "https://sandbox.pod.ir:8043/srv/basic-platform/";
+//    private static String fileServer = "https://sandbox.pod.ir:8443/";
 
 
 //
@@ -391,7 +392,7 @@ public class ChatActivity extends AppCompatActivity
                                 long bUserId = TEST_THREAD_ID;
                                 long bContactId = TEST_THREAD_ID;
 
-                                presenter.block(null, null, null
+                                presenter.block(23116L, null, null
                                         , new ChatHandler() {
                                             @Override
                                             public void onBlock(String uniqueId) {
@@ -410,7 +411,7 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             }
                             case 5: {
-                                presenter.getBlockList(null, null, new ChatHandler() {
+                                presenter.getBlockList(10L, 0L, new ChatHandler() {
                                     @Override
                                     public void onGetBlockList(String uniqueId) {
                                         super.onGetBlockList(uniqueId);
@@ -460,7 +461,7 @@ public class ChatActivity extends AppCompatActivity
                                 List<Invitee> invite = new ArrayList<>();
                                 // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
-                                invite.add(new Invitee(121, 1)); // user zizi
+                                invite.add(new Invitee("121", 1)); // user zizi
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
 //                                invite.add(new Invitee(121, 5)); // user zizi
@@ -546,6 +547,20 @@ public class ChatActivity extends AppCompatActivity
 
                                 break;
                             }
+                            case 20: {
+
+                                createThreadWithFile();
+
+                                break;
+                            }
+
+                            case 21:{
+
+                                getUserRoles();
+
+                                break;
+                            }
+
 
 
                         }
@@ -556,6 +571,63 @@ public class ChatActivity extends AppCompatActivity
 
                     }
                 });
+    }
+
+    private void getUserRoles() {
+
+        RequestGetUserRoles req = new RequestGetUserRoles.Builder()
+                .setThreadId(TEST_THREAD_ID)
+                .build();
+
+
+        presenter.getUserRoles(req);
+
+    }
+
+    private void createThreadWithFile() {
+
+
+        if (getUri() == null) {
+
+            Toast.makeText(this, "Pick a file", Toast.LENGTH_SHORT).show();
+            return;
+
+        }
+
+
+        RequestUploadImage requestUploadImage = new RequestUploadImage.Builder(this,getUri())
+                .build();
+
+
+        RequestUploadFile requestUploadFile = new RequestUploadFile.Builder(
+                this, getUri()).build();
+
+
+
+
+        List<Invitee> invite = new ArrayList<>();
+
+        //f.kh sandbox
+        invite.add(new Invitee("23116", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+
+        //p.pa main
+//        invite.add(new Invitee(1151568, InviteType.Constants.TO_BE_USER_CONTACT_ID));
+
+        RequestThreadInnerMessage innerMessage = new RequestThreadInnerMessage
+                .Builder()
+                .message("Create thread for File Message Test " + new Date().toString())
+//                                .forwardedMessageIds(listForwardIds)
+                .build();
+
+        RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
+                .Builder(ThreadType.Constants.NORMAL, invite, requestUploadImage)
+                .message(innerMessage)
+                .build();
+
+
+        presenter.createThreadWithFile(request);
+
+
     }
 
     private void removeAuditor() {
@@ -761,6 +833,13 @@ public class ChatActivity extends AppCompatActivity
             }
         });
 
+
+    }
+
+    @Override
+    public void onTokenExpired() {
+
+        Toast.makeText(this, "Token Expired ! ! !", Toast.LENGTH_LONG).show();
 
     }
 
@@ -1225,11 +1304,11 @@ public class ChatActivity extends AppCompatActivity
 
                 JsonObject a = new JsonObject();
 //
-                a.addProperty("actionType",1);
-                a.addProperty("amount",100);
-                a.addProperty("id",161);
-                a.addProperty("state",1);
-                a.addProperty("destUserId",1900896);
+                a.addProperty("actionType", 1);
+                a.addProperty("amount", 100);
+                a.addProperty("id", 161);
+                a.addProperty("state", 1);
+                a.addProperty("destUserId", 1900896);
 
 //                a.addProperty("name", "farhad");
 //                a.addProperty("family", "kheirkhah");
@@ -1404,7 +1483,7 @@ public class ChatActivity extends AppCompatActivity
 //                new Invitee(3361, 2)
 //                , new Invitee(3102, 2)
 //                new Invitee(091, 1),
-                new Invitee(22835, InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
 //                new Invitee(5638, 2),
 //                new Invitee(5638, 2),
         };

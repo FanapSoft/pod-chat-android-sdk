@@ -4,10 +4,12 @@ package com.fanap.podchat.requestobject;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 
+import java.io.Serializable;
 import java.util.List;
 
 
-public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage {
+public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage{
+
     private RequestUploadFile file;
 
     RequestCreateThreadWithFile(Builder builder) {
@@ -21,6 +23,23 @@ public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage 
     }
 
     public void setFile(RequestUploadFile file) {
+        this.file = file;
+    }
+
+    public RequestCreateThreadWithFile() {
+    }
+
+    public RequestCreateThreadWithFile(RequestCreateThreadWithMessage.Builder<?> builder, RequestUploadFile file) {
+        super(builder);
+        this.file = file;
+    }
+
+    public RequestCreateThreadWithFile(BaseRequestObject.Builder<?> builder, RequestUploadFile file) {
+        super(builder);
+        this.file = file;
+    }
+
+    public RequestCreateThreadWithFile(RequestUploadFile file) {
         this.file = file;
     }
 
@@ -72,3 +91,4 @@ public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage 
         }
     }
 }
+

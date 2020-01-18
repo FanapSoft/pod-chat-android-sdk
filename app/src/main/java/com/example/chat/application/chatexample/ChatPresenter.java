@@ -44,6 +44,8 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -139,6 +141,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+
+
     @Override
     public void sendLocationMessage(RequestLocationMessage request) {
         chat.sendLocationMessage(request);
@@ -147,7 +151,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage handler) {
 
-        chat.sendLocationMessage(requestLocationMessage,handler);
+        chat.sendLocationMessage(requestLocationMessage, handler);
     }
 
     @Override
@@ -455,7 +459,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public String spam(RequestSpam requestSpam) {
 
 
-
         return chat.spam(requestSpam);
     }
 
@@ -664,13 +667,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void pinThread(RequestPinThread requestPinThread) {
 
-        chat.pinThread(requestPinThread,null);
+        chat.pinThread(requestPinThread, null);
     }
 
 
     @Override
     public void unPinThread(RequestPinThread requestPinThread) {
-        chat.unPinThread(requestPinThread,null);
+        chat.unPinThread(requestPinThread, null);
     }
 
     @Override
@@ -684,6 +687,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void removeAuditor(RequestSetAuditor requestAddAdmin) {
 
         chat.removeAuditor(requestAddAdmin);
+    }
+
+
+    @Override
+    public void createThreadWithFile(RequestCreateThreadWithFile request) {
+        chat.createThreadWithFile(request);
     }
 
     //View
@@ -731,6 +740,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onError(String content, ErrorOutPut outPutError) {
         super.onError(content, outPutError);
         activity.runOnUiThread(() -> Toast.makeText(context, content, Toast.LENGTH_SHORT).show());
+
+        if(outPutError.getErrorCode() == 21) {
+
+            view.onTokenExpired();
+
+        }
+    }
+
+    @Override
+    public void getUserRoles(RequestGetUserRoles req) {
+
+        String uniqueId = chat.getUserRoles(req);
+
+
+
     }
 
     @Override
@@ -910,7 +934,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
 
-
     @Override
     public void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
         super.OnNotSeenDuration(resultNotSeen);
@@ -935,8 +958,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {
         super.onGetThreadParticipant(outPutParticipant);
-
-
 
 
     }

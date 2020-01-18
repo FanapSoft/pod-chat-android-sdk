@@ -79,6 +79,11 @@ public class FileUtils {
                 || mimType.equals("image/jpg") || mimType.equals("image/png");
     }
 
+    public static boolean isGif(String mimType) {
+
+        return mimType.equals("image/gif");
+    }
+
 
     @Nullable
     public static String getExtension(@Nullable String uri) {

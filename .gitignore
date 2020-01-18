@@ -9,6 +9,9 @@
 /captures
 .externalNativeBuild
 
+/app/src/main/res/values/main_server_config.xml
+
+
 # Built application files
 *.apk
 *.ap_

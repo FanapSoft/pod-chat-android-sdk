@@ -9,6 +9,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Update;
 
+import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
@@ -49,6 +50,38 @@ public interface MessageDao {
 
     @Query("SELECT COUNT(id) FROM CacheContact")
     int getContactCount();
+
+
+
+
+    //Cache Blocked Contact
+    @Insert(onConflict = REPLACE)
+    void insertBlockedContacts(List<CacheBlockedContact> t);
+
+    @Insert(onConflict = REPLACE)
+    void insertBlockedContact(CacheBlockedContact contact);
+
+    @Delete
+    void deleteBlockedContact(CacheBlockedContact cacheBlockContacts);
+
+    @Query("DELETE FROM CacheBlockedContact WHERE id =:id")
+    void deleteBlockedContactById(long id);
+
+    @Query("select * from CacheBlockedContact LIMIT :count OFFSET :offset")
+    List<CacheBlockedContact> getBlockedContacts(Long count, Long offset);
+
+
+    @Query("SELECT COUNT(id) FROM CacheBlockedContact")
+    int getBlockContactsCount();
+
+
+
+
+
+
+
+
+
 
     /**
      * Cache thread history

@@ -268,7 +268,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void createThreadWithMsg() {
 
         List<Invitee> invite = new ArrayList<>();
-        invite.add(new Invitee(122, 1));
+        invite.add(new Invitee("122", 1));
 
 //                                new Invitee[]{
 //                                new Invitee(122, 1)
@@ -592,7 +592,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  *
                  */
                 // 589 poria
-                Invitee[] invite = new Invitee[]{new Invitee(2404, 2)
+                Invitee[] invite = new Invitee[]{new Invitee("2404", 2)
 //                        , new Invitee(1162, 2)
 //                        , new Invitee(2404, 2)
 //                        , new Invitee(824, 2)

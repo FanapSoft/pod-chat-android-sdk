@@ -1,5 +1,7 @@
 package com.example.chat.application.chatexample;
 
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+
 public class ConstantSample {
 
 
@@ -68,6 +70,8 @@ public class ConstantSample {
             , "Remove Admin Rules"
             , "Add Auditor"
             , "Remove Auditor"
+            , "CreateThreadWithFile"
+            , "Get User Roles"
 
     };
 }

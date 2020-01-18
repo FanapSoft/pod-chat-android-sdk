@@ -6,9 +6,15 @@ import android.support.multidex.MultiDexApplication;
 import com.squareup.leakcanary.LeakCanary;
 
 public class BaseApplication extends MultiDexApplication {
+
+    private static BaseApplication instance;
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        instance = this;
+
         MultiDex.install(this);
         if (LeakCanary.isInAnalyzerProcess(this)) {
             // This process is dedicated to LeakCanary for heap analysis.
@@ -16,5 +22,11 @@ public class BaseApplication extends MultiDexApplication {
             return;
         }
         LeakCanary.install(this);
+    }
+
+
+    public static BaseApplication getInstance() {
+
+        return instance;
     }
 }
