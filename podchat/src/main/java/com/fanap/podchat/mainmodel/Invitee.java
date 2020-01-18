@@ -9,6 +9,7 @@ package com.fanap.podchat.mainmodel;
 public class Invitee  {
 
     private String id;
+
     private int idType;
 
     public Invitee(String id, int idType) {
