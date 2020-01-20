@@ -6,7 +6,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 ext{
 
-    libraryVersion = '0.5.2.2'
+    libraryVersion = '0.5.2.1'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 25
+        versionCode 24
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -84,10 +84,6 @@ dependencies {
 //    api project(path: ':podasync')
     api 'com.fanap.async:podasync:0.2.8.1'
 
-
-    api project(':pin_message')
-
-    api project(':core')
 
 
 }

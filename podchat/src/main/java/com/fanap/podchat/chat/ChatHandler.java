@@ -1,6 +1,6 @@
 package com.fanap.podchat.chat;
 
-import com.fanap.chatcore.model.wrappers.ChatMessage;
+import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultThreads;

@@ -2,9 +2,7 @@ package com.fanap.podchat.requestobject;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.chatcore.model.base.GeneralRequestObject;
-
-public class RequestThreadInfo  extends GeneralRequestObject {
+public class RequestThreadInfo  extends GeneralRequestObject{
     private String image;
     private long threadId;
     private String name;

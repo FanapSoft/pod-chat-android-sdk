@@ -1,10 +1,8 @@
 package com.fanap.podchat.requestobject;
 
-import com.fanap.chatcore.model.base.BaseRequestObject;
-
 import java.util.ArrayList;
 
-public class RequestSetAdmin extends BaseRequestObject {
+public class RequestSetAdmin {
 
     private long threadId;
     private ArrayList<RequestRole> roles;

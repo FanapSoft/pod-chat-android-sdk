@@ -2,8 +2,6 @@ package com.fanap.podchat.requestobject;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.chatcore.model.base.GeneralRequestObject;
-
 public class RequestUnBlock extends GeneralRequestObject {
     private long blockId;
     private long userId;

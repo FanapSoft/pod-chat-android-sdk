@@ -2,8 +2,6 @@ package com.fanap.podchat.requestobject;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.chatcore.model.base.GeneralRequestObject;
-
 import java.util.ArrayList;
 
 public class RequestDeleteMessage extends GeneralRequestObject {

@@ -26,7 +26,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
-import fanap.podchat.pin.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
@@ -38,7 +38,6 @@ import com.fanap.podchat.model.ResultUserInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ChatListenerManager {
     private final List<ChatListener> mListeners = new ArrayList<>();

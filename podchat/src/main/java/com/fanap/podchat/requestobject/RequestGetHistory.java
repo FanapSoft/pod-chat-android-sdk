@@ -2,7 +2,6 @@ package com.fanap.podchat.requestobject;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.chatcore.model.base.BaseRequestObject;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 
 public class RequestGetHistory extends BaseRequestObject {

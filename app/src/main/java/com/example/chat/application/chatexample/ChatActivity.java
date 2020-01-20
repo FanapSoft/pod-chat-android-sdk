@@ -39,10 +39,11 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
-import fanap.podchat.pin.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
@@ -82,7 +83,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import fanap.podchat.pin.model.RequestPinMessage;
 
 
 public class ChatActivity extends AppCompatActivity
@@ -168,7 +168,7 @@ public class ChatActivity extends AppCompatActivity
      */
 
     private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String TOKEN = "583f17fd15ec47b2987b961eaa0e78ba";
+    private static String TOKEN = "ab944a74c2e1419cb00e7778d5837f88";
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);

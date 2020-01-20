@@ -2,11 +2,9 @@ package com.fanap.podchat.requestobject;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.chatcore.model.base.GeneralRequestObject;
-
 import java.util.ArrayList;
 
-public class RequestForwardMessage extends GeneralRequestObject {
+public class RequestForwardMessage extends GeneralRequestObject{
 
     private long threadId;
     private ArrayList<Long> messageIds;

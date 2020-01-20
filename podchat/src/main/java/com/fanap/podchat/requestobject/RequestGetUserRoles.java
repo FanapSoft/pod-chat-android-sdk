@@ -1,7 +1,5 @@
 package com.fanap.podchat.requestobject;
 
-import com.fanap.chatcore.model.base.GeneralRequestObject;
-
 public class RequestGetUserRoles extends GeneralRequestObject {
 
     long threadId;

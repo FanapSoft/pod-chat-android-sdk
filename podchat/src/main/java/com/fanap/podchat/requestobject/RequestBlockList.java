@@ -2,9 +2,7 @@ package com.fanap.podchat.requestobject;
 
 import android.support.annotation.NonNull;
 
-import com.fanap.chatcore.model.base.GeneralRequestObject;
-
-public class RequestBlockList extends GeneralRequestObject {
+public class RequestBlockList extends GeneralRequestObject  {
     private long count;
     private long offset;
 
