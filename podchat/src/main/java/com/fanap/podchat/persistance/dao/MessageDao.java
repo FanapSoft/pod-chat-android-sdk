@@ -21,6 +21,7 @@ import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 
@@ -52,8 +53,6 @@ public interface MessageDao {
     int getContactCount();
 
 
-
-
     //Cache Blocked Contact
     @Insert(onConflict = REPLACE)
     void insertBlockedContacts(List<CacheBlockedContact> t);
@@ -73,14 +72,6 @@ public interface MessageDao {
 
     @Query("SELECT COUNT(id) FROM CacheBlockedContact")
     int getBlockContactsCount();
-
-
-
-
-
-
-
-
 
 
     /**
@@ -326,8 +317,6 @@ public interface MessageDao {
     void deleteMessages(List<CacheMessageVO> cacheMessageVOS);
 
 
-
-
     //GapMessages Queries
 
     @Insert(onConflict = REPLACE)
@@ -353,4 +342,20 @@ public interface MessageDao {
 
 
 
+
+    //pin message queries
+    @Query("select * from pinmessagevo where threadId = :id")
+    PinMessageVO getThreadPinnedMessage(long id);
+
+    @Insert(onConflict = REPLACE)
+    void insertPinnedMessage(PinMessageVO pinMessageVO);
+
+    @Delete
+    void deletePinnedmessage(PinMessageVO pinMessageVO);
+
+    @Query("delete from pinmessagevo where messageId = :messageId")
+    void deletePinnedMessageById(long messageId);
+
+    @Query("delete from pinmessagevo where threadId = :threadId")
+    void deletePinnedMessageByThreadId(long threadId);
 }

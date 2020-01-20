@@ -2,6 +2,8 @@ package com.fanap.podchat.requestobject;
 
 import android.support.annotation.NonNull;
 
+import com.fanap.chatcore.model.base.BaseRequestObject;
+
 public class RequestDeliveredMessageList extends BaseRequestObject {
     private long messageId;
 

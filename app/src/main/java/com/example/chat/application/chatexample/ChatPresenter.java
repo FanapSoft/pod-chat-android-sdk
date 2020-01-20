@@ -37,6 +37,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import fanap.podchat.pin.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -84,6 +85,8 @@ import com.fanap.podchat.util.NetworkPingSender;
 import java.util.ArrayList;
 import java.util.List;
 
+import fanap.podchat.pin.model.RequestPinMessage;
+
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -102,34 +105,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.addListener(this);
 
-//        chat.addListener(new ChatListener() {
-//            @Override
-//            public void onSent(String content, ChatResponse<ResultMessage> response) {
-//
-//            }
-//
-//
-//        });
 
 
+        //
         chat.isCacheables(true);
+
+
         chat.isLoggable(true);
         chat.rawLog(true);
         chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
 
 
-        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-                .setHostName("msg.pod.ir")
-//                .setHostName("8.8.4.4") //google
-//                .setPort(53)
-//                .setPort(80) //msg.pod.ir port
-                .setPort(443) //msg.pod.ir port
-                .setDisConnectionThreshold(2)
-                .setInterval(7000)
-                .setConnectTimeout(10000)
-                .build();
 
-        chat.setNetworkStateConfig(build);
 
 //        chat.setNetworkStateListenerEnabling(false);
 //        chat.setReconnectOnClose(false);
@@ -140,7 +127,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     }
-
 
 
     @Override
@@ -238,7 +224,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
 
-
         chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
 
 //        PodNotify podNotify = new PodNotify.builder()
@@ -256,6 +241,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void connect(RequestConnect requestConnect) {
+
+        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
+                .setHostName("chat-sandbox.pod.ir")
+//                .setHostName("8.8.4.4") //google
+//                .setPort(53)
+//                .setPort(80)
+                .setPort(443)
+                .setDisConnectionThreshold(2)
+                .setInterval(7000)
+                .setConnectTimeout(10000)
+                .build();
+
+        chat.setNetworkStateConfig(build);
 
         chat.connect(requestConnect);
 
@@ -691,8 +689,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void createThreadWithFile(RequestCreateThreadWithFile request) {
-        chat.createThreadWithFile(request);
+    public void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.onProgressFile handler) {
+        chat.createThreadWithFile(request,handler);
     }
 
     //View
@@ -741,7 +739,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onError(content, outPutError);
         activity.runOnUiThread(() -> Toast.makeText(context, content, Toast.LENGTH_SHORT).show());
 
-        if(outPutError.getErrorCode() == 21) {
+        if (outPutError.getErrorCode() == 21) {
 
             view.onTokenExpired();
 
@@ -754,8 +752,29 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         String uniqueId = chat.getUserRoles(req);
 
 
+    }
+
+    @Override
+    public void pinMessage(RequestPinMessage requestPinMessage) {
+
+        String uniqueId = chat.pinMessage(requestPinMessage);
+
 
     }
+
+    @Override
+    public void unPinMessage(RequestPinMessage requestPinMessage) {
+
+        String uniqueId = chat.unPinMessage(requestPinMessage);
+    }
+
+    @Override
+    public void getMentionList() {
+
+        chat.getMentionList();
+
+    }
+
 
     @Override
     public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
@@ -960,5 +979,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onGetThreadParticipant(outPutParticipant);
 
 
+    }
+
+    @Override
+    public void onPinMessage(ChatResponse<ResultPinMessage> response) {
+        view.onPinMessage(response);
+    }
+
+    @Override
+    public void onUnPinMessage(ChatResponse<ResultPinMessage> response) {
+        view.onUnPinMessage(response);
     }
 }

@@ -1,6 +1,7 @@
 package com.fanap.podchat.requestobject;
 
 
+import com.fanap.chatcore.model.base.BaseRequestObject;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 
@@ -17,7 +18,7 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
     private String description;
     private String image;
 
-    RequestCreateThreadWithMessage(Builder<?> builder) {
+    public RequestCreateThreadWithMessage(Builder<?> builder) {
         super(builder);
         this.type = builder.type;
         this.message = builder.message;

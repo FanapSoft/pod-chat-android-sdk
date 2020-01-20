@@ -1,8 +1,10 @@
 package com.fanap.podchat.requestobject;
 
+import com.fanap.chatcore.model.base.BaseRequestObject;
+
 import java.util.ArrayList;
 
-public class RequestSetAuditor {
+public class RequestSetAuditor extends BaseRequestObject {
 
     private long threadId;
     private ArrayList<RequestRole> roles;

@@ -120,27 +120,27 @@ public class DbTest {
         Callback callback = new Callback();
         List<MessageVO> messageVOS = new ArrayList<>();
 
-        MessageVO messageVO = new MessageVO(
-                5653,
-                false,
-                false,
-                false,
-                false,
-                false,
-                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
-                0,
-                5652,
-                "",
-                null,
-                13354321,
-                321000000,
-                "",
-                null,
-                null,
-                null,
-                null
-
-        );
+//        MessageVO messageVO = new MessageVO(
+//                5653,
+//                false,
+//                false,
+//                false,
+//                false,
+//                false,
+//                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
+//                0,
+//                5652,
+//                "",
+//                null,
+//                13354321,
+//                321000000,
+//                "",
+//                null,
+//                null,
+//                null,
+//                null
+//
+//        );
 
         List<CacheMessageVO> cacheMessageVOS = new ArrayList<>();
         CacheMessageVO cacheMessageVO = new CacheMessageVO();
@@ -149,7 +149,7 @@ public class DbTest {
         cacheMessageVO.setThreadVoId(2L);
 
         cacheMessageVOS.add(cacheMessageVO);
-        messageVOS.add(messageVO);
+//        messageVOS.add(messageVO);
         callback.setOffset(0);
 
         callback.setOffset(0);
@@ -170,28 +170,28 @@ public class DbTest {
         long threadId = 2;
         Callback callback = new Callback();
         List<MessageVO> messageVOS = new ArrayList<>();
-        MessageVO messageVO = new MessageVO(
-                5653,
-                false,
-                false,
-                false,
-                false,
-                false,
-                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
-                0,
-                5652,
-                "",
-                null,
-                13354321,
-                321000000,
-                "",
-                null,
-                null,
-                null,
-                null
-        );
+//        MessageVO messageVO = new MessageVO(
+//                5653,
+//                false,
+//                false,
+//                false,
+//                false,
+//                false,
+//                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
+//                0,
+//                5652,
+//                "",
+//                null,
+//                13354321,
+//                321000000,
+//                "",
+//                null,
+//                null,
+//                null,
+//                null
+//        );
 
-        messageVOS.add(messageVO);
+//        messageVOS.add(messageVO);
         callback.setOffset(0);
         callback.setCount(50);
         callback.setOrder("asc");
@@ -208,26 +208,26 @@ public class DbTest {
         Callback callback = new Callback();
         long threadId = 2;
 
-        MessageVO messageVO = new MessageVO(
-                5653,
-                false,
-                false,
-                false,
-                false,
-                false,
-                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
-                0,
-                5652,
-                "",
-                null,
-                13354321,
-                321000000,
-                "",
-                null,
-                null,
-                null,
-                null
-        );
+//        MessageVO messageVO = new MessageVO(
+//                5653,
+//                false,
+//                false,
+//                false,
+//                false,
+//                false,
+//                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
+//                0,
+//                5652,
+//                "",
+//                null,
+//                13354321,
+//                321000000,
+//                "",
+//                null,
+//                null,
+//                null,
+//                null
+//        );
 
         callback.setOffset(0);
         callback.setCount(2);
@@ -245,26 +245,26 @@ public class DbTest {
 
         List<MessageVO> messageVOS = new ArrayList<>();
 
-        MessageVO messageVO = new MessageVO(
-                5653,
-                false,
-                false,
-                false,
-                false,
-                false,
-                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
-                0,
-                5652,
-                "",
-                null,
-                13354321,
-                321000000,
-                "",
-                null,
-                null,
-                null,
-                null
-        );
+//        MessageVO messageVO = new MessageVO(
+//                5653,
+//                false,
+//                false,
+//                false,
+//                false,
+//                false,
+//                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
+//                0,
+//                5652,
+//                "",
+//                null,
+//                13354321,
+//                321000000,
+//                "",
+//                null,
+//                null,
+//                null,
+//                null
+//        );
 
         callback.setOffset(0);
         callback.setCount(2);
@@ -285,26 +285,26 @@ public class DbTest {
         callback.setOrder("asc");
         callback.setFirstMessageId(9236);
 
-        MessageVO messageVO = new MessageVO(
-                5653,
-                false,
-                false,
-                false,
-                false,
-                false,
-                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
-                0,
-                5652,
-                "",
-                null,
-                13354321,
-                321000000,
-                "",
-                null,
-                null,
-                null,
-                null
-        );
+//        MessageVO messageVO = new MessageVO(
+//                5653,
+//                false,
+//                false,
+//                false,
+//                false,
+//                false,
+//                "91efe7da-547f-4c5f-c34b-0442951ffbbc",
+//                0,
+//                5652,
+//                "",
+//                null,
+//                13354321,
+//                321000000,
+//                "",
+//                null,
+//                null,
+//                null,
+//                null
+//        );
 
 //        messageDatabaseHelper.updateGetHistoryResponse(callback);
     }

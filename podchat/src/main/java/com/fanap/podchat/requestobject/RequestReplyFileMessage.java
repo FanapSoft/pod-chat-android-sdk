@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.fanap.chatcore.model.base.GeneralRequestObject;
+
 public class RequestReplyFileMessage extends GeneralRequestObject {
 
     private String messageContent;

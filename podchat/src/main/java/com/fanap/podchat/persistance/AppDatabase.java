@@ -19,6 +19,7 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.persistance.dao.MessageDao;
@@ -43,7 +44,8 @@ import com.fanap.podchat.util.DataTypeConverter;
         ThreadVo.class,
         CacheParticipantRoles.class,
         GapMessageVO.class,
-        CacheBlockedContact.class
+        CacheBlockedContact.class,
+        PinMessageVO.class
 }, version = 1, exportSchema = false)
 @TypeConverters({DataTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {

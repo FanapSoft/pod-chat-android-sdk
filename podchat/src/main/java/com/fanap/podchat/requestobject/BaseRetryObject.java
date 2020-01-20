@@ -9,6 +9,7 @@ public abstract class BaseRetryObject {
         this.uniqueId = builder.uniqueId;
     }
 
+
     abstract static class Builder<T extends Builder> {
         private String uniqueId;
         @NonNull

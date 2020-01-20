@@ -10,6 +10,7 @@
 .externalNativeBuild
 
 /app/src/main/res/values/main_server_config.xml
+/app/src/main/res/values/sandbox_server_config.xml
 
 
 # Built application files

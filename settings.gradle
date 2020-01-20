@@ -1,1 +1,4 @@
-include ':app', ':podchat'
+include ':app'
+include ':podchat'
+include ':core'
+include ':pin_message'

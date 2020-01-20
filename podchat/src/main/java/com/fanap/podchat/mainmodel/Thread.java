@@ -9,6 +9,7 @@ public class Thread {
     private long joinDate;
     private Inviter inviter;
     private MessageVO lastMessageVO;
+    private PinMessageVO pinMessageVO;
     private String title;
     private List<Participant> participants;
     private long time;
@@ -19,7 +20,7 @@ public class Thread {
     private String image;
     private String description;
     private long unreadCount;
-    private boolean pin;
+    private Boolean pin;
     private boolean mentioned;
     //last seen message info
     private String lastMessage;
@@ -41,8 +42,6 @@ public class Thread {
     private Boolean canSpam;
     private Boolean admin;
 
-//    private Participant inviter;
-//    private ChatMessage lastMessageVO;
 
     public Thread(
             long id,
@@ -77,7 +76,8 @@ public class Thread {
             Boolean canSpam,
             Boolean admin,
             Boolean pin,
-            Boolean mentioned) {
+            Boolean mentioned,
+            PinMessageVO pinMessageVO) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -111,13 +111,15 @@ public class Thread {
         this.admin = admin;
         this.pin = pin;
         this.mentioned = mentioned;
+        this.pinMessageVO = pinMessageVO;
     }
+
 
 
     public Thread() {
     }
 
-    public boolean isPin() {
+    public Boolean isPin() {
         return pin;
     }
 
@@ -243,6 +245,14 @@ public class Thread {
 
     public void setPartnerLastDeliveredMessageId(long partnerLastDeliveredMessageId) {
         this.partnerLastDeliveredMessageId = partnerLastDeliveredMessageId;
+    }
+
+    public PinMessageVO getPinMessageVO() {
+        return pinMessageVO;
+    }
+
+    public void setPinMessageVO(PinMessageVO pinMessageVO) {
+        this.pinMessageVO = pinMessageVO;
     }
 
     public int getType() {

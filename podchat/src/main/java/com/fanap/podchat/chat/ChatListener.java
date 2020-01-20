@@ -26,6 +26,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import fanap.podchat.pin.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
@@ -229,4 +230,8 @@ public interface ChatListener {
     default void onUnPinThread(ChatResponse<ResultPinThread> response){}
 
     default void onRemoveRoleFromUser(ChatResponse<ResultSetAdmin> outputSetRoleToUser){}
+
+    default void onPinMessage(ChatResponse<ResultPinMessage> response){}
+
+    default void onUnPinMessage(ChatResponse<ResultPinMessage> response){}
 }

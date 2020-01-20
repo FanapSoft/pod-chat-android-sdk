@@ -25,7 +25,7 @@ public abstract class ProgressHandler {
 
     public interface onProgressFile {
 
-        default void onProgressUpdate(int bytesSent){
+        default void onProgressUpdate(int bytesSent) {
 
         }
 
@@ -35,8 +35,10 @@ public abstract class ProgressHandler {
         default void onFinish(String imageJson, FileUpload fileImageUpload) {
         }
 
-        default void onError(String jsonError, ErrorOutPut error) {
+        default void onImageFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
         }
+
+        default void onError(String jsonError, ErrorOutPut error) { }
     }
 
     public interface sendFileMessage {
