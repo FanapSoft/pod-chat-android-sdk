@@ -35,15 +35,15 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
-import com.fanap.podchat.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Util;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
@@ -2194,7 +2194,10 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void savePinMessage(ResultPinMessage result, long subjectId) {
+    public void savePinMessage(ChatResponse<ResultPinMessage> response, long subjectId) {
+
+
+        ResultPinMessage result = response.getResult();
 
         PinMessageVO pinMessageVO = new PinMessageVO();
 

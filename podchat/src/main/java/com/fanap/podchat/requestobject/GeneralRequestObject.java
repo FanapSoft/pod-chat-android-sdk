@@ -3,7 +3,7 @@ package com.fanap.podchat.requestobject;
 public abstract class GeneralRequestObject  {
     private String typeCode;
 
-    GeneralRequestObject(GeneralRequestObject.Builder<?> builder){
+    public GeneralRequestObject(GeneralRequestObject.Builder<?> builder){
         this.typeCode = builder.typeCode;
     }
 
@@ -15,9 +15,9 @@ public abstract class GeneralRequestObject  {
         this.typeCode = typeCode;
     }
 
-    abstract static class Builder<T extends Builder> {
+    public abstract static class Builder<T extends Builder> {
         private String typeCode;
-        abstract GeneralRequestObject build();
+        public abstract GeneralRequestObject build();
 
 
         public T typeCode(String typeCode){

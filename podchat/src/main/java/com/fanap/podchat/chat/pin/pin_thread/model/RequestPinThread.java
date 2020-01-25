@@ -1,6 +1,8 @@
-package com.fanap.podchat.requestobject;
+package com.fanap.podchat.chat.pin.pin_thread.model;
 
 import android.support.annotation.NonNull;
+
+import com.fanap.podchat.requestobject.GeneralRequestObject;
 
 public class RequestPinThread extends GeneralRequestObject {
     private long threadId;

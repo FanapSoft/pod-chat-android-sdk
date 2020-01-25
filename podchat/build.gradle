@@ -6,7 +6,7 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 ext{
 
-    libraryVersion = '0.5.2.32'
+    libraryVersion = '0.5.2.4'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 28
+        versionCode 29
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

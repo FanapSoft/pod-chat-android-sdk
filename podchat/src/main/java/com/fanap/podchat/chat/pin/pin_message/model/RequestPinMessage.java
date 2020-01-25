@@ -1,4 +1,7 @@
-package com.fanap.podchat.requestobject;
+package com.fanap.podchat.chat.pin.pin_message.model;
+
+
+import com.fanap.podchat.requestobject.GeneralRequestObject;
 
 public class RequestPinMessage extends GeneralRequestObject {
 

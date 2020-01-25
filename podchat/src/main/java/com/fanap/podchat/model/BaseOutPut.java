@@ -1,12 +1,12 @@
 package com.fanap.podchat.model;
 
 public abstract class BaseOutPut {
-    private boolean hasError;
-    private boolean cache;
+    private Boolean hasError;
+    private Boolean cache;
     private String errorMessage;
-    private long errorCode;
+    private Long errorCode;
     private String uniqueId;
-    private long subjectId;
+    private Long subjectId;
 
     public boolean isHasError() {
         return hasError;

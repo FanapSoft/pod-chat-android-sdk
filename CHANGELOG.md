@@ -6,6 +6,33 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.5.3.0] -2020-1-25
+
+[Changed]  Invitee
+	      - long id => + String id
+	       int idType
+
+
+[Added] Thread
+	 +PinMessageVO
+
+[Added] RequestPinMessage
+	 + messageId
+	 + notifyAll
+
+[Added] pinMessage(RequestPinMessage)
+
+[Added] unPinMessage(RequestPinMessage)
+
+[BugFixed] OnSignalMessageReceive(OutputSignalMessage) subjectId value changed
+
+[Added] onSignalMessageReceived(OutputSignalMessage)
+
+[Added] onSignalMessageReceived(ChatResponse<ResultSignalMessage>)
+
+
+
+
 
 ## Version [0.5.2.0] -2020-1-12
 - Cache Structure Improved
@@ -247,5 +274,3 @@ And beaware that you just see updated fields not the entire conversationVO.
 -   Refactor SyncContact
 -   Add Permission Class for request permission and check permission
 -   Add FileServer param to Connect 
-
-## Version [0.6.6.0] - 2018-07-18
