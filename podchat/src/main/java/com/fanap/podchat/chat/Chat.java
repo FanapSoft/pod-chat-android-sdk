@@ -292,7 +292,7 @@ public class Chat extends AsyncAdapter {
     private static final Handler pingHandler;
     private static final Handler tokenHandler;
     private boolean currentDeviceExist;
-    private int signalIntervalTime;
+    private int signalIntervalTime = 1000;
     private Context context;
     private boolean log;
     private int expireAmount;
@@ -8453,6 +8453,8 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultSignalMessage> result = reformatSignalMessage(chatMessage);
 
+        listenerManager.callOnGetSignalMessage(result);
+
         if (result == null) {
             return;
         }
@@ -8460,6 +8462,10 @@ public class Chat extends AsyncAdapter {
         OutputSignalMessage output = new OutputSignalMessage();
 
         output.setResultSignalMessage(result.getResult());
+
+        output.setSubjectId(result.getSubjectId());
+
+        output.setUniqueId(result.getUniqueId());
 
         ResultSignalMessage sm = result.getResult();
 
@@ -8469,7 +8475,7 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnGetSignalMessage(output);
 
-        showLog("RECEIVE_SIGNAL_MESSAGE", chatMessage.getContent());
+        showLog("RECEIVE_SIGNAL_MESSAGE", gson.toJson(output));
 
 
     }
@@ -8546,6 +8552,9 @@ public class Chat extends AsyncAdapter {
 
         }
 
+        result.setSubjectId(chatMessage.getSubjectId());
+
+        result.setUniqueId(chatMessage.getUniqueId());
 
         result.setResult(signalMessage);
 
@@ -8956,8 +8965,6 @@ public class Chat extends AsyncAdapter {
 
     public String startTyping(RequestSignalMsg signalMsg) {
 
-        if (!chatReady) return "";
-
         return startSignalMessage(signalMsg, "SEND IS TYPING");
 
     }
@@ -8973,36 +8980,21 @@ public class Chat extends AsyncAdapter {
     private void signalMessage(RequestSignalMsg requestSignalMsg, String logMessage, String uniqueId) {
 
         int signalType = requestSignalMsg.getSignalType();
+
         long threadId = requestSignalMsg.getThreadId();
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", String.valueOf(signalType));
 
-        ChatMessage chatMessage = new ChatMessage();
+        AsyncMessage chatMessage = new AsyncMessage();
         chatMessage.setContent(jsonObject.toString());
         chatMessage.setType(Constants.SYSTEM_MESSAGE);
         chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
+        chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
         chatMessage.setUniqueId(uniqueId);
         chatMessage.setSubjectId(threadId);
 
-        JsonObject jsonObjectCht = (JsonObject) gson.toJsonTree(chatMessage);
-
-
-        jsonObjectCht.remove("systemMetadata");
-        jsonObjectCht.remove("metadata");
-        jsonObjectCht.remove("repliedTo");
-        jsonObjectCht.remove("contentCount");
-        jsonObjectCht.remove("time");
-
-        if (Util.isNullOrEmpty(getTypeCode())) {
-            jsonObjectCht.remove("typeCode");
-        } else {
-            jsonObjectCht.remove("typeCode");
-            jsonObjectCht.addProperty("typeCode", getTypeCode());
-        }
-        String asyncContent = jsonObjectCht.toString();
-        sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, logMessage);
+        sendAsyncMessage(gson.toJson(chatMessage), AsyncAckType.Constants.WITHOUT_ACK, logMessage);
     }
 
     private void handleClearHistory(ChatMessage chatMessage) {

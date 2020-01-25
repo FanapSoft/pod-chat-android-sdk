@@ -775,6 +775,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+    @Override
+    public void startTyping(RequestSignalMsg req) {
+
+        chat.startTyping(req);
+
+    }
+
 
     @Override
     public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {

@@ -30,6 +30,7 @@ import com.fanap.podchat.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
+import com.fanap.podchat.model.ResultSignalMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -215,7 +216,14 @@ public interface ChatListener {
     }
 
 
+    @Deprecated
     default void OnSignalMessageReceive(OutputSignalMessage output) {
+    }
+
+    default void onSignalMessageReceived(OutputSignalMessage output) {
+    }
+
+    default void onSignalMessageReceived(ChatResponse<ResultSignalMessage> result) {
     }
 
     default void OnSetRule(ChatResponse<ResultSetAdmin> outputSetRoleToUser) {

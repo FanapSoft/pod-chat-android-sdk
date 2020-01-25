@@ -5,8 +5,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.example.chat.application.chatexample.BaseApplication;
@@ -24,11 +26,15 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestSignalMsg;
+import com.fanap.podchat.util.ChatMessageType;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -38,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import fanap.podchat.pin.model.RequestPinMessage;
 
 @RunWith(AndroidJUnit4.class)
 public class ChatTest extends ChatAdapter {
@@ -57,8 +62,7 @@ public class ChatTest extends ChatAdapter {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "ee1523fa7c524418974f73bd22bf3cbc";
-
+    private static String TOKEN = "8333606c563745ba83b006b975ea917f";
 
 
     private ChatActivity chatActivity;
@@ -81,12 +85,29 @@ public class ChatTest extends ChatAdapter {
         presenter.getUserInfo(null);
         sleep(5000);
         Mockito.verify(view, Mockito.times(1)).onGetUserInfo();
+
     }
 
 
+    @Test
+    @FlakyTest
+    public void startTyping() {
+
+        sleep(7000);
+
+        RequestSignalMsg req = new RequestSignalMsg.Builder()
+                .signalType(ChatMessageType.SignalMsg.IS_TYPING)
+                .threadId(6630)
+                .build();
+
+        presenter.startTyping(req);
+
+    }
+
 
     @Test
-    public void pinMessage(){
+    @MediumTest
+    public void pinMessage() {
 
         sleep(25000);
 
@@ -96,10 +117,29 @@ public class ChatTest extends ChatAdapter {
                 .build();
 
         presenter.pinMessage(requestPinMessage);
-//        sleep(1000);
-//
-//
-//        Mockito.verify(view,Mockito.times(1)).onPinMessage(Mockito.any());
+        sleep(1000);
+
+
+        Mockito.verify(view,Mockito.times(1)).onPinMessage(Mockito.any());
+
+
+    }
+
+    @Test
+    @MediumTest
+    public void unpinMessage() {
+
+        sleep(25000);
+
+        RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
+                .setMessageId(76306)
+                .build();
+
+        presenter.unPinMessage(requestPinMessage);
+        sleep(1000);
+
+
+        Mockito.verify(view,Mockito.times(1)).onUnPinMessage(Mockito.any());
 
 
     }
@@ -453,7 +493,7 @@ public class ChatTest extends ChatAdapter {
         ArrayList<Long> messageIds = new ArrayList<>();
         messageIds.add(14380L);
 
-        presenter.deleteMessage(messageIds,0L, true, null);
+        presenter.deleteMessage(messageIds, 0L, true, null);
         sleep(5000);
         Mockito.verify(view, Mockito.times(1)).onDeleteMessage();
     }

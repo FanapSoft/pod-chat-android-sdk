@@ -40,6 +40,7 @@ import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
+import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
@@ -359,5 +360,7 @@ public interface ChatContract {
         void unPinMessage(RequestPinMessage requestPinMessage);
 
         void getMentionList();
+
+        void startTyping(RequestSignalMsg req);
     }
 }

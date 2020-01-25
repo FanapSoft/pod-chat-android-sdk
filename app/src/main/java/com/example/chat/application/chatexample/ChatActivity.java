@@ -146,32 +146,27 @@ public class ChatActivity extends AppCompatActivity
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String TOKEN = "e61066cb01df49f0b427b64a5f0b5282";
 
 
 
     /**
-     *
      * Main Server Setting
-     *
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String TOKEN = "66cfd67f9e024667b8524fa1f30e61ba";
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
-     *
      * Sandbox setting:
-     *
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String TOKEN = "ab944a74c2e1419cb00e7778d5837f88";
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //

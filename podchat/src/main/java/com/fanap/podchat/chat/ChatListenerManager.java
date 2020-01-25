@@ -30,6 +30,7 @@ import com.fanap.podchat.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
+import com.fanap.podchat.model.ResultSignalMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -648,13 +649,26 @@ public class ChatListenerManager {
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
+
                 listener.OnSignalMessageReceive(output);
+
+                listener.onSignalMessageReceived(output);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
 
+    }
 
+    public void callOnGetSignalMessage(ChatResponse<ResultSignalMessage> result) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onSignalMessageReceived(result);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
     }
 
     public void callOnPinThread(ChatResponse<ResultPinThread> response) {

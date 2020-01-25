@@ -16,6 +16,16 @@ public class Invitee  {
         this.idType = idType;
     }
 
+    public Invitee(Long id, int idType) {
+        this.id = String.valueOf(id);
+        this.idType = idType;
+    }
+
+    public Invitee(long id, int idType) {
+        this.id = String.valueOf(id);
+        this.idType = idType;
+    }
+
     public Invitee(){}
 
     public String getId() {
@@ -24,6 +34,18 @@ public class Invitee  {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setId(Long id){
+
+        this.id = String.valueOf(id);
+
+    }
+
+    public void setId(long id) {
+
+        this.id = String.valueOf(id);
+
     }
 
     public int getIdType() {
