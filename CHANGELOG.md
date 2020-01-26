@@ -6,6 +6,22 @@
 All notable changes to this project will be documented here.
 
 
+
+## Version [0.5.4.0]
+
+[Added] `stopTyping()`
+
+[Removed] `setSignalIntervalTime()`
+
+
+
+
+
+
+
+
+
+
 ## Version [0.5.3.0] -2020-1-25
 
 [Changed]  Invitee

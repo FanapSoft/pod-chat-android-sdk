@@ -757,6 +757,21 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnSignalMessageTimeout(long threadId) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onTypingSignalTimeout(threadId);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+
+    }
+
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
 //

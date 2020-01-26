@@ -24,7 +24,7 @@ All notable changes to this project will be documented here.
 
 [Added] unPinMessage(RequestPinMessage)
 
-[BugFixed] OnSignalMessageReceive(OutputSignalMessage) subjectId value changed
+[BugFixed] `OnSignalMessageReceive(OutputSignalMessage)` subjectId value changed
 
 [Added] onSignalMessageReceived(OutputSignalMessage)
 
@@ -34,7 +34,7 @@ All notable changes to this project will be documented here.
 
 [Added] getMentionList(RequestGetMentionList)
 
-[Added] getJson method in ChatResponse
+[Added] `getJson()` method in ChatResponse
 
 
 

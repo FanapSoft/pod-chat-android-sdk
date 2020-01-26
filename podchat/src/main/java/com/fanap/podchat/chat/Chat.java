@@ -557,18 +557,18 @@ public class Chat extends AsyncAdapter {
 
     private void setSignalHandlerThread() {
 
-            signalMessageHandlerThread = new HandlerThread("signal handler thread");
-            signalMessageHandlerThread.start();
+        signalMessageHandlerThread = new HandlerThread("signal handler thread");
+        signalMessageHandlerThread.start();
 
     }
 
 
-    private void stopSignalHandlerThread(){
+    private void stopSignalHandlerThread() {
 
         if (signalMessageHandlerThread != null) {
-                // to avoid multiple start signal request
-                signalMessageHandlerThread.quit();
-            }
+            // to avoid multiple start signal request
+            signalMessageHandlerThread.quit();
+        }
     }
 
     /**
@@ -1128,7 +1128,7 @@ public class Chat extends AsyncAdapter {
 
                 setThreadCallbacks(threadId, uniqueId);
                 sendAsyncMessage(asyncContentWaitQueue, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TEXT_MESSAGE");
-
+                stopTyping();
             } else {
                 onChatNotReady(uniqueId);
             }
@@ -4079,7 +4079,7 @@ public class Chat extends AsyncAdapter {
      */
 
     public String startSignalMessage(RequestSignalMsg requestSignalMsg, String logMessage) {
-/
+
         stopSignalHandlerThread();
 
         setSignalHandlerThread();
@@ -4091,6 +4091,12 @@ public class Chat extends AsyncAdapter {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
+
+                if (signalMessageRanTime > 60000) {
+                    listenerManager.callOnSignalMessageTimeout(requestSignalMsg.getThreadId());
+                    return;
+                }
+
                 signalMessage(requestSignalMsg, logMessage, uniqueId);
                 handler.postDelayed(this, getSignalIntervalTime());
                 signalMessageRanTime += getSignalIntervalTime();
@@ -6678,6 +6684,7 @@ public class Chat extends AsyncAdapter {
 
                 setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
                 sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_EDIT_MESSAGE");
+                stopTyping();
                 if (handler != null) {
                     handler.onEditMessage(uniqueId);
                 }
@@ -8598,7 +8605,7 @@ public class Chat extends AsyncAdapter {
             setThreadCallbacks(threadId, uniqueId);
 
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_REPLY_MESSAGE");
-
+            stopTyping();
             if (handler != null) {
                 handler.onReplyMessage(uniqueId);
             }
@@ -9419,6 +9426,7 @@ public class Chat extends AsyncAdapter {
         if (chatReady) {
             setThreadCallbacks(threadId, uniqueId);
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TXT_MSG_WITH_FILE");
+            stopTyping();
         } else {
             getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
