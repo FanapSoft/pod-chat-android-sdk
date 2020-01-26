@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -174,6 +176,8 @@ public interface ChatContract {
         default void onPinMessage(ChatResponse<ResultPinMessage> response){}
 
         default void onUnPinMessage(ChatResponse<ResultPinMessage> response){}
+
+        default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
     }
 
     interface presenter {
@@ -359,7 +363,7 @@ public interface ChatContract {
 
         void unPinMessage(RequestPinMessage requestPinMessage);
 
-        void getMentionList();
+        void getMentionList(RequestGetMentionList req);
 
         void startTyping(RequestSignalMsg req);
     }

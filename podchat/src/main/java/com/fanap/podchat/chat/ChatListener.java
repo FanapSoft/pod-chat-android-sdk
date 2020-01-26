@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
@@ -229,7 +230,6 @@ public interface ChatListener {
     @Deprecated
     default void onGetThreadAdmin(String jsonData){}
 
-
     default void onPinThread(ChatResponse<ResultPinThread> response){}
 
     default void onUnPinThread(ChatResponse<ResultPinThread> response){}
@@ -239,4 +239,9 @@ public interface ChatListener {
     default void onPinMessage(ChatResponse<ResultPinMessage> response){}
 
     default void onUnPinMessage(ChatResponse<ResultPinMessage> response){}
+
+    default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
+
+    default void onGetMentionList(ChatResponse<ResultHistory> response){}
+
 }

@@ -8,27 +8,33 @@ All notable changes to this project will be documented here.
 
 ## Version [0.5.3.0] -2020-1-25
 
-- [Changed]  Invitee
+[Changed]  Invitee
 	      - long id => + String id
 	       int idType
 
 
-- [Added] Thread
+[Added] Thread
 	 +PinMessageVO
 
-- [Added] RequestPinMessage
+[Added] RequestPinMessage
 	 + messageId
 	 + notifyAll
 
-- [Added] pinMessage(RequestPinMessage)
+[Added] pinMessage(RequestPinMessage)
 
-- [Added] unPinMessage(RequestPinMessage)
+[Added] unPinMessage(RequestPinMessage)
 
-- [BugFixed] OnSignalMessageReceive(OutputSignalMessage) subjectId value changed
+[BugFixed] OnSignalMessageReceive(OutputSignalMessage) subjectId value changed
 
-- [Added] onSignalMessageReceived(OutputSignalMessage)
+[Added] onSignalMessageReceived(OutputSignalMessage)
 
-- [Added] onSignalMessageReceived(ChatResponse<ResultSignalMessage>)
+[Added] onSignalMessageReceived(ChatResponse<ResultSignalMessage>)
+
+[Added] getCurrentUserRoles(RequestGetUserRoles)
+
+[Added] getMentionList(RequestGetMentionList)
+
+[Added] getJson method in ChatResponse
 
 
 
@@ -41,6 +47,7 @@ All notable changes to this project will be documented here.
 - [CHANGED] addAdminRoles => addAdmin(RequestSetAdmin)
 - [CHANGED] removeAdminRoles => removeAdmin(RequestSetAdmin)
 - [REMOVED] roleOperation from RequestRole
+-
 - [ADDED] RequestSetAuditor request = new RequestSetAuditor
                 .Builder(Long, ArrayList<RequestRole>)
                 .build();
@@ -73,7 +80,7 @@ All notable changes to this project will be documented here.
 - Separate addAdminRoles() and removeAdminRoles()
 - getAdminList() output resolved.
 - requestSearchContact() problem resolved.
-- upload progress bug resolved.
+- upload progress bug resolved. 
 
 
 
@@ -181,7 +188,7 @@ All notable changes to this project will be documented here.
 to your app Module
 
 
-- [Add] The responses of this listeners were changed
+- [Add] The responses of this listeners were changed 
 onGetContacts
 onGetHistory
 onGetThread
@@ -197,7 +204,7 @@ onUpdateThreadInfo
 
 ##  Version [0.1.2.15] -2018-10-21
 -   [Add]In order to receive a response by UpdateThreadInfo,
- you can use onUpdateThreadInfo listener.
+ you can use onUpdateThreadInfo listener. 
 And beaware that you just see updated fields not the entire conversationVO.
 - [bug fix] `onNewmessage`
 - [add] image to `inviter` model
@@ -212,11 +219,11 @@ And beaware that you just see updated fields not the entire conversationVO.
 -   [Add] We added `uniqueId` to [ErrorOutPut,]
 -   [Add] We added instant `uniqueId` to `sendFileMessage,deleteMessage,replyMessage,forwardMessage
           seenMessage`.
--   [BugFix] Bug has been fixed in sendText message when put null in handler.
+-   [BugFix] Bug has been fixed in sendText message when put null in handler. 
 
 ##  Version [0.1.2.6] -2018-10-08
 -   [Add] The project has been added to Maven
--   [Add] Unique id was added to Most of the functions as return.
+-   [Add] Unique id was added to Most of the functions as return. 
 -   [Add] Unique id was added to Most responses.
 
 ##  Version [0.1.2.5] -09/26/2018
@@ -225,7 +232,7 @@ And beaware that you just see updated fields not the entire conversationVO.
 -   [Add] Async has *ASYNC_READY* state now.
 -   [Add] Add `lastMessageId` and `firstMessageId` to the *GetHistory*
 -   [Replace] Replace most of the *integer* params to *long*.
--   [Removed] CHAT_READY state removed from Async and added to Chat and state changes
+-   [Removed] CHAT_READY state removed from Async and added to Chat and state changes 
      to *CHAT_READY* when response of the *getUserInfo* arrives.
 -   [BugFix]  Some fields has been added to `createThread`'s response
 -   [Add]  Now you can get instant unique id when you send text messages
@@ -235,7 +242,7 @@ And beaware that you just see updated fields not the entire conversationVO.
 
 ## Version [0.1.2.4] -2018-09-15
 -   [BugFix]OnError Listener
--   [BugFix]Create ThreadVo
+-   [BugFix]Create ThreadVo 
 
 ## Version [0.1.2.3] -2018-09-03
 -   [Add]Implement Cache for get Contact
@@ -259,7 +266,7 @@ And beaware that you just see updated fields not the entire conversationVO.
 -   [Add]onThreadInfoUpdated listener
 -   [Add]onLastSeenUpdated listener
 -   [Add]Search in threadVos with name:
-    We sdd a new param to the getThread so you can search through threadVos by their name.
+    We sdd a new param to the getThread so you can search through threadVos by their name. 
 -   [Add]Remove participantVO
 -   [Add]Add participantVO
 -   [Add]Sync Contact listener
@@ -267,9 +274,9 @@ And beaware that you just see updated fields not the entire conversationVO.
 
 ## Version [0.0.7.0] -2018-07-22
 
--   Check Permission on SendFile and SyncContact
--   UploadImage
--   UploadFile
+-   Check Permission on SendFile and SyncContact 
+-   UploadImage 
+-   UploadFile 
 -   Refactor SyncContact
 -   Add Permission Class for request permission and check permission
--   Add FileServer param to Connect
+-   Add FileServer param to Connect 

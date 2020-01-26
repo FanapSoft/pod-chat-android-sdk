@@ -30,6 +30,10 @@ All notable changes to this project will be documented here.
 
 [Added] onSignalMessageReceived(ChatResponse<ResultSignalMessage>)
 
+[Added] getCurrentUserRoles(RequestGetUserRoles)
+
+[Added] getMentionList(RequestGetMentionList)
+
 
 
 

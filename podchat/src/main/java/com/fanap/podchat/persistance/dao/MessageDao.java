@@ -201,6 +201,9 @@ public interface MessageDao {
     @Query("DELETE FROM threadvo WHERE id = :threadId")
     void deleteThread(long threadId);
 
+    @Query("update ThreadVo set pin = :isPinned where id = :threadId")
+    void updateThreadPinState(long threadId, boolean isPinned);
+
     /**
      * cache inviter
      */
@@ -358,4 +361,8 @@ public interface MessageDao {
 
     @Query("delete from pinmessagevo where threadId = :threadId")
     void deletePinnedMessageByThreadId(long threadId);
+
+
+
+
 }

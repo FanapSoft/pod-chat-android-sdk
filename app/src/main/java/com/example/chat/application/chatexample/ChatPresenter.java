@@ -11,6 +11,8 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -113,7 +115,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.isLoggable(true);
         chat.rawLog(true);
-        chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
 
 
 
@@ -652,7 +653,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public boolean stopTyping(String signalUniqueId) {
 
-        return chat.stopTyping(signalUniqueId);
+        chat.stopTyping();
+
+        return true;
 
     }
 
@@ -749,7 +752,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getUserRoles(RequestGetUserRoles req) {
 
-        String uniqueId = chat.getUserRoles(req);
+        String uniqueId = chat.getCurrentUserRoles(req);
 
 
     }
@@ -769,9 +772,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getMentionList() {
+    public void getMentionList(RequestGetMentionList req) {
 
-        chat.getMentionList();
+        chat.getMentionList(req);
 
     }
 
@@ -996,5 +999,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onUnPinMessage(ChatResponse<ResultPinMessage> response) {
         view.onUnPinMessage(response);
+    }
+
+    @Override
+    public void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
+        view.onGetCurrentUserRoles(response);
     }
 }

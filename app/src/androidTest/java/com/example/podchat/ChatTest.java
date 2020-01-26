@@ -26,6 +26,7 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.util.ChatMessageType;
 
@@ -60,7 +61,7 @@ public class ChatTest extends ChatAdapter {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "8333606c563745ba83b006b975ea917f";
+    private static String TOKEN = "c8eed44e2cd74a41aa3a75dfcdcb85d4";
 
 
     private ChatActivity chatActivity;
@@ -75,6 +76,31 @@ public class ChatTest extends ChatAdapter {
                 appId, serverName, TOKEN, ssoHost,
                 platformHost, fileServer, "");
     }
+
+
+
+    @Test
+    @LargeTest
+    public void getCurrentUserRoles(){
+
+
+        sleep(25000);
+
+        RequestGetUserRoles req = new RequestGetUserRoles.Builder()
+                .setThreadId(5801)
+                .build();
+
+        presenter.getUserRoles(req);
+
+        sleep(1000);
+
+        Mockito.verify(view,Mockito.atLeastOnce()).onGetCurrentUserRoles(Mockito.any());
+
+
+    }
+
+
+
 
     @Test
     @MediumTest

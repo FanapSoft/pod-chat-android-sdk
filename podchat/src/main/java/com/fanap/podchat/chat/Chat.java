@@ -38,8 +38,13 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.mention.Mention;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.pin.pin_message.PinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
+import com.fanap.podchat.chat.thread.ThreadManager;
+import com.fanap.podchat.chat.user.user_roles.UserRoles;
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.localmodel.LFileUpload;
 import com.fanap.podchat.localmodel.SetRuleVO;
 import com.fanap.podchat.mainmodel.AddParticipant;
@@ -245,6 +250,8 @@ public class Chat extends AsyncAdapter {
     public static final int WRITE_EXTERNAL_STORAGE_CODE = 1007;
     public static final int READ_CONTACTS_CODE = 1008;
     public static final int PING_INTERVAL = 20000;
+    private static final int signalIntervalTime = 3000;
+    private int signalMessageRanTime = 0;
     private static Async async;
     private String token;
     private String typeCode;
@@ -293,7 +300,6 @@ public class Chat extends AsyncAdapter {
     private static final Handler pingHandler;
     private static final Handler tokenHandler;
     private boolean currentDeviceExist;
-    private int signalIntervalTime = 1000;
     private Context context;
     private boolean log;
     private int expireAmount;
@@ -358,7 +364,6 @@ public class Chat extends AsyncAdapter {
             mSecurePrefs = new SecurePreferences(context, "", "chat_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);
 
-            setSignalHandlerThread();
 
             if (!Util.isNullOrEmpty(instance.getKey())) {
 
@@ -533,9 +538,7 @@ public class Chat extends AsyncAdapter {
             pingAfterSetToken();
 
         } else if (!TextUtils.equals(chatState, CHAT_READY)) {
-
 //            connect(socketAddress,appId,serverName,token,ssoHost,platformHost,fileServer,typeCode);
-
             if (!TextUtils.equals(chatState, CONNECTING)) {
 
                 reconnect();
@@ -552,31 +555,20 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private static void setSignalHandlerThread() {
-
-
-        try {
-
-            if (signalMessageHandlerThread != null) {
-
-                // to avoid multiple start signal request
-                signalMessageHandlerThread.quit();
-
-                signalMessageHandlerThread = null;
-
-            }
-
+    private void setSignalHandlerThread() {
 
             signalMessageHandlerThread = new HandlerThread("signal handler thread");
-
             signalMessageHandlerThread.start();
 
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    }
 
 
+    private void stopSignalHandlerThread(){
+
+        if (signalMessageHandlerThread != null) {
+                // to avoid multiple start signal request
+                signalMessageHandlerThread.quit();
+            }
     }
 
     /**
@@ -732,9 +724,14 @@ public class Chat extends AsyncAdapter {
             case Constants.GET_HISTORY:
                 /*Remove uniqueIds from waitQueue /***/
                 if (callback == null) {
-                    handleRemoveFromWaitQueue(chatMessage);
+                    if (handlerSend.get(messageUniqueId) != null)
+                        handleRemoveFromWaitQueue(chatMessage);
+                    else
+                        handleOnGetMentionList(chatMessage);
+
+                    //todo add callbacks for pagination
                 } else {
-                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    handleOutPutGetHistory(callback, chatMessage);
                 }
                 break;
             case Constants.GET_THREADS:
@@ -805,11 +802,22 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    private void handleOnGetMentionList(ChatMessage chatMessage) {
+
+        ChatResponse<ResultHistory> response = Mention.getMentionListResponse(chatMessage);
+        listenerManager.callOnGetMentionList(response);
+        showLog("RECEIVED MENTION LIST", gson.toJson(response));
+
+        //todo cache ?
+
+    }
+
     private void handleOnPinMessage(ChatMessage chatMessage) {
+
 
         ChatResponse<ResultPinMessage> response = PinMessage.handleOnMessagePinned(chatMessage);
         listenerManager.callOnPinMessage(response);
-        showLog("MESSAGE_PINNED", gson.toJson(chatMessage));
+        showLog("MESSAGE_PINNED", gson.toJson(response));
         if (cache) {
             messageDatabaseHelper.savePinMessage(response, chatMessage.getSubjectId());
         }
@@ -828,7 +836,13 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnGetUserRoles(ChatMessage chatMessage) {
-        String jsonContent = chatMessage.getContent();
+
+        ChatResponse<ResultCurrentUserRoles> response = UserRoles.handleOnGetUserRoles(chatMessage);
+
+        listenerManager.callOnGetUserRoles(response);
+
+        showLog("RECEIVE CURRENT USER ROLES", gson.toJson(response));
+
     }
 
     private void handOnUnPinThread(ChatMessage chatMessage) {
@@ -839,7 +853,9 @@ public class Chat extends AsyncAdapter {
 
         showLog("RECEIVE_UNPIN_THREAD", gson.toJson(chatMessage));
 
-        //todo update cache
+        if (cache)
+            messageDatabaseHelper.setThreadUnPinned(chatMessage);
+
 
     }
 
@@ -851,7 +867,9 @@ public class Chat extends AsyncAdapter {
 
         showLog("RECEIVE_PIN_THREAD", gson.toJson(chatMessage));
 
-        //todo update cache
+        if (cache)
+            messageDatabaseHelper.setThreadPinned(chatMessage);
+
 
     }
 
@@ -1121,18 +1139,16 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
-
     public String pinThread(RequestPinThread request) {
 
 
         String uniqueId = generateUniqueId();
-            if (chatReady) {
-                String message = PinThread.pinThread(request,uniqueId);
-                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_PIN_THREAD");
-            } else {
-                onChatNotReady(uniqueId);
-            }
+        if (chatReady) {
+            String message = PinThread.pinThread(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_PIN_THREAD");
+        } else {
+            onChatNotReady(uniqueId);
+        }
         return uniqueId;
     }
 
@@ -1141,12 +1157,12 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
 
-            if (chatReady) {
-                String message = PinThread.unPinThread(request,uniqueId);
-                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_UNPIN_THREAD");
-            } else {
-                onChatNotReady(uniqueId);
-            }
+        if (chatReady) {
+            String message = PinThread.unPinThread(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_UNPIN_THREAD");
+        } else {
+            onChatNotReady(uniqueId);
+        }
 
         return uniqueId;
 
@@ -1237,58 +1253,30 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * @param request
+     */
 
-    public String getMentionList() {
-
+    public String getMentionList(RequestGetMentionList request) {
 
         String uniqueId = generateUniqueId();
 
-        long threadId = 5808;
+        if (chatReady) {
 
-        JsonObject h = new JsonObject();
+            String message = Mention.getMentionList(request, uniqueId);
 
-        JsonObject criteriaVO = new JsonObject();
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_MENTION_LIST");
 
-        criteriaVO.addProperty("allMentioned", true);
-
-        h.add("criteriaVo",criteriaVO);
-
-//        criteriaVO.addProperty("unreadMentioned ", true);
-
-//        jObj.add("metadataCriteria",criteriaVO);
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(h.toString());
-        chatMessage.setType(Constants.GET_HISTORY);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setSubjectId(threadId);
-
-
-
-        if(chatReady){
-
-            sendAsyncMessage(gson.toJson(chatMessage), AsyncAckType.Constants.WITHOUT_ACK, "GET_MENTION_LIST");
-
-        }else {
-
+        } else {
             onChatNotReady(uniqueId);
-
         }
-
-
         return uniqueId;
-
-
     }
 
     /**
-     *
      * @param request request for pin message
      *                messageId: id of message that you want to pin
      *                notifyAll: if you want notify all thread member about this message
-     *
      */
 
     public String pinMessage(RequestPinMessage request) {
@@ -1297,7 +1285,7 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
-            String message = PinMessage.pinMessage(request,uniqueId);
+            String message = PinMessage.pinMessage(request, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "PIN_MESSAGE");
 
         } else {
@@ -1311,11 +1299,8 @@ public class Chat extends AsyncAdapter {
 
 
     /**
-     *
      * @param request request for unpin message
      *                messageId: id of message that you want to unpin
-     *
-     *
      */
 
 
@@ -1325,7 +1310,7 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
-            String message = PinMessage.unPinMessage(request,uniqueId);
+            String message = PinMessage.unPinMessage(request, uniqueId);
 
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "UNPIN_MESSAGE");
 
@@ -1339,41 +1324,20 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String getUserRoles(RequestGetUserRoles request) {
+    public String getCurrentUserRoles(RequestGetUserRoles request) {
 
         String uniqueId = generateUniqueId();
-        long threadId = request.getThreadId();
 
         if (chatReady) {
 
-            ChatMessage chatMessage = new ChatMessage();
-//            chatMessage.setContent(gson.toJson(userRoleVOS));
-            chatMessage.setSubjectId(threadId);
-            chatMessage.setToken(getToken());
-            chatMessage.setType(Constants.GET_USER_ROLES);
-            chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
-            chatMessage.setUniqueId(uniqueId);
-            chatMessage.setTypeCode(getTypeCode());
-
-            JsonObject asyncContent = (JsonObject) gson.toJsonTree(chatMessage);
-
-            asyncContent.remove("contentCount");
-            asyncContent.remove("repliedTo");
-            asyncContent.remove("time");
-
-
-            setCallBacks(null, null, null, true, Constants.GET_USER_ROLES, null, uniqueId);
-//            String asyncContent = gson.toJson(chatMessage);
-            sendAsyncMessage(asyncContent.toString(), AsyncAckType.Constants.WITHOUT_ACK, "GET_USER_ROLES");
-
+            String message = UserRoles.getUserRoles(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_USER_ROLES");
 
         } else {
             onChatNotReady(uniqueId);
         }
 
-
         return uniqueId;
-
     }
 
     private void onChatNotReady(String uniqueId) {
@@ -3059,7 +3023,7 @@ public class Chat extends AsyncAdapter {
             JsonObject contentObj = new JsonObject();
 
             JsonElement messageIdsElement = gson.toJsonTree(messageIds, new TypeToken<List<Long>>() {
-                    }.getType());
+            }.getType());
 
             JsonElement uniqueIdsElement = gson.toJsonTree(uniqueIds, new TypeToken<List<String>>() {
             }.getType());
@@ -4115,6 +4079,10 @@ public class Chat extends AsyncAdapter {
      */
 
     public String startSignalMessage(RequestSignalMsg requestSignalMsg, String logMessage) {
+/
+        stopSignalHandlerThread();
+
+        setSignalHandlerThread();
 
         String uniqueId = generateUniqueId();
 
@@ -4125,6 +4093,7 @@ public class Chat extends AsyncAdapter {
             public void run() {
                 signalMessage(requestSignalMsg, logMessage, uniqueId);
                 handler.postDelayed(this, getSignalIntervalTime());
+                signalMessageRanTime += getSignalIntervalTime();
             }
         };
 
@@ -4292,6 +4261,12 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    public void stopTyping() {
+
+        stopSignalHandlerThread();
+
+    }
+
 
     public void stopAllSignalMessages() {
 
@@ -4302,8 +4277,6 @@ public class Chat extends AsyncAdapter {
             signalHandlerKeeper.get(k).removeCallbacksAndMessages(null);
 
         }
-
-
     }
 
     /**
@@ -5678,7 +5651,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public ArrayList<String> createThreadWithFile(RequestCreateThreadWithFile request,@Nullable ProgressHandler.onProgressFile progressHandler) {
+    public ArrayList<String> createThreadWithFile(RequestCreateThreadWithFile request, @Nullable ProgressHandler.onProgressFile progressHandler) {
 
         ArrayList<String> uniqueIds = new ArrayList<>();
 
@@ -7629,7 +7602,7 @@ public class Chat extends AsyncAdapter {
 
                         case Constants.GET_HISTORY:
 
-                            handleOutPutGetHistory(callback, chatMessage, messageUniqueId);
+                            handleOutPutGetHistory(callback, chatMessage);
                             break;
                         case Constants.GET_CONTACTS:
 
@@ -8131,17 +8104,6 @@ public class Chat extends AsyncAdapter {
             jObj.remove("uniqueIds");
 
         }
-
-
-//        JsonObject criteriaVO = new JsonObject();
-
-
-//        criteriaVO.addProperty("allMentioned",true);
-
-//        criteriaVO.addProperty("unreadMentioned ",true);
-
-//        jObj.add("metadataCriteria",criteriaVO);
-
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(jObj.toString());
@@ -8814,9 +8776,16 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    @Deprecated
     public boolean stopTyping(String uniqueId) {
 
-        return stopSignalMessage(uniqueId);
+        try {
+            stopSignalHandlerThread();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
 
     }
 
@@ -8997,14 +8966,11 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVE_REMOVE_PARTICIPANT", jsonRmParticipant);
     }
 
-    private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
+    private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage) {
 
-        List<MessageVO> messageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
-        }.getType());
-
+        List<MessageVO> messageVOS = Mention.getMessageVOSFromChatMessage(chatMessage);
 
         if (cache) {
-
 
             if (handlerSend.get(chatMessage.getUniqueId()) != null) {
 
@@ -9012,12 +8978,11 @@ public class Chat extends AsyncAdapter {
 
                 return;
             }
-
-
         }
 
         publishChatHistoryServerResult(callback, chatMessage, messageVOS);
     }
+
 
     private void publishChatHistoryServerResult(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {
 
@@ -10736,7 +10701,6 @@ public class Chat extends AsyncAdapter {
                 Objects.requireNonNull(handlerSend.get(chatMessage.getUniqueId()))
                         .onGetHistory(chatMessage.getUniqueId());
 
-
             }
 
         }
@@ -10841,9 +10805,9 @@ public class Chat extends AsyncAdapter {
         return signalIntervalTime;
     }
 
-    public void setSignalIntervalTime(int signalIntervalTime) {
-        this.signalIntervalTime = signalIntervalTime;
-    }
+//    public void setSignalIntervalTime(int signalIntervalTime) {
+//        this.signalIntervalTime = signalIntervalTime;
+//    }
 
 
     @Override

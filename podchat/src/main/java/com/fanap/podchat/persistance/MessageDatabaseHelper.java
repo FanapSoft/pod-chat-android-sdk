@@ -27,6 +27,7 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.mainmodel.History;
@@ -51,6 +52,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -1235,6 +1238,8 @@ public class MessageDatabaseHelper {
 
         String sQuery;
 
+        List<Thread> pinnedThread = new ArrayList<>();
+
         sQuery = "select  * from ThreadVo ORDER BY id DESC LIMIT " + count + " OFFSET " + offset;
         if (threadName != null) {
             sQuery = "select  * from ThreadVo where title LIKE  '%" + threadName + "%' ORDER BY id DESC LIMIT " + count + " OFFSET " + offset;
@@ -1303,9 +1308,20 @@ public class MessageDatabaseHelper {
                 addPinnedMessageOfThread(threadVo);
 
                 Thread thread = threadVoToThreadMapper(threadVo, lastMessageVO);
-                threads.add(thread);
+
+                if (thread.isPin())
+                    pinnedThread.add(thread);
+                else
+                    threads.add(thread);
             }
         }
+
+        if (pinnedThread.size() > 0) {
+
+            threads.addAll(0,pinnedThread);
+
+        }
+
         return threads;
     }
 
@@ -1380,7 +1396,7 @@ public class MessageDatabaseHelper {
                 thread.getPartnerLastDeliveredMessageNanos(),
                 thread.getType(),
                 thread.isMute()
-                ,thread.getMetadata(),
+                , thread.getMetadata(),
                 thread.isCanEditInfo(),
                 thread.getParticipantCount(),
                 thread.getCanSpam() != null ? thread.getCanSpam() : false,
@@ -1657,7 +1673,7 @@ public class MessageDatabaseHelper {
                     insertInviter(threadVo);
                 }
 
-                if(thread.getPinMessageVO() != null ){
+                if (thread.getPinMessageVO() != null) {
 
                     insertPinnedMessage(thread);
 
@@ -2219,10 +2235,25 @@ public class MessageDatabaseHelper {
 
 
     }
+
     public void deletePinnedMessageByThreadId(long threadId) {
 
         messageDao.deletePinnedMessageByThreadId(threadId);
 
+
+    }
+
+    public void setThreadPinned(ChatMessage chatMessage) {
+
+        long threadId = chatMessage.getSubjectId();
+        messageDao.updateThreadPinState(threadId, true);
+
+    }
+
+    public void setThreadUnPinned(ChatMessage chatMessage) {
+
+        long threadId = chatMessage.getSubjectId();
+        messageDao.updateThreadPinState(threadId, false);
 
     }
 }

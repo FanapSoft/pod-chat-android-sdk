@@ -19,7 +19,7 @@ public class RequestGetHistory extends BaseRequestObject {
     private long lastMessageId;
     private String[] uniqueIds;
 
-    RequestGetHistory(@NonNull Builder builder) {
+    public RequestGetHistory(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
         this.order = builder.order;

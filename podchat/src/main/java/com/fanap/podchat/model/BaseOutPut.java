@@ -55,4 +55,5 @@ public abstract class BaseOutPut {
     public void setSubjectId(long subjectId) {
         this.subjectId = subjectId;
     }
+
 }

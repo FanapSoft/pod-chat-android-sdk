@@ -24,6 +24,8 @@ import android.widget.Toast;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -81,7 +83,6 @@ import java.util.Date;
 import java.util.List;
 
 
-
 public class ChatActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
     private static final int FILE_REQUEST_CODE = 2;
@@ -91,7 +92,7 @@ public class ChatActivity extends AppCompatActivity
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 6630;
+    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
@@ -123,28 +124,11 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    //fel token
-//    private String name = "felfeli";
-//    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
-    //Fifi
-//    private String name = "Fifi";
-//    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
-//    private static String TOKEN = "6421ecebd40b4d09923bcf6379663d87";
-//    private static String TOKEN = "7a18deb4a4b64339a81056089f5e5922";
-
-//    private static String name = "Alexi";
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-
-    //Masoud
-//    private String name = "jiji";
-//    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
-
+    private static String TOKEN = "16baf0c8a2ec4df88c77a433fc7b683b";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String TOKEN = "f803a0e811f04b339249cd1887f89a59";
-
 
 
     /**
@@ -166,59 +150,6 @@ public class ChatActivity extends AppCompatActivity
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
-//
-
-
-//    //used for 122,123 id to get not seen
-
-//    //Token Alexi
-
-////    private static String appId = "POD-Chat";
-
-//    Mehrara
-//    private String socketAddress = "ws://172.16.106.26:8003/ws"; // {**REQUIRED**} Socket Address
-//        private String socketAddress = "ws://172.16.106.221:8003/ws"; // {**REQUIRED**} Socket Address
-//        private String platformHost = "http://172.16.106.26:8080/hamsam/";
-//        private String platformHost = "http://172.16.110.131:8080/"; // {**REQUIRED**} Platform Core Address
-//     {**REQUIRED**} Platform Core Address
-
-//     private String serverName = "chat-server";
-
-
-    /**
-     *
-     * Local:
-     *
-     * Mehdi Sheikh Hosseini:
-     *
-     * Setting:
-     */
-
-//    works:
-//
-//
-//////
-//    private String name = "zizi";
-//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
-//    private String socketAddress = "ws://172.16.110.131:8003/ws"; // {**REQUIRED**} Socket Address
-//    private String ssoHost = "http://172.16.110.76"; // {**REQUIRED**} Socket Address
-//    private String platformHost = "http://172.16.110.131:8080/";
-//    private String fileServer = "http://172.16.110.131:8080/"; // {**REQUIRED**} File Server Address
-//    private String serverName = "chat-server2";
-//    private String typeCode = null;
-
-////
-
-
-    /**
-     * SERVICE_ADDRESSES = {
-     * SSO_ADDRESS: params.ssoHost || 'http://172.16.110.76',
-     * PLATFORM_ADDRESS: params.platformHost || 'http://172.16.106.26:8080/hamsam',
-     * FILESERVER_ADDRESS: params.fileServer || 'http://172.16.106.26:8080/hamsam',
-     * POD_DRIVE_ADDRESS: params.podDrive || 'http://172.16.106.26:8080/hamsam',
-     * MAP_ADDRESS: params.mapServer || 'https://api.neshan.org/v1'
-     * },
-     */
 
 
     private String fileUri;
@@ -571,6 +502,7 @@ public class ChatActivity extends AppCompatActivity
 
 
         presenter.getUserRoles(req);
+
 
     }
 
@@ -1141,9 +1073,9 @@ public class ChatActivity extends AppCompatActivity
 
     private void addParticipants() {
         List<Long> participantIds = new ArrayList<>();
-        participantIds.add(485L);
-        participantIds.add(577L);
-        participantIds.add(824L);
+        participantIds.add(22835L);
+//        participantIds.add(23116L);
+//        participantIds.add(824L);
         //        presenter.addParticipants(691, participantIds, new ChatHandler() {
 //            @Override
 //            public void onAddParticipants(String uniqueId) {
@@ -1334,9 +1266,9 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Fateme ",
-                        "Khojaste",
-                        "+989151242904",
+                presenter.addContact("Farhad ",
+                        "Kheirkha",
+                        "+9157770684",
                         faker.name().username() + "@gmail.com");
                 break;
             case 15:
@@ -1414,8 +1346,13 @@ public class ChatActivity extends AppCompatActivity
 
             case 22: {
 
+                RequestGetMentionList req = new RequestGetMentionList.Builder()
+//                        .setAllMentioned(true)
+                        .setUnreadMentioned(true)
+                        .setThreadId(TEST_THREAD_ID)
+                        .build();
 
-                presenter.getMentionList();
+                presenter.getMentionList(req);
 
                 break;
             }
@@ -1547,7 +1484,7 @@ public class ChatActivity extends AppCompatActivity
 
     private void updateContact() {
         presenter.updateContact(2951, "Farhad Amjadi",
-                "Amjadi", "09148401824", "zi@gmail.com"
+                "Amjadi", "--------", "zi@gmail.com"
         );
     }
 
@@ -1860,8 +1797,17 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onUnPinMessage(ChatResponse<ResultPinMessage> response) {
         runOnUiThread(() -> Toast.makeText(this, "Message UnPinned! ==> " + response.getResult().getText(), Toast.LENGTH_LONG)
-
                 .show());
+
+    }
+
+    @Override
+    public void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
+
+        runOnUiThread(() -> Toast.makeText(this, "User roles " + response.getResult().getRoles(), Toast.LENGTH_LONG)
+                .show());
+
+        Log.d("ROLES", response.getJson());
 
     }
 }
