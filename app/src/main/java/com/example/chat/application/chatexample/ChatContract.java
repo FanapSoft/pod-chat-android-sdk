@@ -6,15 +6,24 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
@@ -30,12 +39,13 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestPinThread;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
+import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
@@ -45,6 +55,7 @@ import com.fanap.podchat.requestobject.RetryUpload;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public interface ChatContract {
 
@@ -162,6 +173,16 @@ public interface ChatContract {
 
         default void onGetThreadAdmin() {
         }
+
+        default void onTokenExpired(){}
+
+        default void onPinMessage(ChatResponse<ResultPinMessage> response){}
+
+        default void onUnPinMessage(ChatResponse<ResultPinMessage> response){}
+
+        default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
+
+        default void onTypingSignalTimeout(long threadId){}
     }
 
     interface presenter {
@@ -338,5 +359,40 @@ public interface ChatContract {
         void setAuditor(RequestSetAuditor requestAddAdmin);
 
         void removeAuditor(RequestSetAuditor requestAddAdmin);
+
+        void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.onProgressFile handler);
+
+        void getUserRoles(RequestGetUserRoles req);
+
+        void pinMessage(RequestPinMessage requestPinMessage);
+
+        void unPinMessage(RequestPinMessage requestPinMessage);
+
+        void getMentionList(RequestGetMentionList req);
+
+        void startTyping(RequestSignalMsg req);
+
+        String downloadFile(RequestGetImage requestGetImage, ProgressHandler.IDownloadFile onProgressFile);
+
+        String downloadFile(RequestGetFile requestGetFile, ProgressHandler.IDownloadFile onProgressFile);
+
+        boolean cancelDownload(String downloadingId);
+
+        void getCacheSize();
+
+        void clearDatabaseCache(Chat.IClearMessageCache listener);
+
+        long getStorageSize();
+
+        long getImageFolderSize();
+
+        long getFilesFolderSize();
+
+        boolean clearPictures();
+
+        boolean clearFiles();
+
+        void closeChat();
+
     }
 }

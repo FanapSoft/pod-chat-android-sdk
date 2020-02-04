@@ -2,6 +2,7 @@ package com.fanap.podchat.util;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -35,6 +36,7 @@ public class Permission {
         ActivityCompat.requestPermissions(act, new
                 String[]{Manifest.permission.READ_CONTACTS}, code);
     }
+
     public static void Request_ACCESS_NETWORK_STATE(@NonNull Activity act, int code) {
         ActivityCompat.requestPermissions(act, new
                 String[]{Manifest.permission.ACCESS_NETWORK_STATE}, code);
@@ -55,11 +57,26 @@ public class Permission {
         int result = ContextCompat.checkSelfPermission(act, Manifest.permission.READ_EXTERNAL_STORAGE);
         return result == PackageManager.PERMISSION_GRANTED;
     }
+
+
+    public static boolean Check_READ_STORAGE(@NonNull Context context) {
+        int result = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean Check_Write_STORAGE(@NonNull Context context) {
+        int result = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return result == PackageManager.PERMISSION_GRANTED;
+    }
+
+
     public static boolean Check_INTERNET(@NonNull Activity act) {
         int result = ContextCompat.checkSelfPermission(act, Manifest.permission.INTERNET);
         return result == PackageManager.PERMISSION_GRANTED;
 
-    } public static boolean Check_ACCESS_NETWORK_STATE(@NonNull Activity act) {
+    }
+
+    public static boolean Check_ACCESS_NETWORK_STATE(@NonNull Activity act) {
         int result = ContextCompat.checkSelfPermission(act, Manifest.permission.ACCESS_NETWORK_STATE);
         return result == PackageManager.PERMISSION_GRANTED;
     }

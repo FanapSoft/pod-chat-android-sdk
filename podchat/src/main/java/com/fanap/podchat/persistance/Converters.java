@@ -31,7 +31,7 @@ public class Converters {
 
     //   @TypeConverter
 //    public static <T> ArrayList<T> fromString(String value) {
-//        Type listType = new TypeToken<ArrayList<T>>() {}.getType();
+//        Type listType = new TypeToken<ArrayList<T>>() {}.getMessageType();
 //        return new Gson().fromJson(value, listType);
 //    }
 

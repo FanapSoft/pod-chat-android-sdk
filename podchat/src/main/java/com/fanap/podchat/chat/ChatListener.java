@@ -1,14 +1,12 @@
 package com.fanap.podchat.chat;
 
-import android.util.Log;
-
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
@@ -26,9 +24,11 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.model.ResultPinThread;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
+import com.fanap.podchat.model.ResultSignalMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -214,7 +214,14 @@ public interface ChatListener {
     }
 
 
+    @Deprecated
     default void OnSignalMessageReceive(OutputSignalMessage output) {
+    }
+
+    default void onSignalMessageReceived(OutputSignalMessage output) {
+    }
+
+    default void onSignalMessageReceived(ChatResponse<ResultSignalMessage> result) {
     }
 
     default void OnSetRule(ChatResponse<ResultSetAdmin> outputSetRoleToUser) {
@@ -223,10 +230,21 @@ public interface ChatListener {
     @Deprecated
     default void onGetThreadAdmin(String jsonData){}
 
-
     default void onPinThread(ChatResponse<ResultPinThread> response){}
 
     default void onUnPinThread(ChatResponse<ResultPinThread> response){}
 
     default void onRemoveRoleFromUser(ChatResponse<ResultSetAdmin> outputSetRoleToUser){}
+
+    default void onPinMessage(ChatResponse<ResultPinMessage> response){}
+
+    default void onUnPinMessage(ChatResponse<ResultPinMessage> response){}
+
+    default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
+
+    default void onGetMentionList(ChatResponse<ResultHistory> response){}
+
+    default void onTypingSignalTimeout(long threadId){}
+
+    default void onLowFreeSpace(long bytesAvailable){}
 }

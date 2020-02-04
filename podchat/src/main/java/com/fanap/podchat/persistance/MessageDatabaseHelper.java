@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
+import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
@@ -26,20 +27,27 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Util;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +68,7 @@ public class MessageDatabaseHelper {
     private Context context;
     private AppDatabase appDatabase;
 
+
     @Inject
     public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao, Context context, AppDatabase appDatabase) {
         this.messageQueueDao = messageQueueDao;
@@ -67,6 +76,41 @@ public class MessageDatabaseHelper {
         this.context = context;
         this.appDatabase = appDatabase;
     }
+
+
+    public void clearAllData(Chat.IClearMessageCache listener) {
+
+        try {
+            new java.lang.Thread(() -> {
+
+                try {
+
+                    appDatabase.clearAllTables();
+
+                    java.lang.Thread.sleep(2000);
+
+                    messageDao.vacuumDb(new SimpleSQLiteQuery("VACUUM"));
+//                    SupportSQLiteOpenHelper s = appDatabase.getOpenHelper();
+//
+//                    SupportSQLiteDatabase db = s.getWritableDatabase();
+//
+//                    db.execSQL("vacuum");
+                    java.lang.Thread.sleep(1000);
+
+                    listener.onCacheDatabaseCleared();
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    listener.onExceptionOccurred(e.getMessage());
+                }
+            }).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            listener.onExceptionOccurred(e.getMessage());
+        }
+
+    }
+
 
     public void getDatabaseState(String dbName) {
         SQLCipherUtils.getDatabaseState(context, dbName);
@@ -787,6 +831,12 @@ public class MessageDatabaseHelper {
             if (!Util.isNullOrEmpty(cacheMessageVO.getConversationId())) {
                 cacheMessageVO.setConversation(messageDao.getThreadById(cacheMessageVO.getConversationId()));
                 ThreadVo threadVo = cacheMessageVO.getConversation();
+
+
+                //adding pinned message of thread if exist
+                addPinnedMessageOfThread(threadVo);
+
+
                 thread = threadVoToThreadMapper(threadVo, null);
             }
             if (cacheMessageVO.getForwardInfoId() != null) {
@@ -828,6 +878,13 @@ public class MessageDatabaseHelper {
             messageVOS.add(messageVO);
         }
         return messageVOS;
+    }
+
+    private void addPinnedMessageOfThread(ThreadVo threadVo) {
+        PinMessageVO pinnedMessage = messageDao.getThreadPinnedMessage(threadVo.getId());
+
+        if (pinnedMessage != null)
+            threadVo.setPinMessageVO(pinnedMessage);
     }
 
     private String addOrderAndLimitAndOffset(long offset, long count, String order, String rawQuery) {
@@ -926,7 +983,7 @@ public class MessageDatabaseHelper {
 
         rawQuery = addMessageIdIfExist(messageId, rawQuery);
 
-        rawQuery = addFromTimeIfExist(fromTime,fromTimeNanos,rawQuery);
+        rawQuery = addFromTimeIfExist(fromTime, fromTimeNanos, rawQuery);
 
         rawQuery = addToTimeIfExist(toTime, toTimeNanos, rawQuery);
 
@@ -1063,6 +1120,135 @@ public class MessageDatabaseHelper {
         messageDao.deleteContactById(id);
     }
 
+
+    /**
+     * Blocked Contacts in Cache
+     *
+     * @param blockedContact blocked contact
+     * @param expireSecond   validation second
+     */
+
+    public void saveBlockedContact(@NonNull Contact blockedContact, int expireSecond) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DATE, expireSecond);
+
+        String expireDate = dateFormat.format(c.getTime());
+        CacheBlockedContact cacheContact = new CacheBlockedContact(
+                expireDate,
+                blockedContact.getId(),
+                blockedContact.getFirstName(),
+                blockedContact.getUserId(),
+                blockedContact.getLastName(),
+                blockedContact.getBlocked(),
+                blockedContact.getCreationDate(),
+                blockedContact.getLinkedUser(),
+                blockedContact.getCellphoneNumber(),
+                blockedContact.getEmail(),
+                blockedContact.getUniqueId(),
+                blockedContact.getNotSeenDuration(),
+                blockedContact.isHasUser()
+        );
+
+        try {
+            messageDao.insertBlockedContact(cacheContact);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveBlockedContacts(@NonNull List<Contact> contacts, int expireAmount) {
+        List<CacheBlockedContact> cacheContacts = new ArrayList<>();
+        for (Contact contact : contacts) {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            c.add(Calendar.SECOND, expireAmount);
+            String expireDate = format.format(c.getTime());
+
+            CacheBlockedContact cacheBlockedContact = new CacheBlockedContact(
+                    expireDate,
+                    contact.getId(),
+                    contact.getFirstName(),
+                    contact.getUserId(),
+                    contact.getLastName(),
+                    contact.getBlocked(),
+                    contact.getCreationDate(),
+                    contact.getLinkedUser(),
+                    contact.getCellphoneNumber(),
+                    contact.getEmail(),
+                    contact.getUniqueId(),
+                    contact.getNotSeenDuration(),
+                    contact.isHasUser()
+            );
+
+
+            cacheContacts.add(cacheBlockedContact);
+        }
+        messageDao.insertBlockedContacts(cacheContacts);
+    }
+
+
+    @NonNull
+    public List<Contact> getBlockedContacts(Long count, Long offset) {
+
+        List<Contact> contacts = new ArrayList<>();
+
+        List<CacheBlockedContact> cacheContacts = messageDao.getBlockedContacts(count, offset);
+
+
+        if (cacheContacts != null && cacheContacts.size() > 0) {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            Date nowDate = c.getTime();
+
+            for (CacheBlockedContact cacheContact : cacheContacts) {
+                try {
+                    Date expireDate = format.parse(cacheContact.getExpireDate());
+                    if (expireDate.compareTo(nowDate) < 0) {
+                        deleteContact(cacheContact);
+                    } else {
+                        Contact contact = new Contact(
+                                cacheContact.getId(),
+                                cacheContact.getFirstName(),
+                                cacheContact.getUserId(),
+                                cacheContact.getLastName(),
+                                cacheContact.getBlocked(),
+                                cacheContact.getCreationDate(),
+                                cacheContact.getLinkedUser(),
+                                cacheContact.getCellphoneNumber(),
+                                cacheContact.getEmail(),
+                                cacheContact.getUniqueId(),
+                                cacheContact.getNotSeenDuration(),
+                                cacheContact.isHasUser(),
+                                true
+                        );
+                        contacts.add(contact);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return contacts;
+    }
+
+
+    private void deleteBlockedContact(CacheBlockedContact cacheContact) {
+        messageDao.deleteBlockedContact(cacheContact);
+    }
+
+
+    public void deleteBlockedContactById(long id) {
+        messageDao.deleteBlockedContactById(id);
+    }
+
+
     /**
      * Cache UserInfo
      */
@@ -1088,6 +1274,8 @@ public class MessageDatabaseHelper {
     public List<Thread> getThreadRaw(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName) {
 
         String sQuery;
+
+        List<Thread> pinnedThread = new ArrayList<>();
 
         sQuery = "select  * from ThreadVo ORDER BY id DESC LIMIT " + count + " OFFSET " + offset;
         if (threadName != null) {
@@ -1125,6 +1313,7 @@ public class MessageDatabaseHelper {
                 if (threadVo.getInviterId() != null) {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
+
                 if (threadVo.getLastMessageVOId() != null) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
@@ -1152,10 +1341,24 @@ public class MessageDatabaseHelper {
                     lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
                 }
 
+                //adding pinned message of thread if exist
+                addPinnedMessageOfThread(threadVo);
+
                 Thread thread = threadVoToThreadMapper(threadVo, lastMessageVO);
-                threads.add(thread);
+
+                if (thread.isPin())
+                    pinnedThread.add(thread);
+                else
+                    threads.add(thread);
             }
         }
+
+        if (pinnedThread.size() > 0) {
+
+            threads.addAll(0, pinnedThread);
+
+        }
+
         return threads;
     }
 
@@ -1193,7 +1396,52 @@ public class MessageDatabaseHelper {
                 threadVo.isCanSpam(),
                 threadVo.isAdmin(),
                 threadVo.isPin(),
-                threadVo.isMentioned()
+                threadVo.isMentioned(),
+                threadVo.getPinMessageVO()
+        );
+    }
+
+    private ThreadVo threadToThreadVoMapper(Thread thread) {
+
+        return new ThreadVo(
+                thread.getId(),
+                thread.getJoinDate(),
+                null,
+                null,
+                null,
+                null,
+                thread.getTitle(),
+                null,
+                thread.getTime(),
+                null,
+                thread.getLastParticipantName(),
+                thread.getLastParticipantImage(),
+                thread.isGroup(),
+                thread.getPartner(),
+                thread.getImage(),
+                thread.getDescription(),
+                thread.getUnreadCount(),
+                0,
+                0,
+                thread.getPartnerLastSeenMessageId(),
+                thread.getPartnerLastDeliveredMessageId(),
+                thread.getLastSeenMessageNanos(),
+                thread.getLastSeenMessageTime(),
+                thread.getPartnerLastSeenMessageTime(),
+                thread.getPartnerLastSeenMessageNanos(),
+                thread.getPartnerLastDeliveredMessageTime(),
+                thread.getPartnerLastDeliveredMessageNanos(),
+                thread.getType(),
+                thread.isMute()
+                , thread.getMetadata(),
+                thread.isCanEditInfo(),
+                thread.getParticipantCount(),
+                thread.getCanSpam() != null ? thread.getCanSpam() : false,
+                thread.getAdmin() != null ? thread.getAdmin() : false,
+                thread.isPin() != null && thread.isPin(),
+                thread.isMentioned(),
+                null
+
         );
     }
 
@@ -1270,6 +1518,8 @@ public class MessageDatabaseHelper {
 
                 }
 
+                //adding pinned message of thread if exist
+                addPinnedMessageOfThread(threadVo);
 
                 Thread thread = threadVoToThreadMapper(threadVo, lastMessageVO);
                 threads.add(thread);
@@ -1297,6 +1547,10 @@ public class MessageDatabaseHelper {
 
             for (ThreadVo threadInCache :
                     tvo) {
+
+                //adding pinned message of thread if exist
+                addPinnedMessageOfThread(threadInCache);
+
 
                 threads.add(threadVoToThreadMapper(threadInCache, null));
 
@@ -1370,6 +1624,9 @@ public class MessageDatabaseHelper {
 
                 }
 
+                //adding pinned message of thread if exist
+                addPinnedMessageOfThread(threadVo);
+
                 Thread thread = threadVoToThreadMapper(threadVo, lastMessageVO);
                 threads.add(thread);
             }
@@ -1422,6 +1679,9 @@ public class MessageDatabaseHelper {
 
                 }
 
+                //adding pinned message of thread if exist
+                addPinnedMessageOfThread(threadVo);
+
 
                 Thread thread = threadVoToThreadMapper(threadVo, lastMessageVO);
                 threads.add(thread);
@@ -1431,7 +1691,7 @@ public class MessageDatabaseHelper {
         return threads;
     }
 
-    public void saveThreads(@NonNull List<ThreadVo> threadVos) {
+    public void saveThreads(@NonNull List<Thread> threads) {
 
 
         worker(() -> {
@@ -1440,53 +1700,54 @@ public class MessageDatabaseHelper {
             CacheReplyInfoVO cacheReplyInfoVO;
             CacheForwardInfo cacheForwardInfo;
 
-            for (ThreadVo threadVo : threadVos) {
+            for (Thread thread : threads) {
+
+
+                String gson = App.getGson().toJson(thread);
+
+                ThreadVo threadVo = App.getGson().fromJson(gson,ThreadVo.class);
+
+
+//                ThreadVo threadVo = threadToThreadVoMapper(thread);
+
                 if (threadVo.getInviter() != null) {
 
-                    threadVo.setInviterId(threadVo.getInviter().getId());
-                    messageDao.insertInviter(threadVo.getInviter());
+                    insertInviter(threadVo);
                 }
-                if (threadVo.getLastMessageVO() != null) {
 
-                    threadVo.setLastMessageVOId(threadVo.getLastMessageVO().getId());
-                    cacheMessageVO = threadVo.getLastMessageVO();
-                    messageDao.insertLastMessageVO(cacheMessageVO);
+                if (thread.getPinMessageVO() != null) {
+
+                    insertPinnedMessage(thread);
+
+                }
+                if (thread.getLastMessageVO() != null) {
+
+                    cacheMessageVO = insertLastMessage(thread, threadVo);
+
+
                     if (threadVo.getLastMessageVO().getParticipant() != null) {
 
-                        cacheMessageVO.setParticipantId(threadVo.getLastMessageVO().getParticipant().getId());
-                        messageDao.insertLastMessageVO(cacheMessageVO);
-                        CacheParticipant cacheParticipantLastMessageVO = threadVo.getLastMessageVO().getParticipant();
-                        cacheParticipantLastMessageVO.setThreadId(threadVo.getId());
-                        messageDao.insertParticipant(threadVo.getLastMessageVO().getParticipant());
+                        insertParticipant(cacheMessageVO, threadVo);
+
                     }
                     if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
-                        cacheReplyInfoVO = threadVo.getLastMessageVO().getReplyInfoVO();
-                        cacheMessageVO.setReplyInfoVOId(threadVo.getLastMessageVO().getReplyInfoVO().getId());
-                        messageDao.insertLastMessageVO(cacheMessageVO);
-                        messageDao.insertReplyInfoVO(cacheReplyInfoVO);
+
+                        cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
 
                         if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
 
-                            cacheReplyInfoVO.setParticipantId(threadVo.getLastMessageVO().getReplyInfoVO().getParticipant().getId());
-                            messageDao.insertReplyInfoVO(cacheReplyInfoVO);
-                            messageDao.insertParticipant(threadVo.getLastMessageVO().getReplyInfoVO().getParticipant());
+                            insertReplyParticipant(cacheReplyInfoVO, threadVo);
                         }
                     }
                     if (threadVo.getLastMessageVO().getForwardInfo() != null) {
 
-                        cacheForwardInfo = threadVo.getLastMessageVO().getForwardInfo();
-                        cacheForwardInfo.setId(threadVo.getLastMessageVO().getId());
-                        messageDao.insertForwardInfo(cacheForwardInfo);
-                        cacheMessageVO.setForwardInfoId(threadVo.getLastMessageVO().getId());
-                        messageDao.insertLastMessageVO(cacheMessageVO);
+                        cacheForwardInfo = insertForwardInfo(cacheMessageVO, threadVo);
                         if (threadVo.getLastMessageVO().getForwardInfo().getParticipant() != null) {
 
-                            cacheForwardInfo.setParticipantId(threadVo.getLastMessageVO().getForwardInfo().getParticipant().getId());
-                            messageDao.insertParticipant(threadVo.getLastMessageVO().getForwardInfo().getParticipant());
+                            insertForwardInfo(cacheForwardInfo, threadVo);
                         }
                         if (threadVo.getLastMessageVO().getForwardInfo().getConversation() != null) {
-                            cacheForwardInfo.setConversationId(threadVo.getLastMessageVO().getForwardInfo().getConversation().getId());
-                            messageDao.insertConversationSummery(threadVo.getLastMessageVO().getForwardInfo().getConversation());
+                            insertConversationSummary(cacheForwardInfo, threadVo);
                         }
                     }
                 }
@@ -1496,6 +1757,75 @@ public class MessageDatabaseHelper {
 
         });
 
+    }
+
+    private void insertConversationSummary(CacheForwardInfo cacheForwardInfo, ThreadVo threadVo) {
+        cacheForwardInfo.setConversationId(threadVo.getLastMessageVO().getForwardInfo().getConversation().getId());
+        messageDao.insertConversationSummery(threadVo.getLastMessageVO().getForwardInfo().getConversation());
+    }
+
+    private void insertForwardInfo(CacheForwardInfo cacheForwardInfo, ThreadVo threadVo) {
+        cacheForwardInfo.setParticipantId(threadVo.getLastMessageVO().getForwardInfo().getParticipant().getId());
+        messageDao.insertParticipant(threadVo.getLastMessageVO().getForwardInfo().getParticipant());
+    }
+
+    private CacheForwardInfo insertForwardInfo(CacheMessageVO cacheMessageVO, ThreadVo threadVo) {
+        CacheForwardInfo cacheForwardInfo;
+        cacheForwardInfo = threadVo.getLastMessageVO().getForwardInfo();
+        cacheForwardInfo.setId(threadVo.getLastMessageVO().getId());
+        messageDao.insertForwardInfo(cacheForwardInfo);
+        cacheMessageVO.setForwardInfoId(threadVo.getLastMessageVO().getId());
+        messageDao.insertLastMessageVO(cacheMessageVO);
+        return cacheForwardInfo;
+    }
+
+    private void insertReplyParticipant(CacheReplyInfoVO cacheReplyInfoVO, ThreadVo threadVo) {
+        cacheReplyInfoVO.setParticipantId(threadVo.getLastMessageVO().getReplyInfoVO().getParticipant().getId());
+        messageDao.insertReplyInfoVO(cacheReplyInfoVO);
+        messageDao.insertParticipant(threadVo.getLastMessageVO().getReplyInfoVO().getParticipant());
+    }
+
+    private CacheReplyInfoVO insertReplyInfo(CacheMessageVO cacheMessageVO, ThreadVo threadVo) {
+        CacheReplyInfoVO cacheReplyInfoVO;
+        cacheReplyInfoVO = threadVo.getLastMessageVO().getReplyInfoVO();
+        cacheMessageVO.setReplyInfoVOId(threadVo.getLastMessageVO().getReplyInfoVO().getId());
+        messageDao.insertLastMessageVO(cacheMessageVO);
+        messageDao.insertReplyInfoVO(cacheReplyInfoVO);
+        return cacheReplyInfoVO;
+    }
+
+    private void insertParticipant(CacheMessageVO cacheMessageVO, ThreadVo threadVo) {
+        cacheMessageVO.setParticipantId(threadVo.getLastMessageVO().getParticipant().getId());
+        messageDao.insertLastMessageVO(cacheMessageVO);
+        CacheParticipant cacheParticipantLastMessageVO = threadVo.getLastMessageVO().getParticipant();
+        cacheParticipantLastMessageVO.setThreadId(threadVo.getId());
+        messageDao.insertParticipant(threadVo.getLastMessageVO().getParticipant());
+    }
+
+    private CacheMessageVO insertLastMessage(Thread thread, ThreadVo threadVo) {
+
+        MessageVO messageVO = thread.getLastMessageVO();
+
+        String messageJson = App.getGson().toJson(messageVO);
+        CacheMessageVO cacheMessageVO = App.getGson().fromJson(messageJson, CacheMessageVO.class);
+
+        threadVo.setLastMessageVO(cacheMessageVO);
+        threadVo.setLastMessageVOId(cacheMessageVO.getId());
+
+        messageDao.insertLastMessageVO(cacheMessageVO);
+
+        return cacheMessageVO;
+    }
+
+    private void insertPinnedMessage(Thread thread) {
+        PinMessageVO pinMessageVO = thread.getPinMessageVO();
+        pinMessageVO.setThreadId(thread.getId());
+        messageDao.insertPinnedMessage(pinMessageVO);
+    }
+
+    private void insertInviter(ThreadVo threadVo) {
+        threadVo.setInviterId(threadVo.getInviter().getId());
+        messageDao.insertInviter(threadVo.getInviter());
     }
 
     public void leaveThread(long threadId) {
@@ -1929,6 +2259,54 @@ public class MessageDatabaseHelper {
             }
 
         });
+
+    }
+
+
+    public void savePinMessage(ChatResponse<ResultPinMessage> response, long subjectId) {
+
+
+        ResultPinMessage result = response.getResult();
+
+        PinMessageVO pinMessageVO = new PinMessageVO();
+
+        pinMessageVO.setThreadId(subjectId);
+
+        pinMessageVO.setMessageId(result.getMessageId());
+
+        pinMessageVO.setNotifyAll(result.isNotifyAll());
+
+        pinMessageVO.setText(result.getText());
+
+        messageDao.insertPinnedMessage(pinMessageVO);
+
+    }
+
+    public void deletePinnedMessageById(int messageId) {
+
+        messageDao.deletePinnedMessageById(messageId);
+
+
+    }
+
+    public void deletePinnedMessageByThreadId(long threadId) {
+
+        messageDao.deletePinnedMessageByThreadId(threadId);
+
+
+    }
+
+    public void setThreadPinned(ChatMessage chatMessage) {
+
+        long threadId = chatMessage.getSubjectId();
+        messageDao.updateThreadPinState(threadId, true);
+
+    }
+
+    public void setThreadUnPinned(ChatMessage chatMessage) {
+
+        long threadId = chatMessage.getSubjectId();
+        messageDao.updateThreadPinState(threadId, false);
 
     }
 

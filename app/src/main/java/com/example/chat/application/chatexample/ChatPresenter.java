@@ -11,6 +11,8 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -37,6 +39,7 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -44,6 +47,11 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -62,7 +70,7 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestPinThread;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -83,6 +91,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
+
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
@@ -100,34 +110,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.addListener(this);
 
-//        chat.addListener(new ChatListener() {
-//            @Override
-//            public void onSent(String content, ChatResponse<ResultMessage> response) {
-//
-//            }
-//
-//
-//        });
+
+        //
+//        chat.isCacheables(true);
 
 
-        chat.isCacheables(true);
         chat.isLoggable(true);
         chat.rawLog(true);
-        chat.setSignalIntervalTime(SIGNAL_INTERVAL_TIME);
 
-
-        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-                .setHostName("msg.pod.ir")
-//                .setHostName("8.8.4.4") //google
-//                .setPort(53)
-//                .setPort(80) //msg.pod.ir port
-                .setPort(443) //msg.pod.ir port
-                .setDisConnectionThreshold(2)
-                .setInterval(7000)
-                .setConnectTimeout(10000)
-                .build();
-
-        chat.setNetworkStateConfig(build);
 
 //        chat.setNetworkStateListenerEnabling(false);
 //        chat.setReconnectOnClose(false);
@@ -139,6 +129,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+
     @Override
     public void sendLocationMessage(RequestLocationMessage request) {
         chat.sendLocationMessage(request);
@@ -147,7 +138,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage handler) {
 
-        chat.sendLocationMessage(requestLocationMessage,handler);
+        chat.sendLocationMessage(requestLocationMessage, handler);
     }
 
     @Override
@@ -234,7 +225,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
 
-
         chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
 
 //        PodNotify podNotify = new PodNotify.builder()
@@ -252,6 +242,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void connect(RequestConnect requestConnect) {
+
+        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
+                .setHostName("chat-sandbox.pod.ir")
+//                .setHostName("8.8.4.4") //google
+//                .setPort(53)
+//                .setPort(80)
+                .setPort(443)
+                .setDisConnectionThreshold(2)
+                .setInterval(7000)
+                .setConnectTimeout(10000)
+                .build();
+
+        chat.setNetworkStateConfig(build);
 
         chat.connect(requestConnect);
 
@@ -455,7 +458,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public String spam(RequestSpam requestSpam) {
 
 
-
         return chat.spam(requestSpam);
     }
 
@@ -651,7 +653,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public boolean stopTyping(String signalUniqueId) {
 
-        return chat.stopTyping(signalUniqueId);
+        chat.stopTyping();
+
+        return true;
 
     }
 
@@ -664,13 +668,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void pinThread(RequestPinThread requestPinThread) {
 
-        chat.pinThread(requestPinThread,null);
+        chat.pinThread(requestPinThread);
     }
 
 
     @Override
     public void unPinThread(RequestPinThread requestPinThread) {
-        chat.unPinThread(requestPinThread,null);
+        chat.unPinThread(requestPinThread);
     }
 
     @Override
@@ -684,6 +688,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void removeAuditor(RequestSetAuditor requestAddAdmin) {
 
         chat.removeAuditor(requestAddAdmin);
+    }
+
+
+    @Override
+    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.onProgressFile handler) {
+        chat.createThreadWithFile(request, handler);
     }
 
     //View
@@ -731,7 +741,105 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onError(String content, ErrorOutPut outPutError) {
         super.onError(content, outPutError);
         activity.runOnUiThread(() -> Toast.makeText(context, content, Toast.LENGTH_SHORT).show());
+
+        if (outPutError.getErrorCode() == 21) {
+
+            view.onTokenExpired();
+
+        }
     }
+
+    @Override
+    public void getUserRoles(RequestGetUserRoles req) {
+
+        String uniqueId = chat.getCurrentUserRoles(req);
+
+
+    }
+
+    @Override
+    public void pinMessage(RequestPinMessage requestPinMessage) {
+
+        String uniqueId = chat.pinMessage(requestPinMessage);
+
+
+    }
+
+    @Override
+    public void unPinMessage(RequestPinMessage requestPinMessage) {
+
+        String uniqueId = chat.unPinMessage(requestPinMessage);
+    }
+
+    @Override
+    public void getMentionList(RequestGetMentionList req) {
+
+        chat.getMentionList(req);
+
+    }
+
+    @Override
+    public void startTyping(RequestSignalMsg req) {
+
+        chat.startTyping(req);
+
+    }
+
+    @Override
+    public String downloadFile(RequestGetImage requestGetImage, ProgressHandler.IDownloadFile onProgressFile) {
+        return chat.getImage(requestGetImage, onProgressFile);
+    }
+
+    @Override
+    public String downloadFile(RequestGetFile requestGetFile, ProgressHandler.IDownloadFile onProgressFile) {
+        return chat.getFile(requestGetFile, onProgressFile);
+    }
+
+    @Override
+    public boolean cancelDownload(String downloadingId) {
+        return chat.cancelDownload(downloadingId);
+    }
+
+    @Override
+    public void getCacheSize() {
+        chat.getCacheSize();
+    }
+
+    @Override
+    public void clearDatabaseCache(Chat.IClearMessageCache listener) {
+        chat.clearCacheDatabase(listener);
+    }
+
+    @Override
+    public long getStorageSize() {
+       return chat.getStorageSize();
+    }
+
+    @Override
+    public long getImageFolderSize() {
+        return chat.getCachedPicturesFolderSize();
+    }
+
+    @Override
+    public long getFilesFolderSize() {
+        return chat.getCachedFilesFolderSize();
+    }
+
+    @Override
+    public boolean clearPictures() {
+        return chat.clearCachedPictures();
+    }
+
+    @Override
+    public boolean clearFiles() {
+        return chat.clearCachedFiles();
+    }
+
+    @Override
+    public void closeChat() {
+        chat.closeChat();
+    }
+
 
     @Override
     public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
@@ -910,7 +1018,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
 
-
     @Override
     public void OnNotSeenDuration(OutPutNotSeenDurations resultNotSeen) {
         super.OnNotSeenDuration(resultNotSeen);
@@ -937,7 +1044,25 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onGetThreadParticipant(outPutParticipant);
 
 
+    }
 
+    @Override
+    public void onPinMessage(ChatResponse<ResultPinMessage> response) {
+        view.onPinMessage(response);
+    }
 
+    @Override
+    public void onUnPinMessage(ChatResponse<ResultPinMessage> response) {
+        view.onUnPinMessage(response);
+    }
+
+    @Override
+    public void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
+        view.onGetCurrentUserRoles(response);
+    }
+
+    @Override
+    public void onTypingSignalTimeout(long threadId) {
+        view.onTypingSignalTimeout(threadId);
     }
 }

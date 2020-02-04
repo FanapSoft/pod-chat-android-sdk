@@ -5,6 +5,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.PinMessageVO;
 
 import java.util.List;
 
@@ -54,6 +55,8 @@ public class ThreadVo {
     private boolean admin;
     private boolean pin;
     private boolean mentioned;
+    @Ignore
+    private PinMessageVO pinMessageVO;
 
 
     public boolean isPin() {
@@ -342,5 +345,57 @@ public class ThreadVo {
 
     public void setLastSeenMessageNanos(long lastSeenMessageNanos) {
         this.lastSeenMessageNanos = lastSeenMessageNanos;
+    }
+
+    public PinMessageVO getPinMessageVO() {
+        return pinMessageVO;
+    }
+
+    public void setPinMessageVO(PinMessageVO pinMessageVO) {
+        this.pinMessageVO = pinMessageVO;
+    }
+
+
+    public ThreadVo() {
+    }
+
+    public ThreadVo(long id, long joinDate, Inviter inviter, Long inviterId, CacheMessageVO lastMessageVO, Long lastMessageVOId, String title, List<CacheParticipant> participants, long time, String lastMessage, String lastParticipantName, String lastParticipantImage, boolean group, long partner, String image, String description, long unreadCount, long lastSeenMessageId, long partnerLastMessageId, long partnerLastSeenMessageId, long partnerLastDeliveredMessageId, long lastSeenMessageNanos, long lastSeenMessageTime, long partnerLastSeenMessageTime, long partnerLastSeenMessageNanos, long partnerLastDeliveredMessageTime, long partnerLastDeliveredMessageNanos, int type, boolean mute, String metadata, boolean canEditInfo, long participantCount, boolean canSpam, boolean admin, boolean pin, boolean mentioned, PinMessageVO pinMessageVO) {
+        this.id = id;
+        this.joinDate = joinDate;
+        this.inviter = inviter;
+        this.inviterId = inviterId;
+        this.lastMessageVO = lastMessageVO;
+        this.lastMessageVOId = lastMessageVOId;
+        this.title = title;
+        this.participants = participants;
+        this.time = time;
+        this.lastMessage = lastMessage;
+        this.lastParticipantName = lastParticipantName;
+        this.lastParticipantImage = lastParticipantImage;
+        this.group = group;
+        this.partner = partner;
+        this.image = image;
+        this.description = description;
+        this.unreadCount = unreadCount;
+        this.lastSeenMessageId = lastSeenMessageId;
+        this.partnerLastMessageId = partnerLastMessageId;
+        this.partnerLastSeenMessageId = partnerLastSeenMessageId;
+        this.partnerLastDeliveredMessageId = partnerLastDeliveredMessageId;
+        this.lastSeenMessageNanos = lastSeenMessageNanos;
+        this.lastSeenMessageTime = lastSeenMessageTime;
+        this.partnerLastSeenMessageTime = partnerLastSeenMessageTime;
+        this.partnerLastSeenMessageNanos = partnerLastSeenMessageNanos;
+        this.partnerLastDeliveredMessageTime = partnerLastDeliveredMessageTime;
+        this.partnerLastDeliveredMessageNanos = partnerLastDeliveredMessageNanos;
+        this.type = type;
+        this.mute = mute;
+        this.metadata = metadata;
+        this.canEditInfo = canEditInfo;
+        this.participantCount = participantCount;
+        this.canSpam = canSpam;
+        this.admin = admin;
+        this.pin = pin;
+        this.mentioned = mentioned;
+        this.pinMessageVO = pinMessageVO;
     }
 }

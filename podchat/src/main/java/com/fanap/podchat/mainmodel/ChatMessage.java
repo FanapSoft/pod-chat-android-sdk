@@ -1,59 +1,14 @@
 package com.fanap.podchat.mainmodel;
 
-public class ChatMessage {
-    private String token;
-    private String typeCode;
-    private String tokenIssuer;
-    private int type;
-    private Integer messageType;
-    private long subjectId;
-    private String uniqueId;
-    private String content;
+public class ChatMessage extends AsyncMessage {
+
+    private int messageType;
     private long time;
     private int contentCount;
     private String systemMetadata;
     private String metadata;
     private long repliedTo;
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public long getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(long subjectId) {
-        this.subjectId = subjectId;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     public long getTime() {
         return time;
@@ -69,14 +24,6 @@ public class ChatMessage {
 
     public void setRepliedTo(long repliedTo) {
         this.repliedTo = repliedTo;
-    }
-
-    public String getTokenIssuer() {
-        return tokenIssuer;
-    }
-
-    public void setTokenIssuer(String tokenIssuer) {
-        this.tokenIssuer = tokenIssuer;
     }
 
     public int getContentCount() {
@@ -101,14 +48,6 @@ public class ChatMessage {
 
     public void setMetadata(String metadata) {
         this.metadata = metadata;
-    }
-
-    public String getTypeCode() {
-        return typeCode;
-    }
-
-    public void setTypeCode(String typeCode) {
-        this.typeCode = typeCode;
     }
 
     public Integer getMessageType() {

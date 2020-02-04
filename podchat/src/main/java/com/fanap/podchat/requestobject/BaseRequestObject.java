@@ -5,10 +5,14 @@ public abstract class BaseRequestObject {
     private long offset;
     private String typeCode;
 
-    BaseRequestObject(Builder<?> builder) {
+    public BaseRequestObject(Builder<?> builder) {
         this.count = builder.count;
         this.offset = builder.offset;
         this.typeCode = builder.typeCode;
+    }
+
+
+    public BaseRequestObject() {
     }
 
     public String getTypeCode() {
@@ -19,11 +23,11 @@ public abstract class BaseRequestObject {
         this.typeCode = typeCode;
     }
 
-    abstract static class Builder<T extends Builder> {
+    public abstract static class Builder<T extends Builder> {
         private long count;
         private long offset;
         private String typeCode;
-        abstract BaseRequestObject build();
+        public abstract BaseRequestObject build();
 
         public T count(long count) {
             this.count = count;

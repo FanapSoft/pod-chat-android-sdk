@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
@@ -26,9 +27,11 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.model.ResultPinThread;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
+import com.fanap.podchat.model.ResultSignalMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -647,13 +650,26 @@ public class ChatListenerManager {
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
+
                 listener.OnSignalMessageReceive(output);
+
+                listener.onSignalMessageReceived(output);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
 
+    }
 
+    public void callOnGetSignalMessage(ChatResponse<ResultSignalMessage> result) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onSignalMessageReceived(result);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
     }
 
     public void callOnPinThread(ChatResponse<ResultPinThread> response) {
@@ -683,6 +699,89 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+
+    }
+
+    public void callOnPinMessage(ChatResponse<ResultPinMessage> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onPinMessage(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnUnPinMessage(ChatResponse<ResultPinMessage> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUnPinMessage(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnGetUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetCurrentUserRoles(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+
+    }
+
+    public void callOnGetMentionList(ChatResponse<ResultHistory> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetMentionList(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+
+    }
+
+    public void callOnSignalMessageTimeout(long threadId) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onTypingSignalTimeout(threadId);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+
+    }
+
+    public void callOnLowFreeSpace(long bytesAvailable) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onLowFreeSpace(bytesAvailable);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
 
     }
 

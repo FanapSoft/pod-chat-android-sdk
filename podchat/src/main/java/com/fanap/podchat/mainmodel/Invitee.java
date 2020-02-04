@@ -8,22 +8,44 @@ package com.fanap.podchat.mainmodel;
         */
 public class Invitee  {
 
-    private long id;
+    private String id;
     private int idType;
 
-    public Invitee(long id, int idType) {
+    public Invitee(String id, int idType) {
         this.id = id;
+        this.idType = idType;
+    }
+
+    public Invitee(Long id, int idType) {
+        this.id = String.valueOf(id);
+        this.idType = idType;
+    }
+
+    public Invitee(long id, int idType) {
+        this.id = String.valueOf(id);
         this.idType = idType;
     }
 
     public Invitee(){}
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
+    }
+
+    public void setId(Long id){
+
+        this.id = String.valueOf(id);
+
+    }
+
+    public void setId(long id) {
+
+        this.id = String.valueOf(id);
+
     }
 
     public int getIdType() {

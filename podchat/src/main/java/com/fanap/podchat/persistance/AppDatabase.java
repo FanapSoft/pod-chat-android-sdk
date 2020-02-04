@@ -4,6 +4,7 @@ import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.TypeConverters;
 
+import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
@@ -18,6 +19,7 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.persistance.dao.MessageDao;
@@ -41,7 +43,9 @@ import com.fanap.podchat.util.DataTypeConverter;
         PhoneContact.class,
         ThreadVo.class,
         CacheParticipantRoles.class,
-        GapMessageVO.class
+        GapMessageVO.class,
+        CacheBlockedContact.class,
+        PinMessageVO.class
 }, version = 1, exportSchema = false)
 @TypeConverters({DataTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {

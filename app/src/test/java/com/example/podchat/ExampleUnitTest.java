@@ -3,6 +3,7 @@ package com.example.podchat;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.Util;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
@@ -198,6 +199,19 @@ public class ExampleUnitTest {
 
         assertEquals(lst, dataTypeConverter.dataToList(s));
         assertEquals(s, dataTypeConverter.convertListToString(lst));
+
+
+    }
+
+
+    @Test
+    public void testExtensions(){
+
+        String aGifPath= "storage/emulated/m_file.gif";
+
+        assertTrue(aGifPath.endsWith(".gif"));
+        assertFalse(aGifPath.endsWith(".jpg"));
+
 
 
     }

@@ -22,7 +22,7 @@ public class ProgressRequestBody extends RequestBody {
     private String uniqueId;
     private Handler handler;
     private int numWriteToCalls;
-    private int ignoreFirstNumberOfWriteToCalls = 1;
+    private int ignoreFirstNumberOfWriteToCalls = 0;
 
     public ProgressRequestBody(final File file, String mimType, String uniqueId, final UploadCallbacks listener) {
         mFile = file;

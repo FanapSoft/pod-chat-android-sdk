@@ -13,6 +13,7 @@ public class Contact {
     private String uniqueId;
     private long notSeenDuration;
     private boolean hasUser;
+    private boolean cache = false;
 
     public Contact() {
     }
@@ -45,6 +46,41 @@ public class Contact {
         this.hasUser = hasUser;
     }
 
+    public Contact(long id,
+                   String firstName,
+                   long userId,
+                   String lastName,
+                   Boolean blocked,
+                   long creationDate,
+                   LinkedUser linkedUser,
+                   String cellphoneNumber,
+                   String email,
+                   String uniqueId,
+                   long notSeenDuration,
+                   boolean hasUser,
+                   boolean cache) {
+        this.id = id;
+        this.firstName = firstName;
+        this.userId = userId;
+        this.lastName = lastName;
+        this.blocked = blocked;
+        this.creationDate = creationDate;
+        this.linkedUser = linkedUser;
+        this.cellphoneNumber = cellphoneNumber;
+        this.email = email;
+        this.uniqueId = uniqueId;
+        this.notSeenDuration = notSeenDuration;
+        this.hasUser = hasUser;
+        this.cache = cache;
+    }
+
+    public boolean isCache() {
+        return cache;
+    }
+
+    public void setCache(boolean cache) {
+        this.cache = cache;
+    }
 
     public String getFirstName() {
         return firstName;

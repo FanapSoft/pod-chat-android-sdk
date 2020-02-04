@@ -56,7 +56,10 @@ public class ChatMessageType {
             Constants.SYSTEM_MESSAGE,
             Constants.PIN_THREAD,
             Constants.UNPIN_THREAD,
-            Constants.GET_NOT_SEEN_DURATION
+            Constants.GET_NOT_SEEN_DURATION,
+            Constants.GET_USER_ROLES,
+            Constants.PIN_MESSAGE,
+            Constants.UNPIN_MESSAGE
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -103,7 +106,14 @@ public class ChatMessageType {
         int GET_NOT_SEEN_DURATION = 47;
         int PIN_THREAD = 48;
         int UNPIN_THREAD = 49;
+
+        int PIN_MESSAGE = 50;
+        int UNPIN_MESSAGE = 51;
+
+        int GET_USER_ROLES = 54;
+
         int ERROR = 999;
+
 
     }
 

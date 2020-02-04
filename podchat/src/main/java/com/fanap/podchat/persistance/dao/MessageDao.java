@@ -9,6 +9,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Update;
 
+import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
@@ -20,6 +21,7 @@ import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 
@@ -29,6 +31,11 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 @Dao
 public interface MessageDao {
+
+
+    @RawQuery
+    int vacuumDb(SupportSQLiteQuery query);
+
 
     //Cache contact
     @Insert(onConflict = REPLACE)
@@ -49,6 +56,28 @@ public interface MessageDao {
 
     @Query("SELECT COUNT(id) FROM CacheContact")
     int getContactCount();
+
+
+    //Cache Blocked Contact
+    @Insert(onConflict = REPLACE)
+    void insertBlockedContacts(List<CacheBlockedContact> t);
+
+    @Insert(onConflict = REPLACE)
+    void insertBlockedContact(CacheBlockedContact contact);
+
+    @Delete
+    void deleteBlockedContact(CacheBlockedContact cacheBlockContacts);
+
+    @Query("DELETE FROM CacheBlockedContact WHERE id =:id")
+    void deleteBlockedContactById(long id);
+
+    @Query("select * from CacheBlockedContact LIMIT :count OFFSET :offset")
+    List<CacheBlockedContact> getBlockedContacts(Long count, Long offset);
+
+
+    @Query("SELECT COUNT(id) FROM CacheBlockedContact")
+    int getBlockContactsCount();
+
 
     /**
      * Cache thread history
@@ -177,6 +206,9 @@ public interface MessageDao {
     @Query("DELETE FROM threadvo WHERE id = :threadId")
     void deleteThread(long threadId);
 
+    @Query("update ThreadVo set pin = :isPinned where id = :threadId")
+    void updateThreadPinState(long threadId, boolean isPinned);
+
     /**
      * cache inviter
      */
@@ -293,8 +325,6 @@ public interface MessageDao {
     void deleteMessages(List<CacheMessageVO> cacheMessageVOS);
 
 
-
-
     //GapMessages Queries
 
     @Insert(onConflict = REPLACE)
@@ -317,6 +347,26 @@ public interface MessageDao {
 
     @Query("Select * from gapmessagevo where id = :id")
     GapMessageVO getGap(long id);
+
+
+
+
+    //pin message queries
+    @Query("select * from pinmessagevo where threadId = :id")
+    PinMessageVO getThreadPinnedMessage(long id);
+
+    @Insert(onConflict = REPLACE)
+    void insertPinnedMessage(PinMessageVO pinMessageVO);
+
+    @Delete
+    void deletePinnedmessage(PinMessageVO pinMessageVO);
+
+    @Query("delete from pinmessagevo where messageId = :messageId")
+    void deletePinnedMessageById(long messageId);
+
+    @Query("delete from pinmessagevo where threadId = :threadId")
+    void deletePinnedMessageByThreadId(long threadId);
+
 
 
 

@@ -35,9 +35,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
-    testImplementation 'org.mockito:mockito-core:2.7.22'
+    testImplementation 'org.mockito:mockito-core:3.1.0'
     // required if you want to use Mockito for Android tests
-    androidTestImplementation 'org.mockito:mockito-android:2.7.22'
+    androidTestImplementation 'org.mockito:mockito-android:3.1.0'
     implementation 'com.google.android.gms:play-services:12.0.1'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'

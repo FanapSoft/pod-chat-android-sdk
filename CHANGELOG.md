@@ -7,6 +7,76 @@ All notable changes to this project will be documented here.
 
 
 
+## Version [0.5.4.0] -2020-2-4
+
+[Added] `stopTyping()`
+
+[Removed] `setSignalIntervalTime()`
+
+[Added] `getFile(RequestGetFile, ProgressHandler.IDownloadFile)`
+
+[Added] `getImage(RequestGetImage, ProgressHandler.IDownloadFile)`
+
+[Added] `getCacheSize()`
+
+[Added] `getStorageSize()`
+
+[Added] `getStorageSize()`
+
+[Added] `getCachedFilesFolderSize()`
+
+[Added] `getCachedPicturesFolderSize()`
+
+[Added] `clearCacheDatabase()`
+
+[Added] `clearCachedFiles()`
+
+[Added] `clearCachedPictures()`
+
+[Added] `cancelDownload()`
+
+[Added] `stopTyping()`
+
+[Deprecated] `stopTyping(String)`
+
+
+
+
+
+
+
+## Version [0.5.3.0] -2020-1-25
+
+[Changed]  Invitee
+	      - long id => + String id
+	       int idType
+
+
+[Added] Thread
+	 +PinMessageVO
+
+[Added] RequestPinMessage
+	 + messageId
+	 + notifyAll
+
+[Added] pinMessage(RequestPinMessage)
+
+[Added] unPinMessage(RequestPinMessage)
+
+[BugFixed] OnSignalMessageReceive(OutputSignalMessage) subjectId value changed
+
+[Added] onSignalMessageReceived(OutputSignalMessage)
+
+[Added] onSignalMessageReceived(ChatResponse<ResultSignalMessage>)
+
+[Added] getCurrentUserRoles(RequestGetUserRoles)
+
+[Added] getMentionList(RequestGetMentionList)
+
+
+
+
+
 ## Version [0.5.2.0] -2020-1-12
 - Cache Structure Improved
 - [ADDED] pinThread() and unPinThread functions and onPinThread onUnPinThread events
@@ -247,5 +317,3 @@ And beaware that you just see updated fields not the entire conversationVO.
 -   Refactor SyncContact
 -   Add Permission Class for request permission and check permission
 -   Add FileServer param to Connect 
-
-## Version [0.6.6.0] - 2018-07-18

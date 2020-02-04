@@ -6,6 +6,8 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.securepreferences.SecurePreferences;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 
@@ -16,7 +18,6 @@ import java.security.GeneralSecurityException;
  * Sample app
  */
 public
-
 class App extends Application {
 
 
@@ -24,14 +25,24 @@ class App extends Application {
     protected static App instance;
     private SecurePreferences mSecurePrefs;
     private SecurePreferences mUserPrefs;
+    private static Gson gson;
 
     public App() {
         super();
         instance = this;
+        gson = new GsonBuilder().create();
     }
 
     public static App get() {
         return instance;
+    }
+
+    public static Gson getGson() {
+
+        if (gson == null)
+            gson = new GsonBuilder().create();
+
+        return gson;
     }
 
     /**

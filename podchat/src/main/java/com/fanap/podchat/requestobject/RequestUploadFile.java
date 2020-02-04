@@ -6,12 +6,16 @@ import android.support.annotation.NonNull;
 
 public class RequestUploadFile {
 
+
     private Activity activity;
     private Uri fileUri;
 
     RequestUploadFile(Builder builder) {
         this.activity = builder.activity;
         this.fileUri = builder.fileUri;
+    }
+
+    public RequestUploadFile() {
     }
 
     public static class Builder {

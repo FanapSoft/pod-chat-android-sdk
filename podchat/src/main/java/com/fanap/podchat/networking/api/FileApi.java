@@ -19,6 +19,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 import rx.Observable;
 
 public interface FileApi {
@@ -63,13 +64,44 @@ public interface FileApi {
             , @Part("isPublic") boolean isPublic
             , @Part("tags") ArrayList<String> tags
     );
+//
+//    @NonNull
+//    @GET("nzh/file/")
+//    @Streaming
+//    Observable<Response<ResponseBody>> getFile
+//            (@Query("fileId") int fileId
+//                    , @Query("downloadable") boolean downloadable
+//                    , @Query("hashCode") String hashCode);
+//
+//
+//    @NonNull
+//    @GET("nzh/image/")
+//    @Streaming
+//    Observable<Response<ResponseBody>> getImage
+//            (@Query("fileId") int fileId
+//                    , @Query("downloadable") boolean downloadable
+//                    , @Query("hashCode") String hashCode);
 
-    @NonNull
+
+ @NonNull
     @GET("nzh/file/")
-    Observable<Response<ResponseBody>> getFile
-            (@Query("fileId") int fileId
+    @Streaming
+    Call<ResponseBody> getFile
+            (@Query("fileId") long fileId
                     , @Query("downloadable") boolean downloadable
                     , @Query("hashCode") String hashCode);
+
+
+    @NonNull
+    @GET("nzh/image/")
+    @Streaming
+    Call<ResponseBody> getImage
+            (@Query("fileId") long fileId
+                    , @Query("downloadable") boolean downloadable
+                    , @Query("hashCode") String hashCode);
+
+
+
 
 
 }

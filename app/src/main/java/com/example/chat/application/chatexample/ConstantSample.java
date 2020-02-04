@@ -1,5 +1,7 @@
 package com.example.chat.application.chatexample;
 
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+
 public class ConstantSample {
 
 
@@ -23,7 +25,10 @@ public class ConstantSample {
             , "update contact"
             , "get not seen duration"
             , "pin thread"
-            ,"unpin thread"
+            , "unpin thread",
+            "Pin Message",
+            "Unpin Message",
+            "Get Mention List"
     };
 
     public static final String[] funcSecond = {
@@ -68,6 +73,14 @@ public class ConstantSample {
             , "Remove Admin Rules"
             , "Add Auditor"
             , "Remove Auditor"
+            , "CreateThreadWithFile"
+            , "Get User Roles",
+            "Download Image",
+            "Cancel Download Image",
+            "Get Cache Size",
+            "Clear Cache",
+            "Get Storage Size",
+            "Clear Storage"
 
     };
 }
