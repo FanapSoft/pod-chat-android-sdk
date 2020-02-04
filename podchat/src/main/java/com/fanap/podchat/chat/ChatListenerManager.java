@@ -772,6 +772,19 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnLowFreeSpace(long bytesAvailable) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onLowFreeSpace(bytesAvailable);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
 //

@@ -32,6 +32,11 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 @Dao
 public interface MessageDao {
 
+
+    @RawQuery
+    int vacuumDb(SupportSQLiteQuery query);
+
+
     //Cache contact
     @Insert(onConflict = REPLACE)
     void insertContacts(List<CacheContact> t);

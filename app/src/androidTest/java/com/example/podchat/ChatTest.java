@@ -15,6 +15,7 @@ import com.example.chat.application.chatexample.ChatActivity;
 import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
@@ -61,7 +62,7 @@ public class ChatTest extends ChatAdapter {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "c8eed44e2cd74a41aa3a75dfcdcb85d4";
+    private static String TOKEN = "d1fd97824200469c8fedf8c1d010d829";
 
 
     private ChatActivity chatActivity;
@@ -78,10 +79,78 @@ public class ChatTest extends ChatAdapter {
     }
 
 
+    @Test
+    public void getRoutsSize() {
+
+        long totalSize = presenter.getStorageSize();
+
+        System.out.println(totalSize);
+
+        long imagesSize = presenter.getImageFolderSize();
+
+        System.out.println(imagesSize);
+
+        long filesSize = presenter.getFilesFolderSize();
+
+        System.out.println(filesSize);
+
+        boolean imagesClear = presenter.clearPictures();
+
+        System.out.println(imagesClear);
+
+        boolean clearFiles = presenter.clearFiles();
+
+        System.out.println(clearFiles);
+
+        Assert.assertEquals(0, presenter.getFilesFolderSize());
+
+        Assert.assertEquals(0, presenter.getImageFolderSize());
+
+
+
+    }
+
+
+    @Test
+    public void clearDataBase() {
+
+        sleep(10000);
+
+        presenter.getCacheSize();
+
+        sleep(2000);
+
+        presenter.clearDatabaseCache(new Chat.IClearMessageCache() {
+            @Override
+            public void onCacheDatabaseCleared() {
+
+            }
+
+            @Override
+            public void onExceptionOccurred(String cause) {
+
+            }
+        });
+
+        sleep(5000);
+
+        presenter.getCacheSize();
+
+    }
+
+
+    @Test
+    public void getDatabaseSize() {
+
+        sleep(10000);
+
+        presenter.getCacheSize();
+
+    }
 
     @Test
     @LargeTest
-    public void getCurrentUserRoles(){
+    public void getCurrentUserRoles() {
 
 
         sleep(25000);
@@ -94,12 +163,10 @@ public class ChatTest extends ChatAdapter {
 
         sleep(1000);
 
-        Mockito.verify(view,Mockito.atLeastOnce()).onGetCurrentUserRoles(Mockito.any());
+        Mockito.verify(view, Mockito.atLeastOnce()).onGetCurrentUserRoles(Mockito.any());
 
 
     }
-
-
 
 
     @Test
@@ -144,7 +211,7 @@ public class ChatTest extends ChatAdapter {
         sleep(1000);
 
 
-        Mockito.verify(view,Mockito.times(1)).onPinMessage(Mockito.any());
+        Mockito.verify(view, Mockito.times(1)).onPinMessage(Mockito.any());
 
 
     }
@@ -163,7 +230,7 @@ public class ChatTest extends ChatAdapter {
         sleep(1000);
 
 
-        Mockito.verify(view,Mockito.times(1)).onUnPinMessage(Mockito.any());
+        Mockito.verify(view, Mockito.times(1)).onUnPinMessage(Mockito.any());
 
 
     }

@@ -9,7 +9,7 @@ import java.util.List;
  * -id                {string}
  * -idType            {int} ** inviteeVOidTypes
  * - title               {string}
- * - type                {int} ** createThreadTypes
+ * - messageType                {int} ** createThreadTypes
  */
 public class ChatThread {
 

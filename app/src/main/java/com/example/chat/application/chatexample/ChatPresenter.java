@@ -48,6 +48,8 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -90,6 +92,7 @@ import java.util.List;
 
 
 
+
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
@@ -108,15 +111,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.addListener(this);
 
 
-
         //
-        chat.isCacheables(true);
+//        chat.isCacheables(true);
 
 
         chat.isLoggable(true);
         chat.rawLog(true);
-
-
 
 
 //        chat.setNetworkStateListenerEnabling(false);
@@ -692,8 +692,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.onProgressFile handler) {
-        chat.createThreadWithFile(request,handler);
+    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.onProgressFile handler) {
+        chat.createThreadWithFile(request, handler);
     }
 
     //View
@@ -783,6 +783,61 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.startTyping(req);
 
+    }
+
+    @Override
+    public String downloadFile(RequestGetImage requestGetImage, ProgressHandler.IDownloadFile onProgressFile) {
+        return chat.getImage(requestGetImage, onProgressFile);
+    }
+
+    @Override
+    public String downloadFile(RequestGetFile requestGetFile, ProgressHandler.IDownloadFile onProgressFile) {
+        return chat.getFile(requestGetFile, onProgressFile);
+    }
+
+    @Override
+    public boolean cancelDownload(String downloadingId) {
+        return chat.cancelDownload(downloadingId);
+    }
+
+    @Override
+    public void getCacheSize() {
+        chat.getCacheSize();
+    }
+
+    @Override
+    public void clearDatabaseCache(Chat.IClearMessageCache listener) {
+        chat.clearCacheDatabase(listener);
+    }
+
+    @Override
+    public long getStorageSize() {
+       return chat.getStorageSize();
+    }
+
+    @Override
+    public long getImageFolderSize() {
+        return chat.getCachedPicturesFolderSize();
+    }
+
+    @Override
+    public long getFilesFolderSize() {
+        return chat.getCachedFilesFolderSize();
+    }
+
+    @Override
+    public boolean clearPictures() {
+        return chat.clearCachedPictures();
+    }
+
+    @Override
+    public boolean clearFiles() {
+        return chat.clearCachedFiles();
+    }
+
+    @Override
+    public void closeChat() {
+        chat.closeChat();
     }
 
 
@@ -1004,5 +1059,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
         view.onGetCurrentUserRoles(response);
+    }
+
+    @Override
+    public void onTypingSignalTimeout(long threadId) {
+        view.onTypingSignalTimeout(threadId);
     }
 }

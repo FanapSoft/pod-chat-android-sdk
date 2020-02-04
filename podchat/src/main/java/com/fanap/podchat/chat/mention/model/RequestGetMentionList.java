@@ -1,8 +1,8 @@
 package com.fanap.podchat.chat.mention.model;
 
-import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.BaseRequestObject;
 
-public class RequestGetMentionList extends RequestGetHistory {
+public class RequestGetMentionList extends BaseRequestObject {
 
     private Boolean allMentioned;
 
@@ -30,7 +30,7 @@ public class RequestGetMentionList extends RequestGetHistory {
     }
 
 
-    public static class Builder extends RequestGetHistory.Builder {
+    public static class Builder extends BaseRequestObject.Builder {
 
         private Boolean allMentioned;
 
@@ -38,6 +38,9 @@ public class RequestGetMentionList extends RequestGetHistory {
 
         private Long threadId;
 
+        public Builder(long threadId) {
+            this.threadId = threadId;
+        }
 
         public Builder setAllMentioned(Boolean allMentioned) {
             this.allMentioned = allMentioned;
@@ -49,11 +52,27 @@ public class RequestGetMentionList extends RequestGetHistory {
             return this;
         }
 
-        public Builder setThreadId(Long threadId) {
+        public Builder setThreadId(long threadId) {
             this.threadId = threadId;
             return this;
-        }  public Builder setThreadId(long threadId) {
-            this.threadId = threadId;
+        }
+
+
+        @Override
+        public Builder count(long count) {
+            super.count(count);
+            return this;
+        }
+
+        @Override
+        public Builder offset(long offset) {
+            super.offset(offset);
+            return this;
+        }
+
+        @Override
+        public BaseRequestObject.Builder typeCode(String typeCode) {
+            super.typeCode(typeCode);
             return this;
         }
 

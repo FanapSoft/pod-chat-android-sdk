@@ -27,6 +27,8 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.ForwardInfo;
@@ -45,6 +47,7 @@ import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Util;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,8 +55,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -67,6 +68,7 @@ public class MessageDatabaseHelper {
     private Context context;
     private AppDatabase appDatabase;
 
+
     @Inject
     public MessageDatabaseHelper(MessageDao messageDao, MessageQueueDao messageQueueDao, Context context, AppDatabase appDatabase) {
         this.messageQueueDao = messageQueueDao;
@@ -74,6 +76,41 @@ public class MessageDatabaseHelper {
         this.context = context;
         this.appDatabase = appDatabase;
     }
+
+
+    public void clearAllData(Chat.IClearMessageCache listener) {
+
+        try {
+            new java.lang.Thread(() -> {
+
+                try {
+
+                    appDatabase.clearAllTables();
+
+                    java.lang.Thread.sleep(2000);
+
+                    messageDao.vacuumDb(new SimpleSQLiteQuery("VACUUM"));
+//                    SupportSQLiteOpenHelper s = appDatabase.getOpenHelper();
+//
+//                    SupportSQLiteDatabase db = s.getWritableDatabase();
+//
+//                    db.execSQL("vacuum");
+                    java.lang.Thread.sleep(1000);
+
+                    listener.onCacheDatabaseCleared();
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    listener.onExceptionOccurred(e.getMessage());
+                }
+            }).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            listener.onExceptionOccurred(e.getMessage());
+        }
+
+    }
+
 
     public void getDatabaseState(String dbName) {
         SQLCipherUtils.getDatabaseState(context, dbName);
@@ -1318,7 +1355,7 @@ public class MessageDatabaseHelper {
 
         if (pinnedThread.size() > 0) {
 
-            threads.addAll(0,pinnedThread);
+            threads.addAll(0, pinnedThread);
 
         }
 
@@ -1666,7 +1703,12 @@ public class MessageDatabaseHelper {
             for (Thread thread : threads) {
 
 
-                ThreadVo threadVo = threadToThreadVoMapper(thread);
+                String gson = App.getGson().toJson(thread);
+
+                ThreadVo threadVo = App.getGson().fromJson(gson,ThreadVo.class);
+
+
+//                ThreadVo threadVo = threadToThreadVoMapper(thread);
 
                 if (threadVo.getInviter() != null) {
 
@@ -1678,14 +1720,18 @@ public class MessageDatabaseHelper {
                     insertPinnedMessage(thread);
 
                 }
-                if (threadVo.getLastMessageVO() != null) {
+                if (thread.getLastMessageVO() != null) {
 
-                    cacheMessageVO = insertLastMessage(threadVo);
+                    cacheMessageVO = insertLastMessage(thread, threadVo);
+
+
                     if (threadVo.getLastMessageVO().getParticipant() != null) {
 
                         insertParticipant(cacheMessageVO, threadVo);
+
                     }
                     if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
+
                         cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
 
                         if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
@@ -1756,11 +1802,18 @@ public class MessageDatabaseHelper {
         messageDao.insertParticipant(threadVo.getLastMessageVO().getParticipant());
     }
 
-    private CacheMessageVO insertLastMessage(ThreadVo threadVo) {
-        CacheMessageVO cacheMessageVO;
-        threadVo.setLastMessageVOId(threadVo.getLastMessageVO().getId());
-        cacheMessageVO = threadVo.getLastMessageVO();
+    private CacheMessageVO insertLastMessage(Thread thread, ThreadVo threadVo) {
+
+        MessageVO messageVO = thread.getLastMessageVO();
+
+        String messageJson = App.getGson().toJson(messageVO);
+        CacheMessageVO cacheMessageVO = App.getGson().fromJson(messageJson, CacheMessageVO.class);
+
+        threadVo.setLastMessageVO(cacheMessageVO);
+        threadVo.setLastMessageVOId(cacheMessageVO.getId());
+
         messageDao.insertLastMessageVO(cacheMessageVO);
+
         return cacheMessageVO;
     }
 
@@ -2256,4 +2309,6 @@ public class MessageDatabaseHelper {
         messageDao.updateThreadPinState(threadId, false);
 
     }
+
+
 }

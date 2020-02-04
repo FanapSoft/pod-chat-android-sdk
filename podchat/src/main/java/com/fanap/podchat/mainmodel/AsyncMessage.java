@@ -1,10 +1,10 @@
 package com.fanap.podchat.mainmodel;
 
 public class AsyncMessage {
-    private Long subjectId;
+    private long subjectId;
     private String content;
     private String token;
-    private Integer type;
+    private int type;
     private String tokenIssuer;
     private String uniqueId;
     private String typeCode;

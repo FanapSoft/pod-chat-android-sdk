@@ -1,5 +1,6 @@
 package com.fanap.podchat;
 
+import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -54,6 +55,18 @@ public abstract class ProgressHandler {
 
         default void onError(String jsonError, ErrorOutPut error) {
         }
+    }
+
+
+    public interface IDownloadFile {
+
+
+        default void onProgressUpdate(String uniqueId, int bytesDownloaded, int totalBytesToDownload){}
+        default void onProgressUpdate(String uniqueId, int progress){}
+        void onError(String uniqueId, String error,String url);
+        default void onLowFreeSpace(String uniqueId,String url){}
+        default void onFileReady(ChatResponse<ResultDownloadFile> response){}
+
     }
 
     public interface cancelUpload {

@@ -22,8 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
+import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.Contact;
@@ -42,6 +44,8 @@ import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -69,6 +73,7 @@ import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.InviteType;
+import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.ThreadType;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
@@ -124,7 +129,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "16baf0c8a2ec4df88c77a433fc7b683b";
+    private static String TOKEN = "21dbcdf5aaa34bde8c48144028fa0a23";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -160,6 +165,7 @@ public class ChatActivity extends AppCompatActivity
     ArrayList<String> runningSignals = new ArrayList<>();
 
     Faker faker;
+    private String downloadingId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -483,6 +489,65 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             }
 
+                            case 22:{
+
+
+                                downloadFile();
+
+                                break;
+                            }
+
+                            case 23:{
+
+                                cancelDownloadImage();
+
+                                break;
+                            }
+
+                            case 24:{
+
+
+                                presenter.getCacheSize();
+
+                                break;
+
+                            }
+
+                            case 25:{
+
+                                presenter.clearDatabaseCache(new Chat.IClearMessageCache(){
+
+                                    @Override
+                                    public void onCacheDatabaseCleared() {
+
+                                        Log.e("CACHE","Cache Cleared Successfully");
+
+                                    }
+
+                                    @Override
+                                    public void onExceptionOccurred(String cause) {
+                                        Log.e("CACHE","Exception Occurred");
+
+                                    }
+                                });
+
+                                break;
+                            }
+
+                            case 26:{
+
+                                presenter.getStorageSize();
+
+                                break;
+                            }
+
+                            case 27:{
+
+//                                presenter.clearStorage();
+
+                                break;
+                            }
+
 
                         }
                     }
@@ -492,6 +557,82 @@ public class ChatActivity extends AppCompatActivity
 
                     }
                 });
+    }
+
+
+    private void cancelDownloadImage() {
+
+
+
+        boolean result = presenter.cancelDownload(downloadingId);
+
+        Log.e("DOWNLOAD","Cancel Download Result " + result);
+
+
+
+    }
+
+    private void downloadFile() {
+
+
+
+        String url = "https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482";
+
+        //image
+        long imageId = 68349;
+
+        long fileId = 68350;
+
+
+        String imageHashCode = "16feadc7bf1-0.5248624596970302";
+
+        String fileHashCode = "16feae05f01-0.6114938150256433";
+
+        RequestGetImage requestGetImage = new RequestGetImage.Builder(imageId,imageHashCode,true)
+                .build();
+
+        RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId,fileHashCode,true).build();
+
+
+
+        downloadingId = presenter.downloadFile(requestGetFile,new ProgressHandler.IDownloadFile(){
+
+
+            @Override
+            public void onProgressUpdate(String uniqueId, int bytesDownloaded, int totalBytesToDownload) {
+                Log.e("DOWNLOAD","IN ACTIVITY: " + "Downloaded: " + bytesDownloaded + " Left: " + totalBytesToDownload);
+
+            }
+
+            @Override
+            public void onProgressUpdate(String uniqueId, int progress) {
+
+            }
+
+            @Override
+            public void onError(String uniqueId, String error, String url) {
+                Log.e("DOWNLOAD","IN ACTIVITY: ERROR :(((");
+
+            }
+
+            @Override
+            public void onLowFreeSpace(String uniqueId, String url) {
+                Log.e("DOWNLOAD","Low Space...");
+
+            }
+
+            @Override
+            public void onFileReady(ChatResponse<ResultDownloadFile> response) {
+                Log.e("DOWNLOAD","IN ACTIVITY: Finish File!!!!");
+
+            }
+
+        });
+
+
+
+
+
     }
 
     private void getUserRoles() {
@@ -510,16 +651,13 @@ public class ChatActivity extends AppCompatActivity
 
 
         if (getUri() == null) {
-
             Toast.makeText(this, "Pick a file", Toast.LENGTH_SHORT).show();
             return;
-
         }
 
 
         RequestUploadImage requestUploadImage = new RequestUploadImage.Builder(this, getUri())
                 .build();
-
 
         RequestUploadFile requestUploadFile = new RequestUploadFile.Builder(
                 this, getUri()).build();
@@ -535,7 +673,8 @@ public class ChatActivity extends AppCompatActivity
 
         RequestThreadInnerMessage innerMessage = new RequestThreadInnerMessage
                 .Builder()
-                .message("Create thread for File Message Test " + new Date().toString())
+                .type(TextMessageType.Constants.PICTURE)
+//                .message("Create thread for File Message Test " + new Date().toString())
 //                                .forwardedMessageIds(listForwardIds)
                 .build();
 
@@ -550,16 +689,22 @@ public class ChatActivity extends AppCompatActivity
                     @Override
                     public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
+                            Log.e("CTF","Upload Progress: " + bytesSent);
+
                     }
 
 
                     @Override
                     public void onFinish(String imageJson, FileUpload fileImageUpload) {
 
+                        Log.e("CTF","Upload Finish (FILE): ");
+
                     }
 
                     @Override
                     public void onImageFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+
+                        Log.e("CTF","Upload Finish (IMAGE): ");
 
                     }
 
@@ -871,9 +1016,33 @@ public class ChatActivity extends AppCompatActivity
                         fileUnique[0] = presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 TEST_THREAD_ID,
-                                getUri(), getMetaData(), null, new ProgressHandler.sendFileMessage() {
+                                getUri(), getMetaData(), 1, new ProgressHandler.sendFileMessage() {
                                     @Override
                                     public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+
+                                        Log.e("SFM","Sending files message: " + bytesSent + " * " + totalBytesSent + " * " + totalBytesToSend);
+
+                                    }
+
+                                    @Override
+                                    public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
+
+                                        Log.e("SFM","onFinishImage");
+
+                                    }
+
+                                    @Override
+                                    public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
+
+                                        Log.e("SFM","onFinishFile");
+
+                                    }
+
+                                    @Override
+                                    public void onError(String jsonError, ErrorOutPut error) {
+
+                                        Log.e("SFM","onError");
+
 
                                     }
                                 });
@@ -1055,7 +1224,7 @@ public class ChatActivity extends AppCompatActivity
     private void removeParticipants() {
 
         List<Long> participantIds = new ArrayList<>();
-        participantIds.add(41L);
+        participantIds.add(202L);
         long threadId = TEST_THREAD_ID;
         RequestRemoveParticipants request = new RequestRemoveParticipants
                 .Builder(threadId, participantIds)
@@ -1073,7 +1242,8 @@ public class ChatActivity extends AppCompatActivity
 
     private void addParticipants() {
         List<Long> participantIds = new ArrayList<>();
-        participantIds.add(22835L);
+        participantIds.add(521L);
+        participantIds.add(4101L);
 //        participantIds.add(23116L);
 //        participantIds.add(824L);
         //        presenter.addParticipants(691, participantIds, new ChatHandler() {
@@ -1109,7 +1279,7 @@ public class ChatActivity extends AppCompatActivity
         String meta = getMetaData();
 
 
-        presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, 2, meta, null);
+        presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
 
         editText.setText("");
 
@@ -1346,10 +1516,11 @@ public class ChatActivity extends AppCompatActivity
 
             case 22: {
 
-                RequestGetMentionList req = new RequestGetMentionList.Builder()
-//                        .setAllMentioned(true)
-                        .setUnreadMentioned(true)
-                        .setThreadId(TEST_THREAD_ID)
+                RequestGetMentionList req = new RequestGetMentionList.Builder(TEST_THREAD_ID)
+                        .setAllMentioned(true)
+//                        .setUnreadMentioned(true)
+                        .offset(0)
+                        .count(25)
                         .build();
 
                 presenter.getMentionList(req);
@@ -1467,7 +1638,8 @@ public class ChatActivity extends AppCompatActivity
 //                new Invitee(3361, 2)
 //                , new Invitee(3102, 2)
 //                new Invitee(091, 1),
-                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+//                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("09148401824", InviteType.Constants.TO_BE_USER_CELLPHONE_NUMBER),
 //                new Invitee(5638, 2),
 //                new Invitee(5638, 2),
         };
@@ -1475,8 +1647,8 @@ public class ChatActivity extends AppCompatActivity
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
 
-        presenter.createThread(1, invite,
-                "Test for spam thread " + (new Date().getTime() / 1000), "Description created at "
+        presenter.createThread(ThreadType.Constants.NORMAL, invite,
+                "A New Thread " + (new Date().getTime() / 1000), "Description created at "
                         + new Date().getTime()
                 , null, metac, null);
 
@@ -1519,10 +1691,9 @@ public class ChatActivity extends AppCompatActivity
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
-                .count(50)
+                .count(200)
 //                .uniqueIds(uniqueIds)
                 .toTime(System.currentTimeMillis())
-                .count(25)
                 .build();
 
         //            history.setToTime(System.currentTimeMillis());
@@ -1729,17 +1900,34 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        presenter.closeChat();
+    }
+
     public void onUploadFile(View view) {
 
         if (getUri() != null) {
             presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
                 public void onProgressUpdate(int bytesSent) {
+
+                    Log.e("UFP","opu");
                 }
 
                 @Override
                 public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
+                    Log.e("UFP","op");
 
                     runOnUiThread(() -> percentageFile.setText(bytesSent + "%"));
 
@@ -1748,6 +1936,8 @@ public class ChatActivity extends AppCompatActivity
 
                 @Override
                 public void onFinish(String imageJson, FileUpload fileImageUpload) {
+                    Log.e("UFP","of");
+
                     runOnUiThread(() -> {
                         Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                         percentageFile.setText("100");
@@ -1809,5 +1999,15 @@ public class ChatActivity extends AppCompatActivity
 
         Log.d("ROLES", response.getJson());
 
+    }
+
+
+    @Override
+    public void onTypingSignalTimeout(long threadId) {
+
+        runOnUiThread(() -> Toast.makeText(this, "Typing in Thread with id " + threadId + " has been stopped", Toast.LENGTH_LONG)
+                .show());
+
+        Log.e("IS_TYPING", "Typing in Thread with id " + threadId + " has been stopped");
     }
 }

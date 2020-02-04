@@ -2,8 +2,43 @@
 
 **Fanap's POD** Chat service
 
-# Changelog
-All notable changes to this project will be documented here.
+
+## Version [0.5.4.0] -2020-2-4
+
+[Added] `stopTyping()` | Stop started typing signal
+
+[Removed] `setSignalIntervalTime()` | Interval is fixed now
+
+[Added] `getFile(RequestGetFile, ProgressHandler.IDownloadFile)` | It downloads file with given hashCode and id and saves it in cache if it is enabled.
+
+[Added] `getImage(RequestGetImage, ProgressHandler.IDownloadFile)` | It downloads image with given hashCode and id and saves it in cache if it is enabled.
+
+[Added] `getCacheSize()` | Returns cache database size
+
+[Added] `getStorageSize()` | Returns local storage size
+
+[Added] `getCachedFilesFolderSize()` | Returns cached files folder size
+
+[Added] `getCachedPicturesFolderSize()` | Returns cached pictures folder size
+
+[Added] `clearCacheDatabase()` | Clears cache database
+
+[Added] `clearCachedFiles()` | Clears cached files
+
+[Added] `clearCachedPictures()` | Clears cached pictures
+
+[Added] `cancelDownload(String)` | Download started download with given uniqueId
+
+[Added] `createThreadWithFile(RequestCreateThreadWithFile, ProgressHandler.onProgressFile)` | creates new thread with file
+
+[Deprecated] `stopTyping(String)`
+
+
+
+
+
+
+
 
 
 ## Version [0.5.3.0] -2020-1-25
@@ -24,7 +59,7 @@ All notable changes to this project will be documented here.
 
 [Added] unPinMessage(RequestPinMessage)
 
-[BugFixed] `OnSignalMessageReceive(OutputSignalMessage)` subjectId value changed
+[BugFixed] OnSignalMessageReceive(OutputSignalMessage) subjectId value changed
 
 [Added] onSignalMessageReceived(OutputSignalMessage)
 
@@ -33,8 +68,6 @@ All notable changes to this project will be documented here.
 [Added] getCurrentUserRoles(RequestGetUserRoles)
 
 [Added] getMentionList(RequestGetMentionList)
-
-[Added] `getJson()` method in ChatResponse
 
 
 

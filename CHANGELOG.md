@@ -7,14 +7,37 @@ All notable changes to this project will be documented here.
 
 
 
-## Version [0.5.4.0]
+## Version [0.5.4.0] -2020-2-4
 
 [Added] `stopTyping()`
 
 [Removed] `setSignalIntervalTime()`
 
+[Added] `getFile(RequestGetFile, ProgressHandler.IDownloadFile)`
 
+[Added] `getImage(RequestGetImage, ProgressHandler.IDownloadFile)`
 
+[Added] `getCacheSize()`
+
+[Added] `getStorageSize()`
+
+[Added] `getStorageSize()`
+
+[Added] `getCachedFilesFolderSize()`
+
+[Added] `getCachedPicturesFolderSize()`
+
+[Added] `clearCacheDatabase()`
+
+[Added] `clearCachedFiles()`
+
+[Added] `clearCachedPictures()`
+
+[Added] `cancelDownload()`
+
+[Added] `stopTyping()`
+
+[Deprecated] `stopTyping(String)`
 
 
 

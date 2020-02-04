@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 /**
  * Get Static Image of a GeoLocation
  *
- *  {string}   type           Map style (default standard-night)
+ *  {string}   messageType           Map style (default standard-night)
  *   {int}      zoom           Map zoom (default 15)
  *   {object}   center         Lat & Lng of Map center as a JSON
  *   {int}      width          width of image in pixels (default 800px)

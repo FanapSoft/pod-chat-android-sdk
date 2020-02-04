@@ -32,7 +32,7 @@ public interface ContactApi {
             , @Field("cellphoneNumber") String cellphoneNumber
     );
 
-    /* addContact Without type code */
+    /* addContact Without messageType code */
     @NonNull
     @POST("nzh/addContacts")
     @FormUrlEncoded
@@ -46,7 +46,7 @@ public interface ContactApi {
             , @Field("typeCode") String typeCode
     );
 
-    /* addContacts With type code*/
+    /* addContacts With messageType code*/
     @NonNull
     @POST("nzh/addContacts")
     @FormUrlEncoded
@@ -60,7 +60,7 @@ public interface ContactApi {
             , @Field("typeCode") ArrayList<String> typeCode
     );
 
-    /* addContacts Without type code*/
+    /* addContacts Without messageType code*/
     @NonNull
     @POST("nzh/addContacts")
     @FormUrlEncoded
@@ -73,7 +73,7 @@ public interface ContactApi {
             , @Field("cellphoneNumber") ArrayList<String> cellphoneNumber
     );
 
-    /* removeContacts With type code*/
+    /* removeContacts With messageType code*/
     @NonNull
     @POST("nzh/removeContacts")
     @FormUrlEncoded
@@ -83,7 +83,7 @@ public interface ContactApi {
             , @Field("typeCode") String typeCode
     );
 
-    /* removeContacts Without type code*/
+    /* removeContacts Without messageType code*/
     @NonNull
     @POST("nzh/removeContacts")
     @FormUrlEncoded
@@ -91,7 +91,7 @@ public interface ContactApi {
             , @Header("_token_issuer_") int tokenIssuer
             , @Field("id") long userId);
 
-    /* Update contact without type code*/
+    /* Update contact without messageType code*/
     @NonNull
     @POST("nzh/updateContacts")
     @FormUrlEncoded
@@ -104,7 +104,7 @@ public interface ContactApi {
             , @Field("uniqueId") String uniqueId
             , @Field("cellphoneNumber") String cellphoneNumber);
 
-    /* Update contact with type code*/
+    /* Update contact with messageType code*/
     @NonNull
     @POST("nzh/updateContacts")
     @FormUrlEncoded

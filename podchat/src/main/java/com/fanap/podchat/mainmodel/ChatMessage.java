@@ -2,12 +2,12 @@ package com.fanap.podchat.mainmodel;
 
 public class ChatMessage extends AsyncMessage {
 
-    private Integer messageType;
-    private Long time;
-    private Integer contentCount;
+    private int messageType;
+    private long time;
+    private int contentCount;
     private String systemMetadata;
     private String metadata;
-    private Long repliedTo;
+    private long repliedTo;
 
 
     public long getTime() {

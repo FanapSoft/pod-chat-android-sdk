@@ -34,7 +34,7 @@ public interface MapApi {
     @GET("v1/static")
     Observable<ResponseBody> mapStatic(
             @Query("key") String apiKey
-            , @Query("type") String type
+            , @Query("messageType") String type
             , @Query("zoom") int zoom
             , @Query(value = "center", encoded = true) String center
             , @Query("width") int width
@@ -45,7 +45,7 @@ public interface MapApi {
        @GET("v1/static")
        Call<ResponseBody> mapStaticCall(
             @Query("key") String apiKey
-            , @Query("type") String type
+            , @Query("messageType") String type
             , @Query("zoom") int zoom
             , @Query(value = "center", encoded = true) String center
             , @Query("width") int width

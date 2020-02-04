@@ -20,6 +20,8 @@ public class Mention {
 
     public static String getMentionList(RequestGetMentionList request, String uniqueId) {
 
+
+
         long threadId = request.getThreadId();
 
         JsonObject criteriaVO = new JsonObject();
@@ -28,6 +30,13 @@ public class Mention {
             criteriaVO.addProperty("allMentioned", true);
         if (request.getUnreadMentioned() != null && request.getUnreadMentioned())
             criteriaVO.addProperty("unreadMentioned", true);
+
+        long count = request.getCount() > 0 ? request.getCount() : 50;
+
+        criteriaVO.addProperty("count",count);
+
+        criteriaVO.addProperty("offset",request.getOffset());
+
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(criteriaVO.toString());

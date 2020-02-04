@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -19,6 +20,8 @@ import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -178,6 +181,8 @@ public interface ChatContract {
         default void onUnPinMessage(ChatResponse<ResultPinMessage> response){}
 
         default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
+
+        default void onTypingSignalTimeout(long threadId){}
     }
 
     interface presenter {
@@ -366,5 +371,28 @@ public interface ChatContract {
         void getMentionList(RequestGetMentionList req);
 
         void startTyping(RequestSignalMsg req);
+
+        String downloadFile(RequestGetImage requestGetImage, ProgressHandler.IDownloadFile onProgressFile);
+
+        String downloadFile(RequestGetFile requestGetFile, ProgressHandler.IDownloadFile onProgressFile);
+
+        boolean cancelDownload(String downloadingId);
+
+        void getCacheSize();
+
+        void clearDatabaseCache(Chat.IClearMessageCache listener);
+
+        long getStorageSize();
+
+        long getImageFolderSize();
+
+        long getFilesFolderSize();
+
+        boolean clearPictures();
+
+        boolean clearFiles();
+
+        void closeChat();
+
     }
 }

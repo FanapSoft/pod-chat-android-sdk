@@ -2,11 +2,14 @@ package com.fanap.podchat.mainmodel;
 
 import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 public class RequestThreadInnerMessage {
 
     private String text;
+    @SerializedName("messageType")
     private int type;
     private String metadata;
     private String systemMetadata;
@@ -22,6 +25,7 @@ public class RequestThreadInnerMessage {
 
     public static class Builder {
         private String text;
+        @SerializedName("messageType")
         private int type;
         private String metadata;
         private String systemMetadata;

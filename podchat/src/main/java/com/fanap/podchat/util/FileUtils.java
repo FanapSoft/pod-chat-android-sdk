@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StatFs;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -36,7 +37,10 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
@@ -49,6 +53,7 @@ import java.util.Random;
  * @version 2013-12-11
  */
 public class FileUtils {
+
     private FileUtils() {
     } //private constructor to enforce Singleton pattern
 
@@ -57,6 +62,17 @@ public class FileUtils {
      */
     private static final String TAG = "FileUtils";
     private static final boolean DEBUG = false; // Set to true to enable logging
+
+
+    public static final String Media = "Podchat";
+
+
+    public static final String FILES = Media + "/Files";
+    public static final String VOICES = Media + "/Voices";
+    public static final String VIDEOS = Media + "/Videos";
+    public static final String SOUNDS = Media + "/Sounds";
+    public static final String PICTURES = Media + "/Pictures";
+
 
     public static final String MIME_TYPE_AUDIO = "audio/*";
     public static final String MIME_TYPE_TEXT = "text/*";
@@ -84,6 +100,193 @@ public class FileUtils {
         return mimType.equals("image/gif");
     }
 
+    public static File findFileInFolder(File filesFolder, String fileName) {
+
+        File[] filesInFolder = filesFolder.listFiles();
+
+        for (File file :
+                filesInFolder) {
+            if (file.isFile()) {
+                String name = file.getName();
+                int lastDot = name.lastIndexOf(".");
+                if (lastDot > 0) {
+                    name = name.substring(0, lastDot);
+                    if (name.equals(fileName)) {
+                        return file;
+                    }
+                }
+            }
+
+            Log.e("DOWNLOAD", ">> FILE IN FOLDER: " + file.getName());
+
+        }
+        return null;
+    }
+
+
+    public static void copy(File src, File dst) throws IOException {
+
+        try (InputStream in = new FileInputStream(src)) {
+            try (OutputStream out = new FileOutputStream(dst)) {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
+        }
+    }
+
+
+    public static boolean clearDirectory(String path) {
+
+        File directory = FileUtils.getOrCreateDirectory(path);
+
+        if (directory != null && directory.exists()) {
+
+            if (directory.isDirectory()) {
+
+                return clearFolder(directory);
+
+            } else {
+
+                return directory.delete();
+            }
+
+        } else return false;
+
+    }
+
+    private static boolean clearFolder(File directory) {
+
+        boolean successClearFolder = true;
+
+        int totalFiles = 0;
+
+        int deletedFiles = 0;
+
+        File[] subFolders = directory.listFiles();
+
+        for (File file :
+                subFolders) {
+
+            if (!file.isDirectory()) {
+
+                totalFiles++;
+
+                boolean success = file.delete();
+
+                if (success) {
+
+                    deletedFiles++;
+                }
+
+
+            } else successClearFolder = clearFolder(file);
+
+        }
+
+        return totalFiles == deletedFiles && successClearFolder;
+
+    }
+
+    public static long getCacheSize(Context context) {
+
+        File databaseFile = context.getDatabasePath("cache.db");
+
+        if (databaseFile.exists()) return databaseFile.length();
+
+        return 0;
+    }
+
+
+    public static long getStorageSize(String path) {
+
+        File directory = FileUtils.getOrCreateDirectory(path);
+
+        if (directory != null && directory.exists()) {
+
+            if (directory.isDirectory()) {
+
+                return FileUtils.getFolderSize(directory);
+
+            }
+
+            return directory.length();
+        }
+        return 0;
+    }
+
+    public static long getFolderSize(File folder) {
+
+        long totalSize = 0;
+
+        File[] subFolders = folder.listFiles();
+
+        for (File file :
+                subFolders) {
+
+            if (!file.isDirectory()) {
+
+                totalSize += file.length();
+
+            } else totalSize += getFolderSize(file);
+
+        }
+
+        return totalSize;
+    }
+
+
+    public static long getFreeSpace() {
+
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        long bytesAvailable;
+        if (android.os.Build.VERSION.SDK_INT >=
+                android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            bytesAvailable = stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
+        } else {
+            bytesAvailable = (long) stat.getBlockSize() * (long) stat.getAvailableBlocks();
+        }
+
+        long megAvailable = bytesAvailable / (1024 * 1024);
+
+
+        return bytesAvailable;
+    }
+
+
+    public static File getMediaFolder() {
+
+        return new File(Environment.getExternalStorageDirectory(), "Podchat");
+
+
+    }
+
+
+    public static File getOrCreateDirectory(String path) {
+
+        File directory = Environment.getExternalStorageDirectory();
+
+        File destFolder = new File(directory, path);
+
+        boolean createDir;
+
+        if (!destFolder.exists()) {
+
+            createDir = destFolder.mkdirs();
+
+        } else {
+
+            createDir = true;
+
+        }
+
+        if (!createDir) return null;
+
+        return destFolder;
+    }
 
     @Nullable
     public static String getExtension(@Nullable String uri) {
@@ -99,6 +302,21 @@ public class FileUtils {
             return "";
         }
     }
+
+
+    public static String getExtensionFromMimType(@Nullable String mimType) {
+
+
+        String extension = "";
+
+        if (!Util.isNullOrEmpty(mimType))
+            extension = mimType.split("/")[1];
+
+
+        return extension;
+
+    }
+
 
     /**
      * @return Whether the URI is a local one.
@@ -156,7 +374,7 @@ public class FileUtils {
     }
 
     /**
-     * @return The MIME type for the given file.
+     * @return The MIME messageType for the given file.
      */
     @Nullable
     public static String getMimeType(File file) {
@@ -170,7 +388,7 @@ public class FileUtils {
     }
 
     /**
-     * @return The MIME type for the give Uri.
+     * @return The MIME messageType for the give Uri.
      */
     @Nullable
     public static String getMimeType(@NonNull Context context, @NonNull Uri uri) {
@@ -546,7 +764,7 @@ public class FileUtils {
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // The MIME data type filter
+        // The MIME data messageType filter
         intent.setType("*/*");
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -581,4 +799,6 @@ public class FileUtils {
         Random r = new Random();
         return r.nextInt(high - low) + low;
     }
+
+
 }

@@ -43,7 +43,7 @@ public class DataTypeConverter {
 //            return Collections.emptyList();
 //        }
 //
-//        Type listType = new TypeToken<List<CacheParticipant>>() {}.getType();
+//        Type listType = new TypeToken<List<CacheParticipant>>() {}.getMessageType();
 //
 //        return gson.fromJson(data, listType);
 //    }

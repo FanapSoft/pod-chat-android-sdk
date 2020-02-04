@@ -245,4 +245,6 @@ public interface ChatListener {
     default void onGetMentionList(ChatResponse<ResultHistory> response){}
 
     default void onTypingSignalTimeout(long threadId){}
+
+    default void onLowFreeSpace(long bytesAvailable){}
 }
