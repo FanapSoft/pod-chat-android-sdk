@@ -129,7 +129,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "21dbcdf5aaa34bde8c48144028fa0a23";
+    private static String TOKEN = "0bd8d92542344a7ca1f25a8bbd639768";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -1436,10 +1436,17 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Farhad ",
-                        "Kheirkha",
-                        "+9157770684",
-                        faker.name().username() + "@gmail.com");
+//                presenter.addContact("Farhad ",
+//                        "Kheirkha",
+//                        "+9157770684",
+//                        faker.name().username() + "@gmail.com",
+//                        "samira.amiri");
+//
+                presenter.addContact("Sadegh Bakhshandeh",
+                        "",
+                        "",
+                        "",
+                        "sadegh313.b");
                 break;
             case 15:
                 // remove contact

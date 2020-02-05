@@ -382,7 +382,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
+    public void addContact(String firstName, String lastName, String cellphoneNumber, String email, String username) {
 
 
         RequestAddContact requestAddContact = new RequestAddContact.Builder()
@@ -390,6 +390,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .lastName(lastName)
                 .cellphoneNumber(cellphoneNumber)
                 .email(email)
+                .username(username)
                 .build();
 
 
@@ -612,15 +613,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.getAdminList(requestGetAdmin);
     }
 
-//    @Override
-//    public String startSignalMessage(RequestSignalMsg requestSignalMsg) {
-//        return chat.startSignalMessage(requestSignalMsg);
-//    }
-
-//    @Override
-//    public void stopSignalMessage(String uniqueId) {
-//        chat.stopSignalMessage(uniqueId);
-//    }
 
     @Override
     public void getNotSeenDuration(ArrayList<Integer> userIds) {

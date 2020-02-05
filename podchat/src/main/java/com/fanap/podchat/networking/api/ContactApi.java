@@ -30,6 +30,7 @@ public interface ContactApi {
             , @Field("email") String email
             , @Field("uniqueId") String uniqueId
             , @Field("cellphoneNumber") String cellphoneNumber
+            , @Field("username") String username
     );
 
     /* addContact Without messageType code */
@@ -44,7 +45,7 @@ public interface ContactApi {
             , @Field("uniqueId") String uniqueId
             , @Field("cellphoneNumber") String cellphoneNumber
             , @Field("typeCode") String typeCode
-    );
+            , @Field("username") String username);
 
     /* addContacts With messageType code*/
     @NonNull

@@ -21,8 +21,6 @@ All notable changes to this project will be documented here.
 
 [Added] `getStorageSize()`
 
-[Added] `getStorageSize()`
-
 [Added] `getCachedFilesFolderSize()`
 
 [Added] `getCachedPicturesFolderSize()`

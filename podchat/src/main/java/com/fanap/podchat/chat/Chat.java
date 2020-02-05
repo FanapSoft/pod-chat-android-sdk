@@ -4786,12 +4786,15 @@ public class Chat extends AsyncAdapter {
     /**
      * Add one contact to the contact list
      *
+     * firstName and cellphoneNumber or email or username are required
+     *
+     * @param username        username of contact
      * @param firstName       Notice: if just put fistName without lastName its ok.
      * @param lastName        last name of the contact
      * @param cellphoneNumber Notice: If you just  put the cellPhoneNumber doesn't necessary to add email
      * @param email           email of the contact
      */
-    public String addContact(String firstName, String lastName, String cellphoneNumber, String email, String typeCode) {
+    public String addContact(String firstName, String lastName, String cellphoneNumber, String email, String typeCode, String username) {
 
         if (Util.isNullOrEmpty(firstName)) {
             firstName = "";
@@ -4806,6 +4809,10 @@ public class Chat extends AsyncAdapter {
             cellphoneNumber = "";
         }
 
+        if(Util.isNullOrEmpty(username)){
+            username = "";
+        }
+
         String uniqueId = generateUniqueId();
 
         JsonObject jsonObject = new JsonObject();
@@ -4817,19 +4824,21 @@ public class Chat extends AsyncAdapter {
         jsonObject.addProperty("cellphoneNumber", cellphoneNumber);
         jsonObject.addProperty("email", email);
         jsonObject.addProperty("typeCode", typeCode);
+        jsonObject.addProperty("username", username);
 
 
         showLog("SEND_ADD_CONTACT", getJsonForLog(jsonObject));
 
 
         Observable<Response<Contacts>> addContactObservable;
+
         if (chatReady) {
             if (Util.isNullOrEmpty(typeCode)) {
-                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber);
 
+                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber,username);
             } else {
-                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber, typeCode);
 
+                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber, typeCode,username);
             }
 
 
@@ -4886,9 +4895,10 @@ public class Chat extends AsyncAdapter {
         String lastName = request.getLastName();
         String email = request.getEmail();
         String cellphoneNumber = request.getCellphoneNumber();
+        String username = request.getUsername();
         String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
 
-        return addContact(firstName, lastName, cellphoneNumber, email, typeCode);
+        return addContact(firstName, lastName, cellphoneNumber, email, typeCode,username);
     }
 
     /**
@@ -4917,7 +4927,12 @@ public class Chat extends AsyncAdapter {
                 removeContactObservable = contactApi.removeContact(getToken(), 1, userId, getTypeCode());
             }
 
-            removeContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
+            removeContactObservable.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(response -> {
+
+                        Log.d("MTAG",response.raw().toString());
+
                 if (response.body() != null && response.isSuccessful()) {
                     ContactRemove contactRemove = response.body();
                     if (!contactRemove.getHasError()) {
@@ -4938,7 +4953,8 @@ public class Chat extends AsyncAdapter {
                         getErrorOutPut(contactRemove.getErrorMessage(), contactRemove.getErrorCode(), uniqueId);
                     }
                 }
-            }, (Throwable throwable) -> getErrorOutPut(throwable.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
+            }, (Throwable throwable) ->
+                            getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
         } else {
             getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }

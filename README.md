@@ -5,7 +5,7 @@
 
 ## Version [0.5.4.0] -2020-2-4
 
-[Added] `stopTyping()` | Stop started typing signal
+[Added] `stopTyping()` | Stops started typing signal
 
 [Removed] `setSignalIntervalTime()` | Interval is fixed now
 
@@ -27,7 +27,7 @@
 
 [Added] `clearCachedPictures()` | Clears cached pictures
 
-[Added] `cancelDownload(String)` | Download started download with given uniqueId
+[Added] `cancelDownload(String)` | Cancels started download with given uniqueId
 
 [Added] `createThreadWithFile(RequestCreateThreadWithFile, ProgressHandler.onProgressFile)` | creates new thread with file
 

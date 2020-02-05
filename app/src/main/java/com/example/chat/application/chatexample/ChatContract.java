@@ -270,7 +270,7 @@ public interface ChatContract {
 
         void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler);
 
-        void addContact(String firstName, String lastName, String cellphoneNumber, String email);
+        void addContact(String firstName, String lastName, String cellphoneNumber, String email,String username);
 
         void removeContact(long id);
 

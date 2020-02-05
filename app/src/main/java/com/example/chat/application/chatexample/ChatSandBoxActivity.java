@@ -669,7 +669,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Mehran", "Atash", "09338854885", "");
+                presenter.addContact("Mehran", "Atash", "", "","");
                 break;
             case 15:
                 // remove contact
