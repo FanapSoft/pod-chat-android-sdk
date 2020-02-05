@@ -217,6 +217,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler) {
+        chat.getThreads(count, offset, threadIds, threadName, 0, 0 , 0, handler);
+    }
+
+
+    @Override
     public void setToken(String token) {
         chat.setToken(token);
     }
@@ -280,10 +286,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.mapReverse(request);
     }
 
-    @Override
-    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler) {
-        chat.getThreads(count, offset, threadIds, threadName, handler);
-    }
 
     @Override
     public void getUserInfo(ChatHandler handler) {

@@ -220,7 +220,7 @@ public interface ChatContract {
 
                         long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler);
 
-        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
+        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,boolean isNew, ChatHandler handler);
 
         void setToken(String token);
 

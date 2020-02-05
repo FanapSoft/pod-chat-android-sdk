@@ -693,7 +693,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ArrayList<Integer> threadIds = new ArrayList<>();
         threadIds.add(2);
 //        threadIds.add(1031);
-        presenter.getThreads(10, null, threadIds, null, null);
+//        presenter.getThreads(10, null, threadIds, null, null);
     }
 
     private void getThreadParticipant() {

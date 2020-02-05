@@ -256,7 +256,7 @@ public class Chat extends AsyncAdapter {
     private static final int PING_INTERVAL = 20000;
     private static final int signalIntervalTime = 3000;
 
-    private static final int FREE_SPACE_FOR_CACHE = 10 * 1024 * 1024;
+    private int freeSpaceThreshold = 100 * 1024 * 1024;
 
     private int signalMessageRanTime = 0;
     private static Async async;
@@ -349,6 +349,11 @@ public class Chat extends AsyncAdapter {
 
     public void setNetworkPingPort(int networkPingPort) {
         this.networkPingPort = networkPingPort;
+    }
+
+
+    public void setFreeSpaceThreshold(int freeSpaceThreshold) {
+        this.freeSpaceThreshold = freeSpaceThreshold;
     }
 
     private Chat() {
@@ -2572,7 +2577,7 @@ public class Chat extends AsyncAdapter {
 
         long bytesAvailable = FileUtils.getFreeSpace();
 
-        hasFreeSpace = bytesAvailable >= FREE_SPACE_FOR_CACHE;
+        hasFreeSpace = bytesAvailable >= freeSpaceThreshold;
 
         if (!hasFreeSpace) {
 
@@ -3528,19 +3533,22 @@ public class Chat extends AsyncAdapter {
 
     /**
      * Get the list of threads or you can just pass the thread id that you want
-     *
-     * @param count  number of thread
+     *  @param count  number of thread
      * @param offset specified offset you want
+     * @param creatorCoreUserId
+     * @param partnerCoreUserId
+     * @param partnerCoreContactId
+     * @param isNew if true, threads with new messages will return
      */
 
 
     @Deprecated
     public String getThreads(Integer count, Long offset, ArrayList<Integer> threadIds,
-                             String threadName, ChatHandler handler) {
+                             String threadName, long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, boolean isNew, ChatHandler handler) {
 
         String uniqueId;
 
-        count = count != null ? count : 50;
+        count = count != null  && count > 0 ? count : 50;
 
         uniqueId = generateUniqueId();
 
@@ -3552,6 +3560,9 @@ public class Chat extends AsyncAdapter {
             if (chatReady) {
 
                 ChatMessageContent chatMessageContent = new ChatMessageContent();
+
+                chatMessageContent.setNew(isNew);
+
 
                 Long offsets;
 
@@ -3579,9 +3590,21 @@ public class Chat extends AsyncAdapter {
                     jObj.remove("threadIds");
                 }
 
+                if (creatorCoreUserId > 0) {
+                    jObj.addProperty("creatorCoreUserId", creatorCoreUserId);
+                }
+                if (partnerCoreUserId > 0) {
+                    jObj.addProperty("partnerCoreUserId", partnerCoreUserId);
+                }
+                if (partnerCoreContactId > 0) {
+                    jObj.addProperty("partnerCoreContactId", partnerCoreContactId);
+                }
+
+
+
                 jObj.remove("lastMessageId");
                 jObj.remove("firstMessageId");
-                jObj.remove("new");
+//                jObj.remove("new");
 //                jObj.remove("count");
 //                jObj.remove("offset");
 //                jObj.addProperty("summary", true);
@@ -3819,7 +3842,8 @@ public class Chat extends AsyncAdapter {
         long partnerCoreUserId = requestThread.getPartnerCoreUserId();
         String threadName = requestThread.getThreadName();
         long count = requestThread.getCount();
-        return getThreads((int) count, offset, threadIds, threadName, creatorCoreUserId, partnerCoreUserId, partnerCoreContactId, handler);
+        boolean isNew = requestThread.isNew();
+        return getThreads((int) count, offset, threadIds, threadName, creatorCoreUserId, partnerCoreUserId, partnerCoreContactId,isNew, handler);
     }
 
     /*

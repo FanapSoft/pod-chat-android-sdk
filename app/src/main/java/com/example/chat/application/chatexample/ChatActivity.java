@@ -129,7 +129,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "0bd8d92542344a7ca1f25a8bbd639768";
+    private static String TOKEN = "c2fe61095031484ead7c18164bf4e432";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -1731,6 +1731,7 @@ public class ChatActivity extends AppCompatActivity
 //                threadIds.add(351);
         RequestThread requestThread = new RequestThread
                 .Builder()
+                .newThreads()
 
 //                .partnerCoreContactId(566)
 //                .count(5)
