@@ -25,15 +25,13 @@ All notable changes to this project will be documented here.
 
 [Added] `getCachedPicturesFolderSize()`
 
-[Added] `clearCacheDatabase()`
+[Added] `clearCacheDatabase(IClearMessageCache)`
 
 [Added] `clearCachedFiles()`
 
 [Added] `clearCachedPictures()`
 
 [Added] `cancelDownload()`
-
-[Added] `stopTyping()`
 
 [Deprecated] `stopTyping(String)`
 

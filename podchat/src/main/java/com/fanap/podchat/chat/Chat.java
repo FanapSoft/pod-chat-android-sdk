@@ -2656,7 +2656,7 @@ public class Chat extends AsyncAdapter {
                 };
 
 
-        File imagesFolder = FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+        File imagesFolder = cache ? FileUtils.getOrCreateDirectory(FileUtils.PICTURES) : FileUtils.getPublicFilesDirectory();
 
         if (imagesFolder == null) {
 
@@ -2695,7 +2695,6 @@ public class Chat extends AsyncAdapter {
                     request.getHashCode(),
                     request.getImageId(),
                     getContext(),
-                    cache,
                     downloaderErrorInterface,
                     checkFreeSpace());
 
@@ -2776,7 +2775,7 @@ public class Chat extends AsyncAdapter {
                     }
                 };
 
-        File filesFolder = FileUtils.getOrCreateDirectory(FileUtils.FILES);
+        File filesFolder = cache ? FileUtils.getOrCreateDirectory(FileUtils.FILES) : FileUtils.getPublicFilesDirectory();
 
         if (filesFolder == null) {
 
@@ -2813,7 +2812,6 @@ public class Chat extends AsyncAdapter {
                     request.getHashCode(),
                     request.getFileId(),
                     getContext(),
-                    cache,
                     downloaderErrorInterface,
                     checkFreeSpace());
 
@@ -8187,7 +8185,7 @@ public class Chat extends AsyncAdapter {
         SSOApi api = retrofitHelperSsoHost.getService(SSOApi.class);
 
 
-        String bToken = "bearer " + getToken();
+        String bToken = "Bearer " + getToken();
 
 
         Call<EncResponse> responseCallback = api.generateEncryptionKey(bToken,
@@ -8206,6 +8204,7 @@ public class Chat extends AsyncAdapter {
                         if (response.body().getSecretKey() != null) {
 
                             initDatabaseWithKey(response.body().getSecretKey());
+
                             setKey(response.body().getSecretKey());
 
                         } else {
@@ -8983,23 +8982,16 @@ public class Chat extends AsyncAdapter {
                     getUserInfoHandler.removeCallbacksAndMessages(null);
                     userInfoResponse = false;
                     retryStepUserInfo = 1;
-
                 } else {
-
                     if (getUserInfoNumberOfTry < getUserInfoRetryCount - 1) {
-
                         if (retryStepUserInfo < 60) retryStepUserInfo *= 4;
                         getUserInfo(null);
                         getUserInfoNumberOfTry++;
                         runOnUIUserInfoThread(this, retryStepUserInfo * 1000);
                         showLog("getUserInfo " + " retry in " + retryStepUserInfo + " s ", "");
-
                     } else {
-
                         getErrorOutPut(ChatConstant.ERROR_CANT_GET_USER_INFO, ChatConstant.ERROR_CODE_CANT_GET_USER_INFO, getUserInfo(null));
-
                     }
-
                 }
             }
         }, retryStepUserInfo * 1000);

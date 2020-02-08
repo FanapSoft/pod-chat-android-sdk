@@ -39,7 +39,6 @@ public class PodDownloader {
             String hashCode,
             long id,
             Context context,
-            boolean cache,
             IDownloaderError iDownloader,
             long bytesAvailable) {
 
@@ -112,9 +111,9 @@ public class PodDownloader {
 
                             progressHandler.onFileReady(response);
 
-                            if (!cache) {
-                                downloadedFile.delete();
-                            }
+//                            if (!cache) {
+//                                downloadedFile.delete();
+//                            }
 
                         } else {
 

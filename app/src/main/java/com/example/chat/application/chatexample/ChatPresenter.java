@@ -91,8 +91,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
@@ -218,7 +216,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler) {
-        chat.getThreads(count, offset, threadIds, threadName, 0, 0 , 0, handler);
+        chat.getThreads(count, offset, threadIds, threadName, 0, 0, 0, handler);
     }
 
 
@@ -806,7 +804,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public long getStorageSize() {
-       return chat.getStorageSize();
+        return chat.getStorageSize();
     }
 
     @Override
@@ -832,6 +830,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void closeChat() {
         chat.closeChat();
+    }
+
+    @Override
+    public void addContact(RequestAddContact request) {
+        chat.addContact(request);
     }
 
 

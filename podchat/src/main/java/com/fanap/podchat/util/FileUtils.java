@@ -269,6 +269,7 @@ public class FileUtils {
 
         File directory = Environment.getExternalStorageDirectory();
 
+
         File destFolder = new File(directory, path);
 
         boolean createDir;
@@ -286,6 +287,37 @@ public class FileUtils {
         if (!createDir) return null;
 
         return destFolder;
+    }
+
+
+//    public static File getDownloadCacheDirectory(String path){
+//
+//        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//
+//        File destFolder = new File(directory, path);
+//
+//        boolean createDir;
+//
+//        if (!destFolder.exists()) {
+//
+//            createDir = destFolder.mkdirs();
+//
+//        } else {
+//
+//            createDir = true;
+//
+//        }
+//
+//        if (!createDir) return null;
+//
+//        return destFolder;
+//
+//    }
+
+    public static File getPublicFilesDirectory() {
+
+
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
     }
 
     @Nullable

@@ -31,7 +31,7 @@ public class RequestThread extends BaseRequestObject {
         private long partnerCoreContactId;
         private boolean isNew = false;
 
-        public Builder newThreads() {
+        public Builder newMessages() {
             isNew = true;
             return this;
         }

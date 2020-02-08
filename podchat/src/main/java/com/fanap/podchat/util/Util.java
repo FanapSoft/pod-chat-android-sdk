@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
@@ -46,6 +47,15 @@ public class Util {
         contact.setId(contacts.getResult().get(0).getId());
         contact.setLastName(contacts.getResult().get(0).getLastName());
         contact.setUniqueId(contacts.getResult().get(0).getUniqueId());
+
+
+        //add linked user
+        LinkedUser linkedUser = contacts.getResult().get(0).getLinkedUser();
+
+        if (linkedUser != null)
+            contact.setLinkedUser(linkedUser);
+
+
         resultAddContact.setContact(contact);
         chatResponse.setResult(resultAddContact);
         return chatResponse;
@@ -167,7 +177,7 @@ public class Util {
     public static boolean isNullOrEmpty(String[] uniqueIds) {
 
 
-        if(uniqueIds == null) return true;
+        if (uniqueIds == null) return true;
         else return uniqueIds.length == 0;
 
     }

@@ -3,6 +3,8 @@ package com.example.chat.application.chatexample;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -43,6 +45,7 @@ import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
@@ -129,7 +132,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "c2fe61095031484ead7c18164bf4e432";
+    private static String TOKEN = "6002bb52e627440ab8a6549bc0fc5790";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -140,19 +143,19 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 
@@ -579,12 +582,14 @@ public class ChatActivity extends AppCompatActivity
         String url = "https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482";
 
         //image
-        long imageId = 68349;
+        long imageId = 404143;
+//        long imageId = 68349;
 
         long fileId = 68350;
 
 
-        String imageHashCode = "16feadc7bf1-0.5248624596970302";
+        String imageHashCode = "17024463974-0.5588549950419339";
+//        String imageHashCode = "16feadc7bf1-0.5248624596970302";
 
         String fileHashCode = "16feae05f01-0.6114938150256433";
 
@@ -595,7 +600,7 @@ public class ChatActivity extends AppCompatActivity
 
 
 
-        downloadingId = presenter.downloadFile(requestGetFile,new ProgressHandler.IDownloadFile(){
+        downloadingId = presenter.downloadFile(requestGetImage,new ProgressHandler.IDownloadFile(){
 
 
             @Override
@@ -624,6 +629,26 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onFileReady(ChatResponse<ResultDownloadFile> response) {
                 Log.e("DOWNLOAD","IN ACTIVITY: Finish File!!!!");
+                Log.e("DOWNLOAD","File name: " + response.getResult().getFile().getName());
+                Log.e("DOWNLOAD","Uri " + response.getResult().getUri());
+                Log.e("DOWNLOAD","File Exist " + response.getResult().getFile().exists());
+
+
+                if(response.getResult().getFile().exists()){
+
+
+                    try {
+                        Bitmap v = BitmapFactory.decodeFile(response.getResult().getFile().getAbsolutePath());
+                        runOnUiThread(() -> imageMap.setImageBitmap(v));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+
+
 
             }
 
@@ -931,14 +956,16 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private String getMetaData() {
-        JsonObject a = new JsonObject();
 
-        a.addProperty("actionType", 1);
-        a.addProperty("amount", 100);
-        a.addProperty("id", 161);
-        a.addProperty("state", 1);
-        a.addProperty("destUserId", 1900896);
-        return gson.toJson(a);
+        return "";
+//        JsonObject a = new JsonObject();
+//
+//        a.addProperty("actionType", 1);
+//        a.addProperty("amount", 100);
+//        a.addProperty("id", 161);
+//        a.addProperty("state", 1);
+//        a.addProperty("destUserId", 1900896);
+//        return gson.toJson(a);
 
 //
 //        a.addProperty("name", "farhad");
@@ -1436,17 +1463,28 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 14:
                 // add contact
-//                presenter.addContact("Farhad ",
-//                        "Kheirkha",
-//                        "+9157770684",
+//                presenter.addContact("",
+//                        "",
+//                        "",
 //                        faker.name().username() + "@gmail.com",
-//                        "samira.amiri");
+//                        "");
 //
-                presenter.addContact("Sadegh Bakhshandeh",
-                        "",
-                        "",
-                        "",
-                        "sadegh313.b");
+//                presenter.addContact("",
+//                        "",
+//                        "",
+//                        "",
+//                        "");
+
+
+                RequestAddContact request = new RequestAddContact.Builder()
+                        .firstName("Sadegh")
+                        .lastName("Bakhshandeh")
+                        .username("sadegh313.b")
+                        .build();
+
+                presenter.addContact(request);
+
+
                 break;
             case 15:
                 // remove contact
@@ -1731,7 +1769,7 @@ public class ChatActivity extends AppCompatActivity
 //                threadIds.add(351);
         RequestThread requestThread = new RequestThread
                 .Builder()
-                .newThreads()
+                .newMessages()
 
 //                .partnerCoreContactId(566)
 //                .count(5)
