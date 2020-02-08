@@ -9748,6 +9748,10 @@ public class Chat extends AsyncAdapter {
 
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
 
+        if(Util.isNullOrEmpty(systemMetadata)){
+            jsonObject.remove("systemMetadata");
+        }
+
         String asyncContent = jsonObject.toString();
 
         sendingQueue.setAsyncContent(asyncContent);
