@@ -9,6 +9,7 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -396,5 +397,7 @@ public interface ChatContract {
         void closeChat();
 
         void addContact(RequestAddContact request);
+
+        void updateChatProfile(RequestUpdateProfile request);
     }
 }

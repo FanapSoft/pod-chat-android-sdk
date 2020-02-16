@@ -49,7 +49,8 @@ public class ConstantSample {
             , "Clear History"
             , "Get Admin List",
             "Spam ConversationVO",
-            "Seen Message"
+            "Seen Message",
+            "Update Profile"
     };
 
     public static final String[] funcThird = {

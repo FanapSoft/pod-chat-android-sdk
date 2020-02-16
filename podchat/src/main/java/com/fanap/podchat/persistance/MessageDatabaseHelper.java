@@ -29,6 +29,8 @@ import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.user.profile.ChatProfileVO;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.ForwardInfo;
@@ -47,7 +49,6 @@ import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Util;
-import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -1254,6 +1255,7 @@ public class MessageDatabaseHelper {
      */
     public void saveUserInfo(UserInfo userInfo) {
         messageDao.insertUserInfo(userInfo);
+        messageDao.insertChatProfile(userInfo.getChatProfileVO());
     }
 
     public UserInfo getUserInfo() {
@@ -1261,6 +1263,14 @@ public class MessageDatabaseHelper {
         UserInfo userInfo = new UserInfo();
         if (messageDao.getUserInfo() != null) {
             userInfo = messageDao.getUserInfo();
+
+            if (userInfo != null && userInfo.getId() > 0){
+
+                ChatProfileVO chatProfileVO = getChatProfile(userInfo.getId());
+
+                userInfo.setChatProfileVO(chatProfileVO);
+            }
+
         }
         return userInfo;
     }
@@ -1705,7 +1715,7 @@ public class MessageDatabaseHelper {
 
                 String gson = App.getGson().toJson(thread);
 
-                ThreadVo threadVo = App.getGson().fromJson(gson,ThreadVo.class);
+                ThreadVo threadVo = App.getGson().fromJson(gson, ThreadVo.class);
 
 
 //                ThreadVo threadVo = threadToThreadVoMapper(thread);
@@ -2311,4 +2321,32 @@ public class MessageDatabaseHelper {
     }
 
 
+    public void updateChatProfile(ResultUpdateProfile result) {
+
+        worker(() -> {
+            UserInfo userInfo = getUserInfo();
+
+            ChatProfileVO chatProfileVO = new ChatProfileVO();
+
+            chatProfileVO.setId(userInfo.getId());
+
+            chatProfileVO.setBio(result.getBio());
+
+            userInfo.setChatProfileVO(chatProfileVO);
+
+            messageDao.insertChatProfile(chatProfileVO);
+
+            messageDao.insertUserInfo(userInfo);
+
+
+        });
+
+    }
+
+
+    private ChatProfileVO getChatProfile(long id) {
+
+        return messageDao.getChatProfileVOById(id);
+
+    }
 }

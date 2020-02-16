@@ -19,6 +19,7 @@ import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
+import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.PinMessageVO;
@@ -367,6 +368,22 @@ public interface MessageDao {
     @Query("delete from pinmessagevo where threadId = :threadId")
     void deletePinnedMessageByThreadId(long threadId);
 
+
+
+    //Chat Profile
+
+
+    @Insert(onConflict = REPLACE)
+    void insertChatProfile(ChatProfileVO chatProfileVO);
+
+    @Query("Select * from chatprofilevo where id = :id")
+    ChatProfileVO getChatProfileVOById(long id);
+
+    @Delete
+    void deleteChatProfile(ChatProfileVO chatProfileVO);
+
+    @Query("delete from chatprofilevo where id = :id")
+    void deleteChatProfileBtId(long id);
 
 
 

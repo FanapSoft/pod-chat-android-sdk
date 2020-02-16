@@ -29,6 +29,7 @@ import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
@@ -98,14 +99,6 @@ public class ChatActivity extends AppCompatActivity
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
 
 
-//    //sand box / group
-
-    public static int TEST_THREAD_ID = 5182;
-
-
-//    main server / p2p
-
-//    public static int TEST_THREAD_ID = 12257;
 
 
     private ChatContract.presenter presenter;
@@ -132,7 +125,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "5cfd6dd0419e4fc891075460ea5bcb35";
+    private static String TOKEN = "bd11190cdd6d49c18d764057129a029f";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -158,6 +151,14 @@ public class ChatActivity extends AppCompatActivity
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
+//    //sand box / group
+
+    public static int TEST_THREAD_ID = 5182;
+
+
+//    main server / p2p
+
+//    public static int TEST_THREAD_ID = 12257;
 
 
     private String fileUri;
@@ -957,15 +958,15 @@ public class ChatActivity extends AppCompatActivity
 
     private String getMetaData() {
 
-        return "";
-//        JsonObject a = new JsonObject();
-//
-//        a.addProperty("actionType", 1);
-//        a.addProperty("amount", 100);
-//        a.addProperty("id", 161);
-//        a.addProperty("state", 1);
-//        a.addProperty("destUserId", 1900896);
-//        return gson.toJson(a);
+//        return "";
+        JsonObject a = new JsonObject();
+
+        a.addProperty("actionType", 1);
+        a.addProperty("amount", 100);
+        a.addProperty("id", 161);
+        a.addProperty("state", 1);
+        a.addProperty("destUserId", 1900896);
+        return gson.toJson(a);
 
 //
 //        a.addProperty("name", "farhad");
@@ -1043,12 +1044,11 @@ public class ChatActivity extends AppCompatActivity
                         fileUnique[0] = presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 TEST_THREAD_ID,
-                                getUri(), getMetaData(), 1, new ProgressHandler.sendFileMessage() {
+                                getUri(), getMetaData(), TextMessageType.Constants.PICTURE, new ProgressHandler.sendFileMessage() {
                                     @Override
                                     public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
                                         Log.e("SFM","Sending files message: " + bytesSent + " * " + totalBytesSent + " * " + totalBytesToSend);
-
                                     }
 
                                     @Override
@@ -1176,6 +1176,16 @@ public class ChatActivity extends AppCompatActivity
 
                         seenMessage();
 
+                        break;
+
+                    }
+
+                    case 18:{
+
+
+                        updateUserProfile();
+
+                        break;
                     }
 
                 }
@@ -1185,6 +1195,22 @@ public class ChatActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+    private void updateUserProfile() {
+
+
+
+
+        RequestUpdateProfile request = new RequestUpdateProfile
+                .Builder("عِیب رِندان مَکُن ای زاهِدِ پاکیزه‌سِرِشت")
+                .build();
+
+
+        presenter.updateChatProfile(request);
+
+
+
     }
 
     private void seenMessage() {
@@ -1443,11 +1469,11 @@ public class ChatActivity extends AppCompatActivity
 
                 JsonObject a = new JsonObject();
 //
-                a.addProperty("actionType", 1);
-                a.addProperty("amount", 100);
+                a.addProperty("actionType", 7);
+                a.addProperty("amount", 12);
                 a.addProperty("id", 161);
-                a.addProperty("state", 1);
-                a.addProperty("destUserId", 1900896);
+                a.addProperty("state", 2);
+                a.addProperty("destUserId", 1900897);
 
 //                a.addProperty("name", "farhad");
 //                a.addProperty("family", "kheirkhah");
@@ -1458,7 +1484,7 @@ public class ChatActivity extends AppCompatActivity
 
 
                 presenter.editMessage(TEST_THREAD_ID,
-                        "hi message edited at " + new Date().getTime() + " by " + name, meta, null);
+                        "1111", meta, null);
 
                 break;
             case 14:
@@ -1735,8 +1761,8 @@ public class ChatActivity extends AppCompatActivity
 
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
-                .offset(0)
-                .count(200)
+//                .offset(0)
+                .count(50)
 //                .uniqueIds(uniqueIds)
                 .toTime(System.currentTimeMillis())
                 .build();
@@ -1963,6 +1989,7 @@ public class ChatActivity extends AppCompatActivity
     public void onUploadFile(View view) {
 
         if (getUri() != null) {
+
             presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
                 public void onProgressUpdate(int bytesSent) {
@@ -1979,6 +2006,8 @@ public class ChatActivity extends AppCompatActivity
 
 
                 }
+
+
 
                 @Override
                 public void onFinish(String imageJson, FileUpload fileImageUpload) {

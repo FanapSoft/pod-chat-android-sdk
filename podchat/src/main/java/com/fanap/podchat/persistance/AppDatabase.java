@@ -18,6 +18,7 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.UserInfo;
@@ -28,6 +29,7 @@ import com.fanap.podchat.persistance.dao.PhoneContactDao;
 import com.fanap.podchat.util.DataTypeConverter;
 
 @Database(entities = {
+        ChatProfileVO.class,
         CacheContact.class,
         Inviter.class,
         UserInfo.class,

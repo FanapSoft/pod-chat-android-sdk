@@ -3,6 +3,10 @@ package com.fanap.podchat.util;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
+
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.ChatListener;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,9 +14,11 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.Date;
 
 public class NetworkPingSender {
 
+    public static final String TAG = "CHAT_SDK_NET";
     private int connectTimeout = 10000;
 
     private String hostName = "msg.pod.ir";
@@ -128,11 +134,7 @@ public class NetworkPingSender {
 
         if (handlerThread != null) {
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                    handlerThread.quitSafely();
-                } else {
-                    handlerThread.quit();
-                }
+                handlerThread.quit();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -146,20 +148,23 @@ public class NetworkPingSender {
 
             if(isConnecting)
                 return;
+
+            long startTime = new Date().getTime();
             isConnecting = true;
             Socket socket = new Socket();
             SocketAddress socketAddress = new InetSocketAddress(hostName, port);
+
 
             socket.connect(socketAddress, connectTimeout);
             socket.close();
             isConnecting = false;
 
 
+            long endTime = new Date().getTime();
             notifyNetworkAvailable();
+            Log.d(TAG,"Connection latency: " + (endTime - startTime));
         } catch (IOException e) {
-            e.printStackTrace();
-
-
+            Log.e(TAG,"Timeout Exception host: " + hostName + " port: " + port);
             notifyConnectionIsLost();
 
 
@@ -195,6 +200,59 @@ public class NetworkPingSender {
     public void asyncIsClosedOrClosing() {
 
         connected = false;
+
+    }
+
+
+    public void setStateListener(Chat chat){
+
+        chat.addListener(new ChatListener() {
+            @Override
+            public void onChatState(String state) {
+
+                Log.d(TAG,"CHAT STATE CHANGED: " + state);
+
+
+                switch (state){
+
+                    case ChatStateType.ChatSateConstant.CLOSING:
+                    case ChatStateType.ChatSateConstant.CLOSED:
+                    {
+
+
+                        connected = false;
+                        isConnecting = false;
+
+                        break;
+                    }
+//                    case ChatStateType.ChatSateConstant.CHAT_READY:
+//                    {
+//
+//                        connected = true;
+//                        isConnecting = false;
+//
+//                        break;
+//                    }
+//
+//                    case ChatStateType.ChatSateConstant.CONNECTING:{
+//
+//                        connected = false;
+//                        isConnecting = true;
+//
+//                        break;
+//
+//                    }
+//
+//
+                }
+
+
+
+
+
+            }
+        });
+
 
     }
 
@@ -241,6 +299,18 @@ public class NetworkPingSender {
         public NetworkStateConfig setConnectTimeout(Integer connectTimeout) {
             this.connectTimeout = connectTimeout;
             return this;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public Integer getPort() {
+            return port;
+        }
+
+        public Integer getConnectTimeout() {
+            return connectTimeout;
         }
 
         public NetworkStateConfig build(){

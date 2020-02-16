@@ -17,6 +17,7 @@ import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
@@ -62,10 +63,13 @@ public class ChatTest extends ChatAdapter {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "d1fd97824200469c8fedf8c1d010d829";
+    private static String TOKEN = "a9e6e26d6fe940ddb714333e51e229d6";
 
 
     private ChatActivity chatActivity;
+
+
+
 
     @Before
     public void setUp() {
@@ -77,6 +81,34 @@ public class ChatTest extends ChatAdapter {
                 appId, serverName, TOKEN, ssoHost,
                 platformHost, fileServer, "");
     }
+
+
+    @Test
+    @LargeTest
+    public void updateUserProfile(){
+
+
+        sleep(10000);
+
+        RequestUpdateProfile request = new RequestUpdateProfile
+                .Builder("عیب رندان مکن ای زاهد پاکیزه سرشت")
+                .build();
+
+
+        presenter.updateChatProfile(request);
+
+
+        Assert.assertTrue(true);
+
+
+
+
+
+    }
+
+
+
+
 
 
     @Test
@@ -274,7 +306,7 @@ public class ChatTest extends ChatAdapter {
     @MediumTest
     public void getThreadList() {
         sleep(7000);
-        presenter.getThreads(10, null, null, null, null);
+//        presenter.getThreads(10, null, null, null, null);
         sleep(7000);
         view = new ChatContract.view() {
             @Override
@@ -454,7 +486,7 @@ public class ChatTest extends ChatAdapter {
     @MediumTest
     public void addContact() {
         sleep(5000);
-        presenter.addContact("maman", "sadeghi", "091224858169", "dev55@gmail.com");
+        presenter.addContact("maman", "sadeghi", "091224858169", "dev55@gmail.com","");
         sleep(3000);
         Mockito.verify(view, Mockito.times(1)).onAddContact();
 //        Mockito.verify(view,Mockit.)
@@ -595,7 +627,7 @@ public class ChatTest extends ChatAdapter {
     @MediumTest
     public void searchInThreads() {
         sleep(3000);
-        presenter.getThreads(20, 0L, null, "FiFi", null);
+//        presenter.getThreads(20, 0L, null, "FiFi", null);
         sleep(3000);
         Mockito.verify(view, Mockito.times(1));
     }

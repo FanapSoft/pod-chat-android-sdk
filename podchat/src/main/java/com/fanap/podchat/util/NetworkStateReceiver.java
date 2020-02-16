@@ -17,11 +17,11 @@ import java.util.Set;
 
 public class NetworkStateReceiver extends BroadcastReceiver {
 
-    public static final int TIME_OUT = 10000;
+    private int timeOut = 10000;
     protected Set<NetworkStateListener> listeners;
     protected Boolean connected;
-    private String hostName = "8.8.8.8";
-    private int port = 53;
+    private String hostName = "msg.pod.ir";
+    private int port = 80;
 
     public NetworkStateReceiver() {
         listeners = new HashSet<NetworkStateListener>();
@@ -41,6 +41,10 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public void setTimeOut(int timeOut) {
+        this.timeOut = timeOut;
     }
 
     public void onReceive(Context context, Intent intent) {
@@ -69,7 +73,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
                 try {
                     Socket socket = new Socket();
                     SocketAddress socketAddress = new InetSocketAddress(hostName,port);
-                    socket.connect(socketAddress, TIME_OUT);
+                    socket.connect(socketAddress, timeOut);
                     socket.close();
                     connected = true;
                 } catch (IOException e) {

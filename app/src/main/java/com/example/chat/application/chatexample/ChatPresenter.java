@@ -12,6 +12,8 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -110,7 +112,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         //
-//        chat.isCacheables(true);
+        chat.isCacheables(true);
 
 
         chat.isLoggable(true);
@@ -127,6 +129,45 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+
+    @Override
+    public void connect(String serverAddress, String appId, String severName,
+                        String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
+
+        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
+
+//        PodNotify podNotify = new PodNotify.builder()
+//                .setAppId(appId)
+//                .setServerName("172.16.110.61:8017")
+//                .setSocketServerAddress(serverAddress)
+//                .setSsoHost(ssoHost)
+//                .setToken(token)
+//                .build(context);
+//
+//        podNotify.start(context);
+//
+
+    }
+
+    @Override
+    public void connect(RequestConnect requestConnect) {
+
+        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
+                .setHostName("chat-sandbox.pod.ir")
+//                .setHostName("8.8.4.4") //google
+//                .setPort(53)
+//                .setPort(80)
+                .setPort(443)
+                .setDisConnectionThreshold(2)
+                .setInterval(7000)
+                .setConnectTimeout(10000)
+                .build();
+
+        chat.setNetworkStateConfig(build);
+
+        chat.connect(requestConnect);
+
+    }
 
     @Override
     public void sendLocationMessage(RequestLocationMessage request) {
@@ -225,44 +266,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.setToken(token);
     }
 
-    @Override
-    public void connect(String serverAddress, String appId, String severName,
-                        String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
 
-        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
-
-//        PodNotify podNotify = new PodNotify.builder()
-//                .setAppId(appId)
-//                .setServerName("172.16.110.61:8017")
-//                .setSocketServerAddress(serverAddress)
-//                .setSsoHost(ssoHost)
-//                .setToken(token)
-//                .build(context);
-//
-//        podNotify.start(context);
-//
-
-    }
-
-    @Override
-    public void connect(RequestConnect requestConnect) {
-
-        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-                .setHostName("chat-sandbox.pod.ir")
-//                .setHostName("8.8.4.4") //google
-//                .setPort(53)
-//                .setPort(80)
-                .setPort(443)
-                .setDisConnectionThreshold(2)
-                .setInterval(7000)
-                .setConnectTimeout(10000)
-                .build();
-
-        chat.setNetworkStateConfig(build);
-
-        chat.connect(requestConnect);
-
-    }
 
     @Override
     public void mapSearch(String searchTerm, Double latitude, Double longitude) {
@@ -837,6 +841,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.addContact(request);
     }
 
+    @Override
+    public void updateChatProfile(RequestUpdateProfile request) {
+        chat.updateChatProfile(request);
+    }
+
 
     @Override
     public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
@@ -934,6 +943,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onThreadLeaveParticipant(String content, ChatResponse<ResultLeaveThread> response) {
         super.onThreadLeaveParticipant(content, response);
         view.onLeaveThread();
+    }
+
+
+    @Override
+    public void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
+
+        Log.d("CHAT_SDK_PRESENTER","Chat profile updated");
+
     }
 
     @Override

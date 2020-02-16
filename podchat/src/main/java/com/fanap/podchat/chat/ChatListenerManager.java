@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
@@ -26,6 +27,7 @@ import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
+import com.fanap.podchat.model.ResultNotSeenDuration;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
@@ -781,9 +783,31 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
-
     }
+
+    public void callOnLastSeenUpdated(ChatResponse<ResultNotSeenDuration> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onLastSeenUpdated(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onChatProfileUpdated(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
 
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {

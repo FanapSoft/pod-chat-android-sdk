@@ -20,16 +20,33 @@ import rx.schedulers.Schedulers;
 
 public class RetrofitHelperFileServer {
 
+    //todo update file upload timeout
+
     private static final int TIMEOUT = 120;
     public static final TimeUnit TIME_UNIT = TimeUnit.MINUTES;
     private Retrofit.Builder retrofit;
 
+
+    /**
+     *
+     *
+     * @param fileServer
+     *
+     *  ** IMPORTANT ** if you adding network interceptor DON'T forget to increase
+     *
+     *   the amount of ignoreFirstNumberOfWriteToCalls in ProgressRequestBody
+     *
+     *
+     *
+     */
+
+
+
     public RetrofitHelperFileServer(@NonNull String fileServer) {
 
-//        Request request = new Request().header("Connection", "close");
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(fileServer)
-
                 .client(new OkHttpClient().newBuilder()
 //                        .retryOnConnectionFailure(true)
                         .connectTimeout(TIMEOUT, TIME_UNIT) // connect timeout
