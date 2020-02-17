@@ -178,54 +178,83 @@ public class MessageDatabaseHelper {
         messageDao.insertHistories(messageVOS);
     }
 
-    public void saveMessage(@NonNull CacheMessageVO cacheMessageVO, long threadId) {
+    public void saveMessage(@NonNull CacheMessageVO cacheMessageVO, long threadId, boolean editedMessage) {
 
-      new java.lang.Thread(() -> {
+        new java.lang.Thread(() -> {
 
-          cacheMessageVO.setThreadVoId(threadId);
+            cacheMessageVO.setThreadVoId(threadId);
 
-          try {
-              long time = cacheMessageVO.getTime();
-              long timeNanos = cacheMessageVO.getTimeNanos();
-              long pow = (long) Math.pow(10, 9);
-              long timestamp = ((time / 1000) * pow) + timeNanos;
+            try {
+                long time = cacheMessageVO.getTime();
+                long timeNanos = cacheMessageVO.getTimeNanos();
+                long pow = (long) Math.pow(10, 9);
+                long timestamp = ((time / 1000) * pow) + timeNanos;
 
-              cacheMessageVO.setTimeStamp(timestamp);
-          } catch (Exception e) {
-              Log.e("CHAT_SDK", e.getMessage());
-          }
-
-
-          if (cacheMessageVO.getParticipant() != null) {
-              cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
-              messageDao.insertParticipant(cacheMessageVO.getParticipant());
-          }
-
-          if (cacheMessageVO.getForwardInfo() != null) {
-              cacheMessageVO.setForwardInfoId(cacheMessageVO.getForwardInfo().getId());
-              messageDao.insertForwardInfo(cacheMessageVO.getForwardInfo());
-              if (cacheMessageVO.getForwardInfo().getParticipant() != null) {
-                  cacheMessageVO.getForwardInfo().setParticipantId(cacheMessageVO.getForwardInfo().getParticipant().getId());
-                  messageDao.insertParticipant(cacheMessageVO.getForwardInfo().getParticipant());
-              }
-          }
-
-          if (cacheMessageVO.getReplyInfoVO() != null) {
-              cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getId());
-              messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
-              if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
-                  cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
-                  messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
-              }
-          }
+                cacheMessageVO.setTimeStamp(timestamp);
+            } catch (Exception e) {
+                Log.e("CHAT_SDK", e.getMessage());
+            }
 
 
+            if (cacheMessageVO.getParticipant() != null) {
+                cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
+                messageDao.insertParticipant(cacheMessageVO.getParticipant());
+            }
 
-          messageDao.insertMessage(cacheMessageVO);
+            if (cacheMessageVO.getForwardInfo() != null) {
+                cacheMessageVO.setForwardInfoId(cacheMessageVO.getForwardInfo().getId());
+                messageDao.insertForwardInfo(cacheMessageVO.getForwardInfo());
+                if (cacheMessageVO.getForwardInfo().getParticipant() != null) {
+                    cacheMessageVO.getForwardInfo().setParticipantId(cacheMessageVO.getForwardInfo().getParticipant().getId());
+                    messageDao.insertParticipant(cacheMessageVO.getForwardInfo().getParticipant());
+                }
+            }
 
-          messageDao.updateThreadLastMessageVOId(threadId,cacheMessageVO.getId(),cacheMessageVO.getMessage());
+            if (cacheMessageVO.getReplyInfoVO() != null) {
+                cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getId());
+                messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
+                if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
+                    cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
+                    messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
+                }
+            }
 
-          //update thread last message id
+
+
+            //update thread last message id
+
+            //check if message is new or edited message is thread last message
+
+
+            boolean shouldUpdateIfEdited = false;
+
+            if (editedMessage) {
+                long lastMessageId = messageDao.getLastMessageId(threadId);
+                if (lastMessageId == cacheMessageVO.getId()) {
+                    shouldUpdateIfEdited = true;
+                }
+            }
+
+
+            messageDao.insertMessage(cacheMessageVO);
+
+
+
+
+
+
+            boolean shouldUpdateLastMessage = !editedMessage || shouldUpdateIfEdited;
+
+            if(shouldUpdateLastMessage)
+                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
+
+
+
+//            if (!editedMessage)
+//                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
+//            else if (shouldUpdateIfEdited) {
+//                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
+//            }
 
 //          ThreadVo threadVo = messageDao.getThreadById(threadId);
 
@@ -238,7 +267,7 @@ public class MessageDatabaseHelper {
 //          }
 
 
-      }).start();
+        }).start();
 
     }
 
@@ -478,28 +507,28 @@ public class MessageDatabaseHelper {
 
         ThreadVo threadVo = messageDao.getThreadById(subjectId);
 
-        if(threadVo != null){
+        if (threadVo != null) {
 
             long threadLastMessageId = threadVo.getLastMessageVOId();
 
-            if(threadLastMessageId == id){
+            if (threadLastMessageId == id) {
                 //this is last message
 
                 List<CacheMessageVO> cacheMessage = messageDao.getMessage(id);
 
-                if(!Util.isNullOrEmpty(cacheMessage)){
+                if (!Util.isNullOrEmpty(cacheMessage)) {
 
                     long previousMessageId = cacheMessage.get(0).getPreviousId();
 
                     //Get previous message
 
-                    List<CacheMessageVO> previousMessage = messageDao.getMessage(id);
+                    List<CacheMessageVO> previousMessage = messageDao.getMessage(previousMessageId);
 
-                    if(!Util.isNullOrEmpty(previousMessage)){
+                    if (!Util.isNullOrEmpty(previousMessage)) {
 
                         String message = previousMessage.get(0).getMessage();
 
-                        messageDao.updateThreadLastMessageVOId(subjectId,previousMessageId,message);
+                        messageDao.updateThreadLastMessageVOId(subjectId, previousMessageId, message);
 
                     }
 
@@ -508,9 +537,6 @@ public class MessageDatabaseHelper {
             }
 
         }
-
-
-
 
         messageDao.deleteMessage(id);
     }
@@ -579,7 +605,7 @@ public class MessageDatabaseHelper {
 
             } else if (messageVOS.size() == 1) {
                 messageDao.deleteMessageBetweenLastAndFirstDESC(threadId, fromTime, toTime);
-                saveMessage(cMessageVOS.get(0), threadId);
+                saveMessage(cMessageVOS.get(0), threadId, false);
 
             } else if (messageVOS.size() > 1) {
                 messageDao.deleteMessageBetweenLastAndFirstDESC(threadId, fromTime, toTime);
@@ -597,7 +623,7 @@ public class MessageDatabaseHelper {
             } else if (messageVOS.size() == 1) {
                 if (getHistories(history, threadId).size() > 1) {
                     messageDao.deleteMessageWithFirstMessageIdDESC(count, offset, threadId, fromTime);
-                    saveMessage(cMessageVOS.get(0), threadId);
+                    saveMessage(cMessageVOS.get(0), threadId, false);
                 }
 
             } else if (messageVOS.size() > 1) {
@@ -619,7 +645,7 @@ public class MessageDatabaseHelper {
             } else if (messageVOS.size() == 1) {
                 if (getHistories(history, threadId).size() > 1) {
                     messageDao.deleteMessageWithFirstMessageIdDESC(count, offset, threadId, toTime);
-                    saveMessage(cMessageVOS.get(0), threadId);
+                    saveMessage(cMessageVOS.get(0), threadId, false);
                 }
 
             } else if (messageVOS.size() > 1) {
@@ -638,7 +664,7 @@ public class MessageDatabaseHelper {
             } else if (messageVOS.size() == 1) {
                 if (getHistories(history, threadId).size() > 1) {
                     deleteMessageWithQuery(order, threadId, count, offset, query);
-                    saveMessage(cMessageVOS.get(0), threadId);
+                    saveMessage(cMessageVOS.get(0), threadId, false);
                 }
 
             } else if (messageVOS.size() > 1) {
@@ -678,7 +704,7 @@ public class MessageDatabaseHelper {
 
             } else if (messageVOS.size() == 1) {
                 messageDao.deleteMessageBetweenLastAndFirstASC(threadId, fromTime, toTime);
-                saveMessage(cMessageVOS.get(0), threadId);
+                saveMessage(cMessageVOS.get(0), threadId, false);
 
             } else if (messageVOS.size() > 1) {
                 messageDao.deleteMessageBetweenLastAndFirstASC(threadId, fromTime, toTime);
@@ -697,7 +723,7 @@ public class MessageDatabaseHelper {
             } else if (messageVOS.size() == 1) {
                 if (getHistories(history, threadId).size() > 1) {
                     messageDao.deleteMessageWithFirstMessageIdASC(count, offset, threadId, fromTime);
-                    saveMessage(cMessageVOS.get(0), threadId);
+                    saveMessage(cMessageVOS.get(0), threadId, false);
                 }
 
             } else if (messageVOS.size() > 1) {
@@ -719,7 +745,7 @@ public class MessageDatabaseHelper {
             } else if (messageVOS.size() == 1) {
                 if (getHistories(history, threadId).size() > 1) {
                     messageDao.deleteMessageWithFirstMessageIdASC(count, offset, threadId, toTime);
-                    saveMessage(cMessageVOS.get(0), threadId);
+                    saveMessage(cMessageVOS.get(0), threadId, false);
                 }
 
             } else if (messageVOS.size() > 1) {
@@ -741,7 +767,7 @@ public class MessageDatabaseHelper {
             } else if (messageVOS.size() == 1) {
                 if (getHistories(history, threadId).size() > 1) {
                     deleteMessageWithQuery(order, threadId, count, offset, query);
-                    saveMessage(cMessageVOS.get(0), threadId);
+                    saveMessage(cMessageVOS.get(0), threadId, false);
                 }
 
             } else if (messageVOS.size() > 1) {
@@ -1459,7 +1485,7 @@ public class MessageDatabaseHelper {
         //sort threads by last message time
 
         Collections.sort(threads, (o1, o2) -> Long.compare(
-                (o2.getLastMessageVO() != null ? o2.getLastMessageVO().getTime() : 0),(o1.getLastMessageVO() != null ? o1.getLastMessageVO().getTime() : 0)));
+                (o2.getLastMessageVO() != null ? o2.getLastMessageVO().getTime() : 0), (o1.getLastMessageVO() != null ? o1.getLastMessageVO().getTime() : 0)));
 
         return threads;
     }

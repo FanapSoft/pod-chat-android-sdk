@@ -3527,6 +3527,7 @@ public class Chat extends AsyncAdapter {
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(asyncMessage);
 
             jsonObject.remove("subjectId");
+
             if (Util.isNullOrEmpty(getTypeCode())) {
                 jsonObject.remove("typeCode");
             } else {
@@ -3607,14 +3608,9 @@ public class Chat extends AsyncAdapter {
 
         if (request.getMessageIds().size() > 1) {
 
+            return getErrorOutPut(ChatConstant.ERROR_NUMBER_MESSAGEID, ChatConstant.ERROR_CODE_NUMBER_MESSAGE_ID, null); }
 
-            return getErrorOutPut(ChatConstant.ERROR_NUMBER_MESSAGEID, ChatConstant.ERROR_CODE_NUMBER_MESSAGE_ID, null);
-
-        }
-
-
-        return deleteMessage(request.getMessageIds().get(0),
-                request.isDeleteForAll(), handler);
+        return deleteMessage(request.getMessageIds().get(0), request.isDeleteForAll(), handler);
 
 
 //        if (request.getMessageIds().size() > 1)
@@ -7692,7 +7688,7 @@ public class Chat extends AsyncAdapter {
 
             if (cache) {
                 CacheMessageVO cacheMessageVO = gson.fromJson(chatMessage.getContent(), CacheMessageVO.class);
-                messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId());
+                messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId(), false);
             }
 
             ChatResponse<ResultNewMessage> chatResponse = new ChatResponse<>();
@@ -8257,7 +8253,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             CacheMessageVO cacheMessageVO = gson.fromJson(chatMessage.getContent(), CacheMessageVO.class);
-            messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId());
+            messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId(),true);
         }
 
         newMessage.setMessageVO(messageVO);
@@ -9210,7 +9206,14 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
         chatResponse.setUniqueId(chatMessage.getUniqueId());
-        long messageId = Long.valueOf(chatMessage.getContent());
+
+
+
+        MessageVO messageVO = gson.fromJson(chatMessage.getContent(),MessageVO.class);
+
+        long messageId = messageVO.getId();
+
+
         ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
         DeleteMessageContent deleteMessage = new DeleteMessageContent();
         deleteMessage.setId(messageId);
