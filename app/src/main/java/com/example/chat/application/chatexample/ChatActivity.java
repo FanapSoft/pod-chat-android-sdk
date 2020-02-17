@@ -125,7 +125,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "bd11190cdd6d49c18d764057129a029f";
+    private static String TOKEN = "60bfb11549cf48d6a8bfe1952e4953eb";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -136,29 +136,29 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 5182;
+//    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 12257;
+    public static int TEST_THREAD_ID = 12257;
 
 
     private String fileUri;
@@ -1795,7 +1795,7 @@ public class ChatActivity extends AppCompatActivity
 //                threadIds.add(351);
         RequestThread requestThread = new RequestThread
                 .Builder()
-                .newMessages()
+//                .newMessages()
 
 //                .partnerCoreContactId(566)
 //                .count(5)
@@ -1983,6 +1983,7 @@ public class ChatActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
+        Log.e("CHAT_SDK","Stopping ping...");
         presenter.closeChat();
     }
 

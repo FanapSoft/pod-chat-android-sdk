@@ -210,6 +210,9 @@ public interface MessageDao {
     @Query("update ThreadVo set pin = :isPinned where id = :threadId")
     void updateThreadPinState(long threadId, boolean isPinned);
 
+    @Query("update ThreadVo set lastMessageVOId = :lastMessageId, lastMessage = :lastMessage where id = :threadId")
+    void updateThreadLastMessageVOId(long threadId,long lastMessageId,String lastMessage);
+
     /**
      * cache inviter
      */

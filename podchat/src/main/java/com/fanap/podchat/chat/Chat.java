@@ -46,7 +46,6 @@ import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.pin.pin_message.PinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
-import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
@@ -206,7 +205,6 @@ import com.fanap.podchat.util.NetworkStateReceiver;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.RequestMapSearch;
-import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -516,9 +514,13 @@ public class Chat extends AsyncAdapter {
             if (pinger != null) pinger.stopPing();
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            if (log)
-                Log.e(TAG, ex.getMessage());
+
+            if (log) {
+
+                Log.e(TAG, "Exception When Closing Chat. Unregistering Receiver failed. cause: " + ex.getMessage());
+                Log.w(TAG, "Pinger has been stopped");
+
+            }
         }
     }
 
@@ -876,15 +878,14 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnChatProfileUpdated(response);
 
-        showLog("CHAT PROFILE UPDATED",response.getJson());
+        showLog("CHAT PROFILE UPDATED", gson.toJson(chatMessage));
 
-        if(cache){
+        if (cache) {
 
 
             messageDatabaseHelper.updateChatProfile(response.getResult());
 
         }
-
 
 
     }
@@ -1381,7 +1382,6 @@ public class Chat extends AsyncAdapter {
 
 
         String uniqueId = generateUniqueId();
-
 
 
         if (chatReady) {
@@ -3667,7 +3667,7 @@ public class Chat extends AsyncAdapter {
 
         try {
             if (cache) {
-                handleCacheThread(count, offset, threadIds, threadName);
+                handleCacheThread(count, offset, threadIds, threadName, isNew);
             }
 
             if (chatReady) {
@@ -3780,7 +3780,7 @@ public class Chat extends AsyncAdapter {
 
             if (cache) {
 
-                handleCacheThread(count, offset, threadIds, threadName);
+                handleCacheThread(count, offset, threadIds, threadName, false);
 
             }
 
@@ -3976,119 +3976,107 @@ public class Chat extends AsyncAdapter {
      *
      * @param threadId Id of the thread that we want to get the history
      */
-    @Deprecated
-    public String getHistory(History history, long threadId, ChatHandler handler) {
+    private String getHistory(History history, long threadId, ChatHandler handler) {
 
-        String uniqueId = generateUniqueId();
-
-
-        if (chatReady) {
-
-            if (history.getCount() != 0) {
-                history.setCount(history.getCount());
-            } else {
-                history.setCount(50);
-            }
-
-            if (history.getOffset() != 0) {
-                history.setOffset(history.getOffset());
-            } else {
-                history.setOffset(0);
-            }
+        String mainUniqueId = generateUniqueId();
 
 
-            //updating waitQ ( list or db )
+        if (history.getCount() != 0) {
+            history.setCount(history.getCount());
+        } else {
+            history.setCount(50);
+        }
 
-            updateWaitingQ(threadId, uniqueId, new ChatHandler() {
-                @Override
-                public void onGetHistory(String uniqueId) {
-                    super.onGetHistory(uniqueId);
+        if (history.getOffset() != 0) {
+            history.setOffset(history.getOffset());
+        } else {
+            history.setOffset(0);
+        }
 
+        //updating waitQ ( list or db )
 
-                    if (cache && history.getMetadataCriteria() == null) {
-
-                        final boolean[] loadFromCache = {true};
-
-                        List<MessageVO> messagesFromCache = getHistoryFromCache(history, threadId, uniqueId);
-
-                        if (Util.isNullOrEmpty(messagesFromCache)) {
-                            loadFromCache[0] = false;
-                        }
-
-                        for (MessageVO msg : messagesFromCache) {
-
-                            if (msg.hasGap()) {
-                                loadFromCache[0] = false;
-                                break;
-                            }
-                        }
+        updateWaitingQ(threadId, mainUniqueId, new ChatHandler() {
+            @Override
+            public void onGetHistory(String uniqueId) {
+                super.onGetHistory(uniqueId);
 
 
-                        if (chatReady) {
+                if (cache && history.getMetadataCriteria() == null) {
 
-                            getHistoryMain(history, threadId, new ChatHandler() {
+                    final boolean[] loadFromCache = {true};
 
+                    List<MessageVO> messagesFromCache = getHistoryFromCache(history, threadId, uniqueId);
 
-                                @Override
-                                public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
-                                    super.onGetHistory(chatResponse, chatMessage, callback);
-
-                                    //insert new messages
-                                    updateChatHistoryCache(callback, chatMessage, chatResponse.getResult().getHistory());
-
-                                    //get inserted message
-                                    List<MessageVO> newMessagesFromServer = new ArrayList<>(chatResponse.getResult().getHistory());
-
-                                    findAndUpdateGaps(newMessagesFromServer, threadId);
-
-
-                                    if (loadFromCache[0]) {
-
-                                        List<MessageVO> editedMessages = new ArrayList<>(newMessagesFromServer);
-
-                                        List<MessageVO> newMessages = new ArrayList<>(newMessagesFromServer);
-
-                                        newMessages.removeAll(messagesFromCache);
-
-                                        findDeletedMessages(messagesFromCache, newMessagesFromServer, uniqueId);
-
-                                        editedMessages.removeAll(newMessages);
-
-                                        findEditedMessages(messagesFromCache, editedMessages, uniqueId, threadId);
-
-                                        publishNewMessages(newMessages, threadId, uniqueId);
-
-//
-                                    } else {
-                                        //publish server result
-                                        publishChatHistoryServerResult(callback, chatMessage, newMessagesFromServer);
-                                    }
-
-                                }
-                            }, uniqueId);
-                        } else {
-                            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                        }
-                        return;
+                    if (Util.isNullOrEmpty(messagesFromCache)) {
+                        loadFromCache[0] = false;
                     }
 
+                    for (MessageVO msg : messagesFromCache) {
+
+                        if (msg.hasGap()) {
+                            loadFromCache[0] = false;
+                            break;
+                        }
+                    }
+
+
                     if (chatReady) {
-                        getHistoryMain(history, threadId, handler, uniqueId);
+
+                        getHistoryMain(history, threadId, new ChatHandler() {
+
+
+                            @Override
+                            public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
+                                super.onGetHistory(chatResponse, chatMessage, callback);
+
+                                //insert new messages
+                                updateChatHistoryCache(callback, chatMessage, chatResponse.getResult().getHistory());
+
+                                //get inserted message
+                                List<MessageVO> newMessagesFromServer = new ArrayList<>(chatResponse.getResult().getHistory());
+
+                                findAndUpdateGaps(newMessagesFromServer, threadId);
+
+
+                                if (loadFromCache[0]) {
+
+                                    List<MessageVO> editedMessages = new ArrayList<>(newMessagesFromServer);
+
+                                    List<MessageVO> newMessages = new ArrayList<>(newMessagesFromServer);
+
+                                    newMessages.removeAll(messagesFromCache);
+
+                                    findDeletedMessages(messagesFromCache, newMessagesFromServer, uniqueId);
+
+                                    editedMessages.removeAll(newMessages);
+
+                                    findEditedMessages(messagesFromCache, editedMessages, uniqueId, threadId);
+
+                                    publishNewMessages(newMessages, threadId, uniqueId);
+
+//
+                                } else {
+                                    //publish server result
+                                    publishChatHistoryServerResult(callback, chatMessage, newMessagesFromServer);
+                                }
+
+                            }
+                        }, uniqueId);
                     } else {
                         getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
                     }
-
+                    return;
                 }
-            });
 
-        } else {
+                if (chatReady) {
+                    getHistoryMain(history, threadId, handler, uniqueId);
+                } else {
+                    getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                }
 
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-
-        }
-
-
-        return uniqueId;
+            }
+        });
+        return mainUniqueId;
     }
 
     private List<MessageVO> getHistoryFromCache(History history, long threadId, String uniqueId) {
@@ -4176,128 +4164,148 @@ public class Chat extends AsyncAdapter {
      * <p>
      * threadId Id of the thread that we want to get the history
      */
+
     public String getHistory(RequestGetHistory request, ChatHandler handler) {
 
-        String uniqueId = generateUniqueId();
+
+        History history = new History.Builder()
+                .count(request.getCount())
+                .firstMessageId(request.getFirstMessageId())
+                .lastMessageId(request.getLastMessageId())
+                .metadataCriteria(request.getMetadataCriteria())
+                .offset(request.getOffset())
+                .fromTime(request.getFromTime())
+                .fromTimeNanos(request.getFromTimeNanos())
+                .toTime(request.getToTime())
+                .toTimeNanos(request.getToTimeNanos())
+                .uniqueIds(request.getUniqueIds())
+                .id(request.getId())
+                .order(request.getOrder() != null ? request.getOrder() : "desc").build();
 
 
-        if (chatReady) {
+        return getHistory(history, request.getThreadId(), handler);
 
 
-            History history = new History.Builder()
-                    .count(request.getCount())
-                    .firstMessageId(request.getFirstMessageId())
-                    .lastMessageId(request.getLastMessageId())
-                    .metadataCriteria(request.getMetadataCriteria())
-                    .offset(request.getOffset())
-                    .fromTime(request.getFromTime())
-                    .fromTimeNanos(request.getFromTimeNanos())
-                    .toTime(request.getToTime())
-                    .toTimeNanos(request.getToTimeNanos())
-                    .uniqueIds(request.getUniqueIds())
-                    .id(request.getId())
-                    .order(request.getOrder() != null ? request.getOrder() : "desc").build();
-
-
-            updateWaitingQ(request.getThreadId(), uniqueId, new ChatHandler() {
-                @Override
-                public void onGetHistory(String uniqueId) {
-                    super.onGetHistory(uniqueId);
-
-                    if (cache && history.getMetadataCriteria() == null) {
-
-                        final boolean[] loadFromCache = {true};
-
-                        List<MessageVO> messagesFromCache = getHistoryFromCache(history, request.getThreadId(), uniqueId);
-
-                        if (Util.isNullOrEmpty(messagesFromCache)) {
-                            loadFromCache[0] = false;
-                        }
-
-                        for (MessageVO msg : messagesFromCache) {
-
-                            if (msg.hasGap()) {
-                                loadFromCache[0] = false;
-                                break;
-                            }
-                        }
-
-
-                        if (chatReady) {
-
-                            getHistoryMain(history, request.getThreadId(), new ChatHandler() {
-
-
-                                @Override
-                                public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
-                                    super.onGetHistory(chatResponse, chatMessage, callback);
-
-                                    //delete old messages
-//                                    messageDatabaseHelper.deleteMessages(cacheMessageVOS);
-
-//                                    messageDatabaseHelper.deleteAllGapsFrom(request.getThreadId());
-
-                                    //insert new messages
-                                    updateChatHistoryCache(callback, chatMessage, chatResponse.getResult().getHistory());
-
-                                    //get inserted message
-//                                    List<MessageVO> newMessagesFromServer = messageDatabaseHelper.getHistories(history, request.getThreadId());
-                                    List<MessageVO> newMessagesFromServer = new ArrayList<>(chatResponse.getResult().getHistory());
-
-                                    findAndUpdateGaps(newMessagesFromServer, request.getThreadId());
-
-
-                                    if (loadFromCache[0]) {
-
-                                        List<MessageVO> editedMessages = new ArrayList<>(newMessagesFromServer);
-
-                                        List<MessageVO> newMessages = new ArrayList<>(newMessagesFromServer);
-
-                                        newMessages.removeAll(messagesFromCache);
-
-                                        findDeletedMessages(messagesFromCache, newMessagesFromServer, uniqueId);
-
-                                        editedMessages.removeAll(newMessages);
-
-                                        findEditedMessages(messagesFromCache, editedMessages, uniqueId, request.getThreadId());
-
-                                        publishNewMessages(newMessages, request.getThreadId(), uniqueId);
-
-//                                        Log.d(TAG, ">>>>>> New: " + newMessages.size());
-//                                    Log.d(TAG, ">>>>>> Deleted: " + deletedMessagesSize);
-//                                        Log.d(TAG, ">>>>>> Edited: " + editedMessages.size());
-
-                                        //todo new messages after delete some message...
-                                        // all delete messages couldn't find
-
-                                    } else {
-                                        //publish server result
-                                        publishChatHistoryServerResult(callback, chatMessage, newMessagesFromServer);
-                                    }
-
-                                }
-                            }, uniqueId);
-                        } else {
-                            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                        }
-                        return;
-                    }
-
-                    if (chatReady) {
-                        getHistoryMain(history, request.getThreadId(), handler, uniqueId);
-                    } else {
-                        getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                    }
-
-                }
-            });
-
-        } else {
-
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-        }
-
-        return uniqueId;
+//        String uniqueId = generateUniqueId();
+//
+//
+//        if (chatReady) {
+//
+//
+//            History history = new History.Builder()
+//                    .count(request.getCount())
+//                    .firstMessageId(request.getFirstMessageId())
+//                    .lastMessageId(request.getLastMessageId())
+//                    .metadataCriteria(request.getMetadataCriteria())
+//                    .offset(request.getOffset())
+//                    .fromTime(request.getFromTime())
+//                    .fromTimeNanos(request.getFromTimeNanos())
+//                    .toTime(request.getToTime())
+//                    .toTimeNanos(request.getToTimeNanos())
+//                    .uniqueIds(request.getUniqueIds())
+//                    .id(request.getId())
+//                    .order(request.getOrder() != null ? request.getOrder() : "desc").build();
+//
+//
+//            updateWaitingQ(request.getThreadId(), uniqueId, new ChatHandler() {
+//                @Override
+//                public void onGetHistory(String uniqueId) {
+//                    super.onGetHistory(uniqueId);
+//
+//                    if (cache && history.getMetadataCriteria() == null) {
+//
+//                        final boolean[] loadFromCache = {true};
+//
+//                        List<MessageVO> messagesFromCache = getHistoryFromCache(history, request.getThreadId(), uniqueId);
+//
+//                        if (Util.isNullOrEmpty(messagesFromCache)) {
+//                            loadFromCache[0] = false;
+//                        }
+//
+//                        for (MessageVO msg : messagesFromCache) {
+//
+//                            if (msg.hasGap()) {
+//                                loadFromCache[0] = false;
+//                                break;
+//                            }
+//                        }
+//
+//
+//                        if (chatReady) {
+//
+//                            getHistoryMain(history, request.getThreadId(), new ChatHandler() {
+//
+//
+//                                @Override
+//                                public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
+//                                    super.onGetHistory(chatResponse, chatMessage, callback);
+//
+//                                    //delete old messages
+////                                    messageDatabaseHelper.deleteMessages(cacheMessageVOS);
+//
+////                                    messageDatabaseHelper.deleteAllGapsFrom(request.getThreadId());
+//
+//                                    //insert new messages
+//                                    updateChatHistoryCache(callback, chatMessage, chatResponse.getResult().getHistory());
+//
+//                                    //get inserted message
+////                                    List<MessageVO> newMessagesFromServer = messageDatabaseHelper.getHistories(history, request.getThreadId());
+//                                    List<MessageVO> newMessagesFromServer = new ArrayList<>(chatResponse.getResult().getHistory());
+//
+//                                    findAndUpdateGaps(newMessagesFromServer, request.getThreadId());
+//
+//
+//                                    if (loadFromCache[0]) {
+//
+//                                        List<MessageVO> editedMessages = new ArrayList<>(newMessagesFromServer);
+//
+//                                        List<MessageVO> newMessages = new ArrayList<>(newMessagesFromServer);
+//
+//                                        newMessages.removeAll(messagesFromCache);
+//
+//                                        findDeletedMessages(messagesFromCache, newMessagesFromServer, uniqueId);
+//
+//                                        editedMessages.removeAll(newMessages);
+//
+//                                        findEditedMessages(messagesFromCache, editedMessages, uniqueId, request.getThreadId());
+//
+//                                        publishNewMessages(newMessages, request.getThreadId(), uniqueId);
+//
+////                                        Log.d(TAG, ">>>>>> New: " + newMessages.size());
+////                                    Log.d(TAG, ">>>>>> Deleted: " + deletedMessagesSize);
+////                                        Log.d(TAG, ">>>>>> Edited: " + editedMessages.size());
+//
+//                                        //todo new messages after delete some message...
+//                                        // all delete messages couldn't find
+//
+//                                    } else {
+//                                        //publish server result
+//                                        publishChatHistoryServerResult(callback, chatMessage, newMessagesFromServer);
+//                                    }
+//
+//                                }
+//                            }, uniqueId);
+//                        } else {
+//                            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+//                        }
+//                        return;
+//                    }
+//
+//                    if (chatReady) {
+//                        getHistoryMain(history, request.getThreadId(), handler, uniqueId);
+//                    } else {
+//                        getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+//                    }
+//
+//                }
+//            });
+//
+//        } else {
+//
+//            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+//        }
+//
+//        return uniqueId;
     }
 
     private void findAndUpdateGaps(List<MessageVO> newMessagesFromServer, long threadId) {
@@ -4309,6 +4317,13 @@ public class Chat extends AsyncAdapter {
 
 
             MessageVO lastMessage = newMessagesFromServer.get(newMessagesFromServer.size() - 1);
+
+
+            //if it is first message of thread, it couldn't has gap
+
+            if (lastMessage.getPreviousId() == 0)
+                return;
+
 
             List<CacheMessageVO> messages = messageDatabaseHelper.getMessageById(lastMessage.getPreviousId());
 
@@ -4450,7 +4465,9 @@ public class Chat extends AsyncAdapter {
                 String jsonDeleteMsg = gson.toJson(chatResponse);
 
 
-                runOnNewThread(() -> messageDatabaseHelper.deleteMessage(msg.getId()));
+                long threadId = msg.getConversation() != null ? msg.getConversation().getId() : 0;
+
+                runOnNewThread(() -> messageDatabaseHelper.deleteMessage(msg.getId(), threadId));
 
                 showLog("DeleteMessage from dataBase with this messageId" + " " + msg.getId(), "");
 
@@ -7119,7 +7136,7 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setContent(messageContent);
                 chatMessage.setSystemMetadata(systemMetaData);
                 chatMessage.setTokenIssuer("1");
-                chatMessage.setMessageType(TextMessageType.Constants.TEXT);
+//                chatMessage.setMessageType(TextMessageType.Constants.TEXT);
 
                 JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
 
@@ -7135,6 +7152,7 @@ public class Chat extends AsyncAdapter {
                 jsonObject.remove("contentCount");
                 jsonObject.remove("repliedTo");
                 jsonObject.remove("time");
+                jsonObject.remove("messageType");
 
                 String asyncContent = jsonObject.toString();
 
@@ -8474,7 +8492,12 @@ public class Chat extends AsyncAdapter {
 
         if (!Util.isNullOrEmpty(uniqueIds)) {
 
-            getHistoryWithUniqueIds(threadId, uniqueId, uniqueIds);
+            if (chatReady)
+                getHistoryWithUniqueIds(threadId, uniqueId, uniqueIds);
+            else {
+                handler.onGetHistory(uniqueId);
+                onChatNotReady(uniqueId);
+            }
 
         } else {
 
@@ -8484,7 +8507,6 @@ public class Chat extends AsyncAdapter {
     }
 
     private void getHistoryWithUniqueIds(long threadId, String uniqueId, String[] uniqueIds) {
-
 
         RequestGetHistory request = new RequestGetHistory
                 .Builder(threadId)
@@ -9198,7 +9220,7 @@ public class Chat extends AsyncAdapter {
         String jsonDeleteMsg = gson.toJson(chatResponse);
 
         if (cache) {
-            messageDatabaseHelper.deleteMessage(messageId);
+            messageDatabaseHelper.deleteMessage(messageId, chatMessage.getSubjectId());
             showLog("DeleteMessage from dataBase with this messageId" + " " + messageId, "");
         }
 
@@ -9609,7 +9631,7 @@ public class Chat extends AsyncAdapter {
         return typeCode;
     }
 
-    private void handleCacheThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName) {
+    private void handleCacheThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew) {
 
         ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
         chatResponse.setCache(true);
@@ -9621,7 +9643,7 @@ public class Chat extends AsyncAdapter {
         if (count == null || count == 0)
             count = 50;
 
-        List<Thread> threads = messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName);
+        List<Thread> threads = messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew);
 
         if (!Util.isNullOrEmpty(threads)) {
 
@@ -10379,9 +10401,6 @@ public class Chat extends AsyncAdapter {
     private String reformatUserInfo(ChatMessage chatMessage, ChatResponse<ResultUserInfo> outPutUserInfo, UserInfo userInfo) {
 
         ResultUserInfo result = new ResultUserInfo();
-
-        //set user id for profile table
-        userInfo.getChatProfileVO().setId(userInfo.getId());
 
         if (cache && permit) {
             messageDatabaseHelper.saveUserInfo(userInfo);

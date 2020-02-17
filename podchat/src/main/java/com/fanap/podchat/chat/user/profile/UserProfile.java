@@ -43,6 +43,10 @@ public class UserProfile {
 
         response.setResult(result);
 
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setCache(false);
+
         return response;
 
 
