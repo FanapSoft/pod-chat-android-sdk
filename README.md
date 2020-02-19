@@ -61,6 +61,15 @@ updateChatProfile:
 
 [Added] `stopTyping()` | Stops started typing signal
 
+Started signal stops:
+	
+	- when `stopTyping()` called
+	- after 1 min typing and onTypingSignalTimeout(long) event fired. long value is threadId of started signal
+	- when token expired
+	- when sendTextMessage() called
+	
+
+
 [Removed] `setSignalIntervalTime()` | Interval is fixed now
 
 [Added] `getFile(RequestGetFile, ProgressHandler.IDownloadFile)` | It downloads file with given hashCode and id and saves it in cache if it is enabled.
