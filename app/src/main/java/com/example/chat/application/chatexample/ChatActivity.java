@@ -123,7 +123,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "42138d6e7aef494a8d54ec163093577b";
+    private static String TOKEN = "3e215556605e442db541875996184958";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -156,7 +156,7 @@ public class ChatActivity extends AppCompatActivity
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 19868;
+    public static int TEST_THREAD_ID = 14234;
 
 
     private String fileUri;

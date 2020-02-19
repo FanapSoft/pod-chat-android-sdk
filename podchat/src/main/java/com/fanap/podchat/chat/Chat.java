@@ -199,6 +199,7 @@ import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
+import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkPingSender;
 import com.fanap.podchat.util.NetworkStateListener;
 import com.fanap.podchat.util.NetworkStateReceiver;
@@ -3097,10 +3098,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
-
-
-
     /**
      * contactIds  List of CONTACT IDs
      * threadId   Id of the thread that you are {*NOTICE*}admin of that and you are going to
@@ -3110,32 +3107,45 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
-            JsonArray contacts = new JsonArray();
-            for (Long p : request.getContactIds()) {
-                contacts.add(p);
+
+
+
+            JsonArray participantsJsonArray = new JsonArray();
+
+
+            if (request.getContactIds() != null)
+            {
+                for (Long p : request.getContactIds()) {
+                    participantsJsonArray.add(p);
+                }
+
+
+            }else {
+
+                for (String username :
+                        request.getUserNames()) {
+
+                    Invitee invitee = new Invitee();
+                    invitee.setId(username);
+                    invitee.setIdType(InviteType.Constants.TO_BE_USER_USERNAME);
+                    JsonElement jsonElement = gson.toJsonTree(invitee);
+                    participantsJsonArray.add(jsonElement);
+
+                }
+
             }
-            ChatMessage chatMessage = new ChatMessage();
+
+            AsyncMessage chatMessage = new ChatMessage();
 
             chatMessage.setTokenIssuer("1");
             chatMessage.setToken(getToken());
-            chatMessage.setContent(contacts.toString());
+            chatMessage.setContent(participantsJsonArray.toString());
             chatMessage.setSubjectId(request.getThreadId());
             chatMessage.setUniqueId(uniqueId);
             chatMessage.setType(Constants.ADD_PARTICIPANT);
             chatMessage.setTypeCode(getTypeCode());
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-            jsonObject.remove("contentCount");
-            jsonObject.remove("systemMetadata");
-            jsonObject.remove("metadata");
-            jsonObject.remove("repliedTo");
-
-            String typeCode = request.getTypeCode();
-            if (Util.isNullOrEmpty(typeCode)) {
-                jsonObject.addProperty("typeCode", getTypeCode());
-            } else {
-                jsonObject.remove("typeCode");
-            }
 
             setCallBacks(null, null, null, true, Constants.ADD_PARTICIPANT, null, uniqueId);
             sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_ADD_PARTICIPANTS");
@@ -3614,7 +3624,8 @@ public class Chat extends AsyncAdapter {
 
         if (request.getMessageIds().size() > 1) {
 
-            return getErrorOutPut(ChatConstant.ERROR_NUMBER_MESSAGEID, ChatConstant.ERROR_CODE_NUMBER_MESSAGE_ID, null); }
+            return getErrorOutPut(ChatConstant.ERROR_NUMBER_MESSAGEID, ChatConstant.ERROR_CODE_NUMBER_MESSAGE_ID, null);
+        }
 
         return deleteMessage(request.getMessageIds().get(0), request.isDeleteForAll(), handler);
 
@@ -8259,7 +8270,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             CacheMessageVO cacheMessageVO = gson.fromJson(chatMessage.getContent(), CacheMessageVO.class);
-            messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId(),true);
+            messageDatabaseHelper.saveMessage(cacheMessageVO, chatMessage.getSubjectId(), true);
         }
 
         newMessage.setMessageVO(messageVO);
@@ -8684,7 +8695,7 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVE_CREATE_THREAD", inviteJson);
 
 
-        if(cache){
+        if (cache) {
 
             messageDatabaseHelper.saveNewThread(chatResponse.getResult().getThread());
 
@@ -9220,8 +9231,7 @@ public class Chat extends AsyncAdapter {
         chatResponse.setUniqueId(chatMessage.getUniqueId());
 
 
-
-        MessageVO messageVO = gson.fromJson(chatMessage.getContent(),MessageVO.class);
+        MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
 
         long messageId = messageVO.getId();
 
@@ -9297,7 +9307,7 @@ public class Chat extends AsyncAdapter {
         long threadId = requestSignalMsg.getThreadId();
 
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("messageType", String.valueOf(signalType));
+        jsonObject.addProperty("type", String.valueOf(signalType));
 
         AsyncMessage chatMessage = new AsyncMessage();
         chatMessage.setContent(jsonObject.toString());

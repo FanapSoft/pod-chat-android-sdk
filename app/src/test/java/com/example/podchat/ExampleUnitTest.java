@@ -1,7 +1,14 @@
 package com.example.podchat;
 
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.util.DataTypeConverter;
+import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.Util;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,6 +33,46 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
+
+    @Test
+    public void inviteeToJson() {
+
+        Gson gson = new GsonBuilder().create();
+
+
+        List<String> invitees = new ArrayList<>();
+
+        invitees.add("fkheirkhah");
+        invitees.add("f.khojasteh");
+        invitees.add("m.zhiani");
+
+
+        JsonArray participantsJsonArray = new JsonArray();
+
+
+        try {
+            for (String username :
+                    invitees) {
+
+                Invitee invitee = new Invitee();
+                invitee.setId(username);
+                invitee.setIdType(InviteType.Constants.TO_BE_USER_USERNAME);
+                JsonElement jsonElement = gson.toJsonTree(invitee);
+                participantsJsonArray.add(jsonElement);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+
+
+        Assert.assertTrue(true);
+
+
+
+    }
+
     @Test
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
@@ -205,13 +252,12 @@ public class ExampleUnitTest {
 
 
     @Test
-    public void testExtensions(){
+    public void testExtensions() {
 
-        String aGifPath= "storage/emulated/m_file.gif";
+        String aGifPath = "storage/emulated/m_file.gif";
 
         assertTrue(aGifPath.endsWith(".gif"));
         assertFalse(aGifPath.endsWith(".jpg"));
-
 
 
     }
@@ -239,7 +285,6 @@ public class ExampleUnitTest {
         childList.add("1");
 
 
-
         ArrayList<String> answer = new ArrayList<>();
         answer.add("10");
         answer.add("9");
@@ -247,10 +292,9 @@ public class ExampleUnitTest {
         answer.add("7");
 
 
-
         parentList.removeAll(childList);
 
-        assertEquals(parentList,answer);
+        assertEquals(parentList, answer);
 
     }
 
