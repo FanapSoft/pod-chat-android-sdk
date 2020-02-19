@@ -99,8 +99,6 @@ public class ChatActivity extends AppCompatActivity
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
 
 
-
-
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextToken;
@@ -125,7 +123,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "ee3f4739c05b4ec3b64bc0ce8d59ffc2";
+    private static String TOKEN = "42138d6e7aef494a8d54ec163093577b";
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -136,29 +134,29 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 5182;
+//    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 12257;
+    public static int TEST_THREAD_ID = 19868;
 
 
     private String fileUri;
@@ -243,7 +241,7 @@ public class ChatActivity extends AppCompatActivity
 
 //        PodNotify.setApplication(this);
 //
-//        PodNotify podNotify = new PodNotify.builder()
+//        PodNotify podNotify = new PodNotify.newBuilder()
 //                .setAppId(appId)
 //                .setServerName(serverName)
 //                .setSocketServerAddress("172.16.110.61:8017")
@@ -493,7 +491,7 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             }
 
-                            case 22:{
+                            case 22: {
 
 
                                 downloadFile();
@@ -501,14 +499,14 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             }
 
-                            case 23:{
+                            case 23: {
 
                                 cancelDownloadImage();
 
                                 break;
                             }
 
-                            case 24:{
+                            case 24: {
 
 
                                 presenter.getCacheSize();
@@ -517,20 +515,20 @@ public class ChatActivity extends AppCompatActivity
 
                             }
 
-                            case 25:{
+                            case 25: {
 
-                                presenter.clearDatabaseCache(new Chat.IClearMessageCache(){
+                                presenter.clearDatabaseCache(new Chat.IClearMessageCache() {
 
                                     @Override
                                     public void onCacheDatabaseCleared() {
 
-                                        Log.e("CACHE","Cache Cleared Successfully");
+                                        Log.e("CACHE", "Cache Cleared Successfully");
 
                                     }
 
                                     @Override
                                     public void onExceptionOccurred(String cause) {
-                                        Log.e("CACHE","Exception Occurred");
+                                        Log.e("CACHE", "Exception Occurred");
 
                                     }
                                 });
@@ -538,14 +536,14 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             }
 
-                            case 26:{
+                            case 26: {
 
                                 presenter.getStorageSize();
 
                                 break;
                             }
 
-                            case 27:{
+                            case 27: {
 
 //                                presenter.clearStorage();
 
@@ -567,17 +565,14 @@ public class ChatActivity extends AppCompatActivity
     private void cancelDownloadImage() {
 
 
-
         boolean result = presenter.cancelDownload(downloadingId);
 
-        Log.e("DOWNLOAD","Cancel Download Result " + result);
-
+        Log.e("DOWNLOAD", "Cancel Download Result " + result);
 
 
     }
 
     private void downloadFile() {
-
 
 
         String url = "https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482";
@@ -594,19 +589,18 @@ public class ChatActivity extends AppCompatActivity
 
         String fileHashCode = "16feae05f01-0.6114938150256433";
 
-        RequestGetImage requestGetImage = new RequestGetImage.Builder(imageId,imageHashCode,true)
+        RequestGetImage requestGetImage = new RequestGetImage.Builder(imageId, imageHashCode, true)
                 .build();
 
-        RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId,fileHashCode,true).build();
+        RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-
-        downloadingId = presenter.downloadFile(requestGetImage,new ProgressHandler.IDownloadFile(){
+        downloadingId = presenter.downloadFile(requestGetImage, new ProgressHandler.IDownloadFile() {
 
 
             @Override
             public void onProgressUpdate(String uniqueId, int bytesDownloaded, int totalBytesToDownload) {
-                Log.e("DOWNLOAD","IN ACTIVITY: " + "Downloaded: " + bytesDownloaded + " Left: " + totalBytesToDownload);
+                Log.e("DOWNLOAD", "IN ACTIVITY: " + "Downloaded: " + bytesDownloaded + " Left: " + totalBytesToDownload);
 
             }
 
@@ -617,25 +611,25 @@ public class ChatActivity extends AppCompatActivity
 
             @Override
             public void onError(String uniqueId, String error, String url) {
-                Log.e("DOWNLOAD","IN ACTIVITY: ERROR :(((");
+                Log.e("DOWNLOAD", "IN ACTIVITY: ERROR :(((");
 
             }
 
             @Override
             public void onLowFreeSpace(String uniqueId, String url) {
-                Log.e("DOWNLOAD","Low Space...");
+                Log.e("DOWNLOAD", "Low Space...");
 
             }
 
             @Override
             public void onFileReady(ChatResponse<ResultDownloadFile> response) {
-                Log.e("DOWNLOAD","IN ACTIVITY: Finish File!!!!");
-                Log.e("DOWNLOAD","File name: " + response.getResult().getFile().getName());
-                Log.e("DOWNLOAD","Uri " + response.getResult().getUri());
-                Log.e("DOWNLOAD","File Exist " + response.getResult().getFile().exists());
+                Log.e("DOWNLOAD", "IN ACTIVITY: Finish File!!!!");
+                Log.e("DOWNLOAD", "File name: " + response.getResult().getFile().getName());
+                Log.e("DOWNLOAD", "Uri " + response.getResult().getUri());
+                Log.e("DOWNLOAD", "File Exist " + response.getResult().getFile().exists());
 
 
-                if(response.getResult().getFile().exists()){
+                if (response.getResult().getFile().exists()) {
 
 
                     try {
@@ -648,15 +642,9 @@ public class ChatActivity extends AppCompatActivity
                 }
 
 
-
-
-
             }
 
         });
-
-
-
 
 
     }
@@ -715,7 +703,7 @@ public class ChatActivity extends AppCompatActivity
                     @Override
                     public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
-                            Log.e("CTF","Upload Progress: " + bytesSent);
+                        Log.e("CTF", "Upload Progress: " + bytesSent);
 
                     }
 
@@ -723,14 +711,14 @@ public class ChatActivity extends AppCompatActivity
                     @Override
                     public void onFinish(String imageJson, FileUpload fileImageUpload) {
 
-                        Log.e("CTF","Upload Finish (FILE): ");
+                        Log.e("CTF", "Upload Finish (FILE): ");
 
                     }
 
                     @Override
                     public void onImageFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
 
-                        Log.e("CTF","Upload Finish (IMAGE): ");
+                        Log.e("CTF", "Upload Finish (IMAGE): ");
 
                     }
 
@@ -1048,27 +1036,27 @@ public class ChatActivity extends AppCompatActivity
                                     @Override
                                     public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
-                                        Log.e("SFM","Sending files message: " + bytesSent + " * " + totalBytesSent + " * " + totalBytesToSend);
+                                        Log.e("SFM", "Sending files message: " + bytesSent + " * " + totalBytesSent + " * " + totalBytesToSend);
                                     }
 
                                     @Override
                                     public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
 
-                                        Log.e("SFM","onFinishImage");
+                                        Log.e("SFM", "onFinishImage");
 
                                     }
 
                                     @Override
                                     public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
 
-                                        Log.e("SFM","onFinishFile");
+                                        Log.e("SFM", "onFinishFile");
 
                                     }
 
                                     @Override
                                     public void onError(String jsonError, ErrorOutPut error) {
 
-                                        Log.e("SFM","onError");
+                                        Log.e("SFM", "onError");
 
 
                                     }
@@ -1180,7 +1168,7 @@ public class ChatActivity extends AppCompatActivity
 
                     }
 
-                    case 18:{
+                    case 18: {
 
 
                         updateUserProfile();
@@ -1200,15 +1188,13 @@ public class ChatActivity extends AppCompatActivity
     private void updateUserProfile() {
 
 
-
-
         RequestUpdateProfile request = new RequestUpdateProfile
                 .Builder("عِیب رِندان مَکُن ای زاهِدِ پاکیزه‌سِرِشت")
+                .setMetadata(getMetaData())
                 .build();
 
 
         presenter.updateChatProfile(request);
-
 
 
     }
@@ -1306,10 +1292,30 @@ public class ChatActivity extends AppCompatActivity
 //            }
 //        });
 
-        RequestAddParticipants request = new RequestAddParticipants
-                .Builder((long) TEST_THREAD_ID, participantIds)
+//        RequestAddParticipants request = new RequestAddParticipants
+//                .Builder((long) TEST_THREAD_ID, participantIds)
+//                .build();
+
+
+        //add with username
+//
+        RequestAddParticipants request = RequestAddParticipants.Builder
+                .newBuilder()
+                .addParticipantWithUsernameTo((long) TEST_THREAD_ID)
+                .withUserNames("f.khojasteh","m.zhiani")
                 .build();
+
+        // add with contactId
+//
+//        RequestAddParticipants request = RequestAddParticipants.Builder
+//                .newBuilder()
+//                .addParticipantWithContactIdTo((long) TEST_THREAD_ID)
+//                .withContactId(4101L)
+//                .build();
+
+
         presenter.addParticipants(request, null);
+
 
     }
 
@@ -1710,7 +1716,7 @@ public class ChatActivity extends AppCompatActivity
 //                , new Invitee(3102, 2)
 //                new Invitee(091, 1),
 //                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("09148401824", InviteType.Constants.TO_BE_USER_CELLPHONE_NUMBER),
+                new Invitee("9151242904", InviteType.Constants.TO_BE_USER_CELLPHONE_NUMBER),
 //                new Invitee(5638, 2),
 //                new Invitee(5638, 2),
         };
@@ -1983,7 +1989,7 @@ public class ChatActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
-        Log.e("CHAT_SDK","Stopping ping...");
+        Log.e("CHAT_SDK", "Stopping ping...");
         presenter.closeChat();
     }
 
@@ -1995,13 +2001,13 @@ public class ChatActivity extends AppCompatActivity
                 @Override
                 public void onProgressUpdate(int bytesSent) {
 
-                    Log.e("UFP","opu");
+                    Log.e("UFP", "opu");
                 }
 
                 @Override
                 public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
 
-                    Log.e("UFP","op");
+                    Log.e("UFP", "op");
 
                     runOnUiThread(() -> percentageFile.setText(bytesSent + "%"));
 
@@ -2009,10 +2015,9 @@ public class ChatActivity extends AppCompatActivity
                 }
 
 
-
                 @Override
                 public void onFinish(String imageJson, FileUpload fileImageUpload) {
-                    Log.e("UFP","of");
+                    Log.e("UFP", "of");
 
                     runOnUiThread(() -> {
                         Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();

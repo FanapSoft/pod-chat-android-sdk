@@ -446,10 +446,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnLastSeenUpdated(String content) {
+    public void callOnContactsLastSeenUpdated(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onLastSeenUpdated(content);
+                listener.onContactsLastSeenUpdated(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -785,11 +785,11 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnLastSeenUpdated(ChatResponse<ResultNotSeenDuration> response) {
+    public void callOnContactsLastSeenUpdated(ChatResponse<ResultNotSeenDuration> response) {
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onLastSeenUpdated(response);
+                listener.onContactsLastSeenUpdated(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

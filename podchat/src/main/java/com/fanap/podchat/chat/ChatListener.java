@@ -174,7 +174,7 @@ public interface ChatListener {
     }
 
     @Deprecated
-    default void onLastSeenUpdated(String content) {
+    default void onContactsLastSeenUpdated(String content) {
     }
 
     default void onChatState(String state) {
@@ -251,7 +251,7 @@ public interface ChatListener {
 
     default void onLowFreeSpace(long bytesAvailable){}
 
-    default void onLastSeenUpdated(ChatResponse<ResultNotSeenDuration> response){}
+    default void onContactsLastSeenUpdated(ChatResponse<ResultNotSeenDuration> response){}
 
     default void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response){}
 

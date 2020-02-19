@@ -7,15 +7,21 @@ import com.fanap.podchat.requestobject.GeneralRequestObject;
 public class RequestUpdateProfile extends GeneralRequestObject {
 
     private String bio;
+    private String metadata;
 
 
     public String getBio() {
         return bio;
     }
 
+    public String getMetadata() {
+        return metadata;
+    }
+
     public RequestUpdateProfile(Builder builder) {
         super(builder);
         this.bio = builder.bio;
+        this.metadata = builder.metadata;
     }
 
 
@@ -23,11 +29,16 @@ public class RequestUpdateProfile extends GeneralRequestObject {
 
 
         private String bio;
+        private String metadata;
 
         public Builder(String bio) {
             this.bio = bio;
         }
 
+        public Builder setMetadata(String metadata) {
+            this.metadata = metadata;
+            return this;
+        }
 
         @NonNull
         public RequestUpdateProfile build() {

@@ -7,6 +7,22 @@ All notable changes to this project will be documented here.
 
 
 
+#Version [0.5.5.0] -2020-2-19
+
+[Added] `addContact` with username
+
+[Added] `newMessages` Builder function to `RequestThread` model
+
+[Added] `updateChatProfile` function
+
+[Added] `onContactsLastSeenUpdated` event
+
+[Added] `setFreeSpaceThreshold` function
+
+
+
+
+
 ## Version [0.5.4.0] -2020-2-4
 
 [Added] `stopTyping()`

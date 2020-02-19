@@ -7,6 +7,9 @@ public abstract class GeneralRequestObject  {
         this.typeCode = builder.typeCode;
     }
 
+    public GeneralRequestObject() {
+    }
+
     public String getTypeCode() {
         return typeCode;
     }

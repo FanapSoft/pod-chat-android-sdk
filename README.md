@@ -3,6 +3,60 @@
 **Fanap's POD** Chat service
 
 
+
+
+#Version [0.5.5.0] -2020-2-19
+
+addContact with username:
+
+    RequestAddContact request = new RequestAddContact.Builder()
+         .firstName("John")
+         .lastName("Doe")
+         .username("j.doe")
+         .build();
+         
+    chat.addContact(request);
+         
+getThreads with unread messages:
+
+        RequestThread requestThread = new RequestThread
+                    .Builder()
+                    .newMessages()
+                    .build();
+    
+        chat.getThreads(requestThread)
+        
+
+updateChatProfile:
+
+    request:
+        
+        RequestUpdateProfile request = new RequestUpdateProfile
+                .Builder(String) // bio
+		        .setMetadata(String) //metadata
+                .build();
+
+
+        chat.updateChatProfile(request);
+        
+    response:
+    
+    
+        onChatProfileUpdated(ChatResponse<ResultUpdateProfile>)	
+        
+        
+ 
+
+`onContactsLastSeenUpdated(ChatResponse<ResultNotSeenDuration>)` event added
+        
+        
+
+`setFreeSpaceThreshold(long bytesFreeSpace)` function added
+    
+    
+
+
+
 ## Version [0.5.4.0] -2020-2-4
 
 [Added] `stopTyping()` | Stops started typing signal

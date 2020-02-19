@@ -918,9 +918,9 @@ public class Chat extends AsyncAdapter {
         showLog("LAST SEEN UPDATED", gson.toJson(chatMessage));
 
 
-        listenerManager.callOnLastSeenUpdated(response);
+        listenerManager.callOnContactsLastSeenUpdated(response);
 
-        listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
+        listenerManager.callOnContactsLastSeenUpdated(chatMessage.getContent());
 
 
     }
@@ -3048,6 +3048,7 @@ public class Chat extends AsyncAdapter {
      * @param threadId   Id of the thread that you are {*NOTICE*}admin of that and you want to
      *                   add someone as a participant.
      */
+    @Deprecated
     public String addParticipants(long threadId, List<Long> contactIds, ChatHandler handler) {
         String uniqueId = generateUniqueId();
         try {
@@ -3094,6 +3095,11 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
     }
+
+
+
+
+
 
     /**
      * contactIds  List of CONTACT IDs
@@ -7627,7 +7633,7 @@ public class Chat extends AsyncAdapter {
     private void handleLastSeenUpdated(ChatMessage chatMessage) {
         showLog("LAST_SEEN_UPDATED", "");
         showLog(chatMessage.getContent(), "");
-        listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
+        listenerManager.callOnContactsLastSeenUpdated(chatMessage.getContent());
     }
 
     private void handleThreadInfoUpdated(ChatMessage chatMessage) {
@@ -8395,7 +8401,7 @@ public class Chat extends AsyncAdapter {
 //
 //                        if (encResponseResponse.body() != null) {
 //                            String secretKey = encResponseResponse.body().getSecretKey();
-//                            DaggerMessageComponent.builder()
+//                            DaggerMessageComponent.newBuilder()
 //                                    .appDatabaseModule(new AppDatabaseModule(getContext(), secretKey))
 //                                    .appModule(new AppModule(context))
 //                                    .build()
@@ -8676,6 +8682,13 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnCreateThread(inviteJson, chatResponse);
         messageCallbacks.remove(messageUniqueId);
         showLog("RECEIVE_CREATE_THREAD", inviteJson);
+
+
+        if(cache){
+
+            messageDatabaseHelper.saveNewThread(chatResponse.getResult().getThread());
+
+        }
 
     }
 
@@ -8971,7 +8984,6 @@ public class Chat extends AsyncAdapter {
             showLog("RECEIVE_USER_INFO", userInfoJson);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
             messageCallbacks.remove(messageUniqueId);
-
 
 //            if there is a key its ok if not it will go for the key and then chat ready
 
@@ -9656,6 +9668,7 @@ public class Chat extends AsyncAdapter {
             resultThreads.setThreads(threads);
             resultThreads.setContentCount(contentCount);
             chatResponse.setCache(true);
+
 
             if (threads.size() + offset < contentCount) {
                 resultThreads.setHasNext(true);

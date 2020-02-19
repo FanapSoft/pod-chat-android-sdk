@@ -44,6 +44,7 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.util.Callback;
@@ -220,7 +221,6 @@ public class MessageDatabaseHelper {
             }
 
 
-
             //update thread last message id
 
             //check if message is new or edited message is thread last message
@@ -239,15 +239,10 @@ public class MessageDatabaseHelper {
             messageDao.insertMessage(cacheMessageVO);
 
 
-
-
-
-
             boolean shouldUpdateLastMessage = !editedMessage || shouldUpdateIfEdited;
 
-            if(shouldUpdateLastMessage)
+            if (shouldUpdateLastMessage)
                 messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
-
 
 
 //            if (!editedMessage)
@@ -1388,11 +1383,19 @@ public class MessageDatabaseHelper {
 
         List<Thread> pinnedThread = new ArrayList<>();
 
+//        if(isNew){
+//
+//            sQuery = "select * from ThreadVo where unreadCount > 0 LIMIT " + count + " OFFSET " + offset;
+//        }else
+//            sQuery = "select  * from ThreadVo ORDER BY id DESC LIMIT " + count + " OFFSET " + offset;
+
+
         sQuery = "select  * from ThreadVo ORDER BY id DESC LIMIT " + count + " OFFSET " + offset;
-        if (threadName != null) {
+
+        if (threadName != null && !isNew) {
             sQuery = "select  * from ThreadVo where title LIKE  '%" + threadName + "%' ORDER BY id DESC LIMIT " + count + " OFFSET " + offset;
         }
-        if (threadIds != null && threadIds.size() > 0) {
+        if (threadIds != null && threadIds.size() > 0 && !isNew) {
 
             StringBuilder stringBuilder = new StringBuilder();
             for (int id : threadIds) {
@@ -1409,13 +1412,18 @@ public class MessageDatabaseHelper {
             }
         }
 
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery(sQuery);
 
+        //only threads with unreadCount > 0 if isNew == true
+
+        if (isNew) {
+            sQuery = "select * from ThreadVo where unreadCount > 0 LIMIT " + count + " OFFSET " + offset;
+        }
+
+        SimpleSQLiteQuery query = new SimpleSQLiteQuery(sQuery);
 
         List<ThreadVo> threadVos = messageDao.getThreadRaw(query);
 
         List<Thread> threads = new ArrayList<>();
-
 
         if (threadVos != null) {
 
@@ -1425,10 +1433,9 @@ public class MessageDatabaseHelper {
             ReplyInfoVO replyInfoVO = null;
             for (ThreadVo threadVo : threadVos) {
 
-                //only threads with unreadCount > 0 if isNew == true
-
-                if (isNew)
-                    if (threadVo.getUnreadCount() == 0) continue;
+//
+//                if (isNew)
+//                    if (threadVo.getUnreadCount() == 0) continue;
 
 
                 MessageVO lastMessageVO = null;
@@ -1827,72 +1834,83 @@ public class MessageDatabaseHelper {
         return threads;
     }
 
+
+    public void saveNewThread(Thread thread) {
+
+        worker(() -> prepareThreadVOAndSaveIt(thread));
+
+    }
+
+
     public void saveThreads(@NonNull List<Thread> threads) {
 
 
         worker(() -> {
 
-            CacheMessageVO cacheMessageVO;
-            CacheReplyInfoVO cacheReplyInfoVO;
-            CacheForwardInfo cacheForwardInfo;
-
             for (Thread thread : threads) {
 
+                prepareThreadVOAndSaveIt(thread);
 
-                String gson = App.getGson().toJson(thread);
-
-                ThreadVo threadVo = App.getGson().fromJson(gson, ThreadVo.class);
-
-
-//                ThreadVo threadVo = threadToThreadVoMapper(thread);
-
-                if (threadVo.getInviter() != null) {
-
-                    insertInviter(threadVo);
-                }
-
-                if (thread.getPinMessageVO() != null) {
-
-                    insertPinnedMessage(thread);
-
-                }
-                if (thread.getLastMessageVO() != null) {
-
-                    cacheMessageVO = insertLastMessage(thread, threadVo);
-
-
-                    if (threadVo.getLastMessageVO().getParticipant() != null) {
-
-                        insertParticipant(cacheMessageVO, threadVo);
-
-                    }
-                    if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
-
-                        cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
-
-                        if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
-
-                            insertReplyParticipant(cacheReplyInfoVO, threadVo);
-                        }
-                    }
-                    if (threadVo.getLastMessageVO().getForwardInfo() != null) {
-
-                        cacheForwardInfo = insertForwardInfo(cacheMessageVO, threadVo);
-                        if (threadVo.getLastMessageVO().getForwardInfo().getParticipant() != null) {
-
-                            insertForwardInfo(cacheForwardInfo, threadVo);
-                        }
-                        if (threadVo.getLastMessageVO().getForwardInfo().getConversation() != null) {
-                            insertConversationSummary(cacheForwardInfo, threadVo);
-                        }
-                    }
-                }
-                messageDao.insertThread(threadVo);
             }
 
 
         });
 
+    }
+
+    private void prepareThreadVOAndSaveIt(Thread thread) {
+
+        CacheMessageVO cacheMessageVO;
+        CacheReplyInfoVO cacheReplyInfoVO;
+        CacheForwardInfo cacheForwardInfo;
+        String threadJson = App.getGson().toJson(thread);
+
+        ThreadVo threadVo = App.getGson().fromJson(threadJson, ThreadVo.class);
+
+        if (threadVo.getInviter() != null) {
+
+            insertInviter(threadVo);
+        }
+
+        if (thread.getPinMessageVO() != null) {
+
+            insertPinnedMessage(thread);
+
+        }
+
+        if (thread.getLastMessageVO() != null) {
+
+            cacheMessageVO = insertLastMessage(thread, threadVo);
+
+
+            if (threadVo.getLastMessageVO().getParticipant() != null) {
+
+                insertParticipant(cacheMessageVO, threadVo);
+
+            }
+            if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
+
+                cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
+
+                if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
+
+                    insertReplyParticipant(cacheReplyInfoVO, threadVo);
+                }
+            }
+            if (threadVo.getLastMessageVO().getForwardInfo() != null) {
+
+                cacheForwardInfo = insertForwardInfo(cacheMessageVO, threadVo);
+                if (threadVo.getLastMessageVO().getForwardInfo().getParticipant() != null) {
+
+                    insertForwardInfo(cacheForwardInfo, threadVo);
+                }
+                if (threadVo.getLastMessageVO().getForwardInfo().getConversation() != null) {
+                    insertConversationSummary(cacheForwardInfo, threadVo);
+                }
+            }
+        }
+
+        messageDao.insertThread(threadVo);
     }
 
     private void insertConversationSummary(CacheForwardInfo cacheForwardInfo, ThreadVo threadVo) {
@@ -2475,4 +2493,6 @@ public class MessageDatabaseHelper {
         return messageDao.getChatProfileVOById(id);
 
     }
+
+
 }

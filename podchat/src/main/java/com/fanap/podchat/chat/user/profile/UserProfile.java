@@ -18,9 +18,11 @@ public class UserProfile {
     public static String setProfile(RequestUpdateProfile request,String uniqueId){
 
         String bio = request.getBio();
+        String metadata = request.getMetadata();
 
         JsonObject content = new JsonObject();
         content.addProperty("bio",bio);
+        content.addProperty("metadata",metadata);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(content.toString());
