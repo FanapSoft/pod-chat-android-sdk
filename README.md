@@ -33,7 +33,7 @@ updateChatProfile:
         
         RequestUpdateProfile request = new RequestUpdateProfile
                 .Builder(String) // bio
-		        .setMetadata(String) //metadata
+		.setMetadata(String) //metadata
                 .build();
 
 
