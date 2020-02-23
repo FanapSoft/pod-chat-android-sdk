@@ -123,21 +123,38 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 
-    private static String TOKEN = "3e215556605e442db541875996184958";
+    //    private static String TOKEN = "0ef054c9a8ee4d209e786fc71f4db5c2";
+    //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
-    private static String serverName = "chat-server";
+
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = "chatlocal";
+
+
     private static String appId = "POD-Chat";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
 
 
     /**
-     * Main Server Setting
+     * Integration server setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+
+
+    /**
+     * Main Server Setting:
+     */
+
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
@@ -156,7 +173,14 @@ public class ChatActivity extends AppCompatActivity
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 14234;
+//    public static int TEST_THREAD_ID = 14234;
+
+
+    //integration /group
+
+    public static int TEST_THREAD_ID = 7090;
+
+
 
 
     private String fileUri;
@@ -322,7 +346,7 @@ public class ChatActivity extends AppCompatActivity
                                 long bUserId = TEST_THREAD_ID;
                                 long bContactId = TEST_THREAD_ID;
 
-                                presenter.block(23116L, null, null
+                                presenter.block(bContactId, null, null
                                         , new ChatHandler() {
                                             @Override
                                             public void onBlock(String uniqueId) {
@@ -411,14 +435,12 @@ public class ChatActivity extends AppCompatActivity
 //                        listForwardIds.add(1346L);
 
                                 RequestThreadInnerMessage message = new RequestThreadInnerMessage
-                                        .Builder()
-                                        .message("Hi at " + new Date().toString())
+                                        .Builder("Hi at " + new Date().toString(),TextMessageType.Constants.TEXT)
 //                                .forwardedMessageIds(listForwardIds)
                                         .build();
 
                                 RequestCreateThread requestCreateThread = new RequestCreateThread
-                                        .Builder(ThreadType.Constants.NORMAL
-                                        , invite)
+                                        .Builder(ThreadType.Constants.NORMAL,invite)
                                         .message(message)
                                         .build();
 
@@ -686,16 +708,20 @@ public class ChatActivity extends AppCompatActivity
 //        invite.add(new Invitee(1151568, InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
         RequestThreadInnerMessage innerMessage = new RequestThreadInnerMessage
-                .Builder()
-                .type(TextMessageType.Constants.PICTURE)
-//                .message("Create thread for File Message Test " + new Date().toString())
+                .Builder(TextMessageType.Constants.PICTURE)
+                //                .message("Create thread for File Message Test " + new Date().toString())
 //                                .forwardedMessageIds(listForwardIds)
                 .build();
+
 
         RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
                 .Builder(ThreadType.Constants.NORMAL, invite, requestUploadImage)
                 .message(innerMessage)
                 .build();
+
+
+
+
 
 
         presenter.createThreadWithFile(request, new ProgressHandler.onProgressFile() {
@@ -1280,6 +1306,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void addParticipants() {
+
         List<Long> participantIds = new ArrayList<>();
         participantIds.add(521L);
         participantIds.add(4101L);
@@ -1299,10 +1326,10 @@ public class ChatActivity extends AppCompatActivity
 
         //add with username
 //
-        RequestAddParticipants request = RequestAddParticipants.Builder
+        RequestAddParticipants request = RequestAddParticipants
                 .newBuilder()
-                .addParticipantWithUsernameTo((long) TEST_THREAD_ID)
-                .withUserNames("f.khojasteh","m.zhiani")
+                .threadId((long) TEST_THREAD_ID)
+                .withUserNames("fatemeh", "pooria")
                 .build();
 
         // add with contactId
@@ -1310,9 +1337,10 @@ public class ChatActivity extends AppCompatActivity
 //        RequestAddParticipants request = RequestAddParticipants.Builder
 //                .newBuilder()
 //                .addParticipantWithContactIdTo((long) TEST_THREAD_ID)
-//                .withContactId(4101L)
+//                .withContactIds(participantIds)
+////                .withContactIds(4101L)
 //                .build();
-
+//
 
         presenter.addParticipants(request, null);
 
@@ -1509,9 +1537,9 @@ public class ChatActivity extends AppCompatActivity
 
 
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("Sadegh")
-                        .lastName("Bakhshandeh")
-                        .username("sadegh313.b")
+                        .firstName("Farhad")
+                        .lastName("Kheirkhah")
+                        .cellphoneNumber("09157770684")
                         .build();
 
                 presenter.addContact(request);
@@ -1568,7 +1596,7 @@ public class ChatActivity extends AppCompatActivity
 
 
                 RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
-                        .setMessageId(76306)
+                        .setMessageId(TEST_THREAD_ID)
                         .setNotifyAll(true)
                         .build();
 
@@ -1581,7 +1609,7 @@ public class ChatActivity extends AppCompatActivity
 
 
                 RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
-                        .setMessageId(76306)
+                        .setMessageId(TEST_THREAD_ID)
                         .build();
 
 
@@ -1716,7 +1744,7 @@ public class ChatActivity extends AppCompatActivity
 //                , new Invitee(3102, 2)
 //                new Invitee(091, 1),
 //                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("9151242904", InviteType.Constants.TO_BE_USER_CELLPHONE_NUMBER),
+                new Invitee("4893", InviteType.Constants.TO_BE_USER_CONTACT_ID),
 //                new Invitee(5638, 2),
 //                new Invitee(5638, 2),
         };
@@ -1724,7 +1752,7 @@ public class ChatActivity extends AppCompatActivity
         inviterw.setName("this is sample metadata");
         String metac = gson.toJson(inviterw);
 
-        presenter.createThread(ThreadType.Constants.NORMAL, invite,
+        presenter.createThread(ThreadType.Constants.OWNER_GROUP, invite,
                 "A New Thread " + (new Date().getTime() / 1000), "Description created at "
                         + new Date().getTime()
                 , null, metac, null);
@@ -1802,9 +1830,8 @@ public class ChatActivity extends AppCompatActivity
         RequestThread requestThread = new RequestThread
                 .Builder()
 //                .newMessages()
-
 //                .partnerCoreContactId(566)
-//                .count(5)
+                .count(5)
                 .build();
         presenter.getThreads(requestThread, null);
 
@@ -1816,6 +1843,8 @@ public class ChatActivity extends AppCompatActivity
                 .Builder("this is reply from john", TEST_THREAD_ID, 31849)
                 .build();
         presenter.replyMessage(message, null);
+
+
 //        presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
 //            @Override
 //            public void onReplyMessage(String uniqueId) {

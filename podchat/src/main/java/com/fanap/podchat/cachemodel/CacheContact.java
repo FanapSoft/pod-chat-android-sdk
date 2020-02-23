@@ -2,6 +2,7 @@ package com.fanap.podchat.cachemodel;
 
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.fanap.podchat.mainmodel.LinkedUser;
@@ -56,6 +57,10 @@ public class CacheContact {
         this.uniqueId = uniqueId;
         this.notSeenDuration = notSeenDuration;
         this.hasUser = hasUser;
+    }
+
+    @Ignore
+    public CacheContact() {
     }
 
     public String getExpireDate() {

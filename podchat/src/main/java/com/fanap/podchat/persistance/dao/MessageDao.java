@@ -60,6 +60,7 @@ public interface MessageDao {
 
 
     //Cache Blocked Contact
+
     @Insert(onConflict = REPLACE)
     void insertBlockedContacts(List<CacheBlockedContact> t);
 
@@ -69,8 +70,15 @@ public interface MessageDao {
     @Delete
     void deleteBlockedContact(CacheBlockedContact cacheBlockContacts);
 
-    @Query("DELETE FROM CacheBlockedContact WHERE id =:id")
+    @Query("DELETE FROM CacheBlockedContact WHERE blockId =:id")
     void deleteBlockedContactById(long id);
+
+    @Query("DELETE FROM CacheBlockedContact WHERE coreId =:coreUserId")
+    void deleteBlockedContactByCoreUserId(long coreUserId);
+
+    @Query("DELETE FROM CacheBlockedContact WHERE blockId =:blockId")
+    void deleteBlockedContactByBlockId(long blockId);
+
 
     @Query("select * from CacheBlockedContact LIMIT :count OFFSET :offset")
     List<CacheBlockedContact> getBlockedContacts(Long count, Long offset);
@@ -212,6 +220,10 @@ public interface MessageDao {
 
     @Query("update ThreadVo set lastMessageVOId = :lastMessageId, lastMessage = :lastMessage where id = :threadId")
     void updateThreadLastMessageVOId(long threadId,long lastMessageId,String lastMessage);
+
+    @Query("update ThreadVo set lastMessageVOId = null, lastMessage = null where id = :threadId")
+    void removeThreadLastMessageVO(long threadId);
+
 
     /**
      * cache inviter
@@ -387,7 +399,6 @@ public interface MessageDao {
 
     @Query("delete from chatprofilevo where id = :id")
     void deleteChatProfileBtId(long id);
-
 
 
 }

@@ -1,6 +1,5 @@
 package com.fanap.podchat.chat;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
@@ -9,7 +8,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -55,6 +53,7 @@ import com.fanap.podchat.localmodel.LFileUpload;
 import com.fanap.podchat.localmodel.SetRuleVO;
 import com.fanap.podchat.mainmodel.AddParticipant;
 import com.fanap.podchat.mainmodel.AsyncMessage;
+import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.ChatMessageContent;
 import com.fanap.podchat.mainmodel.ChatThread;
@@ -206,6 +205,7 @@ import com.fanap.podchat.util.NetworkStateReceiver;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.RequestMapSearch;
+import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -1612,6 +1612,7 @@ public class Chat extends AsyncAdapter {
      * @param systemMetaData [optional]
      * @param handler        it is for send file message with progress
      */
+    @Deprecated
     public String sendFileMessage(Activity activity, String description, long threadId
             , Uri fileUri, String systemMetaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
         String uniqueId;
@@ -1785,6 +1786,9 @@ public class Chat extends AsyncAdapter {
 
                                     chatResponse.setResult(resultImageFile);
 
+                                    resultImageFile.setUrl(getImage(resultImageFile.getId(),resultImageFile.getHashCode(),true));
+
+
                                     String imageJson = gson.toJson(chatResponse);
 
 //                                    if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
@@ -1896,6 +1900,9 @@ public class Chat extends AsyncAdapter {
 
                                                     chatResponse.setResult(resultImageFile);
 
+                                                    resultImageFile.setUrl(getImage(resultImageFile.getId(),resultImageFile.getHashCode(),true));
+
+
                                                     String imageJson = gson.toJson(chatResponse);
 
                                                     listenerManager.callOnUploadImageFile(imageJson, chatResponse);
@@ -2002,8 +2009,6 @@ public class Chat extends AsyncAdapter {
                             uploadObservable.subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe(fileUploadResponse -> {
-
-
                                         if (fileUploadResponse.body() != null && fileUploadResponse.isSuccessful()) {
                                             boolean hasError = fileUploadResponse.body().isHasError();
                                             if (hasError) {
@@ -2013,13 +2018,15 @@ public class Chat extends AsyncAdapter {
                                                 if (log) Log.e(TAG, jsonError);
                                             } else {
                                                 ResultFile result = fileUploadResponse.body().getResult();
+                                                result.setUrl(getFile(result.getId(),result.getHashCode(),true));
+                                                result.setSize(fileSize);
 
                                                 ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
-                                                result.setSize(fileSize);
                                                 chatResponse.setUniqueId(uniqueId);
                                                 chatResponse.setResult(result);
-                                                String json = gson.toJson(chatResponse);
 
+
+                                                String json = gson.toJson(chatResponse);
                                                 listenerManager.callOnUploadFile(json, chatResponse);
                                                 showLog("RECEIVE_UPLOAD_FILE", json);
 //                                        if (log) Log.i(TAG, "RECEIVE_UPLOAD_FILE");
@@ -2146,6 +2153,8 @@ public class Chat extends AsyncAdapter {
                                             ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
 
                                             ResultFile resultFile = result.getResult();
+                                            resultFile.setUrl(getFile(resultFile.getId(),resultFile.getHashCode(),true));
+
 
                                             chatResponse.setResult(resultFile);
 
@@ -2285,6 +2294,8 @@ public class Chat extends AsyncAdapter {
                                             ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
 
                                             ResultFile resultFile = fileUploadResponse.body().getResult();
+                                            resultFile.setUrl(getFile(resultFile.getId(),resultFile.getHashCode(),true));
+
 
                                             showLog("FINISH_UPLOAD_FILE", gson.toJson(resultFile));
 
@@ -2477,6 +2488,8 @@ public class Chat extends AsyncAdapter {
                                                     resultImageFile.setWidth(fileImageUpload.getResult().getWidth());
                                                     resultImageFile.setActualHeight(fileImageUpload.getResult().getActualHeight());
                                                     resultImageFile.setActualWidth(fileImageUpload.getResult().getActualWidth());
+
+                                                    resultImageFile.setUrl(getImage(resultImageFile.getId(),resultImageFile.getHashCode(),true));
 
                                                     chatResponse.setResult(resultImageFile);
 
@@ -3109,18 +3122,14 @@ public class Chat extends AsyncAdapter {
         if (chatReady) {
 
 
-
             JsonArray participantsJsonArray = new JsonArray();
 
 
-            if (request.getContactIds() != null)
-            {
+            if (request.getContactIds() != null) {
                 for (Long p : request.getContactIds()) {
                     participantsJsonArray.add(p);
                 }
-
-
-            }else {
+            } else {
 
                 for (String username :
                         request.getUserNames()) {
@@ -3135,7 +3144,7 @@ public class Chat extends AsyncAdapter {
 
             }
 
-            AsyncMessage chatMessage = new ChatMessage();
+            AsyncMessage chatMessage = new AsyncMessage();
 
             chatMessage.setTokenIssuer("1");
             chatMessage.setToken(getToken());
@@ -3762,7 +3771,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } catch (Throwable e) {
-            Log.e(TAG, e.getCause().getMessage());
+            Log.e(TAG, e.getMessage());
         }
         return uniqueId;
     }
@@ -6058,9 +6067,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
 
-            List<Contact> cacheContacts = messageDatabaseHelper.getBlockedContacts(count, offset);
-
-
+            List<BlockedContact> cacheContacts = messageDatabaseHelper.getBlockedContacts(count, offset);
             if (!Util.isNullOrEmpty(cacheContacts)) {
 
                 ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
@@ -6074,9 +6081,7 @@ public class Chat extends AsyncAdapter {
                 String jsonGetBlock = gson.toJson(chatResponse);
                 listenerManager.callOnGetBlockList(jsonGetBlock, chatResponse);
                 showLog("RECEIVE_GET_BLOCK_LIST_FROM_CACHE", jsonGetBlock);
-
             }
-
         }
 
 
@@ -6084,22 +6089,15 @@ public class Chat extends AsyncAdapter {
 
             JsonObject content = new JsonObject();
 
-//            ChatMessageContent chatMessageContent = new ChatMessageContent();
             if (offset != null) {
                 content.addProperty("offset", offset);
-//                chatMessageContent.setOffset(offset);
             }
             if (count != null) {
                 content.addProperty("count", count);
-
-//                chatMessageContent.setCount(count);
             } else {
-//                chatMessageContent.setCount(50);
                 content.addProperty("count", 50);
 
             }
-
-//            String json = gson.toJson(chatMessageContent);
 
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setContent(content.toString());
@@ -6262,6 +6260,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void prepareCreateThreadWithFile(RequestCreateThreadWithFile request, String requestUniqueId, String innerMessageUniqueId, List<String> forwardUniqueIds, String metaData) {
+
         RequestThreadInnerMessage requestThreadInnerMessage = generateInnerMessageForCreateThreadWithFile(request, metaData);
 
         request.setMessage(requestThreadInnerMessage);
@@ -6282,11 +6281,12 @@ public class Chat extends AsyncAdapter {
 
         if (request.getMessage() == null) {
             requestThreadInnerMessage = new RequestThreadInnerMessage
-                    .Builder()
+                    .Builder(request.getType())
                     .metadata(metaData)
                     .build();
         } else {
             requestThreadInnerMessage = request.getMessage();
+
             requestThreadInnerMessage.setMetadata(metaData);
         }
 
@@ -7595,19 +7595,6 @@ public class Chat extends AsyncAdapter {
         return mimType;
     }
 
-    @SuppressLint("MissingPermission")
-    private boolean isConnected(Activity context) {
-        boolean isConnected = false;
-        if (Permission.Check_ACCESS_NETWORK_STATE(context)) {
-            NetworkInfo activeNetwork;
-            ConnectivityManager cm =
-                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            activeNetwork = cm.getActiveNetworkInfo();
-            isConnected = activeNetwork != null &&
-                    activeNetwork.isConnectedOrConnecting();
-        }
-        return isConnected;
-    }
 
     private void handleError(ChatMessage chatMessage) {
 
@@ -7658,6 +7645,16 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
         showLog("THREAD_INFO_UPDATED", chatMessage.getContent());
+
+        //todo
+
+        if (cache) {
+
+            messageDatabaseHelper.saveNewThread(resultThread.getThread());
+
+        }
+
+
     }
 
     private void handleRemoveFromThread(ChatMessage chatMessage) {
@@ -7670,6 +7667,13 @@ public class Chat extends AsyncAdapter {
 
         showLog("RECEIVED_REMOVED_FROM_THREAD", content);
         listenerManager.callOnRemovedFromThread(content, chatResponse);
+
+        //todo
+        if (cache) {
+
+            messageDatabaseHelper.deleteThread(chatMessage.getSubjectId());
+
+        }
     }
 
     /**
@@ -9255,7 +9259,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOutPutBlock(ChatMessage chatMessage, String messageUniqueId) {
 
-        Contact contact = gson.fromJson(chatMessage.getContent(), Contact.class);
+        BlockedContact contact = gson.fromJson(chatMessage.getContent(), BlockedContact.class);
         ChatResponse<ResultBlock> chatResponse = new ChatResponse<>();
         ResultBlock resultBlock = new ResultBlock();
         resultBlock.setContact(contact);
@@ -9266,16 +9270,15 @@ public class Chat extends AsyncAdapter {
 
         String jsonBlock = gson.toJson(chatResponse);
 
-        if (cache) {
-
-            messageDatabaseHelper.saveBlockedContact(contact, getExpireAmount());
-
-        }
 
 
         listenerManager.callOnBlock(jsonBlock, chatResponse);
         showLog("RECEIVE_BLOCK", jsonBlock);
         messageCallbacks.remove(messageUniqueId);
+
+        if (cache) { messageDatabaseHelper.saveBlockedContact(contact, getExpireAmount()); }
+
+
     }
 
 
@@ -9420,7 +9423,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleUnBlock(ChatMessage chatMessage, String messageUniqueId) {
 
-        Contact contact = gson.fromJson(chatMessage.getContent(), Contact.class);
+        BlockedContact contact = gson.fromJson(chatMessage.getContent(), BlockedContact.class);
         ChatResponse<ResultBlock> chatResponse = new ChatResponse<>();
         ResultBlock resultBlock = new ResultBlock();
         resultBlock.setContact(contact);
@@ -9436,7 +9439,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
 
-            messageDatabaseHelper.deleteBlockedContactById(contact.getId());
+            messageDatabaseHelper.deleteBlockedContactById(contact.getBlockId());
 
         }
 
@@ -9449,9 +9452,9 @@ public class Chat extends AsyncAdapter {
         chatResponse.setUniqueId(chatMessage.getUniqueId());
         ResultBlockList resultBlockList = new ResultBlockList();
 
-        List<Contact> contacts = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Contact>>() {
+        List<BlockedContact> blockedContacts = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<BlockedContact>>() {
         }.getType());
-        resultBlockList.setContacts(contacts);
+        resultBlockList.setContacts(blockedContacts);
         chatResponse.setResult(resultBlockList);
         String jsonGetBlock = gson.toJson(chatResponse);
         listenerManager.callOnGetBlockList(jsonGetBlock, chatResponse);
@@ -9459,8 +9462,8 @@ public class Chat extends AsyncAdapter {
 
 
         if (cache) {
-            if (contacts.size() > 0)
-                messageDatabaseHelper.saveBlockedContacts(contacts, getExpireAmount());
+            if (blockedContacts.size() > 0)
+                messageDatabaseHelper.saveBlockedContacts(blockedContacts, getExpireAmount());
         }
 
     }

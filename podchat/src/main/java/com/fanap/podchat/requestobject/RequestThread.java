@@ -123,7 +123,4 @@ public class RequestThread extends BaseRequestObject {
         return isNew;
     }
 
-    public void setNew(boolean aNew) {
-        isNew = aNew;
-    }
 }

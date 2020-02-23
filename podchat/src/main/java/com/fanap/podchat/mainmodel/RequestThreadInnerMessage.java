@@ -15,12 +15,15 @@ public class RequestThreadInnerMessage {
     private String systemMetadata;
     private List<Long> forwardedMessageIds;
 
-    public RequestThreadInnerMessage(Builder builder){
+    public RequestThreadInnerMessage(Builder builder) {
         this.text = builder.text;
         this.type = builder.type;
         this.metadata = builder.metadata;
         this.systemMetadata = builder.systemMetadata;
         this.forwardedMessageIds = builder.forwardedMessageIds;
+    }
+
+    public RequestThreadInnerMessage() {
     }
 
     public static class Builder {
@@ -31,13 +34,22 @@ public class RequestThreadInnerMessage {
         private String systemMetadata;
         private List<Long> forwardedMessageIds;
 
+        public Builder(String text,int messageType) {
+            this.text = text;
+            this.type = messageType;
+        }
+
+        public Builder(int type) {
+            this.type = type;
+        }
+
         public Builder message(String text) {
             this.text = text;
             return this;
         }
 
         @NonNull
-        public Builder type(int type){
+        public Builder type(int type) {
             this.type = type;
             return this;
         }
@@ -55,7 +67,7 @@ public class RequestThreadInnerMessage {
         }
 
         @NonNull
-        public  Builder forwardedMessageIds(List<Long> forwardedMessageIds) {
+        public Builder forwardedMessageIds(List<Long> forwardedMessageIds) {
             this.forwardedMessageIds = forwardedMessageIds;
             return this;
         }

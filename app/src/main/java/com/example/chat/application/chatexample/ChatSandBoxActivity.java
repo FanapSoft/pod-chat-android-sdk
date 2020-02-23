@@ -277,18 +277,18 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                        , new Invitee(824, 2)
 //        List<Long> listForwardIds = new ArrayList<>();
 //        listForwardIds.add(1346L);
-        RequestThreadInnerMessage message = new RequestThreadInnerMessage
-                .Builder()
-                .message("create thread with msg")
-//                .forwardedMessageIds(listForwardIds)
-                .build();
+//        RequestThreadInnerMessage message = new RequestThreadInnerMessage
+//                .Builder()
+//                .message("create thread with msg")
+////                .forwardedMessageIds(listForwardIds)
+//                .build();
 
-        RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(0
-                , invite)
-                .message(message)
-                .build();
-        presenter.createThreadWithMessage(requestCreateThread);
+//        RequestCreateThread requestCreateThread = new RequestCreateThread
+//                .Builder(0
+//                , invite)
+//                .message(message)
+//                .build();
+//        presenter.createThreadWithMessage(requestCreateThread);
     }
 
     public void updateThreadInfo() {
@@ -484,12 +484,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     public void sendFileMessage() {
 
-        RequestFileMessage requestFileMessage = new RequestFileMessage
-                .Builder(this, 1105, getUri())
-                .systemMetadata("name")
-                .build();
+//        RequestFileMessage requestFileMessage = new RequestFileMessage
+//                .Builder(this, 1105, getUri())
+//                .systemMetadata("name")
+//                .build();
 
-        presenter.sendFileMessage(requestFileMessage, null);
+//        presenter.sendFileMessage(requestFileMessage, null);
 
 //      presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
 //        "test file message",

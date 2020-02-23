@@ -1,7 +1,5 @@
 package com.fanap.podchat.requestobject;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +10,7 @@ public class RequestAddParticipants extends GeneralRequestObject {
     private List<Long> contactIds;
     private List<String> userNames;
 
-    RequestAddParticipants(@NonNull Builder builder) {
+    RequestAddParticipants(Builder builder) {
         super(builder);
         this.contactIds = builder.contactIds;
         this.threadId = builder.threadId;
@@ -20,6 +18,11 @@ public class RequestAddParticipants extends GeneralRequestObject {
     }
 
     public RequestAddParticipants() {
+    }
+
+    public static ThreadIdStep newBuilder() {
+
+        return new Steps();
     }
 
     public long getThreadId() {
@@ -46,6 +49,35 @@ public class RequestAddParticipants extends GeneralRequestObject {
         this.userNames = userNames;
     }
 
+
+    public interface ThreadIdStep {
+        ActionStep threadId(Long threadId);
+    }
+
+    public interface ActionStep {
+
+        BuildStep withUsername(String username);
+
+        BuildStep withUserNames(String... userNames);
+
+        BuildStep withUserNames(List<String> userNames);
+
+        BuildStep withContactId(Long contactId);
+
+        BuildStep withContactIds(Long... contactIds);
+
+        BuildStep withContactIds(List<Long> contactIds);
+
+    }
+
+
+    public interface BuildStep {
+
+
+        RequestAddParticipants build();
+
+    }
+
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
 
         private long threadId;
@@ -66,138 +98,80 @@ public class RequestAddParticipants extends GeneralRequestObject {
         }
 
 
-        public Builder() {
-        }
-
-        @Nullable
         @Override
         protected Builder self() {
             return this;
         }
 
-        @NonNull
         public RequestAddParticipants build() {
             return new RequestAddParticipants(this);
         }
+    }
+
+    private static class Steps implements ThreadIdStep, ActionStep, BuildStep {
+
+        private long threadId;
+        private List<Long> contactIds;
+        private List<String> userNames;
 
 
-        public static ThreadIdStep newBuilder() {
-
-            return new Steps();
+        @Override
+        public BuildStep withUsername(String username) {
+            this.userNames.add(username);
+            return this;
         }
 
-
-        public static interface ThreadIdStep {
-
-            UsernameStep addParticipantWithUsernameTo(Long threadId);
-
-            ContactIdStep addParticipantWithContactIdTo(Long threadId);
-
+        @Override
+        public BuildStep withUserNames(String... userNames) {
+            this.userNames = Arrays.asList(userNames);
+            return this;
         }
 
-
-        public static interface UsernameStep {
-
-            BuildStep withUsername(String username);
-
-            BuildStep withUserNames(String... userNames);
-
-            BuildStep withUserNames(List<String> userNames);
-
+        @Override
+        public BuildStep withUserNames(List<String> userNames) {
+            this.userNames = userNames;
+            return this;
         }
 
-        public static interface ContactIdStep {
-
-            BuildStep withContactId(Long contactId);
-
-            BuildStep withContactIds(Long... contactIds);
-
-            BuildStep withContactIds(List<Long> contactIds);
-
+        @Override
+        public BuildStep withContactId(Long contactId) {
+            contactIds = new ArrayList<>();
+            this.contactIds.add(contactId);
+            return this;
         }
 
-
-        public static interface BuildStep {
-
-
-            RequestAddParticipants build();
-
+        @Override
+        public BuildStep withContactIds(Long... contactIds) {
+            this.contactIds = Arrays.asList(contactIds);
+            return this;
         }
 
-
-        private static class Steps implements ThreadIdStep,
-                ContactIdStep, UsernameStep, BuildStep {
-
-            private long threadId;
-            private List<Long> contactIds;
-            private List<String> userNames;
-
-
-            @Override
-            public UsernameStep addParticipantWithUsernameTo(Long threadId) {
-                this.threadId = threadId;
-                return this;
-            }
-
-            @Override
-            public ContactIdStep addParticipantWithContactIdTo(Long threadId) {
-                this.threadId = threadId;
-                return this;
-            }
-
-            @Override
-            public BuildStep withUsername(String username) {
-                this.userNames.add(username);
-                return this;
-            }
-
-            @Override
-            public BuildStep withUserNames(String... userNames) {
-                this.userNames = Arrays.asList(userNames);
-                return this;
-            }
-
-            @Override
-            public BuildStep withUserNames(List<String> userNames) {
-                this.userNames = userNames;
-                return this;
-            }
-
-            @Override
-            public BuildStep withContactId(Long contactId) {
-                contactIds = new ArrayList<>();
-                this.contactIds.add(contactId);
-                return this;
-            }
-
-            @Override
-            public BuildStep withContactIds(Long... contactIds) {
-                this.contactIds = Arrays.asList(contactIds);
-                return this;
-            }
-
-            @Override
-            public BuildStep withContactIds(List<Long> contactIds) {
-                this.contactIds = contactIds;
-                return this;
-            }
-
-            @Override
-            public RequestAddParticipants build() {
-
-                RequestAddParticipants request = new RequestAddParticipants();
-
-                request.setThreadId(threadId);
-
-                if (request.getContactIds() != null)
-                    request.setContactIds(contactIds);
-                else request.setUserNames(userNames);
-
-                return request;
-            }
+        @Override
+        public BuildStep withContactIds(List<Long> contactIds) {
+            this.contactIds = contactIds;
+            return this;
         }
 
+        @Override
+        public RequestAddParticipants build() {
 
+            RequestAddParticipants request = new RequestAddParticipants();
+
+            request.setThreadId(threadId);
+
+
+            if (contactIds != null)
+                request.setContactIds(contactIds);
+            else request.setUserNames(userNames);
+
+            return request;
+        }
+
+        @Override
+        public ActionStep threadId(Long threadId) {
+            this.threadId = threadId;
+            return this;
+        }
     }
 
 

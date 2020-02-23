@@ -31,6 +31,10 @@ public class RequestUpdateProfile extends GeneralRequestObject {
         private String bio;
         private String metadata;
 
+
+        public Builder() {
+        }
+
         public Builder(String bio) {
             this.bio = bio;
         }
