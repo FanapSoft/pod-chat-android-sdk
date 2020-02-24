@@ -33,7 +33,7 @@ updateChatProfile:
         
         RequestUpdateProfile request = new RequestUpdateProfile
                 .Builder(String) // bio
-		        .setMetadata(String) //metadata
+		.setMetadata(String) //metadata
                 .build();
 
 
@@ -60,6 +60,15 @@ updateChatProfile:
 ## Version [0.5.4.0] -2020-2-4
 
 [Added] `stopTyping()` | Stops started typing signal
+
+Started signal stops:
+	
+	- when `stopTyping()` called
+	- after 1 min typing and onTypingSignalTimeout(long) event fired. long value is threadId of started signal
+	- when token expired
+	- when sendTextMessage() called
+	
+
 
 [Removed] `setSignalIntervalTime()` | Interval is fixed now
 
