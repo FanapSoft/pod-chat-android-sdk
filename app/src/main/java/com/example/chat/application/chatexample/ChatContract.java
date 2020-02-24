@@ -55,6 +55,7 @@ import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -399,5 +400,9 @@ public interface ChatContract {
         void addContact(RequestAddContact request);
 
         void updateChatProfile(RequestUpdateProfile request);
+
+        String downloadFile(RequestGetFile requestGetFile, File dest, ProgressHandler.IDownloadFile iDownloadFile);
+
+
     }
 }

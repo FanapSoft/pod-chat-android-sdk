@@ -66,6 +66,8 @@ public abstract class ProgressHandler {
         void onError(String uniqueId, String error,String url);
         default void onLowFreeSpace(String uniqueId,String url){}
         default void onFileReady(ChatResponse<ResultDownloadFile> response){}
+        default void onProgressUpdate(long bytesRead, long contentLength, boolean done){}
+
 
     }
 

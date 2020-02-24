@@ -10,12 +10,34 @@ import android.util.Log;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.networking.ProgressResponseBody;
+import com.fanap.podchat.networking.api.FileApi;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
 import com.fanap.podchat.util.FileUtils;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class PodDownloader {
 
+    public static final String DTAG = "DLTAG";
     private static String TAG = "CHAT_SDK";
 
 
@@ -169,5 +191,142 @@ public class PodDownloader {
 
         return response;
     }
+
+
+    public static Call download(String fileServer, String url, File dest, ProgressHandler.IDownloadFile progressHandler) {
+
+
+        Retrofit retrofit =
+                ProgressResponseBody.getDownloadRetrofit(fileServer, progressHandler);
+
+
+        FileApi api = retrofit.create(FileApi.class);
+
+        Call<ResponseBody> call = api.download(url);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+
+                new Thread(() -> {
+
+
+                    InputStream inputStream = null;
+                    OutputStream outputStream = null;
+
+
+                    try {
+                        File file = new File(dest, "cache-" + new Date().getTime());
+                        if (!file.exists()) {
+                            boolean s = file.createNewFile();
+                        }
+
+
+                        if (response.body() != null) {
+
+                            long totalSize = response.body().contentLength();
+
+                            byte[] byteReader = new byte[4096];
+
+                            inputStream = response.body().byteStream();
+
+                            outputStream = new BufferedOutputStream(new FileOutputStream(file));
+
+                            while (true) {
+
+
+                                int read = inputStream.read(byteReader);
+
+                                if (read == -1) {
+
+                                    Log.d(DTAG, "Reading break");
+
+                                    MediaType mediaType = response.body().contentType();
+
+                                    String type = null;
+                                    String subType = "";
+                                    if (mediaType != null) {
+                                        type = mediaType.type();
+                                        subType = mediaType.subtype();
+                                    }
+
+                                    Log.d(DTAG, "File type: " + type);
+                                    Log.d(DTAG, "File subType: " + subType);
+
+                                    //todo
+
+                                    File downloadedFile = new File(dest, file.getName() + "." + subType);
+
+                                    boolean savingSuccess = file.renameTo(downloadedFile);
+
+                                    if (savingSuccess) {
+
+                                        //todo
+                                        ChatResponse<ResultDownloadFile> chatResponse = generateDownloadResult("---", 0, downloadedFile);
+
+                                        progressHandler.onFileReady(chatResponse);
+
+//                            if (!cache) {
+//                                downloadedFile.delete();
+//                            }
+
+                                    } else {
+
+                                        //todo
+                                        progressHandler.onError("","","");
+                                    }
+
+                                    break;
+
+                                }
+
+                                outputStream.write(byteReader, 0, read);
+
+
+                                outputStream.flush();
+
+                            }
+
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.e(DTAG, e.getMessage());
+                    } finally {
+                        try {
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            if (outputStream != null) {
+                                outputStream.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.e(DTAG, e.getMessage());
+                        }
+
+
+                    }
+
+                }).start();
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d(DTAG, "ERROR " + t.getMessage());
+                call.cancel();
+                progressHandler.onError("", t.getMessage(), "");
+
+
+            }
+        });
+
+        return call;
+
+    }
+
 
 }

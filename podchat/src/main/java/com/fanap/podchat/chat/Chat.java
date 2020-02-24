@@ -292,6 +292,7 @@ public class Chat extends AsyncAdapter {
 //    private Map<Long, LinkedHashMap<String, Handler>> threadSignalsManager = new HashMap<>();
 
     HashMap<String, Long> downloadQList = new HashMap<>();
+    HashMap<String, Call> downloadCallList = new HashMap<>();
 
     private HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
     private HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
@@ -1786,7 +1787,7 @@ public class Chat extends AsyncAdapter {
 
                                     chatResponse.setResult(resultImageFile);
 
-                                    resultImageFile.setUrl(getImage(resultImageFile.getId(),resultImageFile.getHashCode(),true));
+                                    resultImageFile.setUrl(getImage(resultImageFile.getId(), resultImageFile.getHashCode(), true));
 
 
                                     String imageJson = gson.toJson(chatResponse);
@@ -1900,7 +1901,7 @@ public class Chat extends AsyncAdapter {
 
                                                     chatResponse.setResult(resultImageFile);
 
-                                                    resultImageFile.setUrl(getImage(resultImageFile.getId(),resultImageFile.getHashCode(),true));
+                                                    resultImageFile.setUrl(getImage(resultImageFile.getId(), resultImageFile.getHashCode(), true));
 
 
                                                     String imageJson = gson.toJson(chatResponse);
@@ -2018,7 +2019,7 @@ public class Chat extends AsyncAdapter {
                                                 if (log) Log.e(TAG, jsonError);
                                             } else {
                                                 ResultFile result = fileUploadResponse.body().getResult();
-                                                result.setUrl(getFile(result.getId(),result.getHashCode(),true));
+                                                result.setUrl(getFile(result.getId(), result.getHashCode(), true));
                                                 result.setSize(fileSize);
 
                                                 ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
@@ -2153,7 +2154,7 @@ public class Chat extends AsyncAdapter {
                                             ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
 
                                             ResultFile resultFile = result.getResult();
-                                            resultFile.setUrl(getFile(resultFile.getId(),resultFile.getHashCode(),true));
+                                            resultFile.setUrl(getFile(resultFile.getId(), resultFile.getHashCode(), true));
 
 
                                             chatResponse.setResult(resultFile);
@@ -2294,7 +2295,7 @@ public class Chat extends AsyncAdapter {
                                             ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
 
                                             ResultFile resultFile = fileUploadResponse.body().getResult();
-                                            resultFile.setUrl(getFile(resultFile.getId(),resultFile.getHashCode(),true));
+                                            resultFile.setUrl(getFile(resultFile.getId(), resultFile.getHashCode(), true));
 
 
                                             showLog("FINISH_UPLOAD_FILE", gson.toJson(resultFile));
@@ -2489,7 +2490,7 @@ public class Chat extends AsyncAdapter {
                                                     resultImageFile.setActualHeight(fileImageUpload.getResult().getActualHeight());
                                                     resultImageFile.setActualWidth(fileImageUpload.getResult().getActualWidth());
 
-                                                    resultImageFile.setUrl(getImage(resultImageFile.getId(),resultImageFile.getHashCode(),true));
+                                                    resultImageFile.setUrl(getImage(resultImageFile.getId(), resultImageFile.getHashCode(), true));
 
                                                     chatResponse.setResult(resultImageFile);
 
@@ -2723,6 +2724,27 @@ public class Chat extends AsyncAdapter {
 
     private boolean isExternalStorageWritable() {
         return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+    }
+
+
+    public String download(RequestGetFile request, File dest, ProgressHandler.IDownloadFile progressHandler) {
+
+        String uniqueId = generateUniqueId();
+
+
+        if (!isExternalStorageWritable() || !hasReadAndWriteStoragePermission()) {
+
+            return uniqueId;
+        }
+
+        String url = getFile(request.getFileId(), request.getHashCode(), true);
+
+        Call call = PodDownloader.download(getFileServer(), url, dest, progressHandler);
+
+        downloadCallList.put(uniqueId, call);
+
+        return uniqueId;
+
     }
 
 
@@ -3006,16 +3028,37 @@ public class Chat extends AsyncAdapter {
 
     public boolean cancelDownload(String uniqueId) {
 
+        boolean success;
+
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
-        if (!downloadQList.containsKey(uniqueId)) return false;
+        if (downloadQList.containsKey(uniqueId)) {
 
-        int result = downloadManager.remove(downloadQList.get(uniqueId));
-        downloadQList.remove(uniqueId);
+            int result = downloadManager.remove(downloadQList.get(uniqueId));
 
-        return result > 0;
+            downloadQList.remove(uniqueId);
 
+            success = result > 0;
 
+            return success;
+
+        }
+
+        if (downloadCallList.containsKey(uniqueId)) {
+
+            Call call = downloadCallList.get(uniqueId);
+
+            if (call != null) {
+                call.cancel();
+                downloadCallList.remove(uniqueId);
+                return true;
+            }
+
+            return false;
+
+        }
+
+        return false;
     }
 
 
@@ -7629,6 +7672,9 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleLastSeenUpdated(ChatMessage chatMessage) {
+
+        //message vo update
+
         showLog("LAST_SEEN_UPDATED", "");
         showLog(chatMessage.getContent(), "");
         listenerManager.callOnContactsLastSeenUpdated(chatMessage.getContent());
@@ -7643,17 +7689,13 @@ public class Chat extends AsyncAdapter {
         chatResponse.setResult(resultThread);
         chatResponse.setUniqueId(chatMessage.getUniqueId());
 
+
         listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
         showLog("THREAD_INFO_UPDATED", chatMessage.getContent());
 
-        //todo
-
         if (cache) {
-
             messageDatabaseHelper.saveNewThread(resultThread.getThread());
-
         }
-
 
     }
 
@@ -9271,12 +9313,13 @@ public class Chat extends AsyncAdapter {
         String jsonBlock = gson.toJson(chatResponse);
 
 
-
         listenerManager.callOnBlock(jsonBlock, chatResponse);
         showLog("RECEIVE_BLOCK", jsonBlock);
         messageCallbacks.remove(messageUniqueId);
 
-        if (cache) { messageDatabaseHelper.saveBlockedContact(contact, getExpireAmount()); }
+        if (cache) {
+            messageDatabaseHelper.saveBlockedContact(contact, getExpireAmount());
+        }
 
 
     }
