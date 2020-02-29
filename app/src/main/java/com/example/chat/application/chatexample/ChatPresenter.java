@@ -855,7 +855,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public String downloadFile(RequestGetFile requestGetFile, File dest, ProgressHandler.IDownloadFile iDownloadFile) {
-        return chat.download(requestGetFile, dest, iDownloadFile);
+        return chat.getFile(requestGetFile, iDownloadFile);
     }
 
 

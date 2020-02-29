@@ -127,15 +127,15 @@ public class ChatActivity extends AppCompatActivity
 
     private Button btnUploadImage;
 
+//
+//    private static String TOKEN = "ee895fa64c434deeb71a1874f949b65d";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
-    private static String TOKEN = "a0494a07838d45f4b2234c9611a51abd";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
 
-
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = "chatlocal";
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = "chatlocal";
 
 
     private static String appId = "POD-Chat";
@@ -146,10 +146,10 @@ public class ChatActivity extends AppCompatActivity
      */
 
 
-//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
 
     /**
@@ -165,10 +165,10 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
@@ -184,7 +184,7 @@ public class ChatActivity extends AppCompatActivity
     //integration /group
 
     public static int TEST_THREAD_ID = 7090;
-
+//
 
     private String fileUri;
 
@@ -620,7 +620,7 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-        File dest = Environment.getDataDirectory();
+        File dest = getCacheDir();
 
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -638,19 +638,15 @@ public class ChatActivity extends AppCompatActivity
 
 
             @Override
-            public void onProgressUpdate(long bytesRead, long contentLength, boolean done) {
-                Log.e("DOWNLOAD", "IN ACTIVITY: " + "Downloaded: " + bytesRead + " Left: " + contentLength);
-
-            }
-
-            @Override
-            public void onProgressUpdate(String uniqueId, int bytesDownloaded, int totalBytesToDownload) {
+            public void onProgressUpdate(String uniqueId, long bytesDownloaded, long totalBytesToDownload) {
                 Log.e("DOWNLOAD", "IN ACTIVITY: " + "Downloaded: " + bytesDownloaded + " Left: " + totalBytesToDownload);
 
             }
 
             @Override
             public void onProgressUpdate(String uniqueId, int progress) {
+                Log.e("DOWNLOAD", "IN ACTIVITY: " + "Progress: " + progress);
+
 
             }
 
@@ -682,6 +678,7 @@ public class ChatActivity extends AppCompatActivity
                         runOnUiThread(() -> imageMap.setImageBitmap(v));
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Log.e("DOWNLOAD", "Not Image");
                     }
 
                 }

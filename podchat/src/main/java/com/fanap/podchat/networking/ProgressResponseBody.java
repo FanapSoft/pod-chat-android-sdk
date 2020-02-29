@@ -66,11 +66,13 @@ public class ProgressResponseBody extends ResponseBody {
 
                 long bytesRead = super.read(sink, byteCount);
 
-
-
                 totalBytesRead += bytesRead != -1 ? bytesRead : 100L;
 
-                progressListener.onProgressUpdate(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
+                progressListener.onProgressUpdate("",totalBytesRead, responseBody.contentLength());
+
+                final int dl_progress = (int) ((totalBytesRead * 100L) / responseBody.contentLength());
+
+                progressListener.onProgressUpdate("",dl_progress);
 
                 return bytesRead;
             }

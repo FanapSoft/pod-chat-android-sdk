@@ -19,6 +19,7 @@ import java.util.Date;
 public class NetworkPingSender {
 
     public static final String TAG = "CHAT_SDK_NET";
+
     private int connectTimeout = 10000;
 
     private String hostName = "msg.pod.ir";

@@ -12,23 +12,17 @@ import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFil
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.networking.ProgressResponseBody;
 import com.fanap.podchat.networking.api.FileApi;
-import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
 import com.fanap.podchat.util.FileUtils;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,7 +31,6 @@ import retrofit2.Retrofit;
 
 public class PodDownloader {
 
-    public static final String DTAG = "DLTAG";
     private static String TAG = "CHAT_SDK";
 
 
@@ -55,7 +48,7 @@ public class PodDownloader {
     public static long download(
             ProgressHandler.IDownloadFile progressHandler,
             String uniqueId,
-            File destFolder,
+            File destinationFolder,
             String url,
             String fileName,
             String hashCode,
@@ -64,7 +57,8 @@ public class PodDownloader {
             IDownloaderError iDownloader,
             long bytesAvailable) {
 
-        File downloadTempFile = new File(destFolder, fileName);
+        File downloadTempFile = new File(destinationFolder, fileName);
+
 
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
@@ -123,7 +117,7 @@ public class PodDownloader {
 
                         String extension = FileUtils.getExtensionFromMimType(mime);
 
-                        File downloadedFile = new File(destFolder, fileName + "." + extension);
+                        File downloadedFile = new File(destinationFolder, fileName + "." + extension);
 
                         boolean savingSuccess = downloadTempFile.renameTo(downloadedFile);
 
@@ -193,7 +187,16 @@ public class PodDownloader {
     }
 
 
-    public static Call download(String fileServer, String url, File dest, ProgressHandler.IDownloadFile progressHandler) {
+    public static Call download(ProgressHandler.IDownloadFile progressHandler,
+                                String fileServer,
+                                String url,
+                                String fileName,
+                                File destinationFolder,
+                                IDownloaderError downloaderErrorInterface,
+                                String hashCode,
+                                long fileId) {
+
+        //todo get free space available
 
 
         Retrofit retrofit =
@@ -217,33 +220,37 @@ public class PodDownloader {
 
 
                     try {
-                        File file = new File(dest, "cache-" + new Date().getTime());
-                        if (!file.exists()) {
-                            boolean s = file.createNewFile();
+                        File downloadTempFile = new File(destinationFolder, fileName);
+                        if (!downloadTempFile.exists()) {
+                            boolean fileCreationResult = downloadTempFile.createNewFile();
+
+                            if (!fileCreationResult) {
+
+                                downloaderErrorInterface.errorOnWritingToFile();
+
+                                return;
+                            }
                         }
 
 
                         if (response.body() != null) {
 
-                            long totalSize = response.body().contentLength();
-
                             byte[] byteReader = new byte[4096];
 
                             inputStream = response.body().byteStream();
 
-                            outputStream = new BufferedOutputStream(new FileOutputStream(file));
+                            outputStream = new BufferedOutputStream(new FileOutputStream(downloadTempFile));
 
                             while (true) {
-
 
                                 int read = inputStream.read(byteReader);
 
                                 if (read == -1) {
 
-                                    Log.d(DTAG, "Reading break");
+                                    //download finished
+                                    Log.d(TAG, "File has been downloaded");
 
                                     MediaType mediaType = response.body().contentType();
-
                                     String type = null;
                                     String subType = "";
                                     if (mediaType != null) {
@@ -251,30 +258,25 @@ public class PodDownloader {
                                         subType = mediaType.subtype();
                                     }
 
-                                    Log.d(DTAG, "File type: " + type);
-                                    Log.d(DTAG, "File subType: " + subType);
+                                    Log.d(TAG, "File type: " + type);
+                                    Log.d(TAG, "File subType: " + subType);
 
-                                    //todo
 
-                                    File downloadedFile = new File(dest, file.getName() + "." + subType);
+                                    File downloadedFile = new File(destinationFolder, fileName + "." + subType);
 
-                                    boolean savingSuccess = file.renameTo(downloadedFile);
+                                    boolean savingSuccess = downloadTempFile.renameTo(downloadedFile);
 
                                     if (savingSuccess) {
 
-                                        //todo
-                                        ChatResponse<ResultDownloadFile> chatResponse = generateDownloadResult("---", 0, downloadedFile);
+                                        ChatResponse<ResultDownloadFile> chatResponse = generateDownloadResult(hashCode, fileId, downloadedFile);
 
                                         progressHandler.onFileReady(chatResponse);
 
-//                            if (!cache) {
-//                                downloadedFile.delete();
-//                            }
+//
 
                                     } else {
 
-                                        //todo
-                                        progressHandler.onError("","","");
+                                        downloaderErrorInterface.errorOnWritingToFile();
                                     }
 
                                     break;
@@ -282,7 +284,6 @@ public class PodDownloader {
                                 }
 
                                 outputStream.write(byteReader, 0, read);
-
 
                                 outputStream.flush();
 
@@ -292,7 +293,8 @@ public class PodDownloader {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Log.e(DTAG, e.getMessage());
+                        Log.e(TAG, e.getMessage());
+                        downloaderErrorInterface.errorUnknownException(e.getMessage());
                     } finally {
                         try {
                             if (inputStream != null) {
@@ -303,7 +305,8 @@ public class PodDownloader {
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
-                            Log.e(DTAG, e.getMessage());
+                            Log.e(TAG, e.getMessage());
+                            downloaderErrorInterface.errorUnknownException(e.getMessage());
                         }
 
 
@@ -316,11 +319,9 @@ public class PodDownloader {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d(DTAG, "ERROR " + t.getMessage());
+                Log.d(TAG, "ERROR " + t.getMessage());
                 call.cancel();
-                progressHandler.onError("", t.getMessage(), "");
-
-
+                downloaderErrorInterface.errorUnknownException(t.getMessage());
             }
         });
 

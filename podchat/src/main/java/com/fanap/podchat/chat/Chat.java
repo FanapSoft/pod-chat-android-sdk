@@ -205,7 +205,6 @@ import com.fanap.podchat.util.NetworkStateReceiver;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.RequestMapSearch;
-import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -402,6 +401,11 @@ public class Chat extends AsyncAdapter {
 
         }
         return instance;
+    }
+
+
+    public void setDownloadDirectory(File directory) {
+        FileUtils.setDownloadDirectory(directory);
     }
 
 
@@ -2727,24 +2731,140 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String download(RequestGetFile request, File dest, ProgressHandler.IDownloadFile progressHandler) {
+    public String getFile(RequestGetFile request, ProgressHandler.IDownloadFile progressHandler) {
 
         String uniqueId = generateUniqueId();
 
+        String url = getFile(request.getFileId(), request.getHashCode(), true);
 
         if (!isExternalStorageWritable() || !hasReadAndWriteStoragePermission()) {
+
+            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
+
+            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
 
             return uniqueId;
         }
 
-        String url = getFile(request.getFileId(), request.getHashCode(), true);
+        //only url should return in callback
+        if (!hasFreeSpace) {
 
-        Call call = PodDownloader.download(getFileServer(), url, dest, progressHandler);
+            progressHandler.onLowFreeSpace(uniqueId, url);
 
-        downloadCallList.put(uniqueId, call);
+            return uniqueId;
+        }
+
+        PodDownloader.IDownloaderError downloaderErrorInterface =
+                new PodDownloader.IDownloaderError() {
+                    @Override
+                    public void errorOnWritingToFile() {
+
+                        String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
+                        progressHandler.onError(uniqueId, error, url);
+
+                    }
+
+                    @Override
+                    public void errorOnDownloadingFile(int errorCode) {
+
+                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+                        progressHandler.onError(uniqueId, error, url);
+
+                    }
+
+                    @Override
+                    public void errorUnknownException(String cause) {
+
+                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+                        progressHandler.onError(uniqueId, error, url);
+
+
+                    }
+                };
+
+
+        File destinationFolder;
+
+        if (cache) {
+
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getDownloadDirectory() : FileUtils.getOrCreateDirectory(FileUtils.FILES);
+
+        } else {
+
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getDownloadDirectory() : FileUtils.getPublicFilesDirectory();
+
+        }
+
+
+
+
+        String fileName = "file_" + request.getFileId() + "_" + request.getHashCode();
+
+
+        if (destinationFolder == null) {
+
+            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
+
+            return uniqueId;
+        }
+
+
+        File cachedFile = FileUtils.findFileInFolder(destinationFolder, fileName);
+
+        if (cachedFile != null && cachedFile.isFile()) {
+
+            //file exists
+            ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getFileId(), cachedFile);
+
+            progressHandler.onFileReady(response);
+
+            return uniqueId;
+
+        }
+
+
+        if (chatReady) {
+
+            Call call = PodDownloader.download(
+                    new ProgressHandler.IDownloadFile() {
+                        @Override
+                        public void onError(String mUniqueId, String error, String mUrl) {
+                            progressHandler.onError(uniqueId,error,url);
+                        }
+
+                        @Override
+                        public void onProgressUpdate(String mUniqueId, long bytesDownloaded, long totalBytesToDownload) {
+
+                            progressHandler.onProgressUpdate(uniqueId,bytesDownloaded,totalBytesToDownload);
+
+
+                            if(totalBytesToDownload > checkFreeSpace()){
+
+                                progressHandler.onLowFreeSpace(uniqueId,url);
+
+                            }
+                        }
+
+                        @Override
+                        public void onProgressUpdate(String mUniqueId, int progress) {
+
+                            progressHandler.onProgressUpdate(uniqueId,progress);
+
+                        }
+                    },
+                    getFileServer(),
+                    url,
+                    fileName,
+                    destinationFolder,
+                    downloaderErrorInterface,
+                    request.getHashCode(),
+                    request.getFileId());
+
+            downloadCallList.put(uniqueId, call);
+
+        } else onChatNotReady(uniqueId);
 
         return uniqueId;
-
     }
 
 
@@ -2815,7 +2935,7 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        String fileName = "image_cache_" + request.getImageId() + "_" + request.getHashCode();
+        String fileName = "image_" + request.getImageId() + "_" + request.getHashCode();
 
 
         if (cache) {
@@ -2869,106 +2989,106 @@ public class Chat extends AsyncAdapter {
      */
 
 
-    public String getFile(RequestGetFile request, ProgressHandler.IDownloadFile progressHandler) {
-
-        String uniqueId = generateUniqueId();
-
-        String url = getFile(request.getFileId(), request.getHashCode(), request.isDownloadable());
-
-        isExternalStorageWritable();
-
-        if (!hasReadAndWriteStoragePermission()) {
-
-            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION,
-                    ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
-
-            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
-
-            return uniqueId;
-
-        }
-
-        //only url should return in callback
-
-        if (!hasFreeSpace) {
-
-            progressHandler.onLowFreeSpace(uniqueId, url);
-
-            return uniqueId;
-        }
-
-        PodDownloader.IDownloaderError downloaderErrorInterface =
-                new PodDownloader.IDownloaderError() {
-                    @Override
-                    public void errorOnWritingToFile() {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-                    }
-
-                    @Override
-                    public void errorOnDownloadingFile(int errorCode) {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-                    }
-
-                    @Override
-                    public void errorUnknownException(String cause) {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-
-                    }
-                };
-
-        File filesFolder = cache ? FileUtils.getOrCreateDirectory(FileUtils.FILES) : FileUtils.getPublicFilesDirectory();
-
-        if (filesFolder == null) {
-
-            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
-
-            return uniqueId;
-        }
-
-        String fileName = "file_cache_" + request.getFileId() + "_" + request.getHashCode();
-
-        if (cache) {
-
-            File cachedFile = FileUtils.findFileInFolder(filesFolder, fileName);
-
-            if (cachedFile != null && cachedFile.isFile()) {
-
-                //file exists in cache
-                ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getFileId(), cachedFile);
-
-                progressHandler.onFileReady(response);
-
-                return uniqueId;
-
-            }
-        }
-
-        if (chatReady) {
-
-            PodDownloader.download(
-                    progressHandler,
-                    uniqueId, filesFolder,
-                    url,
-                    fileName,
-                    request.getHashCode(),
-                    request.getFileId(),
-                    getContext(),
-                    downloaderErrorInterface,
-                    checkFreeSpace());
-
-        } else onChatNotReady(uniqueId);
-
-        return uniqueId;
-    }
+//    public String getFile(RequestGetFile request, ProgressHandler.IDownloadFile progressHandler) {
+//
+//        String uniqueId = generateUniqueId();
+//
+//        String url = getFile(request.getFileId(), request.getHashCode(), request.isDownloadable());
+//
+//        isExternalStorageWritable();
+//
+//        if (!hasReadAndWriteStoragePermission()) {
+//
+//            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION,
+//                    ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
+//
+//            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
+//
+//            return uniqueId;
+//
+//        }
+//
+//        //only url should return in callback
+//
+//        if (!hasFreeSpace) {
+//
+//            progressHandler.onLowFreeSpace(uniqueId, url);
+//
+//            return uniqueId;
+//        }
+//
+//        PodDownloader.IDownloaderError downloaderErrorInterface =
+//                new PodDownloader.IDownloaderError() {
+//                    @Override
+//                    public void errorOnWritingToFile() {
+//
+//                        String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
+//                        progressHandler.onError(uniqueId, error, url);
+//
+//                    }
+//
+//                    @Override
+//                    public void errorOnDownloadingFile(int errorCode) {
+//
+//                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+//                        progressHandler.onError(uniqueId, error, url);
+//
+//                    }
+//
+//                    @Override
+//                    public void errorUnknownException(String cause) {
+//
+//                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+//                        progressHandler.onError(uniqueId, error, url);
+//
+//
+//                    }
+//                };
+//
+//        File filesFolder = cache ? FileUtils.getOrCreateDirectory(FileUtils.FILES) : FileUtils.getPublicFilesDirectory();
+//
+//        if (filesFolder == null) {
+//
+//            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
+//
+//            return uniqueId;
+//        }
+//
+//        String fileName = "file_" + request.getFileId() + "_" + request.getHashCode();
+//
+//        if (cache) {
+//
+//            File cachedFile = FileUtils.findFileInFolder(filesFolder, fileName);
+//
+//            if (cachedFile != null && cachedFile.isFile()) {
+//
+//                //file exists in cache
+//                ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getFileId(), cachedFile);
+//
+//                progressHandler.onFileReady(response);
+//
+//                return uniqueId;
+//
+//            }
+//        }
+//
+//        if (chatReady) {
+//
+//            PodDownloader.download(
+//                    progressHandler,
+//                    uniqueId, filesFolder,
+//                    url,
+//                    fileName,
+//                    request.getHashCode(),
+//                    request.getFileId(),
+//                    getContext(),
+//                    downloaderErrorInterface,
+//                    checkFreeSpace());
+//
+//        } else onChatNotReady(uniqueId);
+//
+//        return uniqueId;
+//    }
 
 
     /**

@@ -61,12 +61,11 @@ public abstract class ProgressHandler {
     public interface IDownloadFile {
 
 
-        default void onProgressUpdate(String uniqueId, int bytesDownloaded, int totalBytesToDownload){}
+        default void onProgressUpdate(String uniqueId, long bytesDownloaded, long totalBytesToDownload){}
         default void onProgressUpdate(String uniqueId, int progress){}
         void onError(String uniqueId, String error,String url);
         default void onLowFreeSpace(String uniqueId,String url){}
         default void onFileReady(ChatResponse<ResultDownloadFile> response){}
-        default void onProgressUpdate(long bytesRead, long contentLength, boolean done){}
 
 
     }

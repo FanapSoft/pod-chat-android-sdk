@@ -82,12 +82,31 @@ public class FileUtils {
 
     private static final String HIDDEN_PREFIX = ".";
 
+    private static File downloadDirectory;
+
+
+    public static void setDownloadDirectory(File cacheDire){
+        downloadDirectory = cacheDire;
+    }
+
+    public static File getDownloadDirectory() {
+
+//        if(!downloadDirectory.exists()){
+//
+//            boolean result = downloadDirectory.mkdir();
+//
+//        }
+
+
+        return downloadDirectory;
+    }
     /**
      * Gets the extension of a file name, like ".png" or ".jpg".
      *
      * @return Extension including the dot("."); "" if there is no extension;
      * null if uri was null.
      */
+
 
     public static boolean isImage(String mimType) {
 
@@ -260,6 +279,25 @@ public class FileUtils {
     public static File getMediaFolder() {
 
         return new File(Environment.getExternalStorageDirectory(), "Podchat");
+
+
+    }
+
+
+
+    public static File getOrCreateCustomDirectory(File directory,String path){
+
+        File destFolder = new File(directory,path);
+
+        boolean createDir = true;
+
+        if(!destFolder.exists())
+            createDir = destFolder.mkdir();
+
+
+
+        if(createDir) return destFolder;
+        else return null;
 
 
     }
