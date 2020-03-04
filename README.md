@@ -8,7 +8,7 @@
 
 
 
-addParticipants with
+- addParticipants with
 
 
 username:
@@ -41,7 +41,7 @@ contactId:
 
 
 
-`getBlockList()` response changed from `Contact` to `BlockedContact`
+- `getBlockList()` response changed from `Contact` to `BlockedContact`
 
 BlockedContact:
     -id
@@ -71,20 +71,20 @@ ResultBlock -> Contact -> BlockedContact
 
 
 
-in following functions RequestObjects, messageType is required now:
+- in following functions RequestObjects, messageType is required now:
 
 
-`sendFileMessage`
-`createThreadWithFile`
-`createThreadWithMessage`
-
-
-
+	`sendFileMessage`
+	`createThreadWithFile`
+	`createThreadWithMessage`
 
 
 
 
-`getFile` and `getImage` download file directory:
+
+
+
+- `getFile` and `getImage` download file directory:
 
 `setCacheDirectory(File directory)`
 
@@ -99,7 +99,7 @@ in following functions RequestObjects, messageType is required now:
 
 
 
-Each time sdk tries to connect, it increases
+- Each time sdk tries to connect, it increases
 the reconnection interval until it reaches this value.
 Then the amount of time interval remains constant.
 
