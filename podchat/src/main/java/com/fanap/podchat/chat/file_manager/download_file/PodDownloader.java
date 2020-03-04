@@ -196,9 +196,6 @@ public class PodDownloader {
                                 String hashCode,
                                 long fileId) {
 
-        //todo get free space available
-
-
         Retrofit retrofit =
                 ProgressResponseBody.getDownloadRetrofit(fileServer, progressHandler);
 
@@ -206,6 +203,8 @@ public class PodDownloader {
         FileApi api = retrofit.create(FileApi.class);
 
         Call<ResponseBody> call = api.download(url);
+
+        final String[] downloadTempPath = new String[1];
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -217,23 +216,29 @@ public class PodDownloader {
 
                     InputStream inputStream = null;
                     OutputStream outputStream = null;
+                    File downloadTempFile = null;
 
 
                     try {
-                        File downloadTempFile = new File(destinationFolder, fileName);
+
+                        if (!destinationFolder.exists()) {
+                            boolean createFolder = destinationFolder.mkdirs();
+                        }
+                        downloadTempFile = new File(destinationFolder, fileName);
                         if (!downloadTempFile.exists()) {
                             boolean fileCreationResult = downloadTempFile.createNewFile();
 
                             if (!fileCreationResult) {
-
                                 downloaderErrorInterface.errorOnWritingToFile();
-
                                 return;
                             }
                         }
 
+                        //keep path for cancel handling
 
-                        if (response.body() != null) {
+                        downloadTempPath[0] = downloadTempFile.getPath();
+
+                        if (response.body() != null && response.isSuccessful()) {
 
                             byte[] byteReader = new byte[4096];
 
@@ -248,7 +253,7 @@ public class PodDownloader {
                                 if (read == -1) {
 
                                     //download finished
-                                    Log.d(TAG, "File has been downloaded");
+                                    Log.i(TAG, "File has been downloaded");
 
                                     MediaType mediaType = response.body().contentType();
                                     String type = null;
@@ -257,9 +262,6 @@ public class PodDownloader {
                                         type = mediaType.type();
                                         subType = mediaType.subtype();
                                     }
-
-                                    Log.d(TAG, "File type: " + type);
-                                    Log.d(TAG, "File subType: " + subType);
 
 
                                     File downloadedFile = new File(destinationFolder, fileName + "." + subType);
@@ -290,9 +292,21 @@ public class PodDownloader {
                             }
 
 
+                        } else {
+
+                            if (response.errorBody() != null) {
+                                downloaderErrorInterface.errorUnknownException(response.errorBody().string());
+                            } else {
+                                downloaderErrorInterface.errorUnknownException(response.message());
+                            }
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        if (call.isCanceled()) {
+
+                            handleCancelDownload(downloadTempFile);
+
+                            return;
+                        }
                         Log.e(TAG, e.getMessage());
                         downloaderErrorInterface.errorUnknownException(e.getMessage());
                     } finally {
@@ -319,6 +333,12 @@ public class PodDownloader {
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                if (call.isCanceled()) {
+                    handleCancelDownload(new File(downloadTempPath[0]));
+                    return;
+                }
+
                 Log.d(TAG, "ERROR " + t.getMessage());
                 call.cancel();
                 downloaderErrorInterface.errorUnknownException(t.getMessage());
@@ -326,6 +346,22 @@ public class PodDownloader {
         });
 
         return call;
+
+    }
+
+    private static void handleCancelDownload(File downloadTempFile) {
+
+        Log.i(TAG, "Download Cancelled by User");
+
+        try {
+            if (downloadTempFile != null && downloadTempFile.exists()) {
+                boolean deleteFile = downloadTempFile.delete();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+
+        }
+
 
     }
 

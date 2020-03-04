@@ -28,6 +28,8 @@ public class RequestThreadInnerMessage {
 
     public static class Builder {
         private String text;
+
+        @Deprecated
         @SerializedName("messageType")
         private int type;
         private String metadata;
@@ -48,6 +50,7 @@ public class RequestThreadInnerMessage {
             return this;
         }
 
+        @Deprecated
         @NonNull
         public Builder type(int type) {
             this.type = type;
@@ -87,10 +90,12 @@ public class RequestThreadInnerMessage {
         this.text = text;
     }
 
+    @Deprecated
     public int getType() {
         return type;
     }
 
+    @Deprecated
     public void setType(int type) {
         this.type = type;
     }

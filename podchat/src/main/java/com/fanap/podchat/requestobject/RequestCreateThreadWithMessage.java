@@ -17,6 +17,8 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
     private String description;
     private String image;
 
+    private int messageType;
+
     RequestCreateThreadWithMessage(Builder<?> builder) {
         super(builder);
         this.type = builder.type;
@@ -25,6 +27,7 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
         this.invitees = builder.invitees;
         this.description = builder.description;
         this.image = builder.image;
+        this.messageType = builder.messageType;
 
     }
 
@@ -33,6 +36,14 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
     }
 
     public RequestCreateThreadWithMessage() {
+    }
+
+    public int getMessageType() {
+        return messageType;
+    }
+
+    public void setMessageType(int messageType) {
+        this.messageType = messageType;
     }
 
     public RequestThreadInnerMessage getMessage() {
@@ -98,12 +109,13 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
         private RequestThreadInnerMessage message;
         private String description;
         private String image;
+        private int messageType;
 
-        public Builder(int type, List<Invitee> invitees) {
+        public Builder(int type, List<Invitee> invitees, int messageType) {
             this.invitees = invitees;
             this.type = type;
+            this.messageType = messageType;
         }
-
 
 
         public Builder message(RequestThreadInnerMessage message) {

@@ -401,8 +401,5 @@ public interface ChatContract {
 
         void updateChatProfile(RequestUpdateProfile request);
 
-        String downloadFile(RequestGetFile requestGetFile, File dest, ProgressHandler.IDownloadFile iDownloadFile);
-
-
     }
 }

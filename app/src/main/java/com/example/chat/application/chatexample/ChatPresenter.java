@@ -89,7 +89,6 @@ import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.NetworkPingSender;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,8 +118,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isLoggable(true);
         chat.rawLog(true);
 
+        chat.setDownloadDirectory(context.getCacheDir());
 
-//        chat.setNetworkStateListenerEnabling(false);
+
+//        chat.setNetworkListenerEnabling(false);
 //        chat.setReconnectOnClose(false);
 //        chat.setExpireAmount(180);
         this.activity = activity;
@@ -853,10 +854,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.updateChatProfile(request);
     }
 
-    @Override
-    public String downloadFile(RequestGetFile requestGetFile, File dest, ProgressHandler.IDownloadFile iDownloadFile) {
-        return chat.getFile(requestGetFile, iDownloadFile);
-    }
 
 
     @Override

@@ -194,6 +194,7 @@ import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.AsyncAckType;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
+import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
@@ -205,6 +206,7 @@ import com.fanap.podchat.util.NetworkStateReceiver;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.RequestMapSearch;
+import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -281,8 +283,9 @@ public class Chat extends AsyncAdapter {
     private int getUserInfoRetryCount = 5;
     private int getUserInfoNumberOfTry = 0;
 
-    private int connectRetryCount = 64;
-    private int connectNumberOfRetry = 1;
+    private long connectRetryCount = 64000;
+
+    private long connectNumberOfRetry = 1000;
 
 
     private NetworkPingSender.NetworkStateConfig networkStateConfig;
@@ -352,6 +355,12 @@ public class Chat extends AsyncAdapter {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
 
+
+    public void setMaxReconnectTime(long maxMilliseconds) {
+
+        connectRetryCount = maxMilliseconds;
+    }
+
     private Chat() {
 
     }
@@ -409,7 +418,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public void setNetworkStateListenerEnabling(boolean networkStateListenerEnable) {
+    public void setNetworkListenerEnabling(boolean networkStateListenerEnable) {
         this.isNetworkStateListenerEnable = networkStateListenerEnable;
     }
 
@@ -427,7 +436,7 @@ public class Chat extends AsyncAdapter {
         this.getUserInfoRetryCount = getUserInfoRetryCount;
     }
 
-    public void enableNetworkStateListener() {
+    private void enableNetworkStateListener() {
 
         if (networkStateReceiver == null) {
 
@@ -451,15 +460,6 @@ public class Chat extends AsyncAdapter {
                 }
             });
 
-//            NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-//                    .setHostName(networkPingHostName)
-//                    .setPort(networkPingPort)
-//                    .setDisConnectionThreshold(2)
-//                    .setInterval(7000)
-//                    .setConnectTimeout(10000)
-//                    .build();
-
-
             networkStateReceiver.setHostName(networkStateConfig.getHostName());
 
             networkStateReceiver.setPort(networkStateConfig.getPort());
@@ -469,7 +469,6 @@ public class Chat extends AsyncAdapter {
             pinger.setConfig(networkStateConfig);
 
             pinger.setStateListener(this);
-
 
             //it listen to turning on and off wifi or mobile data and accessing to internet
 
@@ -488,7 +487,6 @@ public class Chat extends AsyncAdapter {
 
                     Log.e(TAG, "Network State Changed, Unavailable");
                     closeSocketServer();
-//                    pinger.stopPing();
 
                 }
             });
@@ -497,13 +495,13 @@ public class Chat extends AsyncAdapter {
             try {
                 context.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
             } catch (Exception e) {
-                e.printStackTrace();
+                if (log)
+                    Log.e(TAG, "Network listener could not registered");
                 try {
                     context.unregisterReceiver(networkStateReceiver);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
                     if (log)
-                        Log.e(TAG, ex.getMessage());
+                        Log.e(TAG, "Error on unregistering network listener");
                 }
             }
 
@@ -560,50 +558,54 @@ public class Chat extends AsyncAdapter {
 
         } else {
 
-            reconnect();
+            scheduleForReconnect();
 
         }
 
     }
 
-    private void reconnect() {
+    private void scheduleForReconnect() {
 
 
-        connectNumberOfRetry = 1;
-
+        resetReconnectRetryTime();
 
         Handler connectHandler = new Handler(Looper.getMainLooper());
-
 
         connectHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
 
+                if (log) Log.i(TAG, "The Connection Watcher is trying to reconnect...");
+
 
                 if (connectNumberOfRetry < connectRetryCount) {
 
-                    connectNumberOfRetry = connectNumberOfRetry * 4;
+                    connectNumberOfRetry = connectNumberOfRetry * 2;
 
-                    boolean shouldReconnect = TextUtils.equals(chatState, CLOSED) || TextUtils.equals(chatState, CLOSING);
-
-                    if (shouldReconnect) {
-
-                        connect(socketAddress, appId, serverName, token, ssoHost, platformHost, fileServer, typeCode);
-
-                        connectHandler.postDelayed(this, connectNumberOfRetry * 1000);
-
-
-                    }
                 } else {
 
-                    //todo
+                    connectNumberOfRetry = connectRetryCount;
+
+                }
+
+                if (log) Log.i(TAG, "Next retry is after " + connectNumberOfRetry);
 
 
+                boolean shouldReconnect = TextUtils.equals(chatState, CLOSED) || TextUtils.equals(chatState, CLOSING);
+
+                if (shouldReconnect) {
+
+                    connect(socketAddress, appId, serverName, token, ssoHost, platformHost, fileServer, typeCode);
+
+                    connectHandler.postDelayed(this, connectNumberOfRetry);
+
+                } else if (!chatReady) {
+                    connectHandler.postDelayed(this, connectNumberOfRetry);
                 }
 
 
             }
-        }, connectNumberOfRetry * 1000);
+        }, connectNumberOfRetry);
 
 
     }
@@ -658,7 +660,7 @@ public class Chat extends AsyncAdapter {
         switch (currentChatState) {
             case OPEN:
                 retrySetToken = 1;
-                connectNumberOfRetry = 1;
+                resetReconnectRetryTime();
                 break;
             case ASYNC_READY:
                 asyncReady = true;
@@ -677,6 +679,10 @@ public class Chat extends AsyncAdapter {
                 if (pinger != null) pinger.asyncIsClosedOrClosing();
                 break;
         }
+    }
+
+    private void resetReconnectRetryTime() {
+        connectNumberOfRetry = 1000;
     }
 
     /**
@@ -1089,6 +1095,8 @@ public class Chat extends AsyncAdapter {
                 connectToAsync(socketAddress, appId, serverName, token, ssoHost);
 
                 if (isNetworkStateListenerEnable) enableNetworkStateListener();
+
+                scheduleForReconnect();
 
 
             } else {
@@ -1540,7 +1548,7 @@ public class Chat extends AsyncAdapter {
      *
      * @param requestMessage this object has :
      *                       String textMessage {text of the message}
-     *                       int messageType {messageType of the message}
+     *                       int messageType {type of the message}
      *                       String jsonMetaData {metadata of the message}
      *                       long threadId {The id of a thread that its wanted to send  }
      */
@@ -1642,6 +1650,7 @@ public class Chat extends AsyncAdapter {
                 String mimeType = handleMimType(fileUri, file);
                 lFileUpload.setMimeType(mimeType);
                 lFileUpload.setFile(file);
+
                 if (FileUtils.isImage(mimeType)) {
                     uploadImageFileMessage(lFileUpload);
                 } else {
@@ -2746,56 +2755,22 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        //only url should return in callback
-        if (!hasFreeSpace) {
-
-            progressHandler.onLowFreeSpace(uniqueId, url);
-
-            return uniqueId;
-        }
 
         PodDownloader.IDownloaderError downloaderErrorInterface =
-                new PodDownloader.IDownloaderError() {
-                    @Override
-                    public void errorOnWritingToFile() {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-                    }
-
-                    @Override
-                    public void errorOnDownloadingFile(int errorCode) {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-                    }
-
-                    @Override
-                    public void errorUnknownException(String cause) {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-
-                    }
-                };
+                getDownloaderErrorInterface(progressHandler, uniqueId, url);
 
 
         File destinationFolder;
 
         if (cache) {
 
-            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getDownloadDirectory() : FileUtils.getOrCreateDirectory(FileUtils.FILES);
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.FILES) : FileUtils.getOrCreateDirectory(FileUtils.FILES);
 
         } else {
 
-            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getDownloadDirectory() : FileUtils.getPublicFilesDirectory();
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.FILES) : FileUtils.getPublicFilesDirectory();
 
         }
-
-
 
 
         String fileName = "file_" + request.getFileId() + "_" + request.getHashCode();
@@ -2823,24 +2798,33 @@ public class Chat extends AsyncAdapter {
         }
 
 
+        //only url should return in callback
+        if (!hasFreeSpace) {
+
+            progressHandler.onLowFreeSpace(uniqueId, url);
+
+            return uniqueId;
+        }
+
+
         if (chatReady) {
 
             Call call = PodDownloader.download(
                     new ProgressHandler.IDownloadFile() {
                         @Override
                         public void onError(String mUniqueId, String error, String mUrl) {
-                            progressHandler.onError(uniqueId,error,url);
+                            progressHandler.onError(uniqueId, error, url);
                         }
 
                         @Override
                         public void onProgressUpdate(String mUniqueId, long bytesDownloaded, long totalBytesToDownload) {
 
-                            progressHandler.onProgressUpdate(uniqueId,bytesDownloaded,totalBytesToDownload);
+                            progressHandler.onProgressUpdate(uniqueId, bytesDownloaded, totalBytesToDownload);
 
 
-                            if(totalBytesToDownload > checkFreeSpace()){
+                            if (totalBytesToDownload > checkFreeSpace()) {
 
-                                progressHandler.onLowFreeSpace(uniqueId,url);
+                                progressHandler.onLowFreeSpace(uniqueId, url);
 
                             }
                         }
@@ -2848,8 +2832,13 @@ public class Chat extends AsyncAdapter {
                         @Override
                         public void onProgressUpdate(String mUniqueId, int progress) {
 
-                            progressHandler.onProgressUpdate(uniqueId,progress);
+                            progressHandler.onProgressUpdate(uniqueId, progress);
 
+                        }
+
+                        @Override
+                        public void onFileReady(ChatResponse<ResultDownloadFile> response) {
+                            progressHandler.onFileReady(response);
                         }
                     },
                     getFileServer(),
@@ -2867,26 +2856,63 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-
     public String getImage(RequestGetImage request, ProgressHandler.IDownloadFile progressHandler) {
 
         String uniqueId = generateUniqueId();
 
-        String url = getImage(request.getImageId(), request.getHashCode(), request.isDownloadable());
+        String url = getImage(request.getImageId(), request.getHashCode(), true);
 
-
-        //todo handle if not
-        isExternalStorageWritable();
-
-        if (!hasReadAndWriteStoragePermission()) {
+        if (!isExternalStorageWritable() || !hasReadAndWriteStoragePermission()) {
 
             getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
 
             progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
 
             return uniqueId;
+        }
+
+
+        PodDownloader.IDownloaderError downloaderErrorInterface =
+                getDownloaderErrorInterface(progressHandler, uniqueId, url);
+
+
+        File destinationFolder;
+
+        if (cache) {
+
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+
+        } else {
+
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getPublicFilesDirectory();
 
         }
+
+
+        String fileName = "image_" + request.getImageId() + "_" + request.getHashCode();
+
+
+        if (destinationFolder == null) {
+
+            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
+
+            return uniqueId;
+        }
+
+
+        File cachedFile = FileUtils.findFileInFolder(destinationFolder, fileName);
+
+        if (cachedFile != null && cachedFile.isFile()) {
+
+            //file exists
+            ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getImageId(), cachedFile);
+
+            progressHandler.onFileReady(response);
+
+            return uniqueId;
+
+        }
+
 
         //only url should return in callback
         if (!hasFreeSpace) {
@@ -2897,85 +2923,168 @@ public class Chat extends AsyncAdapter {
         }
 
 
-        PodDownloader.IDownloaderError downloaderErrorInterface =
-                new PodDownloader.IDownloaderError() {
-                    @Override
-                    public void errorOnWritingToFile() {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-                    }
-
-                    @Override
-                    public void errorOnDownloadingFile(int errorCode) {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-                    }
-
-                    @Override
-                    public void errorUnknownException(String cause) {
-
-                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-                        progressHandler.onError(uniqueId, error, url);
-
-
-                    }
-                };
-
-
-        File imagesFolder = cache ? FileUtils.getOrCreateDirectory(FileUtils.PICTURES) : FileUtils.getPublicFilesDirectory();
-
-        if (imagesFolder == null) {
-
-            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
-
-            return uniqueId;
-        }
-
-        String fileName = "image_" + request.getImageId() + "_" + request.getHashCode();
-
-
-        if (cache) {
-
-
-            File cachedFile = FileUtils.findFileInFolder(imagesFolder, fileName);
-
-            if (cachedFile != null && cachedFile.isFile()) {
-
-                ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getImageId(), cachedFile);
-
-                progressHandler.onFileReady(response);
-
-                return uniqueId;
-
-            }
-
-        }
-
         if (chatReady) {
 
-            PodDownloader.download(
-                    progressHandler,
-                    uniqueId, imagesFolder,
+            Call call = PodDownloader.download(
+                    new ProgressHandler.IDownloadFile() {
+                        @Override
+                        public void onError(String mUniqueId, String error, String mUrl) {
+                            progressHandler.onError(uniqueId, error, url);
+                        }
+
+                        @Override
+                        public void onProgressUpdate(String mUniqueId, long bytesDownloaded, long totalBytesToDownload) {
+
+                            progressHandler.onProgressUpdate(uniqueId, bytesDownloaded, totalBytesToDownload);
+
+
+                            if (totalBytesToDownload > checkFreeSpace()) {
+
+                                progressHandler.onLowFreeSpace(uniqueId, url);
+
+                            }
+                        }
+
+                        @Override
+                        public void onProgressUpdate(String mUniqueId, int progress) {
+
+                            progressHandler.onProgressUpdate(uniqueId, progress);
+
+                        }
+
+                        @Override
+                        public void onFileReady(ChatResponse<ResultDownloadFile> response) {
+                            progressHandler.onFileReady(response);
+                        }
+                    },
+                    getFileServer(),
                     url,
                     fileName,
-                    request.getHashCode(),
-                    request.getImageId(),
-                    getContext(),
+                    destinationFolder,
                     downloaderErrorInterface,
-                    checkFreeSpace());
+                    request.getHashCode(),
+                    request.getImageId());
 
+            downloadCallList.put(uniqueId, call);
 
         } else onChatNotReady(uniqueId);
 
-
         return uniqueId;
-
-
     }
+
+    private PodDownloader.IDownloaderError getDownloaderErrorInterface(ProgressHandler.IDownloadFile progressHandler, String uniqueId, String url) {
+        return new PodDownloader.IDownloaderError() {
+            @Override
+            public void errorOnWritingToFile() {
+
+                String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
+                progressHandler.onError(uniqueId, error, url);
+
+            }
+
+            @Override
+            public void errorOnDownloadingFile(int errorCode) {
+
+                String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+                progressHandler.onError(uniqueId, error, url);
+
+            }
+
+            @Override
+            public void errorUnknownException(String cause) {
+
+                String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+                progressHandler.onError(uniqueId, error, url);
+
+
+            }
+        };
+    }
+
+
+//    public String getImage(RequestGetImage request, ProgressHandler.IDownloadFile progressHandler) {
+//
+//        String uniqueId = generateUniqueId();
+//
+//        String url = getImage(request.getImageId(), request.getHashCode(), request.isDownloadable());
+//
+//
+//        //todo handle if not
+//        isExternalStorageWritable();
+//
+//        if (!hasReadAndWriteStoragePermission()) {
+//
+//            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
+//
+//            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
+//
+//            return uniqueId;
+//
+//        }
+//
+//        //only url should return in callback
+//        if (!hasFreeSpace) {
+//
+//            progressHandler.onLowFreeSpace(uniqueId, url);
+//
+//            return uniqueId;
+//        }
+//
+//
+//        PodDownloader.IDownloaderError downloaderErrorInterface =
+//                getDownloaderErrorInterface(progressHandler, uniqueId, url);
+//
+//
+//        File imagesFolder = cache ? FileUtils.getOrCreateDirectory(FileUtils.PICTURES) : FileUtils.getPublicFilesDirectory();
+//
+//        if (imagesFolder == null) {
+//
+//            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
+//
+//            return uniqueId;
+//        }
+//
+//        String fileName = "image_" + request.getImageId() + "_" + request.getHashCode();
+//
+//
+//        if (cache) {
+//
+//
+//            File cachedFile = FileUtils.findFileInFolder(imagesFolder, fileName);
+//
+//            if (cachedFile != null && cachedFile.isFile()) {
+//
+//                ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getImageId(), cachedFile);
+//
+//                progressHandler.onFileReady(response);
+//
+//                return uniqueId;
+//
+//            }
+//
+//        }
+//
+//        if (chatReady) {
+//
+//            PodDownloader.download(
+//                    progressHandler,
+//                    uniqueId, imagesFolder,
+//                    url,
+//                    fileName,
+//                    request.getHashCode(),
+//                    request.getImageId(),
+//                    getContext(),
+//                    downloaderErrorInterface,
+//                    checkFreeSpace());
+//
+//
+//        } else onChatNotReady(uniqueId);
+//
+//
+//        return uniqueId;
+//
+//
+//    }
 
 
     /**
@@ -3115,6 +3224,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public long getCachedPicturesFolderSize() {
+
         return FileUtils.getStorageSize(FileUtils.PICTURES);
     }
 
@@ -3150,9 +3260,11 @@ public class Chat extends AsyncAdapter {
 
         boolean success;
 
-        DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
         if (downloadQList.containsKey(uniqueId)) {
+
+            DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+
 
             int result = downloadManager.remove(downloadQList.get(uniqueId));
 
@@ -5171,12 +5283,18 @@ public class Chat extends AsyncAdapter {
         Observable<Response<Contacts>> addContactObservable;
 
         if (chatReady) {
-            if (Util.isNullOrEmpty(typeCode)) {
 
-                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber, username);
+
+            if (!Util.isNullOrEmpty(username)) {
+
+                addContactObservable = contactApi.addContactWithUserName(getToken(), 1, firstName, lastName, username, uniqueId, typeCode);
+
+            } else if (Util.isNullOrEmpty(typeCode)) {
+
+                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber);
             } else {
 
-                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber, typeCode, username);
+                addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber, typeCode);
             }
 
 
@@ -5622,6 +5740,7 @@ public class Chat extends AsyncAdapter {
 
                 String finalUniqueId = uniqueId;
 
+                String finalUniqueId1 = uniqueId;
                 call.enqueue(new retrofit2.Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call,
@@ -5636,13 +5755,23 @@ public class Chat extends AsyncAdapter {
                                 chatResponse.setUniqueId(finalUniqueId);
                                 chatResponse.setResult(result);
                                 listenerManager.callOnStaticMap(chatResponse);
-                                showLog("RECEIVE_MAP_STATIC", gson.toJson(chatResponse));
+                                showLog("RECEIVE_MAP_STATIC", "[]");
                                 if (!call.isCanceled()) {
                                     call.cancel();
                                 }
 
                                 if (isMessage) {
                                     File file = FileUtils.saveBitmap(bitmap, "map");
+
+                                    if (file == null) {
+
+                                        getErrorOutPut(ChatConstant.ERROR_WRITING_FILE,
+                                                ChatConstant.ERROR_CODE_WRITING_FILE,
+                                                finalUniqueId1);
+
+                                        return;
+                                    }
+
                                     Uri fileUri = Uri.fromFile(file);
 //                                    String newPath = FilePick.getSmartFilePath(getContext(), fileUri);
 
@@ -5741,7 +5870,7 @@ public class Chat extends AsyncAdapter {
 
                 long threadId = request.getThreadId();
 
-                int messageType = request.getMessageType();
+                int messageType = request.getMessageType() > 0 ? request.getMessageType() : TextMessageType.Constants.PICTURE;
 
 
                 String systemMetadata = request.getSystemMetadata();
@@ -5771,7 +5900,7 @@ public class Chat extends AsyncAdapter {
                         height);
                 String finalUniqueId = uniqueId;
 
-                jsonLog.addProperty("messageType", type);
+                jsonLog.addProperty("type", type);
                 jsonLog.addProperty("zoom", zoom);
                 jsonLog.addProperty("width", width);
                 jsonLog.addProperty("height", height);
@@ -5784,6 +5913,7 @@ public class Chat extends AsyncAdapter {
 
                 showLog("SEND_LOCATION_MESSAGE", getJsonForLog(jsonLog));
 
+                String finalUniqueId1 = uniqueId;
                 call.enqueue(new retrofit2.Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call,
@@ -5799,7 +5929,7 @@ public class Chat extends AsyncAdapter {
                                 chatResponse.setResult(result);
                                 listenerManager.callOnStaticMap(chatResponse);
 
-                                showLog("RECEIVE_MAP_STATIC", gson.toJson(chatResponse));
+                                showLog("RECEIVE_MAP_STATIC", "");
 
                                 if (!call.isCanceled()) {
                                     call.cancel();
@@ -5807,6 +5937,17 @@ public class Chat extends AsyncAdapter {
 
                                 if (isMessage) {
                                     File file = FileUtils.saveBitmap(bitmap, "map");
+
+                                    if (file == null) {
+
+                                        getErrorOutPut(ChatConstant.ERROR_WRITING_FILE,
+                                                ChatConstant.ERROR_CODE_WRITING_FILE,
+                                                finalUniqueId1);
+
+                                        return;
+                                    }
+
+
                                     Uri fileUri = Uri.fromFile(file);
 //                                    String newPath = FilePick.getSmartFilePath(getContext(), fileUri);
 
@@ -5844,9 +5985,9 @@ public class Chat extends AsyncAdapter {
                                 }
 
                             } catch (JSONException e) {
-                                if (log) Log.e(TAG, e.getCause().getMessage());
+                                if (log) Log.e(TAG, e.getMessage());
                             } catch (IOException e) {
-                                if (log) Log.e(TAG, e.getCause().getMessage());
+                                if (log) Log.e(TAG, e.getMessage());
                             }
                         }
                     }
@@ -6052,7 +6193,7 @@ public class Chat extends AsyncAdapter {
     /**
      * It unblocks thread with three way
      *
-     * @param blockId   the id that came from getblockList
+     * @param blockId   the id that came from getBlockList
      * @param userId
      * @param threadId  Id of the thread
      * @param contactId Id of the contact
@@ -6428,6 +6569,8 @@ public class Chat extends AsyncAdapter {
 
         request.setMessage(requestThreadInnerMessage);
 
+        request.setMessageType(request.getMessageType());
+
         request.setFile(null);
 
         createThreadWithMessage(request, requestUniqueId, innerMessageUniqueId, forwardUniqueIds);
@@ -6446,11 +6589,12 @@ public class Chat extends AsyncAdapter {
             requestThreadInnerMessage = new RequestThreadInnerMessage
                     .Builder(request.getType())
                     .metadata(metaData)
+                    .type(request.getMessageType())
                     .build();
         } else {
             requestThreadInnerMessage = request.getMessage();
-
             requestThreadInnerMessage.setMetadata(metaData);
+            requestThreadInnerMessage.setType(request.getMessageType());
         }
 
 
@@ -6464,15 +6608,9 @@ public class Chat extends AsyncAdapter {
             List<String> forwardUniqueIds) {
 
 
-//        RequestCreateThreadWithMessage rctm = request;
-
-
         RequestCreateThreadWithMessage rctm = new RequestCreateThreadWithMessage
-                .Builder(request.getType(),
-                request.getInvitees())
-//                .description(request.getDescription())
+                .Builder(request.getType(), request.getInvitees(), request.getMessageType())
                 .message(request.getMessage())
-//                .title(request.getTitle())
                 .build();
 
 
@@ -7791,13 +7929,42 @@ public class Chat extends AsyncAdapter {
         getErrorOutPut(errorMessage, errorCode, chatMessage.getUniqueId());
     }
 
+
+    /**
+     * called when thread last seen message updated
+     * <p>
+     * result is updated thread info with new thread unreadCount
+     */
+
     private void handleLastSeenUpdated(ChatMessage chatMessage) {
 
-        //message vo update
+        //thread last seen message updated
+        //
+        //result is updated thread info
+        //
 
-        showLog("LAST_SEEN_UPDATED", "");
-        showLog(chatMessage.getContent(), "");
-        listenerManager.callOnContactsLastSeenUpdated(chatMessage.getContent());
+        try {
+            ResultThread resultThread = new ResultThread();
+            Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
+            resultThread.setThread(thread);
+
+            ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
+            chatResponse.setResult(resultThread);
+            chatResponse.setUniqueId(chatMessage.getUniqueId());
+
+
+            showLog("THREAD_LAST_SEEN_MESSAGE_UPDATED", "");
+            showLog(chatMessage.getContent(), "");
+            listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
+
+            if (cache) {
+                messageDatabaseHelper.saveNewThread(resultThread.getThread());
+            }
+
+        } catch (JsonSyntaxException e) {
+            Log.e(TAG, "Exception in Thread Last Seen Message Updated");
+        }
+
     }
 
     private void handleThreadInfoUpdated(ChatMessage chatMessage) {
@@ -8371,7 +8538,7 @@ public class Chat extends AsyncAdapter {
                 }
             }
         } catch (Throwable e) {
-            if (log) Log.e(TAG, e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getMessage());
         }
     }
 
@@ -10414,7 +10581,14 @@ public class Chat extends AsyncAdapter {
 
             locationFile.setLocation(mapLocation);
             locationFile.setFile(fileMetaData);
-            return gson.toJson(locationFile);
+
+
+            JsonObject metaDataWithName = (JsonObject) gson.toJsonTree(locationFile);
+
+            metaDataWithName.addProperty("name", originalName);
+            metaDataWithName.addProperty("id", imageId);
+
+            return metaDataWithName.toString();
 
         } else {
 
@@ -10759,9 +10933,7 @@ public class Chat extends AsyncAdapter {
 
                 RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
 
-
                 FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-
 
                 try {
                     showLog("UPLOAD_FILE_TO_SERVER", getJsonForLog(jsonLog));
@@ -10871,7 +11043,6 @@ public class Chat extends AsyncAdapter {
                             }
 //
                             JsonObject js = new JsonObject();
-
                             js.addProperty("metadata", metaJson);
                             js.addProperty("uniqueId", uniqueId);
 

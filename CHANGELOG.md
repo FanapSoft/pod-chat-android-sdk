@@ -6,6 +6,28 @@
 All notable changes to this project will be documented here.
 
 
+#Version [0.6.1.0] -2020-4-3
+
+
+[Added] addParticipants with username
+
+[Changed] getBlockList,block and unBlock result from Contact to BlockedContact
+
+[Added] coreUserId, userId and contactId to ResultBlockList
+
+[Changed] messageType is required in `sendFileMessage` , `createThreadWithFile` and `createThreadWithMessage`
+
+[Added] `setCacheDirectory(File)`
+
+[Added] uploaded file url to uploadImage, uploadFile, uploadFileProgress and uploadImageProgress response
+
+[Added] `setMaxReconnectTime(long)`
+
+
+
+
+
+
 
 #Version [0.5.5.0] -2020-2-19
 

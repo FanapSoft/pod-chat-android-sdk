@@ -3,6 +3,122 @@
 **Fanap's POD** Chat service
 
 
+#Version [0.6.1.0] -2020-4-3
+
+
+
+
+addParticipants with
+
+
+username:
+
+    RequestAddParticipants request = RequestAddParticipants
+                .newBuilder()
+                .threadId(Long)
+                .withUserNames(String...)
+                .build();
+
+
+Or
+
+
+
+contactId:
+
+    RequestAddParticipants request = RequestAddParticipants
+                .newBuilder()
+                .threadId(Long)
+                .withContactIds(Long...)
+                .build();
+
+
+
+
+
+`chat.addParticipants(request , handler);`
+
+
+
+
+`getBlockList()` response changed from `Contact` to `BlockedContact`
+
+BlockedContact:
+    -id
+    -coreUserId
+    -firstName
+    -lastName
+    +profileImage
+        -id //contactId
+        -firstName
+        -lastName
+        -userId
+        -cellphoneNumber
+        .
+        .
+        .
+
+
+getBlockList response:
+
+ResultBlockList -> Contact-> BlockedContact
+
+block and unBlock response:
+
+ResultBlock -> Contact -> BlockedContact
+
+
+
+
+
+in following functions RequestObjects, messageType is required now:
+
+
+`sendFileMessage`
+`createThreadWithFile`
+`createThreadWithMessage`
+
+
+
+
+
+
+
+`getFile` and `getImage` download file directory:
+
+`setCacheDirectory(File directory)`
+
+
+
+
+
+
+- uploaded file or image url added to upload result
+
+
+
+
+
+Each time sdk tries to connect, it increases
+the reconnection interval until it reaches this value.
+Then the amount of time interval remains constant.
+
+
+`setMaxReconnectTime(long)`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Version [0.5.5.0] -2020-2-19

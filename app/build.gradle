@@ -39,10 +39,6 @@ dependencies {
     // required if you want to use Mockito for Android tests
     androidTestImplementation 'org.mockito:mockito-android:3.1.0'
     implementation 'com.google.android.gms:play-services:12.0.1'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
-    debugImplementation 'com.idescout.sql:sqlscout-server:4.1'
-    releaseImplementation 'com.idescout.sql:sqlscout-server-noop:4.1'
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'com.google.code.gson:gson:2.8.2'
 

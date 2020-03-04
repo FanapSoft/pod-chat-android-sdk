@@ -163,12 +163,10 @@ public class NetworkPingSender {
 
             long endTime = new Date().getTime();
             notifyNetworkAvailable();
-            Log.d(TAG,"Connection latency: " + (endTime - startTime));
+            Log.d(TAG,"Ping delay: " + (endTime - startTime) + " milliseconds");
         } catch (IOException e) {
             Log.e(TAG,"Timeout Exception host: " + hostName + " port: " + port);
             notifyConnectionIsLost();
-
-
         }
 
     }
