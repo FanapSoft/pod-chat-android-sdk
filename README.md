@@ -75,7 +75,9 @@ in following functions RequestObjects, messageType is required now:
 
 
 `sendFileMessage`
+
 `createThreadWithFile`
+
 `createThreadWithMessage`
 
 

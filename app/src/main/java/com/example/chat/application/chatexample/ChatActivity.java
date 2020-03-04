@@ -128,7 +128,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 //
-    private static String TOKEN = "8d63c020ecf242acb0ab99141b3b3759";
+    private static String TOKEN = "3a0ec83a4a1441c18ffa391a162a4e31";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 

@@ -194,7 +194,6 @@ import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.AsyncAckType;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
-import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
@@ -281,9 +280,10 @@ public class Chat extends AsyncAdapter {
 
 
     private int getUserInfoRetryCount = 5;
+
     private int getUserInfoNumberOfTry = 0;
 
-    private long connectRetryCount = 64000;
+    private long maxReconnectStepTime = 64000;
 
     private long connectNumberOfRetry = 1000;
 
@@ -358,7 +358,12 @@ public class Chat extends AsyncAdapter {
 
     public void setMaxReconnectTime(long maxMilliseconds) {
 
-        connectRetryCount = maxMilliseconds;
+        if (maxMilliseconds < 4000) {
+            Log.e(TAG, "Minimum Reconnect Time is 4000 milliseconds");
+            Log.i(TAG, "Max Reconnect Time is set to 4000");
+            maxReconnectStepTime = 4000;
+        } else
+            maxReconnectStepTime = maxMilliseconds;
     }
 
     private Chat() {
@@ -552,20 +557,21 @@ public class Chat extends AsyncAdapter {
     private void tryToConnectOrReconnect() {
 
 
-        if (TextUtils.equals(chatState, ASYNC_READY)) {
+        if (isAsyncReady()) {
 
             pingAfterSetToken();
 
         } else {
-
             scheduleForReconnect();
-
         }
 
     }
 
-    private void scheduleForReconnect() {
+    private boolean isAsyncReady() {
+        return TextUtils.equals(chatState, ASYNC_READY);
+    }
 
+    private void scheduleForReconnect() {
 
         resetReconnectRetryTime();
 
@@ -578,28 +584,36 @@ public class Chat extends AsyncAdapter {
                 if (log) Log.i(TAG, "The Connection Watcher is trying to reconnect...");
 
 
-                if (connectNumberOfRetry < connectRetryCount) {
+                if (connectNumberOfRetry < maxReconnectStepTime) {
 
                     connectNumberOfRetry = connectNumberOfRetry * 2;
 
                 } else {
 
-                    connectNumberOfRetry = connectRetryCount;
+                    connectNumberOfRetry = maxReconnectStepTime;
 
                 }
 
                 if (log) Log.i(TAG, "Next retry is after " + connectNumberOfRetry);
 
 
-                boolean shouldReconnect = TextUtils.equals(chatState, CLOSED) || TextUtils.equals(chatState, CLOSING);
+                boolean shouldReconnect = TextUtils.equals(chatState, CLOSED)
+                        || shouldReconnectOnOpenState();
 
                 if (shouldReconnect) {
 
-                    connect(socketAddress, appId, serverName, token, ssoHost, platformHost, fileServer, typeCode);
+                    async.connect(socketAddress, appId, serverName, token, ssoHost, "");
 
                     connectHandler.postDelayed(this, connectNumberOfRetry);
 
                 } else if (!chatReady) {
+
+                    if (isAsyncReady()) {
+
+                        pingAfterSetToken();
+
+                    }
+
                     connectHandler.postDelayed(this, connectNumberOfRetry);
                 }
 
@@ -607,7 +621,10 @@ public class Chat extends AsyncAdapter {
             }
         }, connectNumberOfRetry);
 
+    }
 
+    private boolean shouldReconnectOnOpenState() {
+        return TextUtils.equals(chatState, OPEN) && connectNumberOfRetry == maxReconnectStepTime;
     }
 
 
