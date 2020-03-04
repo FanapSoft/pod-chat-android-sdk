@@ -13,11 +13,11 @@
 
 	username:
 
-   	 RequestAddParticipants request = RequestAddParticipants
-                .newBuilder()
-                .threadId(Long)
-                .withUserNames(String...)
-                .build();
+   		 RequestAddParticipants request = RequestAddParticipants
+			.newBuilder()
+			.threadId(Long)
+			.withUserNames(String...)
+			.build();
 
 
 	Or
@@ -26,12 +26,12 @@
 
 	contactId:
 
-   	 RequestAddParticipants request = RequestAddParticipants
-                .newBuilder()
-                .threadId(Long)
-                .withContactIds(Long...)
-                .build();
-		
+		 RequestAddParticipants request = RequestAddParticipants
+			.newBuilder()
+			.threadId(Long)
+			.withContactIds(Long...)
+			.build();
+
 		
 		`chat.addParticipants(request , handler);`
 
