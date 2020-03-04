@@ -54,9 +54,11 @@ public interface MessageDao {
     @Query("select * from CacheContact LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
 
-
     @Query("SELECT COUNT(id) FROM CacheContact")
     int getContactCount();
+
+    @Query("update CacheContact set blocked = :blocked where id = :contactId")
+    void updateContactBlockedState(boolean blocked,long contactId);
 
 
     //Cache Blocked Contact
@@ -83,8 +85,11 @@ public interface MessageDao {
     @Query("select * from CacheBlockedContact LIMIT :count OFFSET :offset")
     List<CacheBlockedContact> getBlockedContacts(Long count, Long offset);
 
+    @Query("select * from CacheBlockedContact where blockId = :id")
+    CacheBlockedContact getBlockedContactByBlockId(long id);
 
-    @Query("SELECT COUNT(id) FROM CacheBlockedContact")
+
+    @Query("SELECT COUNT(blockId) FROM CacheBlockedContact")
     int getBlockContactsCount();
 
 

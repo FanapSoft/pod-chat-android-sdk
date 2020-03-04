@@ -5,7 +5,7 @@ public class Contact {
     private String firstName;
     private long userId;
     private String lastName;
-    private Boolean blocked;
+    private boolean blocked;
     private long creationDate;
     private LinkedUser linkedUser;
     private String cellphoneNumber;
@@ -14,6 +14,7 @@ public class Contact {
     private long notSeenDuration;
     private boolean hasUser;
     private boolean cache = false;
+    private String profileImage;
 
     public Contact() {
     }
@@ -58,7 +59,7 @@ public class Contact {
                    String uniqueId,
                    long notSeenDuration,
                    boolean hasUser,
-                   boolean cache) {
+                   boolean cache,String profileImage) {
         this.id = id;
         this.firstName = firstName;
         this.userId = userId;
@@ -72,6 +73,7 @@ public class Contact {
         this.notSeenDuration = notSeenDuration;
         this.hasUser = hasUser;
         this.cache = cache;
+        this.profileImage = profileImage;
     }
 
     public boolean isCache() {
@@ -176,5 +178,13 @@ public class Contact {
 
     public void setCreationDate(long creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

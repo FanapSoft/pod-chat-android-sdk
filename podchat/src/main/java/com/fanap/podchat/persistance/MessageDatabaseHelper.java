@@ -36,6 +36,7 @@ import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.mainmodel.History;
+import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.PinMessageVO;
@@ -66,6 +67,7 @@ import javax.inject.Inject;
 
 public class MessageDatabaseHelper {
 
+    public static final String TAG = "CHAT_SDK_CACHE";
     private MessageDao messageDao;
     private MessageQueueDao messageQueueDao;
     private Context context;
@@ -1141,6 +1143,9 @@ public class MessageDatabaseHelper {
                                 cacheContact.getNotSeenDuration(),
                                 cacheContact.isHasUser()
                         );
+
+                        contact.setCache(true);
+
                         contacts.add(contact);
                     }
                 } catch (ParseException e) {
@@ -1164,21 +1169,15 @@ public class MessageDatabaseHelper {
             c.add(Calendar.SECOND, expireAmount);
             String expireDate = format.format(c.getTime());
 
-            CacheContact cacheContact = new CacheContact(
-                    expireDate,
-                    contact.getId(),
-                    contact.getFirstName(),
-                    contact.getUserId(),
-                    contact.getLastName(),
-                    contact.getBlocked(),
-                    contact.getCreationDate(),
-                    contact.getLinkedUser(),
-                    contact.getCellphoneNumber(),
-                    contact.getEmail(),
-                    contact.getUniqueId(),
-                    contact.getNotSeenDuration(),
-                    contact.isHasUser()
-            );
+            CacheContact cacheContact = null;
+
+            try {
+                cacheContact = getCacheContact(expireDate, contact, contact.getBlocked(), contact.getLinkedUser());
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+                continue;
+            }
+
             cacheContacts.add(cacheContact);
         }
         messageDao.insertContacts(cacheContacts);
@@ -1191,21 +1190,7 @@ public class MessageDatabaseHelper {
         c.add(Calendar.DATE, expireSecond);
 
         String expireDate = dateFormat.format(c.getTime());
-        CacheContact cacheContact = new CacheContact(
-                expireDate,
-                contact.getId(),
-                contact.getFirstName(),
-                contact.getUserId(),
-                contact.getLastName(),
-                contact.getBlocked(),
-                contact.getCreationDate(),
-                contact.getLinkedUser(),
-                contact.getCellphoneNumber(),
-                contact.getEmail(),
-                contact.getUniqueId(),
-                contact.getNotSeenDuration(),
-                contact.isHasUser()
-        );
+        CacheContact cacheContact = getCacheContact(expireDate, contact, contact.getBlocked(), contact.getLinkedUser());
         messageDao.insertContact(cacheContact);
     }
 
@@ -1227,97 +1212,129 @@ public class MessageDatabaseHelper {
 
     public void saveBlockedContact(@NonNull BlockedContact blockedContact, int expireSecond) {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.add(Calendar.DATE, expireSecond);
+        new java.lang.Thread(() -> {
 
-        String expireDate = dateFormat.format(c.getTime());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            c.add(Calendar.DATE, expireSecond);
 
+            String expireDate = dateFormat.format(c.getTime());
 
-        Contact contact = blockedContact.getContactVO();
-
-
-        CacheBlockedContact cacheContact;
-
-
-        if (contact != null) {
-
-            cacheContact = new CacheBlockedContact(
-                    expireDate,
-                    contact.getId(),
-                    contact.getFirstName(),
-                    contact.getUserId(),
-                    contact.getLastName(),
-                    contact.getBlocked(),
-                    contact.getCreationDate(),
-                    contact.getLinkedUser(),
-                    contact.getCellphoneNumber(),
-                    contact.getEmail(),
-                    contact.getUniqueId(),
-                    contact.getNotSeenDuration(),
-                    contact.isHasUser(),
-                    blockedContact.getBlockId(),
-                    blockedContact.getCoreUserId());
-
-        } else {
-
-            cacheContact = new CacheBlockedContact(expireDate);
-
-            cacheContact.setBlockId(blockedContact.getBlockId());
-
-            cacheContact.setCoreUserId(blockedContact.getCoreUserId());
-
-        }
-
-
-        try {
-            messageDao.insertBlockedContact(cacheContact);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void saveBlockedContacts(@NonNull List<BlockedContact> contacts, int expireAmount) {
-        List<CacheBlockedContact> cacheContacts = new ArrayList<>();
-
-        for (BlockedContact blockedContact : contacts) {
 
             Contact contact = blockedContact.getContactVO();
 
 
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
-            Calendar c = Calendar.getInstance();
-            c.setTime(new Date());
-            c.add(Calendar.SECOND, expireAmount);
-            String expireDate = format.format(c.getTime());
-
-            CacheBlockedContact cacheBlockedContact = new CacheBlockedContact(
-                    expireDate,
-                    contact.getId(),
-                    contact.getFirstName(),
-                    contact.getUserId(),
-                    contact.getLastName(),
-                    contact.getBlocked(),
-                    contact.getCreationDate(),
-                    contact.getLinkedUser(),
-                    contact.getCellphoneNumber(),
-                    contact.getEmail(),
-                    contact.getUniqueId(),
-                    contact.getNotSeenDuration(),
-                    contact.isHasUser(),
-                    blockedContact.getBlockId(),
-                    blockedContact.getCoreUserId()
-            );
+            CacheBlockedContact cacheBlockedContact;
 
 
-            cacheContacts.add(cacheBlockedContact);
+            if (contact != null) {
+
+                CacheContact cacheContact = getCacheContact(expireDate, contact, true, null);
+
+                cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, cacheContact);
+
+                saveContactVoInBlockedContact(cacheContact);
+
+            } else {
+
+                cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, null);
+
+            }
+
+
+            messageDao.insertBlockedContact(cacheBlockedContact);
+
+
+        }).start();
+    }
+
+    private CacheContact getCacheContact(String expireDate, Contact contact, boolean blocked, LinkedUser linkedUser) {
+
+        return new CacheContact(
+                expireDate,
+                contact.getId(),
+                contact.getFirstName(),
+                contact.getUserId(),
+                contact.getLastName(),
+                blocked,
+                contact.getCreationDate(),
+                linkedUser,
+                contact.getCellphoneNumber(),
+                contact.getEmail(),
+                contact.getUniqueId(),
+                contact.getNotSeenDuration(),
+                contact.isHasUser(),
+                contact.getProfileImage());
+
+
+    }
+
+    private CacheBlockedContact getCacheBlockedContact(@NonNull BlockedContact blockedContact, String expireDate, @Nullable CacheContact cacheContact) {
+        return new CacheBlockedContact(
+                expireDate,
+                blockedContact.getBlockId(),
+                blockedContact.getFirstName(),
+                blockedContact.getLastName(),
+                blockedContact.getNickName(),
+                blockedContact.getProfileImage(),
+                blockedContact.getCoreUserId(),
+                cacheContact != null ? cacheContact.getId() : 0,
+                cacheContact
+        );
+    }
+
+    public void saveBlockedContacts(@NonNull List<BlockedContact> contacts, int expireAmount) {
+
+        worker(() -> {
+
+            List<CacheBlockedContact> cacheBlockedContacts = new ArrayList<>();
+
+            for (BlockedContact blockedContact : contacts) {
+
+                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+                Calendar c = Calendar.getInstance();
+                c.setTime(new Date());
+                c.add(Calendar.SECOND, expireAmount);
+                String expireDate = format.format(c.getTime());
+
+                Contact contact = blockedContact.getContactVO();
+
+                //Contact to CacheContact
+                CacheContact cacheContact = getCacheContact(expireDate, contact, true, null);
+
+                //BlockedContact to CacheBlockedContact
+                CacheBlockedContact cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, cacheContact);
+
+                cacheBlockedContacts.add(cacheBlockedContact);
+
+                saveContactVoInBlockedContact(cacheContact);
+
+            }
+
+            messageDao.insertBlockedContacts(cacheBlockedContacts);
+
+        });
+
+    }
+
+    private void saveContactVoInBlockedContact(CacheContact cacheContact) {
+
+
+        if (cacheContact != null) {
+
+            //if blocked contact wasn't in contacts cache, insert it.
+            CacheContact contactInCache = messageDao.getContactById(cacheContact.getId());
+
+            if (contactInCache == null) {
+
+                messageDao.insertContact(cacheContact);
+
+            }
+
         }
 
 
-        messageDao.insertBlockedContacts(cacheContacts);
     }
 
 
@@ -1328,8 +1345,8 @@ public class MessageDatabaseHelper {
 
         List<CacheBlockedContact> cacheBlockedContacts = messageDao.getBlockedContacts(count, offset);
 
-
         if (cacheBlockedContacts != null && cacheBlockedContacts.size() > 0) {
+
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
@@ -1340,37 +1357,62 @@ public class MessageDatabaseHelper {
                 try {
                     Date expireDate = format.parse(blockedContact.getExpireDate());
                     if (expireDate.compareTo(nowDate) < 0) {
-                        deleteContact(blockedContact);
+                        deleteBlockedContact(blockedContact);
                     } else {
 
 
-                        Contact contact = new Contact(
-                                blockedContact.getId(),
-                                blockedContact.getFirstName(),
-                                blockedContact.getUserId(),
-                                blockedContact.getLastName(),
-                                blockedContact.getBlocked(),
-                                blockedContact.getCreationDate(),
-                                blockedContact.getLinkedUser(),
-                                blockedContact.getCellphoneNumber(),
-                                blockedContact.getEmail(),
-                                blockedContact.getUniqueId(),
-                                blockedContact.getNotSeenDuration(),
-                                blockedContact.isHasUser(),
-                                true
-                        );
+                        Contact contactVO = null;
+
+                        if (blockedContact.getContactId() > 0) {
+
+                            CacheContact cacheContact = messageDao.getContactById(blockedContact.getContactId());
+
+                            blockedContact.setCacheContact(cacheContact);
+
+                        }
+
+                        if (blockedContact.getCacheContact() != null) {
+
+                            try {
+                                contactVO = new Contact(
+                                        blockedContact.getCacheContact().getId(),
+                                        blockedContact.getCacheContact().getFirstName(),
+                                        blockedContact.getCacheContact().getUserId(),
+                                        blockedContact.getCacheContact().getLastName(),
+                                        blockedContact.getCacheContact().getBlocked(),
+                                        blockedContact.getCacheContact().getCreationDate(),
+                                        blockedContact.getCacheContact().getLinkedUser(),
+                                        blockedContact.getCacheContact().getCellphoneNumber(),
+                                        blockedContact.getCacheContact().getEmail(),
+                                        blockedContact.getCacheContact().getUniqueId(),
+                                        blockedContact.getCacheContact().getNotSeenDuration(),
+                                        blockedContact.getCacheContact().isHasUser(),
+                                        true,
+                                        blockedContact.getCacheContact().getProfileImage()
+                                );
+                            } catch (Exception e) {
+                                Log.d(TAG, e.getMessage());
+                            }
+
+
+                        }
+
 
                         BlockedContact blocked = new BlockedContact(
                                 blockedContact.getBlockId(),
+                                blockedContact.getFirstName(),
+                                blockedContact.getLastName(),
+                                blockedContact.getNickName(),
+                                blockedContact.getProfileImage(),
                                 blockedContact.getCoreUserId(),
-                                contact
+                                contactVO
                         );
 
 
                         contacts.add(blocked);
                     }
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, e.getMessage());
                 }
             }
         }
@@ -1383,7 +1425,29 @@ public class MessageDatabaseHelper {
     }
 
     public void deleteBlockedContactById(long id) {
-        messageDao.deleteBlockedContactById(id);
+
+
+        //updated blocked field in CacheContact
+
+        worker(() -> {
+
+            try {
+                CacheBlockedContact cacheBlockedContact = messageDao.getBlockedContactByBlockId(id);
+
+                long contactId = cacheBlockedContact.getContactId();
+
+                if (contactId > 0) {
+                    messageDao.updateContactBlockedState(false, contactId);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
+
+            messageDao.deleteBlockedContactById(id);
+
+        });
+
+
     }
 
     public void deleteBlockedContactByCoreUserId(long coreUserId) {

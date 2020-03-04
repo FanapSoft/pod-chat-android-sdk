@@ -19,6 +19,7 @@ public class CacheContact {
     private String lastName;
     private Boolean blocked;
     private long creationDate;
+    private String profileImage;
 
     @Embedded
     private LinkedUser linkedUser;
@@ -42,7 +43,8 @@ public class CacheContact {
             String email,
             String uniqueId,
             long notSeenDuration,
-            boolean hasUser
+            boolean hasUser,
+            String profileImage
     ) {
         this.expireDate = expireDate;
         this.id = id;
@@ -57,11 +59,9 @@ public class CacheContact {
         this.uniqueId = uniqueId;
         this.notSeenDuration = notSeenDuration;
         this.hasUser = hasUser;
+        this.profileImage = profileImage;
     }
 
-    @Ignore
-    public CacheContact() {
-    }
 
     public String getExpireDate() {
         return expireDate;
@@ -165,5 +165,13 @@ public class CacheContact {
 
     public void setCreationDate(long creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

@@ -85,21 +85,18 @@ public class FileUtils {
     private static File downloadDirectory;
 
 
-    public static void setDownloadDirectory(File cacheDire){
+    public static void setDownloadDirectory(File cacheDire) {
         downloadDirectory = cacheDire;
     }
 
     public static File getDownloadDirectory() {
-
-//        if(!downloadDirectory.exists()){
-//
-//            boolean result = downloadDirectory.mkdir();
-//
-//        }
-
-
         return downloadDirectory;
     }
+
+    public static File getOrCreateDownloadDirectory(String path) {
+        return new File(downloadDirectory, path);
+    }
+
     /**
      * Gets the extension of a file name, like ".png" or ".jpg".
      *
@@ -123,22 +120,24 @@ public class FileUtils {
 
         File[] filesInFolder = filesFolder.listFiles();
 
-        for (File file :
-                filesInFolder) {
-            if (file.isFile()) {
-                String name = file.getName();
-                int lastDot = name.lastIndexOf(".");
-                if (lastDot > 0) {
-                    name = name.substring(0, lastDot);
-                    if (name.equals(fileName)) {
-                        return file;
+        if (filesInFolder != null) {
+            for (File file :
+                    filesInFolder) {
+                if (file.isFile()) {
+                    String name = file.getName();
+                    int lastDot = name.lastIndexOf(".");
+                    if (lastDot > 0) {
+                        name = name.substring(0, lastDot);
+                        if (name.equals(fileName)) {
+                            return file;
+                        }
                     }
                 }
             }
 
-            Log.e("DOWNLOAD", ">> FILE IN FOLDER: " + file.getName());
-
         }
+
+
         return null;
     }
 
@@ -160,7 +159,13 @@ public class FileUtils {
 
     public static boolean clearDirectory(String path) {
 
-        File directory = FileUtils.getOrCreateDirectory(path);
+        File directory;
+
+        if (downloadDirectory == null)
+            directory = getOrCreateDirectory(path);
+        else {
+            directory = new File(downloadDirectory, path);
+        }
 
         if (directory != null && directory.exists()) {
 
@@ -206,7 +211,7 @@ public class FileUtils {
 
         }
 
-        return totalFiles == deletedFiles && successClearFolder;
+        return totalFiles > 0 && totalFiles == deletedFiles && successClearFolder;
 
     }
 
@@ -222,13 +227,20 @@ public class FileUtils {
 
     public static long getStorageSize(String path) {
 
-        File directory = FileUtils.getOrCreateDirectory(path);
+
+        File directory;
+
+        if (downloadDirectory == null)
+            directory = getOrCreateDirectory(path);
+        else {
+            directory = new File(downloadDirectory, path);
+        }
 
         if (directory != null && directory.exists()) {
 
             if (directory.isDirectory()) {
 
-                return FileUtils.getFolderSize(directory);
+                return getFolderSize(directory);
 
             }
 
@@ -260,7 +272,15 @@ public class FileUtils {
 
     public static long getFreeSpace() {
 
-        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+
+        StatFs stat;
+
+        if (downloadDirectory != null)
+            stat = new StatFs(downloadDirectory.getPath());
+        else
+            stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+
+
         long bytesAvailable;
         if (android.os.Build.VERSION.SDK_INT >=
                 android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -269,7 +289,7 @@ public class FileUtils {
             bytesAvailable = (long) stat.getBlockSize() * (long) stat.getAvailableBlocks();
         }
 
-        long megAvailable = bytesAvailable / (1024 * 1024);
+//        long megAvailable = bytesAvailable / (1024 * 1024);
 
 
         return bytesAvailable;
@@ -284,19 +304,17 @@ public class FileUtils {
     }
 
 
+    public static File getOrCreateCustomDirectory(File directory, String path) {
 
-    public static File getOrCreateCustomDirectory(File directory,String path){
-
-        File destFolder = new File(directory,path);
+        File destFolder = new File(directory, path);
 
         boolean createDir = true;
 
-        if(!destFolder.exists())
+        if (!destFolder.exists())
             createDir = destFolder.mkdir();
 
 
-
-        if(createDir) return destFolder;
+        if (createDir) return destFolder;
         else return null;
 
 
@@ -444,7 +462,7 @@ public class FileUtils {
     }
 
     /**
-     * @return The MIME messageType for the given file.
+     * @return The MIME type for the given file.
      */
     @Nullable
     public static String getMimeType(File file) {
@@ -458,7 +476,7 @@ public class FileUtils {
     }
 
     /**
-     * @return The MIME messageType for the give Uri.
+     * @return The MIME type for the give Uri.
      */
     @Nullable
     public static String getMimeType(@NonNull Context context, @NonNull Uri uri) {
@@ -834,14 +852,13 @@ public class FileUtils {
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // The MIME data messageType filter
+        // The MIME data type filter
         intent.setType("*/*");
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         return intent;
     }
 
-    @NonNull
     public static File saveBitmap(Bitmap bitmap, String name) {
         String path = Environment.getExternalStorageDirectory().toString();
         OutputStream fOut = null;
@@ -859,7 +876,9 @@ public class FileUtils {
 
         } catch (java.io.IOException e) {
 
-            //TODO Log
+            Log.e(TAG,"Error Saving Bitmap: " + e.getMessage());
+
+            return null;
         }
         return file;
     }

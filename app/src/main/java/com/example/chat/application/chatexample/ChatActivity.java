@@ -128,14 +128,14 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
 //
-//    private static String TOKEN = "ee895fa64c434deeb71a1874f949b65d";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "8d63c020ecf242acb0ab99141b3b3759";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = "chatlocal";
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = "chatlocal";
 
 
     private static String appId = "POD-Chat";
@@ -145,11 +145,11 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 
-
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
 
     /**
@@ -165,15 +165,15 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
+    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
@@ -183,7 +183,7 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /group
 
-    public static int TEST_THREAD_ID = 7090;
+//    public static int TEST_THREAD_ID = 7090;
 //
 
     private String fileUri;
@@ -603,14 +603,14 @@ public class ChatActivity extends AppCompatActivity
         String url = "https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482";
 
         //image
-        long imageId = 404143;
-//        long imageId = 68349;
+//        long imageId = 404143;
+        long imageId = 68349;
 
         long fileId = 68684;
 
 
-        String imageHashCode = "17024463974-0.5588549950419339";
-//        String imageHashCode = "16feadc7bf1-0.5248624596970302";
+//        String imageHashCode = "17024463974-0.5588549950419339";
+        String imageHashCode = "16feadc7bf1-0.5248624596970302";
 
         String fileHashCode = "17077360d4b-0.2366487166443898";
 
@@ -618,9 +618,6 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
-
-
-        File dest = getCacheDir();
 
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -634,7 +631,7 @@ public class ChatActivity extends AppCompatActivity
 
         }
 
-        String uniqueId = presenter.downloadFile(requestGetFile, dest, new ProgressHandler.IDownloadFile() {
+       downloadingId = presenter.downloadFile(requestGetFile, new ProgressHandler.IDownloadFile() {
 
 
             @Override
@@ -778,16 +775,16 @@ public class ChatActivity extends AppCompatActivity
         //p.pa main
 //        invite.add(new Invitee(1151568, InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
-        RequestThreadInnerMessage innerMessage = new RequestThreadInnerMessage
-                .Builder(TextMessageType.Constants.PICTURE)
-                //                .message("Create thread for File Message Test " + new Date().toString())
-//                                .forwardedMessageIds(listForwardIds)
-                .build();
+//        RequestThreadInnerMessage innerMessage = new RequestThreadInnerMessage
+//                .Builder(TextMessageType.Constants.PICTURE)
+//                //                .message("Create thread for File Message Test " + new Date().toString())
+////                                .forwardedMessageIds(listForwardIds)
+//                .build();
 
 
         RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
-                .Builder(ThreadType.Constants.NORMAL, invite, requestUploadImage)
-                .message(innerMessage)
+                .Builder(ThreadType.Constants.NORMAL, invite, requestUploadFile,TextMessageType.Constants.PICTURE)
+//                .message(innerMessage)
                 .build();
 
 
@@ -982,7 +979,8 @@ public class ChatActivity extends AppCompatActivity
                 .Builder()
                 .systemMetadata(meta)
                 .center(center)
-                .message("This is location ")
+                .message("Im here now :) ")
+
                 .activity(ChatActivity.this)
                 .threadId(TEST_THREAD_ID)
                 .build();
@@ -1575,6 +1573,7 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             case 14:
+
                 // add contact
 //                presenter.addContact("",
 //                        "",
@@ -1590,9 +1589,9 @@ public class ChatActivity extends AppCompatActivity
 
 
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("Farhad")
-                        .lastName("Kheirkhah")
-                        .cellphoneNumber("09157770684")
+                        .firstName("")
+                        .lastName("")
+                        .username("")
                         .build();
 
                 presenter.addContact(request);
@@ -1884,7 +1883,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder()
 //                .newMessages()
 //                .partnerCoreContactId(566)
-                .count(5)
+                .count(50)
                 .build();
         presenter.getThreads(requestThread, null);
 
