@@ -11,61 +11,56 @@
 - addParticipants with
 
 
-username:
+	username:
 
-    RequestAddParticipants request = RequestAddParticipants
+   	 RequestAddParticipants request = RequestAddParticipants
                 .newBuilder()
                 .threadId(Long)
                 .withUserNames(String...)
                 .build();
 
 
-Or
+	Or
 
 
 
-contactId:
+	contactId:
 
-    RequestAddParticipants request = RequestAddParticipants
+   	 RequestAddParticipants request = RequestAddParticipants
                 .newBuilder()
                 .threadId(Long)
                 .withContactIds(Long...)
                 .build();
-
-
-
-
-
-`chat.addParticipants(request , handler);`
+		
+		
+		`chat.addParticipants(request , handler);`
 
 
 
 
 - `getBlockList()` response changed from `Contact` to `BlockedContact`
 
-BlockedContact:
-    -id
-    -coreUserId
-    -firstName
-    -lastName
-    +profileImage
-        -id //contactId
-        -firstName
-        -lastName
-        -userId
-        -cellphoneNumber
-        .
-        .
-        .
+		BlockedContact:
+		    -id
+		    -coreUserId
+		    -firstName
+		    -lastName
+		    +profileImage
+			-id //contactId
+			-firstName
+			-lastName
+			-userId
+			-cellphoneNumber
+			
 
 
-getBlockList response:
+	`getBlockList` response:
 
-ResultBlockList -> Contact-> BlockedContact
+	ResultBlockList -> Contact-> BlockedContact
 
-block and unBlock response:
+	block and unBlock response:
 
-ResultBlock -> Contact -> BlockedContact
+	ResultBlock -> Contact -> BlockedContact
 
 
 
@@ -75,7 +70,9 @@ ResultBlock -> Contact -> BlockedContact
 
 
 	`sendFileMessage`
+	
 	`createThreadWithFile`
+	
 	`createThreadWithMessage`
 
 
@@ -86,7 +83,7 @@ ResultBlock -> Contact -> BlockedContact
 
 - `getFile` and `getImage` download file directory:
 
-`setCacheDirectory(File directory)`
+	`setCacheDirectory(File directory)`
 
 
 
@@ -103,8 +100,7 @@ ResultBlock -> Contact -> BlockedContact
 the reconnection interval until it reaches this value.
 Then the amount of time interval remains constant.
 
-
-`setMaxReconnectTime(long)`
+	`setMaxReconnectTime(long)`
 
 
 
