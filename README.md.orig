@@ -69,17 +69,20 @@
 - in following functions RequestObjects, messageType is required now:
 
 
+<<<<<<< HEAD
+
 `sendFileMessage`
 
 `createThreadWithFile`
 
 `createThreadWithMessage`
-
+=======
 	`sendFileMessage`
 	
 	`createThreadWithFile`
 	
 	`createThreadWithMessage`
+>>>>>>> 54582b46420e54827c3e077cfb4258948269f386
 
 
 
