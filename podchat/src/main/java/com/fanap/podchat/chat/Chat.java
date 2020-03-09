@@ -351,6 +351,7 @@ public class Chat extends AsyncAdapter {
     private boolean hasFreeSpace = true;
 
 
+
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
