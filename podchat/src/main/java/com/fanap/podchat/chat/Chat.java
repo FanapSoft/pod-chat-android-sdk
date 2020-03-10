@@ -44,6 +44,12 @@ import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.pin.pin_message.PinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
+import com.fanap.podchat.chat.thread.public_thread.PublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
@@ -351,7 +357,6 @@ public class Chat extends AsyncAdapter {
     private boolean hasFreeSpace = true;
 
 
-
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
@@ -648,6 +653,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+
     /**
      * It's showed the state of socket
      * When state of the Async changed then the chat ping is stopped by (chatState)flag
@@ -746,8 +752,16 @@ public class Chat extends AsyncAdapter {
                 break;
 
 
-            case Constants.UPDATE_CHAT_PROFILE: {
+            case Constants.IS_NAME_AVAILABLE:
+                handleIsNameAvailable(chatMessage);
+                break;
 
+            case Constants.JOIN_THREAD:
+                handleOnJoinPublicThread(chatMessage);
+                break;
+
+
+            case Constants.UPDATE_CHAT_PROFILE: {
 
                 handleOnChatProfileUpdated(chatMessage);
 
@@ -902,6 +916,34 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    private void handleOnJoinPublicThread(ChatMessage chatMessage) {
+
+        ChatResponse<ResultJoinPublicThread> response = PublicThread.handleJoinThread(chatMessage);
+
+        listenerManager.callOnJoinPublicThread(response);
+
+        showLog("ON JOIN PUBLIC THREAD",gson.toJson(chatMessage));
+
+
+        if(cache){
+
+            messageDatabaseHelper.saveNewThread(response.getResult().getThread());
+
+        }
+
+
+    }
+
+    private void handleIsNameAvailable(ChatMessage chatMessage) {
+
+        ChatResponse<ResultIsNameAvailable> response = PublicThread.handleIsNameAvailableResponse(chatMessage);
+
+        listenerManager.callOnUniqueNameIsAvailable(response);
+
+        showLog("UNIQUE NAME IS AVAILABLE", gson.toJson(chatMessage));
+
+    }
+
     private void handleOnChatProfileUpdated(ChatMessage chatMessage) {
 
         ChatResponse<ResultUpdateProfile> response = UserProfile.handleOutputUpdateProfile(chatMessage);
@@ -911,10 +953,7 @@ public class Chat extends AsyncAdapter {
         showLog("CHAT PROFILE UPDATED", gson.toJson(chatMessage));
 
         if (cache) {
-
-
             messageDatabaseHelper.updateChatProfile(response.getResult());
-
         }
 
 
@@ -1436,7 +1475,9 @@ public class Chat extends AsyncAdapter {
 
 
     /**
-     * @param request
+     * @param request request to get mentioned message of user
+     *                -unreadMentioned
+     *                -allMentioned
      */
 
     public String getMentionList(RequestGetMentionList request) {
@@ -1454,6 +1495,29 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
+
+    /**
+     * @param request request that contains name to check if is available to create a public thread or channel
+     * @return
+     */
+
+    public String checkIsNameAvailable(RequestCheckIsNameAvailable request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = PublicThread.isNameAvailable(request, uniqueId);
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "CHECK IS NAME AVAILABLE");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
 
     /**
      * @param request request for pin message
@@ -6457,6 +6521,94 @@ public class Chat extends AsyncAdapter {
         return getBlockList(request.getCount(), request.getOffset(), handler);
     }
 
+
+    public String createThread(RequestCreateThread request) {
+
+        String uniqueId = generateUniqueId();
+
+
+        if (chatReady) {
+
+
+            ChatThread chatThread = new ChatThread();
+            chatThread.setType(request.getType());
+            chatThread.setInvitees(request.getInvitees());
+            chatThread.setTitle(request.getTitle());
+
+
+            JsonObject chatThreadObject = (JsonObject) gson.toJsonTree(chatThread);
+
+
+            if (Util.isNullOrEmpty(request.getDescription())) {
+                chatThreadObject.remove("description");
+            } else {
+                chatThreadObject.remove("description");
+                chatThreadObject.addProperty("description", request.getDescription());
+            }
+
+            if (Util.isNullOrEmpty(request.getImage())) {
+                chatThreadObject.remove("image");
+            } else {
+                chatThreadObject.remove("image");
+                chatThreadObject.addProperty("image", request.getImage());
+            }
+
+            if (Util.isNullOrEmpty(request.getMetadata())) {
+                chatThreadObject.remove("metadata");
+
+            } else {
+                chatThreadObject.remove("metadata");
+                chatThreadObject.addProperty("metadata", request.getMetadata());
+            }
+
+            if (request instanceof RequestCreatePublicThread) {
+
+                String uniqueName = ((RequestCreatePublicThread) request).getUniqueName();
+
+                chatThreadObject.addProperty("uniqueName", uniqueName);
+
+
+            }
+
+
+            String contentThreadChat = chatThreadObject.toString();
+
+            ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId, getTypeCode());
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+            String asyncContent = jsonObject.toString();
+
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CREATE_THREAD");
+
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+
+        return uniqueId;
+    }
+
+
+    public String joinPublicThread(RequestJoinPublicThread request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String asyncMessage = PublicThread.joinPublicThread(request, uniqueId);
+
+            sendAsyncMessage(asyncMessage, AsyncAckType.Constants.WITHOUT_ACK, "SEND JOIN PUBLIC THREAD");
+
+        } else onChatNotReady(uniqueId);
+
+
+        return uniqueId;
+
+    }
+
+
     /**
      * Create the thread to p to p/channel/group. The list below is showing all of the threads messageType
      * int NORMAL = 0;
@@ -6480,8 +6632,12 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId;
         uniqueId = generateUniqueId();
+
         if (chatReady) {
+
             List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
+
+
             ChatThread chatThread = new ChatThread();
             chatThread.setType(threadType);
             chatThread.setInvitees(invitees);
@@ -6511,6 +6667,7 @@ public class Chat extends AsyncAdapter {
                 chatThreadObject.remove("metadata");
                 chatThreadObject.addProperty("metadata", metadata);
             }
+
             String contentThreadChat = chatThreadObject.toString();
 
             ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId, getTypeCode());

@@ -12,6 +12,11 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -169,6 +174,24 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.connect(requestConnect);
 
+    }
+
+
+    @Override
+    public void checkIsNameAvailable(RequestCheckIsNameAvailable request) {
+
+        chat.checkIsNameAvailable(request);
+    }
+
+    @Override
+    public void createPublicThread(RequestCreatePublicThread request) {
+
+        chat.createThread(request);
+    }
+
+    @Override
+    public void joinPublicThread(RequestJoinPublicThread request) {
+        chat.joinPublicThread(request);
     }
 
     @Override
@@ -1088,4 +1111,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onTypingSignalTimeout(long threadId) {
         view.onTypingSignalTimeout(threadId);
     }
+
+
+    @Override
+    public void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
+        view.onUniqueNameIsAvailable(response);
+    }
+
+    @Override
+    public void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
+        view.onJoinPublicThread(response);
+    }
+
+
+
 }

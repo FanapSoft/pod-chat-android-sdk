@@ -1,7 +1,9 @@
 package com.example.podchat;
 
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.Util;
@@ -76,6 +78,42 @@ public class ExampleUnitTest {
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
     }
+
+
+    @Test
+    public void instanceOfTest() {
+
+        RequestCreatePublicThread request =
+                new RequestCreatePublicThread.Builder(
+                        0, new ArrayList<>(), "unique"
+                ).build();
+
+        getUniqueName(request);
+
+
+    }
+
+
+    public void getUniqueName(RequestCreateThread request) {
+
+
+        if (request instanceof RequestCreatePublicThread) {
+
+            RequestCreatePublicThread pt = (RequestCreatePublicThread) request;
+
+            Assert.assertEquals("unique", pt.getUniqueName());
+
+
+        } else {
+
+            Assert.fail("Name is Lost");
+
+
+        }
+
+
+    }
+
 
     @Test
     public void compareDates() {

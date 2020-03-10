@@ -61,7 +61,27 @@ public class ChatMessageType {
             Constants.PIN_MESSAGE,
             Constants.UNPIN_MESSAGE,
             Constants.UPDATE_LAST_SEEN,
-            Constants.UPDATE_CHAT_PROFILE
+            Constants.UPDATE_CHAT_PROFILE,
+            Constants.IS_NAME_AVAILABLE,
+            Constants.PUBLIC_THREAD_AND_SET_NAME,
+            Constants.PRIVATE_THREAD,
+            Constants.SET_PRIVATE_THREAD_HASH,
+            Constants.GET_THEAD_INFO,
+            Constants.JOIN_THREAD,
+            Constants.INTERACT_MESSAGE,
+            Constants.UPDATE_USER_PROFILE,
+            Constants.CHANGE_THREAD_PRIVACY,
+            Constants.GET_THING_INFO,
+            Constants.GET_REPORT_REASONS,
+            Constants.REPORT_THREAD,
+            Constants.REPORT_USER,
+            Constants.REPORT_MESSAGE,
+            Constants.ALL_UNREAD_MESSAGE_COUNT,
+            Constants.CREATE_BOT,
+            Constants.DEFINE_BOT_COMMAND,
+            Constants.START_BOT,
+            Constants.STOP_BOT,
+
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -99,11 +119,18 @@ public class ChatMessageType {
         int LAST_SEEN_UPDATED = 31;
         int SEEN_MESSAGE_LIST = 32;
         int DELIVERED_MESSAGE_LIST = 33;
+        int IS_NAME_AVAILABLE = 34;
+        int PUBLIC_THREAD_AND_SET_NAME = 35;
+        int PRIVATE_THREAD = 36;
+        int SET_PRIVATE_THREAD_HASH = 37;
+        int GET_THEAD_INFO = 38;
+        int JOIN_THREAD = 39;
+        int INTERACT_MESSAGE = 40;
         int SPAM_PV_THREAD = 41;
         int SET_ROLE_TO_USER = 42;
         int REMOVE_ROLE_FROM_USER = 43;
         int CLEAR_HISTORY = 44;
-//        int SIGNAL_MESSAGE = 45;
+        int UPDATE_USER_PROFILE = 45;
         int SYSTEM_MESSAGE = 46;
         int GET_NOT_SEEN_DURATION = 47;
         int PIN_THREAD = 48;
@@ -112,10 +139,19 @@ public class ChatMessageType {
         int PIN_MESSAGE = 50;
         int UNPIN_MESSAGE = 51;
         int UPDATE_CHAT_PROFILE = 52;
-
+        int CHANGE_THREAD_PRIVACY = 53;
         int GET_USER_ROLES = 54;
-
+        int GET_THING_INFO = 55;
+        int GET_REPORT_REASONS = 56;
+        int REPORT_THREAD = 57;
+        int REPORT_USER = 58;
+        int REPORT_MESSAGE = 59;
         int UPDATE_LAST_SEEN = 60;
+        int ALL_UNREAD_MESSAGE_COUNT = 61;
+        int CREATE_BOT = 62;
+        int DEFINE_BOT_COMMAND = 63 ;
+        int START_BOT = 64;
+        int STOP_BOT = 65;
 
         int ERROR = 999;
 

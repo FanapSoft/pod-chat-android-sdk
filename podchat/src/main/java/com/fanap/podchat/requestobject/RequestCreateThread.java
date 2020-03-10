@@ -14,14 +14,20 @@ public class RequestCreateThread extends BaseRequestObject {
     private List<Invitee> invitees;
     private String title;
     private RequestThreadInnerMessage message;
+    private String description;
+    private String image;
+    private String metadata;
 
-    RequestCreateThread(@NonNull Builder builder) {
+
+    protected RequestCreateThread(@NonNull Builder builder) {
         super(builder);
         this.type = builder.type;
         this.message = builder.message;
         this.title = builder.title;
         this.invitees = builder.invitees;
-        this.message = builder.message;
+        this.description = builder.description;
+        this.image = builder.image;
+        this.metadata = builder.metadata;
 
     }
 
@@ -30,6 +36,10 @@ public class RequestCreateThread extends BaseRequestObject {
         private final List<Invitee> invitees;
         private String title;
         private RequestThreadInnerMessage message;
+
+        private String description;
+        private String image;
+        private String metadata;
 
         public Builder(int type, List<Invitee> invitees) {
             this.invitees = invitees;
@@ -47,6 +57,25 @@ public class RequestCreateThread extends BaseRequestObject {
             this.title = title;
             return this;
         }
+
+        @NonNull
+        public Builder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        @NonNull
+        public Builder withImage(String image) {
+            this.image = image;
+            return this;
+        }
+         @NonNull
+        public Builder withMetadata(String metadata) {
+            this.metadata = metadata;
+            return this;
+        }
+
+
 
         @NonNull
         @Override
@@ -99,5 +128,17 @@ public class RequestCreateThread extends BaseRequestObject {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public String getMetadata() {
+        return metadata;
     }
 }

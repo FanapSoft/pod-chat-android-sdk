@@ -3,6 +3,8 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -808,6 +810,33 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
+
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUniqueNameIsAvailable(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onJoinPublicThread(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
 
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {

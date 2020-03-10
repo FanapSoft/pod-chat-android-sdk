@@ -9,6 +9,11 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
@@ -55,7 +60,6 @@ import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,6 +190,10 @@ public interface ChatContract {
         default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
 
         default void onTypingSignalTimeout(long threadId){}
+
+        default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response){}
+
+        default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
     }
 
     interface presenter {
@@ -401,5 +409,10 @@ public interface ChatContract {
 
         void updateChatProfile(RequestUpdateProfile request);
 
+        void checkIsNameAvailable(RequestCheckIsNameAvailable request);
+
+        void createPublicThread(RequestCreatePublicThread request);
+
+        void joinPublicThread(RequestJoinPublicThread request);
     }
 }

@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -33,6 +32,11 @@ import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.Contact;
@@ -91,8 +95,8 @@ import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.fanap.podchat.example.R;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -127,7 +131,7 @@ public class ChatActivity extends AppCompatActivity
 
     private Button btnUploadImage;
 
-//
+    //
     private static String TOKEN = "3a0ec83a4a1441c18ffa391a162a4e31";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
@@ -631,7 +635,7 @@ public class ChatActivity extends AppCompatActivity
 
         }
 
-       downloadingId = presenter.downloadFile(requestGetFile, new ProgressHandler.IDownloadFile() {
+        downloadingId = presenter.downloadFile(requestGetFile, new ProgressHandler.IDownloadFile() {
 
 
             @Override
@@ -783,7 +787,7 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
-                .Builder(ThreadType.Constants.NORMAL, invite, requestUploadFile,TextMessageType.Constants.PICTURE)
+                .Builder(ThreadType.Constants.NORMAL, invite, requestUploadFile, TextMessageType.Constants.PICTURE)
 //                .message(innerMessage)
                 .build();
 
@@ -1685,6 +1689,28 @@ public class ChatActivity extends AppCompatActivity
                 break;
             }
 
+            case 23: {
+
+                checkIsNameAvailable();
+
+                break;
+            }
+
+            case 24: {
+
+                createPublicThread();
+
+                break;
+
+            }
+
+            case 25:{
+
+                joinPublicThread();
+
+                break;
+            }
+
 
 //            case 18: {
 //
@@ -1711,6 +1737,60 @@ public class ChatActivity extends AppCompatActivity
 
         }
     }
+
+
+
+    private void joinPublicThread() {
+
+        RequestJoinPublicThread request = new RequestJoinPublicThread
+                .Builder("unique_name_777")
+                .build();
+
+
+        presenter.joinPublicThread(request);
+
+
+    }
+
+
+
+    private void createPublicThread() {
+
+
+        Invitee[] invite = new Invitee[]{
+                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("4893", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+        };
+
+        String metac = getMetaData();
+
+        RequestCreatePublicThread request =
+                new RequestCreatePublicThread.Builder(
+                        ThreadType.Constants.PUBLIC_GROUP,
+                        Arrays.asList(invite),
+                        "unique_name_777")
+                        .withDescription("desc at " + new Date())
+                        .withMetadata(metac)
+                        .build();
+
+        presenter.createPublicThread(request);
+
+
+    }
+
+    private void checkIsNameAvailable() {
+
+
+        RequestCheckIsNameAvailable request =
+                new RequestCheckIsNameAvailable.Builder("unique_name_777")
+                        .build();
+
+        presenter.checkIsNameAvailable(request);
+
+
+    }
+
+
 
     private void stopTyping(String uniqueId) {
 
@@ -2168,9 +2248,28 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onTypingSignalTimeout(long threadId) {
 
-        runOnUiThread(() -> Toast.makeText(this, "Typing in Thread with id " + threadId + " has been stopped", Toast.LENGTH_LONG)
-                .show());
+        showToast("Typing in Thread with id " + threadId + " has been stopped");
 
         Log.e("IS_TYPING", "Typing in Thread with id " + threadId + " has been stopped");
+    }
+
+    private void showToast(String text) {
+        runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG)
+                .show());
+    }
+
+
+    @Override
+    public void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
+
+        showToast("The name [ " + response.getResult().getUniqueName() + " ] is available!");
+
+    }
+
+    @Override
+    public void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
+
+        showToast("Joining thread with unique name " + response.getResult().getThread().getTitle() + " was successful");
+
     }
 }
