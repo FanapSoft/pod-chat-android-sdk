@@ -6529,58 +6529,28 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
-
-            ChatThread chatThread = new ChatThread();
-            chatThread.setType(request.getType());
-            chatThread.setInvitees(request.getInvitees());
-            chatThread.setTitle(request.getTitle());
-
-
-            JsonObject chatThreadObject = (JsonObject) gson.toJsonTree(chatThread);
-
-
-            if (Util.isNullOrEmpty(request.getDescription())) {
-                chatThreadObject.remove("description");
-            } else {
-                chatThreadObject.remove("description");
-                chatThreadObject.addProperty("description", request.getDescription());
-            }
-
-            if (Util.isNullOrEmpty(request.getImage())) {
-                chatThreadObject.remove("image");
-            } else {
-                chatThreadObject.remove("image");
-                chatThreadObject.addProperty("image", request.getImage());
-            }
-
-            if (Util.isNullOrEmpty(request.getMetadata())) {
-                chatThreadObject.remove("metadata");
-
-            } else {
-                chatThreadObject.remove("metadata");
-                chatThreadObject.addProperty("metadata", request.getMetadata());
-            }
+            JsonObject chatMessageContent = (JsonObject) gson.toJsonTree(request);
 
             if (request instanceof RequestCreatePublicThread) {
 
                 String uniqueName = ((RequestCreatePublicThread) request).getUniqueName();
 
-                chatThreadObject.addProperty("uniqueName", uniqueName);
+                chatMessageContent.addProperty("uniqueName", uniqueName);
 
 
             }
 
+            AsyncMessage chatMessage = new AsyncMessage();
+            chatMessage.setContent(chatMessageContent.toString());
+            chatMessage.setType(Constants.INVITATION);
+            chatMessage.setToken(getToken());
+            chatMessage.setUniqueId(uniqueId);
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? getTypeCode() : request.getTypeCode() );
 
-            String contentThreadChat = chatThreadObject.toString();
-
-            ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId, getTypeCode());
-
-            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-
-            String asyncContent = jsonObject.toString();
+            String asyncContent = gson.toJson(chatMessage);
 
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CREATE_THREAD");
-
 
         } else {
             onChatNotReady(uniqueId);

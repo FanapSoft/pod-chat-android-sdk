@@ -1658,7 +1658,8 @@ public class MessageDatabaseHelper {
                 threadVo.isAdmin(),
                 threadVo.isPin(),
                 threadVo.isMentioned(),
-                threadVo.getPinMessageVO());
+                threadVo.getPinMessageVO(),
+                threadVo.getUniqueName());
 
 
     }
@@ -1702,7 +1703,8 @@ public class MessageDatabaseHelper {
                 thread.getAdmin() != null ? thread.getAdmin() : false,
                 thread.isPin() != null && thread.isPin(),
                 thread.isMentioned(),
-                null
+                null,
+                thread.getUniqueName()
 
         );
     }

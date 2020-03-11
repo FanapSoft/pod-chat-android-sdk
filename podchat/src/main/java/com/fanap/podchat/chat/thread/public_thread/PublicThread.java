@@ -76,7 +76,11 @@ public class PublicThread {
         message.setUniqueId(uniqueId);
         message.setTypeCode(!Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
 
-        return App.getGson().toJson(message);
+        JsonObject tmp = (JsonObject) App.getGson().toJsonTree(message);
+
+        tmp.remove("subjectId");
+
+        return tmp.toString();
 
     }
 
