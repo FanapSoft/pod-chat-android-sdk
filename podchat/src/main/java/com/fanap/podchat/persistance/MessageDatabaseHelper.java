@@ -2776,4 +2776,11 @@ public class MessageDatabaseHelper {
     }
 
 
+    public void loadAllUnreadMessagesCount(OnWorkDone listener) {
+
+        long count = messageDao.getAllUnreadMessagesCount();
+
+        listener.onWorkDone(count);
+
+    }
 }

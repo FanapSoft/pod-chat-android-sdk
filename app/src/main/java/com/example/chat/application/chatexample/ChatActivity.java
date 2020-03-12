@@ -32,6 +32,7 @@ import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -135,7 +136,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
     //    //
-    private static String TOKEN = "9d2eb76c08ef40869669526d5329d3f2 ";
+    private static String TOKEN = "4f66df341086415aa6161534e4fae8f0";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -2321,5 +2322,11 @@ public class ChatActivity extends AppCompatActivity
 
         showToast("Joining thread with unique name " + response.getResult().getThread().getUniqueName() + " was successful");
 
+    }
+
+    @Override
+    public void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
+
+        showToast("There is " + response.getResult().getUnreadsCount() +  " Unread message");
     }
 }

@@ -42,6 +42,9 @@ import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.MessageManager;
+import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.PinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
 import com.fanap.podchat.chat.thread.public_thread.PublicThread;
@@ -240,7 +243,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.IntBinaryOperator;
 
 import javax.inject.Inject;
 
@@ -753,6 +755,10 @@ public class Chat extends AsyncAdapter {
                 break;
 
 
+            case Constants.ALL_UNREAD_MESSAGE_COUNT:
+                handleOnGetUnreadMessagesCount(chatMessage);
+                break;
+
             case Constants.IS_NAME_AVAILABLE:
                 handleIsNameAvailable(chatMessage);
                 break;
@@ -915,6 +921,18 @@ public class Chat extends AsyncAdapter {
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
+
+        ChatResponse<ResultUnreadMessagesCount> response =
+                MessageManager.handleUnreadMessagesResponse(chatMessage);
+
+        listenerManager.callOnGetUnreadMessagesCount(response);
+
+        showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(chatMessage));
+
+
     }
 
     private void handleOnJoinPublicThread(ChatMessage chatMessage) {
@@ -1490,7 +1508,6 @@ public class Chat extends AsyncAdapter {
     public String getMentionList(RequestGetMentionList request) {
 
         String uniqueId = generateUniqueId();
-
 
         if (cache && request.useCacheData()) {
 
@@ -6722,6 +6739,45 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    public String getAllUnreadMessagesCount(RequestGetUnreadMessagesCount request) {
+
+        String uniqueId = generateUniqueId();
+
+
+        if (cache && request.useCacheData()) {
+
+            loadUnreadMessagesCountFromCache();
+
+
+        }
+
+        if (chatReady) {
+
+            String asyncMessage = MessageManager.getAllUnreadMessgesCount(request, uniqueId);
+
+            sendAsyncMessage(asyncMessage, AsyncAckType.Constants.WITHOUT_ACK, "SEND GET UNREAD MESSAGES COUNT");
+
+        } else onChatNotReady(uniqueId);
+
+
+        return uniqueId;
+
+    }
+
+    private void loadUnreadMessagesCountFromCache() {
+        messageDatabaseHelper.loadAllUnreadMessagesCount(count -> {
+
+
+            ChatResponse<ResultUnreadMessagesCount> response =
+                    MessageManager.handleUnreadMessagesCacheResponse((Long) count);
+
+            listenerManager.callOnGetUnreadMessagesCount(response);
+
+            showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(response));
+
+        });
+    }
+
 
     /**
      * Create the thread to p to p/channel/group. The list below is showing all of the threads messageType
@@ -9172,6 +9228,13 @@ public class Chat extends AsyncAdapter {
         showLog(state, "");
         permit = true;
         checkFreeSpace();
+
+
+
+
+
+
+
     }
 
 

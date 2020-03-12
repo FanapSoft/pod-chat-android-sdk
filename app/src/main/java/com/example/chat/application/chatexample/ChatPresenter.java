@@ -12,6 +12,7 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -1139,5 +1140,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onJoinPublicThread(response);
     }
 
-
+    @Override
+    public void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
+        view.onGetUnreadsMessagesCount(response);
+    }
 }

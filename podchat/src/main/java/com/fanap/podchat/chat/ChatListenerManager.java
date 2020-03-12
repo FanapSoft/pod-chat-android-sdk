@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -834,6 +835,20 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+
+
+    }
+
+    public void callOnGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetUnreadMessagesCount(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
 
 
     }

@@ -9,6 +9,7 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -197,6 +198,8 @@ public interface ChatContract {
         default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response){}
 
         default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
+
+        default void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
     }
 
     interface presenter {

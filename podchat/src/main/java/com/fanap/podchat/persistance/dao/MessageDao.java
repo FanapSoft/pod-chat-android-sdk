@@ -58,7 +58,7 @@ public interface MessageDao {
     int getContactCount();
 
     @Query("update CacheContact set blocked = :blocked where id = :contactId")
-    void updateContactBlockedState(boolean blocked,long contactId);
+    void updateContactBlockedState(boolean blocked, long contactId);
 
 
     //Cache Blocked Contact
@@ -107,6 +107,14 @@ public interface MessageDao {
 
     @Insert(onConflict = REPLACE)
     void insertHistories(List<CacheMessageVO> messageVOS);
+
+    /**
+     * Unread Messags
+     */
+
+    @Query("SELECT sum(unreadCount) from threadvo where unreadCount > 0")
+    long getAllUnreadMessagesCount();
+
 
     /**
      * String Query
@@ -228,7 +236,7 @@ public interface MessageDao {
     void updateThreadPinState(long threadId, boolean isPinned);
 
     @Query("update ThreadVo set lastMessageVOId = :lastMessageId, lastMessage = :lastMessage where id = :threadId")
-    void updateThreadLastMessageVOId(long threadId,long lastMessageId,String lastMessage);
+    void updateThreadLastMessageVOId(long threadId, long lastMessageId, String lastMessage);
 
     @Query("update ThreadVo set lastMessageVOId = null, lastMessage = null where id = :threadId")
     void removeThreadLastMessageVO(long threadId);
@@ -374,8 +382,6 @@ public interface MessageDao {
     GapMessageVO getGap(long id);
 
 
-
-
     //pin message queries
     @Query("select * from pinmessagevo where threadId = :id")
     PinMessageVO getThreadPinnedMessage(long id);
@@ -391,7 +397,6 @@ public interface MessageDao {
 
     @Query("delete from pinmessagevo where threadId = :threadId")
     void deletePinnedMessageByThreadId(long threadId);
-
 
 
     //Chat Profile

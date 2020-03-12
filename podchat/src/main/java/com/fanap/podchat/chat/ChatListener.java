@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -260,4 +261,6 @@ public interface ChatListener {
     default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response){}
 
     default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
+
+    default void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
 }
