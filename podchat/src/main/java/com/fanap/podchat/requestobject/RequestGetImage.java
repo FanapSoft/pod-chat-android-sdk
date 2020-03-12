@@ -6,17 +6,32 @@ public class RequestGetImage {
     private long imageId;
     private String hashCode;
     private boolean downloadable;
+    private boolean useCache = true;
 
-     RequestGetImage(Builder builder) {
+
+    RequestGetImage(Builder builder) {
         this.imageId = builder.imageId;
         this.hashCode = builder.hashCode;
         this.downloadable = builder.downloadable;
+        this.useCache = builder.useCache;
+
     }
+
+
+    public boolean canUseCache() {
+        return useCache;
+    }
+
+    public void setUseCache(boolean useCache) {
+        this.useCache = useCache;
+    }
+
 
     public static class Builder {
         private long imageId;
         private String hashCode;
         private boolean downloadable;
+        private boolean useCache = true;
 
 
         public Builder(long imageId, String hashCode, boolean downloadable) {
@@ -24,6 +39,13 @@ public class RequestGetImage {
             this.hashCode = hashCode;
             this.downloadable = downloadable;
         }
+
+        @NonNull
+        public Builder withNoCache() {
+            this.useCache = false;
+            return this;
+        }
+
 
         @NonNull
         public RequestGetImage build() {

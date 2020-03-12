@@ -54,7 +54,9 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
@@ -192,6 +194,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void joinPublicThread(RequestJoinPublicThread request) {
         chat.joinPublicThread(request);
+    }
+
+    @Override
+    public void getContact(RequestGetContact request) {
+        chat.getContacts(request, null);
+    }
+
+    @Override
+    public void getBlockList(RequestBlockList request) {
+        chat.getBlockList(request, null);
+    }
+
+    @Override
+    public void getThreadParticipant(RequestThreadParticipant request) {
+        chat.getThreadParticipants(request, null);
     }
 
     @Override
@@ -878,7 +895,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
 
-
     @Override
     public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
         super.onCreateThread(content, outPutThread);
@@ -1122,7 +1138,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
         view.onJoinPublicThread(response);
     }
-
 
 
 }

@@ -32,9 +32,9 @@ public class RequestGetMentionList extends BaseRequestObject {
 
     public static class Builder extends BaseRequestObject.Builder {
 
-        private Boolean allMentioned;
+        private Boolean allMentioned = true;
 
-        private Boolean unreadMentioned;
+        private Boolean unreadMentioned = false;
 
         private Long threadId;
 
@@ -49,6 +49,11 @@ public class RequestGetMentionList extends BaseRequestObject {
 
         public Builder setUnreadMentioned(Boolean unreadMentioned) {
             this.unreadMentioned = unreadMentioned;
+            return this;
+        }
+
+        public Builder unreadMentions() {
+            this.unreadMentioned = true;
             return this;
         }
 
@@ -67,6 +72,12 @@ public class RequestGetMentionList extends BaseRequestObject {
         @Override
         public Builder offset(long offset) {
             super.offset(offset);
+            return this;
+        }
+
+        @Override
+        public Builder withNoCache() {
+            super.withNoCache();
             return this;
         }
 

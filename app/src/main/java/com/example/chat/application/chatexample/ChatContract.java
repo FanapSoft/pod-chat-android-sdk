@@ -26,7 +26,9 @@ import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestAddContact;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
@@ -56,6 +58,7 @@ import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
@@ -414,5 +417,12 @@ public interface ChatContract {
         void createPublicThread(RequestCreatePublicThread request);
 
         void joinPublicThread(RequestJoinPublicThread request);
+
+        void getContact(RequestGetContact request);
+
+        void getBlockList(RequestBlockList request);
+
+        void getThreadParticipant(RequestThreadParticipant request);
+
     }
 }

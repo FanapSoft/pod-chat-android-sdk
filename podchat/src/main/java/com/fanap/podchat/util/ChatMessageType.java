@@ -66,7 +66,7 @@ public class ChatMessageType {
             Constants.PUBLIC_THREAD_AND_SET_NAME,
             Constants.PRIVATE_THREAD,
             Constants.SET_PRIVATE_THREAD_HASH,
-            Constants.GET_THEAD_INFO,
+            Constants.GET_THREAD_INFO,
             Constants.JOIN_THREAD,
             Constants.INTERACT_MESSAGE,
             Constants.UPDATE_USER_PROFILE,
@@ -123,7 +123,7 @@ public class ChatMessageType {
         int PUBLIC_THREAD_AND_SET_NAME = 35;
         int PRIVATE_THREAD = 36;
         int SET_PRIVATE_THREAD_HASH = 37;
-        int GET_THEAD_INFO = 38;
+        int GET_THREAD_INFO = 38;
         int JOIN_THREAD = 39;
         int INTERACT_MESSAGE = 40;
         int SPAM_PV_THREAD = 41;

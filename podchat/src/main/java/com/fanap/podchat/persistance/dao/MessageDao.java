@@ -148,6 +148,10 @@ public interface MessageDao {
     @RawQuery
     List<CacheMessageVO> getRawHistory(SupportSQLiteQuery query);
 
+    @RawQuery
+    long getHistoryContentCount(SupportSQLiteQuery query);
+
+
     /**
      * Delete message
      */

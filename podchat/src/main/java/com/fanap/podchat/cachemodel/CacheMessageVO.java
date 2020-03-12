@@ -30,6 +30,8 @@ public class CacheMessageVO {
     private String metadata;
     private String systemMetadata;
     private boolean hasGap = false;
+    private boolean mentioned = false;
+
 
     @Ignore
     private CacheParticipant participant;
@@ -258,6 +260,13 @@ public class CacheMessageVO {
         this.timeNanos = timeNanos;
     }
 
+    public boolean isMentioned() {
+        return mentioned;
+    }
+
+    public void setMentioned(boolean mentioned) {
+        this.mentioned = mentioned;
+    }
 
     public CacheMessageVO(MessageVO messageVO) {
 
@@ -276,6 +285,7 @@ public class CacheMessageVO {
         this.metadata = messageVO.getMetadata();
         this.systemMetadata = messageVO.getSystemMetadata();
         this.hasGap = messageVO.hasGap();
+        this.mentioned = messageVO.isMentioned();
         try {
 
 

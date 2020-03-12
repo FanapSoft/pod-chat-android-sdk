@@ -55,7 +55,9 @@ import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestAddContact;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
@@ -81,6 +83,7 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
@@ -131,15 +134,15 @@ public class ChatActivity extends AppCompatActivity
 
     private Button btnUploadImage;
 
-//    //
-//    private static String TOKEN = "3a0ec83a4a1441c18ffa391a162a4e31";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    //    //
+    private static String TOKEN = "9d2eb76c08ef40869669526d5329d3f2 ";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = "chatlocal";
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = "chatlocal";
 
 
     private static String appId = "POD-Chat";
@@ -150,20 +153,20 @@ public class ChatActivity extends AppCompatActivity
      */
 
 //
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
 
     /**
      * Main Server Setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
@@ -182,12 +185,12 @@ public class ChatActivity extends AppCompatActivity
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 14234;
+    public static int TEST_THREAD_ID = 14234;
 
 
     //integration /group
 
-    public static int TEST_THREAD_ID = 7090;
+//    public static int TEST_THREAD_ID = 7090;
 //
 
     private String fileUri;
@@ -372,12 +375,7 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             }
                             case 5: {
-                                presenter.getBlockList(10L, 0L, new ChatHandler() {
-                                    @Override
-                                    public void onGetBlockList(String uniqueId) {
-                                        super.onGetBlockList(uniqueId);
-                                    }
-                                });
+                                getBlockList();
 
                                 break;
                             }
@@ -581,6 +579,25 @@ public class ChatActivity extends AppCompatActivity
 
 
                         }
+                    }
+
+                    private void getBlockList() {
+
+                        RequestBlockList request =
+                                new RequestBlockList.Builder()
+                                        .count(10)
+                                        .offset(0)
+                                        .withNoCache()
+                                        .build();
+
+                        presenter.getBlockList(request);
+
+//                        presenter.getBlockList(10L, 0L, new ChatHandler() {
+//                            @Override
+//                            public void onGetBlockList(String uniqueId) {
+//                                super.onGetBlockList(uniqueId);
+//                            }
+//                        });
                     }
 
                     @Override
@@ -1303,10 +1320,11 @@ public class ChatActivity extends AppCompatActivity
         //2107
         RequestGetAdmin requestGetAdmin = new RequestGetAdmin
 //                .Builder(10654,true)
-                .Builder()
-                .admin(true)
-                .count(50)
-                .threadId(TEST_THREAD_ID)
+                .Builder(TEST_THREAD_ID)
+//                .admin(true)
+//                .count(50)
+//                .threadId(TEST_THREAD_ID)
+                .withNoCache()
                 .build();
 
         presenter.getAdminList(requestGetAdmin);
@@ -1507,12 +1525,7 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(20, null, TEST_THREAD_ID, new ChatHandler() {
-                    @Override
-                    public void onGetThreadParticipant(String uniqueId) {
-                        super.onGetThreadParticipant(uniqueId);
-                    }
-                });
+                getThreadParticipants();
 
 
                 break;
@@ -1677,11 +1690,14 @@ public class ChatActivity extends AppCompatActivity
 
             case 22: {
 
-                RequestGetMentionList req = new RequestGetMentionList.Builder(TEST_THREAD_ID)
-                        .setAllMentioned(true)
+                RequestGetMentionList req = new RequestGetMentionList
+                        .Builder(TEST_THREAD_ID)
+//                        .setAllMentioned(true)
 //                        .setUnreadMentioned(true)
+//                        .unreadMentions()
                         .offset(0)
                         .count(25)
+//                        .withNoCache()
                         .build();
 
                 presenter.getMentionList(req);
@@ -1704,7 +1720,7 @@ public class ChatActivity extends AppCompatActivity
 
             }
 
-            case 25:{
+            case 25: {
 
                 joinPublicThread();
 
@@ -1738,6 +1754,28 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
+    private void getThreadParticipants() {
+
+        RequestThreadParticipant request =
+                new RequestThreadParticipant.Builder()
+                        .count(20)
+                        .offset(0)
+                        .threadId(TEST_THREAD_ID)
+                        .withNoCache()
+                        .build();
+
+
+        presenter.getThreadParticipant(request);
+
+
+//        presenter.getThreadParticipant(20, null, TEST_THREAD_ID, new ChatHandler() {
+//            @Override
+//            public void onGetThreadParticipant(String uniqueId) {
+//                super.onGetThreadParticipant(uniqueId);
+//            }
+//        });
+    }
+
 
     public static final String THREAD_UNIQUE_NAME = "unique_name_4";
 
@@ -1752,7 +1790,6 @@ public class ChatActivity extends AppCompatActivity
 
 
     }
-
 
 
     private void createPublicThread() {
@@ -1792,7 +1829,6 @@ public class ChatActivity extends AppCompatActivity
 
 
     }
-
 
 
     private void stopTyping(String uniqueId) {
@@ -1933,6 +1969,7 @@ public class ChatActivity extends AppCompatActivity
 //                .offset(0)
                 .count(50)
 //                .uniqueIds(uniqueIds)
+                .withNoCache()
                 .toTime(System.currentTimeMillis())
                 .build();
 
@@ -1967,7 +2004,10 @@ public class ChatActivity extends AppCompatActivity
 //                .newMessages()
 //                .partnerCoreContactId(566)
                 .count(50)
+                .withNoCache()
                 .build();
+
+
         presenter.getThreads(requestThread, null);
 
 //        presenter.getConversationVOS(5, null, null, null, null);
@@ -2008,7 +2048,14 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void getContacts() {
-        presenter.getContact(0, 0L, null);
+
+        RequestGetContact request = new RequestGetContact.Builder()
+//                .withNoCache()
+                .build();
+
+//        presenter.getContact(0, 0L, null);
+
+        presenter.getContact(request);
     }
 
     @Override

@@ -14,16 +14,11 @@ import com.google.gson.JsonSyntaxException;
 public class PublicThread {
 
 
-
-    public static String isNameAvailable(RequestCheckIsNameAvailable request, String uniqueId){
-
-
-        JsonObject content = new JsonObject();
-        content.addProperty("uniqueName",request.getUniqueName());
+    public static String isNameAvailable(RequestCheckIsNameAvailable request, String uniqueId) {
 
 
         AsyncMessage message = new AsyncMessage();
-        message.setContent(content.toString());
+        message.setContent(request.getUniqueName());
         message.setToken(CoreConfig.token);
         message.setType(ChatMessageType.Constants.IS_NAME_AVAILABLE);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -31,10 +26,6 @@ public class PublicThread {
         message.setTypeCode(!Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
 
         return App.getGson().toJson(message);
-
-
-
-
 
 
     }
@@ -58,18 +49,11 @@ public class PublicThread {
     }
 
 
-
-
-    public static String joinPublicThread(RequestJoinPublicThread request,String uniqueId){
-
-
-        JsonObject content = new JsonObject();
-
-        content.addProperty("uniqueName",request.getUniqueName());
+    public static String joinPublicThread(RequestJoinPublicThread request, String uniqueId) {
 
 
         AsyncMessage message = new AsyncMessage();
-        message.setContent(content.toString());
+        message.setContent(request.getUniqueName());
         message.setToken(CoreConfig.token);
         message.setType(ChatMessageType.Constants.JOIN_THREAD);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -91,7 +75,7 @@ public class PublicThread {
         Thread thread = new Thread();
 
         try {
-            thread = App.getGson().fromJson(chatMessage.getContent(),Thread.class);
+            thread = App.getGson().fromJson(chatMessage.getContent(), Thread.class);
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
         }
@@ -107,11 +91,6 @@ public class PublicThread {
         return response;
 
     }
-
-
-
-
-
 
 
 }

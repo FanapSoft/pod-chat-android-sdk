@@ -15,6 +15,7 @@ public class RequestSearchContact {
     private String id;
     private final String offset;
     private final String size;
+    private boolean useCache = true;
 
     public RequestSearchContact(Builder builder) {
         this.firstName = builder.firstName;
@@ -26,6 +27,7 @@ public class RequestSearchContact {
         this.email = builder.email;
         this.typeCode = builder.typeCode;
         this.query = builder.query;
+        this.useCache = builder.useCache;
     }
 
     public RequestSearchContact(String size, String offset) {
@@ -81,6 +83,14 @@ public class RequestSearchContact {
         this.query = query;
     }
 
+    public boolean canUseCache() {
+        return useCache;
+    }
+
+    public void setUseCache(boolean useCache) {
+        this.useCache = useCache;
+    }
+
     public static class Builder {
         private String firstName;
         private String lastName;
@@ -91,6 +101,8 @@ public class RequestSearchContact {
         private String query;
         private final String offset;
         private final String size;
+        private boolean useCache = true;
+
 
         public Builder(String offset, String size) {
             this.offset = offset;
@@ -136,6 +148,12 @@ public class RequestSearchContact {
         @NonNull
         public Builder cellphoneNumber(String cellphoneNumber) {
             this.cellphoneNumber = cellphoneNumber;
+            return this;
+        }
+
+        @NonNull
+        public Builder withNoCache() {
+            this.useCache = false;
             return this;
         }
 
