@@ -148,6 +148,7 @@ public class ChatMessageType {
         int REPORT_MESSAGE = 59;
         int UPDATE_LAST_SEEN = 60;
         int ALL_UNREAD_MESSAGE_COUNT = 61;
+
         int CREATE_BOT = 62;
         int DEFINE_BOT_COMMAND = 63 ;
         int START_BOT = 64;
