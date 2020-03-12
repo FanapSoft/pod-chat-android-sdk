@@ -136,14 +136,14 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
     //    //
-    private static String TOKEN = "4f66df341086415aa6161534e4fae8f0";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
+//    private static String TOKEN = "4f66df341086415aa6161534e4fae8f0";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
 
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = "chatlocal";
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = "chatlocal";
 
 
     private static String appId = "POD-Chat";
@@ -154,20 +154,20 @@ public class ChatActivity extends AppCompatActivity
      */
 
 //
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
 
     /**
      * Main Server Setting:
      */
-
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
@@ -186,12 +186,12 @@ public class ChatActivity extends AppCompatActivity
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 14234;
+//    public static int TEST_THREAD_ID = 14234;
 
 
     //integration /group
 
-//    public static int TEST_THREAD_ID = 7090;
+    public static int TEST_THREAD_ID = 7090;
 //
 
     private String fileUri;
@@ -1778,7 +1778,8 @@ public class ChatActivity extends AppCompatActivity
     }
 
 
-    public static final String THREAD_UNIQUE_NAME = "unique_name_4";
+    public static final String THREAD_UNIQUE_NAME = "unique_name_4_1584016531111";
+//    public static final String THREAD_UNIQUE_NAME = "unique_name_4_" + new Date().getTime();
 
     private void joinPublicThread() {
 
@@ -1970,7 +1971,7 @@ public class ChatActivity extends AppCompatActivity
 //                .offset(0)
                 .count(50)
 //                .uniqueIds(uniqueIds)
-                .withNoCache()
+//                .withNoCache()
                 .toTime(System.currentTimeMillis())
                 .build();
 
@@ -2005,7 +2006,7 @@ public class ChatActivity extends AppCompatActivity
 //                .newMessages()
 //                .partnerCoreContactId(566)
                 .count(50)
-                .withNoCache()
+//                .withNoCache()
                 .build();
 
 
@@ -2327,6 +2328,6 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
 
-        showToast("There is " + response.getResult().getUnreadsCount() +  " Unread message");
+        showToast("There is " + response.getResult().getUnreadsCount() + " Unread message");
     }
 }

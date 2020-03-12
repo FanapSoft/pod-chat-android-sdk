@@ -33,11 +33,9 @@ public class PublicThread {
 
     public static ChatResponse<ResultIsNameAvailable> handleIsNameAvailableResponse(ChatMessage chatMessage) {
 
-        String name = chatMessage.getContent();
+        String content = chatMessage.getContent();
 
-        ResultIsNameAvailable result = new ResultIsNameAvailable();
-
-        result.setUniqueName(name);
+        ResultIsNameAvailable result = App.getGson().fromJson(content,ResultIsNameAvailable.class);
 
         ChatResponse<ResultIsNameAvailable> response = new ChatResponse<>();
 
