@@ -2245,6 +2245,17 @@ public class MessageDatabaseHelper {
         PinMessageVO pinMessageVO = thread.getPinMessageVO();
         pinMessageVO.setThreadId(thread.getId());
         messageDao.insertPinnedMessage(pinMessageVO);
+
+
+        Participant participant = pinMessageVO.getParticipant();
+
+        if(participant != null){
+
+            CacheParticipant cacheParticipant = App
+            messageDao.insertParticipant();
+
+
+        }
     }
 
     private void insertInviter(ThreadVo threadVo) {
