@@ -11,9 +11,9 @@
 
 - disable cache per function
     
-    Request request = new Request.Builder()
-        .withNoCache()
-        .build()
+  	  Request request = new Request.Builder()
+     	   .withNoCache()
+      	  .build()
         
 
 
@@ -22,14 +22,14 @@
 
     Request:
 
-     RequestCheckIsNameAvailable request = new RequestCheckIsNameAvailable
-        .Builder(Long)
-        .build();
+		RequestCheckIsNameAvailable request = new RequestCheckIsNameAvailable
+        	.Builder(Long)
+        	.build();
         
         
      
      
-     chat.isNameAvailable(request);
+  		chat.isNameAvailable(request);
      
      
 
@@ -38,7 +38,7 @@
     
      if name is available
     
-     onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable>)
+    	 onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable>)
      
      or error if not
     
@@ -49,7 +49,7 @@
 
     
      
-     RequestCreatePublicThread request =
+   	  RequestCreatePublicThread request =
                     new RequestCreatePublicThread.Builder(
                             int, //public thread type 
                             List<Invitee>, // list of participants
@@ -61,14 +61,14 @@
                             .build();
                             
      
-     chat.createThread(request);
+     	chat.createThread(request);
      
      
      
      
                             
      
-     onCreateThread(ChatResponse<ResultThread>)
+   	  onCreateThread(ChatResponse<ResultThread>)
 
 
 
@@ -76,12 +76,12 @@
 - join a public thread with unique name
 
     
-    RequestJoinPublicThread request = new RequestJoinPublicThread
+  	  RequestJoinPublicThread request = new RequestJoinPublicThread
                     .Builder(String) // thread unique name
                     .build();
                     
     
-    chat.joinPublicThread(request)
+ 	   chat.joinPublicThread(request)
  
  
  
@@ -89,7 +89,7 @@
     
     
     
-    onJoinPublicThread(ChatResponse<ResultJoinPublicThread>)
+ 	   onJoinPublicThread(ChatResponse<ResultJoinPublicThread>)
     
     
     
