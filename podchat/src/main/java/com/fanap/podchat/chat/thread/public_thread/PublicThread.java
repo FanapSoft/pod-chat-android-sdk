@@ -14,7 +14,7 @@ import com.google.gson.JsonSyntaxException;
 public class PublicThread {
 
 
-    public static String isNameAvailable(RequestCheckIsNameAvailable request, String uniqueId) {
+    public static String checkIfNameIsAvailable(RequestCheckIsNameAvailable request, String uniqueId) {
 
 
         AsyncMessage message = new AsyncMessage();

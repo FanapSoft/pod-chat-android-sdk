@@ -183,7 +183,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void checkIsNameAvailable(RequestCheckIsNameAvailable request) {
 
-        chat.checkIsNameAvailable(request);
+        chat.isNameAvailable(request);
     }
 
     @Override

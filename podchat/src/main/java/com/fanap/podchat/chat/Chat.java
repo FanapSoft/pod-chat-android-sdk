@@ -1553,13 +1553,13 @@ public class Chat extends AsyncAdapter {
      * @return
      */
 
-    public String checkIsNameAvailable(RequestCheckIsNameAvailable request) {
+    public String isNameAvailable(RequestCheckIsNameAvailable request) {
 
         String uniqueId = generateUniqueId();
 
         if (chatReady) {
 
-            String message = PublicThread.isNameAvailable(request, uniqueId);
+            String message = PublicThread.checkIfNameIsAvailable(request, uniqueId);
 
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "CHECK IS NAME AVAILABLE");
 
@@ -6738,6 +6738,11 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
 
     }
+
+    RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
+            .build();
+
+
 
     public String getAllUnreadMessagesCount(RequestGetUnreadMessagesCount request) {
 

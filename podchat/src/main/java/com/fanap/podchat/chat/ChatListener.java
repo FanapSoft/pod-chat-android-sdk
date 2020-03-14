@@ -263,4 +263,6 @@ public interface ChatListener {
     default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
 
     default void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
+
+    default void onCreateThread(ChatResponse<ResultThread> response){}
 }

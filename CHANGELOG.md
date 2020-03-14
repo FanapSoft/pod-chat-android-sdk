@@ -6,7 +6,24 @@
 All notable changes to this project will be documented here.
 
 
-#Version [0.6.1.0] -2020-4-3
+
+## Version [0.6.1.1] -2020-3-14
+
+[Added] Ability to disable cache per function
+
+[Added] `isNameAvailable`
+
+[Added] `createPublicThread`
+
+[Added] `joinPublicThread`
+
+[Added] `getUnreadMessagesCount`
+
+
+
+
+
+#Version [0.6.1.0] -2020-3-4
 
 
 [Added] addParticipants with username

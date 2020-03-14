@@ -332,7 +332,11 @@ public class ChatListenerManager {
     public void callOnCreateThread(String content, ChatResponse<ResultThread> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
+
                 listener.onCreateThread(content, response);
+
+                listener.onCreateThread(response);
+
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
