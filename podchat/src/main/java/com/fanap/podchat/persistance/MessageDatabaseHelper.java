@@ -54,6 +54,7 @@ import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.FunctionalListener;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Util;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.File;
 import java.io.IOException;
@@ -608,7 +609,6 @@ public class MessageDatabaseHelper {
 
 
         //delete from pinned message
-
         PinMessageVO pinnedMessage = messageDao.getThreadPinnedMessage(subjectId);
 
         if (pinnedMessage != null && pinnedMessage.getMessageId() == id) {
@@ -1060,8 +1060,30 @@ public class MessageDatabaseHelper {
     private void addPinnedMessageOfThread(ThreadVo threadVo) {
         PinMessageVO pinnedMessage = messageDao.getThreadPinnedMessage(threadVo.getId());
 
-        if (pinnedMessage != null)
+        if (pinnedMessage != null){
+
+
+            //get cached participant
+            if(pinnedMessage.getParticipantId() > 0 ){
+
+                CacheParticipant cacheParticipant = messageDao.getParticipant(pinnedMessage.getParticipantId());
+
+
+                if(cacheParticipant != null){
+
+                    //convert cached participant to participant
+
+                    Participant participant = cacheToParticipantMapper(cacheParticipant,false,null);
+
+                    pinnedMessage.setParticipant(participant);
+
+
+                }
+
+            }
+
             threadVo.setPinMessageVO(pinnedMessage);
+        }
     }
 
     private String addOrderAndLimitAndOffset(long offset, long count, String order, String rawQuery) {
@@ -2242,20 +2264,28 @@ public class MessageDatabaseHelper {
     }
 
     private void insertPinnedMessage(Thread thread) {
+
         PinMessageVO pinMessageVO = thread.getPinMessageVO();
         pinMessageVO.setThreadId(thread.getId());
+
+
+
+
+        try {
+            Participant participant = pinMessageVO.getParticipant();
+
+            if(participant != null){
+                String participantJson = App.getGson().toJson(participant);
+                CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson,CacheParticipant.class);
+                messageDao.insertParticipant(cacheParticipant);
+                pinMessageVO.setParticipantId(cacheParticipant.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         messageDao.insertPinnedMessage(pinMessageVO);
 
-
-        Participant participant = pinMessageVO.getParticipant();
-
-        if(participant != null){
-
-            CacheParticipant cacheParticipant = App
-            messageDao.insertParticipant();
-
-
-        }
     }
 
     private void insertInviter(ThreadVo threadVo) {
@@ -2724,7 +2754,19 @@ public class MessageDatabaseHelper {
 
         pinMessageVO.setText(result.getText());
 
+        if(result.getParticipant() != null){
+
+            Participant participant = result.getParticipant();
+
+            String participantJson = App.getGson().toJson(participant);
+            CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson,CacheParticipant.class);
+            messageDao.insertParticipant(cacheParticipant);
+            pinMessageVO.setParticipantId(cacheParticipant.getId());
+
+        }
+
         messageDao.insertPinnedMessage(pinMessageVO);
+
 
     }
 
