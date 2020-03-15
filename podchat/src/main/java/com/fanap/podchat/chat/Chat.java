@@ -1059,6 +1059,7 @@ public class Chat extends AsyncAdapter {
 
         showLog("RECEIVE CURRENT USER ROLES", gson.toJson(response));
 
+
     }
 
     private void handOnUnPinThread(ChatMessage chatMessage) {
@@ -1785,7 +1786,12 @@ public class Chat extends AsyncAdapter {
                 lFileUpload.setFile(file);
 
                 if (FileUtils.isImage(mimeType)) {
-                    uploadImageFileMessage(lFileUpload);
+
+                    if (FileUtils.isGif(mimeType)) {
+                        uploadFileMessage(lFileUpload);
+                    } else uploadImageFileMessage(lFileUpload);
+
+
                 } else {
                     uploadFileMessage(lFileUpload);
                 }
@@ -6739,11 +6745,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
-            .build();
-
-
-
     public String getAllUnreadMessagesCount(RequestGetUnreadMessagesCount request) {
 
         String uniqueId = generateUniqueId();
@@ -6892,7 +6893,6 @@ public class Chat extends AsyncAdapter {
 //                Constants.INVITATION,
 //                request.getMessage().getText(),
 //                uniqueIds.get(0));
-
         if (chatReady) {
 
             if (request.getFile() != null && request.getFile() instanceof RequestUploadImage) {
@@ -9235,11 +9235,6 @@ public class Chat extends AsyncAdapter {
         checkFreeSpace();
 
 
-
-
-
-
-
     }
 
 
@@ -9762,6 +9757,10 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnUpdateThreadInfo(threadJson, chatResponse);
         showLog("RECEIVE_UPDATE_THREAD_INFO", threadJson);
+
+        if (cache) {
+            messageDatabaseHelper.saveNewThread(thread);
+        }
 
     }
 
