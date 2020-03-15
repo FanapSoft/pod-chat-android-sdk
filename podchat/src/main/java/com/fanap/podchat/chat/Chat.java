@@ -1044,10 +1044,9 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultPinMessage> response = PinMessage.handleOnMessageUnPinned(chatMessage);
         listenerManager.callOnUnPinMessage(response);
-        showLog("MESSAGE_UNPINNED", gson.toJson(chatMessage));
+        showLog("MESSAGE_UNPINNED", gson.toJson(response));
         if (cache) {
             messageDatabaseHelper.deletePinnedMessageByThreadId(chatMessage.getSubjectId());
-//            messageDatabaseHelper.deletePinnedMessageById(result.getMessageId());
         }
     }
 
