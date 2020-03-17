@@ -11096,10 +11096,12 @@ public class Chat extends AsyncAdapter {
         ArrayList<String> cellphoneNumbers = new ArrayList<>();
         ArrayList<String> lastNames = new ArrayList<>();
         ArrayList<String> typeCodes = new ArrayList<>();
+        ArrayList<String> uniqueIds = new ArrayList<>();
 
         for (PhoneContact contact : phoneContacts) {
             firstNames.add(contact.getName());
             lastNames.add(contact.getLastName());
+            uniqueIds.add(generateUniqueId());
 
 
             String phoneNum = String.valueOf(contact.getPhoneNumber());
@@ -11123,12 +11125,23 @@ public class Chat extends AsyncAdapter {
 
             if (!Util.isNullOrEmpty(getTypeCode())) {
 
-                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
-                        , cellphoneNumbers, typeCodes);
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers,
+                        typeCodes);
 
             } else {
-                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
-                        , cellphoneNumbers);
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers);
             }
 
             Log.d(TAG, "Call to add contact");
