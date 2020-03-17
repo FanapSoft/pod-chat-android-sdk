@@ -108,6 +108,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private ChatContract.view view;
     private Context context;
     private Activity activity;
+    private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
+
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
@@ -127,6 +129,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.rawLog(true);
 
         chat.setDownloadDirectory(context.getCacheDir());
+
+        chat.enableNotification(NOTIFICATION_APPLICATION_ID, activity,
+                userId -> Log.e("CHAT_SDK_PRESENTER", "UserIdReceived: " + userId));
 
 
 //        chat.setNetworkListenerEnabling(false);

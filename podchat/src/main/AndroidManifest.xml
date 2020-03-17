@@ -9,4 +9,26 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
+
+    <application>
+
+        <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.arissystem.touca.app" />
+            </intent-filter>
+        </receiver>
+
+
+        <receiver android:name="com.arissystem.touca.tmtp.sdk.receivers.TmtpBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+
+
+    </application>
+
 </manifest>
