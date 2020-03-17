@@ -1565,20 +1565,6 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
 
-        RequestGetUnreadMessagesCount re = new RequestGetUnreadMessagesCount.Builder()
-                .withMuteThreads()
-                .build();
-
-
-        getAllUnreadMessagesCount(re);
-
-
-
-
-
-
-
-
         if (chatReady) {
 
             String message = PublicThread.checkIfNameIsAvailable(request, uniqueId);
@@ -6801,7 +6787,7 @@ public class Chat extends AsyncAdapter {
 
             listenerManager.callOnGetUnreadMessagesCount(response);
 
-            showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(response));
+            showLog("ON GET UNREAD MESSAGES COUNT FROM CACHE", gson.toJson(response));
 
         });
     }
