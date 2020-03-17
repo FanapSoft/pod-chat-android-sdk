@@ -130,8 +130,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.setDownloadDirectory(context.getCacheDir());
 
-        chat.enableNotification(NOTIFICATION_APPLICATION_ID, activity,
-                userId ->
+        chat.enableNotification(NOTIFICATION_APPLICATION_ID, activity, userId ->
                         Log.e("CHAT_SDK_PRESENTER", "UserIdReceived: " + userId));
 
 

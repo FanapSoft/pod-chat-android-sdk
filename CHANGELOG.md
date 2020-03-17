@@ -6,6 +6,16 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.6.2.0] -2020-3-17
+
+[Added] Notification Service
+
+[Added] mute parameter to `getUnreadMessagesCount`
+
+[BugFixed] `syncContacts` repetitive numbers
+
+
+
 
 ## Version [0.6.1.1] -2020-3-14
 

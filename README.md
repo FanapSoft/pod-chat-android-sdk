@@ -2,6 +2,44 @@
 
 **Fanap's POD** Chat service
 
+## Version [0.6.2.0] -2020-3-17
+
+- Adding notification:
+
+
+        * Import 'tmtp_sdk_notif.aar as module
+        * add gradle dependency:
+         
+            implementation project(':tmtp_sdk_notif')
+            
+        * add this to end of build.gradle - app module:
+        
+            configurations {
+            
+                compile.exclude module: 'tmtp_sdk'
+            
+            }
+
+        
+        * finally enable notifiaction
+
+        chat.enableNotification(
+        NOTIFICATION_APPLICATION_ID,    // registered applicationId in notification server
+        activity,  
+        userId -> // userId for sending notification to this device
+                            );
+                            
+
+
+- use mute parameter in getAllUnreadMessagesCount to get mute threads unread messages count too:
+
+
+            RequestGetUnreadMessagesCount request = new RequestGetUnreadMessagesCount
+                    .Builder()
+                    .withMuteThreads()
+                    .build();
+                            
+        
 
 
 
