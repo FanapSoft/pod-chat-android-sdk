@@ -200,9 +200,13 @@ public interface ChatContract {
         default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
 
         default void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
+
+        default void onGetToken(String token){}
     }
 
     interface presenter {
+
+        void enableAutoRefresh(Activity activity,String entry);
 
         void sendLocationMessage(RequestLocationMessage request);
 

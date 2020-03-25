@@ -136,7 +136,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
     //    //
-    private static String TOKEN = "3119dab4592642639d0cda71714fd117";
+    private static String TOKEN = "d902325f9aa549d4abab280a5bf8eb17";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -181,12 +181,12 @@ public class ChatActivity extends AppCompatActivity
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 5182;
+//    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 14234;
+    public static int TEST_THREAD_ID = 14234;
 
 
     //integration /group
@@ -269,6 +269,18 @@ public class ChatActivity extends AppCompatActivity
             TOKEN = editTextToken.getText().toString();
 
             presenter.setToken(TOKEN);
+
+        });
+
+        buttonToken.setOnLongClickListener(v -> {
+
+            String entry = editTextToken.getText().toString();
+            editTextToken.setText("");
+            editTextToken.setHint("Enter OTP or Number");
+            presenter.enableAutoRefresh(this,entry);
+
+
+            return true;
 
         });
 
@@ -1192,9 +1204,10 @@ public class ChatActivity extends AppCompatActivity
                         RequestSearchContact requestSearchContact = new RequestSearchContact
                                 .Builder("0", "50")
 //                                .id("1063")
-//                                .cellphoneNumber("09")
+                                .cellphoneNumber("09")
 //                                .lastName("Khei")
-                                .firstName("Pooria")
+//                                .firstName("Pooria")
+//                                .query("hasUser = true")
                                 .build();
                         presenter.searchContact(requestSearchContact);
                         break;
@@ -2329,5 +2342,23 @@ public class ChatActivity extends AppCompatActivity
     public void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
 
         showToast("There is " + response.getResult().getUnreadsCount() + " Unread message");
+    }
+
+    @Override
+    public void onGetToken(String token) {
+
+
+        RequestConnect rc = new RequestConnect.Builder(
+                socketAddress,
+                APP_ID,
+                serverName,
+                token,
+                ssoHost,
+                platformHost,
+                fileServer)
+                .build();
+
+        presenter.connect(rc);
+
     }
 }

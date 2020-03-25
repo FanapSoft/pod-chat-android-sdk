@@ -23,6 +23,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     buildToolsVersion '28.0.3'
+
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
+        exclude 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
+
+    }
 }
 
 dependencies {
@@ -46,6 +52,7 @@ dependencies {
     implementation 'com.github.javafaker:javafaker:1.0.0'
 
     implementation project(path: ':podchat')
+    api project(path: ':podotp')
 
 }
 repositories {
