@@ -181,12 +181,12 @@ public class ChatActivity extends AppCompatActivity
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 5182;
+//    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 14234;
+    public static int TEST_THREAD_ID = 14234;
 
 
     //integration /group
