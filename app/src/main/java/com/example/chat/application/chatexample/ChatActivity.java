@@ -163,7 +163,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-//
+////
 //    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
@@ -181,12 +181,12 @@ public class ChatActivity extends AppCompatActivity
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
+    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 14234;
+//    public static int TEST_THREAD_ID = 14234;
 
 
     //integration /group
@@ -2216,8 +2216,8 @@ public class ChatActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
-        Log.e("CHAT_SDK", "Stopping ping...");
-        presenter.closeChat();
+//        Log.e("CHAT_SDK", "Stopping ping...");
+//        presenter.closeChat();
     }
 
     public void onUploadFile(View view) {

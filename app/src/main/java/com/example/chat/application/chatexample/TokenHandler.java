@@ -12,7 +12,6 @@ import com.example.chat.application.chatexample.token.HandShakeRes;
 import com.example.chat.application.chatexample.token.LoginRes;
 import com.example.chat.application.chatexample.token.SSoTokenRes;
 import com.example.chat.application.chatexample.token.VerifyRes;
-import com.fanap.podchat.example.R;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +28,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class TokenHandler {
 
     private static final String BASE_URL = "https://podspace.pod.ir/nzh/drive/oauth2/";
-    private static final String attres_client_id = BaseApplication.getInstance().getString(R.string.business_cid);
+//    private static final String client_id = BaseApplication.getInstance().getString(R.string.business_cid);
 
     private static final long TIME_OUT = 30;
     private static final String POD_URL = "https://accounts.pod.ir";
@@ -145,8 +144,7 @@ public class TokenHandler {
 
     void verifyNumber(String code) {
 
-        getAPI()
-                .verifyNumber(auth, number, code)
+        getAPI().verifyNumber(auth, number, code)
                 .enqueue(new Callback<VerifyRes>() {
                     @Override
                     public void onResponse(Call<VerifyRes> call, Response<VerifyRes> response) {
@@ -266,7 +264,7 @@ public class TokenHandler {
 
             Request request = original.newBuilder()
                     .header("Access-Token", token)
-                    .header("Client-Id", attres_client_id)
+//                    .header("Client-Id", client_id)
                     .header("Content-Type", "application/json; application/x-www-form-urlencoded; charset=utf-8")
                     .method(original.method(), original.body())
                     .build();
