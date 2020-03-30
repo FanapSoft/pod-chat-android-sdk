@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.2.0'
+    libraryVersion = '0.6.2.21'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 49
+        versionCode 52
         versionName libraryVersion
 
 
@@ -85,7 +85,7 @@ dependencies {
 
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
 //    api project(path: ':podasync')
-    api 'com.fanap.async:podasync:0.2.8.1'
+    api 'com.fanap.async:podasync:0.2.8.3'
 
 
     implementation project(path: ':tmtp_sdk', configuration: 'default')

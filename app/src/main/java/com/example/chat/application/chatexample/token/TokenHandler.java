@@ -1,4 +1,4 @@
-package com.example.chat.application.chatexample;
+package com.example.chat.application.chatexample.token;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -7,11 +7,8 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.example.chat.application.chatexample.token.ApiInterface;
-import com.example.chat.application.chatexample.token.HandShakeRes;
-import com.example.chat.application.chatexample.token.LoginRes;
-import com.example.chat.application.chatexample.token.SSoTokenRes;
-import com.example.chat.application.chatexample.token.VerifyRes;
+import com.example.chat.application.chatexample.BaseApplication;
+import com.fanap.podchat.example.R;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,11 +24,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TokenHandler {
 
-    private static final String BASE_URL = "https://podspace.pod.ir/nzh/drive/oauth2/";
-//    private static final String client_id = BaseApplication.getInstance().getString(R.string.business_cid);
-
+    private static final String BASE_URL = BaseApplication.getInstance().getString(R.string.podspace_base_url);
     private static final long TIME_OUT = 30;
-    private static final String POD_URL = "https://accounts.pod.ir";
     private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
 
@@ -62,17 +56,17 @@ public class TokenHandler {
     }
 
 
-    TokenHandler(Context context) {
+    public TokenHandler(Context context) {
         this.context = context;
         checkRefreshToken();
     }
 
-    void addListener(ITokenHandler iTokenHandler) {
+    public void addListener(ITokenHandler iTokenHandler) {
 
         listener = iTokenHandler;
     }
 
-    void handshake(String number) {
+    public void handshake(String number) {
 
         this.number = number;
 
@@ -142,7 +136,7 @@ public class TokenHandler {
     }
 
 
-    void verifyNumber(String code) {
+    public void verifyNumber(String code) {
 
         getAPI().verifyNumber(auth, number, code)
                 .enqueue(new Callback<VerifyRes>() {
@@ -223,8 +217,12 @@ public class TokenHandler {
 
     public void refreshToken() {
 
-        getAPI()
-                .refreshToken(refreshToken)
+        if(refreshToken.isEmpty()){
+
+            return;
+        }
+
+        getAPI().refreshToken(refreshToken)
                 .enqueue(new Callback<SSoTokenRes>() {
                     @Override
                     public void onResponse(Call<SSoTokenRes> call, Response<SSoTokenRes> response) {

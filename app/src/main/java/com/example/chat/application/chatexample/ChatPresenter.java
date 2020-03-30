@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
@@ -101,8 +102,6 @@ import com.fanap.podchat.util.NetworkPingSender;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Retrofit;
 
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {

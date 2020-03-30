@@ -531,6 +531,11 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    public void killChat() {
+
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
     public void closeChat() {
 
 
@@ -538,6 +543,7 @@ public class Chat extends AsyncAdapter {
             stopTyping();
             context.unregisterReceiver(networkStateReceiver);
             if (pinger != null) pinger.stopPing();
+            closeSocketServer();
 
         } catch (Exception ex) {
 
@@ -1709,7 +1715,6 @@ public class Chat extends AsyncAdapter {
      *                 {@link #getPhoneContact(Context, OnContactLoaded)}
      */
     public String syncContact(Activity activity) {
-
 
         Log.i(TAG, ">>> Start Syncing... " + new Date());
 
@@ -6779,7 +6784,7 @@ public class Chat extends AsyncAdapter {
 
     private void loadUnreadMessagesCountFromCache(RequestGetUnreadMessagesCount request) {
 
-        messageDatabaseHelper.loadAllUnreadMessagesCount(request,count -> {
+        messageDatabaseHelper.loadAllUnreadMessagesCount(request, count -> {
 
 
             ChatResponse<ResultUnreadMessagesCount> response =
