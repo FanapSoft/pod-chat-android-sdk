@@ -3542,7 +3542,7 @@ public class Chat extends AsyncAdapter {
                 for (Long p : request.getContactIds()) {
                     participantsJsonArray.add(p);
                 }
-            } else {
+            } else if (request.getUserNames() != null) {
 
                 for (String username :
                         request.getUserNames()) {
@@ -3552,7 +3552,18 @@ public class Chat extends AsyncAdapter {
                     invitee.setIdType(InviteType.Constants.TO_BE_USER_USERNAME);
                     JsonElement jsonElement = gson.toJsonTree(invitee);
                     participantsJsonArray.add(jsonElement);
+                }
 
+            } else {
+
+                for (Long coreUserId :
+                        request.getCoreUserIds()) {
+
+                    Invitee invitee = new Invitee();
+                    invitee.setId(coreUserId);
+                    invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+                    JsonElement jsonElement = gson.toJsonTree(invitee);
+                    participantsJsonArray.add(jsonElement);
                 }
 
             }
@@ -6810,7 +6821,7 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
-            List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
+            List<Invitee> invitees = new ArrayList<Invitee>(Arrays.asList(invitee));
 
 
             ChatThread chatThread = new ChatThread();
@@ -6873,7 +6884,7 @@ public class Chat extends AsyncAdapter {
 
     public ArrayList<String> createThreadWithFile(RequestCreateThreadWithFile request, @Nullable ProgressHandler.onProgressFile progressHandler) {
 
-        ArrayList<String> uniqueIds = new ArrayList<>();
+        ArrayList<String> uniqueIds = new ArrayList<String>();
 
         String requestUniqueId = generateUniqueId();
 

@@ -1381,9 +1381,13 @@ public class ChatActivity extends AppCompatActivity
 
     private void addParticipants() {
 
-        List<Long> participantIds = new ArrayList<>();
-        participantIds.add(521L);
-        participantIds.add(4101L);
+
+        //deprecated
+
+
+//        List<Long> participantIds = new ArrayList<>();
+//        participantIds.add(521L);
+//        participantIds.add(4101L);
 //        participantIds.add(23116L);
 //        participantIds.add(824L);
         //        presenter.addParticipants(691, participantIds, new ChatHandler() {
@@ -1400,11 +1404,11 @@ public class ChatActivity extends AppCompatActivity
 
         //add with username
 //
-        RequestAddParticipants request = RequestAddParticipants
-                .newBuilder()
-                .threadId((long) TEST_THREAD_ID)
-                .withUserNames("fatemeh", "pooria")
-                .build();
+//        RequestAddParticipants request = RequestAddParticipants
+//                .newBuilder()
+//                .threadId((long) TEST_THREAD_ID)
+//                .withUserNames("fatemeh", "pooria")
+//                .build();
 
         // add with contactId
 //
@@ -1415,6 +1419,16 @@ public class ChatActivity extends AppCompatActivity
 ////                .withContactIds(4101L)
 //                .build();
 //
+
+
+        //add with coreUserIds
+
+        RequestAddParticipants request = RequestAddParticipants
+                .newBuilder()
+                .threadId((long) TEST_THREAD_ID)
+                .withCoreUserIds(121L,234L)
+                .build();
+
 
         presenter.addParticipants(request, null);
 
