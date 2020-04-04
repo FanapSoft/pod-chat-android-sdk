@@ -15,7 +15,11 @@ public class MessageManager {
     public static String getAllUnreadMessgesCount(RequestGetUnreadMessagesCount request, String uniqueId) {
 
 
+        JsonObject content = new JsonObject();
+        content.addProperty("mute", request.withMuteThreads());
+
         AsyncMessage message = new AsyncMessage();
+        message.setContent(content.toString());
         message.setToken(CoreConfig.token);
         message.setType(ChatMessageType.Constants.ALL_UNREAD_MESSAGE_COUNT);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -25,7 +29,6 @@ public class MessageManager {
         JsonObject tmp = (JsonObject) App.getGson().toJsonTree(message);
 
         tmp.remove("subjectId");
-        tmp.remove("content");
 
         return tmp.toString();
 

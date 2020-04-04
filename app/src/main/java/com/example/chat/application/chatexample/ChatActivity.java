@@ -136,7 +136,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
     //    //
-    private static String TOKEN = "c8b9cae7b55844e383bb61d3bd932e5d";
+    private static String TOKEN = "19007025944b4bf5b75dd42ded3ce4ba";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -163,7 +163,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-//
+////
     private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
@@ -269,6 +269,18 @@ public class ChatActivity extends AppCompatActivity
             TOKEN = editTextToken.getText().toString();
 
             presenter.setToken(TOKEN);
+
+        });
+
+        buttonToken.setOnLongClickListener(v -> {
+
+            String entry = editTextToken.getText().toString();
+            editTextToken.setText("");
+            editTextToken.setHint("Enter OTP or Number");
+            presenter.enableAutoRefresh(this,entry);
+
+
+            return true;
 
         });
 
@@ -1192,9 +1204,10 @@ public class ChatActivity extends AppCompatActivity
                         RequestSearchContact requestSearchContact = new RequestSearchContact
                                 .Builder("0", "50")
 //                                .id("1063")
-//                                .cellphoneNumber("09")
+                                .cellphoneNumber("09")
 //                                .lastName("Khei")
-                                .firstName("Pooria")
+//                                .firstName("Pooria")
+//                                .query("hasUser = true")
                                 .build();
                         presenter.searchContact(requestSearchContact);
                         break;
@@ -2203,8 +2216,8 @@ public class ChatActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
 
-        Log.e("CHAT_SDK", "Stopping ping...");
-        presenter.closeChat();
+//        Log.e("CHAT_SDK", "Stopping ping...");
+//        presenter.closeChat();
     }
 
     public void onUploadFile(View view) {
@@ -2329,5 +2342,23 @@ public class ChatActivity extends AppCompatActivity
     public void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
 
         showToast("There is " + response.getResult().getUnreadsCount() + " Unread message");
+    }
+
+    @Override
+    public void onGetToken(String token) {
+
+
+        RequestConnect rc = new RequestConnect.Builder(
+                socketAddress,
+                APP_ID,
+                serverName,
+                token,
+                ssoHost,
+                platformHost,
+                fileServer)
+                .build();
+
+        presenter.connect(rc);
+
     }
 }
