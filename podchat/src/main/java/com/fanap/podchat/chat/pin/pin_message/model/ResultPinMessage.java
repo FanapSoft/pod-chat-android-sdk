@@ -18,6 +18,9 @@ public class ResultPinMessage{
 	private
 	Participant participant;
 
+	@SerializedName("time")
+	private long time;
+
 
 	public Participant getParticipant() {
 		return participant;
@@ -49,6 +52,14 @@ public class ResultPinMessage{
 
 	public String getText(){
 		return text;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
 	}
 
 	@Override

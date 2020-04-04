@@ -23,3 +23,4 @@
 -keepattributes AnnotationDefault
 -keepattributes *Annotation*
 -dontwarn java.lang.annotation.Annotation
+-dontwarn com.google.android.gms.**

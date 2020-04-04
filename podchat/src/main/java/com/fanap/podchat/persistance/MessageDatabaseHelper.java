@@ -30,6 +30,7 @@ import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.mainmodel.BlockedContact;
@@ -1060,20 +1061,20 @@ public class MessageDatabaseHelper {
     private void addPinnedMessageOfThread(ThreadVo threadVo) {
         PinMessageVO pinnedMessage = messageDao.getThreadPinnedMessage(threadVo.getId());
 
-        if (pinnedMessage != null){
+        if (pinnedMessage != null) {
 
 
             //get cached participant
-            if(pinnedMessage.getParticipantId() > 0 ){
+            if (pinnedMessage.getParticipantId() > 0) {
 
                 CacheParticipant cacheParticipant = messageDao.getParticipant(pinnedMessage.getParticipantId());
 
 
-                if(cacheParticipant != null){
+                if (cacheParticipant != null) {
 
                     //convert cached participant to participant
 
-                    Participant participant = cacheToParticipantMapper(cacheParticipant,false,null);
+                    Participant participant = cacheToParticipantMapper(cacheParticipant, false, null);
 
                     pinnedMessage.setParticipant(participant);
 
@@ -2269,14 +2270,12 @@ public class MessageDatabaseHelper {
         pinMessageVO.setThreadId(thread.getId());
 
 
-
-
         try {
             Participant participant = pinMessageVO.getParticipant();
 
-            if(participant != null){
+            if (participant != null) {
                 String participantJson = App.getGson().toJson(participant);
-                CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson,CacheParticipant.class);
+                CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
                 messageDao.insertParticipant(cacheParticipant);
                 pinMessageVO.setParticipantId(cacheParticipant.getId());
             }
@@ -2754,12 +2753,14 @@ public class MessageDatabaseHelper {
 
         pinMessageVO.setText(result.getText());
 
-        if(result.getParticipant() != null){
+        pinMessageVO.setTime(result.getTime());
+
+        if (result.getParticipant() != null) {
 
             Participant participant = result.getParticipant();
 
             String participantJson = App.getGson().toJson(participant);
-            CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson,CacheParticipant.class);
+            CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
             messageDao.insertParticipant(cacheParticipant);
             pinMessageVO.setParticipantId(cacheParticipant.getId());
 
@@ -2829,9 +2830,17 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void loadAllUnreadMessagesCount(OnWorkDone listener) {
+    public void loadAllUnreadMessagesCount(RequestGetUnreadMessagesCount req, OnWorkDone listener) {
 
-        long count = messageDao.getAllUnreadMessagesCount();
+
+        long count;
+
+        if (req.withMuteThreads()) {
+            count = messageDao.getAllUnreadMessagesCount();
+        } else {
+            count = messageDao.getAllUnreadMessagesCountNoMutes(false);
+
+        }
 
         listener.onWorkDone(count);
 

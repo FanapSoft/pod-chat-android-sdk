@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+
+import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
@@ -95,6 +97,7 @@ import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.NetworkPingSender;
 
 import java.util.ArrayList;
@@ -108,6 +111,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private ChatContract.view view;
     private Context context;
     private Activity activity;
+    private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
+    private TokenHandler tokenHandler = null;
+    private String state = "";
+
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
@@ -128,6 +135,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.setDownloadDirectory(context.getCacheDir());
 
+        chat.enableNotification(NOTIFICATION_APPLICATION_ID, activity, userId ->
+                Log.e("CHAT_SDK_PRESENTER", "UserIdReceived: " + userId));
+
 
 //        chat.setNetworkListenerEnabling(false);
 //        chat.setReconnectOnClose(false);
@@ -135,6 +145,27 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         this.activity = activity;
         this.context = context;
         this.view = view;
+
+
+        tokenHandler = new TokenHandler(activity.getApplicationContext());
+
+        tokenHandler.addListener(new TokenHandler.ITokenHandler() {
+            @Override
+            public void onGetToken(String token) {
+
+                view.onGetToken(token);
+
+            }
+
+            @Override
+            public void onTokenRefreshed(String token) {
+
+                if (state.equals(ChatStateType.ChatSateConstant.ASYNC_READY))
+                    chat.setToken(token);
+                else view.onGetToken(token);
+
+            }
+        });
 
 
     }
@@ -210,6 +241,43 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getThreadParticipant(RequestThreadParticipant request) {
         chat.getThreadParticipants(request, null);
+    }
+
+    @Override
+    public void enableAutoRefresh(Activity activity, String entry) {
+
+
+        if (entry.startsWith("09")) {
+            tokenHandler.handshake(entry);
+        } else {
+            tokenHandler.verifyNumber(entry);
+        }
+
+
+//        ArrayList<String> scopes = new ArrayList<>();
+//
+//        scopes.add("profile");
+//
+//        PodOtp otp = new PodOtp.Builder()
+//                .with(activity.getApplicationContext())
+//                .setBaseUrl("https://accounts.pod.ir/")
+//                .build();
+//
+//
+//        otp.authorization("09157770684", new AuthorizationCallback() {
+//
+//            @Override
+//            public void onSuccess(String s, Long aLong) {
+//                Log.e("OTP", ">>> " + s);
+//
+//            }
+//
+//            @Override
+//            public void onError(int i, String s) {
+//                Log.e("OTP", ">>> " + i + " >> " + s);
+//
+//            }
+//        });
     }
 
     @Override
@@ -785,11 +853,20 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onError(String content, ErrorOutPut outPutError) {
         super.onError(content, outPutError);
+
+
         activity.runOnUiThread(() -> Toast.makeText(context, content, Toast.LENGTH_SHORT).show());
 
         if (outPutError.getErrorCode() == 21) {
 
-            view.onTokenExpired();
+//            view.onTokenExpired();
+
+            if (tokenHandler != null) {
+                tokenHandler.refreshToken();
+            } else {
+                Toast.makeText(context, "Token refresh failed!", Toast.LENGTH_LONG).show();
+            }
+
 
         }
     }
@@ -1004,7 +1081,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onChatState(String state) {
+
         view.onState(state);
+
+        this.state = state;
+
     }
 
     @Override

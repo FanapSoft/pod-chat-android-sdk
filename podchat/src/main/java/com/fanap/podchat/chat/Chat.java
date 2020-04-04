@@ -20,10 +20,10 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
-
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
@@ -46,7 +46,11 @@ import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.PinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
+import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.chat.thread.public_thread.PublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
@@ -126,8 +130,6 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultNotSeenDuration;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultSignalMessage;
@@ -146,16 +148,13 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
+import com.fanap.podchat.notification.INotification;
+import com.fanap.podchat.notification.NotificationHelper;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithMessage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -163,6 +162,8 @@ import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithMessage;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestEditMessage;
@@ -174,6 +175,7 @@ import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetLastSeens;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
@@ -181,7 +183,6 @@ import com.fanap.podchat.requestobject.RequestMapRouting;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
@@ -189,6 +190,7 @@ import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
@@ -257,7 +259,12 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.*;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.ASYNC_READY;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CLOSED;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CLOSING;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CONNECTING;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.OPEN;
 
 
 public class Chat extends AsyncAdapter {
@@ -276,14 +283,15 @@ public class Chat extends AsyncAdapter {
     private String typeCode;
     private String platformHost;
     private String fileServer;
-    private static volatile Chat instance;
+    private static
+    Chat instance;
     private static SecurePreferences mSecurePrefs;
     private static ChatListenerManager listenerManager;
     private long userId;
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
-    private static String TAG = "CHAT_SDK";
+    public static final String TAG = "CHAT_SDK";
     private String chatState = "CLOSED";
     private boolean isWebSocketNull = true;
 
@@ -302,8 +310,8 @@ public class Chat extends AsyncAdapter {
 
 //    private Map<Long, LinkedHashMap<String, Handler>> threadSignalsManager = new HashMap<>();
 
-    HashMap<String, Long> downloadQList = new HashMap<>();
-    HashMap<String, Call> downloadCallList = new HashMap<>();
+    private HashMap<String, Long> downloadQList = new HashMap<>();
+    private HashMap<String, Call> downloadCallList = new HashMap<>();
 
     private HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
     private HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
@@ -523,6 +531,11 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    public void killChat() {
+
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
     public void closeChat() {
 
 
@@ -530,6 +543,7 @@ public class Chat extends AsyncAdapter {
             stopTyping();
             context.unregisterReceiver(networkStateReceiver);
             if (pinger != null) pinger.stopPing();
+            closeSocketServer();
 
         } catch (Exception ex) {
 
@@ -1701,7 +1715,6 @@ public class Chat extends AsyncAdapter {
      *                 {@link #getPhoneContact(Context, OnContactLoaded)}
      */
     public String syncContact(Activity activity) {
-
 
         Log.i(TAG, ">>> Start Syncing... " + new Date());
 
@@ -6762,7 +6775,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache && request.useCacheData()) {
 
-            loadUnreadMessagesCountFromCache();
+            loadUnreadMessagesCountFromCache(request);
 
 
         }
@@ -6780,8 +6793,9 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void loadUnreadMessagesCountFromCache() {
-        messageDatabaseHelper.loadAllUnreadMessagesCount(count -> {
+    private void loadUnreadMessagesCountFromCache(RequestGetUnreadMessagesCount request) {
+
+        messageDatabaseHelper.loadAllUnreadMessagesCount(request, count -> {
 
 
             ChatResponse<ResultUnreadMessagesCount> response =
@@ -6789,7 +6803,7 @@ public class Chat extends AsyncAdapter {
 
             listenerManager.callOnGetUnreadMessagesCount(response);
 
-            showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(response));
+            showLog("ON GET UNREAD MESSAGES COUNT FROM CACHE", gson.toJson(response));
 
         });
     }
@@ -9247,6 +9261,27 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    public void enableNotification(String applicationId, AppCompatActivity activity, INotification listener) {
+
+        try {
+            NotificationHelper.enableNotification(applicationId, activity, listener);
+        } catch (Exception e) {
+            Log.e(TAG, "Enabling Notification Failed");
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    public void enableNotification(String applicationId, Activity activity, INotification listener) {
+
+        try {
+            NotificationHelper.enableNotification(applicationId, activity, listener);
+        } catch (Exception e) {
+            Log.e(TAG, "Enabling Notification Failed");
+            Log.e(TAG, e.getMessage());
+        }
+
+    }
+
 
     private void initDatabase() {
 
@@ -11077,10 +11112,12 @@ public class Chat extends AsyncAdapter {
         ArrayList<String> cellphoneNumbers = new ArrayList<>();
         ArrayList<String> lastNames = new ArrayList<>();
         ArrayList<String> typeCodes = new ArrayList<>();
+        ArrayList<String> uniqueIds = new ArrayList<>();
 
         for (PhoneContact contact : phoneContacts) {
             firstNames.add(contact.getName());
             lastNames.add(contact.getLastName());
+            uniqueIds.add(generateUniqueId());
 
 
             String phoneNum = String.valueOf(contact.getPhoneNumber());
@@ -11104,12 +11141,23 @@ public class Chat extends AsyncAdapter {
 
             if (!Util.isNullOrEmpty(getTypeCode())) {
 
-                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
-                        , cellphoneNumbers, typeCodes);
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers,
+                        typeCodes);
 
             } else {
-                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
-                        , cellphoneNumbers);
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers);
             }
 
             Log.d(TAG, "Call to add contact");

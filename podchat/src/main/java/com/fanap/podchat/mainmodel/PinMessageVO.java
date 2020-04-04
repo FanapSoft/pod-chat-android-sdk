@@ -15,6 +15,7 @@ public class PinMessageVO {
     private long messageId;
     private String text;
     private boolean notifyAll;
+    private long time;
 
     private long participantId;
 
@@ -24,6 +25,14 @@ public class PinMessageVO {
     private
     Participant participant;
 
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
 
     public long getParticipantId() {
         return participantId;

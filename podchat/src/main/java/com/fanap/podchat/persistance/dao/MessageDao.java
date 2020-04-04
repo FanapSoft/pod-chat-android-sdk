@@ -115,6 +115,9 @@ public interface MessageDao {
     @Query("SELECT sum(unreadCount) from threadvo where unreadCount > 0")
     long getAllUnreadMessagesCount();
 
+    @Query("SELECT sum(unreadCount) from threadvo where unreadCount > 0 and mute = :isMute")
+    long getAllUnreadMessagesCountNoMutes(boolean isMute);
+
 
     /**
      * String Query
