@@ -1,8 +1,10 @@
 package com.example.chat.application.chatexample;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -98,13 +100,13 @@ import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
-import com.fanap.podchat.util.NetworkPingSender;
+import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
+public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
     private Chat chat;
@@ -146,6 +148,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         this.context = context;
         this.view = view;
 
+        activity.getApplication().registerActivityLifecycleCallbacks(this);
+
 
         tokenHandler = new TokenHandler(activity.getApplicationContext());
 
@@ -164,6 +168,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                     chat.setToken(token);
                 else view.onGetToken(token);
 
+            }
+
+            @Override
+            public void onError(String message) {
+                view.onError();
             }
         });
 
@@ -1224,5 +1233,43 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
         view.onGetUnreadsMessagesCount(response);
+    }
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+
+        chat.unregisterNetworkReceiver();
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+
+        chat.unregisterNetworkReceiver();
+
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+
     }
 }
