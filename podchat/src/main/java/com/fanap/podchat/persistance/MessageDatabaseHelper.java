@@ -33,6 +33,8 @@ import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
+import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
+import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
@@ -51,11 +53,11 @@ import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.FunctionalListener;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Util;
-import com.google.gson.JsonSyntaxException;
 
 import java.io.File;
 import java.io.IOException;
@@ -1902,7 +1904,8 @@ public class MessageDatabaseHelper {
                 cacheParticipant.isAuditor(),
                 getAdmin != null ? getAdmin ? roles : null : null,
                 cacheParticipant.getKeyId(),
-                cacheParticipant.getUsername()
+                cacheParticipant.getUsername(),
+                cacheParticipant.getChatProfileVO()
         );
     }
 
@@ -2344,6 +2347,14 @@ public class MessageDatabaseHelper {
                 messageDao.insertRoles(cpr);
 
             }
+
+            if (participant.getChatProfileVO() != null) {
+
+                ChatProfileVO chatProfileVO = participant.getChatProfileVO();
+                chatProfileVO.setId(participant.getId());
+                messageDao.insertChatProfile(chatProfileVO);
+
+            }
         }
     }
 
@@ -2406,26 +2417,22 @@ public class MessageDatabaseHelper {
 
                         CacheParticipant cParticipant = messageDao.getParticipant(participantId);
 
-//                        if (getAdmin && !cParticipant.getAdmin()) {
-//
-//                            return participants;
-//                        }
+                        ChatProfileVO chatProfileVO = messageDao.getChatProfileVOById(cParticipant.getId());
+                        if (chatProfileVO != null) {
+                            cParticipant.setChatProfileVO(chatProfileVO);
+                        }
 
+
+//
                         List<String> roles = new ArrayList<>();
 
                         if (getAdmin) {
 
                             CacheParticipantRoles cpr = messageDao.getParticipantRoles(participantId, threadId);
 
-                            Log.d("MTAG", "CPR: " + cpr);
-
-
                             if (cpr != null) {
-
-
                                 if (cpr.getRoles().size() > 0)
                                     roles = cpr.getRoles();
-
                             }
 
 
@@ -2436,7 +2443,6 @@ public class MessageDatabaseHelper {
 
                             if (roles.size() > 0) {
 
-
                                 Participant participant = cacheToParticipantMapper(cParticipant, true, roles);
                                 participants.add(participant);
 
@@ -2444,7 +2450,7 @@ public class MessageDatabaseHelper {
 
                         } else {
 
-                            Participant participant = cacheToParticipantMapper(cParticipant, getAdmin, roles);
+                            Participant participant = cacheToParticipantMapper(cParticipant, false, roles);
                             participants.add(participant);
                         }
 
@@ -2843,6 +2849,39 @@ public class MessageDatabaseHelper {
         }
 
         listener.onWorkDone(count);
+
+    }
+
+    public void getCurrentUserRoles(RequestGetUserRoles request, OnWorkDone listener) {
+
+        worker(() -> {
+
+            CacheUserRoles role = messageDao.getUserRoles(request.getThreadId());
+
+            listener.onWorkDone(role);
+
+        });
+
+    }
+
+    public void saveCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
+
+        worker(() -> {
+
+            long threadId = response.getSubjectId();
+
+            List<String> roles = response.getResult().getRoles();
+
+            CacheUserRoles cacheUserRoles = new CacheUserRoles();
+
+            cacheUserRoles.setThreadId(threadId);
+
+            cacheUserRoles.setRole(roles);
+
+            messageDao.insertCurrentUserRoles(cacheUserRoles);
+
+        });
+
 
     }
 }

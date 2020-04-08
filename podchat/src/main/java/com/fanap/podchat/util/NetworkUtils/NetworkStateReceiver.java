@@ -1,4 +1,4 @@
-package com.fanap.podchat.util;
+package com.fanap.podchat.util.NetworkUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

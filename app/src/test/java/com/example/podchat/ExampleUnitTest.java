@@ -38,6 +38,35 @@ public class ExampleUnitTest {
 
 
     @Test
+    public void testTimes() {
+
+        Date date = new Date();
+
+        long start = System.currentTimeMillis();
+
+        System.out.println("Start: " + start);
+
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        long end = System.currentTimeMillis();
+
+        System.out.println("End: " + end);
+
+
+        System.out.println(end - start);
+
+        Assert.assertEquals(3000, end - start);
+
+
+    }
+
+
+    @Test
     public void inviteeToJson() {
 
         Gson gson = new GsonBuilder().create();

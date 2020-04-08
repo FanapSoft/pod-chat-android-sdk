@@ -2,6 +2,28 @@
 
 **Fanap's POD** Chat service
 
+
+## Version [0.6.3.0] -2020-4-7
+
+- Add Participant with `coreUserId`
+
+
+
+    RequestAddParticipants request = RequestAddParticipants
+                .newBuilder()
+                .threadId(Long)
+                .withCoreUserIds(Long...)
+                .build();
+
+
+    chat.addParticipants(request, ChatHandler);
+    
+    
+   
+
+
+
+
 ## Version [0.6.2.0] -2020-3-17
 
 - Adding notification:

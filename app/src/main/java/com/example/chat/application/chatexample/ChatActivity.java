@@ -63,6 +63,7 @@ import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestClearHistory;
@@ -135,7 +136,7 @@ public class ChatActivity extends AppCompatActivity
 
     private Button btnUploadImage;
 
-    //    //
+        //
     private static String TOKEN = "19007025944b4bf5b75dd42ded3ce4ba";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
@@ -1394,9 +1395,13 @@ public class ChatActivity extends AppCompatActivity
 
     private void addParticipants() {
 
-        List<Long> participantIds = new ArrayList<>();
-        participantIds.add(521L);
-        participantIds.add(4101L);
+
+        //deprecated
+
+
+//        List<Long> participantIds = new ArrayList<>();
+//        participantIds.add(521L);
+//        participantIds.add(4101L);
 //        participantIds.add(23116L);
 //        participantIds.add(824L);
         //        presenter.addParticipants(691, participantIds, new ChatHandler() {
@@ -1413,11 +1418,11 @@ public class ChatActivity extends AppCompatActivity
 
         //add with username
 //
-        RequestAddParticipants request = RequestAddParticipants
-                .newBuilder()
-                .threadId((long) TEST_THREAD_ID)
-                .withUserNames("fatemeh", "pooria")
-                .build();
+//        RequestAddParticipants request = RequestAddParticipants
+//                .newBuilder()
+//                .threadId((long) TEST_THREAD_ID)
+//                .withUserNames("fatemeh", "pooria")
+//                .build();
 
         // add with contactId
 //
@@ -1428,6 +1433,16 @@ public class ChatActivity extends AppCompatActivity
 ////                .withContactIds(4101L)
 //                .build();
 //
+
+
+        //add with coreUserIds
+
+        RequestAddParticipants request = RequestAddParticipants
+                .newBuilder()
+                .threadId((long) TEST_THREAD_ID)
+                .withCoreUserIds(121L,234L)
+                .build();
+
 
         presenter.addParticipants(request, null);
 
@@ -1527,7 +1542,9 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 4:
                 //"reply message",
-                replyMessage();
+//                replyMessage();
+
+                replyFileMessage();
 
                 break;
             case 5:
@@ -1775,7 +1792,7 @@ public class ChatActivity extends AppCompatActivity
                         .count(20)
                         .offset(0)
                         .threadId(TEST_THREAD_ID)
-                        .withNoCache()
+//                        .withNoCache()
                         .build();
 
 
@@ -2035,6 +2052,7 @@ public class ChatActivity extends AppCompatActivity
         presenter.replyMessage(message, null);
 
 
+
 //        presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
 //            @Override
 //            public void onReplyMessage(String uniqueId) {
@@ -2218,6 +2236,24 @@ public class ChatActivity extends AppCompatActivity
 
 //        Log.e("CHAT_SDK", "Stopping ping...");
 //        presenter.closeChat();
+    }
+
+    private void replyFileMessage() {
+        String messageContent = "this is reply from john";
+        long threadId = TEST_THREAD_ID;
+        long messageId = 297483;
+        Uri fileUri = getUri();
+        Inviter inviter = new Inviter();
+        inviter.setName("Me");
+        String meta = gson.toJson(inviter);
+        RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
+                .Builder(messageContent, threadId, messageId, fileUri, this)
+                .systemMetaData(meta)
+                .messageType(TextMessageType.Constants.PICTURE)
+                .build();
+
+
+        presenter.replyFileMessage(fileMessage, null);
     }
 
     public void onUploadFile(View view) {

@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.2.21'
+    libraryVersion = '0.6.3.0'
 }
 
 android {
@@ -14,9 +14,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 52
+        versionCode 57
         versionName libraryVersion
-
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -60,6 +59,9 @@ ext {
     allLicenses = ["Apache-2.0"]
 }
 
+//configurations.embed.transitive = true
+
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation fileTree(include: ['*.aar'], dir: 'libs')
@@ -102,24 +104,7 @@ group = publishedGroupId
 version = libraryVersion
 
 
-def updateDependencies(pom) {
 
-//    println("....::: start of updating dependencies :::....")
-//
-//    pom.dependencies.forEach { dep ->
-//        println(">>>>dependencies::: $dep")
-//        if (dep.getVersion() == "unspecified") {
-//
-//            println("dep version unspecified ::: $dep")
-//
-//            dep.setGroupId("com.fanap.async")
-//            dep.setVersion("0.2.8.3")
-//
-//            println("dep version set!! :::> $dep")
-//
-//        }
-//    }
-}
 
 install {
     repositories.mavenInstaller {
@@ -274,8 +259,3 @@ afterEvaluate { project ->
         }
     }
 }
-
-//if (project.rootProject.file('local.properties').exists()) {
-//    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/bintrayv1.gradle'
-//    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/installv1.gradle'
-//}

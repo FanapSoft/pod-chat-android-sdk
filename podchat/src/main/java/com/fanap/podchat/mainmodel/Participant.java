@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import com.fanap.podchat.chat.user.profile.ChatProfileVO;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +39,11 @@ public class Participant {
 
     private List<String> roles;
 
-    private String keyId ;
+    private String keyId;
 
     private String username;
+
+    private ChatProfileVO chatProfileVO;
 
     public Participant() {
     }
@@ -67,33 +71,34 @@ public class Participant {
             Boolean auditor,
             List<String> roles,
             String keyId,
-            String username
+            String username,
+            ChatProfileVO chatProfileVO
     ) {
 
-        this.id=id;
-        this.name=name;
-        this.firstName=firstName;
-        this.lastName=lastName;
-        this.image=image;
-        this.notSeenDuration=notSeenDuration;
-        this.contactId=contactId;
+        this.id = id;
+        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.image = image;
+        this.notSeenDuration = notSeenDuration;
+        this.contactId = contactId;
         this.coreUserId = coreUserId;
-        this.contactName=contactName;
-        this.contactFirstName=contactFirstName;
-        this.contactLastName=contactLastName;
-        this.sendEnable=sendEnable;
-        this.receiveEnable=receiveEnable;
-        this.cellphoneNumber=cellphoneNumber;
-        this.email=email;
-        this.myFriend=myFriend;
-        this.online=online;
-        this.blocked=blocked;
-        this.admin=admin;
+        this.contactName = contactName;
+        this.contactFirstName = contactFirstName;
+        this.contactLastName = contactLastName;
+        this.sendEnable = sendEnable;
+        this.receiveEnable = receiveEnable;
+        this.cellphoneNumber = cellphoneNumber;
+        this.email = email;
+        this.myFriend = myFriend;
+        this.online = online;
+        this.blocked = blocked;
+        this.admin = admin;
         this.roles = roles;
         this.auditor = auditor;
         this.keyId = keyId;
         this.username = username;
-
+        this.chatProfileVO = chatProfileVO;
     }
 
 
@@ -279,5 +284,13 @@ public class Participant {
 
     public void setAuditor(Boolean auditor) {
         this.auditor = auditor;
+    }
+
+    public ChatProfileVO getChatProfileVO() {
+        return chatProfileVO;
+    }
+
+    public void setChatProfileVO(ChatProfileVO chatProfileVO) {
+        this.chatProfileVO = chatProfileVO;
     }
 }

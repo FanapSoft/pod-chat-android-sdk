@@ -1,22 +1,25 @@
-package com.fanap.podchat.util;
+package com.fanap.podchat.util.NetworkUtils;
 
-import android.os.Build;
+import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatListener;
+import com.fanap.podchat.mainmodel.ChatMessage;
+import com.fanap.podchat.util.ChatStateType;
+import com.fanap.podchat.util.Util;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.util.Date;
 
 public class NetworkPingSender {
+
+    private static final int VPN_CHECK_DELAY_MILLIS = 2000;
+    private Context context;
 
     public static final String TAG = "CHAT_SDK_NET";
 
@@ -27,6 +30,9 @@ public class NetworkPingSender {
     private int port = 80;
 
     private HandlerThread handlerThread;
+
+    private HandlerThread handlerVPNThread;
+    private Handler handler;
 
     private NetworkStateListener listener;
 
@@ -40,8 +46,18 @@ public class NetworkPingSender {
 
     private boolean isConnecting = false;
 
-
     private NetworkStateConfig config;
+
+    private int numberOfPingsWithoutPong = 0;
+
+
+    private static int VPN_STATE = 0;
+
+    private static final int WITH_VPN = 2;
+
+    private static final int WITHOUT_VPN = 1;
+
+    private boolean hasPing = false;
 
 
     public void setDisConnectionThreshold(int disConnectionThreshold) {
@@ -80,11 +96,11 @@ public class NetworkPingSender {
     public void setConfig(NetworkStateConfig config) {
 
 
-        if(config != null){
+        if (config != null) {
 
             this.disConnectionThreshold = config.disConnectionThreshold != null ? config.disConnectionThreshold : disConnectionThreshold;
 
-            this.port = config.port != null ? config.port : port ;
+            this.port = config.port != null ? config.port : port;
 
             this.hostName = config.hostName != null ? config.hostName : hostName;
 
@@ -97,8 +113,44 @@ public class NetworkPingSender {
 
     }
 
-    public NetworkPingSender(NetworkStateListener listener) {
+    public NetworkPingSender(Context context, NetworkStateListener listener) {
+        this.context = context;
         this.listener = listener;
+        setVPNState();
+
+
+        runVPNConnectionChecker();
+
+
+    }
+
+    private void runVPNConnectionChecker() {
+
+
+        if (handlerVPNThread != null) {
+
+            handlerVPNThread.quit();
+            handlerVPNThread = null;
+
+        }
+        handlerVPNThread = new HandlerThread("VPN-Checker-Thread");
+
+        handlerVPNThread.start();
+
+        handler = new Handler(handlerVPNThread.getLooper());
+
+        Runnable vpnConnectionChecker = new Runnable() {
+            @Override
+            public void run() {
+
+                checkVPNState();
+
+                handler.postDelayed(this, VPN_CHECK_DELAY_MILLIS);
+
+            }
+        };
+
+        handler.postDelayed(vpnConnectionChecker, VPN_CHECK_DELAY_MILLIS);
     }
 
     public synchronized void startPing() {
@@ -147,10 +199,10 @@ public class NetworkPingSender {
 
         try {
 
-            if(isConnecting)
+            if (isConnecting)
                 return;
 
-            long startTime = new Date().getTime();
+            long startTime = System.currentTimeMillis();
             isConnecting = true;
             Socket socket = new Socket();
             SocketAddress socketAddress = new InetSocketAddress(hostName, port);
@@ -160,13 +212,94 @@ public class NetworkPingSender {
             socket.close();
             isConnecting = false;
 
-
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
             notifyNetworkAvailable();
-            Log.d(TAG,"Ping delay: " + (endTime - startTime) + " milliseconds");
+            Log.i(TAG, "Ping delay: " + (endTime - startTime) + " milliseconds");
         } catch (IOException e) {
-            Log.e(TAG,"Timeout Exception host: " + hostName + " port: " + port);
+            Log.e(TAG, "Timeout Exception host: " + hostName + " port: " + port);
             notifyConnectionIsLost();
+        }
+
+    }
+
+    public void onPong(ChatMessage chatMessage) {
+
+        numberOfPingsWithoutPong--;
+        hasPing = numberOfPingsWithoutPong == 0;
+
+    }
+
+    private void checkVPNState() {
+
+        boolean hasVPN = VPNChecker.hasVPN(context);
+
+        // if vpn state has changed
+        // we should check if connection
+        // to sever is alive or not.
+
+        if (hasVPNStateChanged(hasVPN)) {
+
+            Log.i(TAG, "VPN connection change detected!");
+
+            numberOfPingsWithoutPong++;
+            hasPing = false;
+            listener.sendPingToServer();
+
+            handler.postDelayed(() -> {
+
+                //connection is not alive. we should reconnect.
+                if (!hasPing) {
+
+                    Log.e(TAG, "Connection lost!");
+                    connected = false;
+                    isConnecting = false;
+                    numberOfDisConnection = 0;
+                    numberOfPingsWithoutPong = 0;
+                    listener.onConnectionLost();
+                }
+            }, connectTimeout);
+            setVPNState();
+        }
+    }
+
+    private boolean hasVPNStateChanged(boolean hasVPN) {
+        return hasVPN && VPN_STATE == WITHOUT_VPN
+                || !hasVPN && VPN_STATE == WITH_VPN;
+    }
+
+    private void sendServerPing() {
+
+        numberOfPingsWithoutPong++;
+
+        if (numberOfPingsWithoutPong > 1) {
+
+            connected = false;
+            isConnecting = false;
+            numberOfDisConnection = 0;
+            numberOfPingsWithoutPong = 0;
+            listener.networkUnavailable();
+
+
+        } else listener.sendPingToServer();
+
+    }
+
+
+    //check if vpn connected or not.
+    // so we can detect further changes on
+    // network because of vpn connection.
+
+    private void setVPNState() {
+
+        boolean hasVPN = VPNChecker.hasVPN(context);
+
+        if (hasVPN) {
+
+            VPN_STATE = WITH_VPN;
+
+        } else {
+
+            VPN_STATE = WITHOUT_VPN;
         }
 
     }
@@ -178,7 +311,7 @@ public class NetworkPingSender {
         isConnecting = false;
 
 
-        if(numberOfDisConnection < disConnectionThreshold){
+        if (numberOfDisConnection < disConnectionThreshold) {
             numberOfDisConnection++;
             return;
         }
@@ -189,10 +322,14 @@ public class NetworkPingSender {
     }
 
     private void notifyNetworkAvailable() {
+
         if (!connected)
             listener.networkAvailable();
 
         connected = true;
+
+        if (numberOfDisConnection > 0) numberOfDisConnection = 0;
+
     }
 
     //todo test it
@@ -203,20 +340,18 @@ public class NetworkPingSender {
     }
 
 
-    public void setStateListener(Chat chat){
+    public void setStateListener(Chat chat) {
 
         chat.addListener(new ChatListener() {
             @Override
             public void onChatState(String state) {
 
-                Log.d(TAG,"CHAT STATE CHANGED: " + state);
+                Log.d(TAG, "CHAT STATE CHANGED: " + state);
 
-
-                switch (state){
+                switch (state) {
 
                     case ChatStateType.ChatSateConstant.CLOSING:
-                    case ChatStateType.ChatSateConstant.CLOSED:
-                    {
+                    case ChatStateType.ChatSateConstant.CLOSED: {
 
 
                         connected = false;
@@ -224,39 +359,18 @@ public class NetworkPingSender {
 
                         break;
                     }
-//                    case ChatStateType.ChatSateConstant.CHAT_READY:
-//                    {
-//
-//                        connected = true;
-//                        isConnecting = false;
-//
-//                        break;
-//                    }
-//
-//                    case ChatStateType.ChatSateConstant.CONNECTING:{
-//
-//                        connected = false;
-//                        isConnecting = true;
-//
-//                        break;
-//
-//                    }
-//
-//
                 }
 
-
-
-
-
             }
+
+
         });
 
 
     }
 
 
-    public static class NetworkStateConfig{
+    public static class NetworkStateConfig {
 
 
         private String hostName;
@@ -312,12 +426,10 @@ public class NetworkPingSender {
             return connectTimeout;
         }
 
-        public NetworkStateConfig build(){
+        public NetworkStateConfig build() {
             return this;
         }
     }
-
-
 
 
 }

@@ -20,6 +20,7 @@ import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
+import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.PinMessageVO;
@@ -36,6 +37,30 @@ public interface MessageDao {
 
     @RawQuery
     int vacuumDb(SupportSQLiteQuery query);
+
+
+
+    //Cache User Roles
+
+    @Insert(onConflict = REPLACE)
+    void insertCurrentUserRoles(CacheUserRoles role);
+
+    @Insert(onConflict = REPLACE)
+    void insertCurrentUserRoles(List<CacheUserRoles> roles);
+
+    @Delete
+    void deleteUserRole(CacheUserRoles role);
+
+    @Delete
+    void deleteUserRoles(List<CacheUserRoles> roles);
+
+    @Query("select * from cacheuserroles where threadId = :threadId")
+    CacheUserRoles getUserRoles(long threadId);
+
+    @Query("select * from cacheuserroles where threadId = :threadId limit :count offset :offset")
+    CacheUserRoles getUserRoles(long threadId, Integer count, Long offset);
+
+
 
 
     //Cache contact

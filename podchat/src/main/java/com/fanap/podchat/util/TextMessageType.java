@@ -19,7 +19,8 @@ public class TextMessageType {
             TextMessageType.Constants.PICTURE,
             TextMessageType.Constants.VIDEO,
             TextMessageType.Constants.SOUND,
-            TextMessageType.Constants.FILE
+            TextMessageType.Constants.FILE,
+            TextMessageType.Constants.LINK,
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -31,7 +32,7 @@ public class TextMessageType {
         int VIDEO = 4;
         int SOUND = 5;
         int FILE = 6;
-
+        int LINK = 7;
 
     }
 

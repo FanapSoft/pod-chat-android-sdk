@@ -95,6 +95,8 @@ public class TokenHandler {
                     public void onFailure(Call<HandShakeRes> call, Throwable throwable) {
 
                         Log.i("TOKEN", "handshake failed");
+                        listener.onError("handshake failed");
+
 
                     }
                 });
@@ -129,6 +131,8 @@ public class TokenHandler {
                     public void onFailure(Call<LoginRes> call, Throwable throwable) {
 
                         Log.i("OTP", "Login Failed");
+                        listener.onError("authorize failed");
+
                     }
                 });
 
@@ -155,6 +159,8 @@ public class TokenHandler {
                     @Override
                     public void onFailure(Call<VerifyRes> call, Throwable throwable) {
                         Log.i("OTP", "Number verify failed!");
+                        listener.onError("verify failed");
+
 
                     }
                 });
@@ -196,6 +202,8 @@ public class TokenHandler {
                     public void onFailure(Call<SSoTokenRes> call, Throwable throwable) {
 
                         Log.e("OTP", "get token failed!");
+                        listener.onError("get token failed");
+
 
                     }
                 });
@@ -217,7 +225,7 @@ public class TokenHandler {
 
     public void refreshToken() {
 
-        if(refreshToken.isEmpty()){
+        if (refreshToken.isEmpty()) {
 
             return;
         }
@@ -227,19 +235,33 @@ public class TokenHandler {
                     @Override
                     public void onResponse(Call<SSoTokenRes> call, Response<SSoTokenRes> response) {
 
-                        Log.i("OTP", "Token Refreshed");
+                        if (response.body() != null && response.isSuccessful() && response.body().getResult() != null) {
 
-                        refreshToken = response.body().getResult().getRefreshToken();
 
-                        listener.onTokenRefreshed(response.body().getResult().getAccessToken());
+                            Log.i("OTP", "Token Refreshed");
 
-                        saveToken(refreshToken);
+                            refreshToken = response.body().getResult().getRefreshToken();
+
+                            listener.onTokenRefreshed(response.body().getResult().getAccessToken());
+
+                            saveToken(refreshToken);
+
+
+                        } else {
+
+                            Log.i("OTP", "Token refresh failed");
+                            listener.onError("refresh failed");
+
+                        }
+
+
                     }
 
                     @Override
                     public void onFailure(Call<SSoTokenRes> call, Throwable throwable) {
 
                         Log.i("OTP", "Token refresh failed");
+                        listener.onError("refresh failed");
 
                     }
                 });
@@ -288,5 +310,7 @@ public class TokenHandler {
         void onGetToken(String token);
 
         void onTokenRefreshed(String token);
+
+        void onError(String message);
     }
 }
