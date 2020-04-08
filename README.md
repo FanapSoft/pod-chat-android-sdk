@@ -14,9 +14,9 @@
                 .threadId(Long)
                 .withCoreUserIds(Long...)
                 .build();
-
-
-  	chat.addParticipants(request, ChatHandler);
+		
+		
+  		chat.addParticipants(request, ChatHandler);
     
     
    
