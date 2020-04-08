@@ -20,10 +20,10 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
-
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
@@ -42,12 +42,26 @@ import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.MessageManager;
+import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.PinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
+import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
+import com.fanap.podchat.chat.thread.public_thread.PublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
 import com.fanap.podchat.chat.user.user_roles.UserRoles;
+import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.localmodel.LFileUpload;
 import com.fanap.podchat.localmodel.SetRuleVO;
@@ -117,8 +131,6 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultNotSeenDuration;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultSignalMessage;
@@ -137,16 +149,13 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
+import com.fanap.podchat.notification.INotification;
+import com.fanap.podchat.notification.NotificationHelper;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithMessage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -154,6 +163,8 @@ import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithMessage;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestEditMessage;
@@ -165,6 +176,7 @@ import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetLastSeens;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
@@ -172,7 +184,6 @@ import com.fanap.podchat.requestobject.RequestMapRouting;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
@@ -180,6 +191,7 @@ import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
@@ -199,9 +211,9 @@ import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
 import com.fanap.podchat.util.InviteType;
-import com.fanap.podchat.util.NetworkPingSender;
-import com.fanap.podchat.util.NetworkStateListener;
-import com.fanap.podchat.util.NetworkStateReceiver;
+import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
+import com.fanap.podchat.util.NetworkUtils.NetworkStateListener;
+import com.fanap.podchat.util.NetworkUtils.NetworkStateReceiver;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.RequestMapSearch;
@@ -248,7 +260,12 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.*;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.ASYNC_READY;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CLOSED;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CLOSING;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CONNECTING;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.OPEN;
 
 
 public class Chat extends AsyncAdapter {
@@ -267,14 +284,15 @@ public class Chat extends AsyncAdapter {
     private String typeCode;
     private String platformHost;
     private String fileServer;
-    private static volatile Chat instance;
+    private static
+    Chat instance;
     private static SecurePreferences mSecurePrefs;
     private static ChatListenerManager listenerManager;
     private long userId;
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
-    private static String TAG = "CHAT_SDK";
+    public static final String TAG = "CHAT_SDK";
     private String chatState = "CLOSED";
     private boolean isWebSocketNull = true;
 
@@ -293,8 +311,8 @@ public class Chat extends AsyncAdapter {
 
 //    private Map<Long, LinkedHashMap<String, Handler>> threadSignalsManager = new HashMap<>();
 
-    HashMap<String, Long> downloadQList = new HashMap<>();
-    HashMap<String, Call> downloadCallList = new HashMap<>();
+    private HashMap<String, Long> downloadQList = new HashMap<>();
+    private HashMap<String, Call> downloadCallList = new HashMap<>();
 
     private HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
     private HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
@@ -326,6 +344,7 @@ public class Chat extends AsyncAdapter {
     private int expireAmount;
     private static Gson gson;
     private boolean checkToken = false;
+    private boolean connectionPing = false;
     private boolean userInfoResponse = false;
     private long ttl;
     private String ssoHost;
@@ -349,7 +368,6 @@ public class Chat extends AsyncAdapter {
     private String appId;
     private String serverName;
     private boolean hasFreeSpace = true;
-
 
 
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
@@ -450,7 +468,7 @@ public class Chat extends AsyncAdapter {
 
             //it ping and check network availability
 
-            pinger = new NetworkPingSender(new NetworkStateListener() {
+            pinger = new NetworkPingSender(context, new NetworkStateListener() {
                 @Override
                 public void networkAvailable() {
 
@@ -462,6 +480,22 @@ public class Chat extends AsyncAdapter {
                 public void networkUnavailable() {
 
                     closeSocketServer();
+
+                }
+
+                @Override
+                public void sendPingToServer() {
+
+                    pingForCheckConnection();
+
+                }
+
+                @Override
+                public void onConnectionLost() {
+
+                    chatState = CLOSED;
+
+                    scheduleForReconnect();
 
                 }
             });
@@ -497,23 +531,38 @@ public class Chat extends AsyncAdapter {
                 }
             });
 
-
-            try {
-                context.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-            } catch (Exception e) {
-                if (log)
-                    Log.e(TAG, "Network listener could not registered");
-                try {
-                    context.unregisterReceiver(networkStateReceiver);
-                } catch (Exception ex) {
-                    if (log)
-                        Log.e(TAG, "Error on unregistering network listener");
-                }
-            }
+            registerNetworkReceiver();
 
         }
     }
 
+
+    public void registerNetworkReceiver() {
+
+        try {
+            if (networkStateReceiver != null)
+                context.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        } catch (IllegalArgumentException e) {
+            if (log) Log.e(TAG, "Registering Receiver failed");
+        }
+    }
+
+    public void unregisterNetworkReceiver() {
+
+        try {
+            if (networkStateReceiver != null)
+                context.unregisterReceiver(networkStateReceiver);
+        } catch (IllegalArgumentException e) {
+            if (log) Log.e(TAG, "Unregistering Receiver failed");
+        }
+
+    }
+
+
+    public void killChat() {
+
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
 
     public void closeChat() {
 
@@ -522,6 +571,7 @@ public class Chat extends AsyncAdapter {
             stopTyping();
             context.unregisterReceiver(networkStateReceiver);
             if (pinger != null) pinger.stopPing();
+            closeSocketServer();
 
         } catch (Exception ex) {
 
@@ -648,6 +698,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+
     /**
      * It's showed the state of socket
      * When state of the Async changed then the chat ping is stopped by (chatState)flag
@@ -746,8 +797,20 @@ public class Chat extends AsyncAdapter {
                 break;
 
 
-            case Constants.UPDATE_CHAT_PROFILE: {
+            case Constants.ALL_UNREAD_MESSAGE_COUNT:
+                handleOnGetUnreadMessagesCount(chatMessage);
+                break;
 
+            case Constants.IS_NAME_AVAILABLE:
+                handleIsNameAvailable(chatMessage);
+                break;
+
+            case Constants.JOIN_THREAD:
+                handleOnJoinPublicThread(chatMessage);
+                break;
+
+
+            case Constants.UPDATE_CHAT_PROFILE: {
 
                 handleOnChatProfileUpdated(chatMessage);
 
@@ -902,6 +965,46 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
+
+        ChatResponse<ResultUnreadMessagesCount> response =
+                MessageManager.handleUnreadMessagesResponse(chatMessage);
+
+        listenerManager.callOnGetUnreadMessagesCount(response);
+
+        showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(chatMessage));
+
+
+    }
+
+    private void handleOnJoinPublicThread(ChatMessage chatMessage) {
+
+        ChatResponse<ResultJoinPublicThread> response = PublicThread.handleJoinThread(chatMessage);
+
+        listenerManager.callOnJoinPublicThread(response);
+
+        showLog("ON JOIN PUBLIC THREAD", gson.toJson(chatMessage));
+
+
+        if (cache) {
+
+            messageDatabaseHelper.saveNewThread(response.getResult().getThread());
+
+        }
+
+
+    }
+
+    private void handleIsNameAvailable(ChatMessage chatMessage) {
+
+        ChatResponse<ResultIsNameAvailable> response = PublicThread.handleIsNameAvailableResponse(chatMessage);
+
+        listenerManager.callOnUniqueNameIsAvailable(response);
+
+        showLog("UNIQUE NAME IS AVAILABLE", gson.toJson(chatMessage));
+
+    }
+
     private void handleOnChatProfileUpdated(ChatMessage chatMessage) {
 
         ChatResponse<ResultUpdateProfile> response = UserProfile.handleOutputUpdateProfile(chatMessage);
@@ -911,10 +1014,7 @@ public class Chat extends AsyncAdapter {
         showLog("CHAT PROFILE UPDATED", gson.toJson(chatMessage));
 
         if (cache) {
-
-
             messageDatabaseHelper.updateChatProfile(response.getResult());
-
         }
 
 
@@ -961,7 +1061,12 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnGetMentionList(response);
         showLog("RECEIVED MENTION LIST", gson.toJson(response));
 
-        //todo cache ?
+
+        if (cache) {
+
+            messageDatabaseHelper.saveMessageHistory(response.getResult().getHistory(), chatMessage.getSubjectId());
+
+        }
 
     }
 
@@ -981,10 +1086,9 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultPinMessage> response = PinMessage.handleOnMessageUnPinned(chatMessage);
         listenerManager.callOnUnPinMessage(response);
-        showLog("MESSAGE_UNPINNED", gson.toJson(chatMessage));
+        showLog("MESSAGE_UNPINNED", gson.toJson(response));
         if (cache) {
             messageDatabaseHelper.deletePinnedMessageByThreadId(chatMessage.getSubjectId());
-//            messageDatabaseHelper.deletePinnedMessageById(result.getMessageId());
         }
     }
 
@@ -995,6 +1099,11 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnGetUserRoles(response);
 
         showLog("RECEIVE CURRENT USER ROLES", gson.toJson(response));
+
+
+        if (cache) {
+            messageDatabaseHelper.saveCurrentUserRoles(response);
+        }
 
     }
 
@@ -1112,7 +1221,7 @@ public class Chat extends AsyncAdapter {
 
                 connectToAsync(socketAddress, appId, serverName, token, ssoHost);
 
-                if (isNetworkStateListenerEnable) enableNetworkStateListener();
+                setupNetworkStateListener();
 
                 scheduleForReconnect();
 
@@ -1129,6 +1238,10 @@ public class Chat extends AsyncAdapter {
 //                listenerManager.callOnLogEvent(throwable.getMessage());
             }
         }
+    }
+
+    private void setupNetworkStateListener() {
+        if (isNetworkStateListenerEnable) enableNetworkStateListener();
     }
 
 
@@ -1436,12 +1549,21 @@ public class Chat extends AsyncAdapter {
 
 
     /**
-     * @param request
+     * @param request request to get mentioned message of user
+     *                -unreadMentioned
+     *                -allMentioned
      */
+
 
     public String getMentionList(RequestGetMentionList request) {
 
         String uniqueId = generateUniqueId();
+
+        if (cache && request.useCacheData()) {
+
+            loadMentionsFromCache(request, uniqueId);
+
+        }
 
         if (chatReady) {
 
@@ -1454,6 +1576,49 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
+    @SuppressWarnings("unchecked")
+    private void loadMentionsFromCache(RequestGetMentionList request, String uniqueId) {
+
+        messageDatabaseHelper.getMentionList(request, (messages, contentCount) -> {
+
+            ChatResponse<ResultHistory> cacheResponse = Mention
+                    .getMentionListCacheResponse(
+                            request,
+                            (List<MessageVO>) messages,
+                            uniqueId,
+                            (Long) contentCount);
+
+            listenerManager.callOnGetMentionList(cacheResponse);
+
+            showLog("CACHE MENTION LIST", gson.toJson(cacheResponse));
+
+
+        });
+    }
+
+
+    /**
+     * @param request request that contains name to check if is available to create a public thread or channel
+     * @return
+     */
+
+    public String isNameAvailable(RequestCheckIsNameAvailable request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = PublicThread.checkIfNameIsAvailable(request, uniqueId);
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "CHECK IS NAME AVAILABLE");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
 
     /**
      * @param request request for pin message
@@ -1509,6 +1674,23 @@ public class Chat extends AsyncAdapter {
     public String getCurrentUserRoles(RequestGetUserRoles request) {
 
         String uniqueId = generateUniqueId();
+
+        if (cache && request.useCacheData()) {
+
+            messageDatabaseHelper.getCurrentUserRoles(request, cacheRole -> {
+
+                if (cacheRole != null) {
+                    ChatResponse<ResultCurrentUserRoles> response = UserRoles
+                            .handleOnGetUserRolesFromCache(uniqueId, request, (CacheUserRoles) cacheRole);
+
+                    listenerManager.callOnGetUserRoles(response);
+
+                    showLog("RECEIVE CURRENT USER ROLES FROM CACHE", gson.toJson(response));
+                }
+
+            });
+
+        }
 
         if (chatReady) {
 
@@ -1586,7 +1768,6 @@ public class Chat extends AsyncAdapter {
      *                 {@link #getPhoneContact(Context, OnContactLoaded)}
      */
     public String syncContact(Activity activity) {
-
 
         Log.i(TAG, ">>> Start Syncing... " + new Date());
 
@@ -1670,7 +1851,13 @@ public class Chat extends AsyncAdapter {
                 lFileUpload.setFile(file);
 
                 if (FileUtils.isImage(mimeType)) {
-                    uploadImageFileMessage(lFileUpload);
+
+                    if (FileUtils.isGif(mimeType)) {
+                        uploadFileMessage(lFileUpload);
+                    } else
+                        uploadImageFileMessage(lFileUpload);
+
+
                 } else {
                     uploadFileMessage(lFileUpload);
                 }
@@ -2600,7 +2787,8 @@ public class Chat extends AsyncAdapter {
 
             JsonObject jsonObject = null;
             if (sendingQueueCache != null) {
-                jsonObject = (new JsonParser()).parse(sendingQueueCache.getAsyncContent()).getAsJsonObject();
+                jsonObject = (new JsonParser())
+                        .parse(sendingQueueCache.getAsyncContent()).getAsJsonObject();
             }
             if (jsonObject != null) {
                 jsonObject.remove("token");
@@ -2780,7 +2968,7 @@ public class Chat extends AsyncAdapter {
 
         File destinationFolder;
 
-        if (cache) {
+        if (cache && request.canUseCache()) {
 
             destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.FILES) : FileUtils.getOrCreateDirectory(FileUtils.FILES);
 
@@ -2804,7 +2992,7 @@ public class Chat extends AsyncAdapter {
 
         File cachedFile = FileUtils.findFileInFolder(destinationFolder, fileName);
 
-        if (cachedFile != null && cachedFile.isFile()) {
+        if (cachedFile != null && cachedFile.isFile() && request.canUseCache()) {
 
             //file exists
             ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getFileId(), cachedFile);
@@ -2896,7 +3084,7 @@ public class Chat extends AsyncAdapter {
 
         File destinationFolder;
 
-        if (cache) {
+        if (cache && request.canUseCache()) {
 
             destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
 
@@ -2920,7 +3108,7 @@ public class Chat extends AsyncAdapter {
 
         File cachedFile = FileUtils.findFileInFolder(destinationFolder, fileName);
 
-        if (cachedFile != null && cachedFile.isFile()) {
+        if (cachedFile != null && cachedFile.isFile() && request.canUseCache()) {
 
             //file exists
             ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getImageId(), cachedFile);
@@ -3422,7 +3610,7 @@ public class Chat extends AsyncAdapter {
                 for (Long p : request.getContactIds()) {
                     participantsJsonArray.add(p);
                 }
-            } else {
+            } else if (request.getUserNames() != null) {
 
                 for (String username :
                         request.getUserNames()) {
@@ -3432,7 +3620,18 @@ public class Chat extends AsyncAdapter {
                     invitee.setIdType(InviteType.Constants.TO_BE_USER_USERNAME);
                     JsonElement jsonElement = gson.toJsonTree(invitee);
                     participantsJsonArray.add(jsonElement);
+                }
 
+            } else {
+
+                for (Long coreUserId :
+                        request.getCoreUserIds()) {
+
+                    Invitee invitee = new Invitee();
+                    invitee.setId(coreUserId);
+                    invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+                    JsonElement jsonElement = gson.toJsonTree(invitee);
+                    participantsJsonArray.add(jsonElement);
                 }
 
             }
@@ -3741,7 +3940,10 @@ public class Chat extends AsyncAdapter {
                 String mimeType = handleMimType(fileUri, file);
                 lFileUpload.setMimeType(mimeType);
                 if (FileUtils.isImage(mimeType)) {
-                    uploadImageFileMessage(lFileUpload);
+
+                    if (FileUtils.isGif(mimeType)) {
+                        uploadFileMessage(lFileUpload);
+                    } else uploadImageFileMessage(lFileUpload);
                 } else {
 //                    String path = FilePick.getSmartFilePath(context, fileUri);
                     uploadFileMessage(lFileUpload);
@@ -3752,7 +3954,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
-            if (log) Log.e(TAG, e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getMessage());
             return uniqueId;
         }
         return uniqueId;
@@ -3971,8 +4173,14 @@ public class Chat extends AsyncAdapter {
 
 
     @Deprecated
-    public String getThreads(Integer count, Long offset, ArrayList<Integer> threadIds,
-                             String threadName, long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, boolean isNew, ChatHandler handler) {
+    public String getThreads(Integer count, Long offset,
+                             ArrayList<Integer> threadIds,
+                             String threadName, long creatorCoreUserId,
+                             long partnerCoreUserId,
+                             long partnerCoreContactId,
+                             boolean isNew,
+                             boolean useCache,
+                             ChatHandler handler) {
 
         String uniqueId;
 
@@ -3981,7 +4189,7 @@ public class Chat extends AsyncAdapter {
         uniqueId = generateUniqueId();
 
         try {
-            if (cache) {
+            if (cache && useCache) {
                 handleCacheThread(count, offset, threadIds, threadName, isNew);
             }
 
@@ -4084,8 +4292,13 @@ public class Chat extends AsyncAdapter {
      * @param threadName           Name of the thread that you want to get
      */
     @Deprecated
-    public String getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,
-                             long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler) {
+    public String getThreads(Integer count,
+                             Long offset, ArrayList<Integer> threadIds,
+                             String threadName,
+                             long creatorCoreUserId,
+                             long partnerCoreUserId,
+                             long partnerCoreContactId,
+                             ChatHandler handler) {
 
         String uniqueId;
         count = count != null ? count : 50;
@@ -4179,7 +4392,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    private void getThreadsSummaryAndUpdateThreadsCache() {
+    private void getAllThreads() {
 
         if (cache) {
 
@@ -4270,7 +4483,19 @@ public class Chat extends AsyncAdapter {
         String threadName = requestThread.getThreadName();
         long count = requestThread.getCount();
         boolean isNew = requestThread.isNew();
-        return getThreads((int) count, offset, threadIds, threadName, creatorCoreUserId, partnerCoreUserId, partnerCoreContactId, isNew, handler);
+        boolean useCache = requestThread.useCacheData();
+
+
+        return getThreads((int) count,
+                offset,
+                threadIds,
+                threadName,
+                creatorCoreUserId,
+                partnerCoreUserId,
+                partnerCoreContactId,
+                isNew,
+                useCache,
+                handler);
     }
 
     /*
@@ -4291,7 +4516,11 @@ public class Chat extends AsyncAdapter {
      *
      * @param threadId Id of the thread that we want to get the history
      */
-    private String getHistory(History history, long threadId, ChatHandler handler) {
+    @Deprecated
+    private String getHistory(History history,
+                              long threadId,
+                              boolean useCache,
+                              ChatHandler handler) {
 
         String mainUniqueId = generateUniqueId();
 
@@ -4316,7 +4545,7 @@ public class Chat extends AsyncAdapter {
                 super.onGetHistory(uniqueId);
 
 
-                if (cache && history.getMetadataCriteria() == null) {
+                if (cache && useCache && history.getMetadataCriteria() == null) {
 
                     final boolean[] loadFromCache = {true};
 
@@ -4483,22 +4712,12 @@ public class Chat extends AsyncAdapter {
     public String getHistory(RequestGetHistory request, ChatHandler handler) {
 
 
-        History history = new History.Builder()
-                .count(request.getCount())
-                .firstMessageId(request.getFirstMessageId())
-                .lastMessageId(request.getLastMessageId())
-                .metadataCriteria(request.getMetadataCriteria())
-                .offset(request.getOffset())
-                .fromTime(request.getFromTime())
-                .fromTimeNanos(request.getFromTimeNanos())
-                .toTime(request.getToTime())
-                .toTimeNanos(request.getToTimeNanos())
-                .uniqueIds(request.getUniqueIds())
-                .id(request.getId())
-                .order(request.getOrder() != null ? request.getOrder() : "desc").build();
+        History history = getHistoryModelFromRequestGetHistory(request);
 
 
-        return getHistory(history, request.getThreadId(), handler);
+        return getHistory(history, request.getThreadId(),
+                request.useCacheData(),
+                handler);
 
 
 //        String uniqueId = generateUniqueId();
@@ -4621,6 +4840,22 @@ public class Chat extends AsyncAdapter {
 //        }
 //
 //        return uniqueId;
+    }
+
+    private History getHistoryModelFromRequestGetHistory(RequestGetHistory request) {
+        return new History.Builder()
+                .count(request.getCount())
+                .firstMessageId(request.getFirstMessageId())
+                .lastMessageId(request.getLastMessageId())
+                .metadataCriteria(request.getMetadataCriteria())
+                .offset(request.getOffset())
+                .fromTime(request.getFromTime())
+                .fromTimeNanos(request.getFromTimeNanos())
+                .toTime(request.getToTime())
+                .toTimeNanos(request.getToTimeNanos())
+                .uniqueIds(request.getUniqueIds())
+                .id(request.getId())
+                .order(request.getOrder() != null ? request.getOrder() : "desc").build();
     }
 
     private void findAndUpdateGaps(List<MessageVO> newMessagesFromServer, long threadId) {
@@ -5132,14 +5367,16 @@ public class Chat extends AsyncAdapter {
 
         Long offset = request.getOffset();
         long count = request.getCount();
-        return getContacts((int) count, offset, handler);
+        boolean useCache = request.useCacheData();
+        return getContactMain((int) count, offset, false, useCache, handler);
     }
 
     /**
      * Get all of the contacts of the user
      */
+    @Deprecated
     public String getContacts(Integer count, Long offset, ChatHandler handler) {
-        return getContactMain(count, offset, false, handler);
+        return getContactMain(count, offset, false, false, handler);
     }
 
 
@@ -5149,7 +5386,7 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
 
-        if (cache) {
+        if (cache && requestSearchContact.canUseCache()) {
             List<Contact> contacts = new ArrayList<>();
             if (requestSearchContact.getId() != null) {
                 Contact contact = messageDatabaseHelper.getContactById(Long.valueOf(requestSearchContact.getId()));
@@ -6299,6 +6536,7 @@ public class Chat extends AsyncAdapter {
      */
     @Deprecated
     public String spam(long threadId) {
+
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
@@ -6381,7 +6619,10 @@ public class Chat extends AsyncAdapter {
 
     /**
      * It gets the list of the contacts that is on block list
+     * <p>
+     * it is deprecated and will be removed
      */
+    @Deprecated
     public String getBlockList(Long count, Long offset, ChatHandler handler) {
 
         String uniqueId = generateUniqueId();
@@ -6449,13 +6690,179 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * It gets the list of the contacts that is on block list
+     */
+    private String getBlockList(Long count, Long offset, boolean useCache, ChatHandler handler) {
+
+        String uniqueId = generateUniqueId();
+
+
+        if (cache && useCache) {
+
+            List<BlockedContact> cacheContacts = messageDatabaseHelper.getBlockedContacts(count, offset);
+            if (!Util.isNullOrEmpty(cacheContacts)) {
+
+                ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
+                chatResponse.setErrorCode(0);
+                chatResponse.setHasError(false);
+                chatResponse.setUniqueId(uniqueId);
+                ResultBlockList resultBlockList = new ResultBlockList();
+
+                resultBlockList.setContacts(cacheContacts);
+                chatResponse.setResult(resultBlockList);
+                String jsonGetBlock = gson.toJson(chatResponse);
+                listenerManager.callOnGetBlockList(jsonGetBlock, chatResponse);
+                showLog("RECEIVE_GET_BLOCK_LIST_FROM_CACHE", jsonGetBlock);
+            }
+        }
+
+
+        if (chatReady) {
+
+            JsonObject content = new JsonObject();
+
+            if (offset != null) {
+                content.addProperty("offset", offset);
+            }
+            if (count != null) {
+                content.addProperty("count", count);
+            } else {
+                content.addProperty("count", 50);
+
+            }
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(content.toString());
+            chatMessage.setType(Constants.GET_BLOCKED);
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setToken(getToken());
+            chatMessage.setUniqueId(uniqueId);
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+            if (Util.isNullOrEmpty(getTypeCode())) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.remove("typeCode");
+                jsonObject.addProperty("typeCode", getTypeCode());
+            }
+
+            String asyncContent = jsonObject.toString();
+
+            setCallBacks(null, null, null, true, Constants.GET_BLOCKED, null, uniqueId);
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_GET_BLOCK_LIST");
+            if (handler != null) {
+                handler.onGetBlockList(uniqueId);
+            }
+        } else {
+            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+        }
+        return uniqueId;
+    }
+
 
     /**
      * It gets the list of the contacts that is on block list
      */
     public String getBlockList(RequestBlockList request, ChatHandler handler) {
-        return getBlockList(request.getCount(), request.getOffset(), handler);
+
+
+        return getBlockList(request.getCount(), request.getOffset(), request.useCacheData(), handler);
     }
+
+
+    public String createThread(RequestCreateThread request) {
+
+        String uniqueId = generateUniqueId();
+
+
+        if (chatReady) {
+
+            JsonObject chatMessageContent = (JsonObject) gson.toJsonTree(request);
+
+            if (request instanceof RequestCreatePublicThread) {
+
+                String uniqueName = ((RequestCreatePublicThread) request).getUniqueName();
+
+                chatMessageContent.addProperty("uniqueName", uniqueName);
+
+
+            }
+
+            AsyncMessage chatMessage = new AsyncMessage();
+            chatMessage.setContent(chatMessageContent.toString());
+            chatMessage.setType(Constants.INVITATION);
+            chatMessage.setToken(getToken());
+            chatMessage.setUniqueId(uniqueId);
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? getTypeCode() : request.getTypeCode());
+
+            String asyncContent = gson.toJson(chatMessage);
+
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CREATE_THREAD");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+
+        return uniqueId;
+    }
+
+
+    public String joinPublicThread(RequestJoinPublicThread request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String asyncMessage = PublicThread.joinPublicThread(request, uniqueId);
+
+            sendAsyncMessage(asyncMessage, AsyncAckType.Constants.WITHOUT_ACK, "SEND JOIN PUBLIC THREAD");
+
+        } else onChatNotReady(uniqueId);
+
+        return uniqueId;
+    }
+
+    public String getAllUnreadMessagesCount(RequestGetUnreadMessagesCount request) {
+
+        String uniqueId = generateUniqueId();
+
+
+        if (cache && request.useCacheData()) {
+
+            loadUnreadMessagesCountFromCache(request);
+        }
+
+        if (chatReady) {
+
+            String asyncMessage = MessageManager.getAllUnreadMessgesCount(request, uniqueId);
+
+            sendAsyncMessage(asyncMessage, AsyncAckType.Constants.WITHOUT_ACK, "SEND GET UNREAD MESSAGES COUNT");
+
+        } else onChatNotReady(uniqueId);
+
+
+        return uniqueId;
+
+    }
+
+    private void loadUnreadMessagesCountFromCache(RequestGetUnreadMessagesCount request) {
+
+        messageDatabaseHelper.loadAllUnreadMessagesCount(request, count -> {
+
+
+            ChatResponse<ResultUnreadMessagesCount> response =
+                    MessageManager.handleUnreadMessagesCacheResponse((Long) count);
+
+            listenerManager.callOnGetUnreadMessagesCount(response);
+
+            showLog("ON GET UNREAD MESSAGES COUNT FROM CACHE", gson.toJson(response));
+
+        });
+    }
+
 
     /**
      * Create the thread to p to p/channel/group. The list below is showing all of the threads messageType
@@ -6480,8 +6887,12 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId;
         uniqueId = generateUniqueId();
+
         if (chatReady) {
-            List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
+
+            List<Invitee> invitees = new ArrayList<Invitee>(Arrays.asList(invitee));
+
+
             ChatThread chatThread = new ChatThread();
             chatThread.setType(threadType);
             chatThread.setInvitees(invitees);
@@ -6511,6 +6922,7 @@ public class Chat extends AsyncAdapter {
                 chatThreadObject.remove("metadata");
                 chatThreadObject.addProperty("metadata", metadata);
             }
+
             String contentThreadChat = chatThreadObject.toString();
 
             ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId, getTypeCode());
@@ -6882,7 +7294,7 @@ public class Chat extends AsyncAdapter {
 
                 String content = jObj.toString();
 
-                ChatMessage chatMessage = new ChatMessage();
+                AsyncMessage chatMessage = new AsyncMessage();
                 chatMessage.setContent(content);
 
                 chatMessage.setTokenIssuer("1");
@@ -6949,15 +7361,18 @@ public class Chat extends AsyncAdapter {
      * @ param long count number of the participant wanted to get
      * @ param long offset offset of the participant list
      */
-    public String getThreadParticipants(RequestThreadParticipant request, @Nullable Boolean admin, ChatHandler handler) {
+    private String getThreadParticipants(RequestThreadParticipant request,
+                                         @Nullable Boolean admin,
+                                         ChatHandler handler) {
 
         long count = request.getCount();
         long offset = request.getOffset();
         long threadId = request.getThreadId();
         String typeCode = request.getTypeCode();
         boolean getAdmin = admin != null ? admin : false;
+        boolean useCache = request.useCacheData();
 
-        return getThreadAdminsMain((int) count, offset, threadId, getAdmin, typeCode, handler);
+        return getThreadAdminsMain((int) count, offset, threadId, getAdmin, typeCode, useCache, handler);
     }
 
     public String getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) {
@@ -6966,8 +7381,10 @@ public class Chat extends AsyncAdapter {
         long offset = request.getOffset();
         long threadId = request.getThreadId();
         String typeCode = request.getTypeCode();
+        boolean useCache = request.useCacheData();
 
-        return getThreadParticipantsMain((int) count, offset, threadId, typeCode, handler);
+
+        return getThreadParticipantsMain((int) count, offset, threadId, typeCode, useCache, handler);
     }
 
     /**
@@ -6977,11 +7394,21 @@ public class Chat extends AsyncAdapter {
      */
     @Deprecated
     public String getThreadParticipants(Integer count, Long offset, long threadId, ChatHandler handler) {
-        return getThreadParticipantsMain(count, offset, threadId, null, handler);
+        return getThreadParticipantsMain(count,
+                offset,
+                threadId,
+                null,
+                true,
+                handler);
     }
 
 
-    private String getThreadParticipantsMain(Integer count, Long offset, long threadId, String typeCode, ChatHandler handler) {
+    private String getThreadParticipantsMain(Integer count,
+                                             Long offset,
+                                             long threadId,
+                                             String typeCode,
+                                             boolean useCache,
+                                             ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
 
@@ -6989,7 +7416,7 @@ public class Chat extends AsyncAdapter {
         count = count != null ? count != 0 ? count : 50 : 50;
 
 
-        if (cache) {
+        if (cache && useCache) {
             List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId, false);
             //noinspection ConstantConditions
             if (participants != null) {
@@ -7017,38 +7444,21 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
-            ChatMessageContent chatMessageContent = new ChatMessageContent();
+            JsonObject content = new JsonObject();
 
-            chatMessageContent.setCount(count);
+            content.addProperty("count", count);
+            content.addProperty("offset", offset);
 
-            chatMessageContent.setOffset(offset);
-
-            String content = gson.toJson(chatMessageContent);
-
-
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setContent(content);
+            AsyncMessage chatMessage = new AsyncMessage();
+            chatMessage.setContent(content.toString());
             chatMessage.setType(Constants.THREAD_PARTICIPANTS);
             chatMessage.setTokenIssuer("1");
             chatMessage.setToken(getToken());
             chatMessage.setUniqueId(uniqueId);
             chatMessage.setSubjectId(threadId);
+            chatMessage.setTypeCode(Util.isNullOrEmpty(typeCode) ? getTypeCode() : typeCode);
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-
-            if (Util.isNullOrEmpty(getTypeCode())) {
-                jsonObject.remove("typeCode");
-            } else {
-                jsonObject.remove("typeCode");
-                jsonObject.addProperty("typeCode", getTypeCode());
-            }
-
-            jsonObject.remove("lastMessageId");
-            jsonObject.remove("firstMessageId");
-            jsonObject.remove("contentCount");
-            jsonObject.remove("systemMetadata");
-            jsonObject.remove("metadata");
-            jsonObject.remove("repliedTo");
 
             String asyncContent = jsonObject.toString();
 
@@ -7068,20 +7478,24 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    private String getThreadAdminsMain(Integer count, Long offset, long threadId, boolean getAdmin, String typeCode, ChatHandler handler) {
+    private String getThreadAdminsMain(Integer count,
+                                       Long offset,
+                                       long threadId,
+                                       boolean getAdmin,
+                                       String typeCode,
+                                       boolean useCache,
+                                       ChatHandler handler) {
 
 
         String uniqueId;
         uniqueId = generateUniqueId();
-
-        if (!chatReady) return uniqueId;
 
 
         offset = offset != null ? offset : 0;
         count = count != null ? count != 0 ? count : 50 : 50;
 
 
-        if (cache) {
+        if (cache && useCache) {
             List<Participant> participants = messageDatabaseHelper.getThreadParticipant(offset, count, threadId, getAdmin);
             //noinspection ConstantConditions
             if (participants != null) {
@@ -7293,6 +7707,81 @@ public class Chat extends AsyncAdapter {
                 handler.onGetUserInfo(uniqueId);
             }
         }
+
+
+        return uniqueId;
+    }
+
+    /**
+     * It Gets the information of the current user
+     * <p>
+     * set useCache = false to disable cache for only this function
+     */
+    public String getUserInfo(boolean useCache, ChatHandler handler) {
+
+        String uniqueId = generateUniqueId();
+
+        if (cache && useCache) {
+
+
+            try {
+                UserInfo userInfo = messageDatabaseHelper.getUserInfo();
+
+                if (userInfo != null) {
+
+                    ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
+
+                    ResultUserInfo result = new ResultUserInfo();
+
+                    setUserId(userInfo.getId());
+
+                    result.setUser(userInfo);
+
+                    chatResponse.setResult(result);
+
+                    chatResponse.setCache(true);
+
+                    String userInfoJson = gson.toJson(chatResponse);
+
+                    listenerManager.callOnUserInfo(userInfoJson, chatResponse);
+                    showLog("CACHE_USER_INFO", userInfoJson);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (log) Log.e(TAG, e.getMessage());
+            }
+
+
+        }
+
+        if (chatReady) {
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setType(Constants.USER_INFO);
+            chatMessage.setUniqueId(uniqueId);
+            chatMessage.setToken(getToken());
+            chatMessage.setTokenIssuer("1");
+
+            setCallBacks(null, null, null, true, Constants.USER_INFO, null, uniqueId);
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+            if (Util.isNullOrEmpty(getTypeCode())) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.remove("typeCode");
+                jsonObject.addProperty("typeCode", getTypeCode());
+
+            }
+
+            String asyncContent = jsonObject.toString();
+            showLog("SEND_USER_INFO", asyncContent);
+            async.sendMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK);
+
+            if (handler != null) {
+                handler.onGetUserInfo(uniqueId);
+            }
+        } else onChatNotReady(uniqueId);
 
 
         return uniqueId;
@@ -7753,7 +8242,6 @@ public class Chat extends AsyncAdapter {
 
     public String getAdminList(RequestGetAdmin requestGetAdmin) {
 
-
         return getThreadParticipants(requestGetAdmin, requestGetAdmin.isAdmin(), null);
 //        String uniqueId = generateUniqueId();
 //        long threadId = requestGetAdmin.getThreadId();
@@ -7865,7 +8353,7 @@ public class Chat extends AsyncAdapter {
      */
     private void ping() {
         if (chatReady && async.getPeerId() != null) {
-            ChatMessage chatMessage = new ChatMessage();
+            AsyncMessage chatMessage = new AsyncMessage();
             chatMessage.setType(Constants.PING);
             chatMessage.setTokenIssuer("1");
             chatMessage.setToken(getToken());
@@ -7876,7 +8364,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void pingAfterSetToken() {
-        ChatMessage chatMessage = new ChatMessage();
+        AsyncMessage chatMessage = new AsyncMessage();
         chatMessage.setType(Constants.PING);
         chatMessage.setTokenIssuer("1");
         chatMessage.setToken(getToken());
@@ -7887,6 +8375,21 @@ public class Chat extends AsyncAdapter {
         String asyncContent = gson.toJson(chatMessage);
         async.sendMessage(asyncContent, AsyncAckType.Constants.WITH_ACK);
         showLog("**SEND_CHAT PING FOR CHECK TOKEN AUTHENTICATION", asyncContent);
+    }
+
+    private void pingForCheckConnection() {
+
+        AsyncMessage chatMessage = new AsyncMessage();
+        chatMessage.setType(Constants.PING);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+
+        connectionPing = true;
+
+        String asyncContent = gson.toJson(chatMessage);
+        async.sendMessage(asyncContent, AsyncAckType.Constants.WITH_ACK);
+        showLog("..:: SEND CHAT PING FOR CHECK CONNECTION ::..", asyncContent);
+
     }
 
     private void showLog(String i, String json) {
@@ -8015,7 +8518,7 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVED_REMOVED_FROM_THREAD", content);
         listenerManager.callOnRemovedFromThread(content, chatResponse);
 
-        //todo
+
         if (cache) {
 
             messageDatabaseHelper.deleteThread(chatMessage.getSubjectId());
@@ -8043,6 +8546,17 @@ public class Chat extends AsyncAdapter {
             listenerManager.callOnChatState(CHAT_READY);
             showLog("** CLIENT_AUTHENTICATED_NOW", "");
             pingWithDelay();
+        }
+
+
+        if (connectionPing) {
+
+            connectionPing = false;
+            showLog(" ..:: CONNECTION PONG RECEIVED ::..", "");
+            if (pinger != null) {
+                pinger.onPong(chatMessage);
+            }
+
         }
     }
 
@@ -8568,16 +9082,6 @@ public class Chat extends AsyncAdapter {
 
             String jsonParticipant = gson.toJson(chatResponse);
 
-
-//            OutPutParticipant output = new OutPutParticipant();
-//
-//            output.setResult(chatResponse.getResult());
-//
-//            output.setSubjectId(chatMessage.getSubjectId());
-//
-//
-
-
             if (chatResponse.getResult().getParticipants().size() > 0)
                 if (!Util.isNullOrEmpty(chatResponse.getResult().getParticipants().get(0).getRoles())) {
 
@@ -8804,10 +9308,33 @@ public class Chat extends AsyncAdapter {
         chatState = CHAT_READY;
         checkMessageQueue();
 
-        getThreadsSummaryAndUpdateThreadsCache();
+        getAllThreads();
         showLog(state, "");
         permit = true;
         checkFreeSpace();
+
+
+    }
+
+    public void enableNotification(String applicationId, AppCompatActivity activity, INotification listener) {
+
+        try {
+            NotificationHelper.enableNotification(applicationId, activity, listener);
+        } catch (Exception e) {
+            Log.e(TAG, "Enabling Notification Failed");
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    public void enableNotification(String applicationId, Activity activity, INotification listener) {
+
+        try {
+            NotificationHelper.enableNotification(applicationId, activity, listener);
+        } catch (Exception e) {
+            Log.e(TAG, "Enabling Notification Failed");
+            Log.e(TAG, e.getMessage());
+        }
+
     }
 
 
@@ -9331,6 +9858,10 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnUpdateThreadInfo(threadJson, chatResponse);
         showLog("RECEIVE_UPDATE_THREAD_INFO", threadJson);
 
+        if (cache) {
+            messageDatabaseHelper.saveNewThread(thread);
+        }
+
     }
 
     /**
@@ -9849,7 +10380,6 @@ public class Chat extends AsyncAdapter {
 
         ResultHistory resultHistory = new ResultHistory();
 
-
         if (cache) {
             resultHistory.setSending(messageDatabaseHelper.getAllSendingQueueByThreadId(chatMessage.getSubjectId()));
             resultHistory.setUploadingQueue(messageDatabaseHelper.getAllUploadingQueueByThreadId(chatMessage.getSubjectId()));
@@ -9883,16 +10413,12 @@ public class Chat extends AsyncAdapter {
 
     private void updateChatHistoryCache(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {
 
-        new java.lang.Thread(() -> {
 
-            List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
-            }.getType());
+        List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
+        }.getType());
 
-            messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS);
-            messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
-
-
-        }).start();
+        messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS);
+        messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
 
 
     }
@@ -9912,13 +10438,13 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private String getContactMain(Integer count, Long offset, boolean syncContact, ChatHandler handler) {
+    private String getContactMain(Integer count, Long offset, boolean syncContact, boolean useCache, ChatHandler handler) {
         String uniqueId = generateUniqueId();
 
         count = count != null && count > 0 ? count : 50;
         offset = offset != null && offset >= 0 ? offset : 0;
 
-        if (cache) {
+        if (cache && useCache) {
             ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacts(count, offset));
             ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
 
@@ -9933,6 +10459,8 @@ public class Chat extends AsyncAdapter {
             listenerManager.callOnGetContacts(contactJson, chatResponse);
             showLog("CACHE_GET_CONTACT", contactJson);
         }
+
+
         if (chatReady) {
 
             ChatMessageContent chatMessageContent = new ChatMessageContent();
@@ -10187,9 +10715,6 @@ public class Chat extends AsyncAdapter {
                     e.printStackTrace();
                 }
             }
-
-
-//            Log.d("MTAG","Cache Participant to Save: " + cacheParticipants.toString() );
 
             if (!cacheParticipants.isEmpty())
                 messageDatabaseHelper.saveParticipants(cacheParticipants, chatMessage.getSubjectId(), getExpireAmount());
@@ -10639,10 +11164,12 @@ public class Chat extends AsyncAdapter {
         ArrayList<String> cellphoneNumbers = new ArrayList<>();
         ArrayList<String> lastNames = new ArrayList<>();
         ArrayList<String> typeCodes = new ArrayList<>();
+        ArrayList<String> uniqueIds = new ArrayList<>();
 
         for (PhoneContact contact : phoneContacts) {
             firstNames.add(contact.getName());
             lastNames.add(contact.getLastName());
+            uniqueIds.add(generateUniqueId());
 
 
             String phoneNum = String.valueOf(contact.getPhoneNumber());
@@ -10666,12 +11193,23 @@ public class Chat extends AsyncAdapter {
 
             if (!Util.isNullOrEmpty(getTypeCode())) {
 
-                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
-                        , cellphoneNumbers, typeCodes);
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers,
+                        typeCodes);
 
             } else {
-                addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers
-                        , cellphoneNumbers);
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers);
             }
 
             Log.d(TAG, "Call to add contact");
@@ -10709,7 +11247,9 @@ public class Chat extends AsyncAdapter {
                                 if (cache) {
 
                                     try {
-                                        new Handler(handlerThread.getLooper()).post(() -> messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount()));
+
+                                        messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
+
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }

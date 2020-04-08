@@ -1,5 +1,8 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -255,4 +258,11 @@ public interface ChatListener {
 
     default void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response){}
 
+    default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response){}
+
+    default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
+
+    default void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
+
+    default void onCreateThread(ChatResponse<ResultThread> response){}
 }

@@ -28,7 +28,10 @@ public class ConstantSample {
             , "unpin thread",
             "Pin Message",
             "Unpin Message",
-            "Get Mention List"
+            "Get Mention List",
+            "Is Name Available",
+            "Create Public Thread or Channel",
+            "Join Public Thread"
     };
 
     public static final String[] funcSecond = {

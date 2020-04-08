@@ -1,17 +1,27 @@
 package com.example.chat.application.chatexample;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+
+import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -49,7 +59,9 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
@@ -87,19 +99,24 @@ import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
-import com.fanap.podchat.util.NetworkPingSender;
+import com.fanap.podchat.util.ChatStateType;
+import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
+public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
     private Chat chat;
     private ChatContract.view view;
     private Context context;
     private Activity activity;
+    private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
+    private TokenHandler tokenHandler = null;
+    private String state = "";
+
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
@@ -120,6 +137,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.setDownloadDirectory(context.getCacheDir());
 
+        chat.enableNotification(NOTIFICATION_APPLICATION_ID, activity, userId ->
+                Log.e("CHAT_SDK_PRESENTER", "UserIdReceived: " + userId));
+
 
 //        chat.setNetworkListenerEnabling(false);
 //        chat.setReconnectOnClose(false);
@@ -127,6 +147,34 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         this.activity = activity;
         this.context = context;
         this.view = view;
+
+        activity.getApplication().registerActivityLifecycleCallbacks(this);
+
+
+        tokenHandler = new TokenHandler(activity.getApplicationContext());
+
+        tokenHandler.addListener(new TokenHandler.ITokenHandler() {
+            @Override
+            public void onGetToken(String token) {
+
+                view.onGetToken(token);
+
+            }
+
+            @Override
+            public void onTokenRefreshed(String token) {
+
+                if (state.equals(ChatStateType.ChatSateConstant.ASYNC_READY))
+                    chat.setToken(token);
+                else view.onGetToken(token);
+
+            }
+
+            @Override
+            public void onError(String message) {
+                view.onError();
+            }
+        });
 
 
     }
@@ -169,6 +217,76 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.connect(requestConnect);
 
+    }
+
+
+    @Override
+    public void checkIsNameAvailable(RequestCheckIsNameAvailable request) {
+
+        chat.isNameAvailable(request);
+    }
+
+    @Override
+    public void createPublicThread(RequestCreatePublicThread request) {
+
+        chat.createThread(request);
+    }
+
+    @Override
+    public void joinPublicThread(RequestJoinPublicThread request) {
+        chat.joinPublicThread(request);
+    }
+
+    @Override
+    public void getContact(RequestGetContact request) {
+        chat.getContacts(request, null);
+    }
+
+    @Override
+    public void getBlockList(RequestBlockList request) {
+        chat.getBlockList(request, null);
+    }
+
+    @Override
+    public void getThreadParticipant(RequestThreadParticipant request) {
+        chat.getThreadParticipants(request, null);
+    }
+
+    @Override
+    public void enableAutoRefresh(Activity activity, String entry) {
+
+
+        if (entry.startsWith("09")) {
+            tokenHandler.handshake(entry);
+        } else {
+            tokenHandler.verifyNumber(entry);
+        }
+
+
+//        ArrayList<String> scopes = new ArrayList<>();
+//
+//        scopes.add("profile");
+//
+//        PodOtp otp = new PodOtp.Builder()
+//                .with(activity.getApplicationContext())
+//                .setBaseUrl("https://accounts.pod.ir/")
+//                .build();
+//
+//
+//        otp.authorization("09157770684", new AuthorizationCallback() {
+//
+//            @Override
+//            public void onSuccess(String s, Long aLong) {
+//                Log.e("OTP", ">>> " + s);
+//
+//            }
+//
+//            @Override
+//            public void onError(int i, String s) {
+//                Log.e("OTP", ">>> " + i + " >> " + s);
+//
+//            }
+//        });
     }
 
     @Override
@@ -744,11 +862,20 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onError(String content, ErrorOutPut outPutError) {
         super.onError(content, outPutError);
+
+
         activity.runOnUiThread(() -> Toast.makeText(context, content, Toast.LENGTH_SHORT).show());
 
         if (outPutError.getErrorCode() == 21) {
 
-            view.onTokenExpired();
+//            view.onTokenExpired();
+
+            if (tokenHandler != null) {
+                tokenHandler.refreshToken();
+            } else {
+                Toast.makeText(context, "Token refresh failed!", Toast.LENGTH_LONG).show();
+            }
+
 
         }
     }
@@ -853,7 +980,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void updateChatProfile(RequestUpdateProfile request) {
         chat.updateChatProfile(request);
     }
-
 
 
     @Override
@@ -964,7 +1090,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onChatState(String state) {
+
         view.onState(state);
+
+        this.state = state;
+
     }
 
     @Override
@@ -1087,5 +1217,59 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onTypingSignalTimeout(long threadId) {
         view.onTypingSignalTimeout(threadId);
+    }
+
+
+    @Override
+    public void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
+        view.onUniqueNameIsAvailable(response);
+    }
+
+    @Override
+    public void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
+        view.onJoinPublicThread(response);
+    }
+
+    @Override
+    public void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
+        view.onGetUnreadsMessagesCount(response);
+    }
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+
+        chat.unregisterNetworkReceiver();
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+
+        chat.unregisterNetworkReceiver();
+
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+
     }
 }

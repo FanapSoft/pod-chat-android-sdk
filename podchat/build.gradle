@@ -1,20 +1,20 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.kezong.fat-aar'
 
 
+ext {
 
-ext{
-
-    libraryVersion = '0.6.1.0'
+    libraryVersion = '0.6.3.0'
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 28
-        versionCode 43
+        targetSdkVersion 29
+        versionCode 57
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -33,6 +33,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     buildToolsVersion '28.0.3'
 
 }
@@ -58,8 +59,12 @@ ext {
     allLicenses = ["Apache-2.0"]
 }
 
+//configurations.embed.transitive = true
+
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.aar'], dir: 'libs')
     implementation 'com.android.support:support-annotations:28.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
 
@@ -82,8 +87,14 @@ dependencies {
 
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
 //    api project(path: ':podasync')
-    api 'com.fanap.async:podasync:0.2.8.1'
+    api 'com.fanap.async:podasync:0.2.8.3'
 
+
+    implementation project(path: ':tmtp_sdk', configuration: 'default')
+
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation "com.google.firebase:firebase-messaging:18.0.0"
+    implementation "android.arch.work:work-runtime:1.0.1"
 
 
 }
@@ -94,24 +105,6 @@ version = libraryVersion
 
 
 
-def updateDependencies(pom){
-
-//    println("....::: start of updating dependencies :::....")
-//
-//    pom.dependencies.forEach { dep ->
-//        println(">>>>dependencies::: $dep")
-//        if (dep.getVersion() == "unspecified") {
-//
-//            println("dep version unspecified ::: $dep")
-//
-//            dep.setGroupId("com.fanap.async")
-//            dep.setVersion("0.2.8.3")
-//
-//            println("dep version set!! :::> $dep")
-//
-//        }
-//    }
-}
 
 install {
     repositories.mavenInstaller {
@@ -221,51 +214,48 @@ afterEvaluate { project ->
     }
 
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
+    task javadoc(type: Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
 
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
+    artifacts {
+        archives javadocJar
+        archives sourcesJar
+    }
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
+    bintray {
+        user = properties.getProperty("bintray.user")
+        key = properties.getProperty("bintray.apikey")
 
-    configurations = ['archives']
-    pkg {
-        repo = bintrayRepo
-        name = bintrayName
-        desc = libraryDescription
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = allLicenses
-        dryRun = false
-        publish = true
-        override = true
-        publicDownloadNumbers = true
-        version {
+        configurations = ['archives']
+        pkg {
+            repo = bintrayRepo
+            name = bintrayName
             desc = libraryDescription
+            websiteUrl = siteUrl
+            vcsUrl = gitUrl
+            licenses = allLicenses
+            dryRun = false
+            publish = true
+            override = true
+            publicDownloadNumbers = true
+            version {
+                desc = libraryDescription
+            }
         }
     }
-}}
-//if (project.rootProject.file('local.properties').exists()) {
-//    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/bintrayv1.gradle'
-//    apply from: 'https://raw.githubusercontent.com/Sinarahimi/Maven/master/installv1.gradle'
-//}
+}

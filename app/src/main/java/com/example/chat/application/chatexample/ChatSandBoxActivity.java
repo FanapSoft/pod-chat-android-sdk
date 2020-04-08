@@ -47,9 +47,7 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.security.ProviderInstaller;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.fanap.podchat.example.R;
@@ -96,11 +94,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //        sqlScoutServer = SqlScoutServer.create(this, getPackageName());
 
         setContentView(R.layout.activity_chat);
-        try {
-            ProviderInstaller.installIfNeeded(this);
-        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ProviderInstaller.installIfNeeded(this);
+//        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+//            e.printStackTrace();
+//        }
         TextView textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
 

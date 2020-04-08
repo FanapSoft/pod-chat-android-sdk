@@ -6,7 +6,54 @@
 All notable changes to this project will be documented here.
 
 
-#Version [0.6.1.0] -2020-4-3
+
+## Version [0.6.3.0] -2020-4-7
+
+[Added] Add Participant with coreUserId
+
+[Improvement] VPN Connection management
+
+[Improvement] Reconnect
+
+[Added] ChatProfile to Participant
+
+[Added] Cache for `getCurrentRoles`
+
+[Added] Gif files sends as file in `sendFileMessage`, `replyFileMessage` and `createThreadWithFile`
+
+[Added] OTP login example project
+
+
+
+
+## Version [0.6.2.0] -2020-3-17
+
+[Added] Notification Service
+
+[Added] mute parameter to `getUnreadMessagesCount`
+
+[BugFixed] `syncContacts` repetitive numbers
+
+
+
+
+## Version [0.6.1.1] -2020-3-14
+
+[Added] Ability to disable cache per function
+
+[Added] `isNameAvailable`
+
+[Added] `createPublicThread`
+
+[Added] `joinPublicThread`
+
+[Added] `getUnreadMessagesCount`
+
+
+
+
+
+#Version [0.6.1.0] -2020-3-4
 
 
 [Added] addParticipants with username

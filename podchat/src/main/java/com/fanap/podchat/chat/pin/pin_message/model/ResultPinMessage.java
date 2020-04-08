@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat.pin.pin_message.model;
 
+import com.fanap.podchat.mainmodel.Participant;
 import com.google.gson.annotations.SerializedName;
 
 public class ResultPinMessage{
@@ -12,6 +13,22 @@ public class ResultPinMessage{
 
 	@SerializedName("text")
 	private String text;
+
+	@SerializedName("sender")
+	private
+	Participant participant;
+
+	@SerializedName("time")
+	private long time;
+
+
+	public Participant getParticipant() {
+		return participant;
+	}
+
+	public void setParticipant(Participant participant) {
+		this.participant = participant;
+	}
 
 	public void setNotifyAll(boolean notifyAll){
 		this.notifyAll = notifyAll;
@@ -35,6 +52,14 @@ public class ResultPinMessage{
 
 	public String getText(){
 		return text;
+	}
+
+	public long getTime() {
+		return time;
+	}
+
+	public void setTime(long time) {
+		this.time = time;
 	}
 
 	@Override

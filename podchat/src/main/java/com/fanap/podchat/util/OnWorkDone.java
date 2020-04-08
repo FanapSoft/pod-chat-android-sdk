@@ -3,9 +3,13 @@ package com.fanap.podchat.util;
 
 import android.support.annotation.Nullable;
 
-@FunctionalInterface
-public interface OnWorkDone <T> {
+import java.util.List;
 
-    void onWorkDone(@Nullable T t);
+@FunctionalInterface
+public interface OnWorkDone <T,Z> {
+
+    abstract void onWorkDone(@Nullable T t);
+
+    default void onWorkDone(@Nullable T t, List<Z> z) {}
 }
 

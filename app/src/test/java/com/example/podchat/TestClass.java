@@ -1,34 +1,19 @@
 package com.example.podchat;
 
+import com.example.chat.application.chatexample.BaseApplication;
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.ChatListener;
+import com.fanap.podchat.example.R;
+import com.fanap.podchat.requestobject.RequestConnect;
+
 import org.junit.Assert;
 
 public class TestClass {
 
 
+
     public static void main(String[] args) {
-
-        new Thread(() -> {
-
-            System.out.println("1 Starts");
-
-            sleep(1000);
-
-            System.out.println("1 Done");
-
-
-        }).start();
-
-        new Thread(() -> {
-
-            sleep(500);
-            System.out.println("2 ");
-
-        }).start();
-
-
-        new Thread(() -> System.out.println("3")).start();
-        new Thread(() -> System.out.println("4")).start();
-
 
     }
 

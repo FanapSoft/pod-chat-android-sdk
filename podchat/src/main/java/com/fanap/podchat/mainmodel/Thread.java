@@ -41,6 +41,7 @@ public class Thread {
     private long participantCount;
     private Boolean canSpam;
     private Boolean admin;
+    private String uniqueName;
 
 
     public Thread(
@@ -77,7 +78,8 @@ public class Thread {
             Boolean admin,
             Boolean pin,
             Boolean mentioned,
-            PinMessageVO pinMessageVO) {
+            PinMessageVO pinMessageVO,
+            String uniqueName) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -112,6 +114,7 @@ public class Thread {
         this.pin = pin;
         this.mentioned = mentioned;
         this.pinMessageVO = pinMessageVO;
+        this.uniqueName = uniqueName;
     }
 
 
@@ -389,5 +392,13 @@ public class Thread {
 
     public void setPartnerLastDeliveredMessageNanos(long partnerLastDeliveredMessageNanos) {
         this.partnerLastDeliveredMessageNanos = partnerLastDeliveredMessageNanos;
+    }
+
+    public String getUniqueName() {
+        return uniqueName;
+    }
+
+    public void setUniqueName(String uniqueName) {
+        this.uniqueName = uniqueName;
     }
 }

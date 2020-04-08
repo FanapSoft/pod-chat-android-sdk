@@ -3,7 +3,181 @@
 **Fanap's POD** Chat service
 
 
-## Version [0.6.1.0] -2020-4-3
+## Version [0.6.3.0] -2020-4-7
+
+- Add Participant with `coreUserId`
+
+
+
+    	RequestAddParticipants request = RequestAddParticipants
+                .newBuilder()
+                .threadId(Long)
+                .withCoreUserIds(Long...)
+                .build();
+		
+		
+  		chat.addParticipants(request, ChatHandler);
+    
+    
+   
+
+
+
+
+## Version [0.6.2.0] -2020-3-17
+
+- Adding notification:
+
+
+        * Import 'tmtp_sdk_notif.aar as module
+        * add gradle dependency:
+         
+            implementation project(':tmtp_sdk_notif')
+            
+        * add this to end of build.gradle - app module:
+        
+            configurations {
+            
+                compile.exclude module: 'tmtp_sdk'
+            
+            }
+
+        
+        * finally enable notifiaction
+
+        chat.enableNotification(
+        NOTIFICATION_APPLICATION_ID,    // registered applicationId in notification server
+        activity,  
+        userId -> // userId for sending notification to this device
+                            );
+                            
+
+
+- use mute parameter in getAllUnreadMessagesCount to get mute threads unread messages count too:
+
+
+            RequestGetUnreadMessagesCount request = new RequestGetUnreadMessagesCount
+                    .Builder()
+                    .withMuteThreads()
+                    .build();
+                            
+        
+
+
+
+
+
+## Version [0.6.1.1] -2020-3-14
+
+- disable cache per function
+    
+  	  Request request = new Request.Builder()
+     	   .withNoCache()
+      	  .build()
+        
+
+
+- check if a public name is available:
+
+
+    Request:
+
+		RequestCheckIsNameAvailable request = new RequestCheckIsNameAvailable
+        	.Builder(Long)
+        	.build();
+        
+        
+     
+     
+  		chat.isNameAvailable(request);
+     
+     
+
+
+    Response:
+    
+     if name is available
+    
+    	 onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable>)
+     
+     or error if not
+    
+
+
+
+- create public thread with unique name:
+
+    
+     
+   	  RequestCreatePublicThread request =
+                    new RequestCreatePublicThread.Builder(
+                            int, //public thread type 
+                            List<Invitee>, // list of participants
+                            String) // thread unqique name
+                            .withDescription(String) // thread description
+                            .title(String) // thread title
+                            .withImage(String) // thread image url
+                            .withMetadata(String) // thread metadata
+                            .build();
+                            
+     
+     	chat.createThread(request);
+     
+     
+     
+     
+                            
+     
+   	  onCreateThread(ChatResponse<ResultThread>)
+
+
+
+
+- join a public thread with unique name
+
+    
+  	  RequestJoinPublicThread request = new RequestJoinPublicThread
+                    .Builder(String) // thread unique name
+                    .build();
+                    
+    
+ 	   chat.joinPublicThread(request)
+ 
+ 
+ 
+ 
+    
+    
+    
+ 	   onJoinPublicThread(ChatResponse<ResultJoinPublicThread>)
+    
+    
+    
+    
+    
+    
+    
+- get all unread messages count
+
+
+      RequestGetUnreadMessagesCount request = new RequestGetUnreadMessagesCount
+        .Builder()
+        .build();
+        
+        
+        
+      chat.getAllUnreadMessagesCount(request)
+      
+      
+      
+      
+      onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount>)
+          
+    
+
+
+
+## Version [0.6.1.0] -2020-3-4
 
 
 

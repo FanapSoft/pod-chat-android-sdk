@@ -20,6 +20,7 @@ import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
+import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.PinMessageVO;
@@ -36,6 +37,30 @@ public interface MessageDao {
 
     @RawQuery
     int vacuumDb(SupportSQLiteQuery query);
+
+
+
+    //Cache User Roles
+
+    @Insert(onConflict = REPLACE)
+    void insertCurrentUserRoles(CacheUserRoles role);
+
+    @Insert(onConflict = REPLACE)
+    void insertCurrentUserRoles(List<CacheUserRoles> roles);
+
+    @Delete
+    void deleteUserRole(CacheUserRoles role);
+
+    @Delete
+    void deleteUserRoles(List<CacheUserRoles> roles);
+
+    @Query("select * from cacheuserroles where threadId = :threadId")
+    CacheUserRoles getUserRoles(long threadId);
+
+    @Query("select * from cacheuserroles where threadId = :threadId limit :count offset :offset")
+    CacheUserRoles getUserRoles(long threadId, Integer count, Long offset);
+
+
 
 
     //Cache contact
@@ -58,7 +83,7 @@ public interface MessageDao {
     int getContactCount();
 
     @Query("update CacheContact set blocked = :blocked where id = :contactId")
-    void updateContactBlockedState(boolean blocked,long contactId);
+    void updateContactBlockedState(boolean blocked, long contactId);
 
 
     //Cache Blocked Contact
@@ -109,6 +134,17 @@ public interface MessageDao {
     void insertHistories(List<CacheMessageVO> messageVOS);
 
     /**
+     * Unread Messags
+     */
+
+    @Query("SELECT sum(unreadCount) from threadvo where unreadCount > 0")
+    long getAllUnreadMessagesCount();
+
+    @Query("SELECT sum(unreadCount) from threadvo where unreadCount > 0 and mute = :isMute")
+    long getAllUnreadMessagesCountNoMutes(boolean isMute);
+
+
+    /**
      * String Query
      */
     @Query("SELECT * FROM cachemessagevo WHERE threadVoId = :threadVoId AND message LIKE '%' || :query || '%' ORDER BY timeStamp DESC LIMIT :count OFFSET :offset")
@@ -147,6 +183,10 @@ public interface MessageDao {
 
     @RawQuery
     List<CacheMessageVO> getRawHistory(SupportSQLiteQuery query);
+
+    @RawQuery
+    long getHistoryContentCount(SupportSQLiteQuery query);
+
 
     /**
      * Delete message
@@ -224,7 +264,7 @@ public interface MessageDao {
     void updateThreadPinState(long threadId, boolean isPinned);
 
     @Query("update ThreadVo set lastMessageVOId = :lastMessageId, lastMessage = :lastMessage where id = :threadId")
-    void updateThreadLastMessageVOId(long threadId,long lastMessageId,String lastMessage);
+    void updateThreadLastMessageVOId(long threadId, long lastMessageId, String lastMessage);
 
     @Query("update ThreadVo set lastMessageVOId = null, lastMessage = null where id = :threadId")
     void removeThreadLastMessageVO(long threadId);
@@ -370,8 +410,6 @@ public interface MessageDao {
     GapMessageVO getGap(long id);
 
 
-
-
     //pin message queries
     @Query("select * from pinmessagevo where threadId = :id")
     PinMessageVO getThreadPinnedMessage(long id);
@@ -387,7 +425,6 @@ public interface MessageDao {
 
     @Query("delete from pinmessagevo where threadId = :threadId")
     void deletePinnedMessageByThreadId(long threadId);
-
 
 
     //Chat Profile
