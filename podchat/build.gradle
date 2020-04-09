@@ -22,11 +22,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-//            buildConfigField 'String', 'NeshanServer', "https://api.neshan.org/"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-//            buildConfigField 'String', 'NeshanServer', "https://api.neshan.org/"
         }
     }
     compileOptions {
@@ -142,8 +140,6 @@ install {
         pom.whenConfigured { pom ->
             println("######### when config $pom")
 
-            updateDependencies(pom)
-
         }
     }
 }
@@ -206,8 +202,6 @@ afterEvaluate { project ->
 
                 pom.whenConfigured { pom ->
                     println(">>>>when configuered")
-
-                    updateDependencies(pom)
                 }
             }
         }

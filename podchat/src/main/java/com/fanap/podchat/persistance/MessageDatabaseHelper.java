@@ -103,11 +103,7 @@ public class MessageDatabaseHelper {
                     java.lang.Thread.sleep(2000);
 
                     messageDao.vacuumDb(new SimpleSQLiteQuery("VACUUM"));
-//                    SupportSQLiteOpenHelper s = appDatabase.getOpenHelper();
-//
-//                    SupportSQLiteDatabase db = s.getWritableDatabase();
-//
-//                    db.execSQL("vacuum");
+
                     java.lang.Thread.sleep(1000);
 
                     listener.onCacheDatabaseCleared();

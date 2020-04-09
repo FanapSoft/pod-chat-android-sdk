@@ -18,6 +18,7 @@ public interface MessageQueueDao {
     /**
      * Sending Queue
      */
+
     @Insert(onConflict = REPLACE)
     void insertSendingMessageQueue(SendingQueueCache sendingQueueCache);
 
@@ -55,6 +56,8 @@ public interface MessageQueueDao {
 
     @Query("DELETE FROM WaitQueueCache WHERE uniqueId = :uniqueId")
     void deleteWaitMessageQueue(String uniqueId);
+
+
 
     /**
      * Uploading Queue

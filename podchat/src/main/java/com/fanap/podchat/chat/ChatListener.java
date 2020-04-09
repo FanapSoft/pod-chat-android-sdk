@@ -203,6 +203,7 @@ public interface ChatListener {
 
     }
 
+    @Deprecated
     default void onLogEvent(String log) {
 
     }
