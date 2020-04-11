@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.3.0'
+    libraryVersion = '0.6.3.22'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 57
+        versionCode 61
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -23,8 +23,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
         }
     }
     compileOptions {
@@ -100,8 +98,6 @@ dependencies {
 group = publishedGroupId
 
 version = libraryVersion
-
-
 
 
 install {

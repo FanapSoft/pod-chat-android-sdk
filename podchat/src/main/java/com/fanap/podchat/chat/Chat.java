@@ -11608,7 +11608,6 @@ public class Chat extends AsyncAdapter {
 
         } else {
             getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-//            listenerManager.callOnLogEvent(jsonError);
         }
     }
 
