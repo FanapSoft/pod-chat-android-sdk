@@ -31,6 +31,7 @@ public class CacheMessageVO {
     private String systemMetadata;
     private boolean hasGap = false;
     private boolean mentioned = false;
+    private boolean pinned = false;
 
 
     @Ignore
@@ -286,6 +287,7 @@ public class CacheMessageVO {
         this.systemMetadata = messageVO.getSystemMetadata();
         this.hasGap = messageVO.hasGap();
         this.mentioned = messageVO.isMentioned();
+        this.pinned = messageVO.isPinned();
         try {
 
 
@@ -312,10 +314,16 @@ public class CacheMessageVO {
 
         } catch (Exception e) {
             e.printStackTrace();
-
         }
 
     }
 
 
+    public boolean isPinned() {
+        return pinned;
+    }
+
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
+    }
 }

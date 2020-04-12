@@ -136,7 +136,7 @@ public class ChatActivity extends AppCompatActivity
 
     private Button btnUploadImage;
 
-        //
+    //
     private static String TOKEN = "19007025944b4bf5b75dd42ded3ce4ba";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
@@ -154,7 +154,7 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 
-//
+////
 //    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
@@ -165,29 +165,29 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 ////
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
+    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 14234;
+//    public static int TEST_THREAD_ID = 14234;
 
 
     //integration /group
@@ -278,7 +278,7 @@ public class ChatActivity extends AppCompatActivity
             String entry = editTextToken.getText().toString();
             editTextToken.setText("");
             editTextToken.setHint("Enter OTP or Number");
-            presenter.enableAutoRefresh(this,entry);
+            presenter.enableAutoRefresh(this, entry);
 
 
             return true;
@@ -599,9 +599,9 @@ public class ChatActivity extends AppCompatActivity
 
                         RequestBlockList request =
                                 new RequestBlockList.Builder()
-                                        .count(10)
+                                        .count(50)
                                         .offset(0)
-                                        .withNoCache()
+//                                        .withNoCache()
                                         .build();
 
                         presenter.getBlockList(request);
@@ -1205,10 +1205,10 @@ public class ChatActivity extends AppCompatActivity
                         RequestSearchContact requestSearchContact = new RequestSearchContact
                                 .Builder("0", "50")
 //                                .id("1063")
-                                .cellphoneNumber("09")
+//                                .cellphoneNumber("09")
 //                                .lastName("Khei")
-//                                .firstName("Pooria")
-//                                .query("hasUser = true")
+//                                .firstName("pooria")
+                                .query("pooria")
                                 .build();
                         presenter.searchContact(requestSearchContact);
                         break;
@@ -1440,7 +1440,7 @@ public class ChatActivity extends AppCompatActivity
         RequestAddParticipants request = RequestAddParticipants
                 .newBuilder()
                 .threadId((long) TEST_THREAD_ID)
-                .withCoreUserIds(121L,234L)
+                .withCoreUserIds(121L, 234L)
                 .build();
 
 
@@ -1542,9 +1542,9 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 4:
                 //"reply message",
-//                replyMessage();
+                replyMessage();
 
-                replyFileMessage();
+//                replyFileMessage();
 
                 break;
             case 5:
@@ -1998,11 +1998,11 @@ public class ChatActivity extends AppCompatActivity
 
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
-//                .offset(0)
+                .offset(0)
                 .count(50)
 //                .uniqueIds(uniqueIds)
 //                .withNoCache()
-                .toTime(System.currentTimeMillis())
+//                .toTime(System.currentTimeMillis())
                 .build();
 
         //            history.setToTime(System.currentTimeMillis());
@@ -2047,10 +2047,10 @@ public class ChatActivity extends AppCompatActivity
 
     public void replyMessage() {
         RequestReplyMessage message = new RequestReplyMessage
-                .Builder("this is reply from john", TEST_THREAD_ID, 31849)
+                .Builder("this is reply from john", TEST_THREAD_ID, 94305,
+                TextMessageType.Constants.TEXT)
                 .build();
         presenter.replyMessage(message, null);
-
 
 
 //        presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
@@ -2247,7 +2247,8 @@ public class ChatActivity extends AppCompatActivity
         inviter.setName("Me");
         String meta = gson.toJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
-                .Builder(messageContent, threadId, messageId, fileUri, this)
+                .Builder(messageContent, threadId, messageId, fileUri, this,
+                TextMessageType.Constants.FILE)
                 .systemMetaData(meta)
                 .messageType(TextMessageType.Constants.PICTURE)
                 .build();

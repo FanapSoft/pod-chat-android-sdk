@@ -371,13 +371,44 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler) {
-        chat.getThreads(count, offset, threadIds, threadName, creatorCoreUserId, partnerCoreUserId, partnerCoreContactId, handler);
+    public void getThreads(Integer count,
+                           Long offset,
+                           ArrayList<Integer> threadIds,
+                           String threadName,
+                           long creatorCoreUserId,
+                           long partnerCoreUserId,
+                           long partnerCoreContactId,
+                           ChatHandler handler) {
+
+        RequestThread request = new RequestThread.Builder()
+                .count(count)
+                .offset(offset)
+                .threadIds(threadIds)
+                .threadName(threadName)
+                .creatorCoreUserId(creatorCoreUserId)
+                .partnerCoreContactId(partnerCoreContactId)
+                .partnerCoreContactId(partnerCoreContactId)
+                .build();
+
+
+        chat.getThreads(request, handler);
     }
 
     @Override
     public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler) {
-        chat.getThreads(count, offset, threadIds, threadName, 0, 0, 0, handler);
+
+
+        RequestThread request = new RequestThread.Builder()
+                .count(count)
+                .offset(offset)
+                .threadIds(threadIds)
+                .threadName(threadName)
+                .creatorCoreUserId(0)
+                .partnerCoreContactId(0)
+                .partnerCoreContactId(0)
+                .build();
+
+        chat.getThreads(request, handler);
     }
 
 
@@ -599,7 +630,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
-        return chat.sendFileMessage(activity, description, threadId, fileUri, metaData, messageType, handler);
+
+        RequestFileMessage request = new RequestFileMessage.Builder(activity, threadId, fileUri, messageType)
+                .description(description)
+                .systemMetadata(metaData)
+
+                .build();
+
+
+        return chat.sendFileMessage(request, handler);
     }
 
     @Override

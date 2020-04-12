@@ -362,8 +362,8 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertReplyInfoVO(CacheReplyInfoVO replyInfoVO);
 
-    @Query("select * from CacheReplyInfoVO where id = :replyInfoVOId")
-    CacheReplyInfoVO getReplyInfo(long replyInfoVOId);
+    @Query("select * from CacheReplyInfoVO where repliedToMessageId = :replyToId")
+    CacheReplyInfoVO getReplyInfo(long replyToId);
 
     //Cache ForwardInfo
     @Insert(onConflict = REPLACE)

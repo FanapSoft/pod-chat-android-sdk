@@ -48,6 +48,7 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 
+import com.fanap.podchat.util.TextMessageType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.fanap.podchat.example.R;
@@ -455,7 +456,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = gson.toJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
-                .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
+                .Builder(messageContent, threadId, messageId, fileUri, this,
+                TextMessageType.Constants.FILE).systemMetaData(meta).build();
         presenter.replyFileMessage(fileMessage, null);
     }
 

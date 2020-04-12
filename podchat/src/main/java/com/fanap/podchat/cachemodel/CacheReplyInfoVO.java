@@ -22,7 +22,7 @@ public class CacheReplyInfoVO {
     private CacheParticipant participant;
 
     //This field is just for using cache
-    private Long participantId;
+    private long participantId;
 
     private long repliedToMessageId;
     private long repliedToMessageTime;
@@ -67,11 +67,11 @@ public class CacheReplyInfoVO {
         this.id = id;
     }
 
-    public Long getParticipantId() {
+    public long getParticipantId() {
         return participantId;
     }
 
-    public void setParticipantId(Long participantId) {
+    public void setParticipantId(long participantId) {
         this.participantId = participantId;
     }
 
