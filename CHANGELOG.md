@@ -12,6 +12,8 @@ All notable changes to this project will be documented here.
 
 [BugFixed] sending repetitive file message
 
+[BugFixed] cacheReplyInfo updated in getHistory and getThreads
+
 [Added] messageType is required in replyMessage and replyFileMessage
 
 

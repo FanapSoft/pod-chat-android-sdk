@@ -2794,12 +2794,12 @@ public class Chat extends AsyncAdapter {
                 jsonObject.addProperty("token", getToken());
 
 
-                if(chatReady){
+                if (chatReady) {
 
 
                     moveFromSendingQueueToWaitQueue(uniqueId, sendingQueueCache);
                     sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_TEXT_MESSAGE_FROM_MESSAGE_QUEUE");
-                }else {
+                } else {
                     onChatNotReady(uniqueId);
                 }
 
@@ -3867,7 +3867,7 @@ public class Chat extends AsyncAdapter {
         } else {
             queueCache = sendingQList.get(uniqueId);
             if (queueCache != null) {
-                WaitQueueCache waitMessageQueue = getWaitQueueCacheFromSendQueue(queueCache,uniqueId);
+                WaitQueueCache waitMessageQueue = getWaitQueueCacheFromSendQueue(queueCache, uniqueId);
                 waitQList.put(uniqueId, waitMessageQueue);
             }
         }
@@ -4190,68 +4190,88 @@ public class Chat extends AsyncAdapter {
 
         try {
 
-            if (cache && useCache) {
-                loadThreadsFromCache(count, offset, threadIds, threadName, isNew,uniqueId);
-            }
+            Integer finalCount = count;
+            Long finalOffset = offset;
 
-            if (chatReady) {
+            Runnable getThreadsFromServerJob = () -> {
 
-                ChatMessageContent chatMessageContent = new ChatMessageContent();
+                if (chatReady) {
 
-                chatMessageContent.setNew(isNew);
+                    ChatMessageContent chatMessageContent = new ChatMessageContent();
 
-                chatMessageContent.setCount(count);
+                    chatMessageContent.setNew(isNew);
 
-                chatMessageContent.setOffset(offset);
+                    chatMessageContent.setCount(finalCount);
 
-                if (threadName != null) {
-                    chatMessageContent.setName(threadName);
-                }
+                    chatMessageContent.setOffset(finalOffset);
+
+                    if (threadName != null) {
+                        chatMessageContent.setName(threadName);
+                    }
 
 
-                JsonObject content;
+                    JsonObject content;
 
-                if (!Util.isNullOrEmpty(threadIds)) {
-                    chatMessageContent.setThreadIds(threadIds);
-                    content = (JsonObject) gson.toJsonTree(chatMessageContent);
+                    if (!Util.isNullOrEmpty(threadIds)) {
+                        chatMessageContent.setThreadIds(threadIds);
+                        content = (JsonObject) gson.toJsonTree(chatMessageContent);
+                    } else {
+                        content = (JsonObject) gson.toJsonTree(chatMessageContent);
+                        content.remove("threadIds");
+                    }
+
+                    if (creatorCoreUserId > 0) {
+                        content.addProperty("creatorCoreUserId", creatorCoreUserId);
+                    }
+                    if (partnerCoreUserId > 0) {
+                        content.addProperty("partnerCoreUserId", partnerCoreUserId);
+                    }
+                    if (partnerCoreContactId > 0) {
+                        content.addProperty("partnerCoreContactId", partnerCoreContactId);
+                    }
+
+                    content.remove("lastMessageId");
+                    content.remove("firstMessageId");
+
+                    AsyncMessage chatMessage = new AsyncMessage();
+                    chatMessage.setContent(content.toString());
+                    chatMessage.setType(Constants.GET_THREADS);
+                    chatMessage.setTokenIssuer("1");
+                    chatMessage.setToken(getToken());
+                    chatMessage.setUniqueId(uniqueId);
+                    chatMessage.setTypeCode(typeCode != null ? typeCode : getTypeCode());
+
+                    JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+                    setCallBacks(null, null, null, true, Constants.GET_THREADS, finalOffset, uniqueId);
+
+                    sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_GET_THREADS");
+
+                    if (handler != null) {
+                        handler.onGetThread(uniqueId);
+                    }
                 } else {
-                    content = (JsonObject) gson.toJsonTree(chatMessageContent);
-                    content.remove("threadIds");
+                    getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
                 }
 
-                if (creatorCoreUserId > 0) {
-                    content.addProperty("creatorCoreUserId", creatorCoreUserId);
-                }
-                if (partnerCoreUserId > 0) {
-                    content.addProperty("partnerCoreUserId", partnerCoreUserId);
-                }
-                if (partnerCoreContactId > 0) {
-                    content.addProperty("partnerCoreContactId", partnerCoreContactId);
-                }
+            };
 
-                content.remove("lastMessageId");
-                content.remove("firstMessageId");
 
-                AsyncMessage chatMessage = new AsyncMessage();
-                chatMessage.setContent(content.toString());
-                chatMessage.setType(Constants.GET_THREADS);
-                chatMessage.setTokenIssuer("1");
-                chatMessage.setToken(getToken());
-                chatMessage.setUniqueId(uniqueId);
-                chatMessage.setTypeCode(typeCode != null ? typeCode : getTypeCode());
+            if (cache && useCache) {
 
-                JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-
-                setCallBacks(null, null, null, true, Constants.GET_THREADS, offset, uniqueId);
-
-                sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_GET_THREADS");
-
-                if (handler != null) {
-                    handler.onGetThread(uniqueId);
-                }
+                loadThreadsFromCache(count,
+                        offset,
+                        threadIds,
+                        threadName,
+                        isNew,
+                        uniqueId,
+                        cache -> getThreadsFromServerJob.run());
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+
+                getThreadsFromServerJob.run();
+
             }
+
 
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
@@ -4507,7 +4527,7 @@ public class Chat extends AsyncAdapter {
 
         String mainUniqueId = generateUniqueId();
 
-        history.setCount(history.getCount() > 0 ? history.getCount() : 50 );
+        history.setCount(history.getCount() > 0 ? history.getCount() : 50);
 
 
         //updating waitQ ( list or db )
@@ -10318,12 +10338,8 @@ public class Chat extends AsyncAdapter {
         return typeCode;
     }
 
-    private void loadThreadsFromCache(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, String uniqueId) {
+    private void loadThreadsFromCache(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, String uniqueId, OnWorkDone listener) {
 
-
-        ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
-
-        chatResponse.setCache(true);
 
         if (offset == null) {
             offset = 0L;
@@ -10332,31 +10348,48 @@ public class Chat extends AsyncAdapter {
         if (count == null || count == 0)
             count = 50;
 
-        List<Thread> threads = messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew);
 
-        if (!Util.isNullOrEmpty(threads)) {
+        Long finalOffset = offset;
 
-            int contentCount = messageDatabaseHelper.getThreadCount();
+        messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew, cachedThreads -> {
 
-            ResultThreads resultThreads = new ResultThreads();
-            resultThreads.setThreads(threads);
-            resultThreads.setContentCount(contentCount);
-            chatResponse.setCache(true);
+            List<Thread> threads = (List<Thread>) cachedThreads;
+
+            if (!Util.isNullOrEmpty(threads)) {
+
+                ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
+
+                chatResponse.setCache(true);
+
+                int contentCount = messageDatabaseHelper.getThreadCount();
+
+                ResultThreads resultThreads = new ResultThreads();
+                resultThreads.setThreads(threads);
+                resultThreads.setContentCount(contentCount);
+                chatResponse.setCache(true);
 
 
-            if (threads.size() + offset < contentCount) {
-                resultThreads.setHasNext(true);
-            } else {
-                resultThreads.setHasNext(false);
+                if (threads.size() + finalOffset < contentCount) {
+                    resultThreads.setHasNext(true);
+                } else {
+                    resultThreads.setHasNext(false);
+                }
+                resultThreads.setNextOffset(finalOffset + threads.size());
+                chatResponse.setResult(resultThreads);
+                chatResponse.setUniqueId(uniqueId);
+
+                String threadJson = gson.toJson(chatResponse);
+                listenerManager.callOnGetThread(threadJson, chatResponse);
+                showLog("CACHE_GET_THREAD", threadJson);
+
+
             }
-            resultThreads.setNextOffset(offset + threads.size());
-            chatResponse.setResult(resultThreads);
-            chatResponse.setUniqueId(uniqueId);
 
-            String threadJson = gson.toJson(chatResponse);
-            listenerManager.callOnGetThread(threadJson, chatResponse);
-            showLog("CACHE_GET_THREAD", threadJson);
-        }
+            listener.onWorkDone(null);
+
+
+        });
+
 
     }
 

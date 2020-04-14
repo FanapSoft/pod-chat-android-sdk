@@ -137,14 +137,14 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
     //
-    private static String TOKEN = "19007025944b4bf5b75dd42ded3ce4ba";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
+//    private static String TOKEN = "a51a30487b4e4e808c4a9659bece6b35";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
 
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = "chatlocal";
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = "chatlocal";
 
 
     private static String appId = "POD-Chat";
@@ -155,10 +155,10 @@ public class ChatActivity extends AppCompatActivity
      */
 
 ////
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
 
     /**
@@ -174,15 +174,15 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 5182;
+//    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
@@ -192,7 +192,7 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /group
 
-//    public static int TEST_THREAD_ID = 7090;
+    public static int TEST_THREAD_ID = 7090;
 //
 
     private String fileUri;
@@ -2035,6 +2035,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder()
 //                .newMessages()
 //                .partnerCoreContactId(566)
+                .offset(0)
                 .count(50)
 //                .withNoCache()
                 .build();
