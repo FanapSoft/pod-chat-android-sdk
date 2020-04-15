@@ -707,11 +707,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void onUploadImage(View view) {
         presenter.uploadImageProgress(this, ChatSandBoxActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
-            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        percentage.setText(bytesSent);
+                        percentage.setText(progress);
                     }
                 });
             }
@@ -730,18 +730,18 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         if (getUri() != null) {
             presenter.uploadFileProgress(ChatSandBoxActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
-                public void onProgressUpdate(int bytesSent) {
+                public void onProgressUpdate(int progress) {
                 }
 
                 @Override
-                public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    percentageFile.setText(bytesSent);
+                                    percentageFile.setText(progress);
                                 }
                             });
 

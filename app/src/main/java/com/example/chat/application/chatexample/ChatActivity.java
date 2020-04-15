@@ -826,9 +826,9 @@ public class ChatActivity extends AppCompatActivity
         presenter.createThreadWithFile(request, new ProgressHandler.onProgressFile() {
 
                     @Override
-                    public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                    public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
-                        Log.e("CTF", "Upload Progress: " + bytesSent);
+                        Log.e("CTF", "Upload Progress: " + progress);
 
                     }
 
@@ -2207,8 +2207,8 @@ public class ChatActivity extends AppCompatActivity
 
         presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
-            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-                runOnUiThread(() -> percentage.setText(bytesSent + "%"));
+            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+                runOnUiThread(() -> percentage.setText(progress + "%"));
             }
 
             @Override
@@ -2264,17 +2264,17 @@ public class ChatActivity extends AppCompatActivity
 
             presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
-                public void onProgressUpdate(int bytesSent) {
+                public void onProgressUpdate(int progress) {
 
                     Log.e("UFP", "opu");
                 }
 
                 @Override
-                public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                     Log.e("UFP", "op");
 
-                    runOnUiThread(() -> percentageFile.setText(bytesSent + "%"));
+                    runOnUiThread(() -> percentageFile.setText(progress + "%"));
 
 
                 }
