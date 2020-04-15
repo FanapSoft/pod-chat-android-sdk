@@ -98,7 +98,7 @@ public class ProgressRequestBody extends RequestBody {
 
     public interface UploadCallbacks {
 
-        default void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onError() {

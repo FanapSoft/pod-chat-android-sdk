@@ -1708,7 +1708,7 @@ public class MessageDatabaseHelper {
 
            String sQuery;
 
-           final String ORDER = "order by pin desc,lastMessageVOId desc,time desc";
+           final String ORDER = "order by pin desc,time desc";
 
            sQuery = "select * from ThreadVo " + ORDER + " LIMIT " + count + " OFFSET " + offset;
 

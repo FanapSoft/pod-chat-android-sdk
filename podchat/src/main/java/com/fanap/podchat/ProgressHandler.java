@@ -44,7 +44,7 @@ public abstract class ProgressHandler {
 
     public interface sendFileMessage {
 
-        default void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {

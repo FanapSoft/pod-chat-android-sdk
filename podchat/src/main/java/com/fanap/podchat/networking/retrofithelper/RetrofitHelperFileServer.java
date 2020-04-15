@@ -20,7 +20,6 @@ import rx.schedulers.Schedulers;
 
 public class RetrofitHelperFileServer {
 
-    //todo update file upload timeout
 
     private static final int TIMEOUT = 120;
     public static final TimeUnit TIME_UNIT = TimeUnit.MINUTES;
@@ -63,7 +62,9 @@ public class RetrofitHelperFileServer {
     }
 
     public static <T> void request(Single<Response<T>> single, ApiListener<T> listener) {
-        single.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe((Response<T> tResponse) -> {
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((Response<T> tResponse) -> {
             if (tResponse.isSuccessful()) {
                 listener.onSuccess(tResponse.body());
             } else {

@@ -1944,9 +1944,9 @@ public class Chat extends AsyncAdapter {
                         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
                             @Override
-                            public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-                                handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
-                                handler.onProgressUpdate(bytesSent);
+                            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+                                handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
+                                handler.onProgressUpdate(progress);
                             }
 
                             @Override
@@ -2334,9 +2334,9 @@ public class Chat extends AsyncAdapter {
                         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
                             @Override
-                            public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-                                handler.onProgress(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
-                                handler.onProgressUpdate(bytesSent);
+                            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+                                handler.onProgress(uniqueId, progress, totalBytesSent, totalBytesToSend);
+                                handler.onProgressUpdate(progress);
                             }
 
                             @Override
@@ -2467,10 +2467,10 @@ public class Chat extends AsyncAdapter {
                         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
                             @Override
-                            public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
                                 if (handler != null) {
-                                    handler.onProgress(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
-                                    handler.onProgressUpdate(bytesSent);
+                                    handler.onProgress(uniqueId, progress, totalBytesSent, totalBytesToSend);
+                                    handler.onProgressUpdate(progress);
                                 }
                             }
 
@@ -2645,11 +2645,11 @@ public class Chat extends AsyncAdapter {
                                 ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
                                     @Override
-                                    public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                                    public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                                         if (handler != null) {
-                                            handler.onProgress(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
-                                            handler.onProgressUpdate(bytesSent);
+                                            handler.onProgress(uniqueId, progress, totalBytesSent, totalBytesToSend);
+                                            handler.onProgressUpdate(progress);
                                         }
                                     }
 
@@ -11337,13 +11337,13 @@ public class Chat extends AsyncAdapter {
                         new ProgressRequestBody.UploadCallbacks() {
 
                             @Override
-                            public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                                 Log.i(TAG, "on progress");
                                 if (handler != null) {
-                                    handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
+                                    handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
                                     if (log)
-                                        Log.i(TAG, "uniqueId " + uniqueId + " bytesSent " + bytesSent);
+                                        Log.i(TAG, "uniqueId " + uniqueId + " bytesSent " + progress);
                                 } else {
 
                                     if (log)
@@ -11700,10 +11700,10 @@ public class Chat extends AsyncAdapter {
                 ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
                     @Override
-                    public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                    public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                         if (handler != null)
-                            handler.onProgressUpdate(uniqueId, bytesSent, totalBytesSent, totalBytesToSend);
+                            handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
                     }
 
                     @Override
