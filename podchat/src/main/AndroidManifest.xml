@@ -12,13 +12,11 @@
 
     <application>
 
-        <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.arissystem.touca.app" />
-            </intent-filter>
-        </receiver>
-
+<!--        <receiver android:name=".notification.PodNotificationManger" android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.arissystem.touca.app" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
         <receiver android:name="com.arissystem.touca.tmtp.sdk.receivers.TmtpBootReceiver">
             <intent-filter>

@@ -59,6 +59,7 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -97,6 +98,7 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
+import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
@@ -104,6 +106,7 @@ import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
@@ -213,7 +216,26 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .setConnectTimeout(10000)
                 .build();
 
+
+//        TimeoutConfig uploadConfig = new TimeoutConfig()
+//                .newConfigBuilder()
+//                .withConnectTimeout(120, TimeUnit.MINUTES)
+//                .withWriteTimeout(120, TimeUnit.MINUTES)
+//                .withReadTimeout(120, TimeUnit.MINUTES)
+//                .build();
+
+        TimeoutConfig downloadConfig = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(20, TimeUnit.SECONDS)
+                .withWriteTimeout(0, TimeUnit.SECONDS)
+                .withReadTimeout(5, TimeUnit.MINUTES)
+                .build();
+
         chat.setNetworkStateConfig(build);
+//
+//        chat.setUploadConfig(uploadConfig);
+//
+//        chat.setDownloadConfig(downloadConfig);
 
         chat.connect(requestConnect);
 
@@ -678,7 +700,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
-        chat.uploadFile(activity, uri);
+
+        RequestUploadFile request = new RequestUploadFile.Builder(activity, uri)
+                .build();
+
+        chat.uploadFile(request);
     }
 
     @Override

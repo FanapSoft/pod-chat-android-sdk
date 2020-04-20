@@ -1339,7 +1339,7 @@ public class ChatActivity extends AppCompatActivity
 //                .admin(true)
 //                .count(50)
 //                .threadId(TEST_THREAD_ID)
-                .withNoCache()
+//                .withNoCache()
                 .build();
 
         presenter.getAdminList(requestGetAdmin);

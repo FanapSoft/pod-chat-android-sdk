@@ -1,6 +1,10 @@
 package com.fanap.podchat.networking;
 
+import android.util.Log;
+
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -22,14 +26,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ProgressResponseBody extends ResponseBody {
 
+    private static final int CONNECT_TIMEOUT = 20;
+    private static final int WRITE_TIMEOUT = 0;
+    private static final int READ_TIMEOUT = 5;
+
     private final ResponseBody responseBody;
     private final ProgressHandler.IDownloadFile progressListener;
     private BufferedSource bufferedSource;
+    private static TimeoutConfig timeoutConfig;
 
 
     public ProgressResponseBody(ResponseBody responseBody, ProgressHandler.IDownloadFile progressListener) {
         this.responseBody = responseBody;
         this.progressListener = progressListener;
+    }
+
+    public static void setTimeoutConfig(TimeoutConfig config) {
+        timeoutConfig = config;
     }
 
     @Override
@@ -68,11 +81,11 @@ public class ProgressResponseBody extends ResponseBody {
 
                 totalBytesRead += bytesRead != -1 ? bytesRead : 100L;
 
-                progressListener.onProgressUpdate("",totalBytesRead, responseBody.contentLength());
+                progressListener.onProgressUpdate("", totalBytesRead, responseBody.contentLength());
 
                 final int dl_progress = (int) ((totalBytesRead * 100L) / responseBody.contentLength());
 
-                progressListener.onProgressUpdate("",dl_progress);
+                progressListener.onProgressUpdate("", dl_progress);
 
                 return bytesRead;
             }
@@ -83,14 +96,30 @@ public class ProgressResponseBody extends ResponseBody {
     }
 
 
-    public static OkHttpClient.Builder getOkHttpDownloadClientBuilder(ProgressHandler.IDownloadFile listener) {
+    private static OkHttpClient.Builder getOkHttpDownloadClientBuilder(ProgressHandler.IDownloadFile listener) {
 
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
 
-        // You might want to increase the timeout
-        httpClientBuilder.connectTimeout(20, TimeUnit.SECONDS);
-        httpClientBuilder.writeTimeout(0, TimeUnit.SECONDS);
-        httpClientBuilder.readTimeout(5, TimeUnit.MINUTES);
+        if (timeoutConfig == null) {
+
+            httpClientBuilder.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                    .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
+                    .readTimeout(READ_TIMEOUT, TimeUnit.MINUTES);
+
+        } else {
+
+            try {
+                httpClientBuilder = timeoutConfig.getClientBuilder();
+            } catch (Exception e) {
+                Log.e(Chat.TAG, "Config Error: " + e.getMessage());
+                httpClientBuilder.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                        .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)
+                        .readTimeout(READ_TIMEOUT, TimeUnit.MINUTES);
+
+
+            }
+        }
+
 
         httpClientBuilder.addInterceptor(chain -> {
             if (listener == null) return chain.proceed(chain.request());

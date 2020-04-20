@@ -57,7 +57,7 @@ public class RetrofitHelperPlatformHost {
                 X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
 
                 SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, new TrustManager[] { trustManager }, null);
+                sslContext.init(null, new TrustManager[]{trustManager}, null);
                 SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
                 ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS)
@@ -89,9 +89,9 @@ public class RetrofitHelperPlatformHost {
         this.context = context;
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
-                .client(new OkHttpClient()
-                        .newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor()
-                                .setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+                .client(new OkHttpClient().newBuilder().
+                        addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).
+                        build())
 //                .client(enableTls12OnPreLollipop(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
