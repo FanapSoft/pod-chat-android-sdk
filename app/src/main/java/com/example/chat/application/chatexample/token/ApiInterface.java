@@ -6,10 +6,6 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 
 
-/**
- * Created by Sepehr on 1/25/2017.
- */
-
 public interface ApiInterface {
 
     @POST("otp/handshake/")

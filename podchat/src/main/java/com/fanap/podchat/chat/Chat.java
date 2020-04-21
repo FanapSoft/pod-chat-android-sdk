@@ -3223,12 +3223,12 @@ public class Chat extends AsyncAdapter {
         };
     }
 
-    public void setUploadConfig(TimeoutConfig config) {
+    public void setUploadTimeoutConfig(TimeoutConfig config) {
 
         RetrofitHelperFileServer.setTimeoutConfig(config);
     }
 
-    public void setDownloadConfig(TimeoutConfig config) {
+    public void setDownloadTimeoutConfig(TimeoutConfig config) {
 
         ProgressResponseBody.setTimeoutConfig(config);
     }
@@ -10943,11 +10943,6 @@ public class Chat extends AsyncAdapter {
      */
     private void addContacts(List<PhoneContact> phoneContacts, String uniqueId) {
 
-
-        HandlerThread handlerThread = new HandlerThread("contacts-thread");
-        handlerThread.start();
-
-
         ArrayList<String> firstNames = new ArrayList<>();
         ArrayList<String> cellphoneNumbers = new ArrayList<>();
         ArrayList<String> lastNames = new ArrayList<>();
@@ -11021,9 +11016,8 @@ public class Chat extends AsyncAdapter {
                                         , uniqueId);
 
 
-                                //successful response
                             } else {
-
+                                //successful response
                                 Contacts contacts = contactsResponse.body();
                                 ChatResponse<Contacts> chatResponse = new ChatResponse<>();
 
@@ -11032,45 +11026,32 @@ public class Chat extends AsyncAdapter {
 
                                 String contactsJson = gson.toJson(chatResponse);
 
+                                listenerManager.callOnSyncContact(contactsJson, chatResponse);
+                                showLog("SYNC_CONTACT_COMPLETED", contactsJson);
+
+                                try {
+                                    phoneContactDbHelper.addPhoneContacts(phoneContacts);
+                                } catch (Exception e) {
+                                    showErrorLog("Updating Contacts cache failed: " + e.getMessage());
+                                }
+
                                 if (cache) {
 
                                     try {
-
                                         messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
-
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        showErrorLog("Saving Contacts Failed: " + e.getMessage());
                                     }
-                                }
-
-                                listenerManager.callOnSyncContact(contactsJson, chatResponse);
-
-                                try {
-                                    new Handler(handlerThread.getLooper()).post(() -> {
-                                        try {
-                                            phoneContactDbHelper.addPhoneContacts(phoneContacts);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                showLog("SYNC_CONTACT_COMPLETED", contactsJson);
-
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                                    handlerThread.quitSafely();
-                                } else {
-                                    handlerThread.quit();
                                 }
                             }
                         }
                     }, throwable ->
                             getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
-
-
         }
+    }
+
+    private void showErrorLog(String message) {
+        Log.e(TAG, message);
     }
 
     @NonNull

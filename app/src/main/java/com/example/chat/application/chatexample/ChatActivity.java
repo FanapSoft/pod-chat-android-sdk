@@ -1637,9 +1637,9 @@ public class ChatActivity extends AppCompatActivity
 
 
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("")
-                        .lastName("")
-                        .username("")
+                        .firstName("Arvin")
+                        .lastName("Rokni")
+                        .cellphoneNumber("09363448861")
                         .build();
 
                 presenter.addContact(request);
