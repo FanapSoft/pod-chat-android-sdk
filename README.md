@@ -3,6 +3,25 @@
 **Fanap's POD** Chat service
 
 
+## Version [0.6.4.0] -2020-4-21
+
+- Set Timeout for upload and download
+
+
+
+        TimeoutConfig timeout = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(20, TimeUnit.SECONDS)
+                .withWriteTimeout(0, TimeUnit.SECONDS)
+                .withReadTimeout(5, TimeUnit.MINUTES)
+                .build();
+
+
+        chat.setUploadConfig(timeout);
+
+        chat.setDownloadConfig(timeout);
+
+
 ## Version [0.6.3.0] -2020-4-7
 
 - Add Participant with `coreUserId`
