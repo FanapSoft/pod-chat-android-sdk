@@ -2,6 +2,7 @@ package com.fanap.podchat.persistance;
 
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.persistance.dao.PhoneContactDao;
+import com.fanap.podchat.util.PodThreadManager;
 
 import java.util.List;
 
@@ -21,7 +22,8 @@ public class PhoneContactDbHelper {
     }
 
     public void addPhoneContacts(List<PhoneContact> phoneContacts){
-        phoneContactDao.insertPhoneContacts(phoneContacts);
+        new PodThreadManager()
+                .doThisSafe(()-> phoneContactDao.insertPhoneContacts(phoneContacts));
     }
 
 
