@@ -17,9 +17,9 @@
                 .build();
 
 
-        chat.setUploadConfig(timeout);
+        chat.setUploadTimeoutConfig(timeout);
 
-        chat.setDownloadConfig(timeout);
+        chat.setDownloadTimeoutConfig(timeout);
 
 
 ## Version [0.6.3.0] -2020-4-7
