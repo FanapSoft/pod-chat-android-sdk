@@ -26,10 +26,14 @@ public class RequestReplyMessage extends GeneralRequestObject {
         private String systemMetaData;
         private int messageType;
 
-        public Builder(String messageContent, long threadId, long messageId) {
+        public Builder(String messageContent,
+                       long threadId,
+                       long messageId,
+                       int messageType) {
             this.messageContent = messageContent;
             this.threadId = threadId;
             this.messageId = messageId;
+            this.messageType = messageType;
         }
 
         @NonNull

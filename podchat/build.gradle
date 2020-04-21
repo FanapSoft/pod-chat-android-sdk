@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.3.0'
+    libraryVersion = '0.6.3.4'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 57
+        versionCode 63
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -22,11 +22,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-//            buildConfigField 'String', 'NeshanServer', "https://api.neshan.org/"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
-//            buildConfigField 'String', 'NeshanServer', "https://api.neshan.org/"
         }
     }
     compileOptions {
@@ -104,8 +100,6 @@ group = publishedGroupId
 version = libraryVersion
 
 
-
-
 install {
     repositories.mavenInstaller {
         pom.project {
@@ -141,8 +135,6 @@ install {
         }
         pom.whenConfigured { pom ->
             println("######### when config $pom")
-
-            updateDependencies(pom)
 
         }
     }
@@ -206,8 +198,6 @@ afterEvaluate { project ->
 
                 pom.whenConfigured { pom ->
                     println(">>>>when configuered")
-
-                    updateDependencies(pom)
                 }
             }
         }

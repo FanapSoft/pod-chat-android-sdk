@@ -10,7 +10,7 @@ public class ChatMessageContent {
     private long count;
     private String name;
     @SerializedName("new")
-    private boolean New;
+    private boolean isNew;
     private int firstMessageId;
     private int lastMessageId;
     private long offset;
@@ -58,11 +58,11 @@ public class ChatMessageContent {
     }
 
     public boolean isNew() {
-        return New;
+        return isNew;
     }
 
     public void setNew(boolean aNew) {
-        New = aNew;
+        isNew = aNew;
     }
 
     public int getLastMessageId() {

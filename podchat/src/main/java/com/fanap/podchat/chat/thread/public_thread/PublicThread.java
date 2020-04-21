@@ -41,6 +41,10 @@ public class PublicThread {
 
         response.setResult(result);
 
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
         return response;
 
 

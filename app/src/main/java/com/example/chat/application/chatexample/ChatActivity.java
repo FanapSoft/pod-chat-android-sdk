@@ -136,8 +136,8 @@ public class ChatActivity extends AppCompatActivity
 
     private Button btnUploadImage;
 
-        //
-    private static String TOKEN = "19007025944b4bf5b75dd42ded3ce4ba";
+    //
+    private static String TOKEN = "a51a30487b4e4e808c4a9659bece6b35";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -154,7 +154,7 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 
-//
+////
 //    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
@@ -164,7 +164,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-////
+//
     private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
@@ -278,7 +278,7 @@ public class ChatActivity extends AppCompatActivity
             String entry = editTextToken.getText().toString();
             editTextToken.setText("");
             editTextToken.setHint("Enter OTP or Number");
-            presenter.enableAutoRefresh(this,entry);
+            presenter.enableAutoRefresh(this, entry);
 
 
             return true;
@@ -599,9 +599,9 @@ public class ChatActivity extends AppCompatActivity
 
                         RequestBlockList request =
                                 new RequestBlockList.Builder()
-                                        .count(10)
+                                        .count(50)
                                         .offset(0)
-                                        .withNoCache()
+//                                        .withNoCache()
                                         .build();
 
                         presenter.getBlockList(request);
@@ -826,9 +826,9 @@ public class ChatActivity extends AppCompatActivity
         presenter.createThreadWithFile(request, new ProgressHandler.onProgressFile() {
 
                     @Override
-                    public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                    public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
-                        Log.e("CTF", "Upload Progress: " + bytesSent);
+                        Log.e("CTF", "Upload Progress: " + progress);
 
                     }
 
@@ -1026,7 +1026,7 @@ public class ChatActivity extends AppCompatActivity
         presenter.sendLocationMessage(requestLocationMessage, new ProgressHandler.sendFileMessage() {
 
             @Override
-            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                 Log.d("MTAG", "Update progress: " + "Total Bytes sent: " + totalBytesSent + " Total Bytes left " + totalBytesToSend);
             }
@@ -1146,9 +1146,9 @@ public class ChatActivity extends AppCompatActivity
                                 TEST_THREAD_ID,
                                 getUri(), getMetaData(), TextMessageType.Constants.PICTURE, new ProgressHandler.sendFileMessage() {
                                     @Override
-                                    public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                                    public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
-                                        Log.e("SFM", "Sending files message: " + bytesSent + " * " + totalBytesSent + " * " + totalBytesToSend);
+                                        Log.e("SFM", "Sending files message: " + progress + " * " + totalBytesSent + " * " + totalBytesToSend);
                                     }
 
                                     @Override
@@ -1205,10 +1205,10 @@ public class ChatActivity extends AppCompatActivity
                         RequestSearchContact requestSearchContact = new RequestSearchContact
                                 .Builder("0", "50")
 //                                .id("1063")
-                                .cellphoneNumber("09")
+//                                .cellphoneNumber("09")
 //                                .lastName("Khei")
-//                                .firstName("Pooria")
-//                                .query("hasUser = true")
+//                                .firstName("pooria")
+                                .query("pooria")
                                 .build();
                         presenter.searchContact(requestSearchContact);
                         break;
@@ -1239,7 +1239,7 @@ public class ChatActivity extends AppCompatActivity
                         RetryUpload retryUpload = new RetryUpload.Builder().activity(ChatActivity.this).uniqueId(uniqueId).build();
                         presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
                             @Override
-                            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                             }
 
@@ -1339,7 +1339,7 @@ public class ChatActivity extends AppCompatActivity
 //                .admin(true)
 //                .count(50)
 //                .threadId(TEST_THREAD_ID)
-                .withNoCache()
+//                .withNoCache()
                 .build();
 
         presenter.getAdminList(requestGetAdmin);
@@ -1440,7 +1440,7 @@ public class ChatActivity extends AppCompatActivity
         RequestAddParticipants request = RequestAddParticipants
                 .newBuilder()
                 .threadId((long) TEST_THREAD_ID)
-                .withCoreUserIds(121L,234L)
+                .withCoreUserIds(121L, 234L)
                 .build();
 
 
@@ -1542,9 +1542,9 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 4:
                 //"reply message",
-//                replyMessage();
+                replyMessage();
 
-                replyFileMessage();
+//                replyFileMessage();
 
                 break;
             case 5:
@@ -1998,11 +1998,11 @@ public class ChatActivity extends AppCompatActivity
 
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
-//                .offset(0)
+                .offset(0)
                 .count(50)
 //                .uniqueIds(uniqueIds)
 //                .withNoCache()
-                .toTime(System.currentTimeMillis())
+//                .toTime(System.currentTimeMillis())
                 .build();
 
         //            history.setToTime(System.currentTimeMillis());
@@ -2035,6 +2035,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder()
 //                .newMessages()
 //                .partnerCoreContactId(566)
+                .offset(0)
                 .count(50)
 //                .withNoCache()
                 .build();
@@ -2047,10 +2048,10 @@ public class ChatActivity extends AppCompatActivity
 
     public void replyMessage() {
         RequestReplyMessage message = new RequestReplyMessage
-                .Builder("this is reply from john", TEST_THREAD_ID, 31849)
+                .Builder("this is reply from john", TEST_THREAD_ID, 94305,
+                TextMessageType.Constants.TEXT)
                 .build();
         presenter.replyMessage(message, null);
-
 
 
 //        presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
@@ -2206,8 +2207,8 @@ public class ChatActivity extends AppCompatActivity
 
         presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
-            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
-                runOnUiThread(() -> percentage.setText(bytesSent + "%"));
+            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+                runOnUiThread(() -> percentage.setText(progress + "%"));
             }
 
             @Override
@@ -2247,7 +2248,8 @@ public class ChatActivity extends AppCompatActivity
         inviter.setName("Me");
         String meta = gson.toJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
-                .Builder(messageContent, threadId, messageId, fileUri, this)
+                .Builder(messageContent, threadId, messageId, fileUri, this,
+                TextMessageType.Constants.FILE)
                 .systemMetaData(meta)
                 .messageType(TextMessageType.Constants.PICTURE)
                 .build();
@@ -2262,17 +2264,17 @@ public class ChatActivity extends AppCompatActivity
 
             presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
-                public void onProgressUpdate(int bytesSent) {
+                public void onProgressUpdate(int progress) {
 
                     Log.e("UFP", "opu");
                 }
 
                 @Override
-                public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                     Log.e("UFP", "op");
 
-                    runOnUiThread(() -> percentageFile.setText(bytesSent + "%"));
+                    runOnUiThread(() -> percentageFile.setText(progress + "%"));
 
 
                 }

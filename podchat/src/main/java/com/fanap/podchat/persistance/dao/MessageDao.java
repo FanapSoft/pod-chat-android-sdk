@@ -333,9 +333,19 @@ public interface MessageDao {
     @Query("SELECT * FROM cachethreadparticipant WHERE threadId = :threadId LIMIT :count OFFSET :offset ")
     List<CacheThreadParticipant> getAllThreadParticipants(long offset, long count, long threadId);
 
-
     @Query("DELETE FROM CacheThreadParticipant WHERE threadId = :threadId")
     void deleteAllThreadParticipant(long threadId);
+
+
+
+    /**
+     *
+     * cache admins
+     *
+     */
+
+
+
 
     /**
      * Search contact
@@ -362,8 +372,8 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertReplyInfoVO(CacheReplyInfoVO replyInfoVO);
 
-    @Query("select * from CacheReplyInfoVO where id = :replyInfoVOId")
-    CacheReplyInfoVO getReplyInfo(long replyInfoVOId);
+    @Query("select * from CacheReplyInfoVO where repliedToMessageId = :replyToId")
+    CacheReplyInfoVO getReplyInfo(long replyToId);
 
     //Cache ForwardInfo
     @Insert(onConflict = REPLACE)
