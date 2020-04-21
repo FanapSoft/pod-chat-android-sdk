@@ -542,7 +542,7 @@ public class ChatTest extends ChatAdapter {
         Uri uri = Uri.parse("content://media/external/images/media/781");
         presenter.uploadImageProgress(appContext, activity, uri, new ProgressHandler.onProgress() {
             @Override
-            public void onProgressUpdate(int bytesSent) {
+            public void onProgressUpdate(int progress) {
                 Mockito.anyInt();
             }
 

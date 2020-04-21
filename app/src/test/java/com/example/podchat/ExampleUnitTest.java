@@ -18,11 +18,19 @@ import org.junit.Test;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -63,6 +71,58 @@ public class ExampleUnitTest {
         Assert.assertEquals(3000, end - start);
 
 
+    }
+
+    @Test
+    public void testExec() {
+
+        BlockingQueue<Runnable> works = new LinkedBlockingDeque<>();
+
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors(),
+                Runtime.getRuntime().availableProcessors(),
+                1,
+                TimeUnit.SECONDS,
+                works
+        );
+
+//        Executor executor = command -> new Thread(command).start();
+
+        executor.execute(() -> {
+            try {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("Start Job A in: " + threadName);
+                Thread.sleep(5000);
+                System.out.println("Job A Done");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        executor.execute(() -> {
+            try {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("Start Job B in: " + threadName);
+                Thread.sleep(1000);
+                System.out.println("Job B Done");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        executor.execute(() -> {
+            try {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("Start Job C in: " + threadName);
+                Thread.sleep(10000);
+                System.out.println("Job C Done");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
     }
 
 

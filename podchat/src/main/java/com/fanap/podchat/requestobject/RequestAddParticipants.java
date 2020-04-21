@@ -11,7 +11,7 @@ public class RequestAddParticipants extends GeneralRequestObject {
     private List<String> userNames;
     private List<Long> coreUserIds;
 
-    RequestAddParticipants(Builder builder) {
+    private RequestAddParticipants(Builder builder) {
         super(builder);
         this.contactIds = builder.contactIds;
         this.threadId = builder.threadId;
@@ -209,6 +209,7 @@ public class RequestAddParticipants extends GeneralRequestObject {
             this.threadId = threadId;
             return this;
         }
+
     }
 
 

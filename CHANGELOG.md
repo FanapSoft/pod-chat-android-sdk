@@ -7,6 +7,19 @@ All notable changes to this project will be documented here.
 
 
 
+
+[BugFixed] uniqueId added to isNameAvailable response
+
+[BugFixed] sending repetitive file message
+
+[BugFixed] cacheReplyInfo updated in getHistory and getThreads
+
+[Added] messageType is required in replyMessage and replyFileMessage
+
+
+
+
+
 ## Version [0.6.3.0] -2020-4-7
 
 [Added] Add Participant with coreUserId

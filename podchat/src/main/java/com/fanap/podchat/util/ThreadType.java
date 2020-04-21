@@ -14,7 +14,8 @@ public class ThreadType {
         this.threadType = threadType;
     }
 
-    @IntDef({Constants.NORMAL, Constants.OWNER_GROUP,
+    @IntDef({Constants.NORMAL,
+            Constants.OWNER_GROUP,
             Constants.PUBLIC_GROUP,
             Constants.CHANNEL_GROUP,
             Constants.CHANNEL,})

@@ -25,6 +25,7 @@ public class MessageVO {
     private ForwardInfo forwardInfo;
     private boolean hasGap = false;
     private boolean mentioned = false;
+    private boolean pinned = false;
 
     public MessageVO() {
     }
@@ -49,7 +50,8 @@ public class MessageVO {
             ReplyInfoVO replyInfoVO,
             ForwardInfo forwardInfo,
             boolean mentioned,
-            boolean hasGap
+            boolean hasGap,
+            boolean pinned
     ) {
         this.id = id;
         this.edited = edited;
@@ -71,6 +73,7 @@ public class MessageVO {
         this.forwardInfo = forwardInfo;
         this.mentioned = mentioned;
         this.hasGap = hasGap;
+        this.pinned = pinned;
     }
 
 
@@ -308,6 +311,11 @@ public class MessageVO {
     }
 
 
+    public boolean isPinned() {
+        return pinned;
+    }
 
-
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
+    }
 }

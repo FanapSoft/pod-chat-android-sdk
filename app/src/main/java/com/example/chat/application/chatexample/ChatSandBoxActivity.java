@@ -48,6 +48,7 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 
+import com.fanap.podchat.util.TextMessageType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.fanap.podchat.example.R;
@@ -455,7 +456,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = gson.toJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
-                .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
+                .Builder(messageContent, threadId, messageId, fileUri, this,
+                TextMessageType.Constants.FILE).systemMetaData(meta).build();
         presenter.replyFileMessage(fileMessage, null);
     }
 
@@ -705,11 +707,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void onUploadImage(View view) {
         presenter.uploadImageProgress(this, ChatSandBoxActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
-            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        percentage.setText(bytesSent);
+                        percentage.setText(progress);
                     }
                 });
             }
@@ -728,18 +730,18 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         if (getUri() != null) {
             presenter.uploadFileProgress(ChatSandBoxActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
-                public void onProgressUpdate(int bytesSent) {
+                public void onProgressUpdate(int progress) {
                 }
 
                 @Override
-                public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    percentageFile.setText(bytesSent);
+                                    percentageFile.setText(progress);
                                 }
                             });
 

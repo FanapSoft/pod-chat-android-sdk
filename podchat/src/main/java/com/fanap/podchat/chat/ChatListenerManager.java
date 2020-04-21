@@ -593,6 +593,7 @@ public class ChatListenerManager {
         }
     }
 
+    //todo remove it later
     public void callOnLogEvent(String logEvent) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
