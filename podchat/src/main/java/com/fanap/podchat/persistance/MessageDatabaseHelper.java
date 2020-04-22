@@ -50,6 +50,7 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.requestobject.RequestGetHistory;
@@ -72,6 +73,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
+
 
 @SuppressWarnings("unchecked")
 public class MessageDatabaseHelper {
@@ -410,9 +412,31 @@ public class MessageDatabaseHelper {
         worker(() -> messageQueueDao.deleteWaitMessageQueue(uniqueId));
     }
 
-    //TODO get from another thread
     public List<WaitQueueCache> getAllWaitQueueMsg() {
         return messageQueueDao.getAllWaitQueueMsg();
+    }
+
+    public void getWaitQueueUniqueIdList(OnWorkDone listener) {
+
+        List<String> items = new ArrayList<>();
+
+        new PodThreadManager()
+                .doThisSafe(
+                        () -> items.addAll(messageQueueDao.getAllWaitQueueMsgUniqueId()),
+                        new PodThreadManager.IComplete() {
+                            @Override
+                            public void onComplete() {
+
+                                listener.onWorkDone(items);
+                            }
+
+                            @Override
+                            public void onError(String error) {
+
+                                listener.onWorkDone(null);
+                            }
+                        });
+
     }
 
     @Nullable
@@ -426,7 +450,7 @@ public class MessageDatabaseHelper {
         return null;
     }
 
-    //TODO get from another thread
+
     @NonNull
     public List<Failed> getAllWaitQueueCacheByThreadId(long threadId) {
         List<Failed> listQueues = new ArrayList<>();
@@ -469,12 +493,43 @@ public class MessageDatabaseHelper {
         worker(() -> messageQueueDao.deleteSendingMessageQueue(uniqueId));
     }
 
-    //TODO get from another thread
-    public SendingQueueCache getSendingQueueCache(String uniqueId) {
+
+    private SendingQueueCache getSendingQueueCache(String uniqueId) {
         return messageQueueDao.getSendingQueue(uniqueId);
     }
 
-    //TODO get from another thread
+    public void moveFromSendQueueToWaitQueue(String uniqueId) {
+
+        new PodThreadManager().doThisSafe(() -> {
+            SendingQueueCache sendingQueue = getSendingQueueCache(uniqueId);
+
+            deleteSendingMessageQueue(uniqueId);
+
+            insertWaitMessageQueue(sendingQueue);
+        }, new PodThreadManager.IComplete() {
+            @Override
+            public void onComplete() {
+
+            }
+
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+
+    }
+
+    public void moveFromWaitQueueToSendQueue(String uniqueId,OnWorkDone listener) {
+
+        new PodThreadManager().doThisAndGo(() -> {
+            SendingQueueCache sendingQueue = getWaitQueueMsgByUnique(uniqueId);
+            deleteWaitQueueMsgs(uniqueId);
+            insertSendingMessageQueue(sendingQueue);
+            listener.onWorkDone(sendingQueue);
+        });
+
+    }
 
     public List<SendingQueueCache> getAllSendingQueue() {
         return messageQueueDao.getAllSendingQueue();
@@ -485,10 +540,8 @@ public class MessageDatabaseHelper {
     }
 
 
-    //TODO get from another thread
-
     @NonNull
-    public SendingQueueCache getWaitQueueMsgByUnique(String uniqueId) {
+    private SendingQueueCache getWaitQueueMsgByUnique(String uniqueId) {
         SendingQueueCache sendingQueueCache = new SendingQueueCache();
         WaitQueueCache waitQueueCache = messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
 
@@ -513,12 +566,12 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllSendingQueue();
     }
 
-    //TODO get from another thread
+
     @NonNull
     public List<Sending> getAllSendingQueueByThreadId(long threadId) {
 
         List<Sending> listQueues = new ArrayList<>();
-        List<SendingQueueCache> listCaches = messageQueueDao.getAllSendingQueue();
+        List<SendingQueueCache> listCaches = messageQueueDao.getAllSendingQueueByThredId(threadId);
 
         for (SendingQueueCache queueCache : listCaches) {
             Sending sending = new Sending();
@@ -548,7 +601,6 @@ public class MessageDatabaseHelper {
         worker(() -> messageQueueDao.insertUploadingQueue(uploadingQueue));
     }
 
-    //TODO get from another thread
     @NonNull
     public List<Uploading> getAllUploadingQueueByThreadId(long threadId) {
         List<Uploading> uploadingQueues = new ArrayList<>();
@@ -578,7 +630,6 @@ public class MessageDatabaseHelper {
         worker(() -> messageQueueDao.deleteUploadingQueue(uniqueId));
     }
 
-    //TODO get from another thread
     public UploadingQueueCache getUploadingQ(String uniqueId) {
         return messageQueueDao.getUploadingQ(uniqueId);
     }
@@ -969,7 +1020,6 @@ public class MessageDatabaseHelper {
             order = "desc";
         }
 
-        //TODO
         String rawQuery = "DELETE FROM CacheMessageVO WHERE threadVoId =" + threadId + " ORDER BY timeStamp desc LIMIT 50 OFFSET 0";
 
 //        rawQuery = rawQuery + " LIMIT " + count + " OFFSET " + offset;
@@ -987,7 +1037,6 @@ public class MessageDatabaseHelper {
     }
 
 
-    //todo get from another thread
     @NonNull
     public List<MessageVO> getHistories(@NonNull History history, long threadId) {
 
@@ -1030,6 +1079,85 @@ public class MessageDatabaseHelper {
 
 
         return messageVOS;
+    }
+
+    public void getHistories(@NonNull History history, long threadId, OnWorkDone listener) {
+
+
+        List<MessageVO> messageVOS = new ArrayList<>();
+        List<CacheMessageVO> cacheMessageVOS;
+        long fromTime = history.getFromTime();
+        long fromTimeNanos = history.getFromTimeNanos();
+        long toTime = history.getToTime();
+        long toTimeNanos = history.getToTimeNanos();
+        long messageId = history.getId();
+        long offset = history.getOffset();
+        long count = history.getCount();
+        String query = history.getQuery();
+        String order = history.getOrder();
+        offset = offset >= 0 ? offset : 0;
+        count = count > 0 ? count : 50;
+        if (Util.isNullOrEmpty(order)) {
+            order = "desc";
+        }
+
+        String rawQuery = "SELECT * FROM CacheMessageVO WHERE threadVoId =" + threadId;
+
+        rawQuery = addMessageIdIfExist(messageId, rawQuery);
+
+        rawQuery = addFromTimeIfExist(fromTime, fromTimeNanos, rawQuery);
+
+        rawQuery = addToTimeIfExist(toTime, toTimeNanos, rawQuery);
+
+        rawQuery = addQueryIfExist(query, rawQuery);
+
+        rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
+
+        SupportSQLiteQuery sqLiteQuery = new SimpleSQLiteQuery(rawQuery);
+
+        cacheMessageVOS = messageDao.getRawHistory(sqLiteQuery);
+
+
+        prepareMessageVOs(messageVOS, cacheMessageVOS);
+
+
+        long contentCount = getHistoryContentCount(threadId);
+
+        List<Sending> sendingList = getAllSendingQueueByThreadId(threadId);
+
+        List<Uploading> uploadingList = getAllUploadingQueueByThreadId(threadId);
+
+        List<Failed> failedList = getAllWaitQueueCacheByThreadId(threadId);
+
+        ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
+        chatResponse.setCache(true);
+
+        ResultHistory resultHistory = new ResultHistory();
+        resultHistory.setHistory(messageVOS);
+
+        resultHistory.setNextOffset(history.getOffset() + messageVOS.size());
+        resultHistory.setContentCount(contentCount);
+        if (messageVOS.size() + history.getOffset() < contentCount) {
+            resultHistory.setHasNext(true);
+        } else {
+            resultHistory.setHasNext(false);
+        }
+
+        resultHistory.setHistory(messageVOS);
+
+
+        resultHistory.setSending(sendingList);
+        resultHistory.setUploadingQueue(uploadingList);
+        resultHistory.setFailed(failedList);
+        chatResponse.setErrorCode(0);
+        chatResponse.setHasError(false);
+        chatResponse.setErrorMessage("");
+        chatResponse.setResult(resultHistory);
+        chatResponse.setCache(true);
+        chatResponse.setSubjectId(threadId);
+
+
+        listener.onWorkDone(chatResponse);
     }
 
 
@@ -1320,19 +1448,16 @@ public class MessageDatabaseHelper {
     }
 
 
-    //TODO generate two method and get from another thread in one
     public List<CacheMessageVO> getMessageById(long messageId) {
         return messageDao.getMessage(messageId);
     }
 
 
-    //todo could load in another thread
     public long getHistoryContentCount(long threadVoId) {
         return messageDao.getHistoryCount(threadVoId);
     }
 
 
-    //todo get from another thread ***
     @NonNull
     public List<Contact> getContacts(Integer count, Long offset) {
 
@@ -1380,7 +1505,6 @@ public class MessageDatabaseHelper {
         return contacts;
     }
 
-    //todo could load in another thread
     public int getContactCount() {
         return messageDao.getContactCount();
     }
@@ -1572,7 +1696,6 @@ public class MessageDatabaseHelper {
     }
 
 
-    //todo get from another thread
     @NonNull
     public List<BlockedContact> getBlockedContacts(Long count, Long offset) {
 
@@ -1715,7 +1838,6 @@ public class MessageDatabaseHelper {
 
     }
 
-    //todo get from another thread
     public UserInfo getUserInfo() {
 
         UserInfo userInfo = new UserInfo();
@@ -1733,7 +1855,6 @@ public class MessageDatabaseHelper {
         return userInfo;
     }
 
-    //todo could load from another thread
     public int getThreadCount() {
         return messageDao.getThreadCount();
     }
@@ -2583,7 +2704,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    //TODO get from another thread
+
     //Cache contact
     @NonNull
     public Contact getContactById(long id) {
@@ -2604,7 +2725,6 @@ public class MessageDatabaseHelper {
         );
     }
 
-    //TODO could load from another thread
     @NonNull
     public List<Contact> getContactsByFirst(String firstName) {
         List<Contact> contacts = new ArrayList<>();
@@ -2656,7 +2776,6 @@ public class MessageDatabaseHelper {
         }
         return contacts;
     }
-    //TODO could load from another thread
 
     @NonNull
     public List<Contact> getContactsByFirstAndLast(String firstName, String lastName) {
@@ -2684,7 +2803,6 @@ public class MessageDatabaseHelper {
 
         return contacts;
     }
-    //TODO could load from another thread
 
     @NonNull
     public List<Contact> getContactByCell(String cellphoneNumber) {
@@ -2711,7 +2829,6 @@ public class MessageDatabaseHelper {
         }
         return contacts;
     }
-    //TODO could load from another thread
 
     @NonNull
     public List<Contact> getContactsByEmail(String email) {
@@ -2765,7 +2882,6 @@ public class MessageDatabaseHelper {
 
     }
 
-    //TODO could load from another thread
 
     public List<GapMessageVO> getAllGaps(long threadId) {
 
@@ -2787,8 +2903,8 @@ public class MessageDatabaseHelper {
         new PodThreadManager()
                 .doThisSafe(work);
 
-
     }
+
 
     public void getGap(long id, OnWorkDone listener) {
 
@@ -2952,7 +3068,6 @@ public class MessageDatabaseHelper {
     }
 
 
-    //todo could get from another thread
     private ChatProfileVO getChatProfile(long id) {
 
         return messageDao.getChatProfileVOById(id);

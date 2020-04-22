@@ -6,6 +6,16 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.6.4.2] -2020-4-22
+
+[Improved] cache I/O operations part 2
+
+[Improved] optimize syncContact
+
+
+
+
+
 
 ## Version [0.6.4.0] -2020-4-21
 
