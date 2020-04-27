@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.4.5'
+    libraryVersion = '0.6.4.51'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 72
+        versionCode 73
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
