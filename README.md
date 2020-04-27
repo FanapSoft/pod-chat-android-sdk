@@ -3,7 +3,7 @@
 **Fanap's POD** Chat service
 
 
-## Version [0.6.4.4] -2020-4-27
+## Version [0.6.4.4] -2020-4-26
 
 -Customize Notification
 

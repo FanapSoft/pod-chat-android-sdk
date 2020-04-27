@@ -7,13 +7,17 @@ All notable changes to this project will be documented here.
 
 
 
+## Version [0.6.4.5] -2020-4-27
 
-## Version [0.6.4.4] -2020-4-27
+[Changed] cache is enabled offline now
+
+
+
+## Version [0.6.4.4] -2020-4-26
 
 [Added] Customizable Notification
 
 [BugFixed] minor bug fixed
-
 
 
 
