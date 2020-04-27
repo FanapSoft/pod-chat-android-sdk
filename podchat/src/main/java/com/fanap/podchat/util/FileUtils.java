@@ -35,15 +35,18 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
@@ -60,7 +63,7 @@ public class FileUtils {
     /**
      * TAG for log messages.
      */
-    private static final String TAG = "FileUtils";
+    private static final String TAG = "CHAT_SDK_FILES";
     private static final boolean DEBUG = false; // Set to true to enable logging
 
 
@@ -83,6 +86,51 @@ public class FileUtils {
     private static final String HIDDEN_PREFIX = ".";
 
     private static File downloadDirectory;
+
+
+    public static void saveLogs(){
+
+        Log.w(TAG,"Logcat save");
+        try {
+            Process process = Runtime.getRuntime().exec("logcat -d");
+            process = Runtime.getRuntime().exec( "logcat -f " + "/storage/emulated/0/"+"Logging.txt");
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void appendLog(String text)
+    {
+        File dire = getOrCreateDirectory("PODCHAT/LOGS");
+        File logFile = new File(dire,"log_"+new Date().getTime()+"_.txt");
+        if (!logFile.exists())
+        {
+            try
+            {
+                logFile.createNewFile();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        try
+        {
+            //BufferedWriter for performance, true to set append to file flag
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 
     public static void setDownloadDirectory(File cacheDire) {

@@ -8,6 +8,7 @@ import android.util.Log;
 import com.arissystem.touca.tmtp.TmtpPushReceiver;
 import com.fanap.podchat.util.OnWorkDone;
 
+@SuppressWarnings("unchecked")
 public class PodPushNotificationReceiver extends TmtpPushReceiver {
 
     OnWorkDone listener;
@@ -18,12 +19,17 @@ public class PodPushNotificationReceiver extends TmtpPushReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-//        super.onReceive(context, intent);
 
-        String message = intent.getStringExtra("msg");
+        try {
+            String message = intent.getStringExtra("msg");
 
-        Log.e("CHAT_SDK_NOTIF", "New Notification Received : " + message);
+            Log.e("CHAT_SDK_NOTIF", "New Notification Received : " + message);
 
-        listener.onWorkDone(message);
+            listener.onWorkDone(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            super.onReceive(context, intent);
+
+        }
     }
 }

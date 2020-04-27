@@ -137,7 +137,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
     //
-    private static String TOKEN = "a51a30487b4e4e808c4a9659bece6b35";
+    private static String TOKEN = "2c7406e7915c4e8096e3918d56f7ca9d";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -187,7 +187,7 @@ public class ChatActivity extends AppCompatActivity
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 14234;
+    public static int TEST_THREAD_ID = 22427;
 
 
     //integration /group

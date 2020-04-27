@@ -97,25 +97,38 @@ public class MessageDatabaseHelper {
     public void clearAllData(Chat.IClearMessageCache listener) {
 
         try {
-            new java.lang.Thread(() -> {
 
-                try {
 
-                    appDatabase.clearAllTables();
+            Runnable clearTablesTask = () -> appDatabase.clearAllTables();
 
-                    java.lang.Thread.sleep(2000);
+            Runnable vacuumTask = () -> messageDao.vacuumDb(new SimpleSQLiteQuery("VACUUM"));
 
-                    messageDao.vacuumDb(new SimpleSQLiteQuery("VACUUM"));
+            new PodThreadManager()
+                    .addNewTask(clearTablesTask)
+                    .addNewTask(vacuumTask)
+                    .addNewTask(listener::onCacheDatabaseCleared)
+                    .runTasksSynced();
 
-                    java.lang.Thread.sleep(1000);
 
-                    listener.onCacheDatabaseCleared();
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    listener.onExceptionOccurred(e.getMessage());
-                }
-            }).start();
+//            new java.lang.Thread(() -> {
+//
+//                try {
+//
+//                    appDatabase.clearAllTables();
+//
+//                    java.lang.Thread.sleep(2000);
+//
+//                    messageDao.vacuumDb(new SimpleSQLiteQuery("VACUUM"));
+//
+//                    java.lang.Thread.sleep(1000);
+//
+//                    listener.onCacheDatabaseCleared();
+//
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                    listener.onExceptionOccurred(e.getMessage());
+//                }
+//            }).start();
         } catch (Exception e) {
             e.printStackTrace();
             listener.onExceptionOccurred(e.getMessage());
@@ -132,7 +145,7 @@ public class MessageDatabaseHelper {
         SQLCipherUtils.decrypt(context, file, passphrase);
     }
 
-    public void reEcryptKey(char[] passphrase) {
+    public void reEncryptKey(char[] passphrase) {
         SupportSQLiteOpenHelper supportSQLiteOH = appDatabase.getOpenHelper();
         supportSQLiteOH.getWritableDatabase();
         SupportSQLiteDatabase supportSQLiteDatabase = supportSQLiteOH.getReadableDatabase();
@@ -520,7 +533,7 @@ public class MessageDatabaseHelper {
 
     }
 
-    public void moveFromWaitQueueToSendQueue(String uniqueId,OnWorkDone listener) {
+    public void moveFromWaitQueueToSendQueue(String uniqueId, OnWorkDone listener) {
 
         new PodThreadManager().doThisAndGo(() -> {
             SendingQueueCache sendingQueue = getWaitQueueMsgByUnique(uniqueId);
@@ -647,45 +660,49 @@ public class MessageDatabaseHelper {
         //then set previous message as last message
 
         worker(() -> {
-            ThreadVo threadVo = messageDao.getThreadById(subjectId);
 
-            if (threadVo != null) {
+            if (subjectId > 0) {
 
-                long threadLastMessageId = threadVo.getLastMessageVOId();
+                ThreadVo threadVo = messageDao.getThreadById(subjectId);
 
-                if (threadLastMessageId == id) {
+                if (threadVo != null) {
 
-                    //this is last message
-                    List<CacheMessageVO> cacheMessage = messageDao.getMessage(id);
+                    long threadLastMessageId = threadVo.getLastMessageVOId();
 
-                    if (!Util.isNullOrEmpty(cacheMessage)) {
+                    if (threadLastMessageId == id) {
 
-                        long previousMessageId = cacheMessage.get(0).getPreviousId();
+                        //this is last message
+                        List<CacheMessageVO> cacheMessage = messageDao.getMessage(id);
 
-                        //Get previous message
-                        List<CacheMessageVO> previousMessage = messageDao.getMessage(previousMessageId);
+                        if (!Util.isNullOrEmpty(cacheMessage)) {
 
-                        if (!Util.isNullOrEmpty(previousMessage)) {
+                            long previousMessageId = cacheMessage.get(0).getPreviousId();
 
-                            String message = previousMessage.get(0).getMessage();
-                            messageDao.updateThreadLastMessageVOId(subjectId, previousMessageId, message);
+                            //Get previous message
+                            List<CacheMessageVO> previousMessage = messageDao.getMessage(previousMessageId);
 
-                        } else {
+                            if (!Util.isNullOrEmpty(previousMessage)) {
 
-                            // this thread has only one message
-                            messageDao.removeThreadLastMessageVO(subjectId);
+                                String message = previousMessage.get(0).getMessage();
+                                messageDao.updateThreadLastMessageVOId(subjectId, previousMessageId, message);
+
+                            } else {
+
+                                // this thread has only one message
+                                messageDao.removeThreadLastMessageVO(subjectId);
+                            }
                         }
                     }
                 }
-            }
 
+                //delete from pinned message
+                PinMessageVO pinnedMessage = messageDao.getThreadPinnedMessage(subjectId);
 
-            //delete from pinned message
-            PinMessageVO pinnedMessage = messageDao.getThreadPinnedMessage(subjectId);
+                if (pinnedMessage != null && pinnedMessage.getMessageId() == id) {
 
-            if (pinnedMessage != null && pinnedMessage.getMessageId() == id) {
+                    messageDao.deletePinnedMessageById(id);
 
-                messageDao.deletePinnedMessageById(id);
+                }
 
             }
 
@@ -1911,6 +1928,9 @@ public class MessageDatabaseHelper {
 
                 for (ThreadVo threadVo : threadVos) {
 
+                    if (threadVo.getId() == 0)
+                        continue;
+
                     CacheParticipant cacheParticipant;
                     CacheReplyInfoVO cacheReplyInfoVO;
                     Participant participant = null;
@@ -2179,7 +2199,7 @@ public class MessageDatabaseHelper {
     @NonNull
     public void getThreadIdsList(OnWorkDone listener) {
 
-        new java.lang.Thread(() -> {
+        worker(() -> {
 
             String rawQuery = "select id from ThreadVo";
 
@@ -2189,7 +2209,7 @@ public class MessageDatabaseHelper {
 
             listener.onWorkDone(tvo);
 
-        }).start();
+        });
 
 
     }
@@ -2304,7 +2324,8 @@ public class MessageDatabaseHelper {
 
     public void saveNewThread(Thread thread) {
 
-        worker(() -> prepareThreadVOAndSaveIt(thread));
+        if (thread != null && thread.getId() > 0)
+            worker(() -> prepareThreadVOAndSaveIt(thread));
 
     }
 
@@ -2315,7 +2336,8 @@ public class MessageDatabaseHelper {
         worker(() -> {
 
             for (Thread thread : threads) {
-                prepareThreadVOAndSaveIt(thread);
+                if (thread.getId() > 0)
+                    prepareThreadVOAndSaveIt(thread);
             }
 
         });
@@ -2702,7 +2724,6 @@ public class MessageDatabaseHelper {
     public long getParticipantCount(long threadId) {
         return messageDao.getParticipantCount(threadId);
     }
-
 
 
     //Cache contact

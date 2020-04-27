@@ -19,7 +19,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -150,8 +149,9 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.notification.INotification;
-import com.fanap.podchat.notification.NotificationManager;
+import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
@@ -403,6 +403,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (instance == null) {
+
             async = Async.getInstance(context);
 
             instance = new Chat();
@@ -414,7 +415,6 @@ public class Chat extends AsyncAdapter {
             mSecurePrefs = new SecurePreferences(context, "", "chat_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);
 
-
             if (!Util.isNullOrEmpty(instance.getKey())) {
 
                 DaggerMessageComponent.builder()
@@ -422,7 +422,19 @@ public class Chat extends AsyncAdapter {
                         .appModule(new AppModule(context))
                         .build()
                         .inject(instance);
+
                 permit = true;
+
+            } else {
+
+                DaggerMessageComponent.builder()
+                        .appDatabaseModule(new AppDatabaseModule(context))
+                        .appModule(new AppModule(context))
+                        .build()
+                        .inject(instance);
+
+                permit = false;
+
             }
 
             if (!cache) {
@@ -437,6 +449,8 @@ public class Chat extends AsyncAdapter {
 
 
         }
+
+
         return instance;
     }
 
@@ -2965,10 +2979,7 @@ public class Chat extends AsyncAdapter {
 
             getErrorOutPut(ChatConstant.ERROR_LOW_FREE_SPACE, ChatConstant.ERROR_CODE_LOW_FREE_SPACE, "");
 
-
         }
-
-
         return bytesAvailable;
     }
 
@@ -4616,7 +4627,7 @@ public class Chat extends AsyncAdapter {
 
                                         newMessages.removeAll(messagesFromCache);
 
-                                        findDeletedMessages(messagesFromCache, newMessagesFromServer, uniqueId);
+                                        findDeletedMessages(messagesFromCache, newMessagesFromServer, uniqueId, threadId);
 
                                         editedMessages.removeAll(newMessages);
 
@@ -4647,54 +4658,54 @@ public class Chat extends AsyncAdapter {
         return mainUniqueId;
     }
 
-    @Deprecated
-    private List<MessageVO> getHistoryFromCache(History history, long threadId, String uniqueId) {
-
-        List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history, threadId);
-
-        if (messageVOS != null) {
-
-            long contentCount = messageDatabaseHelper.getHistoryContentCount(threadId);
-
-            ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
-            chatResponse.setCache(true);
-
-            ResultHistory resultHistory = new ResultHistory();
-            resultHistory.setHistory(messageVOS);
-
-            resultHistory.setNextOffset(history.getOffset() + messageVOS.size());
-            resultHistory.setContentCount(contentCount);
-            if (messageVOS.size() + history.getOffset() < contentCount) {
-                resultHistory.setHasNext(true);
-            } else {
-                resultHistory.setHasNext(false);
-            }
-
-            resultHistory.setHistory(messageVOS);
-
-            resultHistory.setSending(messageDatabaseHelper.getAllSendingQueueByThreadId(threadId));
-            resultHistory.setUploadingQueue(messageDatabaseHelper.getAllUploadingQueueByThreadId(threadId));
-            resultHistory.setFailed(messageDatabaseHelper.getAllWaitQueueCacheByThreadId(threadId));
-
-            chatResponse.setErrorCode(0);
-            chatResponse.setHasError(false);
-            chatResponse.setErrorMessage("");
-            chatResponse.setResult(resultHistory);
-            chatResponse.setUniqueId(uniqueId);
-            chatResponse.setCache(true);
-            chatResponse.setSubjectId(threadId);
-
-
-            String json = gson.toJson(chatResponse);
-            listenerManager.callOnGetThreadHistory(json, chatResponse);
-            showLog("CACHE_GET_HISTORY", json);
-
-            return messageVOS;
-        }
-
-
-        return messageVOS;
-    }
+//    @Deprecated
+//    private List<MessageVO> getHistoryFromCache(History history, long threadId, String uniqueId) {
+//
+//        List<MessageVO> messageVOS = messageDatabaseHelper.getHistories(history, threadId);
+//
+//        if (messageVOS != null) {
+//
+//            long contentCount = messageDatabaseHelper.getHistoryContentCount(threadId);
+//
+//            ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
+//            chatResponse.setCache(true);
+//
+//            ResultHistory resultHistory = new ResultHistory();
+//            resultHistory.setHistory(messageVOS);
+//
+//            resultHistory.setNextOffset(history.getOffset() + messageVOS.size());
+//            resultHistory.setContentCount(contentCount);
+//            if (messageVOS.size() + history.getOffset() < contentCount) {
+//                resultHistory.setHasNext(true);
+//            } else {
+//                resultHistory.setHasNext(false);
+//            }
+//
+//            resultHistory.setHistory(messageVOS);
+//
+//            resultHistory.setSending(messageDatabaseHelper.getAllSendingQueueByThreadId(threadId));
+//            resultHistory.setUploadingQueue(messageDatabaseHelper.getAllUploadingQueueByThreadId(threadId));
+//            resultHistory.setFailed(messageDatabaseHelper.getAllWaitQueueCacheByThreadId(threadId));
+//
+//            chatResponse.setErrorCode(0);
+//            chatResponse.setHasError(false);
+//            chatResponse.setErrorMessage("");
+//            chatResponse.setResult(resultHistory);
+//            chatResponse.setUniqueId(uniqueId);
+//            chatResponse.setCache(true);
+//            chatResponse.setSubjectId(threadId);
+//
+//
+//            String json = gson.toJson(chatResponse);
+//            listenerManager.callOnGetThreadHistory(json, chatResponse);
+//            showLog("CACHE_GET_HISTORY", json);
+//
+//            return messageVOS;
+//        }
+//
+//
+//        return messageVOS;
+//    }
 
     private void getHistoryFromCache(History history, long threadId, String uniqueId, OnWorkDone listener) {
 
@@ -4926,7 +4937,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    private void findDeletedMessages(List<MessageVO> messagesFromCache, List<MessageVO> newMessagesFromServer, String uniqueId) {
+    private void findDeletedMessages(List<MessageVO> messagesFromCache, List<MessageVO> newMessagesFromServer, String uniqueId, long threadId) {
 
 
         for (MessageVO msg :
@@ -4945,16 +4956,16 @@ public class Chat extends AsyncAdapter {
                 chatResponse.setResult(resultDeleteMessage);
 
                 String jsonDeleteMsg = gson.toJson(chatResponse);
-
-
-                long threadId = msg.getConversation() != null ? msg.getConversation().getId() : 0;
-
-                runOnNewThread(() -> messageDatabaseHelper.deleteMessage(msg.getId(), threadId));
-
-                showLog("DeleteMessage from dataBase with this messageId" + " " + msg.getId(), "");
-
                 listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
                 showLog("RECEIVE_DELETE_MESSAGE", jsonDeleteMsg);
+
+                if (cache) {
+
+                    messageDatabaseHelper.deleteMessage(msg.getId(), threadId);
+
+                    showLog("Delete message from database with this messageId" + " " + msg.getId(), "");
+
+                }
 
 
             }
@@ -7364,7 +7375,6 @@ public class Chat extends AsyncAdapter {
 
         });
 
-
         podThreadManager.addTask(() -> {
 
             if (chatReady) {
@@ -7393,7 +7403,6 @@ public class Chat extends AsyncAdapter {
             }
 
         });
-
 
         podThreadManager.runTasksSynced();
 
@@ -8455,16 +8464,26 @@ public class Chat extends AsyncAdapter {
 
         if (checkToken) {
 
-            chatReady = true;
-            chatState = CHAT_READY;
-            checkToken = false;
 
-            retrySetToken = 1;
-            tokenHandler.removeCallbacksAndMessages(null);
+//            if (cache && !permit) {
+//
+//                //todo handle condition
+////                showLog("GENERATE_KEY", "");
+////                generateEncryptionKey(getSsoHost());
+//            } else {
+                chatReady = true;
+                chatState = CHAT_READY;
+                checkToken = false;
 
-            listenerManager.callOnChatState(CHAT_READY);
-            showLog("** CLIENT_AUTHENTICATED_NOW", "");
-            pingWithDelay();
+                retrySetToken = 1;
+                tokenHandler.removeCallbacksAndMessages(null);
+
+                listenerManager.callOnChatState(CHAT_READY);
+                showLog("** CLIENT_AUTHENTICATED_NOW", "");
+                pingWithDelay();
+//            }
+
+
         }
 
 
@@ -9126,7 +9145,7 @@ public class Chat extends AsyncAdapter {
                             initDatabase();
                         }
 
-                        setChatReady("CHAT_READY");
+                        setChatReady("CHAT_READY", true);
 
 
                     } else {
@@ -9138,7 +9157,7 @@ public class Chat extends AsyncAdapter {
 
                         initDatabase();
 
-                        setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_US");
+                        setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_US", false);
 
 
                     }
@@ -9151,7 +9170,7 @@ public class Chat extends AsyncAdapter {
                         Log.e(TAG, response.errorBody().toString());
                     }
                     initDatabase();
-                    setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_NS");
+                    setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_NS", false);
 
                 }
 
@@ -9168,7 +9187,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void setChatReady(String state) {
+    private void setChatReady(String state, boolean encrypt) {
 
         listenerManager.callOnChatState("CHAT_READY");
         chatReady = true;
@@ -9183,27 +9202,34 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public void enableNotification(String applicationId, AppCompatActivity activity, INotification listener) {
+
+    public void enableNotification(CustomNotificationConfig config, INotification listener) {
 
         try {
-            NotificationManager.enableNotification(applicationId, activity, listener);
-        } catch (Exception e) {
-            Log.e(TAG, "Enabling Notification Failed");
-            Log.e(TAG, e.getMessage());
-        }
-    }
-
-    public void enableNotification(String applicationId, Activity activity, INotification listener) {
-
-        try {
-            NotificationManager.enableNotification(applicationId, activity, listener);
+            PodNotificationManager.enableNotification(config, listener);
         } catch (Exception e) {
             Log.e(TAG, "Enabling Notification Failed");
             Log.e(TAG, e.getMessage());
         }
 
+
     }
 
+    public void enableDefaultNotification(String applicationId, Activity activity, INotification listener) {
+
+        try {
+            PodNotificationManager.enableNotification(applicationId, activity, false, listener);
+        } catch (Exception e) {
+            Log.e(TAG, "Enabling Notification Failed");
+            Log.e(TAG, e.getMessage());
+        }
+
+    }
+
+
+    public boolean disableNotification(Activity activity) {
+        return PodNotificationManager.disableNotification(activity);
+    }
 
     private void initDatabase() {
 
