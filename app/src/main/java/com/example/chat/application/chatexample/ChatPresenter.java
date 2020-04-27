@@ -2,10 +2,13 @@ package com.example.chat.application.chatexample;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,6 +28,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -60,6 +64,9 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.notification.INotification;
+import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -112,6 +119,7 @@ import java.util.concurrent.TimeUnit;
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
+    private static final String TAG = "CHAT_SDK_PRESENTER";
     private Chat chat;
     private ChatContract.view view;
     private Context context;
@@ -121,6 +129,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private String state = "";
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
 
@@ -140,8 +149,37 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.setDownloadDirectory(context.getCacheDir());
 
-        chat.enableNotification(NOTIFICATION_APPLICATION_ID, activity, userId ->
-                Log.e("CHAT_SDK_PRESENTER", "UserIdReceived: " + userId));
+
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(NOTIFICATION_APPLICATION_ID, activity)
+                .setChannelName("POD_CHAT_CHANNEL")
+                .setChannelId("PODCHAT")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
+                .build();
+
+        chat.enableNotification(notificationConfig, new INotification() {
+            @Override
+            public void onUserIdUpdated(String userId) {
+
+                Log.i(TAG, "UserId Received: " + userId);
+
+            }
+
+            @Override
+            public void onPushMessageReceived(String message) {
+
+                Log.i(TAG, "Push Received on presenter " + message);
+
+                ShowNotificationHelper.showNotification(
+                        "Podchat Notification", //title
+                        message, //message
+                        activity.getApplicationContext(), // context
+                        ChatActivity.class, //target class
+                        null, // priority
+                        R.mipmap.ic_launcher_round); //icon
+            }
+        });
 
 
 //        chat.setNetworkListenerEnabling(false);

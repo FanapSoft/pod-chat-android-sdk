@@ -3,6 +3,47 @@
 **Fanap's POD** Chat service
 
 
+## Version [0.6.4.4] -2020-4-26
+
+-Customize Notification
+
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(
+                String, //Registered Application id
+                 Activity 
+                 ) 
+                .setChannelName(String)
+                .setChannelId(String)
+                .setChannelDescription(String)
+                .setNotificationImportance(Integer)
+                .build();
+
+        chat.enableNotification(notificationConfig, new INotification() {
+            @Override
+            public void onUserIdUpdated(String userId) {
+
+                Log.i(TAG, "UserId Received: " + userId);
+
+            }
+
+            @Override
+            public void onPushMessageReceived(String message) {
+
+                Log.i(TAG, "Push Received on presenter " + message);
+
+                ShowNotificationHelper.showNotification(
+                        String, //title
+                        message, //message
+                        Context, // context
+                        Class, //target class
+                        Integer, // priority
+                        int); //icon
+            }
+        });
+
+
+
+
 ## Version [0.6.4.0] -2020-4-21
 
 - Set Timeout for upload and download
@@ -17,9 +58,9 @@
                 .build();
 
 
-        chat.setUploadConfig(timeout);
+        chat.setUploadTimeoutConfig(timeout);
 
-        chat.setDownloadConfig(timeout);
+        chat.setDownloadTimeoutConfig(timeout);
 
 
 ## Version [0.6.3.0] -2020-4-7

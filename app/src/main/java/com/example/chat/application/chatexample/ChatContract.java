@@ -89,7 +89,7 @@ public interface ChatContract {
         }
 
         default void onGetContacts() {
-            Log.d("MTAG","MESSAGE SENT in CH-L");
+
         }
 
         default void onGetThreadParticipant() {

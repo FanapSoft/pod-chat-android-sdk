@@ -7,7 +7,36 @@ All notable changes to this project will be documented here.
 
 
 
+## Version [0.6.4.5] -2020-4-27
+
+[Changed] cache is enabled offline now
+
+
+
+## Version [0.6.4.4] -2020-4-26
+
+[Added] Customizable Notification
+
+[BugFixed] minor bug fixed
+
+
+
+
+## Version [0.6.4.2] -2020-4-22
+
+[Improved] cache I/O operations part 2
+
+[Improved] optimize syncContact
+
+
+
 ## Version [0.6.4.0] -2020-4-21
+
+[Added] messageType is required in replyMessage and replyFileMessage
+
+[Added] setUploadTimeoutConfig(TimeoutConfig) and setDownloadTimeoutConfig(TimeoutConfig)
+
+[Improved] cache I/O operations
 
 [BugFixed] uniqueId added to isNameAvailable response
 
@@ -15,11 +44,7 @@ All notable changes to this project will be documented here.
 
 [BugFixed] cacheReplyInfo updated in getHistory and getThreads
 
-[Added] messageType is required in replyMessage and replyFileMessage
 
-[Improved] cache I/O operations
-
-[Added] setUploadTimeoutConfig(TimeoutConfig) and setDownloadTimeoutConfig(TimeoutConfig)
 
 
 

@@ -10,6 +10,8 @@ import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 
 import java.util.List;
 
+import rx.Observable;
+
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 @Dao
@@ -54,9 +56,11 @@ public interface MessageQueueDao {
     @Query("SELECT * FROM WaitQueueCache ORDER by QueueId DESC ")
     List<WaitQueueCache> getAllWaitQueueMsg();
 
+    @Query("SELECT uniqueId FROM WaitQueueCache ORDER by QueueId DESC ")
+    List<String> getAllWaitQueueMsgUniqueId();
+
     @Query("DELETE FROM WaitQueueCache WHERE uniqueId = :uniqueId")
     void deleteWaitMessageQueue(String uniqueId);
-
 
 
     /**
