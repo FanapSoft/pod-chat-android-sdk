@@ -32,7 +32,6 @@ public class AppDatabaseModule {
 
     public AppDatabaseModule(Context context,String secretKey) {
 
-//        String stKey = "slkjgndsjkkdhksdfas";
         char[] passphrase = secretKey.toCharArray();
         SafeHelperFactory factory = new SafeHelperFactory(passphrase);
 

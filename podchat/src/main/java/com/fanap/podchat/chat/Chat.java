@@ -415,33 +415,14 @@ public class Chat extends AsyncAdapter {
             mSecurePrefs = new SecurePreferences(context, "", "chat_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);
 
-            if (!Util.isNullOrEmpty(instance.getKey())) {
 
-                DaggerMessageComponent.builder()
-                        .appDatabaseModule(new AppDatabaseModule(context, instance.getKey()))
-                        .appModule(new AppModule(context))
-                        .build()
-                        .inject(instance);
+            runDatabase(context);
 
-                permit = true;
 
-            } else {
+            sendingQList = new HashMap();
+            uploadingQList = new HashMap();
+            waitQList = new HashMap<>();
 
-                DaggerMessageComponent.builder()
-                        .appDatabaseModule(new AppDatabaseModule(context))
-                        .appModule(new AppModule(context))
-                        .build()
-                        .inject(instance);
-
-                permit = false;
-
-            }
-
-            if (!cache) {
-                sendingQList = new HashMap();
-                uploadingQList = new HashMap();
-                waitQList = new HashMap<>();
-            }
 
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
@@ -452,6 +433,31 @@ public class Chat extends AsyncAdapter {
 
 
         return instance;
+    }
+
+    private static void runDatabase(Context context) {
+
+        if (Util.isNullOrEmpty(instance.getKey())) {
+            String key = generateUniqueId();
+            instance.setKey(key);
+        }
+
+
+        try {
+            DaggerMessageComponent.builder()
+                    .appDatabaseModule(new AppDatabaseModule(context, instance.getKey()))
+                    .appModule(new AppModule(context))
+                    .build()
+                    .inject(instance);
+
+            permit = true;
+
+        } catch (Exception e) {
+            instance.showErrorLog("Exception init database");
+            permit = false;
+            cache = false;
+        }
+
     }
 
 
@@ -8471,16 +8477,16 @@ public class Chat extends AsyncAdapter {
 ////                showLog("GENERATE_KEY", "");
 ////                generateEncryptionKey(getSsoHost());
 //            } else {
-                chatReady = true;
-                chatState = CHAT_READY;
-                checkToken = false;
+            chatReady = true;
+            chatState = CHAT_READY;
+            checkToken = false;
 
-                retrySetToken = 1;
-                tokenHandler.removeCallbacksAndMessages(null);
+            retrySetToken = 1;
+            tokenHandler.removeCallbacksAndMessages(null);
 
-                listenerManager.callOnChatState(CHAT_READY);
-                showLog("** CLIENT_AUTHENTICATED_NOW", "");
-                pingWithDelay();
+            listenerManager.callOnChatState(CHAT_READY);
+            showLog("** CLIENT_AUTHENTICATED_NOW", "");
+            pingWithDelay();
 //            }
 
 
@@ -9101,7 +9107,7 @@ public class Chat extends AsyncAdapter {
             showLog("RECEIVE_SEEN_MESSAGE_LIST", content);
 
         } catch (Exception e) {
-            if (log) Log.e(TAG, e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getMessage());
         }
     }
 
@@ -9201,7 +9207,6 @@ public class Chat extends AsyncAdapter {
 
 
     }
-
 
     public void enableNotification(CustomNotificationConfig config, INotification listener) {
 
@@ -9770,16 +9775,20 @@ public class Chat extends AsyncAdapter {
 
 //            if there is a key its ok if not it will go for the key and then chat ready
 
-            if (permit) {
-                listenerManager.callOnChatState("CHAT_READY");
-                chatReady = true;
-                chatState = CHAT_READY;
-                checkMessageQueue();
-                showLog("CHAT_READY", "");
-            } else {
-                showLog("GENERATE_KEY", "");
-                generateEncryptionKey(getSsoHost());
-            }
+
+            setChatReady("CHAT_READY", true);
+
+
+//            if (permit) {
+//                listenerManager.callOnChatState("CHAT_READY");
+//                chatReady = true;
+//                chatState = CHAT_READY;
+//                checkMessageQueue();
+//                showLog("CHAT_READY", "");
+//            } else {
+//                showLog("GENERATE_KEY", "");
+//                generateEncryptionKey(getSsoHost());
+//            }
 
             //ping start after the response of the get userInfo
             pingWithDelay();
@@ -9883,6 +9892,10 @@ public class Chat extends AsyncAdapter {
     }
 
     private void setKey(String key) {
+        mSecurePrefs.edit().putString("KEY", key).apply();
+    }
+
+    private static void setTheKey(String key) {
         mSecurePrefs.edit().putString("KEY", key).apply();
     }
 
