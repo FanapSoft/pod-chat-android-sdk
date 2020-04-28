@@ -6,6 +6,9 @@
 All notable changes to this project will be documented here.
 
 
+##Version [0.6.4.6] -2020-4-28
+[BugFixed] syncContact Contact Version Problem fixed
+
 
 ## Version [0.6.4.5] -2020-4-27
 

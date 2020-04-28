@@ -76,8 +76,13 @@ public interface MessageDao {
     @Query("DELETE FROM CacheContact WHERE id =:id")
     void deleteContactById(long id);
 
-    @Query("select * from CacheContact LIMIT :count OFFSET :offset")
+    @Query("select * from CacheContact order by lastName asc,firstName asc LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
+
+    @RawQuery
+    List<CacheContact> getRawContacts(SupportSQLiteQuery sqLiteQuery);
+
+
 
     @Query("SELECT COUNT(id) FROM CacheContact")
     int getContactCount();
