@@ -129,7 +129,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private String state = "";
 
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
 
