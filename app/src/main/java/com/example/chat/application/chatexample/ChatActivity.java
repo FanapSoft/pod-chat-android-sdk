@@ -2,6 +2,7 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentProviderOperation;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -137,7 +138,7 @@ public class ChatActivity extends AppCompatActivity
     private Button btnUploadImage;
 
     //
-    private static String TOKEN = "2c7406e7915c4e8096e3918d56f7ca9d";
+    private static String TOKEN = "154d7144c20d4280b13af6e5cb478fa1";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -165,29 +166,29 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 //
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
+    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 22427;
+//    public static int TEST_THREAD_ID = 22427;
 
 
     //integration /group
@@ -212,6 +213,8 @@ public class ChatActivity extends AppCompatActivity
 
         faker = new Faker();
 
+
+//        Generator.generateFakeContact(5,getApplicationContext());
 
         Logger.addLogAdapter(new AndroidLogAdapter());
         setContentView(R.layout.activity_chat);

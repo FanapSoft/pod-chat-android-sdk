@@ -1835,6 +1835,95 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
+//    public String syncContactTest(Activity activity) {
+//
+//        Log.i(TAG, ">>> Start Syncing... " + new Date());
+//
+//        String uniqueId = generateUniqueId();
+//
+//        if (Permission.Check_READ_CONTACTS(activity)) {
+//
+//            getPhoneContact(getContext(), phoneContacts -> {
+//
+//                if (phoneContacts.size() > 0) {
+//
+//                    Log.i(TAG, ">>> Synchronizing " + phoneContacts.size() + " with server at " + new Date());
+//                    addContactsTest(phoneContacts, uniqueId);
+//                } else {
+//
+//                    Log.i(TAG, ">>> No New Contact Found. Everything is synced " + new Date());
+//
+//                    ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+//                    chatResponse.setUniqueId(uniqueId);
+//                    Contacts contacts = new Contacts();
+//                    contacts.setCount(0);
+//                    contacts.setResult(new ArrayList<>());
+//                    chatResponse.setResult(contacts);
+//                    listenerManager.callOnSyncContact(gson.toJson(chatResponse), chatResponse);
+//
+//                    if (log)
+//                        Log.i(TAG, "SYNC_CONTACT_COMPLETED");
+//                }
+//
+//
+//            });
+//
+//        } else {
+//
+//            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION
+//                    , uniqueId);
+//
+//            Permission.Request_READ_CONTACTS(activity, READ_CONTACTS_CODE);
+//
+//            if (log) Log.e(TAG, jsonError);
+//        }
+//        return uniqueId;
+//    }
+//
+//    private void addContactsTest(List<PhoneContact> phoneContacts, String uniqueId) {
+//
+//        Log.d(TAG, "Call to add contact");
+//
+//        Runnable updatePhoneContactsDBTask = () -> {
+//            try {
+//                phoneContactDbHelper.addPhoneContacts(phoneContacts);
+//            } catch (Exception e) {
+//                showErrorLog("Updating Contacts cache failed: " + e.getMessage());
+//            }
+//        };
+//
+//
+//            Runnable updateCachedContactsTask = () -> {
+//
+//                ArrayList<Contact> c = new ArrayList<>();
+//                if (cache) {
+//                    for (PhoneContact pc :
+//                            phoneContacts) {
+//                        Contact ccc = new Contact();
+//                        ccc.setFirstName(pc.getName());
+//                        ccc.setLastName(pc.getLastName());
+//                        ccc.setCellphoneNumber(pc.getPhoneNumber());
+//                        ccc.setEmail("");
+//                        ccc.setUniqueId(generateUniqueId());
+//                        c.add(ccc);
+//                    }
+//                    try {
+//                        messageDatabaseHelper.saveContacts(c, getExpireAmount());
+//                    } catch (Exception e) {
+//                        showErrorLog("Saving Contacts Failed: " + e.getMessage());
+//                    }
+//                }
+//            };
+//
+//        new PodThreadManager()
+//                .addNewTask(updatePhoneContactsDBTask)
+//                .addNewTask(updateCachedContactsTask)
+//                .runTasksSynced();
+//
+//    }
+//
+
     /**
      * This method first check the messageType of the file and then choose the right
      * server and send that
@@ -10826,17 +10915,13 @@ public class Chat extends AsyncAdapter {
      * Get the list of the Device Contact
      */
 
-
     private void getPhoneContact(Context context, OnContactLoaded listener) {
 
 
         try {
 
             Log.i(TAG, ">>> Getting phone contacts " + new Date());
-
-
             List<PhoneContact> cachePhoneContacts = new ArrayList<>();
-
             PhoneContactAsyncTask task = new PhoneContactAsyncTask(phoneContactDbHelper, contacts -> {
 
                 String firstName;
@@ -10845,6 +10930,7 @@ public class Chat extends AsyncAdapter {
                 String empty = "";
                 int version;
                 ArrayList<PhoneContact> newPhoneContact = new ArrayList<>();
+                HashMap<String, PhoneContact> newContactsMap = new HashMap<>();
 
                 Log.d(TAG, "#" + contacts.size() + " Contacts Loaded From Cache");
 
@@ -10893,23 +10979,29 @@ public class Chat extends AsyncAdapter {
                         if (cachePhoneContacts.size() > 0) {
                             // if its not in PhoneContactCache and its a contact that added recently
                             if (mapCacheContactKeeper.get(phoneNumber) != null) {
-
                                 if (version != mapCacheContactKeeper.get(phoneNumber).getVersion()) {
-                                    newPhoneContact.add(phoneContact);
+                                    newContactsMap.put(phoneNumber, phoneContact);
                                 }
                             } else {
-                                newPhoneContact.add(phoneContact);
+                                newContactsMap.put(phoneNumber, phoneContact);
                             }
                         } else {
-                            newPhoneContact.add(phoneContact);
+                            newContactsMap.put(phoneNumber, phoneContact);
                         }
                     }
                 }
                 cursor.close();
 
-                Log.d(TAG, "#" + newPhoneContact.size() + " New Contact Found");
+                //retrieve unique contacts
+                for (String key :
+                        newContactsMap.keySet()) {
+                    if (!mapCacheContactKeeper.containsKey(key))
+                        newPhoneContact.add(newContactsMap.get(key));
+                }
 
+                Log.d(TAG, "#" + newPhoneContact.size() + " New Contact Found");
                 listener.onLoad(newPhoneContact);
+
 
             });
 
