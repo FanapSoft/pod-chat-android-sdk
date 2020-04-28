@@ -8,4 +8,6 @@ public class CoreConfig {
 
     public static String typeCode = "default";
 
+    public static Long userId = 0L;
+
 }

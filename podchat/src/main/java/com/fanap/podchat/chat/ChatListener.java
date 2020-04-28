@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
@@ -266,4 +267,6 @@ public interface ChatListener {
     default void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
 
     default void onCreateThread(ChatResponse<ResultThread> response){}
+
+    default void onReceiveCallRequest(ChatResponse<ResultCallRequest> response){}
 }

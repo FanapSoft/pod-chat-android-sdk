@@ -18,6 +18,7 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -1373,5 +1374,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onActivityDestroyed(Activity activity) {
 
+    }
+
+    @Override
+    public void onReceiveCallRequest(ChatResponse<ResultCallRequest> response) {
+        view.onReceiveCallRequest(response);
     }
 }

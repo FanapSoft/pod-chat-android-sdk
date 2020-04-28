@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey"
+    tools:context="com.example.chat.application.chatexample.CallActivity">
+
+
+
+
+    <RadioGroup
+        android:id="@+id/radioPartner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
+
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioZiziPartner"
+            style="@style/radio_button"
+            android:text="ZIZI" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioJijiPartner"
+            style="@style/radio_button"
+            android:checked="true"
+            android:text="JIJI" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioFifiPartner"
+            style="@style/radio_button"
+            android:text="FIFI" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/radioCaller"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/textView3">
+
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioZiziCaller"
+            style="@style/radio_button"
+            android:checked="true"
+            android:text="ZIZI" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioJijiCaller"
+            style="@style/radio_button"
+            android:text="JIJI" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioFifiCaller"
+            style="@style/radio_button"
+            android:text="FIFI" />
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/textView2"
+        style="@style/text_style"
+        android:text="Call"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/text_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Creator:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+
+    <TextView
+        android:id="@+id/textView4"
+        style="@style/text_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Partner:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioCaller" />
+
+
+
+    <Button
+        tools:visibility="visible"
+        android:id="@+id/btnCallRequest"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        android:background="@color/colorPrimaryDark"
+        android:text="Call"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <include
+
+        layout="@layout/call_request_receive_layout" />
+
+
+</android.support.constraint.ConstraintLayout>

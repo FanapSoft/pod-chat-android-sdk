@@ -2,19 +2,12 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,13 +17,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +33,9 @@ import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -49,6 +43,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -62,37 +57,32 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.podcall.PodAudioCallManager;
-import com.fanap.podchat.podcall.PodAudioStreamManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
-import com.fanap.podchat.requestobject.RequestBlockList;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestGetContact;
-import com.fanap.podchat.requestobject.RequestGetFile;
-import com.fanap.podchat.requestobject.RequestGetImage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
+import com.fanap.podchat.requestobject.RequestGetContact;
+import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
@@ -100,24 +90,16 @@ import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
-import com.fanap.podchat.util.FileUtils;
 import com.fanap.podchat.util.InviteType;
-import com.fanap.podchat.util.Permission;
-import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.ThreadType;
-import com.fanap.podchat.util.Util;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
-import com.fanap.podchat.example.R;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -218,62 +200,16 @@ public class ChatActivity extends AppCompatActivity
 
     private String signalUniq;
 
-    private static String fileName = null;
-
-
-    boolean callTest = true;
-
-
     ArrayList<String> runningSignals = new ArrayList<>();
-
-    private boolean permissionToRecordAccepted = false;
-    private String[] permissions = {Manifest.permission.RECORD_AUDIO};
-    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
 
 
     Faker faker;
     private String downloadingId = "";
 
-    private RecordButton recordButton = null;
-    private MediaRecorder recorder = null;
-
-    private PlayButton playButton = null;
-    private MediaPlayer player = null;
-
-
-    private boolean currentlySendingAudio = false;
-    PodAudioStreamManager podAudioCallManager = null;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        if (callTest) {
-            // Record to the external cache directory for visibility
-            fileName = getExternalCacheDir().getAbsolutePath();
-            fileName += "/audiorecordtest.3gp";
-
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
-
-            LinearLayout ll = new LinearLayout(this);
-            recordButton = new RecordButton(this);
-            ll.addView(recordButton,
-                    new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            0));
-            playButton = new PlayButton(this);
-            ll.addView(playButton,
-                    new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            0));
-            setContentView(ll);
-            return;
-
-        }
 
         faker = new Faker();
         Logger.addLogAdapter(new AndroidLogAdapter());
@@ -343,118 +279,9 @@ public class ChatActivity extends AppCompatActivity
             editTextToken.setHint("Enter OTP or Number");
             presenter.enableAutoRefresh(this, entry);
 
-
             return true;
 
         });
-
-        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
-
-
-    }
-
-
-    private void recordAudio() {
-
-
-        if (!permissionToRecordAccepted) return;
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-        ParcelFileDescriptor[] descriptors = new ParcelFileDescriptor[0];
-        try {
-            descriptors = ParcelFileDescriptor.createPipe();
-
-            ParcelFileDescriptor parcelRead = new ParcelFileDescriptor(descriptors[0]);
-            ParcelFileDescriptor parcelWrite = new ParcelFileDescriptor(descriptors[1]);
-
-            InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(parcelRead);
-
-            recorder = new MediaRecorder();
-            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            recorder.setOutputFile(parcelWrite.getFileDescriptor());
-
-//            recorder = new MediaRecorder();
-//            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//            recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-//            recorder.setOutputFile(fileName);
-//            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-
-            recorder.prepare();
-
-            recorder.start();
-
-
-            int read = 0;
-            byte[] data = new byte[16384];
-
-            while ((read = inputStream.read(data, 0, data.length)) != -1) {
-
-                byteArrayOutputStream.write(data, 0, read);
-
-                byte[] d2 = byteArrayOutputStream.toByteArray();
-            }
-
-            byteArrayOutputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void stopStream() {
-
-        currentlySendingAudio = false;
-
-    }
-
-    private void startStream() {
-
-
-        // the audio recording options
-        final int RECORDING_RATE = 44100;
-        final int CHANNEL = AudioFormat.CHANNEL_IN_MONO;
-        final int FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-        int BUFFER_SIZE = AudioRecord.getMinBufferSize(
-                RECORDING_RATE, CHANNEL, FORMAT);
-
-        Log.i(TAG, "Starting the background thread to stream the audio data");
-
-        Thread streamThread = new Thread(() -> {
-
-            Log.d(TAG, "Creating the buffer of size " + BUFFER_SIZE);
-            byte[] buffer = new byte[BUFFER_SIZE];
-//            short sData[] = new short[BufferElements2Rec];
-//            int BytesPerElement = 2; // 2 bytes in 16bit format
-
-//            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-//                    RECORDER_SAMPLERATE, RECORDER_CHANNELS,
-//                    RECORDER_AUDIO_ENCODING, BufferElements2Rec * BytesPerElement);
-
-            Log.d(TAG, "Creating the AudioRecord");
-            AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                    RECORDING_RATE, CHANNEL, FORMAT, BUFFER_SIZE * 10);
-
-            Log.d(TAG, "AudioRecord recording...");
-            recorder.startRecording();
-            currentlySendingAudio = true;
-            while (currentlySendingAudio) {
-
-                int read = recorder.read(buffer, 0, buffer.length);
-
-                Log.e(TAG, "Bytes: " + Arrays.toString(buffer));
-                Log.e(TAG, "READ: " + read);
-
-            }
-
-
-        });
-        streamThread.setName("STREAM THREAD");
-        streamThread.start();
-
 
     }
 
@@ -1230,13 +1057,6 @@ public class ChatActivity extends AppCompatActivity
 
             }
         }
-        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
-            permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-            if (!permissionToRecordAccepted) Log.e(TAG, "NOT ACCEPTED");
-//            else recordAudio();
-        }
-
-
     }
 
     public void mapReverse() {
@@ -2363,17 +2183,9 @@ public class ChatActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
 
-        stopRecorder();
-
     }
 
-    private void stopRecorder() {
-        if (recorder != null) {
-            recorder.stop();
-            recorder.reset();
-            recorder.release();
-        }
-    }
+
 
     @Override
     protected void onStop() {
@@ -2545,145 +2357,4 @@ public class ChatActivity extends AppCompatActivity
     }
 
 
-    private void onRecord(boolean start) {
-        if (start) {
-            startRecording();
-        } else {
-            stopRecording();
-        }
-    }
-
-    private void onPlay(boolean start) {
-        if (start) {
-            startPlaying();
-        } else {
-            stopPlaying();
-        }
-    }
-
-    private void startPlaying() {
-        player = new MediaPlayer();
-        try {
-            player.setDataSource(fileName);
-            player.prepare();
-            player.start();
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    playButton.setText("START PLAYING");
-                    playButton.mStartPlaying = true;
-                }
-            });
-        } catch (IOException e) {
-            Log.e(TAG, "prepare() failed");
-        }
-    }
-
-    private void stopPlaying() {
-        player.release();
-        player = null;
-    }
-
-    private void startRecording() {
-
-        podAudioCallManager = new PodAudioStreamManager();
-        podAudioCallManager.checkPermission(this);
-
-        podAudioCallManager.recordAudio(new PodAudioStreamManager.IPodAudioListener() {
-            @Override
-            public void onByteRecorded(byte[] bytes) {
-
-                Log.e(TAG, "Bytes: " + Arrays.toString(bytes));
-            }
-
-            @Override
-            public void onRecordStopped() {
-                Log.e(TAG, "Record Stopped");
-
-            }
-
-            @Override
-            public void onErrorOccurred(String cause) {
-                Log.e(TAG, "Record Error: " + cause);
-
-            }
-        });
-
-
-        //worked
-
-//        startStream();
-
-
-        //test
-//        recorder = new MediaRecorder();
-//        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-//        recorder.setOutputFile(fileName);
-//        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//
-//        try {
-//            recorder.prepare();
-//        } catch (IOException e) {
-//            Log.e(TAG, "prepare() failed");
-//        }
-//
-//        recorder.start();
-    }
-
-    private void stopRecording() {
-
-        if (podAudioCallManager != null) {
-
-            podAudioCallManager.stopRecording();
-
-        }
-
-//        stopStream();
-
-
-//        recorder.stop();
-//        recorder.release();
-//        recorder = null;
-    }
-
-    class RecordButton extends android.support.v7.widget.AppCompatButton {
-        boolean mStartRecording = true;
-
-        OnClickListener clicker = v -> {
-            onRecord(mStartRecording);
-            if (mStartRecording) {
-                setText("Stop recording");
-            } else {
-                setText("Start recording");
-            }
-            mStartRecording = !mStartRecording;
-        };
-
-        public RecordButton(Context ctx) {
-            super(ctx);
-            setText("Start recording");
-            setOnClickListener(clicker);
-        }
-    }
-
-    class PlayButton extends android.support.v7.widget.AppCompatButton {
-        boolean mStartPlaying = true;
-
-        OnClickListener clicker = v -> {
-            onPlay(mStartPlaying);
-            if (mStartPlaying) {
-                setText("Stop playing");
-            } else {
-                setText("Start playing");
-            }
-            mStartPlaying = !mStartPlaying;
-        };
-
-        public PlayButton(Context ctx) {
-            super(ctx);
-            setText("Start playing");
-            setOnClickListener(clicker);
-        }
-    }
 }

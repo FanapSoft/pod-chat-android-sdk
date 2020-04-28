@@ -36,6 +36,8 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.call.CallManager;
+import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.Mention;
@@ -373,11 +375,9 @@ public class Chat extends AsyncAdapter {
     private String serverName;
     private boolean hasFreeSpace = true;
 
-
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
-
 
     public void setMaxReconnectTime(long maxMilliseconds) {
 
@@ -460,16 +460,13 @@ public class Chat extends AsyncAdapter {
 
     }
 
-
     public void setDownloadDirectory(File directory) {
         FileUtils.setDownloadDirectory(directory);
     }
 
-
     public void setNetworkListenerEnabling(boolean networkStateListenerEnable) {
         this.isNetworkStateListenerEnable = networkStateListenerEnable;
     }
-
 
     public void setGetUserInfoRetryCount(int getUserInfoRetryCount) {
 
@@ -559,7 +556,6 @@ public class Chat extends AsyncAdapter {
 
         }
     }
-
 
     public void registerNetworkReceiver() {
 
@@ -1168,6 +1164,17 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void handleOnCallRequestReceived(ChatMessage chatMessage){
+
+        ChatResponse<ResultCallRequest> response
+                = CallManager.handleOnCallRequest(chatMessage);
+
+        listenerManager.callOnCallRequest(response);
+
+        showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
+
+
+    }
 
     /**
      * It Connects to the Async .
@@ -12126,6 +12133,7 @@ public class Chat extends AsyncAdapter {
 
     private void setUserId(long userId) {
         this.userId = userId;
+        CoreConfig.userId = userId;
     }
 
     private void setPlatformHost(String platformHost) {

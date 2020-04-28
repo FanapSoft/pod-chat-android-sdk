@@ -8,6 +8,7 @@ import android.util.Log;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -202,6 +203,8 @@ public interface ChatContract {
         default void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
 
         default void onGetToken(String token){}
+
+        default void onReceiveCallRequest(ChatResponse<ResultCallRequest> response){}
     }
 
     interface presenter {

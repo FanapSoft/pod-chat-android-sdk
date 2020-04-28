@@ -81,6 +81,10 @@ public class ChatMessageType {
             Constants.DEFINE_BOT_COMMAND,
             Constants.START_BOT,
             Constants.STOP_BOT,
+            Constants.CALL_REQUEST,
+            Constants.ACCEPT_CALL,
+            Constants.REJECT_CALL,
+            Constants.START_CALL
 
     })
 
@@ -150,9 +154,16 @@ public class ChatMessageType {
         int ALL_UNREAD_MESSAGE_COUNT = 61;
 
         int CREATE_BOT = 62;
-        int DEFINE_BOT_COMMAND = 63 ;
+        int DEFINE_BOT_COMMAND = 63;
         int START_BOT = 64;
         int STOP_BOT = 65;
+
+
+        int CALL_REQUEST = 70;
+        int ACCEPT_CALL = 71;
+        int REJECT_CALL = 72;
+        int START_CALL = 73;
+
 
         int ERROR = 999;
 
