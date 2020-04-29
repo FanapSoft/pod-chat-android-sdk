@@ -1815,7 +1815,7 @@ public class Chat extends AsyncAdapter {
                         listenerManager.callOnSyncContact(gson.toJson(chatResponse), chatResponse);
 
                         if (log)
-                            showLog( "SYNC_CONTACT_COMPLETED");
+                            showLog("SYNC_CONTACT_COMPLETED");
                     }
 
 
@@ -1835,7 +1835,6 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-
 
 
 //    public String syncContactTest(Activity activity) {
@@ -1924,7 +1923,7 @@ public class Chat extends AsyncAdapter {
 //                .runTasksSynced();
 //
 //    }
-//
+
 
     /**
      * This method first check the messageType of the file and then choose the right
@@ -8425,24 +8424,24 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnLogEvent(json);
                 listenerManager.callOnLogEvent(i, json);
             }
-            FileUtils.appendLog("\n >>> "+new Date()+"\n" + i + "\n" + json + "\n <<< \n");
+            FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
         }
     }
 
     private void showLog(String info) {
         if (log) {
             Log.i(TAG, info);
-            FileUtils.appendLog("\n >>> "+new Date()+"\n" + info + "\n <<<\n");
+            FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
         }
     }
 
     private void showErrorLog(String message) {
         Log.e(TAG, message);
-        FileUtils.appendLog("\n *** "+new Date()+" \n" + message + "\n *** \n");
+        FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
 
     }
 
-    public void shareLogs(Context context){
+    public void shareLogs(Context context) {
 
         FileUtils.shareLogs(context);
     }
@@ -9567,7 +9566,33 @@ public class Chat extends AsyncAdapter {
         messageCallbacks.remove(messageUniqueId);
         showLog("RECEIVE_GET_CONTACT", contactJson);
 
+//        removeContactTest(chatResponse);
 
+
+    }
+
+    private void removeContactTest(ChatResponse<ResultContact> chatResponse) {
+
+        for (Contact contact :
+                chatResponse.getResult().getContacts()) {
+
+            if (contact.getId() == 0) continue;
+            if (contact.getCellphoneNumber().equals("09156967335")) continue;
+
+
+            new PodThreadManager()
+                    .doThisSafe(() -> {
+                        RequestRemoveContact request = new RequestRemoveContact.Builder(contact.getId())
+                                .build();
+                        removeContact(request);
+                        try {
+                            java.lang.Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+        }
     }
 
     private void handleCreateThread(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
@@ -10954,7 +10979,7 @@ public class Chat extends AsyncAdapter {
                 ArrayList<PhoneContact> newPhoneContact = new ArrayList<>();
                 HashMap<String, PhoneContact> newContactsMap = new HashMap<>();
 
-                showLog( "#" + contacts.size() + " Contacts Loaded From Cache");
+                showLog("#" + contacts.size() + " Contacts Loaded From Cache");
 
                 cachePhoneContacts.addAll(contacts);
 
@@ -11021,7 +11046,7 @@ public class Chat extends AsyncAdapter {
                         newPhoneContact.add(newContactsMap.get(key));
                 }
 
-                showLog( "#" + newPhoneContact.size() + " New Contact Found");
+                showLog("#" + newPhoneContact.size() + " New Contact Found");
                 listener.onLoad(newPhoneContact);
 
 
@@ -11030,7 +11055,7 @@ public class Chat extends AsyncAdapter {
             task.execute();
 
         } catch (Exception e) {
-           showErrorLog(e.getMessage());
+            showErrorLog(e.getMessage());
         }
 
     }
@@ -11238,7 +11263,7 @@ public class Chat extends AsyncAdapter {
                         cellphoneNumbers);
             }
 
-           showLog( "Call add contacts");
+            showLog("Call add contacts");
 
             addContactsObservable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -11305,7 +11330,6 @@ public class Chat extends AsyncAdapter {
                             getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
         }
     }
-
 
 
     @NonNull
