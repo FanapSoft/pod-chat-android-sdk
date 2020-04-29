@@ -431,5 +431,6 @@ public interface ChatContract {
 
         void getThreadParticipant(RequestThreadParticipant request);
 
+        void shareLogs();
     }
 }

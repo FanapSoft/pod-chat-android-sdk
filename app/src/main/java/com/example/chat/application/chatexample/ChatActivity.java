@@ -238,6 +238,12 @@ public class ChatActivity extends AppCompatActivity
 
         buttonFileChoose.setOnClickListener(this);
 
+        buttonFileChoose.setOnLongClickListener(v -> {
+
+            presenter.shareLogs();
+            return true;
+        });
+
         ArrayList<Contact> contacts = new ArrayList<>();
         One<Contact> one = new One<>();
         one.setList(contacts);

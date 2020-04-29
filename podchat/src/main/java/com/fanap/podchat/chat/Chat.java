@@ -1786,7 +1786,7 @@ public class Chat extends AsyncAdapter {
      */
     public String syncContact(Activity activity) {
 
-        Log.i(TAG, ">>> Start Syncing... " + new Date());
+        showLog(">>> Start Syncing... " + new Date());
 
         String uniqueId = generateUniqueId();
 
@@ -1799,11 +1799,12 @@ public class Chat extends AsyncAdapter {
 
                     if (phoneContacts.size() > 0) {
 
-                        Log.i(TAG, ">>> Synchronizing " + phoneContacts.size() + " with server at " + new Date());
+                        showLog(">>> Synchronizing " + phoneContacts.size() + " with server at " + new Date());
+
                         addContacts(phoneContacts, uniqueId);
                     } else {
 
-                        Log.i(TAG, ">>> No New Contact Found. Everything is synced " + new Date());
+                        showLog(">>> No New Contact Found. Everything is synced ");
 
                         ChatResponse<Contacts> chatResponse = new ChatResponse<>();
                         chatResponse.setUniqueId(uniqueId);
@@ -1814,7 +1815,7 @@ public class Chat extends AsyncAdapter {
                         listenerManager.callOnSyncContact(gson.toJson(chatResponse), chatResponse);
 
                         if (log)
-                            Log.i(TAG, "SYNC_CONTACT_COMPLETED");
+                            showLog( "SYNC_CONTACT_COMPLETED");
                     }
 
 
@@ -1834,6 +1835,7 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
 
 
 //    public String syncContactTest(Activity activity) {
@@ -8423,7 +8425,26 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnLogEvent(json);
                 listenerManager.callOnLogEvent(i, json);
             }
+            FileUtils.appendLog("\n >>> "+new Date()+"\n" + i + "\n" + json + "\n <<< \n");
         }
+    }
+
+    private void showLog(String info) {
+        if (log) {
+            Log.i(TAG, info);
+            FileUtils.appendLog("\n >>> "+new Date()+"\n" + info + "\n <<<\n");
+        }
+    }
+
+    private void showErrorLog(String message) {
+        Log.e(TAG, message);
+        FileUtils.appendLog("\n *** "+new Date()+" \n" + message + "\n *** \n");
+
+    }
+
+    public void shareLogs(Context context){
+
+        FileUtils.shareLogs(context);
     }
 
     private String handleMimType(Uri uri, File file) {
@@ -10920,7 +10941,8 @@ public class Chat extends AsyncAdapter {
 
         try {
 
-            Log.i(TAG, ">>> Getting phone contacts " + new Date());
+            showLog(">>> Getting phone contacts ");
+
             List<PhoneContact> cachePhoneContacts = new ArrayList<>();
             PhoneContactAsyncTask task = new PhoneContactAsyncTask(phoneContactDbHelper, contacts -> {
 
@@ -10932,7 +10954,7 @@ public class Chat extends AsyncAdapter {
                 ArrayList<PhoneContact> newPhoneContact = new ArrayList<>();
                 HashMap<String, PhoneContact> newContactsMap = new HashMap<>();
 
-                Log.d(TAG, "#" + contacts.size() + " Contacts Loaded From Cache");
+                showLog( "#" + contacts.size() + " Contacts Loaded From Cache");
 
                 cachePhoneContacts.addAll(contacts);
 
@@ -10999,7 +11021,7 @@ public class Chat extends AsyncAdapter {
                         newPhoneContact.add(newContactsMap.get(key));
                 }
 
-                Log.d(TAG, "#" + newPhoneContact.size() + " New Contact Found");
+                showLog( "#" + newPhoneContact.size() + " New Contact Found");
                 listener.onLoad(newPhoneContact);
 
 
@@ -11008,7 +11030,7 @@ public class Chat extends AsyncAdapter {
             task.execute();
 
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+           showErrorLog(e.getMessage());
         }
 
     }
@@ -11216,13 +11238,13 @@ public class Chat extends AsyncAdapter {
                         cellphoneNumbers);
             }
 
-            Log.d(TAG, "Call to add contact");
+           showLog( "Call add contacts");
 
             addContactsObservable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(contactsResponse -> {
 
-                        Log.i(TAG, ">>> Server Respond at " + new Date());
+                        showLog(">>> Server Respond at ");
 
                         boolean error = false;
 
@@ -11233,9 +11255,11 @@ public class Chat extends AsyncAdapter {
                         if (contactsResponse.isSuccessful()) {
 
                             if (error) {
+
                                 getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
                                         , uniqueId);
 
+                                showLog("Error add Contacts: " + contactsResponse.body().getMessage());
 
                             } else {
                                 //successful response
@@ -11282,9 +11306,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void showErrorLog(String message) {
-        Log.e(TAG, message);
-    }
+
 
     @NonNull
     private ChatMessage getChatMessage(String contentThreadChat, String uniqueId, String typeCode) {

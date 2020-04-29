@@ -312,6 +312,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void shareLogs() {
+        if (chat != null) {
+            chat.shareLogs(context);
+        }
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 

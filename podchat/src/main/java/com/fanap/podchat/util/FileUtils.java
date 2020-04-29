@@ -16,6 +16,7 @@ package com.fanap.podchat.util;
  * limitations under the License.
  */
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -32,6 +33,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -88,48 +90,67 @@ public class FileUtils {
     private static File downloadDirectory;
 
 
-    public static void saveLogs(){
+    public static void saveLogs() {
 
-        Log.w(TAG,"Logcat save");
+        Log.w(TAG, "Logcat save");
         try {
             Process process = Runtime.getRuntime().exec("logcat -d");
-            process = Runtime.getRuntime().exec( "logcat -f " + "/storage/emulated/0/"+"Logging.txt");
-        }catch(Exception e)
-        {
+            process = Runtime.getRuntime().exec("logcat -f " + "/storage/emulated/0/" + "PodChatLog.txt");
+        } catch (Exception e) {
             e.printStackTrace();
+            Log.w(TAG, "Logcat save error: " + e.getMessage());
+
         }
 
     }
 
-    public static void appendLog(String text)
-    {
-        File dire = getOrCreateDirectory("PODCHAT/LOGS");
-        File logFile = new File(dire,"log_"+new Date().getTime()+"_.txt");
-        if (!logFile.exists())
-        {
-            try
-            {
+    public static void appendLog(String text) {
+
+
+        File logFile = getLogFile();
+
+        if (!logFile.exists()) {
+            try {
                 logFile.createNewFile();
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        try
-        {
+        try {
             //BufferedWriter for performance, true to set append to file flag
             BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
             buf.append(text);
             buf.newLine();
             buf.close();
-        }
-        catch (IOException e)
-        {
-            // TODO Auto-generated catch block
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void shareLogs(Context context) {
+
+        try {
+
+            File file = getLogFile();
+            Uri uri = FileProvider.getUriForFile(context,context
+                    .getApplicationContext()
+                    .getPackageName() + ".provider",file);
+
+            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+            sharingIntent.setType("text/*");
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            context.startActivity(Intent.createChooser(sharingIntent, "share file with"));
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+
+    }
+
+    private static File getLogFile() {
+        File dire = getOrCreateDirectory("PODCHAT/LOGS");
+        return new File(dire, "PodChatLog.txt");
     }
 
 
@@ -924,7 +945,7 @@ public class FileUtils {
 
         } catch (java.io.IOException e) {
 
-            Log.e(TAG,"Error Saving Bitmap: " + e.getMessage());
+            Log.e(TAG, "Error Saving Bitmap: " + e.getMessage());
 
             return null;
         }
