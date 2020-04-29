@@ -207,6 +207,7 @@ public class ChatActivity extends AppCompatActivity
     private String downloadingId = "";
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -244,6 +245,8 @@ public class ChatActivity extends AppCompatActivity
         Spinner spinnerThird = findViewById(R.id.spinnerThird);
         buttonConnect.setOnClickListener(this);
         ChatContract.view view = new ChatContract.view() {
+
+
 
             @Override
             public void onMapStaticImage(ChatResponse<ResultStaticMapImage> chatResponse) {

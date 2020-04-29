@@ -215,6 +215,7 @@ public interface ChatContract {
 
         void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
 
+        String requestCall(int partnerId);
 
         void isDatabaseOpen();
 

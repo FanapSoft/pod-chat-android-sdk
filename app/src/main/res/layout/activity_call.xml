@@ -8,34 +8,34 @@
     tools:context="com.example.chat.application.chatexample.CallActivity">
 
 
-
-
-    <RadioGroup
-        android:id="@+id/radioPartner"
+    <Button
+        android:visibility="gone"
+        android:id="@+id/btnCallRequest"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/textView4">
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        android:background="@color/colorPrimaryDark"
+        android:text="Call"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
-
-        <android.support.v7.widget.AppCompatRadioButton
-            android:id="@+id/radioZiziPartner"
-            style="@style/radio_button"
-            android:text="ZIZI" />
-
-        <android.support.v7.widget.AppCompatRadioButton
-            android:id="@+id/radioJijiPartner"
-            style="@style/radio_button"
-            android:checked="true"
-            android:text="JIJI" />
-
-        <android.support.v7.widget.AppCompatRadioButton
-            android:id="@+id/radioFifiPartner"
-            style="@style/radio_button"
-            android:text="FIFI" />
-
-    </RadioGroup>
+    <Button
+        android:id="@+id/btnConnect"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        android:background="@color/colorAccent"
+        android:text="Connect"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
     <RadioGroup
         android:id="@+id/radioCaller"
@@ -64,14 +64,32 @@
 
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/textView2"
-        style="@style/text_style"
-        android:text="Call"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <RadioGroup
+        android:id="@+id/radioPartner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
+
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioZiziPartner"
+            style="@style/radio_button"
+            android:text="ZIZI" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioJijiPartner"
+            style="@style/radio_button"
+            android:checked="true"
+            android:text="JIJI" />
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:id="@+id/radioFifiPartner"
+            style="@style/radio_button"
+            android:text="FIFI" />
+
+    </RadioGroup>
 
     <TextView
         android:id="@+id/textView3"
@@ -95,20 +113,26 @@
         app:layout_constraintTop_toBottomOf="@+id/radioCaller" />
 
 
-
-    <Button
-        tools:visibility="visible"
-        android:id="@+id/btnCallRequest"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_margin="16dp"
-        android:background="@color/colorPrimaryDark"
-        android:text="Call"
-        android:textColor="#ffffff"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <TextView
+        android:id="@+id/tvStatus"
+        style="@style/text_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/btnCallRequest"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioPartner"
+        tools:text="Connecting..." />
+
+    <TextView
+        android:id="@+id/textView2"
+        style="@style/text_style"
+        android:text="Call"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <include

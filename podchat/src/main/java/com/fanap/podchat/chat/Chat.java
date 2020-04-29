@@ -37,6 +37,7 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.call.CallManager;
+import com.fanap.podchat.chat.call.CallRequest;
 import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
@@ -816,6 +817,9 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
 
+            case Constants.CALL_REQUEST:
+                handleOnCallRequestReceived(chatMessage);
+                break;
 
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
                 handleOnGetUnreadMessagesCount(chatMessage);
@@ -1164,7 +1168,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void handleOnCallRequestReceived(ChatMessage chatMessage){
+    private void handleOnCallRequestReceived(ChatMessage chatMessage) {
 
         ChatResponse<ResultCallRequest> response
                 = CallManager.handleOnCallRequest(chatMessage);
@@ -1426,6 +1430,20 @@ public class Chat extends AsyncAdapter {
         } else {
             onChatNotReady(uniqueId);
         }
+        return uniqueId;
+    }
+
+
+    public String requestCall(CallRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createCallRequestMessage(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
         return uniqueId;
     }
 

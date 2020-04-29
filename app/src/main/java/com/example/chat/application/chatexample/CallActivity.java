@@ -1,43 +1,226 @@
 package com.example.chat.application.chatexample;
 
 import android.Manifest;
-import android.content.pm.PackageManager;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
-import android.os.ParcelFileDescriptor;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fanap.podchat.example.R;
+import com.fanap.podchat.requestobject.RequestConnect;
+import com.fanap.podchat.util.ChatStateType;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 
-public class CallActivity extends AppCompatActivity {
+public class CallActivity extends AppCompatActivity implements ChatContract.view {
+
+
+    private static final String TAG = "CHAT_SDK_CALL";
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
+    private final static String ZIZI_TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
+    private final static String FIFI_TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+    private final static String JIJI_TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+
+    private static int FIFI_ID = 121;
+    private static int JIJI_ID = 122;
+    private static int ZIZI_ID = 123;
+
+    private static String appId = "POD-Chat";
+
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = "chatlocal";
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    integration /group
+
+    public static int TEST_THREAD_ID = 7090;
 
     private boolean permissionToRecordAccepted = false;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
 
 
+    private ChatContract.presenter presenter;
+
+    Button buttonCall, buttonConnect;
+    TextView tvStatus;
+    RadioGroup groupCaller;
+    RadioGroup groupPartner;
+    private int partnerId = 122;
+    private boolean chatReady;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
+
+        init();
+
+        setListeners();
+
+
+    }
+
+    private void connect() {
+
+        RequestConnect request = new RequestConnect.Builder(
+                socketAddress,
+                appId,
+                serverName,
+                TOKEN,
+                ssoHost,
+                platformHost,
+                fileServer
+        ).build();
+
+        presenter.connect(request);
+
+    }
+
+    private void setListeners() {
+
+
+        buttonConnect.setOnClickListener((v) -> connect());
+
+        buttonCall.setOnClickListener(v ->
+        {
+
+            if (chatReady) presenter.requestCall(partnerId);
+            else Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
+
+
+        });
+
+        groupCaller.setOnCheckedChangeListener((group, checkedId) -> {
+
+            Log.e(TAG, "Checked -> " + checkedId);
+
+            updateCaller(checkedId);
+
+
+        });
+
+        groupPartner.setOnCheckedChangeListener((group, checkedId) -> {
+
+            Log.e(TAG, "Checked -> " + checkedId);
+
+            updatePartner(checkedId);
+
+        });
+
+
+    }
+
+    private void updatePartner(int checkedId) {
+
+        switch (checkedId) {
+
+            case R.id.radioZiziPartner: {
+
+                Log.e(TAG, "Checked -> zizi");
+
+                partnerId = ZIZI_ID;
+
+                break;
+            }
+            case R.id.radioFifiPartner: {
+
+                Log.e(TAG, "Checked -> fifi");
+                partnerId = FIFI_ID;
+
+                break;
+            }
+            case R.id.radioJijiPartner: {
+
+                Log.e(TAG, "Checked -> jiji");
+                partnerId = JIJI_ID;
+
+                break;
+            }
+
+
+        }
+
+
+    }
+
+    private void updateCaller(int checkedId) {
+
+        switch (checkedId) {
+
+            case R.id.radioZiziCaller: {
+
+                Log.e(TAG, "Checked -> zizi");
+
+                TOKEN = ZIZI_TOKEN;
+
+                break;
+            }
+            case R.id.radioFifiCaller: {
+
+                Log.e(TAG, "Checked -> fifi");
+
+                TOKEN = FIFI_TOKEN;
+
+                break;
+            }
+            case R.id.radioJijiCaller: {
+
+                Log.e(TAG, "Checked -> jiji");
+
+                TOKEN = JIJI_TOKEN;
+
+                break;
+            }
+
+
+        }
+    }
+
+    private void init() {
+
+
+        presenter = new ChatPresenter(this, this, this);
+        buttonCall = findViewById(R.id.btnCallRequest);
+        buttonConnect = findViewById(R.id.btnConnect);
+        groupCaller = findViewById(R.id.radioCaller);
+        groupPartner = findViewById(R.id.radioPartner);
+        tvStatus = findViewById(R.id.tvStatus);
+
+
+    }
+
+    @Override
+    public void onState(String state) {
+
+        Log.e(TAG, "STATE: " + state);
+
+        runOnUiThread(() -> tvStatus.setText(state));
+
+        if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
+
+            buttonConnect.setVisibility(View.GONE);
+            buttonCall.setVisibility(View.VISIBLE);
+            chatReady = true;
+
+
+        } else {
+            buttonConnect.setVisibility(View.VISIBLE);
+            buttonCall.setVisibility(View.GONE);
+            chatReady = false;
+        }
+
+
     }
 
 
-
-
-
-
-
-//        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+    //        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
 //
 //        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {

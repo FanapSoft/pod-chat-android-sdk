@@ -18,6 +18,8 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.call.CallRequest;
+import com.fanap.podchat.chat.call.CallType;
 import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
@@ -110,6 +112,7 @@ import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
+import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 
 import java.util.ArrayList;
@@ -358,6 +361,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage handler) {
 
         chat.sendLocationMessage(requestLocationMessage, handler);
+    }
+
+    @Override
+    public String requestCall(int partnerId) {
+
+        List<Invitee> invitees = new ArrayList<>();
+        Invitee invitee = new Invitee();
+        invitee.setId(partnerId);
+        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+        invitees.add(invitee);
+        CallRequest callRequest = new CallRequest.Builder(
+                invitees,
+                CallType.Constants.VOICE_CALL).build();
+
+        return chat.requestCall(callRequest);
     }
 
     @Override
