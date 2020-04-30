@@ -123,7 +123,9 @@ public class FileUtils {
             buf.newLine();
             buf.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Logger need permission");
+        } catch (Exception ex) {
+            Log.e(TAG, "Logger exception: " + ex.getMessage());
         }
     }
 
@@ -132,9 +134,9 @@ public class FileUtils {
         try {
 
             File file = getLogFile();
-            Uri uri = FileProvider.getUriForFile(context,context
+            Uri uri = FileProvider.getUriForFile(context, context
                     .getApplicationContext()
-                    .getPackageName() + ".provider",file);
+                    .getPackageName() + ".provider", file);
 
             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
             sharingIntent.setType("text/*");
@@ -142,7 +144,6 @@ public class FileUtils {
             context.startActivity(Intent.createChooser(sharingIntent, "share file with"));
         } catch (Exception e) {
             e.printStackTrace();
-
         }
 
 

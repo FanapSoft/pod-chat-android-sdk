@@ -144,6 +144,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         chat.isLoggable(true);
+        chat.activateLogger(activity);
         chat.rawLog(true);
 
         chat.setDownloadDirectory(context.getCacheDir());
@@ -787,8 +788,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId)
                 .build();
         chat.leaveThread(leaveThread, null);
-
-        chat.leaveThread(threadId, handler);
     }
 
     @Override
@@ -1201,7 +1200,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onChatState(String state) {
 
         view.onState(state);
-
         this.state = state;
 
     }
@@ -1209,17 +1207,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
         super.onNewMessage(content, chatResponse);
-//        outPutNewMessage = JsonUtil.fromJSON(content, OutPutNewMessage.class);
-//        MessageVO messageVO = outPutNewMessage.getResult();
-//        Participant participant = messageVO.getParticipant();
-
-//        long id = messageVO.getId();
-//        chat.seenMessage(id, participant.getId(), new ChatHandler() {
-//            @Override
-//            public void onSeen(String uniqueId) {
-//                super.onSeen(uniqueId);
-//            }
-//        });
 
     }
 

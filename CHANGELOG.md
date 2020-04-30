@@ -6,6 +6,14 @@
 All notable changes to this project will be documented here.
 
 
+##Version [0.6.4.7] -2020-5-1
+[Added] logger and shareLogs function
+
+[BugFixed] leaveThread cache bug fixed
+
+
+
+
 ##Version [0.6.4.6] -2020-4-28
 [BugFixed] syncContact Contact Version Problem fixed
 

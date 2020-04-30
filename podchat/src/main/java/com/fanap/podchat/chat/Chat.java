@@ -918,7 +918,7 @@ public class Chat extends AsyncAdapter {
 
                     //todo add callbacks for pagination
                 } else {
-                    handleOutPutGetHistory(callback, chatMessage);
+                    handleOnGetThreadHistory(callback, chatMessage);
                 }
                 break;
             case Constants.GET_THREADS:
@@ -8416,6 +8416,12 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    public void activateLogger(Activity activity){
+
+        Permission.Request_STORAGE(activity,WRITE_EXTERNAL_STORAGE_CODE);
+
+    }
+
     private void showLog(String i, String json) {
         if (log) {
             Log.i(TAG, i);
@@ -10086,17 +10092,18 @@ public class Chat extends AsyncAdapter {
 
         String jsonThread = gson.toJson(chatResponse);
 
-        if (cache) {
-            messageDatabaseHelper.leaveThread(threadId);
-        }
-
+        showLog("RECEIVE_LEAVE_THREAD", jsonThread);
         listenerManager.callOnThreadLeaveParticipant(jsonThread, chatResponse);
 
         if (callback != null) {
             messageCallbacks.remove(messageUniqueId);
         }
 
-        showLog("RECEIVE_LEAVE_THREAD", jsonThread);
+
+        if (cache) {
+            messageDatabaseHelper.leaveThread(threadId);
+        }
+
     }
 
     private void handleAddParticipant(ChatMessage chatMessage, String messageUniqueId) {
@@ -10238,6 +10245,10 @@ public class Chat extends AsyncAdapter {
         String jsonClrHistory = gson.toJson(chatResponseClrHistory);
         listenerManager.callOnClearHistory(jsonClrHistory, chatResponseClrHistory);
         showLog("RECEIVE_CLEAR_HISTORY", jsonClrHistory);
+
+        if(cache){
+            messageDatabaseHelper.deleteMessagesOfThread(chatMessage.getSubjectId());
+        }
 
     }
 
@@ -10381,7 +10392,7 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVE_REMOVE_PARTICIPANT", jsonRmParticipant);
     }
 
-    private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage) {
+    private void handleOnGetThreadHistory(Callback callback, ChatMessage chatMessage) {
 
         List<MessageVO> messageVOS = Mention.getMessageVOSFromChatMessage(chatMessage);
 

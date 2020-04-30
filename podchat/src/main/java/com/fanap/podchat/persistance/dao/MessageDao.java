@@ -197,7 +197,7 @@ public interface MessageDao {
      * Delete message
      */
 
-    @Query("DELETE FROM CACHEMESSAGEVO WHERE id = :threadId")
+    @Query("DELETE FROM CACHEMESSAGEVO WHERE threadVoId = :threadId")
     void deleteAllMessageByThread(long threadId);
 
     @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId AND timeStamp IN (select timeStamp from CacheMessageVO ORDER BY timeStamp ASC LIMIT :count OFFSET :offset )")
