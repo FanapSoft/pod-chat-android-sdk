@@ -269,4 +269,8 @@ public interface ChatListener {
     default void onCreateThread(ChatResponse<ResultThread> response){}
 
     default void onReceiveCallRequest(ChatResponse<ResultCallRequest> response){}
+
+    default void onCallRequestRejected(ChatResponse<ResultCallRequest> response){}
+
+    default void onVoiceCallStarted(ChatResponse<ResultCallRequest> response){}
 }

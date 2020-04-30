@@ -7,12 +7,12 @@
     android:background="@color/colorPrimaryDark"
     android:visibility="gone"
     tools:showIn="@layout/activity_call"
-    tools:visibility="gone">
+    android:id="@+id/viewCallRequest"
+    tools:visibility="visible">
 
 
     <ImageButton
         android:id="@+id/buttonReject"
-
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginStart="48dp"

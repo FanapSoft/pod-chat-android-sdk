@@ -3,12 +3,10 @@ package com.example.chat.application.chatexample;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -204,7 +202,9 @@ public interface ChatContract {
 
         default void onGetToken(String token){}
 
-        default void onReceiveCallRequest(ChatResponse<ResultCallRequest> response){}
+        default void onVoiceCallRequestReceived(String callerName){}
+
+        default void onVoiceCallRequestRejected(String callerName){}
     }
 
     interface presenter {
@@ -435,5 +435,10 @@ public interface ChatContract {
 
         void getThreadParticipant(RequestThreadParticipant request);
 
+        void acceptIncomingCall();
+
+        void rejectIncomingCall();
+
+        String getNameById(int partnerId);
     }
 }

@@ -5,10 +5,8 @@ import android.app.Application;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,8 +16,10 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.call.AcceptCallRequest;
 import com.fanap.podchat.chat.call.CallRequest;
 import com.fanap.podchat.chat.call.CallType;
+import com.fanap.podchat.chat.call.RejectCallRequest;
 import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
@@ -131,6 +131,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
     private TokenHandler tokenHandler = null;
     private String state = "";
+    private ChatResponse<ResultCallRequest> callRequestResponse;
 
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
@@ -316,6 +317,42 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void acceptIncomingCall() {
+
+        AcceptCallRequest request = new AcceptCallRequest.Builder(
+                callRequestResponse.getResult().getInvitees(),
+                callRequestResponse.getResult().getType(),
+                callRequestResponse.getSubjectId())
+                .setCreatorId(callRequestResponse.getResult().getCreatorId())
+                .setPartnerId(callRequestResponse.getResult().getPartnerId())
+                .build();
+
+        String uniqueId = chat.acceptVoiceCall(request);
+
+
+    }
+
+    @Override
+    public void rejectIncomingCall() {
+
+        RejectCallRequest request = new RejectCallRequest.Builder(
+                callRequestResponse.getResult().getInvitees(),
+                callRequestResponse.getResult().getType(),
+                callRequestResponse.getSubjectId())
+                .setCreatorId(callRequestResponse.getResult().getCreatorId())
+                .setPartnerId(callRequestResponse.getResult().getPartnerId())
+                .build();
+
+        String uniqueId = chat.rejectVoiceCall(request);
+
+    }
+
+    @Override
+    public String getNameById(int partnerId) {
+        return getCallerName(partnerId);
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 
@@ -377,6 +414,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         return chat.requestCall(callRequest);
     }
+
 
     @Override
     public void onLogEvent(String log) {
@@ -1396,6 +1434,50 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onReceiveCallRequest(ChatResponse<ResultCallRequest> response) {
-        view.onReceiveCallRequest(response);
+
+        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
+
+            callRequestResponse = response;
+
+            long callerId = response.getResult().getCreatorId();
+
+            String callerName = getCallerName(callerId);
+
+
+            view.onVoiceCallRequestReceived(callerName);
+        }
+
+    }
+
+    public String getCallerName(long callerId) {
+        String callerName = "";
+        if (callerId == CallActivity.ZIZI_ID) {
+
+            callerName = "ZIZI";
+        } else if (callerId == CallActivity.FIFI_ID) {
+            callerName = "FIFI";
+        } else {
+            callerName = "JIJI";
+        }
+        return callerName;
+    }
+
+
+    @Override
+    public void onCallRequestRejected(ChatResponse<ResultCallRequest> response) {
+
+        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
+
+            callRequestResponse = response;
+
+            long callerId = response.getResult().getCreatorId();
+
+            String callerName = getCallerName(callerId);
+
+            view.onVoiceCallRequestRejected(callerName);
+
+        }
+
+
     }
 }

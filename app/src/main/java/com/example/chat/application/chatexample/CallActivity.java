@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,9 +25,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private final static String FIFI_TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
     private final static String JIJI_TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
 
-    private static int FIFI_ID = 121;
-    private static int JIJI_ID = 122;
-    private static int ZIZI_ID = 123;
+    static int FIFI_ID = 15507;
+    static int JIJI_ID = 15501;
+    static int ZIZI_ID = 15510;
 
     private static String appId = "POD-Chat";
 
@@ -49,8 +50,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     Button buttonCall, buttonConnect;
     TextView tvStatus;
+    TextView tvCallerName;
     RadioGroup groupCaller;
     RadioGroup groupPartner;
+    View callRequestView;
+    ImageButton buttonAcceptCall;
+    ImageButton buttonRejectCall;
+
+
     private int partnerId = 122;
     private boolean chatReady;
 
@@ -88,11 +95,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonConnect.setOnClickListener((v) -> connect());
 
-        buttonCall.setOnClickListener(v ->
-        {
+        buttonCall.setOnClickListener(v -> {
 
-            if (chatReady) presenter.requestCall(partnerId);
-            else Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
+            if (chatReady) {
+                buttonCall.setVisibility(View.INVISIBLE);
+                presenter.requestCall(partnerId);
+                tvStatus.setText(String.format("Calling %s", presenter.getNameById(partnerId)));
+            } else
+                Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
 
 
         });
@@ -114,6 +124,29 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
+
+        buttonAcceptCall.setOnClickListener(v -> {
+
+            updateViewOnCallReaction();
+            presenter.acceptIncomingCall();
+
+        });
+
+        buttonRejectCall.setOnClickListener((v) -> {
+
+            updateViewOnCallReaction();
+            presenter.rejectIncomingCall();
+
+        });
+    }
+
+    private void updateViewOnCallReaction() {
+
+        runOnUiThread(() -> {
+            callRequestView.setVisibility(View.GONE);
+            buttonCall.setVisibility(View.VISIBLE);
+            tvCallerName.setText("");
+        });
 
     }
 
@@ -192,6 +225,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         groupCaller = findViewById(R.id.radioCaller);
         groupPartner = findViewById(R.id.radioPartner);
         tvStatus = findViewById(R.id.tvStatus);
+        tvCallerName = findViewById(R.id.tvCallerName);
+        callRequestView = findViewById(R.id.viewCallRequest);
+        buttonAcceptCall = findViewById(R.id.buttonAccept);
+        buttonRejectCall = findViewById(R.id.buttonReject);
 
 
     }
@@ -205,20 +242,47 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
 
-            buttonConnect.setVisibility(View.GONE);
-            buttonCall.setVisibility(View.VISIBLE);
             chatReady = true;
+
+            runOnUiThread(() -> {
+                buttonConnect.setVisibility(View.INVISIBLE);
+                buttonCall.setVisibility(View.VISIBLE);
+            });
 
 
         } else {
-            buttonConnect.setVisibility(View.VISIBLE);
-            buttonCall.setVisibility(View.GONE);
+
             chatReady = false;
+            runOnUiThread(() -> {
+                buttonConnect.setVisibility(View.VISIBLE);
+                buttonCall.setVisibility(View.INVISIBLE);
+            });
         }
 
 
     }
 
+    @Override
+    public void onVoiceCallRequestReceived(String callerName) {
+
+        runOnUiThread(() -> {
+            callRequestView.setVisibility(View.VISIBLE);
+            buttonCall.setVisibility(View.INVISIBLE);
+            tvCallerName.setText(callerName);
+        });
+
+    }
+
+    @Override
+    public void onVoiceCallRequestRejected(String callerName) {
+
+        runOnUiThread(() -> {
+            buttonCall.setVisibility(View.VISIBLE);
+            tvStatus.setText(String.format("%s Rejected Your Call Request", callerName));
+        });
+
+
+    }
 
     //        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 

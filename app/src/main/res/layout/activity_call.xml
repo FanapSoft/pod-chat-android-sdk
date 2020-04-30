@@ -9,7 +9,7 @@
 
 
     <Button
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/btnCallRequest"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -20,10 +20,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
+        android:visibility="visible"
         android:id="@+id/btnConnect"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -34,8 +34,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <RadioGroup
         android:id="@+id/radioCaller"

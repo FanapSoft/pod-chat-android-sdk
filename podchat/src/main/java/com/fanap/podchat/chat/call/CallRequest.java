@@ -9,7 +9,7 @@ public class CallRequest {
     private List<Invitee> invitees;
     private int callType;
 
-    public CallRequest(Builder builder) {
+    CallRequest(Builder builder) {
 
         this.invitees = builder.invitees;
         this.callType = builder.callType;

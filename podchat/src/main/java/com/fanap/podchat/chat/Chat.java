@@ -36,8 +36,10 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.call.AcceptCallRequest;
 import com.fanap.podchat.chat.call.CallManager;
 import com.fanap.podchat.chat.call.CallRequest;
+import com.fanap.podchat.chat.call.RejectCallRequest;
 import com.fanap.podchat.chat.call.ResultCallRequest;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
@@ -820,6 +822,12 @@ public class Chat extends AsyncAdapter {
             case Constants.CALL_REQUEST:
                 handleOnCallRequestReceived(chatMessage);
                 break;
+            case Constants.REJECT_CALL:
+                handleOnCallRequestRejected(chatMessage);
+                break;
+            case Constants.START_CALL:
+                handleOnCallStarted(chatMessage);
+                break;
 
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
                 handleOnGetUnreadMessagesCount(chatMessage);
@@ -988,6 +996,8 @@ public class Chat extends AsyncAdapter {
                 break;
         }
     }
+
+
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
 
@@ -1172,11 +1182,26 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultCallRequest> response
                 = CallManager.handleOnCallRequest(chatMessage);
-
         listenerManager.callOnCallRequest(response);
-
         showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
 
+    }
+
+    private void handleOnCallRequestRejected(ChatMessage chatMessage) {
+
+        ChatResponse<ResultCallRequest> response
+                = CallManager.handleOnRejectCallRequest(chatMessage);
+        listenerManager.callOnCallRequestRejected(response);
+        showLog("CALL_REQUEST_REJECTED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnCallStarted(ChatMessage chatMessage) {
+
+        ChatResponse<ResultCallRequest> response
+                = CallManager.handleOnCallStarted(chatMessage);
+        listenerManager.callOnCallVoiceCallStarted(response);
+        showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
 
     }
 
@@ -1406,7 +1431,7 @@ public class Chat extends AsyncAdapter {
                 onChatNotReady(uniqueId);
             }
         } catch (Throwable throwable) {
-            if (log) Log.e(TAG, throwable.getMessage());
+            if (log) Log.e(TAG, Objects.requireNonNull(throwable.getMessage()));
         }
         return uniqueId;
     }
@@ -1446,6 +1471,33 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
     }
+
+    public String rejectVoiceCall(RejectCallRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createRejectCallRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REJECT_VOICE_CALL_REQUEST");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String acceptVoiceCall(AcceptCallRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createAcceptCallRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ACCEPT_VOICE_CALL_REQUEST");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
 
 
     public String unPinThread(RequestPinThread request) {
@@ -3290,6 +3342,8 @@ public class Chat extends AsyncAdapter {
 
         ProgressResponseBody.setTimeoutConfig(config);
     }
+
+
 
 
 //    public String getImage(RequestGetImage request, ProgressHandler.IDownloadFile progressHandler) {
