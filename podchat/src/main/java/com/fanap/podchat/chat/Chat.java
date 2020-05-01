@@ -4809,12 +4809,11 @@ public class Chat extends AsyncAdapter {
 
             ChatResponse<ResultHistory> chatResponse = (ChatResponse<ResultHistory>) response;
 
-            if (chatResponse != null) {
+            if (chatResponse != null && chatResponse.getResult().getHistory().size() > 0) {
                 chatResponse.setUniqueId(uniqueId);
                 String json = gson.toJson(chatResponse);
                 listenerManager.callOnGetThreadHistory(json, chatResponse);
                 showLog("CACHE_GET_HISTORY", json);
-
                 listener.onWorkDone(chatResponse.getResult().getHistory());
             } else {
                 listener.onWorkDone(new ArrayList<>());
@@ -5008,20 +5007,19 @@ public class Chat extends AsyncAdapter {
                 String json = gson.toJson(chatResponse);
                 listenerManager.callOnNewMessage(json, chatResponse);
                 long ownerId = 0;
-                if (messageVO != null) {
+                if (messageVO.getParticipant() != null) {
                     ownerId = messageVO.getParticipant().getId();
                 }
                 showLog("RECEIVED_NEW_MESSAGE", json);
-                if (ownerId != getUserId()) {
+                if (ownerId > 0 && ownerId != getUserId()) {
 
-                    if (messageVO != null) {
-                        ChatMessage message = getChatMessage(messageVO);
-                        String asyncContent = gson.toJson(message);
-                        async.sendMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK);
-                        setThreadCallbacks(threadId, uniqueId);
-                        showLog("SEND_DELIVERY_MESSAGE", asyncContent);
-                    }
+                    ChatMessage message = getChatMessage(messageVO);
+                    String asyncContent = gson.toJson(message);
+                    async.sendMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK);
+                    setThreadCallbacks(threadId, uniqueId);
+                    showLog("SEND_DELIVERY_MESSAGE", asyncContent);
                 }
+
             } catch (Exception e) {
                 getErrorOutPut(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
                 if (log) Log.e(TAG, e.getMessage());
@@ -5029,6 +5027,7 @@ public class Chat extends AsyncAdapter {
             }
 
         }
+
 
     }
 
@@ -10453,8 +10452,10 @@ public class Chat extends AsyncAdapter {
         List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
         }.getType());
 
-        messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS);
-        messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId());
+        new PodThreadManager()
+                .addNewTask(() -> messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS))
+                .addNewTask(() -> messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId()))
+                .runTasksSynced();
 
 
     }
