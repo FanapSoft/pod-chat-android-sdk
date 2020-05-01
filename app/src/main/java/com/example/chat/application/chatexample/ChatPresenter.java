@@ -1,18 +1,34 @@
 package com.example.chat.application.chatexample;
 
 import android.app.Activity;
+import android.app.Application;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
+
+import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -47,7 +63,13 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.notification.INotification;
+import com.fanap.podchat.notification.ShowNotificationHelper;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
@@ -83,23 +105,29 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
+import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
-import com.fanap.podchat.util.NetworkPingSender;
+import com.fanap.podchat.util.ChatStateType;
+import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
-
-
-public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
+public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
+    private static final String TAG = "CHAT_SDK_PRESENTER";
     private Chat chat;
     private ChatContract.view view;
     private Context context;
     private Activity activity;
+    private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
+    private TokenHandler tokenHandler = null;
+    private String state = "";
+
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
@@ -112,23 +140,221 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         //
-//        chat.isCacheables(true);
+        chat.isCacheables(true);
 
 
         chat.isLoggable(true);
+        chat.activateLogger(activity);
         chat.rawLog(true);
 
+        chat.setDownloadDirectory(context.getCacheDir());
 
-//        chat.setNetworkStateListenerEnabling(false);
+
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(NOTIFICATION_APPLICATION_ID, activity)
+                .setChannelName("POD_CHAT_CHANNEL")
+                .setChannelId("PODCHAT")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
+                .build();
+
+        chat.enableNotification(notificationConfig, new INotification() {
+            @Override
+            public void onUserIdUpdated(String userId) {
+
+                Log.i(TAG, "UserId Received: " + userId);
+
+            }
+
+            @Override
+            public void onPushMessageReceived(String message) {
+
+                Log.i(TAG, "Push Received on presenter " + message);
+
+                ShowNotificationHelper.showNotification(
+                        "Podchat Notification", //title
+                        message, //message
+                        activity.getApplicationContext(), // context
+                        ChatActivity.class, //target class
+                        null, // priority
+                        R.mipmap.ic_launcher_round); //icon
+            }
+        });
+
+
+//        chat.setNetworkListenerEnabling(false);
 //        chat.setReconnectOnClose(false);
 //        chat.setExpireAmount(180);
         this.activity = activity;
         this.context = context;
         this.view = view;
 
+        activity.getApplication().registerActivityLifecycleCallbacks(this);
+
+
+        tokenHandler = new TokenHandler(activity.getApplicationContext());
+
+        tokenHandler.addListener(new TokenHandler.ITokenHandler() {
+            @Override
+            public void onGetToken(String token) {
+
+                view.onGetToken(token);
+
+            }
+
+            @Override
+            public void onTokenRefreshed(String token) {
+
+                if (state.equals(ChatStateType.ChatSateConstant.ASYNC_READY))
+                    chat.setToken(token);
+                else view.onGetToken(token);
+
+            }
+
+            @Override
+            public void onError(String message) {
+                view.onError();
+            }
+        });
+
 
     }
 
+
+    @Override
+    public void connect(String serverAddress, String appId, String severName,
+                        String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
+
+        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
+
+//        PodNotify podNotify = new PodNotify.newBuilder()
+//                .setAppId(appId)
+//                .setServerName("172.16.110.61:8017")
+//                .setSocketServerAddress(serverAddress)
+//                .setSsoHost(ssoHost)
+//                .setToken(token)
+//                .build(context);
+//
+//        podNotify.start(context);
+//
+
+    }
+
+    @Override
+    public void connect(RequestConnect requestConnect) {
+
+        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
+                .setHostName("chat-sandbox.pod.ir")
+//                .setHostName("8.8.4.4") //google
+//                .setPort(53)
+//                .setPort(80)
+                .setPort(443)
+                .setDisConnectionThreshold(2)
+                .setInterval(7000)
+                .setConnectTimeout(10000)
+                .build();
+
+
+//        TimeoutConfig uploadConfig = new TimeoutConfig()
+//                .newConfigBuilder()
+//                .withConnectTimeout(120, TimeUnit.MINUTES)
+//                .withWriteTimeout(120, TimeUnit.MINUTES)
+//                .withReadTimeout(120, TimeUnit.MINUTES)
+//                .build();
+
+        TimeoutConfig downloadConfig = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(20, TimeUnit.SECONDS)
+                .withWriteTimeout(0, TimeUnit.SECONDS)
+                .withReadTimeout(5, TimeUnit.MINUTES)
+                .build();
+
+        chat.setNetworkStateConfig(build);
+//
+//        chat.setUploadConfig(uploadConfig);
+//
+//        chat.setDownloadConfig(downloadConfig);
+
+        chat.connect(requestConnect);
+
+    }
+
+
+    @Override
+    public void checkIsNameAvailable(RequestCheckIsNameAvailable request) {
+
+        chat.isNameAvailable(request);
+    }
+
+    @Override
+    public void createPublicThread(RequestCreatePublicThread request) {
+
+        chat.createThread(request);
+    }
+
+    @Override
+    public void joinPublicThread(RequestJoinPublicThread request) {
+        chat.joinPublicThread(request);
+    }
+
+    @Override
+    public void getContact(RequestGetContact request) {
+        chat.getContacts(request, null);
+    }
+
+    @Override
+    public void getBlockList(RequestBlockList request) {
+        chat.getBlockList(request, null);
+    }
+
+    @Override
+    public void getThreadParticipant(RequestThreadParticipant request) {
+        chat.getThreadParticipants(request, null);
+    }
+
+    @Override
+    public void shareLogs() {
+        if (chat != null) {
+            chat.shareLogs(context);
+        }
+    }
+
+    @Override
+    public void enableAutoRefresh(Activity activity, String entry) {
+
+
+        if (entry.startsWith("09")) {
+            tokenHandler.handshake(entry);
+        } else {
+            tokenHandler.verifyNumber(entry);
+        }
+
+
+//        ArrayList<String> scopes = new ArrayList<>();
+//
+//        scopes.add("profile");
+//
+//        PodOtp otp = new PodOtp.Builder()
+//                .with(activity.getApplicationContext())
+//                .setBaseUrl("https://accounts.pod.ir/")
+//                .build();
+//
+//
+//        otp.authorization("09157770684", new AuthorizationCallback() {
+//
+//            @Override
+//            public void onSuccess(String s, Long aLong) {
+//                Log.e("OTP", ">>> " + s);
+//
+//            }
+//
+//            @Override
+//            public void onError(int i, String s) {
+//                Log.e("OTP", ">>> " + i + " >> " + s);
+//
+//            }
+//        });
+    }
 
     @Override
     public void sendLocationMessage(RequestLocationMessage request) {
@@ -212,53 +438,52 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler) {
-        chat.getThreads(count, offset, threadIds, threadName, creatorCoreUserId, partnerCoreUserId, partnerCoreContactId, handler);
+    public void getThreads(Integer count,
+                           Long offset,
+                           ArrayList<Integer> threadIds,
+                           String threadName,
+                           long creatorCoreUserId,
+                           long partnerCoreUserId,
+                           long partnerCoreContactId,
+                           ChatHandler handler) {
+
+        RequestThread request = new RequestThread.Builder()
+                .count(count)
+                .offset(offset)
+                .threadIds(threadIds)
+                .threadName(threadName)
+                .creatorCoreUserId(creatorCoreUserId)
+                .partnerCoreContactId(partnerCoreContactId)
+                .partnerCoreContactId(partnerCoreContactId)
+                .build();
+
+
+        chat.getThreads(request, handler);
     }
+
+    @Override
+    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler) {
+
+
+        RequestThread request = new RequestThread.Builder()
+                .count(count)
+                .offset(offset)
+                .threadIds(threadIds)
+                .threadName(threadName)
+                .creatorCoreUserId(0)
+                .partnerCoreContactId(0)
+                .partnerCoreContactId(0)
+                .build();
+
+        chat.getThreads(request, handler);
+    }
+
 
     @Override
     public void setToken(String token) {
         chat.setToken(token);
     }
 
-    @Override
-    public void connect(String serverAddress, String appId, String severName,
-                        String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
-
-        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
-
-//        PodNotify podNotify = new PodNotify.builder()
-//                .setAppId(appId)
-//                .setServerName("172.16.110.61:8017")
-//                .setSocketServerAddress(serverAddress)
-//                .setSsoHost(ssoHost)
-//                .setToken(token)
-//                .build(context);
-//
-//        podNotify.start(context);
-//
-
-    }
-
-    @Override
-    public void connect(RequestConnect requestConnect) {
-
-        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-                .setHostName("chat-sandbox.pod.ir")
-//                .setHostName("8.8.4.4") //google
-//                .setPort(53)
-//                .setPort(80)
-                .setPort(443)
-                .setDisConnectionThreshold(2)
-                .setInterval(7000)
-                .setConnectTimeout(10000)
-                .build();
-
-        chat.setNetworkStateConfig(build);
-
-        chat.connect(requestConnect);
-
-    }
 
     @Override
     public void mapSearch(String searchTerm, Double latitude, Double longitude) {
@@ -280,10 +505,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.mapReverse(request);
     }
 
-    @Override
-    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler) {
-        chat.getThreads(count, offset, threadIds, threadName, handler);
-    }
 
     @Override
     public void getUserInfo(ChatHandler handler) {
@@ -293,11 +514,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getHistory(History history, long threadId, ChatHandler handler) {
 
-
-        String uniq = chat.getHistory(history, threadId, handler);
-        if (uniq != null) {
-            Log.i("un", uniq);
-        }
+//
+//        RequestGetHistory request = new RequestGetHistory.Builder()
+//                .threadId(history.getId())
+//                .build();
+//
+//
+//
+//
+//        String uniq = chat.getHistory(history, threadId, handler);
+//        if (uniq != null) {
+//            Log.i("un", uniq);
+//        }
 
 
     }
@@ -382,7 +610,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
+    public void addContact(String firstName, String lastName, String cellphoneNumber, String email, String username) {
 
 
         RequestAddContact requestAddContact = new RequestAddContact.Builder()
@@ -390,6 +618,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .lastName(lastName)
                 .cellphoneNumber(cellphoneNumber)
                 .email(email)
+                .username(username)
                 .build();
 
 
@@ -468,7 +697,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
-        return chat.sendFileMessage(activity, description, threadId, fileUri, metaData, messageType, handler);
+
+        RequestFileMessage request = new RequestFileMessage.Builder(activity, threadId, fileUri, messageType)
+                .description(description)
+                .systemMetadata(metaData)
+
+                .build();
+
+
+        return chat.sendFileMessage(request, handler);
     }
 
     @Override
@@ -508,7 +745,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
-        chat.uploadFile(activity, uri);
+
+        RequestUploadFile request = new RequestUploadFile.Builder(activity, uri)
+                .build();
+
+        chat.uploadFile(request);
     }
 
     @Override
@@ -547,8 +788,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId)
                 .build();
         chat.leaveThread(leaveThread, null);
-
-        chat.leaveThread(threadId, handler);
     }
 
     @Override
@@ -577,7 +816,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
-        List<String> un = chat.deleteMultipleMessage(deleteMessage, handler);
+        String un = chat.deleteMessage(deleteMessage, handler);
     }
 
     @Override
@@ -612,15 +851,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.getAdminList(requestGetAdmin);
     }
 
-//    @Override
-//    public String startSignalMessage(RequestSignalMsg requestSignalMsg) {
-//        return chat.startSignalMessage(requestSignalMsg);
-//    }
-
-//    @Override
-//    public void stopSignalMessage(String uniqueId) {
-//        chat.stopSignalMessage(uniqueId);
-//    }
 
     @Override
     public void getNotSeenDuration(ArrayList<Integer> userIds) {
@@ -740,11 +970,20 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onError(String content, ErrorOutPut outPutError) {
         super.onError(content, outPutError);
+
+
         activity.runOnUiThread(() -> Toast.makeText(context, content, Toast.LENGTH_SHORT).show());
 
         if (outPutError.getErrorCode() == 21) {
 
-            view.onTokenExpired();
+//            view.onTokenExpired();
+
+            if (tokenHandler != null) {
+                tokenHandler.refreshToken();
+            } else {
+                Toast.makeText(context, "Token refresh failed!", Toast.LENGTH_LONG).show();
+            }
+
 
         }
     }
@@ -812,7 +1051,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public long getStorageSize() {
-       return chat.getStorageSize();
+        return chat.getStorageSize();
     }
 
     @Override
@@ -838,6 +1077,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void closeChat() {
         chat.closeChat();
+    }
+
+    @Override
+    public void addContact(RequestAddContact request) {
+        chat.addContact(request);
+    }
+
+    @Override
+    public void updateChatProfile(RequestUpdateProfile request) {
+        chat.updateChatProfile(request);
     }
 
 
@@ -939,25 +1188,25 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onLeaveThread();
     }
 
+
+    @Override
+    public void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
+
+        Log.d("CHAT_SDK_PRESENTER", "Chat profile updated");
+
+    }
+
     @Override
     public void onChatState(String state) {
+
         view.onState(state);
+        this.state = state;
+
     }
 
     @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
         super.onNewMessage(content, chatResponse);
-//        outPutNewMessage = JsonUtil.fromJSON(content, OutPutNewMessage.class);
-//        MessageVO messageVO = outPutNewMessage.getResult();
-//        Participant participant = messageVO.getParticipant();
-
-//        long id = messageVO.getId();
-//        chat.seenMessage(id, participant.getId(), new ChatHandler() {
-//            @Override
-//            public void onSeen(String uniqueId) {
-//                super.onSeen(uniqueId);
-//            }
-//        });
 
     }
 
@@ -1064,5 +1313,59 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onTypingSignalTimeout(long threadId) {
         view.onTypingSignalTimeout(threadId);
+    }
+
+
+    @Override
+    public void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
+        view.onUniqueNameIsAvailable(response);
+    }
+
+    @Override
+    public void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
+        view.onJoinPublicThread(response);
+    }
+
+    @Override
+    public void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
+        view.onGetUnreadsMessagesCount(response);
+    }
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+
+        chat.unregisterNetworkReceiver();
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+
+        chat.unregisterNetworkReceiver();
+
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+
     }
 }

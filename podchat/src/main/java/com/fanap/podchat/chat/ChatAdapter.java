@@ -227,7 +227,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onLastSeenUpdated(String content) {
+    public void onContactsLastSeenUpdated(String content) {
 
     }
 

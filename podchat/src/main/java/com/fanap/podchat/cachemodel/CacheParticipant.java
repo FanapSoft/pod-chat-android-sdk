@@ -1,7 +1,10 @@
 package com.fanap.podchat.cachemodel;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+
+import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 
 import java.util.List;
 
@@ -42,6 +45,9 @@ public class CacheParticipant {
     private String username;
 
     private List<String> roles;
+
+    @Ignore
+    private ChatProfileVO chatProfileVO;
 
 
 
@@ -264,5 +270,13 @@ public class CacheParticipant {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public ChatProfileVO getChatProfileVO() {
+        return chatProfileVO;
+    }
+
+    public void setChatProfileVO(ChatProfileVO chatProfileVO) {
+        this.chatProfileVO = chatProfileVO;
     }
 }

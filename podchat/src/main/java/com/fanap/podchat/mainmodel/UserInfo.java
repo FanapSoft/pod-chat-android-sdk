@@ -1,7 +1,10 @@
 package com.fanap.podchat.mainmodel;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+
+import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 
 @Entity
 public class UserInfo {
@@ -12,6 +15,18 @@ public class UserInfo {
     private String name;
     private String cellphoneNumber;
     private String image;
+
+    @Ignore
+    ChatProfileVO chatProfileVO;
+
+
+    public ChatProfileVO getChatProfileVO() {
+        return chatProfileVO;
+    }
+
+    public void setChatProfileVO(ChatProfileVO chatProfileVO) {
+        this.chatProfileVO = chatProfileVO;
+    }
 
     public long getId() {
         return id;

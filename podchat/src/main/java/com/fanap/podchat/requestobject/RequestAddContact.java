@@ -8,6 +8,7 @@ public class RequestAddContact extends GeneralRequestObject {
     private String lastName;
     private String cellphoneNumber;
     private String email;
+    private String username;
 
     RequestAddContact(@NonNull Builder builder) {
         super(builder);
@@ -15,38 +16,28 @@ public class RequestAddContact extends GeneralRequestObject {
         this.lastName = builder.lastName;
         this.cellphoneNumber = builder.cellphoneNumber;
         this.email = builder.email;
+        this.username = builder.username;
     }
+
 
     public String getFirstName() {
         return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getCellphoneNumber() {
         return cellphoneNumber;
-    }
-
-    public void setCellphoneNumber(String cellphoneNumber) {
-        this.cellphoneNumber = cellphoneNumber;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getUsername() {
+        return username;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
@@ -54,6 +45,19 @@ public class RequestAddContact extends GeneralRequestObject {
         private String lastName;
         private String cellphoneNumber;
         private String email;
+        private String username;
+
+
+        public Builder cellphoneNumber(String cellphoneNumber) {
+            this.cellphoneNumber = cellphoneNumber;
+            return this;
+
+        }
+
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
 
         @NonNull
         public Builder firstName(String firstName) {
@@ -67,11 +71,7 @@ public class RequestAddContact extends GeneralRequestObject {
             return this;
         }
 
-        @NonNull
-        public Builder cellphoneNumber(String cellphoneNumber) {
-            this.cellphoneNumber = cellphoneNumber;
-            return this;
-        }
+
 
         @NonNull
         public Builder email(String email) {

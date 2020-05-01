@@ -4,11 +4,13 @@ public abstract class BaseRequestObject {
     private long count;
     private long offset;
     private String typeCode;
+    private boolean useCache = true;
 
     public BaseRequestObject(Builder<?> builder) {
         this.count = builder.count;
         this.offset = builder.offset;
         this.typeCode = builder.typeCode;
+        this.useCache = builder.useCache;
     }
 
 
@@ -27,6 +29,9 @@ public abstract class BaseRequestObject {
         private long count;
         private long offset;
         private String typeCode;
+        private boolean useCache = true;
+
+
         public abstract BaseRequestObject build();
 
         public T count(long count) {
@@ -36,6 +41,11 @@ public abstract class BaseRequestObject {
 
         public T offset(long offset) {
             this.offset = offset;
+            return self();
+        }
+
+        public T withNoCache() {
+            this.useCache = false;
             return self();
         }
 
@@ -62,5 +72,13 @@ public abstract class BaseRequestObject {
 
     public void setOffset(long offset) {
         this.offset = offset;
+    }
+
+    public boolean useCacheData() {
+        return useCache;
+    }
+
+    public void setUseCache(boolean useCache) {
+        this.useCache = useCache;
     }
 }

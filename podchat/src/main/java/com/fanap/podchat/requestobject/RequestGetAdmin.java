@@ -22,19 +22,21 @@ public class RequestGetAdmin extends RequestThreadParticipant {
 
         public long count;
         public int offset;
-        boolean admin;
+        boolean admin = true;
 
         public Builder(long threadId, boolean admin) {
             super(threadId);
             this.admin = admin;
         }
 
-        public Builder() { }
-
         public Builder(long threadId, boolean admin,long count,int offset) {
             this.admin = admin;
             this.count = count;
             this.offset =offset;
+        }
+
+        public Builder(long threadId) {
+            super(threadId);
         }
 
         public Builder admin(boolean admin) {
@@ -58,7 +60,11 @@ public class RequestGetAdmin extends RequestThreadParticipant {
         }
 
 
-
+        @Override
+        public Builder withNoCache() {
+            super.withNoCache();
+            return this;
+        }
 
         @NonNull
         public Builder threadId(long threadId) {

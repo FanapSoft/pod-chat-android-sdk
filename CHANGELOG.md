@@ -6,6 +6,145 @@
 All notable changes to this project will be documented here.
 
 
+##Version [0.6.4.7] -2020-5-1
+[Added] logger and shareLogs function
+
+[BugFixed] leaveThread cache bug fixed
+
+
+
+
+##Version [0.6.4.6] -2020-4-28
+[BugFixed] syncContact Contact Version Problem fixed
+
+
+## Version [0.6.4.5] -2020-4-27
+
+[Changed] cache is enabled offline now
+
+
+
+## Version [0.6.4.4] -2020-4-26
+
+[Added] Customizable Notification
+
+[BugFixed] minor bug fixed
+
+
+
+
+## Version [0.6.4.2] -2020-4-22
+
+[Improved] cache I/O operations part 2
+
+[Improved] optimize syncContact
+
+
+
+## Version [0.6.4.0] -2020-4-21
+
+[Added] messageType is required in replyMessage and replyFileMessage
+
+[Added] setUploadTimeoutConfig(TimeoutConfig) and setDownloadTimeoutConfig(TimeoutConfig)
+
+[Improved] cache I/O operations
+
+[BugFixed] uniqueId added to isNameAvailable response
+
+[BugFixed] sending repetitive file message
+
+[BugFixed] cacheReplyInfo updated in getHistory and getThreads
+
+
+
+
+
+
+
+## Version [0.6.3.0] -2020-4-7
+
+[Added] Add Participant with coreUserId
+
+[Improvement] VPN Connection management
+
+[Improvement] Reconnect
+
+[Added] ChatProfile to Participant
+
+[Added] Cache for `getCurrentRoles`
+
+[Added] Gif files sends as file in `sendFileMessage`, `replyFileMessage` and `createThreadWithFile`
+
+[Added] OTP login example project
+
+
+
+
+## Version [0.6.2.0] -2020-3-17
+
+[Added] Notification Service
+
+[Added] mute parameter to `getUnreadMessagesCount`
+
+[BugFixed] `syncContacts` repetitive numbers
+
+
+
+
+## Version [0.6.1.1] -2020-3-14
+
+[Added] Ability to disable cache per function
+
+[Added] `isNameAvailable`
+
+[Added] `createPublicThread`
+
+[Added] `joinPublicThread`
+
+[Added] `getUnreadMessagesCount`
+
+
+
+
+
+#Version [0.6.1.0] -2020-3-4
+
+
+[Added] addParticipants with username
+
+[Changed] getBlockList,block and unBlock result from Contact to BlockedContact
+
+[Added] coreUserId, userId and contactId to ResultBlockList
+
+[Changed] messageType is required in `sendFileMessage` , `createThreadWithFile` and `createThreadWithMessage`
+
+[Added] `setCacheDirectory(File)`
+
+[Added] uploaded file url to uploadImage, uploadFile, uploadFileProgress and uploadImageProgress response
+
+[Added] `setMaxReconnectTime(long)`
+
+
+
+
+
+
+
+#Version [0.5.5.0] -2020-2-19
+
+[Added] `addContact` with username
+
+[Added] `newMessages` Builder function to `RequestThread` model
+
+[Added] `updateChatProfile` function
+
+[Added] `onContactsLastSeenUpdated` event
+
+[Added] `setFreeSpaceThreshold` function
+
+
+
+
 
 ## Version [0.5.4.0] -2020-2-4
 
@@ -21,21 +160,17 @@ All notable changes to this project will be documented here.
 
 [Added] `getStorageSize()`
 
-[Added] `getStorageSize()`
-
 [Added] `getCachedFilesFolderSize()`
 
 [Added] `getCachedPicturesFolderSize()`
 
-[Added] `clearCacheDatabase()`
+[Added] `clearCacheDatabase(IClearMessageCache)`
 
 [Added] `clearCachedFiles()`
 
 [Added] `clearCachedPictures()`
 
 [Added] `cancelDownload()`
-
-[Added] `stopTyping()`
 
 [Deprecated] `stopTyping(String)`
 

@@ -3,6 +3,10 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
@@ -26,6 +30,7 @@ import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
+import com.fanap.podchat.model.ResultNotSeenDuration;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
@@ -327,7 +332,11 @@ public class ChatListenerManager {
     public void callOnCreateThread(String content, ChatResponse<ResultThread> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
+
                 listener.onCreateThread(content, response);
+
+                listener.onCreateThread(response);
+
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -444,10 +453,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnLastSeenUpdated(String content) {
+    public void callOnContactsLastSeenUpdated(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onLastSeenUpdated(content);
+                listener.onContactsLastSeenUpdated(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -584,6 +593,7 @@ public class ChatListenerManager {
         }
     }
 
+    //todo remove it later
     public void callOnLogEvent(String logEvent) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
@@ -781,6 +791,69 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+    }
+
+    public void callOnContactsLastSeenUpdated(ChatResponse<ResultNotSeenDuration> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onContactsLastSeenUpdated(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onChatProfileUpdated(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
+
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUniqueNameIsAvailable(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onJoinPublicThread(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetUnreadMessagesCount(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
 
 
     }

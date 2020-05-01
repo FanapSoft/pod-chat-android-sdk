@@ -38,7 +38,7 @@ public class DbTest {
         appContext = InstrumentationRegistry.getTargetContext();
 //        Chat.init(appContext);
         MockitoAnnotations.initMocks(this);
-//        DaggerMessageComponent.builder()
+//        DaggerMessageComponent.newBuilder()
 //                .appDatabaseModule(new AppDatabaseModule(appContext))
 //                .appModule(new AppModule(appContext))
 //                .build()

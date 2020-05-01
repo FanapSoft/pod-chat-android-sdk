@@ -11,10 +11,10 @@ import com.fanap.podchat.model.ResultImageFile;
 public abstract class ProgressHandler {
 
     public interface onProgress {
-        default void onProgressUpdate(int bytesSent) {
+        default void onProgressUpdate(int progress) {
         }
 
-        default void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
@@ -26,11 +26,11 @@ public abstract class ProgressHandler {
 
     public interface onProgressFile {
 
-        default void onProgressUpdate(int bytesSent) {
+        default void onProgressUpdate(int progress) {
 
         }
 
-        default void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onFinish(String imageJson, FileUpload fileImageUpload) {
@@ -44,7 +44,7 @@ public abstract class ProgressHandler {
 
     public interface sendFileMessage {
 
-        default void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
@@ -61,11 +61,12 @@ public abstract class ProgressHandler {
     public interface IDownloadFile {
 
 
-        default void onProgressUpdate(String uniqueId, int bytesDownloaded, int totalBytesToDownload){}
+        default void onProgressUpdate(String uniqueId, long bytesDownloaded, long totalBytesToDownload){}
         default void onProgressUpdate(String uniqueId, int progress){}
         void onError(String uniqueId, String error,String url);
         default void onLowFreeSpace(String uniqueId,String url){}
         default void onFileReady(ChatResponse<ResultDownloadFile> response){}
+
 
     }
 

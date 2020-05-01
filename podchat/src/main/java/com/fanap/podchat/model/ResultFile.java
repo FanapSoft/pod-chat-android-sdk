@@ -6,6 +6,7 @@ public class ResultFile {
     private String hashCode;
     private String description;
     private long size;
+    private String url;
 
     public long getId() {
         return id;
@@ -45,5 +46,13 @@ public class ResultFile {
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

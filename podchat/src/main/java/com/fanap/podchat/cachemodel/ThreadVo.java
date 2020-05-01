@@ -57,7 +57,16 @@ public class ThreadVo {
     private boolean mentioned;
     @Ignore
     private PinMessageVO pinMessageVO;
+    private String uniqueName;
 
+
+    public String getUniqueName() {
+        return uniqueName;
+    }
+
+    public void setUniqueName(String uniqueName) {
+        this.uniqueName = uniqueName;
+    }
 
     public boolean isPin() {
         return pin;
@@ -359,7 +368,25 @@ public class ThreadVo {
     public ThreadVo() {
     }
 
-    public ThreadVo(long id, long joinDate, Inviter inviter, Long inviterId, CacheMessageVO lastMessageVO, Long lastMessageVOId, String title, List<CacheParticipant> participants, long time, String lastMessage, String lastParticipantName, String lastParticipantImage, boolean group, long partner, String image, String description, long unreadCount, long lastSeenMessageId, long partnerLastMessageId, long partnerLastSeenMessageId, long partnerLastDeliveredMessageId, long lastSeenMessageNanos, long lastSeenMessageTime, long partnerLastSeenMessageTime, long partnerLastSeenMessageNanos, long partnerLastDeliveredMessageTime, long partnerLastDeliveredMessageNanos, int type, boolean mute, String metadata, boolean canEditInfo, long participantCount, boolean canSpam, boolean admin, boolean pin, boolean mentioned, PinMessageVO pinMessageVO) {
+    public ThreadVo(long id,
+                    long joinDate, Inviter inviter,
+                    Long inviterId, CacheMessageVO lastMessageVO,
+                    Long lastMessageVOId, String title,
+                    List<CacheParticipant> participants, long time,
+                    String lastMessage, String lastParticipantName,
+                    String lastParticipantImage, boolean group,
+                    long partner, String image, String description,
+                    long unreadCount, long lastSeenMessageId,
+                    long partnerLastMessageId, long partnerLastSeenMessageId,
+                    long partnerLastDeliveredMessageId, long lastSeenMessageNanos,
+                    long lastSeenMessageTime, long partnerLastSeenMessageTime,
+                    long partnerLastSeenMessageNanos, long partnerLastDeliveredMessageTime,
+                    long partnerLastDeliveredMessageNanos, int type,
+                    boolean mute, String metadata, boolean canEditInfo,
+                    long participantCount, boolean canSpam,
+                    boolean admin, boolean pin, boolean mentioned,
+                    PinMessageVO pinMessageVO,
+                    String uniqueName) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -397,5 +424,6 @@ public class ThreadVo {
         this.pin = pin;
         this.mentioned = mentioned;
         this.pinMessageVO = pinMessageVO;
+        this.uniqueName = uniqueName;
     }
 }

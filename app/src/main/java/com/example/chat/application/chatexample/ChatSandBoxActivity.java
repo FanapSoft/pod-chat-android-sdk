@@ -47,9 +47,8 @@ import com.fanap.podchat.requestobject.RequestSeenMessageList;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.security.ProviderInstaller;
+
+import com.fanap.podchat.util.TextMessageType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.fanap.podchat.example.R;
@@ -96,11 +95,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //        sqlScoutServer = SqlScoutServer.create(this, getPackageName());
 
         setContentView(R.layout.activity_chat);
-        try {
-            ProviderInstaller.installIfNeeded(this);
-        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ProviderInstaller.installIfNeeded(this);
+//        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+//            e.printStackTrace();
+//        }
         TextView textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
 
@@ -277,18 +276,18 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                        , new Invitee(824, 2)
 //        List<Long> listForwardIds = new ArrayList<>();
 //        listForwardIds.add(1346L);
-        RequestThreadInnerMessage message = new RequestThreadInnerMessage
-                .Builder()
-                .message("create thread with msg")
-//                .forwardedMessageIds(listForwardIds)
-                .build();
+//        RequestThreadInnerMessage message = new RequestThreadInnerMessage
+//                .Builder()
+//                .message("create thread with msg")
+////                .forwardedMessageIds(listForwardIds)
+//                .build();
 
-        RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(0
-                , invite)
-                .message(message)
-                .build();
-        presenter.createThreadWithMessage(requestCreateThread);
+//        RequestCreateThread requestCreateThread = new RequestCreateThread
+//                .Builder(0
+//                , invite)
+//                .message(message)
+//                .build();
+//        presenter.createThreadWithMessage(requestCreateThread);
     }
 
     public void updateThreadInfo() {
@@ -457,7 +456,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = gson.toJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
-                .Builder(messageContent, threadId, messageId, fileUri, this).systemMetaData(meta).build();
+                .Builder(messageContent, threadId, messageId, fileUri, this,
+                TextMessageType.Constants.FILE).systemMetaData(meta).build();
         presenter.replyFileMessage(fileMessage, null);
     }
 
@@ -484,12 +484,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     public void sendFileMessage() {
 
-        RequestFileMessage requestFileMessage = new RequestFileMessage
-                .Builder(this, 1105, getUri())
-                .systemMetadata("name")
-                .build();
+//        RequestFileMessage requestFileMessage = new RequestFileMessage
+//                .Builder(this, 1105, getUri())
+//                .systemMetadata("name")
+//                .build();
 
-        presenter.sendFileMessage(requestFileMessage, null);
+//        presenter.sendFileMessage(requestFileMessage, null);
 
 //      presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
 //        "test file message",
@@ -669,7 +669,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Mehran", "Atash", "09338854885", "");
+                presenter.addContact("Mehran", "Atash", "", "","");
                 break;
             case 15:
                 // remove contact
@@ -693,7 +693,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ArrayList<Integer> threadIds = new ArrayList<>();
         threadIds.add(2);
 //        threadIds.add(1031);
-        presenter.getThreads(10, null, threadIds, null, null);
+//        presenter.getThreads(10, null, threadIds, null, null);
     }
 
     private void getThreadParticipant() {
@@ -707,11 +707,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void onUploadImage(View view) {
         presenter.uploadImageProgress(this, ChatSandBoxActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
-            public void onProgressUpdate(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        percentage.setText(bytesSent);
+                        percentage.setText(progress);
                     }
                 });
             }
@@ -730,18 +730,18 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         if (getUri() != null) {
             presenter.uploadFileProgress(ChatSandBoxActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
-                public void onProgressUpdate(int bytesSent) {
+                public void onProgressUpdate(int progress) {
                 }
 
                 @Override
-                public void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+                public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    percentageFile.setText(bytesSent);
+                                    percentageFile.setText(progress);
                                 }
                             });
 
@@ -775,7 +775,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     appId, serverName, TOKEN, ssoHost,
                     platformHost, fileServer, TYPE_CODE);
 
-//            PodNotify podNotify = new PodNotify.builder()
+//            PodNotify podNotify = new PodNotify.newBuilder()
 //                    .setAppId("NotificationService")
 //                    .setServerName("SendPushByAppId")
 //                    .setSocketServerAddress("http://172.16.110.61:8017")

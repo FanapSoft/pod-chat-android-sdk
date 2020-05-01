@@ -1,5 +1,9 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
@@ -23,6 +27,7 @@ import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
+import com.fanap.podchat.model.ResultNotSeenDuration;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
@@ -171,7 +176,8 @@ public interface ChatListener {
     default void OnMapReverse(String json, ChatResponse<ResultMapReverse> response) {
     }
 
-    default void onLastSeenUpdated(String content) {
+    @Deprecated
+    default void onContactsLastSeenUpdated(String content) {
     }
 
     default void onChatState(String state) {
@@ -197,6 +203,7 @@ public interface ChatListener {
 
     }
 
+    @Deprecated
     default void onLogEvent(String log) {
 
     }
@@ -247,4 +254,16 @@ public interface ChatListener {
     default void onTypingSignalTimeout(long threadId){}
 
     default void onLowFreeSpace(long bytesAvailable){}
+
+    default void onContactsLastSeenUpdated(ChatResponse<ResultNotSeenDuration> response){}
+
+    default void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response){}
+
+    default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response){}
+
+    default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
+
+    default void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
+
+    default void onCreateThread(ChatResponse<ResultThread> response){}
 }

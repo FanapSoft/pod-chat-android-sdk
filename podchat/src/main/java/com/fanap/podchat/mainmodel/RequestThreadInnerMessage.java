@@ -15,7 +15,7 @@ public class RequestThreadInnerMessage {
     private String systemMetadata;
     private List<Long> forwardedMessageIds;
 
-    public RequestThreadInnerMessage(Builder builder){
+    public RequestThreadInnerMessage(Builder builder) {
         this.text = builder.text;
         this.type = builder.type;
         this.metadata = builder.metadata;
@@ -23,21 +23,36 @@ public class RequestThreadInnerMessage {
         this.forwardedMessageIds = builder.forwardedMessageIds;
     }
 
+    public RequestThreadInnerMessage() {
+    }
+
     public static class Builder {
         private String text;
+
+        @Deprecated
         @SerializedName("messageType")
         private int type;
         private String metadata;
         private String systemMetadata;
         private List<Long> forwardedMessageIds;
 
+        public Builder(String text,int messageType) {
+            this.text = text;
+            this.type = messageType;
+        }
+
+        public Builder(int type) {
+            this.type = type;
+        }
+
         public Builder message(String text) {
             this.text = text;
             return this;
         }
 
+        @Deprecated
         @NonNull
-        public Builder type(int type){
+        public Builder type(int type) {
             this.type = type;
             return this;
         }
@@ -55,7 +70,7 @@ public class RequestThreadInnerMessage {
         }
 
         @NonNull
-        public  Builder forwardedMessageIds(List<Long> forwardedMessageIds) {
+        public Builder forwardedMessageIds(List<Long> forwardedMessageIds) {
             this.forwardedMessageIds = forwardedMessageIds;
             return this;
         }
@@ -75,10 +90,12 @@ public class RequestThreadInnerMessage {
         this.text = text;
     }
 
+    @Deprecated
     public int getType() {
         return type;
     }
 
+    @Deprecated
     public void setType(int type) {
         this.type = type;
     }

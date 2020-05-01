@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.FileImageUpload;
+import com.fanap.podchat.networking.ProgressResponseBody;
 
 import java.util.ArrayList;
 
@@ -20,6 +21,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Query;
 import retrofit2.http.Streaming;
+import retrofit2.http.Url;
 import rx.Observable;
 
 public interface FileApi {
@@ -100,6 +102,10 @@ public interface FileApi {
                     , @Query("downloadable") boolean downloadable
                     , @Query("hashCode") String hashCode);
 
+
+    @GET
+    @Streaming
+    Call<ResponseBody> download(@Url String url);
 
 
 

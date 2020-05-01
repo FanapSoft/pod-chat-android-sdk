@@ -2,7 +2,10 @@ package com.fanap.podchat.mainmodel;
 
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+
+import com.google.gson.annotations.SerializedName;
 
 @Entity
 public class PinMessageVO {
@@ -12,8 +15,40 @@ public class PinMessageVO {
     private long messageId;
     private String text;
     private boolean notifyAll;
+    private long time;
+
+    private long participantId;
 
 
+    @Ignore
+    @SerializedName("sender")
+    private
+    Participant participant;
+
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public long getParticipantId() {
+        return participantId;
+    }
+
+    public void setParticipantId(long participantId) {
+        this.participantId = participantId;
+    }
+
+    public Participant getParticipant() {
+        return participant;
+    }
+
+    public void setParticipant(Participant participant) {
+        this.participant = participant;
+    }
 
     public long getThreadId() {
         return threadId;

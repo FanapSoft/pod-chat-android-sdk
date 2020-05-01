@@ -77,10 +77,11 @@ public class RequestFileMessage {
         private String systemMetadata;
         private int messageType;
 
-        public Builder(Activity activity, long threadId, Uri fileUri) {
+        public Builder(Activity activity, long threadId, Uri fileUri,int messageType) {
             this.activity = activity;
             this.threadId = threadId;
             this.fileUri = fileUri;
+            this.messageType = messageType;
         }
 
         public Builder(Activity activity, long threadId, Uri fileUri, String description, String systemMetadata, int messageType) {
@@ -89,7 +90,6 @@ public class RequestFileMessage {
             this.fileUri = fileUri;
             this.description = description;
             this.systemMetadata = systemMetadata;
-
             this.messageType = messageType;
 
 

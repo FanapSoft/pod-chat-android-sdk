@@ -21,7 +21,6 @@ public class Mention {
     public static String getMentionList(RequestGetMentionList request, String uniqueId) {
 
 
-
         long threadId = request.getThreadId();
 
         JsonObject criteriaVO = new JsonObject();
@@ -33,9 +32,9 @@ public class Mention {
 
         long count = request.getCount() > 0 ? request.getCount() : 50;
 
-        criteriaVO.addProperty("count",count);
+        criteriaVO.addProperty("count", count);
 
-        criteriaVO.addProperty("offset",request.getOffset());
+        criteriaVO.addProperty("offset", request.getOffset());
 
 
         AsyncMessage message = new AsyncMessage();
@@ -50,7 +49,6 @@ public class Mention {
         return App.getGson().toJson(message);
 
     }
-
 
 
     public static ChatResponse<ResultHistory> getMentionListResponse(ChatMessage chatMessage) {
@@ -70,13 +68,30 @@ public class Mention {
         return finalResponse;
     }
 
+    public static ChatResponse<ResultHistory> getMentionListCacheResponse(RequestGetMentionList request,
+                                                                          List<MessageVO> messageVOS,
+                                                                          String uniqueId,
+                                                                          long contentCount) {
+
+        ResultHistory resultHistory = new ResultHistory();
+        resultHistory.setContentCount(contentCount);
+        resultHistory.setHistory(messageVOS);
+
+
+        ChatResponse<ResultHistory> finalResponse = new ChatResponse<>();
+        finalResponse.setResult(resultHistory);
+        finalResponse.setUniqueId(uniqueId);
+        finalResponse.setSubjectId(request.getThreadId());
+        finalResponse.setCache(true);
+
+        return finalResponse;
+    }
+
 
     public static List<MessageVO> getMessageVOSFromChatMessage(ChatMessage chatMessage) {
         return App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<MessageVO>>() {
         }.getType());
     }
-
-
 
 
 }

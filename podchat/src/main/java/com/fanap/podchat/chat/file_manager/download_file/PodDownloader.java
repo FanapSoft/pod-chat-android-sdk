@@ -10,9 +10,24 @@ import android.util.Log;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.networking.ProgressResponseBody;
+import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.util.FileUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
+
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class PodDownloader {
 
@@ -33,17 +48,17 @@ public class PodDownloader {
     public static long download(
             ProgressHandler.IDownloadFile progressHandler,
             String uniqueId,
-            File destFolder,
+            File destinationFolder,
             String url,
             String fileName,
             String hashCode,
             long id,
             Context context,
-            boolean cache,
             IDownloaderError iDownloader,
             long bytesAvailable) {
 
-        File downloadTempFile = new File(destFolder, fileName);
+        File downloadTempFile = new File(destinationFolder, fileName);
+
 
         DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
@@ -102,7 +117,7 @@ public class PodDownloader {
 
                         String extension = FileUtils.getExtensionFromMimType(mime);
 
-                        File downloadedFile = new File(destFolder, fileName + "." + extension);
+                        File downloadedFile = new File(destinationFolder, fileName + "." + extension);
 
                         boolean savingSuccess = downloadTempFile.renameTo(downloadedFile);
 
@@ -112,9 +127,9 @@ public class PodDownloader {
 
                             progressHandler.onFileReady(response);
 
-                            if (!cache) {
-                                downloadedFile.delete();
-                            }
+//                            if (!cache) {
+//                                downloadedFile.delete();
+//                            }
 
                         } else {
 
@@ -170,5 +185,185 @@ public class PodDownloader {
 
         return response;
     }
+
+
+    public static Call download(ProgressHandler.IDownloadFile progressHandler,
+                                String fileServer,
+                                String url,
+                                String fileName,
+                                File destinationFolder,
+                                IDownloaderError downloaderErrorInterface,
+                                String hashCode,
+                                long fileId) {
+
+        Retrofit retrofit =
+                ProgressResponseBody.getDownloadRetrofit(fileServer, progressHandler);
+
+
+        FileApi api = retrofit.create(FileApi.class);
+
+        Call<ResponseBody> call = api.download(url);
+
+        final String[] downloadTempPath = new String[1];
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+
+                new Thread(() -> {
+
+
+                    InputStream inputStream = null;
+                    OutputStream outputStream = null;
+                    File downloadTempFile = null;
+
+
+                    try {
+
+                        if (!destinationFolder.exists()) {
+                            boolean createFolder = destinationFolder.mkdirs();
+                        }
+                        downloadTempFile = new File(destinationFolder, fileName);
+                        if (!downloadTempFile.exists()) {
+                            boolean fileCreationResult = downloadTempFile.createNewFile();
+
+                            if (!fileCreationResult) {
+                                downloaderErrorInterface.errorOnWritingToFile();
+                                return;
+                            }
+                        }
+
+                        //keep path for cancel handling
+
+                        downloadTempPath[0] = downloadTempFile.getPath();
+
+                        if (response.body() != null && response.isSuccessful()) {
+
+                            byte[] byteReader = new byte[4096];
+
+                            inputStream = response.body().byteStream();
+
+                            outputStream = new BufferedOutputStream(new FileOutputStream(downloadTempFile));
+
+                            while (true) {
+
+                                int read = inputStream.read(byteReader);
+
+                                if (read == -1) {
+
+                                    //download finished
+                                    Log.i(TAG, "File has been downloaded");
+
+                                    MediaType mediaType = response.body().contentType();
+                                    String type = null;
+                                    String subType = "";
+                                    if (mediaType != null) {
+                                        type = mediaType.type();
+                                        subType = mediaType.subtype();
+                                    }
+
+
+                                    File downloadedFile = new File(destinationFolder, fileName + "." + subType);
+
+                                    boolean savingSuccess = downloadTempFile.renameTo(downloadedFile);
+
+                                    if (savingSuccess) {
+
+                                        ChatResponse<ResultDownloadFile> chatResponse = generateDownloadResult(hashCode, fileId, downloadedFile);
+
+                                        progressHandler.onFileReady(chatResponse);
+
+//
+
+                                    } else {
+
+                                        downloaderErrorInterface.errorOnWritingToFile();
+                                    }
+
+                                    break;
+
+                                }
+
+                                outputStream.write(byteReader, 0, read);
+
+                                outputStream.flush();
+
+                            }
+
+
+                        } else {
+
+                            if (response.errorBody() != null) {
+                                downloaderErrorInterface.errorUnknownException(response.errorBody().string());
+                            } else {
+                                downloaderErrorInterface.errorUnknownException(response.message());
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (call.isCanceled()) {
+
+                            handleCancelDownload(downloadTempFile);
+
+                            return;
+                        }
+                        Log.e(TAG, e.getMessage());
+                        downloaderErrorInterface.errorUnknownException(e.getMessage());
+                    } finally {
+                        try {
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            if (outputStream != null) {
+                                outputStream.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, e.getMessage());
+                            downloaderErrorInterface.errorUnknownException(e.getMessage());
+                        }
+
+
+                    }
+
+                }).start();
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                if (call.isCanceled()) {
+                    handleCancelDownload(new File(downloadTempPath[0]));
+                    return;
+                }
+
+                Log.d(TAG, "ERROR " + t.getMessage());
+                call.cancel();
+                downloaderErrorInterface.errorUnknownException(t.getMessage());
+            }
+        });
+
+        return call;
+
+    }
+
+    private static void handleCancelDownload(File downloadTempFile) {
+
+        Log.i(TAG, "Download Cancelled by User");
+
+        try {
+            if (downloadTempFile != null && downloadTempFile.exists()) {
+                boolean deleteFile = downloadTempFile.delete();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+
+        }
+
+
+    }
+
 
 }

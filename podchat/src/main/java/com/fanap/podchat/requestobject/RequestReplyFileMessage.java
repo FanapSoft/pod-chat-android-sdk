@@ -36,12 +36,18 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
         private int messageType;
 
 
-        public Builder(String messageContent, long threadId, long messageId, Uri fileUri, Activity activity) {
+        public Builder(String messageContent,
+                       long threadId,
+                       long messageId,
+                       Uri fileUri,
+                       Activity activity,
+                       int messageType) {
             this.messageContent = messageContent;
             this.threadId = threadId;
             this.messageId = messageId;
             this.fileUri = fileUri;
             this.activity = activity;
+            this.messageType = messageType;
         }
 
         @NonNull

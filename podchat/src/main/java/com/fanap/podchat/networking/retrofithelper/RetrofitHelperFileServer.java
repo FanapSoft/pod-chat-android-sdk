@@ -20,25 +20,58 @@ import rx.schedulers.Schedulers;
 
 public class RetrofitHelperFileServer {
 
-    private static final int TIMEOUT = 120;
-    public static final TimeUnit TIME_UNIT = TimeUnit.MINUTES;
+
+    private int TIMEOUT = 120;
+    private TimeUnit TIME_UNIT = TimeUnit.MINUTES;
     private Retrofit.Builder retrofit;
+    private static TimeoutConfig timeoutConfig;
+
+
+    /**
+     *
+     *
+     * @param fileServer
+     *
+     *  ** IMPORTANT ** if you adding network interceptor DON'T forget to increase
+     *
+     *   the amount of ignoreFirstNumberOfWriteToCalls in ProgressRequestBody
+     *
+     *
+     *
+     */
 
     public RetrofitHelperFileServer(@NonNull String fileServer) {
 
-//        Request request = new Request().header("Connection", "close");
+        OkHttpClient client;
+
+        if(timeoutConfig!=null){
+
+            client = timeoutConfig.getClientBuilder().build();
+
+        }else {
+
+            client = new OkHttpClient().newBuilder()
+//                        .retryOnConnectionFailure(true)
+                    .connectTimeout(TIMEOUT, TIME_UNIT) // connect timeout
+                    .writeTimeout(TIMEOUT, TIME_UNIT) // write timeout
+                    .readTimeout(TIMEOUT, TIME_UNIT) // read timeout
+//                        .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                    .build();
+
+        }
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(fileServer)
-
-                .client(new OkHttpClient().newBuilder()
-//                        .retryOnConnectionFailure(true)
-                        .connectTimeout(TIMEOUT, TIME_UNIT) // connect timeout
-                        .writeTimeout(TIMEOUT, TIME_UNIT) // write timeout
-                        .readTimeout(TIMEOUT, TIME_UNIT) // read timeout
-//                        .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-                        .build())
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
+    }
+
+    public static void setTimeoutConfig(TimeoutConfig config){
+
+        if(config!=null){
+            timeoutConfig = config;
+        }
     }
 
     public <T> T getService(@NonNull Class<T> tService) {
@@ -46,7 +79,9 @@ public class RetrofitHelperFileServer {
     }
 
     public static <T> void request(Single<Response<T>> single, ApiListener<T> listener) {
-        single.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe((Response<T> tResponse) -> {
+        single.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((Response<T> tResponse) -> {
             if (tResponse.isSuccessful()) {
                 listener.onSuccess(tResponse.body());
             } else {

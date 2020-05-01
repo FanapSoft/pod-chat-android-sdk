@@ -21,7 +21,7 @@ public interface SSOApi {
     @GET("/oauth2/grants/devices")
     Observable<Response<DeviceResult>> getDeviceId(@Header("Authorization") String token);
 
-    @POST("/users/handshake")
+    @POST("/handshake/users")
     @FormUrlEncoded
     Call<EncResponse> generateEncryptionKey(
             @Header("Authorization") String bearerToken,

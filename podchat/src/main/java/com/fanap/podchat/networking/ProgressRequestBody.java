@@ -11,6 +11,8 @@ import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
+import okio.ForwardingSource;
+import okio.Okio;
 
 public class ProgressRequestBody extends RequestBody {
 
@@ -30,6 +32,7 @@ public class ProgressRequestBody extends RequestBody {
         this.uniqueId = uniqueId;
         this.mimType = mimType;
         handler = new Handler(Looper.getMainLooper());
+
     }
 
     @Nullable
@@ -95,7 +98,7 @@ public class ProgressRequestBody extends RequestBody {
 
     public interface UploadCallbacks {
 
-        default void onProgress(String uniqueId, int bytesSent, int totalBytesSent, int totalBytesToSend) {
+        default void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
         }
 
         default void onError() {

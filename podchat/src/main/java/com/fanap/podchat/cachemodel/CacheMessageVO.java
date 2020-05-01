@@ -30,6 +30,9 @@ public class CacheMessageVO {
     private String metadata;
     private String systemMetadata;
     private boolean hasGap = false;
+    private boolean mentioned = false;
+    private boolean pinned = false;
+
 
     @Ignore
     private CacheParticipant participant;
@@ -258,6 +261,13 @@ public class CacheMessageVO {
         this.timeNanos = timeNanos;
     }
 
+    public boolean isMentioned() {
+        return mentioned;
+    }
+
+    public void setMentioned(boolean mentioned) {
+        this.mentioned = mentioned;
+    }
 
     public CacheMessageVO(MessageVO messageVO) {
 
@@ -276,6 +286,8 @@ public class CacheMessageVO {
         this.metadata = messageVO.getMetadata();
         this.systemMetadata = messageVO.getSystemMetadata();
         this.hasGap = messageVO.hasGap();
+        this.mentioned = messageVO.isMentioned();
+        this.pinned = messageVO.isPinned();
         try {
 
 
@@ -302,10 +314,16 @@ public class CacheMessageVO {
 
         } catch (Exception e) {
             e.printStackTrace();
-
         }
 
     }
 
 
+    public boolean isPinned() {
+        return pinned;
+    }
+
+    public void setPinned(boolean pinned) {
+        this.pinned = pinned;
+    }
 }

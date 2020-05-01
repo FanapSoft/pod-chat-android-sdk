@@ -11,6 +11,8 @@
 
 /app/src/main/res/values/main_server_config.xml
 /app/src/main/res/values/sandbox_server_config.xml
+/app/src/main/res/values/integration_server_config.xml
+/app/src/main/res/values/configs.xml
 
 
 # Built application files
@@ -66,3 +68,4 @@ captures/
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
+/app/src/main/java/com/example/chat/application/chatexample/TestClass.java

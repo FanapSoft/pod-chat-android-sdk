@@ -9,6 +9,13 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -19,7 +26,10 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.requestobject.RequestAddContact;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
@@ -49,6 +59,7 @@ import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RetryUpload;
@@ -78,7 +89,7 @@ public interface ChatContract {
         }
 
         default void onGetContacts() {
-            Log.d("MTAG","MESSAGE SENT in CH-L");
+
         }
 
         default void onGetThreadParticipant() {
@@ -183,9 +194,19 @@ public interface ChatContract {
         default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
 
         default void onTypingSignalTimeout(long threadId){}
+
+        default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response){}
+
+        default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
+
+        default void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
+
+        default void onGetToken(String token){}
     }
 
     interface presenter {
+
+        void enableAutoRefresh(Activity activity,String entry);
 
         void sendLocationMessage(RequestLocationMessage request);
 
@@ -220,7 +241,7 @@ public interface ChatContract {
 
                         long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler);
 
-        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler);
+        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,boolean isNew, ChatHandler handler);
 
         void setToken(String token);
 
@@ -270,7 +291,7 @@ public interface ChatContract {
 
         void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler);
 
-        void addContact(String firstName, String lastName, String cellphoneNumber, String email);
+        void addContact(String firstName, String lastName, String cellphoneNumber, String email,String username);
 
         void removeContact(long id);
 
@@ -394,5 +415,22 @@ public interface ChatContract {
 
         void closeChat();
 
+        void addContact(RequestAddContact request);
+
+        void updateChatProfile(RequestUpdateProfile request);
+
+        void checkIsNameAvailable(RequestCheckIsNameAvailable request);
+
+        void createPublicThread(RequestCreatePublicThread request);
+
+        void joinPublicThread(RequestJoinPublicThread request);
+
+        void getContact(RequestGetContact request);
+
+        void getBlockList(RequestBlockList request);
+
+        void getThreadParticipant(RequestThreadParticipant request);
+
+        void shareLogs();
     }
 }

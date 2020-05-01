@@ -3,9 +3,424 @@
 **Fanap's POD** Chat service
 
 
+## Version [0.6.4.4] -2020-4-26
+
+-Customize Notification
+
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(
+                String, //Registered Application id
+                 Activity 
+                 ) 
+                .setChannelName(String)
+                .setChannelId(String)
+                .setChannelDescription(String)
+                .setNotificationImportance(Integer)
+                .build();
+
+        chat.enableNotification(notificationConfig, new INotification() {
+            @Override
+            public void onUserIdUpdated(String userId) {
+
+                Log.i(TAG, "UserId Received: " + userId);
+
+            }
+
+            @Override
+            public void onPushMessageReceived(String message) {
+
+                Log.i(TAG, "Push Received on presenter " + message);
+
+                ShowNotificationHelper.showNotification(
+                        String, //title
+                        message, //message
+                        Context, // context
+                        Class, //target class
+                        Integer, // priority
+                        int); //icon
+            }
+        });
+
+
+
+
+## Version [0.6.4.0] -2020-4-21
+
+- Set Timeout for upload and download
+
+
+
+        TimeoutConfig timeout = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(20, TimeUnit.SECONDS)
+                .withWriteTimeout(0, TimeUnit.SECONDS)
+                .withReadTimeout(5, TimeUnit.MINUTES)
+                .build();
+
+
+        chat.setUploadTimeoutConfig(timeout);
+
+        chat.setDownloadTimeoutConfig(timeout);
+
+
+## Version [0.6.3.0] -2020-4-7
+
+- Add Participant with `coreUserId`
+
+
+
+    	RequestAddParticipants request = RequestAddParticipants
+                .newBuilder()
+                .threadId(Long)
+                .withCoreUserIds(Long...)
+                .build();
+		
+		
+  		chat.addParticipants(request, ChatHandler);
+    
+    
+   
+
+
+
+
+## Version [0.6.2.0] -2020-3-17
+
+- Adding notification:
+
+
+        * Import 'tmtp_sdk_notif.aar as module
+        * add gradle dependency:
+         
+            implementation project(':tmtp_sdk_notif')
+            
+        * add this to end of build.gradle - app module:
+        
+            configurations {
+            
+                compile.exclude module: 'tmtp_sdk'
+            
+            }
+
+        
+        * finally enable notifiaction
+
+        chat.enableNotification(
+        NOTIFICATION_APPLICATION_ID,    // registered applicationId in notification server
+        activity,  
+        userId -> // userId for sending notification to this device
+                            );
+                            
+
+
+- use mute parameter in getAllUnreadMessagesCount to get mute threads unread messages count too:
+
+
+            RequestGetUnreadMessagesCount request = new RequestGetUnreadMessagesCount
+                    .Builder()
+                    .withMuteThreads()
+                    .build();
+                            
+        
+
+
+
+
+
+## Version [0.6.1.1] -2020-3-14
+
+- disable cache per function
+    
+  	  Request request = new Request.Builder()
+     	   .withNoCache()
+      	  .build()
+        
+
+
+- check if a public name is available:
+
+
+    Request:
+
+		RequestCheckIsNameAvailable request = new RequestCheckIsNameAvailable
+        	.Builder(Long)
+        	.build();
+        
+        
+     
+     
+  		chat.isNameAvailable(request);
+     
+     
+
+
+    Response:
+    
+     if name is available
+    
+    	 onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable>)
+     
+     or error if not
+    
+
+
+
+- create public thread with unique name:
+
+    
+     
+   	  RequestCreatePublicThread request =
+                    new RequestCreatePublicThread.Builder(
+                            int, //public thread type 
+                            List<Invitee>, // list of participants
+                            String) // thread unqique name
+                            .withDescription(String) // thread description
+                            .title(String) // thread title
+                            .withImage(String) // thread image url
+                            .withMetadata(String) // thread metadata
+                            .build();
+                            
+     
+     	chat.createThread(request);
+     
+     
+     
+     
+                            
+     
+   	  onCreateThread(ChatResponse<ResultThread>)
+
+
+
+
+- join a public thread with unique name
+
+    
+  	  RequestJoinPublicThread request = new RequestJoinPublicThread
+                    .Builder(String) // thread unique name
+                    .build();
+                    
+    
+ 	   chat.joinPublicThread(request)
+ 
+ 
+ 
+ 
+    
+    
+    
+ 	   onJoinPublicThread(ChatResponse<ResultJoinPublicThread>)
+    
+    
+    
+    
+    
+    
+    
+- get all unread messages count
+
+
+      RequestGetUnreadMessagesCount request = new RequestGetUnreadMessagesCount
+        .Builder()
+        .build();
+        
+        
+        
+      chat.getAllUnreadMessagesCount(request)
+      
+      
+      
+      
+      onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount>)
+          
+    
+
+
+
+## Version [0.6.1.0] -2020-3-4
+
+
+
+
+- addParticipants with
+
+
+	username:
+
+   		 RequestAddParticipants request = RequestAddParticipants
+			.newBuilder()
+			.threadId(Long)
+			.withUserNames(String...)
+			.build();
+
+
+	Or
+
+
+
+	contactId:
+
+		 RequestAddParticipants request = RequestAddParticipants
+			.newBuilder()
+			.threadId(Long)
+			.withContactIds(Long...)
+			.build();
+
+		
+		`chat.addParticipants(request , handler);`
+
+
+
+
+- `getBlockList()` response changed from `Contact` to `BlockedContact`
+
+		BlockedContact:
+		    -id
+		    -coreUserId
+		    -firstName
+		    -lastName
+		    +profileImage
+			-id //contactId
+			-firstName
+			-lastName
+			-userId
+			-cellphoneNumber
+			
+
+
+	`getBlockList` response:
+
+	ResultBlockList -> Contact-> BlockedContact
+
+	block and unBlock response:
+
+	ResultBlock -> Contact -> BlockedContact
+
+
+
+
+
+- in following functions RequestObjects, messageType is required now:
+
+
+`sendFileMessage`
+
+`createThreadWithFile`
+
+`createThreadWithMessage`
+
+	`sendFileMessage`
+	
+	`createThreadWithFile`
+	
+	`createThreadWithMessage`
+
+
+
+
+
+
+
+- `getFile` and `getImage` download file directory:
+
+	`setCacheDirectory(File directory)`
+
+
+
+
+
+
+- uploaded file or image url added to upload result
+
+
+
+
+
+- Each time sdk tries to connect, it increases
+the reconnection interval until it reaches this value.
+Then the amount of time interval remains constant.
+
+	`setMaxReconnectTime(long)`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Version [0.5.5.0] -2020-2-19
+
+addContact with username:
+
+    RequestAddContact request = new RequestAddContact.Builder()
+         .firstName("John")
+         .lastName("Doe")
+         .username("j.doe")
+         .build();
+         
+    chat.addContact(request);
+         
+getThreads with unread messages:
+
+        RequestThread requestThread = new RequestThread
+                    .Builder()
+                    .newMessages()
+                    .build();
+    
+        chat.getThreads(requestThread)
+        
+
+updateChatProfile:
+
+    request:
+        
+        RequestUpdateProfile request = new RequestUpdateProfile
+                .Builder(String) // bio
+		.setMetadata(String) //metadata
+                .build();
+
+
+        chat.updateChatProfile(request);
+        
+    response:
+    
+    
+        onChatProfileUpdated(ChatResponse<ResultUpdateProfile>)	
+        
+        
+ 
+
+`onContactsLastSeenUpdated(ChatResponse<ResultNotSeenDuration>)` event added
+        
+        
+
+`setFreeSpaceThreshold(long bytesFreeSpace)` function added
+    
+    
+
+
+
 ## Version [0.5.4.0] -2020-2-4
 
-[Added] `stopTyping()` | Stop started typing signal
+[Added] `stopTyping()` | Stops started typing signal
+
+Started signal stops:
+	
+	- when `stopTyping()` called
+	- after 1 min typing and onTypingSignalTimeout(long) event fired. long value is threadId of started signal
+	- when token expired
+	- when sendTextMessage() called
+	
+
 
 [Removed] `setSignalIntervalTime()` | Interval is fixed now
 
@@ -27,7 +442,7 @@
 
 [Added] `clearCachedPictures()` | Clears cached pictures
 
-[Added] `cancelDownload(String)` | Download started download with given uniqueId
+[Added] `cancelDownload(String)` | Cancels started download with given uniqueId
 
 [Added] `createThreadWithFile(RequestCreateThreadWithFile, ProgressHandler.onProgressFile)` | creates new thread with file
 

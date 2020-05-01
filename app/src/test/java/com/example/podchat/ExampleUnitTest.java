@@ -1,7 +1,17 @@
 package com.example.podchat;
 
+import com.fanap.podchat.cachemodel.PhoneContact;
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
+import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.Util;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,11 +19,24 @@ import org.junit.Test;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -26,10 +49,227 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
+
+    @Test
+    public void contactsEquality() {
+
+        PhoneContact a = new PhoneContact();
+        a.setName("a contact");
+        a.setLastName("a lastname");
+        a.setPhoneNumber("+98 915 777 0684");
+        a.setVersion(150);
+
+
+        PhoneContact b = new PhoneContact();
+        b.setName("b contact");
+        b.setLastName("b lastname");
+        b.setPhoneNumber("+98 915 777 0684");
+        b.setVersion(750);
+
+
+        boolean e = a.equals(b);
+        System.out.println(e);
+        assertEquals(a, b);
+
+
+    }
+
+    @Test
+    public void contactsEqualityInList() {
+
+        HashMap<String, PhoneContact> phoneContacts = new HashMap<>();
+        List<PhoneContact> list = new ArrayList<>();
+
+
+        PhoneContact a = new PhoneContact();
+        a.setName("a contact");
+        a.setLastName("a lastname");
+        a.setPhoneNumber("+98 915 777 0684");
+        a.setVersion(150);
+
+
+        PhoneContact b = new PhoneContact();
+        b.setName("b contact");
+        b.setLastName("b lastname");
+        b.setPhoneNumber("+98 915 777 0684");
+        b.setVersion(750);
+
+        phoneContacts.put(a.getPhoneNumber(), a);
+        list.add(b);
+        phoneContacts.put(b.getPhoneNumber(), b);
+        list.add(a);
+
+        System.out.println(phoneContacts.size());
+
+        assertEquals(phoneContacts.size(), 1);
+
+        assertEquals(phoneContacts.get("+98 915 777 0684").getName(), "b contact");
+
+        System.out.println("list + " + list);
+        Collections.sort(list, (o1, o2) -> Long.compare(o1.getVersion(), o2.getVersion()));
+        System.out.println("list + " + list);
+
+    }
+
+    @Test
+    public void testTimes() {
+
+        Date date = new Date();
+
+        long start = System.currentTimeMillis();
+
+        System.out.println("Start: " + start);
+
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        long end = System.currentTimeMillis();
+
+        System.out.println("End: " + end);
+
+
+        System.out.println(end - start);
+
+        Assert.assertEquals(3000, end - start);
+
+
+    }
+
+    @Test
+    public void testExec() {
+
+        BlockingQueue<Runnable> works = new LinkedBlockingDeque<>();
+
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors(),
+                Runtime.getRuntime().availableProcessors(),
+                1,
+                TimeUnit.SECONDS,
+                works
+        );
+
+//        Executor executor = command -> new Thread(command).start();
+
+        executor.execute(() -> {
+            try {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("Start Job A in: " + threadName);
+                Thread.sleep(5000);
+                System.out.println("Job A Done");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        executor.execute(() -> {
+            try {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("Start Job B in: " + threadName);
+                Thread.sleep(1000);
+                System.out.println("Job B Done");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        executor.execute(() -> {
+            try {
+                String threadName = Thread.currentThread().getName();
+                System.out.println("Start Job C in: " + threadName);
+                Thread.sleep(10000);
+                System.out.println("Job C Done");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        });
+    }
+
+
+    @Test
+    public void inviteeToJson() {
+
+        Gson gson = new GsonBuilder().create();
+
+
+        List<String> invitees = new ArrayList<>();
+
+        invitees.add("fkheirkhah");
+        invitees.add("f.khojasteh");
+        invitees.add("m.zhiani");
+
+
+        JsonArray participantsJsonArray = new JsonArray();
+
+
+        try {
+            for (String username :
+                    invitees) {
+
+                Invitee invitee = new Invitee();
+                invitee.setId(username);
+                invitee.setIdType(InviteType.Constants.TO_BE_USER_USERNAME);
+                JsonElement jsonElement = gson.toJsonTree(invitee);
+                participantsJsonArray.add(jsonElement);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+
+
+        Assert.assertTrue(true);
+
+
+    }
+
     @Test
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
     }
+
+
+    @Test
+    public void instanceOfTest() {
+
+        RequestCreatePublicThread request =
+                new RequestCreatePublicThread.Builder(
+                        0, new ArrayList<>(), "unique"
+                ).build();
+
+        getUniqueName(request);
+
+
+    }
+
+
+    public void getUniqueName(RequestCreateThread request) {
+
+
+        if (request instanceof RequestCreatePublicThread) {
+
+            RequestCreatePublicThread pt = (RequestCreatePublicThread) request;
+
+            Assert.assertEquals("unique", pt.getUniqueName());
+
+
+        } else {
+
+            Assert.fail("Name is Lost");
+
+
+        }
+
+
+    }
+
 
     @Test
     public void compareDates() {
@@ -205,13 +445,12 @@ public class ExampleUnitTest {
 
 
     @Test
-    public void testExtensions(){
+    public void testExtensions() {
 
-        String aGifPath= "storage/emulated/m_file.gif";
+        String aGifPath = "storage/emulated/m_file.gif";
 
         assertTrue(aGifPath.endsWith(".gif"));
         assertFalse(aGifPath.endsWith(".jpg"));
-
 
 
     }
@@ -239,7 +478,6 @@ public class ExampleUnitTest {
         childList.add("1");
 
 
-
         ArrayList<String> answer = new ArrayList<>();
         answer.add("10");
         answer.add("9");
@@ -247,11 +485,11 @@ public class ExampleUnitTest {
         answer.add("7");
 
 
-
         parentList.removeAll(childList);
 
-        assertEquals(parentList,answer);
+        assertEquals(parentList, answer);
 
     }
+
 
 }

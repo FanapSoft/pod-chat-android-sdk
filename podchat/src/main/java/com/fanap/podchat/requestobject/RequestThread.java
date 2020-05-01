@@ -11,6 +11,7 @@ public class RequestThread extends BaseRequestObject {
     private long creatorCoreUserId;
     private long partnerCoreUserId;
     private long partnerCoreContactId;
+    private boolean isNew;
 
      RequestThread(@NonNull Builder builder) {
         super(builder);
@@ -19,6 +20,7 @@ public class RequestThread extends BaseRequestObject {
         this.creatorCoreUserId = builder.creatorCoreUserId;
         this.partnerCoreUserId = builder.partnerCoreUserId;
         this.partnerCoreContactId = builder.partnerCoreContactId;
+        this.isNew = builder.isNew;
     }
 
     public static class Builder extends BaseRequestObject.Builder<Builder> {
@@ -27,6 +29,12 @@ public class RequestThread extends BaseRequestObject {
         private long creatorCoreUserId;
         private long partnerCoreUserId;
         private long partnerCoreContactId;
+        private boolean isNew = false;
+
+        public Builder newMessages() {
+            isNew = true;
+            return this;
+        }
 
         @NonNull
         public Builder threadName(String threadName) {
@@ -110,4 +118,9 @@ public class RequestThread extends BaseRequestObject {
     public void setThreadName(String threadName) {
         this.threadName = threadName;
     }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
 }

@@ -17,12 +17,24 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+//        debug {
+//            minifyEnabled true
+//            shrinkResources true
+//            debuggable false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//        }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
     buildToolsVersion '28.0.3'
+
+//    packagingOptions {
+//        exclude 'META-INF/rxjava.properties'
+//        exclude 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
+//    }
 }
 
 dependencies {
@@ -38,11 +50,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:3.1.0'
     // required if you want to use Mockito for Android tests
     androidTestImplementation 'org.mockito:mockito-android:3.1.0'
-    implementation 'com.google.android.gms:play-services:12.0.1'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
-    debugImplementation 'com.idescout.sql:sqlscout-server:4.1'
-    releaseImplementation 'com.idescout.sql:sqlscout-server-noop:4.1'
+//    implementation 'com.google.android.gms:play-services:12.0.1'
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'com.google.code.gson:gson:2.8.2'
 
@@ -50,6 +58,13 @@ dependencies {
     implementation 'com.github.javafaker:javafaker:1.0.0'
 
     implementation project(path: ':podchat')
+
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    //okHttp
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+//    implementation project(path: ':podotp')
 
 }
 repositories {
