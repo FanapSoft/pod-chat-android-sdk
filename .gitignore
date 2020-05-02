@@ -69,3 +69,5 @@ captures/
 # Google Services (e.g. APIs or Firebase)
 google-services.json
 /app/src/main/java/com/example/chat/application/chatexample/TestClass.java
+/app/src/main/java/com/example/chat/application/chatexample/token/TestClass.java
+/app/src/main/java/com/example/chat/application/chatexample/TestClass.java
