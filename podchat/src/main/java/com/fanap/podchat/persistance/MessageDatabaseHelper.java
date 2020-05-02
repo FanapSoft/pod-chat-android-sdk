@@ -198,7 +198,7 @@ public class MessageDatabaseHelper {
 
                 if (cacheMessageVO.getReplyInfoVO() != null) {
                     cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getRepliedToMessageId());
-                    if(cacheMessageVO.getReplyInfoVO().getParticipant() != null){
+                    if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
                         cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
                         messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
                     }
@@ -1843,25 +1843,69 @@ public class MessageDatabaseHelper {
     }
 
 
+    public interface IRoomIntegrity {
+
+        void onDatabaseNeedReset();
+
+        void onResetFailed();
+
+        void onRoomIntegrityError();
+
+        void onDatabaseDown();
+
+    }
+
     /**
      * Cache UserInfo
      */
-    public void saveUserInfo(UserInfo userInfo) {
+    public void saveUserInfo(UserInfo userInfo, IRoomIntegrity listener) {
 
         worker(() -> {
-            messageDao.insertUserInfo(userInfo);
 
+            try {
+                messageDao.insertUserInfo(userInfo);
 
-            //set user id for profile table
-            if (userInfo.getChatProfileVO() != null) {
+                //set user id for profile table
+                if (userInfo.getChatProfileVO() != null) {
 
-                userInfo.getChatProfileVO().setId(userInfo.getId());
+                    userInfo.getChatProfileVO().setId(userInfo.getId());
 
-                messageDao.insertChatProfile(userInfo.getChatProfileVO());
+                    messageDao.insertChatProfile(userInfo.getChatProfileVO());
+                }
+            } catch (Exception e) {
+
+                handleDatabaseException(listener, e);
             }
+
+
         });
 
 
+    }
+
+    private void handleDatabaseException(IRoomIntegrity listener, Exception e) {
+        listener.onDatabaseDown();
+
+        if (e instanceof IllegalStateException
+        || e instanceof  net.sqlcipher.database.SQLiteException) {
+            Log.i(TAG, "Reset DB");
+            listener.onRoomIntegrityError();
+
+            File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+            try {
+                boolean del = file.delete();
+                if (del) {
+                    File db = new File(String.valueOf(context.getDatabasePath("cache.db")));
+                    boolean res = db.createNewFile();
+                    if (res) {
+                        listener.onDatabaseNeedReset();
+                    }
+                }
+            } catch (Exception err) {
+                listener.onResetFailed();
+            }
+
+        }
     }
 
     public UserInfo getUserInfo() {
@@ -3165,6 +3209,6 @@ public class MessageDatabaseHelper {
 
     public void deleteMessagesOfThread(long subjectId) {
 
-        worker(()-> messageDao.deleteAllMessageByThread(subjectId));
+        worker(() -> messageDao.deleteAllMessageByThread(subjectId));
     }
 }

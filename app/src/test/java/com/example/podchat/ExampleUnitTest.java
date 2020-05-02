@@ -1,5 +1,8 @@
 package com.example.podchat;
 
+import android.util.Log;
+
+import com.example.chat.application.chatexample.TestClass;
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
@@ -7,6 +10,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
+import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -74,6 +78,17 @@ public class ExampleUnitTest {
 
 
     }
+
+
+
+    @Test
+    public void threadTest(){
+
+        TestClass.main(null);
+    }
+
+
+
 
     @Test
     public void contactsEqualityInList() {

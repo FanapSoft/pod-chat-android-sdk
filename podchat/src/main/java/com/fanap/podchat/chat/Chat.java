@@ -8415,9 +8415,9 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public void activateLogger(Activity activity){
+    public void activateLogger(Activity activity) {
 
-        Permission.Request_STORAGE(activity,WRITE_EXTERNAL_STORAGE_CODE);
+        Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
 
     }
 
@@ -10245,7 +10245,7 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnClearHistory(jsonClrHistory, chatResponseClrHistory);
         showLog("RECEIVE_CLEAR_HISTORY", jsonClrHistory);
 
-        if(cache){
+        if (cache) {
             messageDatabaseHelper.deleteMessagesOfThread(chatMessage.getSubjectId());
         }
 
@@ -11386,7 +11386,44 @@ public class Chat extends AsyncAdapter {
         ResultUserInfo result = new ResultUserInfo();
 
         if (cache && permit) {
-            messageDatabaseHelper.saveUserInfo(userInfo);
+
+            messageDatabaseHelper.saveUserInfo(userInfo, new MessageDatabaseHelper.IRoomIntegrity() {
+                @Override
+                public void onDatabaseNeedReset() {
+
+                    showLog("Reset database");
+                    initDatabaseWithKey(getKey());
+                    showLog("Database reset successfully");
+                    cache = true;
+
+
+                }
+
+                @Override
+                public void onResetFailed() {
+
+                    showErrorLog("DB reset failed...!");
+                    showErrorLog("Cache is disable...");
+                    cache = false;
+                }
+
+                @Override
+                public void onRoomIntegrityError() {
+
+                    showErrorLog("Room integrity error");
+                    cache = false;
+
+                }
+
+                @Override
+                public void onDatabaseDown() {
+
+                    showErrorLog("Database down");
+                    cache = false;
+
+
+                }
+            });
         }
 
         setUserId(userInfo.getId());
@@ -11484,6 +11521,7 @@ public class Chat extends AsyncAdapter {
 
             } else {
                 if (log) Log.e(TAG, "File Is Not Exist");
+                getErrorOutPut("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
             }
         } else {
 
@@ -11779,6 +11817,7 @@ public class Chat extends AsyncAdapter {
 
                 } else {
                     if (log) Log.e(TAG, "File Is Not Exist");
+                    getErrorOutPut("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                 }
             } else {
                 Permission.Request_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
