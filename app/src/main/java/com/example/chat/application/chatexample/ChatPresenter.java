@@ -158,27 +158,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
                 .build();
 
-        chat.enableNotification(notificationConfig, new INotification() {
-            @Override
-            public void onUserIdUpdated(String userId) {
+        chat.enableNotification(notificationConfig, message -> {
 
-                Log.i(TAG, "UserId Received: " + userId);
+            Log.i(TAG, "Push Received on presenter " + message);
 
-            }
-
-            @Override
-            public void onPushMessageReceived(String message) {
-
-                Log.i(TAG, "Push Received on presenter " + message);
-
-                ShowNotificationHelper.showNotification(
-                        "Podchat Notification", //title
-                        message, //message
-                        activity.getApplicationContext(), // context
-                        ChatActivity.class, //target class
-                        null, // priority
-                        R.mipmap.ic_launcher_round); //icon
-            }
+            ShowNotificationHelper.showNotification(
+                    "Podchat Notification", //title
+                    message, //message
+                    activity.getApplicationContext(), // context
+                    ChatActivity.class, //target class
+                    null, // priority
+                    R.mipmap.ic_launcher_round); //icon
         });
 
 

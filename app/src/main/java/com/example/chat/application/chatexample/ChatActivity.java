@@ -90,6 +90,7 @@ import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.ThreadType;

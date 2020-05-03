@@ -86,7 +86,7 @@ public class ShowNotificationHelper {
 
         Notification notification = new NotificationCompat.Builder(
                 context.getApplicationContext(), CHANNEL_ID)
-                .setSmallIcon(smallIcon != null ? smallIcon : R.mipmap.ic_logo_touca)
+                .setSmallIcon(smallIcon != null ? smallIcon : R.drawable.common_google_signin_btn_icon_dark)
                 .setContentTitle(title != null ? title : CHANNEL_NAME)
                 .setContentText(text)
                 .setContentIntent(pendingIntent)

@@ -48,6 +48,7 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 
+import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.TextMessageType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

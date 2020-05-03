@@ -442,7 +442,6 @@ public class Chat extends AsyncAdapter {
             instance.setKey(key);
         }
 
-
         try {
             DaggerMessageComponent.builder()
                     .appDatabaseModule(new AppDatabaseModule(context, instance.getKey()))
@@ -9324,8 +9323,12 @@ public class Chat extends AsyncAdapter {
 
     public void enableNotification(CustomNotificationConfig config, INotification listener) {
 
+
         try {
-            PodNotificationManager.enableNotification(config, listener);
+
+            new PodNotificationManager(config)
+                    .enableNotification(listener);
+
         } catch (Exception e) {
             Log.e(TAG, "Enabling Notification Failed");
             Log.e(TAG, e.getMessage());
@@ -9333,23 +9336,6 @@ public class Chat extends AsyncAdapter {
 
 
     }
-
-    public void enableDefaultNotification(String applicationId, Activity activity, INotification listener) {
-
-        try {
-            PodNotificationManager.enableNotification(applicationId, activity, false, listener);
-        } catch (Exception e) {
-            Log.e(TAG, "Enabling Notification Failed");
-            Log.e(TAG, e.getMessage());
-        }
-
-    }
-
-
-    public boolean disableNotification(Activity activity) {
-        return PodNotificationManager.disableNotification(activity);
-    }
-
     private void initDatabase() {
 
         DaggerMessageComponent.builder()

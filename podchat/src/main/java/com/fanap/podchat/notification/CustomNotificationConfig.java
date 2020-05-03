@@ -3,7 +3,9 @@ package com.fanap.podchat.notification;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 
+
 public class CustomNotificationConfig {
+
 
     private String channelId;
     private String channelName;
@@ -11,6 +13,8 @@ public class CustomNotificationConfig {
     private Integer notificationImportance;
     @NonNull
     private String applicationId;
+    @NonNull
+    private String token;
     @NonNull
     private Activity activity;
 
@@ -22,9 +26,9 @@ public class CustomNotificationConfig {
         notificationImportance = builder.notificationImportance;
         applicationId = builder.applicationId;
         activity = builder.activity;
+        token = builder.token;
 
     }
-
 
     public String getChannelId() {
         return channelId;
@@ -52,11 +56,17 @@ public class CustomNotificationConfig {
         return activity;
     }
 
+    @NonNull
+    public String getToken() {
+        return token;
+    }
+
     public static class Builder {
 
         private String channelId;
         private String channelName;
         private String channelDescription;
+        private String token;
         private Integer notificationImportance;
         private String applicationId;
         private Activity activity;
@@ -87,6 +97,10 @@ public class CustomNotificationConfig {
             return this;
         }
 
+        public Builder setToken(String token) {
+            this.token = token;
+            return this;
+        }
 
         public CustomNotificationConfig build() {
 
