@@ -49,7 +49,7 @@ public class RequestConnect extends BaseRequestObject {
             this.ssoHost = ssoHost;
         }
 
-        public Builder(String podSpaceServer, String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer) {
+        public Builder(String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer,String podSpaceServer) {
             this.podSpaceServer = podSpaceServer;
             this.socketAddress = socketAddress;
             this.appId = appId;

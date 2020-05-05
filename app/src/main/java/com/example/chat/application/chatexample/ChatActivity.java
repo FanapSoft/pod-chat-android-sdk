@@ -2,7 +2,6 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentProviderOperation;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -138,33 +137,54 @@ public class ChatActivity extends AppCompatActivity
 
     private Button btnUploadImage;
 
-    //
+
+    //main and sandbox
+
 //    private static String TOKEN = "8911acb16c004773b4e5ba9600ff44f1";
 //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
 //    private static String serverName = "chat-server";
 
 
+    //local
+
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = "chatlocal";
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = "chatlocal";
+    //test
+
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zabbix_bot_1);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.test_ssoHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.test_serverName);
+
 
 
     private static String appId = "POD-Chat";
     private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server);
 
 
-
     /**
      * Integration server setting:
      */
 
-////
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+
+
+    /**
+     * Test server setting:
+     */
+
+    private static String name = BaseApplication.getInstance().getString(R.string.test_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.test_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.test_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_ssoHost);
+
+
+
 
 
     /**
@@ -1682,12 +1702,12 @@ public class ChatActivity extends AppCompatActivity
 //                        "",
 //                        "",
 //                        "");
-
+// 16844 zabix1
 
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("Arvin")
-                        .lastName("Rokni")
-                        .cellphoneNumber("09363448861")
+                        .firstName("Ms")
+                        .lastName("Zabbix #1")
+                        .username("zabbix_bot_1")
                         .build();
 
                 presenter.addContact(request);
