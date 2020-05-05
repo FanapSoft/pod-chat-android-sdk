@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Thread {
     private long id;
+    private String userGroupHash;
     private long joinDate;
     private Inviter inviter;
     private MessageVO lastMessageVO;
@@ -400,5 +401,13 @@ public class Thread {
 
     public void setUniqueName(String uniqueName) {
         this.uniqueName = uniqueName;
+    }
+
+    public String getUserGroupHash() {
+        return userGroupHash;
+    }
+
+    public void setUserGroupHash(String userGroupHash) {
+        this.userGroupHash = userGroupHash;
     }
 }

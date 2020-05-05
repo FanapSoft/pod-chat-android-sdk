@@ -185,6 +185,21 @@ public class PodDownloader {
 
         return response;
     }
+    public static ChatResponse<ResultDownloadFile> generatePodSpaceDownloadResult(String hashCode, File cacheFile) {
+        ResultDownloadFile result = new ResultDownloadFile();
+
+        result.setFile(cacheFile);
+
+        result.setUri(Uri.fromFile(cacheFile));
+
+        result.setHashCode(hashCode);
+
+        ChatResponse<ResultDownloadFile> response = new ChatResponse<>();
+
+        response.setResult(result);
+
+        return response;
+    }
 
 
     public static Call download(ProgressHandler.IDownloadFile progressHandler,
@@ -271,6 +286,172 @@ public class PodDownloader {
                                     if (savingSuccess) {
 
                                         ChatResponse<ResultDownloadFile> chatResponse = generateDownloadResult(hashCode, fileId, downloadedFile);
+
+                                        progressHandler.onFileReady(chatResponse);
+
+//
+
+                                    } else {
+
+                                        downloaderErrorInterface.errorOnWritingToFile();
+                                    }
+
+                                    break;
+
+                                }
+
+                                outputStream.write(byteReader, 0, read);
+
+                                outputStream.flush();
+
+                            }
+
+
+                        } else {
+
+                            if (response.errorBody() != null) {
+                                downloaderErrorInterface.errorUnknownException(response.errorBody().string());
+                            } else {
+                                downloaderErrorInterface.errorUnknownException(response.message());
+                            }
+                        }
+                    } catch (Exception e) {
+                        if (call.isCanceled()) {
+
+                            handleCancelDownload(downloadTempFile);
+
+                            return;
+                        }
+                        Log.e(TAG, e.getMessage());
+                        downloaderErrorInterface.errorUnknownException(e.getMessage());
+                    } finally {
+                        try {
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                            if (outputStream != null) {
+                                outputStream.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, e.getMessage());
+                            downloaderErrorInterface.errorUnknownException(e.getMessage());
+                        }
+
+
+                    }
+
+                }).start();
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                if (call.isCanceled()) {
+                    handleCancelDownload(new File(downloadTempPath[0]));
+                    return;
+                }
+
+                Log.d(TAG, "ERROR " + t.getMessage());
+                call.cancel();
+                downloaderErrorInterface.errorUnknownException(t.getMessage());
+            }
+        });
+
+        return call;
+
+    }
+
+
+
+
+
+    public static Call downloadFromPodSpace(
+            ProgressHandler.IDownloadFile progressHandler,
+                                String fileServer,
+                                String url,
+                                String fileName,
+                                File destinationFolder,
+                                IDownloaderError downloaderErrorInterface,
+                                String hashCode) {
+
+        Retrofit retrofit =
+                ProgressResponseBody.getDownloadRetrofit(fileServer, progressHandler);
+
+
+        FileApi api = retrofit.create(FileApi.class);
+
+        Call<ResponseBody> call = api.download(url);
+
+        final String[] downloadTempPath = new String[1];
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+
+
+                new Thread(() -> {
+
+
+                    InputStream inputStream = null;
+                    OutputStream outputStream = null;
+                    File downloadTempFile = null;
+
+
+                    try {
+
+                        if (!destinationFolder.exists()) {
+                            boolean createFolder = destinationFolder.mkdirs();
+                        }
+                        downloadTempFile = new File(destinationFolder, fileName);
+                        if (!downloadTempFile.exists()) {
+                            boolean fileCreationResult = downloadTempFile.createNewFile();
+
+                            if (!fileCreationResult) {
+                                downloaderErrorInterface.errorOnWritingToFile();
+                                return;
+                            }
+                        }
+
+                        //keep path for cancel handling
+
+                        downloadTempPath[0] = downloadTempFile.getPath();
+
+                        if (response.body() != null && response.isSuccessful()) {
+
+                            byte[] byteReader = new byte[4096];
+
+                            inputStream = response.body().byteStream();
+
+                            outputStream = new BufferedOutputStream(new FileOutputStream(downloadTempFile));
+
+                            while (true) {
+
+                                int read = inputStream.read(byteReader);
+
+                                if (read == -1) {
+
+                                    //download finished
+                                    Log.i(TAG, "File has been downloaded");
+
+                                    MediaType mediaType = response.body().contentType();
+                                    String type = null;
+                                    String subType = "";
+                                    if (mediaType != null) {
+                                        type = mediaType.type();
+                                        subType = mediaType.subtype();
+                                    }
+
+
+                                    File downloadedFile = new File(destinationFolder, fileName + "." + subType);
+
+                                    boolean savingSuccess = downloadTempFile.renameTo(downloadedFile);
+
+                                    if (savingSuccess) {
+
+                                        ChatResponse<ResultDownloadFile> chatResponse = generatePodSpaceDownloadResult(hashCode, downloadedFile);
 
                                         progressHandler.onFileReady(chatResponse);
 

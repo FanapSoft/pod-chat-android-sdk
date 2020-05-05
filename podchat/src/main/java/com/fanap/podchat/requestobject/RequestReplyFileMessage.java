@@ -8,6 +8,7 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
 
     private String messageContent;
     private long threadId;
+    private String userGroupHashCode;
     private long messageId;
     private String systemMetaData;
     private Uri fileUri;
@@ -27,6 +28,8 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
+        private String userGroupHashCode;
+
         private String messageContent;
         private long threadId;
         private long messageId;
@@ -50,8 +53,18 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
             this.messageType = messageType;
         }
 
+        public Builder(String userGroupHashCode, String messageContent, long threadId, long messageId, Uri fileUri, Activity activity, int messageType) {
+            this.userGroupHashCode = userGroupHashCode;
+            this.messageContent = messageContent;
+            this.threadId = threadId;
+            this.messageId = messageId;
+            this.fileUri = fileUri;
+            this.activity = activity;
+            this.messageType = messageType;
+        }
+
         @NonNull
-        public Builder messageType(int messageType){
+        public Builder messageType(int messageType) {
             this.messageType = messageType;
             return this;
         }
@@ -59,6 +72,12 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
         @NonNull
         public Builder systemMetaData(String systemMetaData) {
             this.systemMetaData = systemMetaData;
+            return this;
+        }
+
+
+        public Builder setUserGroupHashCode(String userGroupHashCode) {
+            this.userGroupHashCode = userGroupHashCode;
             return this;
         }
 
@@ -73,6 +92,10 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
             return this;
         }
 
+    }
+
+    public String getUserGroupHashCode() {
+        return userGroupHashCode;
     }
 
     public String getMessageContent() {

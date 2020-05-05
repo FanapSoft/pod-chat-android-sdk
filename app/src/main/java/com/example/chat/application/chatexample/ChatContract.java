@@ -311,7 +311,7 @@ public interface ChatContract {
 
         String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
 
-        void sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler);
+        String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler);
 
         void syncContact(Activity activity);
 
@@ -381,7 +381,7 @@ public interface ChatContract {
 
         void removeAuditor(RequestSetAuditor requestAddAdmin);
 
-        void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.onProgressFile handler);
+        void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.sendFileMessage handler);
 
         void getUserRoles(RequestGetUserRoles req);
 

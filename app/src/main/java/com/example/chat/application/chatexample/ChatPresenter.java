@@ -64,9 +64,6 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
-import com.fanap.podchat.notification.CustomNotificationConfig;
-import com.fanap.podchat.notification.INotification;
-import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -106,6 +103,7 @@ import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RequestUploadFile;
+import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
@@ -149,37 +147,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.setDownloadDirectory(context.getCacheDir());
 
-
-        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(NOTIFICATION_APPLICATION_ID, activity)
-                .setChannelName("POD_CHAT_CHANNEL")
-                .setChannelId("PODCHAT")
-                .setChannelDescription("Fanap soft podchat notification channel")
-                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
-                .build();
-
-        chat.enableNotification(notificationConfig, new INotification() {
-            @Override
-            public void onUserIdUpdated(String userId) {
-
-                Log.i(TAG, "UserId Received: " + userId);
-
-            }
-
-            @Override
-            public void onPushMessageReceived(String message) {
-
-                Log.i(TAG, "Push Received on presenter " + message);
-
-                ShowNotificationHelper.showNotification(
-                        "Podchat Notification", //title
-                        message, //message
-                        activity.getApplicationContext(), // context
-                        ChatActivity.class, //target class
-                        null, // priority
-                        R.mipmap.ic_launcher_round); //icon
-            }
-        });
 
 
 //        chat.setNetworkListenerEnabling(false);
@@ -709,8 +676,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
-        chat.sendFileMessage(requestFileMessage, handler);
+    public String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
+       return chat.sendFileMessage(requestFileMessage, handler);
     }
 
     @Override
@@ -740,7 +707,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void uploadImage(Activity activity, Uri fileUri) {
-        chat.uploadImage(activity, fileUri);
+
+        RequestUploadImage req = new RequestUploadImage.Builder(activity,fileUri)
+                .build();
+        chat.uploadImage(req);
     }
 
     @Override
@@ -821,13 +791,23 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
-        chat.uploadImageProgress(activity, fileUri, handler);
+
+
+        RequestUploadImage req = new RequestUploadImage.Builder(activity,fileUri)
+                .build();
+
+        chat.uploadImageProgress(req, handler);
 
     }
 
     @Override
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
-        chat.uploadFileProgress(activity, fileUri, handler);
+
+
+        RequestUploadFile req = new RequestUploadImage.Builder(activity,fileUri)
+                .build();
+
+        chat.uploadFileProgress(req, handler);
     }
 
     @Override
@@ -922,7 +902,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.onProgressFile handler) {
+    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.sendFileMessage handler) {
         chat.createThreadWithFile(request, handler);
     }
 

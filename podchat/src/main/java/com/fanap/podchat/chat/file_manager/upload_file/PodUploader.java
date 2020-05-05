@@ -5,6 +5,10 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.model.FileImageUpload;
+import com.fanap.podchat.model.ResultFile;
+import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.networking.ProgressRequestBody;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
@@ -28,12 +32,24 @@ public class PodUploader {
 
     public interface IPodUploader {
 
-        void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length);
-
         void onFailure(String cause);
 
         void onUploadStarted(String mimeType, File file, long length);
 
+        void onProgressUpdate(int progress, int totalBytesSent, int totalBytesToSend);
+    }
+
+
+    public interface IPodUploadFileToPodSpace extends IPodUploader {
+        void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length);
+    }
+
+    public interface IPodUploadFile extends IPodUploader {
+        void onSuccess(FileUpload response, File file, String mimeType, long length);
+    }
+
+    public interface IPodUploadImage extends IPodUploader {
+        void onSuccess(FileImageUpload response, File file, String mimeType, long length);
     }
 
 
@@ -41,13 +57,11 @@ public class PodUploader {
             String uniqueId,
             @NonNull Uri fileUri,
             String threadHashCode,
-            ProgressHandler.sendFileMessage handler,
             Context context,
             String fileServer,
             String token,
             int tokenIssuer,
-
-            IPodUploader listener) throws Exception {
+            IPodUploadFileToPodSpace listener) throws Exception {
 
 
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
@@ -73,8 +87,7 @@ public class PodUploader {
             @Override
             public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
-                if (handler != null)
-                    handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
+                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
             }
 
         });
@@ -101,7 +114,7 @@ public class PodUploader {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
-                        listener.onSuccess(response.body(),file,mimeType,file.length());
+                        listener.onSuccess(response.body(), file, mimeType, file.length());
 
                     } else {
 
@@ -113,4 +126,177 @@ public class PodUploader {
 
 
     }
+
+
+    public static Subscription uploadFileToChatServer(
+            String uniqueId,
+            @NonNull Uri fileUri,
+            Context context,
+            String fileServer,
+            String token,
+            int tokenIssuer,
+            IPodUploadFile listener) throws Exception {
+
+
+        if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
+        String mimeType = FileUtils.getMimeType(new File(fileUri.getPath()));
+
+        String path = FilePick.getSmartFilePath(context, fileUri);
+        if (path == null) throw new NullPointerException("Invalid path!");
+
+        File file = new File(path);
+
+        if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
+
+        listener.onUploadStarted(mimeType, file, file.length());
+
+        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
+        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+
+        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+
+        ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
+
+            @Override
+            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+
+                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
+            }
+
+        });
+
+        MultipartBody.Part filePart = MultipartBody
+                .Part.createFormData("file",
+                        file.getName(),
+                        requestFile);
+
+
+        Observable<Response<FileUpload>> uploadObservable =
+                fileApi.sendFile(
+                        filePart,
+                        token,
+                        tokenIssuer,
+                        namePart);
+
+
+        return uploadObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    if (response.isSuccessful()
+                            && response.body() != null) {
+
+                        listener.onSuccess(response.body(), file, mimeType, file.length());
+
+                    } else {
+
+                        listener.onFailure(response.message());
+
+                    }
+
+                });
+
+
+    }
+
+    public static Subscription uploadImageToChatServer(
+            String uniqueId,
+            @NonNull Uri fileUri,
+            Context context,
+            String fileServer,
+            String token,
+            int tokenIssuer,
+            IPodUploadImage listener) throws Exception {
+
+
+        if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
+        String mimeType = FileUtils.getMimeType(new File(fileUri.getPath()));
+
+        String path = FilePick.getSmartFilePath(context, fileUri);
+        if (path == null) throw new NullPointerException("Invalid path!");
+
+        File file = new File(path);
+
+        if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
+
+        listener.onUploadStarted(mimeType, file, file.length());
+
+        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
+        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+
+        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+
+        ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
+
+            @Override
+            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+
+                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
+            }
+
+        });
+
+        MultipartBody.Part filePart = MultipartBody
+                .Part.createFormData("file",
+                        file.getName(),
+                        requestFile);
+
+
+        Observable<Response<FileImageUpload>> uploadObservable =
+                fileApi.sendImageFile(
+                        filePart,
+                        token,
+                        tokenIssuer,
+                        namePart);
+
+
+        return uploadObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    if (response.isSuccessful()
+                            && response.body() != null) {
+
+                        listener.onSuccess(response.body(), file, mimeType, file.length());
+
+                    } else {
+
+                        listener.onFailure(response.message());
+
+                    }
+
+                });
+
+
+    }
+
+
+    public static ResultFile generateFileUploadResult(UploadToPodSpaceResponse response) {
+
+        ResultFile result = new ResultFile();
+        result.setId(0);
+        result.setName(response.getName());
+        result.setHashCode(response.getHashCode());
+        result.setDescription(response.getDescription());
+        result.setSize(response.getSize());
+        result.setUrl(response.getParentHash());
+
+        return result;
+
+    }
+
+    public static ResultImageFile generateImageUploadResult(UploadToPodSpaceResponse response) {
+
+
+        ResultImageFile result = new ResultImageFile();
+        result.setId(0);
+        result.setName(response.getName());
+        result.setHashCode(response.getHashCode());
+        result.setDescription(response.getDescription());
+        result.setUrl(response.getParentHash());
+
+        return result;
+    }
+
+
 }

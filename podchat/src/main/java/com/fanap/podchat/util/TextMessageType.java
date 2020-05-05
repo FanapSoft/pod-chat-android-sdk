@@ -21,6 +21,13 @@ public class TextMessageType {
             TextMessageType.Constants.SOUND,
             TextMessageType.Constants.FILE,
             TextMessageType.Constants.LINK,
+
+            Constants.POD_SPACE_FILE,
+            Constants.POD_SPACE_VOICE,
+            Constants.POD_SPACE_SOUND,
+            Constants.POD_SPACE_VIDEO,
+//            Constants.POD_SPACE_PICTURE,
+
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -33,6 +40,13 @@ public class TextMessageType {
         int SOUND = 5;
         int FILE = 6;
         int LINK = 7;
+
+        int POD_SPACE_PICTURE = 7;
+        int POD_SPACE_VIDEO = 8;
+        int POD_SPACE_SOUND = 9;
+        int POD_SPACE_VOICE = 10;
+        int POD_SPACE_FILE = 11;
+
 
     }
 

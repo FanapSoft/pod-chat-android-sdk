@@ -71,3 +71,8 @@ google-services.json
 /app/src/main/java/com/example/chat/application/chatexample/TestClass.java
 /app/src/main/java/com/example/chat/application/chatexample/token/TestClass.java
 /app/src/main/java/com/example/chat/application/chatexample/TestClass.java
+/ntf_sdk/build.gradle
+/ntf_sdk/consumer-rules.pro
+/ntf_sdk/proguard-rules.pro
+/ntf_sdk/src/main/jni/CMakeLists.txt
+/ntf_sdk/

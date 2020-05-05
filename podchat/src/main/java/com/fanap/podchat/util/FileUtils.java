@@ -910,12 +910,14 @@ public class FileUtils {
     }
 
     public static File saveBitmap(Bitmap bitmap, String name) {
-        String path = Environment.getExternalStorageDirectory().toString();
+
+        File destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+
         OutputStream fOut = null;
 //        Integer counter = 0;
         int counter = randomNumber(1, 1000);
         // the File to save , append increasing numeric counter to prevent files from getting overwritten.
-        File file = new File(path, name + counter + ".jpg");
+        File file = new File(destinationFolder, name + counter + ".jpg");
         try {
             fOut = new FileOutputStream(file);
 

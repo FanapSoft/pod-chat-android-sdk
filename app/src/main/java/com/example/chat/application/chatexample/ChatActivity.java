@@ -59,6 +59,7 @@ import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
@@ -143,12 +144,16 @@ public class ChatActivity extends AppCompatActivity
 //    private static String serverName = "chat-server";
 
 
+
+
     private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = "chatlocal";
 
 
     private static String appId = "POD-Chat";
+    private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server);
+
 
 
     /**
@@ -298,30 +303,7 @@ public class ChatActivity extends AppCompatActivity
 
         });
 
-        // PodNotificationActivity
-
-//        PodNotify.setApplication(this);
-//
-//        PodNotify podNotify = new PodNotify.newBuilder()
-//                .setAppId(appId)
-//                .setServerName(serverName)
-//                .setSocketServerAddress("172.16.110.61:8017")
-//                .setSsoHost(ssoHost)
-//                .setToken(TOKEN)
-//                .build(this);
-//
-//        podNotify.start(this);
-
     }
-
-//    public class Notification extends PodMessagingService {
-//        @Override
-//        public void onMessageReceived(@NonNull com.fanap.podnotify.model.Notification notification) {
-//            super.onMessageReceived(notification);
-//
-//            Log.i("NOtification", notification.getText());
-//        }
-//    }
 
     /*
     "Choose Map function"
@@ -836,30 +818,36 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
 
-        presenter.createThreadWithFile(request, new ProgressHandler.onProgressFile() {
+        presenter.createThreadWithFile(request, new ProgressHandler.sendFileMessage() {
+
 
                     @Override
-                    public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+                    public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
                         Log.e("CTF", "Upload Progress: " + progress);
 
                     }
 
+                    @Override
+                    public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
+                        Log.e("CTF", "Upload Finish (IMAGE): ");
+
+                    }
 
                     @Override
-                    public void onFinish(String imageJson, FileUpload fileImageUpload) {
+                    public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
 
                         Log.e("CTF", "Upload Finish (FILE): ");
 
                     }
 
                     @Override
-                    public void onImageFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
+                    public void onError(String jsonError, ErrorOutPut error) {
 
-                        Log.e("CTF", "Upload Finish (IMAGE): ");
+                        Log.e("CTF", "Upload Error");
+
 
                     }
-
 
                 }
 
@@ -1154,10 +1142,18 @@ public class ChatActivity extends AppCompatActivity
                         presenter.syncContact(ChatActivity.this);
                         break;
                     case 2:
-                        fileUnique[0] = presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
-                                "test file message",
+
+                        RequestFileMessage request = new RequestFileMessage.Builder(
+                                ChatActivity.this,
                                 TEST_THREAD_ID,
-                                getUri(), getMetaData(), TextMessageType.Constants.PICTURE, new ProgressHandler.sendFileMessage() {
+                                getUri(),
+                                TextMessageType.Constants.POD_SPACE_FILE) // constructor
+                                .description("test file message")
+                                .systemMetadata(getMetaData())
+                                .build();
+
+                        fileUnique[0] = presenter.sendFileMessage(request,
+                                new ProgressHandler.sendFileMessage() {
                                     @Override
                                     public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
@@ -1186,6 +1182,45 @@ public class ChatActivity extends AppCompatActivity
 
                                     }
                                 });
+
+
+//                        fileUnique[0] = presenter.sendFileMessage(
+//                                ChatActivity.this,
+//                                ChatActivity.this,
+//                                "test file message",
+//                                TEST_THREAD_ID,
+//                                getUri(),
+//                                getMetaData(),
+//                                TextMessageType.Constants.PICTURE,
+//                                new ProgressHandler.sendFileMessage() {
+//                                    @Override
+//                                    public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+//
+//                                        Log.e("SFM", "Sending files message: " + progress + " * " + totalBytesSent + " * " + totalBytesToSend);
+//                                    }
+//
+//                                    @Override
+//                                    public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
+//
+//                                        Log.e("SFM", "onFinishImage");
+//
+//                                    }
+//
+//                                    @Override
+//                                    public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
+//
+//                                        Log.e("SFM", "onFinishFile");
+//
+//                                    }
+//
+//                                    @Override
+//                                    public void onError(String jsonError, ErrorOutPut error) {
+//
+//                                        Log.e("SFM", "onError");
+//
+//
+//                                    }
+//                                });
 
                         break;
                     case 3:
@@ -2126,7 +2161,8 @@ public class ChatActivity extends AppCompatActivity
                     TOKEN,
                     ssoHost,
                     platformHost,
-                    fileServer)
+                    fileServer,
+                    podSpaceServer)
                     .build();
 
 //            presenter.connect(socketAddress,
@@ -2408,7 +2444,8 @@ public class ChatActivity extends AppCompatActivity
                 token,
                 ssoHost,
                 platformHost,
-                fileServer)
+                fileServer,
+                podSpaceServer)
                 .build();
 
         presenter.connect(rc);
