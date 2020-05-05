@@ -64,9 +64,6 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
-import com.fanap.podchat.notification.CustomNotificationConfig;
-import com.fanap.podchat.notification.INotification;
-import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -130,47 +127,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
-
-
         chat = Chat.init(context);
 //        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
 //        refWatcher.watch(chat);
-
         chat.addListener(this);
-
-
         //
         chat.isCacheables(true);
-
-
         chat.isLoggable(true);
         chat.activateLogger(activity);
         chat.rawLog(true);
 
         chat.setDownloadDirectory(context.getCacheDir());
-
-
-        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(NOTIFICATION_APPLICATION_ID, activity)
-                .setChannelName("POD_CHAT_CHANNEL")
-                .setChannelId("PODCHAT")
-                .setChannelDescription("Fanap soft podchat notification channel")
-                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
-                .build();
-
-        chat.enableNotification(notificationConfig, message -> {
-
-            Log.i(TAG, "Push Received on presenter " + message);
-
-            ShowNotificationHelper.showNotification(
-                    "Podchat Notification", //title
-                    message, //message
-                    activity.getApplicationContext(), // context
-                    ChatActivity.class, //target class
-                    null, // priority
-                    R.mipmap.ic_launcher_round); //icon
-        });
-
 
 //        chat.setNetworkListenerEnabling(false);
 //        chat.setReconnectOnClose(false);

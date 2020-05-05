@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 public class History {
     private long id;
-
+    private int messageType;
     @Deprecated
     private long firstMessageId;
     @Deprecated
@@ -22,6 +22,7 @@ public class History {
     private NosqlSearchMetadataCriteria metadataCriteria;
 
     public History(Builder builder) {
+        this.messageType = builder.messageType;
         this.count = builder.count;
         this.offset = builder.offset;
         this.order = builder.order;
@@ -41,6 +42,7 @@ public class History {
     }
 
     public static class Builder {
+        private int messageType;
         private long offset;
         private long count;
         private String order;
@@ -56,10 +58,14 @@ public class History {
         private String[] uniqueIds;
 
 
-
         @NonNull
         public Builder id(long id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder setMessageType(int messageType) {
+            this.messageType = messageType;
             return this;
         }
 
@@ -247,5 +253,9 @@ public class History {
 
     public void setUniqueIds(String[] uniqueIds) {
         this.uniqueIds = uniqueIds;
+    }
+
+    public int getMessageType() {
+        return messageType;
     }
 }

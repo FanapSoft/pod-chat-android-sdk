@@ -149,9 +149,6 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
-import com.fanap.podchat.notification.CustomNotificationConfig;
-import com.fanap.podchat.notification.INotification;
-import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
@@ -373,11 +370,9 @@ public class Chat extends AsyncAdapter {
     private String serverName;
     private boolean hasFreeSpace = true;
 
-
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
-
 
     public void setMaxReconnectTime(long maxMilliseconds) {
 
@@ -459,16 +454,13 @@ public class Chat extends AsyncAdapter {
 
     }
 
-
     public void setDownloadDirectory(File directory) {
         FileUtils.setDownloadDirectory(directory);
     }
 
-
     public void setNetworkListenerEnabling(boolean networkStateListenerEnable) {
         this.isNetworkStateListenerEnable = networkStateListenerEnable;
     }
-
 
     public void setGetUserInfoRetryCount(int getUserInfoRetryCount) {
 
@@ -558,7 +550,6 @@ public class Chat extends AsyncAdapter {
 
         }
     }
-
 
     public void registerNetworkReceiver() {
 
@@ -4665,7 +4656,6 @@ public class Chat extends AsyncAdapter {
 
         history.setCount(history.getCount() > 0 ? history.getCount() : 50);
 
-
         //updating waitQ ( list or db )
 
         updateWaitingQ(threadId, mainUniqueId, new ChatHandler() {
@@ -4699,7 +4689,6 @@ public class Chat extends AsyncAdapter {
                         if (chatReady) {
 
                             getHistoryMain(history, threadId, new ChatHandler() {
-
 
                                 @Override
                                 public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
@@ -4892,6 +4881,7 @@ public class Chat extends AsyncAdapter {
                 .toTimeNanos(request.getToTimeNanos())
                 .uniqueIds(request.getUniqueIds())
                 .id(request.getId())
+                .setMessageType(request.getMessageType())
                 .order(request.getOrder() != null ? request.getOrder() : "desc").build();
     }
 
@@ -7606,47 +7596,45 @@ public class Chat extends AsyncAdapter {
     }
 
     private void loadAdminsFromCache(int count, int offset, long threadId) {
-        messageDatabaseHelper.getThreadAdmins(offset, count, threadId, new FunctionalListener() {
-            @Override
-            public void onWorkDone(Object obj, Object listData) {
 
-                List<Participant> participants = (List<Participant>) listData;
-                long participantCount = (long) obj;
+        messageDatabaseHelper.getThreadAdmins(offset, count, threadId, (obj, listData) -> {
 
-                if (participants != null) {
-                    ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
-                    chatResponse.setCache(true);
+            List<Participant> participants = (List<Participant>) listData;
+            long participantCount = (long) obj;
 
-                    ResultParticipant resultParticipant = new ResultParticipant();
-                    resultParticipant.setThreadId(threadId);
+            if (participants != null) {
+                ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
+                chatResponse.setCache(true);
 
-                    resultParticipant.setContentCount(participants.size());
-                    if (participants.size() + offset < participantCount) {
-                        resultParticipant.setHasNext(true);
-                    } else {
-                        resultParticipant.setHasNext(false);
-                    }
-                    resultParticipant.setParticipants(participants);
-                    chatResponse.setResult(resultParticipant);
-                    chatResponse.setCache(true);
-                    chatResponse.setSubjectId(threadId);
+                ResultParticipant resultParticipant = new ResultParticipant();
+                resultParticipant.setThreadId(threadId);
 
-                    resultParticipant.setNextOffset(offset + participants.size());
-                    String jsonParticipant = gson.toJson(chatResponse);
-
-
-                    OutPutParticipant outPutParticipant = new OutPutParticipant();
-
-                    outPutParticipant.setResult(resultParticipant);
-
-
-                    listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
-
-                    showLog("RECEIVE ADMINS FROM CACHE", jsonParticipant);
-
+                resultParticipant.setContentCount(participants.size());
+                if (participants.size() + offset < participantCount) {
+                    resultParticipant.setHasNext(true);
+                } else {
+                    resultParticipant.setHasNext(false);
                 }
+                resultParticipant.setParticipants(participants);
+                chatResponse.setResult(resultParticipant);
+                chatResponse.setCache(true);
+                chatResponse.setSubjectId(threadId);
+
+                resultParticipant.setNextOffset(offset + participants.size());
+                String jsonParticipant = gson.toJson(chatResponse);
+
+
+                OutPutParticipant outPutParticipant = new OutPutParticipant();
+
+                outPutParticipant.setResult(resultParticipant);
+
+
+                listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
+
+                showLog("RECEIVE ADMINS FROM CACHE", jsonParticipant);
 
             }
+
         });
     }
 
@@ -9321,21 +9309,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public void enableNotification(CustomNotificationConfig config, INotification listener) {
-
-
-        try {
-
-            new PodNotificationManager(config)
-                    .enableNotification(listener);
-
-        } catch (Exception e) {
-            Log.e(TAG, "Enabling Notification Failed");
-            Log.e(TAG, e.getMessage());
-        }
-
-
-    }
     private void initDatabase() {
 
         DaggerMessageComponent.builder()
@@ -9343,7 +9316,6 @@ public class Chat extends AsyncAdapter {
                 .appModule(new AppModule(context))
                 .build()
                 .inject(instance);
-
 
     }
 
@@ -9388,11 +9360,8 @@ public class Chat extends AsyncAdapter {
                     handler.onGetHistory(uniqueId);
                     onChatNotReady(uniqueId);
                 }
-
             } else {
-
                 handler.onGetHistory(uniqueId);
-
             }
 
         });
@@ -9449,54 +9418,57 @@ public class Chat extends AsyncAdapter {
 
         String query = history.getQuery();
 
-        JsonObject jObj = (JsonObject) gson.toJsonTree(history);
+        JsonObject content = (JsonObject) gson.toJsonTree(history);
+
         if (history.getLastMessageId() == 0) {
-            jObj.remove("lastMessageId");
+            content.remove("lastMessageId");
         }
 
         if (history.getFirstMessageId() == 0) {
-            jObj.remove("firstMessageId");
+            content.remove("firstMessageId");
         }
 
         if (history.getId() <= 0) {
-            jObj.remove("id");
+            content.remove("id");
         }
 
         if (Util.isNullOrEmpty(query)) {
-            jObj.remove("query");
+            content.remove("query");
         }
 
         if (Util.isNullOrEmpty(fromTime)) {
-            jObj.remove("fromTime");
+            content.remove("fromTime");
         }
 
         if (Util.isNullOrEmpty(fromTimeNanos)) {
-            jObj.remove("fromTimeNanos");
+            content.remove("fromTimeNanos");
         }
 
         if (Util.isNullOrEmpty(toTime)) {
-            jObj.remove("toTime");
+            content.remove("toTime");
         }
 
         if (Util.isNullOrEmpty(toTimeNanos)) {
-            jObj.remove("toTimeNanos");
+            content.remove("toTimeNanos");
         }
 
         if (history.getUniqueIds() == null) {
 
-            jObj.remove("uniqueIds");
+            content.remove("uniqueIds");
 
         }
 
+        if (history.getMessageType() == 0) {
+            content.remove("messageType");
+        }
+
         AsyncMessage chatMessage = new AsyncMessage();
-        chatMessage.setContent(jObj.toString());
+        chatMessage.setContent(content.toString());
         chatMessage.setType(Constants.GET_HISTORY);
         chatMessage.setToken(getToken());
         chatMessage.setTokenIssuer("1");
         chatMessage.setUniqueId(uniqueId);
         chatMessage.setSubjectId(threadId);
-
-        //todo add typeCode to the request
         chatMessage.setTypeCode(getTypeCode());
 
         JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);

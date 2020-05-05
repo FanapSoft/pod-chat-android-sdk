@@ -167,29 +167,29 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
+    public static int TEST_THREAD_ID = 5182;
 
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 19868;
+//    public static int TEST_THREAD_ID = 19868;
 
     // main server / group
 
@@ -2014,6 +2014,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
                 .count(50)
+                .setMessageType(TextMessageType.Constants.PICTURE)
 //                .uniqueIds(uniqueIds)
 //                .withNoCache()
 //                .toTime(System.currentTimeMillis())
