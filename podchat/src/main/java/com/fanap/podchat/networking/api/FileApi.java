@@ -38,7 +38,6 @@ public interface FileApi {
             , @Part("fileName") RequestBody fileName);
 
 
-
     @NonNull
     @Multipart
     @POST("userGroup/uploadFile")
@@ -121,6 +120,13 @@ public interface FileApi {
     @GET
     @Streaming
     Call<ResponseBody> download(@Url String url);
+
+    @GET("nzh/drive/downloadFile")
+    @Streaming
+    Call<ResponseBody> download(
+            @Query("hash") String hash,
+            @Header("_token_") String token,
+            @Header("_token_issuer_") int tokenIssuer);
 
 
 }

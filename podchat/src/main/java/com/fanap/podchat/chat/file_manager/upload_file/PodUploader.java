@@ -109,12 +109,16 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(throwable -> {
-                    listener.onFailure(throwable.getMessage());
-                })
+                .doOnError(throwable -> listener.onFailure(throwable.getMessage()))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
+
+
+                        if (response.body().isHasError()) {
+                            listener.onFailure(response.body().getMessage());
+                            return;
+                        }
 
                         listener.onSuccess(response.body().getUploadToPodSpaceResult(), file, mimeType, file.length());
 
@@ -124,9 +128,7 @@ public class PodUploader {
 
                     }
 
-                }, throwable -> {
-                    listener.onFailure(throwable.getMessage());
-                });
+                }, throwable -> listener.onFailure(throwable.getMessage()));
 
 
     }

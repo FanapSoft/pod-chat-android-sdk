@@ -69,6 +69,7 @@ import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -146,7 +147,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.rawLog(true);
 
         chat.setDownloadDirectory(context.getCacheDir());
-
 
 
 //        chat.setNetworkListenerEnabling(false);
@@ -287,6 +287,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
+        return chat.getFile(rePod, iDownloadFile);
+
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 
@@ -347,7 +353,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
-        chat.retryUpload(retry, handler);
+        chat.retryUploadPodSpace(retry, handler);
     }
 
     @Override
@@ -677,7 +683,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
-       return chat.sendFileMessage(requestFileMessage, handler);
+        return chat.sendFileMessage(requestFileMessage, handler);
     }
 
     @Override
@@ -708,7 +714,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void uploadImage(Activity activity, Uri fileUri) {
 
-        RequestUploadImage req = new RequestUploadImage.Builder(activity,fileUri)
+        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
                 .build();
         chat.uploadImage(req);
     }
@@ -793,7 +799,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
 
 
-        RequestUploadImage req = new RequestUploadImage.Builder(activity,fileUri)
+        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
                 .build();
 
         chat.uploadImageProgress(req, handler);
@@ -804,7 +810,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
 
 
-        RequestUploadFile req = new RequestUploadImage.Builder(activity,fileUri)
+        RequestUploadFile req = new RequestUploadImage.Builder(activity, fileUri)
                 .build();
 
         chat.uploadFileProgress(req, handler);

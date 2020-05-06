@@ -22,6 +22,9 @@ public class UploadToPodSpaceResponse{
 	@SerializedName("ott")
 	private String ott;
 
+	@SerializedName("message")
+    private String message;
+
 	public void setUploadToPodSpaceResult(UploadToPodSpaceResult uploadToPodSpaceResult){
 		this.uploadToPodSpaceResult = uploadToPodSpaceResult;
 	}
@@ -30,7 +33,15 @@ public class UploadToPodSpaceResponse{
 		return uploadToPodSpaceResult;
 	}
 
-	public void setReferenceNumber(String referenceNumber){
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setReferenceNumber(String referenceNumber){
 		this.referenceNumber = referenceNumber;
 	}
 

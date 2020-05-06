@@ -25,6 +25,7 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
         this.fileUri = builder.fileUri;
         this.activity = builder.activity;
         this.messageType = builder.messageType;
+        this.userGroupHashCode = builder.userGroupHashCode;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {

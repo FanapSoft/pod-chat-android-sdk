@@ -909,16 +909,29 @@ public class FileUtils {
         return intent;
     }
 
-    public static File saveBitmap(Bitmap bitmap, String name) {
+    public static File saveBitmap(Bitmap bitmap, String name) throws Exception {
 
         File destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+
+        if (destinationFolder != null && !destinationFolder.exists()) {
+            boolean r = destinationFolder.mkdirs();
+            if(!r) throw new Exception("Couldn't create path");
+        }
 
         OutputStream fOut = null;
 //        Integer counter = 0;
         int counter = randomNumber(1, 1000);
         // the File to save , append increasing numeric counter to prevent files from getting overwritten.
         File file = new File(destinationFolder, name + counter + ".jpg");
+
         try {
+
+            if (!file.exists()) {
+                boolean re = file.createNewFile();
+                if(!re) throw new Exception("Couldn't create file");
+
+            }
+
             fOut = new FileOutputStream(file);
 
             // saving the Bitmap to a file compressed as a JPEG with 85% compression rate

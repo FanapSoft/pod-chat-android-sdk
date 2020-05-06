@@ -21,6 +21,7 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
         this.activity = builder.activity;
         this.systemMetadata = builder.systemMetadata;
         this.messageId = builder.messageId;
+        this.userGroupHash = builder.userGroupHash;
 
     }
 

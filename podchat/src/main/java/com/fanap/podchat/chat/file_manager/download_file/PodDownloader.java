@@ -370,12 +370,13 @@ public class PodDownloader {
 
     public static Call downloadFromPodSpace(
             ProgressHandler.IDownloadFile progressHandler,
+                                String token,
+                                int tokenIssuer,
+                                String fileHash,
                                 String fileServer,
-                                String url,
                                 String fileName,
                                 File destinationFolder,
-                                IDownloaderError downloaderErrorInterface,
-                                String hashCode) {
+                                IDownloaderError downloaderErrorInterface) {
 
         Retrofit retrofit =
                 ProgressResponseBody.getDownloadRetrofit(fileServer, progressHandler);
@@ -383,7 +384,10 @@ public class PodDownloader {
 
         FileApi api = retrofit.create(FileApi.class);
 
-        Call<ResponseBody> call = api.download(url);
+        Call<ResponseBody> call = api.download(
+                fileHash,
+                token,
+                tokenIssuer);
 
         final String[] downloadTempPath = new String[1];
 
@@ -451,7 +455,7 @@ public class PodDownloader {
 
                                     if (savingSuccess) {
 
-                                        ChatResponse<ResultDownloadFile> chatResponse = generatePodSpaceDownloadResult(hashCode, downloadedFile);
+                                        ChatResponse<ResultDownloadFile> chatResponse = generatePodSpaceDownloadResult(fileHash, downloadedFile);
 
                                         progressHandler.onFileReady(chatResponse);
 

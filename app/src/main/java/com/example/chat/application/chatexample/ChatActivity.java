@@ -62,6 +62,7 @@ import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
@@ -222,7 +223,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     //test server thread
-    public static int TEST_THREAD_ID = 7628;
+    public static int TEST_THREAD_ID = 7608;
 
 
     private String fileUri;
@@ -670,6 +671,10 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
+        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("FS3FEMF86IUV9LQP")
+                .build();
+
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -681,7 +686,7 @@ public class ChatActivity extends AppCompatActivity
 
         }
 
-        downloadingId = presenter.downloadFile(requestGetFile, new ProgressHandler.IDownloadFile() {
+        downloadingId = presenter.downloadFile(rePod, new ProgressHandler.IDownloadFile() {
 
 
             @Override
@@ -820,7 +825,7 @@ public class ChatActivity extends AppCompatActivity
         List<Invitee> invite = new ArrayList<>();
 
         //f.kh sandbox
-        invite.add(new Invitee("23116", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("4893", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
         //p.pa main
 //        invite.add(new Invitee(1151568, InviteType.Constants.TO_BE_USER_CONTACT_ID));
@@ -833,7 +838,7 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
-                .Builder(ThreadType.Constants.NORMAL, invite, requestUploadFile, TextMessageType.Constants.PICTURE)
+                .Builder(ThreadType.Constants.OWNER_GROUP, invite, requestUploadFile, TextMessageType.Constants.PICTURE)
 //                .message(innerMessage)
                 .build();
 
@@ -1035,8 +1040,8 @@ public class ChatActivity extends AppCompatActivity
                 .Builder()
                 .systemMetadata(meta)
                 .center(center)
-                .message("Im here now :) ")
-
+                .message("Im here now    :   ) ")
+                .setUserGroupHash("R8H7TU546ER6ZG")
                 .activity(ChatActivity.this)
                 .threadId(TEST_THREAD_ID)
                 .build();
@@ -1170,7 +1175,7 @@ public class ChatActivity extends AppCompatActivity
                                 TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
                                 .description("test file message")
                                 .systemMetadata(getMetaData())
-                                .setUserGroupHash("IE6EWM6FAIHWTD")
+                                .setUserGroupHash("R8H7TU546ER6ZG")
                                 .build();
 
                         fileUnique[0] = presenter.sendFileMessage(request,
@@ -1304,7 +1309,7 @@ public class ChatActivity extends AppCompatActivity
                          * For file you should override onFinishFile or onFinishImage because their respond is different
                          *
                          * */
-                        String uniqueId = "f874f03d-88b7-48b2-ac7f-3796c81d8ef8";
+                        String uniqueId = "cafbd334-4521-4d94-8a5a-d0e4c1d91a03";
                         RetryUpload retryUpload = new RetryUpload.Builder().activity(ChatActivity.this).uniqueId(uniqueId).build();
                         presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
                             @Override
@@ -1611,9 +1616,9 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 4:
                 //"reply message",
-                replyMessage();
+//                replyMessage();
 
-//                replyFileMessage();
+                replyFileMessage();
 
                 break;
             case 5:
@@ -2312,22 +2317,28 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void replyFileMessage() {
-        String messageContent = "this is reply from john";
+        String messageContent = "Hello! just be happy!! : ) ";
         long threadId = TEST_THREAD_ID;
-        long messageId = 297483;
+        long messageId = 101304;
         Uri fileUri = getUri();
+        String userGroupHash = "R8H7TU546ER6ZG";
         Inviter inviter = new Inviter();
         inviter.setName("Me");
         String meta = gson.toJson(inviter);
         RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
                 .Builder(messageContent, threadId, messageId, fileUri, this,
-                TextMessageType.Constants.FILE)
+                TextMessageType.Constants.POD_SPACE_PICTURE)
                 .systemMetaData(meta)
-                .messageType(TextMessageType.Constants.PICTURE)
+                .setUserGroupHashCode(userGroupHash)
                 .build();
 
 
-        presenter.replyFileMessage(fileMessage, null);
+        presenter.replyFileMessage(fileMessage, new ProgressHandler.sendFileMessage() {
+            @Override
+            public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+                Log.e("CHAT_SDK_UPLOAD", "Progress %" + progress);
+            }
+        });
     }
 
     public void onUploadFile(View view) {

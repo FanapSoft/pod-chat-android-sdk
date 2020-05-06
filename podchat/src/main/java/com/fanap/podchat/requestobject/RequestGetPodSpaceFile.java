@@ -25,7 +25,7 @@ public class RequestGetPodSpaceFile {
         private boolean useCache = true;
 
 
-        public Builder(long fileId, String hashCode, boolean downloadable) {
+        public Builder( String hashCode) {
         this.hashCode = hashCode;
         }
 
