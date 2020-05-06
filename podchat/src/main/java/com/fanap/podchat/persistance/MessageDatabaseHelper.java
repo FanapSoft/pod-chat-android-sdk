@@ -2746,8 +2746,11 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void getThreadAdmins(long offset, long count, long threadId, FunctionalListener listener) {
+    public void getThreadAdmins(long offset, long count, long threadId, FunctionalListener listener)
 
+    throws RoomIntegrityException{
+
+        if(!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 

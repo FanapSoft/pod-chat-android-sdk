@@ -7625,45 +7625,49 @@ public class Chat extends AsyncAdapter {
 
     private void loadAdminsFromCache(int count, int offset, long threadId) {
 
-        messageDatabaseHelper.getThreadAdmins(offset, count, threadId, (obj, listData) -> {
+        try {
+            messageDatabaseHelper.getThreadAdmins(offset, count, threadId, (obj, listData) -> {
 
-            List<Participant> participants = (List<Participant>) listData;
-            long participantCount = (long) obj;
+                List<Participant> participants = (List<Participant>) listData;
+                long participantCount = (long) obj;
 
-            if (participants != null) {
-                ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
-                chatResponse.setCache(true);
+                if (participants != null) {
+                    ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
+                    chatResponse.setCache(true);
 
-                ResultParticipant resultParticipant = new ResultParticipant();
-                resultParticipant.setThreadId(threadId);
+                    ResultParticipant resultParticipant = new ResultParticipant();
+                    resultParticipant.setThreadId(threadId);
 
-                resultParticipant.setContentCount(participants.size());
-                if (participants.size() + offset < participantCount) {
-                    resultParticipant.setHasNext(true);
-                } else {
-                    resultParticipant.setHasNext(false);
+                    resultParticipant.setContentCount(participants.size());
+                    if (participants.size() + offset < participantCount) {
+                        resultParticipant.setHasNext(true);
+                    } else {
+                        resultParticipant.setHasNext(false);
+                    }
+                    resultParticipant.setParticipants(participants);
+                    chatResponse.setResult(resultParticipant);
+                    chatResponse.setCache(true);
+                    chatResponse.setSubjectId(threadId);
+
+                    resultParticipant.setNextOffset(offset + participants.size());
+                    String jsonParticipant = gson.toJson(chatResponse);
+
+
+                    OutPutParticipant outPutParticipant = new OutPutParticipant();
+
+                    outPutParticipant.setResult(resultParticipant);
+
+
+                    listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
+
+                    showLog("RECEIVE ADMINS FROM CACHE", jsonParticipant);
+
                 }
-                resultParticipant.setParticipants(participants);
-                chatResponse.setResult(resultParticipant);
-                chatResponse.setCache(true);
-                chatResponse.setSubjectId(threadId);
 
-                resultParticipant.setNextOffset(offset + participants.size());
-                String jsonParticipant = gson.toJson(chatResponse);
-
-
-                OutPutParticipant outPutParticipant = new OutPutParticipant();
-
-                outPutParticipant.setResult(resultParticipant);
-
-
-                listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
-
-                showLog("RECEIVE ADMINS FROM CACHE", jsonParticipant);
-
-            }
-
-        });
+            });
+        } catch (RoomIntegrityException e) {
+            resetCache();
+        }
     }
 
     /**
