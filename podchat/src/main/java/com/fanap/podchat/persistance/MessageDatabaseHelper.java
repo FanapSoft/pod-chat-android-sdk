@@ -435,7 +435,9 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllWaitQueueMsg();
     }
 
-    public void getWaitQueueUniqueIdList(OnWorkDone listener) {
+    public void getWaitQueueUniqueIdList(OnWorkDone listener) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         List<String> items = new ArrayList<>();
 
@@ -456,6 +458,10 @@ public class MessageDatabaseHelper {
                             }
                         });
 
+    }
+
+    private boolean canUseDatabase() {
+        return appDatabase != null && appDatabase.isOpen();
     }
 
     @Nullable
@@ -1116,6 +1122,7 @@ public class MessageDatabaseHelper {
         long messageId = history.getId();
         long offset = history.getOffset();
         long count = history.getCount();
+        int messageType = history.getMessageType();
         String query = history.getQuery();
         String order = history.getOrder();
         offset = offset >= 0 ? offset : 0;
@@ -1134,12 +1141,13 @@ public class MessageDatabaseHelper {
 
         rawQuery = addQueryIfExist(query, rawQuery);
 
+        rawQuery = addMessageTypeIfExist(messageType, rawQuery);
+
         rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
 
         SupportSQLiteQuery sqLiteQuery = new SimpleSQLiteQuery(rawQuery);
 
         cacheMessageVOS = messageDao.getRawHistory(sqLiteQuery);
-
 
         prepareMessageVOs(messageVOS, cacheMessageVOS);
 
@@ -1352,6 +1360,15 @@ public class MessageDatabaseHelper {
         return rawQuery;
     }
 
+    private String addMessageTypeIfExist(int messageType, String rawQuery) {
+
+        if (messageType > 0) {
+            rawQuery = rawQuery + " AND messageType=" + messageType;
+        }
+
+        return rawQuery;
+    }
+
     private MessageVO cacheMessageVoToMessageVoMapper(Participant participant, ReplyInfoVO replyInfoVO, ForwardInfo forwardInfo, Thread thread, CacheMessageVO cacheMessageVO) {
         return new MessageVO(
                 cacheMessageVO.getId(),
@@ -1485,7 +1502,9 @@ public class MessageDatabaseHelper {
 
 
     @NonNull
-    public List<Contact> getContacts(Integer count, Long offset) {
+    public List<Contact> getContacts(Integer count, Long offset) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         List<Contact> contacts = new ArrayList<>();
 
@@ -1887,7 +1906,7 @@ public class MessageDatabaseHelper {
         listener.onDatabaseDown();
 
         if (e instanceof IllegalStateException
-        || e instanceof  net.sqlcipher.database.SQLiteException) {
+                || e instanceof net.sqlcipher.database.SQLiteException) {
             Log.i(TAG, "Reset DB");
             listener.onRoomIntegrityError();
 
@@ -1906,6 +1925,26 @@ public class MessageDatabaseHelper {
             }
 
         }
+    }
+
+
+    public boolean resetDatabase() {
+
+        File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+        try {
+            boolean del = file.delete();
+            if (del) {
+                File db = new File(String.valueOf(context.getDatabasePath("cache.db")));
+                boolean res = db.createNewFile();
+                if (res) {
+                    return true;
+                }
+            }
+        } catch (Exception err) {
+            return false;
+        }
+
+        return false;
     }
 
     public UserInfo getUserInfo() {
@@ -1935,7 +1974,10 @@ public class MessageDatabaseHelper {
                              @Nullable ArrayList<Integer> threadIds,
                              @Nullable String threadName,
                              boolean isNew,
-                             OnWorkDone listener) {
+                             OnWorkDone listener) throws RoomIntegrityException {
+
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 
@@ -2640,8 +2682,10 @@ public class MessageDatabaseHelper {
 
 
     @NonNull
-    public void getThreadParticipant(long offset, long count, long threadId, FunctionalListener listener) {
+    public void getThreadParticipant(long offset, long count, long threadId, FunctionalListener listener)
+    throws RoomIntegrityException{
 
+        if(!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 
@@ -3158,8 +3202,11 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void loadAllUnreadMessagesCount(RequestGetUnreadMessagesCount req, OnWorkDone listener) {
+    public void loadAllUnreadMessagesCount(RequestGetUnreadMessagesCount req, OnWorkDone listener)
 
+            throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         long count;
 

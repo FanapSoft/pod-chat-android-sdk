@@ -151,6 +151,7 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
+import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
@@ -4820,21 +4821,39 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
 
-            messageDatabaseHelper.getWaitQueueUniqueIdList((data) -> {
+            try {
+                messageDatabaseHelper.getWaitQueueUniqueIdList((data) -> {
 
-                if (data != null) {
+                    if (data != null) {
 
-                    waitingQMessagesUniqueIds.addAll((List<String>) data);
+                        waitingQMessagesUniqueIds.addAll((List<String>) data);
 
-                }
+                    }
 
-                listener.onWorkDone(waitingQMessagesUniqueIds);
+                    listener.onWorkDone(waitingQMessagesUniqueIds);
 
-            });
+                });
+            } catch (RoomIntegrityException e) {
+                resetCache();
+            }
 
         } else {
             waitingQMessagesUniqueIds.addAll(waitQList.keySet());
             listener.onWorkDone(waitingQMessagesUniqueIds);
+        }
+    }
+
+    private void resetCache() {
+        cache = false;
+        showLog("Reset database");
+        boolean result = messageDatabaseHelper.resetDatabase();
+        if (result) {
+            initDatabaseWithKey(getKey());
+            showLog("Database reset successfully");
+            cache = true;
+        } else {
+            showErrorLog("Database Reset Failed");
+            showLog("Please clear app data");
         }
     }
 
@@ -6906,25 +6925,30 @@ public class Chat extends AsyncAdapter {
 
     private void loadUnreadMessagesCountFromCache(RequestGetUnreadMessagesCount request, String uniqueId) {
 
-        messageDatabaseHelper.loadAllUnreadMessagesCount(request, count -> {
+        try {
+            messageDatabaseHelper.loadAllUnreadMessagesCount(request, count -> {
 
-            ChatResponse<ResultUnreadMessagesCount> response =
-                    MessageManager.handleUnreadMessagesCacheResponse((Long) count);
+                ChatResponse<ResultUnreadMessagesCount> response =
+                        MessageManager.handleUnreadMessagesCacheResponse((Long) count);
 
-            listenerManager.callOnGetUnreadMessagesCount(response);
+                listenerManager.callOnGetUnreadMessagesCount(response);
 
-            showLog("ON GET UNREAD MESSAGES COUNT FROM CACHE", gson.toJson(response));
+                showLog("ON GET UNREAD MESSAGES COUNT FROM CACHE", gson.toJson(response));
 
-            if (chatReady) {
+                if (chatReady) {
 
-                String asyncMessage = MessageManager.getAllUnreadMessgesCount(request, uniqueId);
+                    String asyncMessage = MessageManager.getAllUnreadMessgesCount(request, uniqueId);
 
-                sendAsyncMessage(asyncMessage, AsyncAckType.Constants.WITHOUT_ACK, "SEND GET UNREAD MESSAGES COUNT");
+                    sendAsyncMessage(asyncMessage, AsyncAckType.Constants.WITHOUT_ACK, "SEND GET UNREAD MESSAGES COUNT");
 
-            } else onChatNotReady(uniqueId);
+                } else onChatNotReady(uniqueId);
 
 
-        });
+            });
+        } catch (RoomIntegrityException e) {
+
+            resetCache();
+        }
     }
 
 
@@ -7498,35 +7522,39 @@ public class Chat extends AsyncAdapter {
     @SuppressWarnings("unchecked")
     private void loadParticipantsFromCache(int count, int offset, long threadId) {
 
-        messageDatabaseHelper.getThreadParticipant(offset, count, threadId, (obj, listData) -> {
+        try {
+            messageDatabaseHelper.getThreadParticipant(offset, count, threadId, (obj, listData) -> {
 
-            if (listData != null) {
+                if (listData != null) {
 
-                List<Participant> participantsList = (List<Participant>) listData;
-                long participantCount = (long) obj;
+                    List<Participant> participantsList = (List<Participant>) listData;
+                    long participantCount = (long) obj;
 
-                ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
-                ResultParticipant resultParticipant = new ResultParticipant();
+                    ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
+                    ResultParticipant resultParticipant = new ResultParticipant();
 
-                resultParticipant.setContentCount(participantsList.size());
-                if (participantsList.size() + offset < participantCount) {
-                    resultParticipant.setHasNext(true);
-                } else {
-                    resultParticipant.setHasNext(false);
+                    resultParticipant.setContentCount(participantsList.size());
+                    if (participantsList.size() + offset < participantCount) {
+                        resultParticipant.setHasNext(true);
+                    } else {
+                        resultParticipant.setHasNext(false);
+                    }
+                    resultParticipant.setParticipants(participantsList);
+                    chatResponse.setResult(resultParticipant);
+                    chatResponse.setCache(true);
+
+                    resultParticipant.setNextOffset(offset + participantsList.size());
+                    String jsonParticipant = gson.toJson(chatResponse);
+                    listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
+                    showLog("PARTICIPANT FROM CACHE", jsonParticipant);
+
                 }
-                resultParticipant.setParticipants(participantsList);
-                chatResponse.setResult(resultParticipant);
-                chatResponse.setCache(true);
-
-                resultParticipant.setNextOffset(offset + participantsList.size());
-                String jsonParticipant = gson.toJson(chatResponse);
-                listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
-                showLog("PARTICIPANT FROM CACHE", jsonParticipant);
-
-            }
 
 
-        });
+            });
+        } catch (RoomIntegrityException e) {
+            resetCache();
+        }
     }
 
 
@@ -9334,17 +9362,22 @@ public class Chat extends AsyncAdapter {
 
     // we have handleRemoveFromWaitQueue and checkMessageValidation
     //if callBacks in 'onReceivedMessage' equal null it means we are removing messages from waitQ
-    //todo get uniqueIds from waitQ in 'checkMessageValidation' so it's done!
 
     /**
      * It is sent uniqueIds of messages from waitQueue to ensure all of them have been sent.
      */
+
     @SuppressWarnings("unchecked")
     private void updateWaitingQ(long threadId, String uniqueId, ChatHandler handler) {
 
         /*  if waitQueue had these messages then send request's getHistory and in onSent remove them from wait queue
          */
         getUniqueIdsInWaitQ((data) -> {
+
+            if (data == null) {
+                handler.onGetHistory(uniqueId);
+                return;
+            }
 
             List<String> waitingQMessagesUniqueIds = (List<String>) data;
 
@@ -10441,19 +10474,8 @@ public class Chat extends AsyncAdapter {
         Runnable cacheTask = () -> {
 
             if (cache && useCache) {
-                ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacts(mCount, offset));
-                ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
 
-                ResultContact resultContact = new ResultContact();
-                resultContact.setContacts(arrayList);
-                chatResponse.setResult(resultContact);
-                chatResponse.setCache(true);
-                resultContact.setContentCount(messageDatabaseHelper.getContactCount());
-
-                String contactJson = gson.toJson(chatResponse);
-
-                listenerManager.callOnGetContacts(contactJson, chatResponse);
-                showLog("CACHE_GET_CONTACT", contactJson);
+                loadContactsFromCache(offset, mCount);
             }
         };
 
@@ -10510,6 +10532,31 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void loadContactsFromCache(long offset, int mCount) {
+
+        ArrayList<Contact> arrayList = null;
+        try {
+            arrayList = new ArrayList<>(messageDatabaseHelper.getContacts(mCount, offset));
+
+            ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+
+            ResultContact resultContact = new ResultContact();
+            resultContact.setContacts(arrayList);
+            chatResponse.setResult(resultContact);
+            chatResponse.setCache(true);
+            resultContact.setContentCount(messageDatabaseHelper.getContactCount());
+
+            String contactJson = gson.toJson(chatResponse);
+
+            listenerManager.callOnGetContacts(contactJson, chatResponse);
+            showLog("CACHE_GET_CONTACT", contactJson);
+
+        } catch (RoomIntegrityException e) {
+            resetCache();
+        }
+
+    }
+
     @NonNull
     private String getErrorOutPut(String errorMessage, long errorCode, String uniqueId) {
         ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
@@ -10543,44 +10590,48 @@ public class Chat extends AsyncAdapter {
 
         Long finalOffset = offset;
 
-        messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew, cachedThreads -> {
+        try {
+            messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew, cachedThreads -> {
 
-            List<Thread> threads = (List<Thread>) cachedThreads;
+                List<Thread> threads = (List<Thread>) cachedThreads;
 
-            if (!Util.isNullOrEmpty(threads)) {
+                if (!Util.isNullOrEmpty(threads)) {
 
-                ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
+                    ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
 
-                chatResponse.setCache(true);
+                    chatResponse.setCache(true);
 
-                int contentCount = messageDatabaseHelper.getThreadCount();
+                    int contentCount = messageDatabaseHelper.getThreadCount();
 
-                ResultThreads resultThreads = new ResultThreads();
-                resultThreads.setThreads(threads);
-                resultThreads.setContentCount(contentCount);
-                chatResponse.setCache(true);
+                    ResultThreads resultThreads = new ResultThreads();
+                    resultThreads.setThreads(threads);
+                    resultThreads.setContentCount(contentCount);
+                    chatResponse.setCache(true);
 
 
-                if (threads.size() + finalOffset < contentCount) {
-                    resultThreads.setHasNext(true);
-                } else {
-                    resultThreads.setHasNext(false);
+                    if (threads.size() + finalOffset < contentCount) {
+                        resultThreads.setHasNext(true);
+                    } else {
+                        resultThreads.setHasNext(false);
+                    }
+                    resultThreads.setNextOffset(finalOffset + threads.size());
+                    chatResponse.setResult(resultThreads);
+                    chatResponse.setUniqueId(uniqueId);
+
+                    String threadJson = gson.toJson(chatResponse);
+                    listenerManager.callOnGetThread(threadJson, chatResponse);
+                    showLog("CACHE_GET_THREAD", threadJson);
+
+
                 }
-                resultThreads.setNextOffset(finalOffset + threads.size());
-                chatResponse.setResult(resultThreads);
-                chatResponse.setUniqueId(uniqueId);
 
-                String threadJson = gson.toJson(chatResponse);
-                listenerManager.callOnGetThread(threadJson, chatResponse);
-                showLog("CACHE_GET_THREAD", threadJson);
+                listener.onWorkDone(null);
 
 
-            }
-
-            listener.onWorkDone(null);
-
-
-        });
+            });
+        } catch (RoomIntegrityException e) {
+            resetCache();
+        }
 
 
     }

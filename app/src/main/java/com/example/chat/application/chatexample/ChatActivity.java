@@ -1018,21 +1018,8 @@ public class ChatActivity extends AppCompatActivity
 
     private void sendLocationMsg() {
 
-        String center = "35.7003510,51.3376472";
 
 
-        String meta = getMetaData();
-
-
-        RequestLocationMessage requestLocationMessage = new RequestLocationMessage
-                .Builder()
-                .systemMetadata(meta)
-                .center(center)
-                .message("Im here now :) ")
-
-                .activity(ChatActivity.this)
-                .threadId(TEST_THREAD_ID)
-                .build();
 
 
 //        presenter.sendLocationMessage(requestLocationMessage);
