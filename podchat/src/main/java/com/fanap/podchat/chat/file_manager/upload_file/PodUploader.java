@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.ResultFile;
@@ -41,7 +40,7 @@ public class PodUploader {
 
 
     public interface IPodUploadFileToPodSpace extends IPodUploader {
-        void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length);
+        void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length);
     }
 
     public interface IPodUploadFile extends IPodUploader {
@@ -110,11 +109,14 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(throwable -> {
+                    listener.onFailure(throwable.getMessage());
+                })
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
-                        listener.onSuccess(response.body(), file, mimeType, file.length());
+                        listener.onSuccess(response.body().getUploadToPodSpaceResult(), file, mimeType, file.length());
 
                     } else {
 
@@ -122,6 +124,8 @@ public class PodUploader {
 
                     }
 
+                }, throwable -> {
+                    listener.onFailure(throwable.getMessage());
                 });
 
 
@@ -271,13 +275,15 @@ public class PodUploader {
     }
 
 
-    public static ResultFile generateFileUploadResult(UploadToPodSpaceResponse response) {
+    public static ResultFile generateFileUploadResult(UploadToPodSpaceResult response) {
 
         ResultFile result = new ResultFile();
         result.setId(0);
         result.setName(response.getName());
         result.setHashCode(response.getHashCode());
-        result.setDescription(response.getDescription());
+//        result.setDescription(response.);
+        // TODO: 5/6/2020 ask for description
+
         result.setSize(response.getSize());
         result.setUrl(response.getParentHash());
 
@@ -285,14 +291,14 @@ public class PodUploader {
 
     }
 
-    public static ResultImageFile generateImageUploadResult(UploadToPodSpaceResponse response) {
+    public static ResultImageFile generateImageUploadResult(UploadToPodSpaceResult response) {
 
 
         ResultImageFile result = new ResultImageFile();
         result.setId(0);
         result.setName(response.getName());
         result.setHashCode(response.getHashCode());
-        result.setDescription(response.getDescription());
+//        result.setDescription(response.getDescription());
         result.setUrl(response.getParentHash());
 
         return result;

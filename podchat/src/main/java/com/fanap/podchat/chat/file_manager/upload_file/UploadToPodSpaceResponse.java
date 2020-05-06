@@ -4,94 +4,82 @@ import com.google.gson.annotations.SerializedName;
 
 public class UploadToPodSpaceResponse{
 
-	@SerializedName("size")
-	private int size;
+	@SerializedName("result")
+	private UploadToPodSpaceResult uploadToPodSpaceResult;
 
-	@SerializedName("hashCode")
-	private String hashCode;
+	@SerializedName("referenceNumber")
+	private String referenceNumber;
 
-	@SerializedName("created")
-	private String created;
+	@SerializedName("count")
+	private int count;
 
-	@SerializedName("name")
-	private String name;
+	@SerializedName("errorCode")
+	private int errorCode;
 
-	@SerializedName("description")
-	private String description;
+	@SerializedName("hasError")
+	private boolean hasError;
 
-	@SerializedName("parentHash")
-	private String parentHash;
+	@SerializedName("ott")
+	private String ott;
 
-	@SerializedName("type")
-	private String type;
-
-	public void setSize(int size){
-		this.size = size;
+	public void setUploadToPodSpaceResult(UploadToPodSpaceResult uploadToPodSpaceResult){
+		this.uploadToPodSpaceResult = uploadToPodSpaceResult;
 	}
 
-	public int getSize(){
-		return size;
+	public UploadToPodSpaceResult getUploadToPodSpaceResult(){
+		return uploadToPodSpaceResult;
 	}
 
-	public void setHashCode(String hashCode){
-		this.hashCode = hashCode;
+	public void setReferenceNumber(String referenceNumber){
+		this.referenceNumber = referenceNumber;
 	}
 
-	public String getHashCode(){
-		return hashCode;
+	public String getReferenceNumber(){
+		return referenceNumber;
 	}
 
-	public void setCreated(String created){
-		this.created = created;
+	public void setCount(int count){
+		this.count = count;
 	}
 
-	public String getCreated(){
-		return created;
+	public int getCount(){
+		return count;
 	}
 
-	public void setName(String name){
-		this.name = name;
+	public void setErrorCode(int errorCode){
+		this.errorCode = errorCode;
 	}
 
-	public String getName(){
-		return name;
+	public int getErrorCode(){
+		return errorCode;
 	}
 
-	public void setDescription(String description){
-		this.description = description;
+	public void setHasError(boolean hasError){
+		this.hasError = hasError;
 	}
 
-	public String getDescription(){
-		return description;
+	public boolean isHasError(){
+		return hasError;
 	}
 
-	public void setParentHash(String parentHash){
-		this.parentHash = parentHash;
+	public void setOtt(String ott){
+		this.ott = ott;
 	}
 
-	public String getParentHash(){
-		return parentHash;
-	}
-
-	public void setType(String type){
-		this.type = type;
-	}
-
-	public String getType(){
-		return type;
+	public String getOtt(){
+		return ott;
 	}
 
 	@Override
  	public String toString(){
 		return 
 			"UploadToPodSpaceResponse{" + 
-			"size = '" + size + '\'' + 
-			",hashCode = '" + hashCode + '\'' + 
-			",created = '" + created + '\'' + 
-			",name = '" + name + '\'' + 
-			",description = '" + description + '\'' + 
-			",parentHash = '" + parentHash + '\'' + 
-			",type = '" + type + '\'' + 
+			"result = '" + uploadToPodSpaceResult + '\'' +
+			",referenceNumber = '" + referenceNumber + '\'' + 
+			",count = '" + count + '\'' + 
+			",errorCode = '" + errorCode + '\'' + 
+			",hasError = '" + hasError + '\'' + 
+			",ott = '" + ott + '\'' + 
 			"}";
 		}
 }

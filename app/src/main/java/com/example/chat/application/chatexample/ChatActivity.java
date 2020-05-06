@@ -154,10 +154,9 @@ public class ChatActivity extends AppCompatActivity
 
     //test
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zabbix_bot_1);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zabbix_bot_2);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.test_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.test_serverName);
-
 
 
     private static String appId = "POD-Chat";
@@ -181,10 +180,7 @@ public class ChatActivity extends AppCompatActivity
     private static String name = BaseApplication.getInstance().getString(R.string.test_server_name);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.test_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.test_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_ssoHost);
-
-
-
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_fileServer);
 
 
     /**
@@ -222,8 +218,12 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /group
 
-    public static int TEST_THREAD_ID = 7090;
-//
+//    public static int TEST_THREAD_ID = 7090;
+
+
+    //test server thread
+    public static int TEST_THREAD_ID = 7628;
+
 
     private String fileUri;
 
@@ -1167,9 +1167,10 @@ public class ChatActivity extends AppCompatActivity
                                 ChatActivity.this,
                                 TEST_THREAD_ID,
                                 getUri(),
-                                TextMessageType.Constants.POD_SPACE_FILE) // constructor
+                                TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
                                 .description("test file message")
                                 .systemMetadata(getMetaData())
+                                .setUserGroupHash("IE6EWM6FAIHWTD")
                                 .build();
 
                         fileUnique[0] = presenter.sendFileMessage(request,

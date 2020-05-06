@@ -39,7 +39,7 @@ import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
-import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResponse;
+import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResult;
 import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
@@ -2127,12 +2127,11 @@ public class Chat extends AsyncAdapter {
                     TOKEN_ISSUER,
                     new PodUploader.IPodUploadFileToPodSpace() {
                         @Override
-                        public void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length) {
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
 
                             removeFromUploadQueue(uniqueId);
 
                             ResultFile result = PodUploader.generateFileUploadResult(response);
-
                             ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
                             chatResponse.setResult(result);
                             chatResponse.setUniqueId(uniqueId);
@@ -2947,7 +2946,7 @@ public class Chat extends AsyncAdapter {
                             TOKEN_ISSUER,
                             new PodUploader.IPodUploadFileToPodSpace() {
                                 @Override
-                                public void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length) {
+                                public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
 
                                     ResultFile resultFile = PodUploader.generateFileUploadResult(response);
                                     FileUpload result = new FileUpload();
@@ -3072,7 +3071,7 @@ public class Chat extends AsyncAdapter {
                             TOKEN_ISSUER,
                             new PodUploader.IPodUploadFileToPodSpace() {
                                 @Override
-                                public void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length) {
+                                public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
                                     ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
                                     FileImageUpload fileImageUpload = new FileImageUpload();
                                     ResultImageFile resultImageFile = PodUploader.generateImageUploadResult(response);
@@ -3333,7 +3332,7 @@ public class Chat extends AsyncAdapter {
                             TOKEN_ISSUER,
                             new PodUploader.IPodUploadFileToPodSpace() {
                                 @Override
-                                public void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length) {
+                                public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
 
                                     removeFromUploadQueue(uniqueId);
 
@@ -4617,7 +4616,7 @@ public class Chat extends AsyncAdapter {
                     TOKEN_ISSUER,
                     new PodUploader.IPodUploadFileToPodSpace() {
                         @Override
-                        public void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length) {
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
 
                             removeFromUploadQueue(uniqueId);
 
@@ -6883,7 +6882,7 @@ public class Chat extends AsyncAdapter {
                                                 TOKEN_ISSUER,
                                                 new PodUploader.IPodUploadFileToPodSpace() {
                                                     @Override
-                                                    public void onSuccess(UploadToPodSpaceResponse response, File file, String mimeType, long length) {
+                                                    public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
                                                         removeFromUploadQueue(finalUniqueId);
                                                         ResultFile result = PodUploader.generateFileUploadResult(response);
                                                         ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
@@ -7750,7 +7749,7 @@ public class Chat extends AsyncAdapter {
                                     thread.getThread().getUserGroupHash()
                             ).build();
 
-                    sendFileMessage(requestFile,progressHandler);
+                    sendFileMessage(requestFile, progressHandler);
 
                 }
             });
@@ -7767,7 +7766,6 @@ public class Chat extends AsyncAdapter {
                             .build();
 
             createThread(requestCreateThread);
-
 
 
 //            prepareCreateThreadWithFile(request, requestUniqueId, innerMessageUniqueId, forwardUniqueIds, "");
@@ -11542,6 +11540,14 @@ public class Chat extends AsyncAdapter {
         if (Util.isNullOrEmpty(systemMetadata)) {
             jsonObject.remove("systemMetadata");
         }
+        if (chatMessage.getRepliedTo() == 0)
+            jsonObject.remove("repliedTo");
+
+        if (chatMessage.getTime() == 0)
+            jsonObject.remove("time");
+
+        jsonObject.remove("contentCount");
+
 
         String asyncContent = jsonObject.toString();
 
@@ -11849,6 +11855,7 @@ public class Chat extends AsyncAdapter {
 
         metadata.addProperty("name", file.getName());
         metadata.addProperty("id", fileId);
+        metadata.addProperty("fileHash", hashCode);
 
 
         return metadata.toString();
