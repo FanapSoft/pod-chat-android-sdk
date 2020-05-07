@@ -2212,7 +2212,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String sendFileMessage(RequestFileMessage requestFileMessage, String uniqueId, ProgressHandler.sendFileMessage handler) {
+    private String sendFileMessage(RequestFileMessage requestFileMessage, String uniqueId, ProgressHandler.sendFileMessage handler) {
 
         if (needReadStoragePermission(requestFileMessage.getActivity())) {
 
@@ -3423,7 +3423,7 @@ public class Chat extends AsyncAdapter {
                 try {
                     link = metaDataFile.getFile().getLink();
                 } catch (Exception e) {
-                    Log.e(TAG,"Couldn't retrieve link");
+                    Log.e(TAG, "Couldn't retrieve link");
                 }
 
                 if (needReadStoragePermission(activity)) {
@@ -3520,7 +3520,7 @@ public class Chat extends AsyncAdapter {
                                 public void onUploadStarted(String mimeType, File file, long length) {
 
                                     addToUploadQueue(message,
-                                           Util.isNullOrEmpty(finalLink) ? null :  Uri.parse(finalLink),
+                                            Util.isNullOrEmpty(finalLink) ? null : Uri.parse(finalLink),
                                             messageType,
                                             threadId,
                                             userGroupHash,
@@ -3640,15 +3640,7 @@ public class Chat extends AsyncAdapter {
 
         String url = getPodSpaceFileUrl(request.getHashCode());
 
-        if (!isExternalStorageWritable() || !hasReadAndWriteStoragePermission()) {
-
-            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
-
-            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
-
-            return uniqueId;
-        }
-
+        showLog("DOWNLOAD FILE: " + url);
 
         PodDownloader.IDownloaderError downloaderErrorInterface =
                 getDownloaderErrorInterface(progressHandler, uniqueId, url);
@@ -3666,11 +3658,15 @@ public class Chat extends AsyncAdapter {
 
         }
 
+        showLog("Save in folder: " + destinationFolder);
+
 
         String fileName = "file_" + request.getHashCode();
 
 
         if (destinationFolder == null) {
+
+            showErrorLog("Error Creating destination folder");
 
             progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
 
@@ -3681,6 +3677,8 @@ public class Chat extends AsyncAdapter {
         File cachedFile = FileUtils.findFileInFolder(destinationFolder, fileName);
 
         if (cachedFile != null && cachedFile.isFile() && request.canUseCache()) {
+
+            showLog("File Exist in cache: " + cachedFile);
 
             //file exists
             ChatResponse<ResultDownloadFile> response = PodDownloader.generatePodSpaceDownloadResult(request.getHashCode(), cachedFile);
@@ -3695,6 +3693,8 @@ public class Chat extends AsyncAdapter {
         //only url should return in callback
         if (!hasFreeSpace) {
 
+            showErrorLog("Download couldn't start. cause: LOW FREE SPACE");
+
             progressHandler.onLowFreeSpace(uniqueId, url);
 
             return uniqueId;
@@ -3703,11 +3703,16 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
+            showLog("Download Started");
+
+
             Call call = PodDownloader.downloadFromPodSpace(
                     new ProgressHandler.IDownloadFile() {
                         @Override
                         public void onError(String mUniqueId, String error, String mUrl) {
                             progressHandler.onError(uniqueId, error, url);
+
+                            showErrorLog("Download Error. cause: " + error);
                         }
 
                         @Override
@@ -3717,6 +3722,8 @@ public class Chat extends AsyncAdapter {
 
 
                             if (totalBytesToDownload > checkFreeSpace()) {
+
+                                showErrorLog("Total file space is more than free space");
 
                                 progressHandler.onLowFreeSpace(uniqueId, url);
 
@@ -3733,6 +3740,8 @@ public class Chat extends AsyncAdapter {
                         @Override
                         public void onFileReady(ChatResponse<ResultDownloadFile> response) {
                             progressHandler.onFileReady(response);
+                            showLog("Download is complete!");
+
                         }
                     },
                     getToken(),
@@ -9335,7 +9344,7 @@ public class Chat extends AsyncAdapter {
 
     private void showLog(String info) {
         if (log) {
-            Log.i(TAG, info);
+            Log.d(TAG, info);
             FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
         }
     }
@@ -10443,7 +10452,7 @@ public class Chat extends AsyncAdapter {
         messageCallbacks.remove(messageUniqueId);
         showLog("RECEIVE_GET_CONTACT", contactJson);
 
-//        removeContactTest(chatResponse);
+        removeContactTest(chatResponse);
 
 
     }
@@ -10453,8 +10462,8 @@ public class Chat extends AsyncAdapter {
         for (Contact contact :
                 chatResponse.getResult().getContacts()) {
 
-            if (contact.getId() == 0) continue;
-            if (contact.getCellphoneNumber().equals("09156967335")) continue;
+
+            if (contact.getLinkedUser() != null) continue;
 
 
             new PodThreadManager()
@@ -10832,7 +10841,6 @@ public class Chat extends AsyncAdapter {
         sendingQueue.setUniqueId(uniqueId);
         sendingQueue.setMessage(messageContent);
         sendingQueue.setMetadata(metaData);
-
 
 
         ChatMessage chatMessage = new ChatMessage();
@@ -13150,6 +13158,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void setUserId(long userId) {
+        if (userId == 0) return;
         this.userId = userId;
     }
 

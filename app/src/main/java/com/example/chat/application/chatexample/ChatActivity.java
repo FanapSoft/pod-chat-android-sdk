@@ -113,6 +113,7 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
+    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
     private ChatContract.presenter presenter;
@@ -141,9 +142,9 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-//    private static String TOKEN = "8911acb16c004773b4e5ba9600ff44f1";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "fb26a44d110b4e2ebdbb626708a6c633";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
@@ -155,13 +156,13 @@ public class ChatActivity extends AppCompatActivity
 
     //test
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zabbix_bot_2);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.test_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.test_serverName);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zabbix_bot_2);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.test_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.test_serverName);
 
 
     private static String appId = "POD-Chat";
-    private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server);
+    private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_sand);
 
 
     /**
@@ -178,10 +179,10 @@ public class ChatActivity extends AppCompatActivity
      * Test server setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.test_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.test_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.test_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.test_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.test_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.test_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_fileServer);
 
 
     /**
@@ -197,15 +198,15 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
+    public static int TEST_THREAD_ID = 8032;
 
 
 //    main server / p2p
@@ -223,7 +224,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     //test server thread
-    public static int TEST_THREAD_ID = 7608;
+//    public static int TEST_THREAD_ID = 7608;
 
 
     private String fileUri;
@@ -671,7 +672,7 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("FS3FEMF86IUV9LQP")
+        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("8GQRBPY93WHN9SGW")
                 .build();
 
 
@@ -1041,7 +1042,7 @@ public class ChatActivity extends AppCompatActivity
                 .systemMetadata(meta)
                 .center(center)
                 .message("Im here now    :   ) ")
-                .setUserGroupHash("R8H7TU546ER6ZG")
+                .setUserGroupHash(TEST_THREAD_HASH)
                 .activity(ChatActivity.this)
                 .threadId(TEST_THREAD_ID)
                 .build();
@@ -1175,7 +1176,7 @@ public class ChatActivity extends AppCompatActivity
                                 TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
                                 .description("test file message")
                                 .systemMetadata(getMetaData())
-                                .setUserGroupHash("R8H7TU546ER6ZG")
+                                .setUserGroupHash(TEST_THREAD_HASH)
                                 .build();
 
                         fileUnique[0] = presenter.sendFileMessage(request,
@@ -1309,7 +1310,8 @@ public class ChatActivity extends AppCompatActivity
                          * For file you should override onFinishFile or onFinishImage because their respond is different
                          *
                          * */
-                        String uniqueId = "cafbd334-4521-4d94-8a5a-d0e4c1d91a03";
+
+                        String uniqueId = "2a28e2e8-bae2-4f92-80dd-ccb86bf1a17b";
                         RetryUpload retryUpload = new RetryUpload.Builder().activity(ChatActivity.this).uniqueId(uniqueId).build();
                         presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
                             @Override
@@ -1451,7 +1453,9 @@ public class ChatActivity extends AppCompatActivity
     private void removeParticipants() {
 
         List<Long> participantIds = new ArrayList<>();
-        participantIds.add(202L);
+        participantIds.add(11925L);
+        participantIds.add(5581L);
+        participantIds.add(1261L);
         long threadId = TEST_THREAD_ID;
         RequestRemoveParticipants request = new RequestRemoveParticipants
                 .Builder(threadId, participantIds)
@@ -1514,7 +1518,12 @@ public class ChatActivity extends AppCompatActivity
         RequestAddParticipants request = RequestAddParticipants
                 .newBuilder()
                 .threadId((long) TEST_THREAD_ID)
-                .withCoreUserIds(121L, 234L)
+//                .withCoreUserIds(982L, 5241L)
+                .withUserNames("a.rokni",
+                        "ms.alavizadeh",
+                        "bhamidpour",
+                        "z.morshedi",
+                        "m.rashed")
                 .build();
 
 
@@ -1711,9 +1720,9 @@ public class ChatActivity extends AppCompatActivity
 // 16844 zabix1
 
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("Ms")
-                        .lastName("Zabbix #1")
-                        .username("zabbix_bot_1")
+                        .firstName("Pooria")
+                        .lastName("Pahlavani")
+                        .cellphoneNumber("989387181694")
                         .build();
 
                 presenter.addContact(request);
@@ -2021,7 +2030,9 @@ public class ChatActivity extends AppCompatActivity
 //                , new Invitee(3102, 2)
 //                new Invitee(091, 1),
 //                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("4893", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("27751", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("27774", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
 //                new Invitee(5638, 2),
 //                new Invitee(5638, 2),
         };
@@ -2159,7 +2170,7 @@ public class ChatActivity extends AppCompatActivity
 
         RequestGetContact request = new RequestGetContact.Builder()
                 .count(50)
-                .offset(50)
+                .offset(0)
 //                .withNoCache()
                 .build();
 
@@ -2319,9 +2330,8 @@ public class ChatActivity extends AppCompatActivity
     private void replyFileMessage() {
         String messageContent = "Hello! just be happy!! : ) ";
         long threadId = TEST_THREAD_ID;
-        long messageId = 101304;
+        long messageId = 108292;
         Uri fileUri = getUri();
-        String userGroupHash = "R8H7TU546ER6ZG";
         Inviter inviter = new Inviter();
         inviter.setName("Me");
         String meta = gson.toJson(inviter);
@@ -2329,7 +2339,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder(messageContent, threadId, messageId, fileUri, this,
                 TextMessageType.Constants.POD_SPACE_PICTURE)
                 .systemMetaData(meta)
-                .setUserGroupHashCode(userGroupHash)
+                .setUserGroupHashCode(TEST_THREAD_HASH)
                 .build();
 
 
