@@ -2115,7 +2115,8 @@ public class MessageDatabaseHelper {
                 threadVo.isPin(),
                 threadVo.isMentioned(),
                 threadVo.getPinMessageVO(),
-                threadVo.getUniqueName());
+                threadVo.getUniqueName(),
+                threadVo.getUserGroupHash());
 
 
     }
@@ -2160,9 +2161,8 @@ public class MessageDatabaseHelper {
                 thread.isPin() != null && thread.isPin(),
                 thread.isMentioned(),
                 null,
-                thread.getUniqueName()
-
-        );
+                thread.getUniqueName(),
+                thread.getUserGroupHash());
     }
 
     @NonNull

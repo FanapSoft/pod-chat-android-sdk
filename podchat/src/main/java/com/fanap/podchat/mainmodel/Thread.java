@@ -5,7 +5,9 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import java.util.List;
 
 public class Thread {
+
     private long id;
+    private String userGroupHash;
     private long joinDate;
     private Inviter inviter;
     private MessageVO lastMessageVO;
@@ -79,7 +81,8 @@ public class Thread {
             Boolean pin,
             Boolean mentioned,
             PinMessageVO pinMessageVO,
-            String uniqueName) {
+            String uniqueName,
+            String userGroupHash) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -115,6 +118,7 @@ public class Thread {
         this.mentioned = mentioned;
         this.pinMessageVO = pinMessageVO;
         this.uniqueName = uniqueName;
+        this.userGroupHash = userGroupHash;
     }
 
 
@@ -400,5 +404,13 @@ public class Thread {
 
     public void setUniqueName(String uniqueName) {
         this.uniqueName = uniqueName;
+    }
+
+    public String getUserGroupHash() {
+        return userGroupHash;
+    }
+
+    public void setUserGroupHash(String userGroupHash) {
+        this.userGroupHash = userGroupHash;
     }
 }

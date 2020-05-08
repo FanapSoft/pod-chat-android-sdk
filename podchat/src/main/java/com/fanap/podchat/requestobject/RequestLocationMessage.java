@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 public class RequestLocationMessage extends BaseRequestMapStImage {
 
     private long threadId;
+    private String userGroupHash;
     private long messageId;
     private String message;
     private String systemMetadata;
@@ -20,6 +21,7 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
         this.activity = builder.activity;
         this.systemMetadata = builder.systemMetadata;
         this.messageId = builder.messageId;
+        this.userGroupHash = builder.userGroupHash;
 
     }
 
@@ -30,6 +32,12 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
         private Activity activity;
         private String systemMetadata;
         private long messageId;
+        private String userGroupHash;
+
+        public Builder setUserGroupHash(String userGroupHash) {
+            this.userGroupHash = userGroupHash;
+            return this;
+        }
 
         @NonNull
         public Builder messageId(long messageId){
@@ -79,6 +87,14 @@ public class RequestLocationMessage extends BaseRequestMapStImage {
         }
 
 
+    }
+
+    public String getUserGroupHash() {
+        return userGroupHash;
+    }
+
+    public long getMessageId() {
+        return messageId;
     }
 
     public String getSystemMetadata() {

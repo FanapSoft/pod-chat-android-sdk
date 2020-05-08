@@ -11,14 +11,24 @@ public class RequestFileMessage {
     private String systemMetadata;
     private int messageType;
     private String description;
+    private String userGroupHash;
 
-    RequestFileMessage(Builder builder) {
+    private RequestFileMessage(Builder builder) {
         this.setActivity(builder.activity);
         this.setThreadId(builder.threadId);
         this.setFileUri(builder.fileUri);
         this.setSystemMetadata(builder.systemMetadata);
         this.setMessageType(builder.messageType);
         this.setDescription(builder.description);
+        this.setUserGroupHash(builder.userGroupHash);
+    }
+
+    public String getUserGroupHash() {
+        return userGroupHash;
+    }
+
+    public void setUserGroupHash(String userGroupHash) {
+        this.userGroupHash = userGroupHash;
     }
 
     public Activity getActivity() {
@@ -70,29 +80,54 @@ public class RequestFileMessage {
     }
 
     public static class Builder {
-        public String description;
+        private String description;
         private Activity activity;
         private long threadId;
         private Uri fileUri;
         private String systemMetadata;
         private int messageType;
+        private String userGroupHash;
 
-        public Builder(Activity activity, long threadId, Uri fileUri,int messageType) {
+        public Builder(Activity activity,
+                       long threadId,
+                       Uri fileUri,
+                       int messageType) {
             this.activity = activity;
             this.threadId = threadId;
             this.fileUri = fileUri;
             this.messageType = messageType;
         }
 
-        public Builder(Activity activity, long threadId, Uri fileUri, String description, String systemMetadata, int messageType) {
+        public Builder(Activity activity,
+                       long threadId,
+                       Uri fileUri,
+                       String description,
+                       String systemMetadata,
+                       int messageType) {
+
             this.activity = activity;
             this.threadId = threadId;
             this.fileUri = fileUri;
             this.description = description;
             this.systemMetadata = systemMetadata;
             this.messageType = messageType;
+        }
 
+        public Builder(String description,
+                       Activity activity,
+                       long threadId,
+                       Uri fileUri,
+                       String systemMetadata,
+                       int messageType,
+                       String userGroupHash) {
 
+            this.description = description;
+            this.activity = activity;
+            this.threadId = threadId;
+            this.fileUri = fileUri;
+            this.systemMetadata = systemMetadata;
+            this.messageType = messageType;
+            this.userGroupHash = userGroupHash;
         }
 
         @NonNull
@@ -104,6 +139,12 @@ public class RequestFileMessage {
         @NonNull
         public Builder threadId(long threadId) {
             this.threadId = threadId;
+            return this;
+        }
+
+        @NonNull
+        public Builder setUserGroupHash(String userGroupHash) {
+            this.userGroupHash = userGroupHash;
             return this;
         }
 

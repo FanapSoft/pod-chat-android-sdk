@@ -1,20 +1,5 @@
 package com.fanap.podchat.util;
 
-/*
- * Copyright (C) 2007-2008 OpenIntents.org
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -48,15 +33,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
-/**
- * @author Peli
- * @author paulburke (ipaulpro)
- * @version 2013-12-11
- */
+
 public class FileUtils {
 
     private FileUtils() {
@@ -928,16 +908,29 @@ public class FileUtils {
         return intent;
     }
 
-    public static File saveBitmap(Bitmap bitmap, String name) {
+    public static File saveBitmap(Bitmap bitmap, String name) throws Exception {
 
         File destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+
+        if (destinationFolder != null && !destinationFolder.exists()) {
+            boolean r = destinationFolder.mkdirs();
+            if(!r) throw new Exception("Couldn't create path");
+        }
 
         OutputStream fOut = null;
 //        Integer counter = 0;
         int counter = randomNumber(1, 1000);
         // the File to save , append increasing numeric counter to prevent files from getting overwritten.
         File file = new File(destinationFolder, name + counter + ".jpg");
+
         try {
+
+            if (!file.exists()) {
+                boolean re = file.createNewFile();
+                if(!re) throw new Exception("Couldn't create file");
+
+            }
+
             fOut = new FileOutputStream(file);
 
             // saving the Bitmap to a file compressed as a JPEG with 85% compression rate

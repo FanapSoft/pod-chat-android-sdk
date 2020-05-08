@@ -15,6 +15,7 @@ import android.text.TextUtils;
 
 public class FilePick {
 
+        @SuppressWarnings("deprecation")
         @Nullable
         private static String getPathDeprecated(@NonNull Context ctx, @Nullable Uri uri) {
             if( uri == null ) {

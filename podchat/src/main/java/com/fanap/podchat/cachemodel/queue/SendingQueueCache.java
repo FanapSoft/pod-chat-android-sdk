@@ -11,6 +11,7 @@ public class SendingQueueCache {
 
     private String asyncContent;
     private long threadId;
+    private String userGroupHash;
 
     private String uniqueId;
     private int messageType;
@@ -99,5 +100,13 @@ public class SendingQueueCache {
 
     public void setMessageType(int messageType) {
         this.messageType = messageType;
+    }
+
+    public String getUserGroupHash() {
+        return userGroupHash;
+    }
+
+    public void setUserGroupHash(String userGroupHash) {
+        this.userGroupHash = userGroupHash;
     }
 }
