@@ -192,19 +192,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
 
-        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
-
-//        PodNotify podNotify = new PodNotify.newBuilder()
-//                .setAppId(appId)
-//                .setServerName("172.16.110.61:8017")
-//                .setSocketServerAddress(serverAddress)
-//                .setSsoHost(ssoHost)
-//                .setToken(token)
-//                .build(context);
-//
-//        podNotify.start(context);
-//
-
     }
 
     @Override

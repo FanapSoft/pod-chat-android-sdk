@@ -91,6 +91,7 @@ import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.ThreadType;
@@ -142,7 +143,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "fb26a44d110b4e2ebdbb626708a6c633";
+    private static String TOKEN = "5cd90fdd2319475e919b019ddd3c045f";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 

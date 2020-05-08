@@ -9,13 +9,31 @@ All notable changes to this project will be documented here.
 
 
 
-## Version [0.6.5.0] -2020-5-5
+## Version [0.6.5.0] -2020-5-8
 
-[Removed] Notification
+[Added] podSpaceServer to RequestConnect
 
-[BugFixed] minor bug fixed 
+[Added] userGroupHash to Thread
 
+[Changed] following functions needs userGroupHash:
+        
+        sendFileMessage
+        
+        createThreadWithFile
+        
+        replyFileMessage
+        
+        sendLocationMessage
+        
+[Added] retryUploadPodSpace
 
+[Added] getFile(RequestPodSpaceFile,ProgressHandler)
+
+[Removed] Notification removed
+
+[Changed] Remove Permissions from sdk manifest
+
+[BugFixed] minor bug fixed
 
 
 ## Version [0.6.4.8] -2020-5-3

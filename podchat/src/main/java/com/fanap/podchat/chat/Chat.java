@@ -1224,45 +1224,10 @@ public class Chat extends AsyncAdapter {
      * @param fileServer    {**REQUIRED**}  Address of the file server
      * @param ssoHost       {**REQUIRED**}  Address of the SSO Host
      */
-    public void connect(String socketAddress, String appId, String serverName, String token,
-                        String ssoHost, String platformHost, String fileServer, String typeCode) {
-        try {
-            if (platformHost.endsWith("/")) {
-
-                resetAsync();
-                setupContactApi(platformHost);
-                setPlatformHost(platformHost);
-                setToken(token);
-                setSsoHost(ssoHost);
-                setTypeCode(typeCode);
-                setFileServer(fileServer);
-                setSocketAddress(socketAddress);
-                setAppId(appId);
-                setServerName(serverName);
-
-                connectToAsync(socketAddress, appId, serverName, token, ssoHost);
-
-                setupNetworkStateListener();
-
-                scheduleForReconnect();
-
-
-            } else {
-                getErrorOutPut("PlatformHost " + ChatConstant.ERROR_CHECK_URL
-                        , ChatConstant.ERROR_CODE_CHECK_URL, null);
-
-            }
-        } catch (Throwable throwable) {
-            if (log) {
-                showLog("CONNECTION_ERROR", throwable.getMessage());
-//                Log.e(TAG, throwable.getMessage());
-//                listenerManager.callOnLogEvent(throwable.getMessage());
-            }
-        }
-    }
 
     public void connect(String socketAddress, String appId, String serverName, String token,
-                        String ssoHost, String platformHost, String fileServer, String podSpaceServer, String typeCode) {
+                        String ssoHost, String platformHost, String fileServer, String podSpaceServer,
+                        String typeCode) {
         try {
             if (platformHost.endsWith("/")) {
 
@@ -2103,9 +2068,9 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        if (getFileServer() == null) {
+        if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("File server is null", 0, uniqueId);
+            getErrorOutPut("PodSpace server is null", 0, uniqueId);
 
             return uniqueId;
         }
@@ -2229,7 +2194,7 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        if (getFileServer() == null) {
+        if (getPodSpaceServer() == null) {
 
             getErrorOutPut("File server is null", 0, uniqueId);
 
@@ -3048,7 +3013,7 @@ public class Chat extends AsyncAdapter {
             return;
         }
 
-        if (getFileServer() == null) {
+        if (getPodSpaceServer() == null) {
 
             getErrorOutPut("File server is null", 0, uniqueId);
 
@@ -3173,7 +3138,7 @@ public class Chat extends AsyncAdapter {
             return;
         }
 
-        if (getFileServer() == null) {
+        if (getPodSpaceServer() == null) {
 
             getErrorOutPut("File server is null", 0, uniqueId);
 
@@ -3441,7 +3406,7 @@ public class Chat extends AsyncAdapter {
                     return;
                 }
 
-                if (getFileServer() == null) {
+                if (getPodSpaceServer() == null) {
 
                     getErrorOutPut("File server is null", 0, uniqueId);
 
@@ -4731,9 +4696,9 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        if (getFileServer() == null) {
+        if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("File server is null", 0, uniqueId);
+            getErrorOutPut("PodSpace server is null", 0, uniqueId);
 
             return uniqueId;
         }
@@ -7033,9 +6998,9 @@ public class Chat extends AsyncAdapter {
                                         return;
                                     }
 
-                                    if (getFileServer() == null) {
+                                    if (getPodSpaceServer() == null) {
 
-                                        getErrorOutPut("File server is null", 0, finalUniqueId);
+                                        getErrorOutPut("PodSpace server is null", 0, finalUniqueId);
 
                                         return;
                                     }
@@ -9299,7 +9264,8 @@ public class Chat extends AsyncAdapter {
             if (currentTime - lastSentMessageTime > lastSentMessageTimeout && chatReady) {
                 ping();
             }
-        }, PING_INTERVAL);
+        },
+                PING_INTERVAL);
 
     }
 
@@ -9361,20 +9327,32 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnLogEvent(json);
                 listenerManager.callOnLogEvent(i, json);
             }
-            FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
+            try {
+                FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
+            } catch (IOException e) {
+                Log.e(TAG,"Saving log failed: " + e.getMessage());
+            }
         }
     }
 
     private void showLog(String info) {
         if (log) {
             Log.d(TAG, info);
-            FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
+            try {
+                FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
+            } catch (IOException e) {
+                Log.e(TAG,"Saving log failed: " + e.getMessage());
+            }
         }
     }
 
     private void showErrorLog(String message) {
         Log.e(TAG, message);
-        FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
+        try {
+            FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
+        } catch (IOException e) {
+            Log.e(TAG,"Saving log failed: " + e.getMessage());
+        }
 
     }
 

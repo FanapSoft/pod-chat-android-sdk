@@ -1,2 +1,2 @@
-include ':app', ':ntf_sdk'
+include ':app'
 include ':podchat'

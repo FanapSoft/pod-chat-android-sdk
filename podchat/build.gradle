@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.4.8'
+    libraryVersion = '0.6.5.0'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 77
+        versionCode 80
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -95,9 +95,6 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:18.0.0"
     implementation "android.arch.work:work-runtime:1.0.1"
 
-
-    //notification
-    implementation project(path: ':ntf_sdk')
 
 
 }

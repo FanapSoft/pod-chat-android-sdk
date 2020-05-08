@@ -57,6 +57,7 @@ public class FileUtils {
     public static final String VIDEOS = Media + "/Videos";
     public static final String SOUNDS = Media + "/Sounds";
     public static final String PICTURES = Media + "/Pictures";
+    public static final String LOGS = Media + "/Files/LOGS";
 
 
     public static final String MIME_TYPE_AUDIO = "audio/*";
@@ -84,17 +85,13 @@ public class FileUtils {
 
     }
 
-    public static void appendLog(String text) {
+    public static void appendLog(String text) throws java.io.IOException {
 
 
         File logFile = getLogFile();
 
-        if (!logFile.exists()) {
-            try {
-                logFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (logFile == null || !logFile.exists()) {
+            throw new IOException("Create Log file failed!");
         }
         try {
             //BufferedWriter for performance, true to set append to file flag
@@ -103,7 +100,7 @@ public class FileUtils {
             buf.newLine();
             buf.close();
         } catch (IOException e) {
-            Log.e(TAG, "Logger need permission");
+            Log.e(TAG, "Appending  to log failed! cause: " + e.getMessage());
         } catch (Exception ex) {
             Log.e(TAG, "Logger exception: " + ex.getMessage());
         }
@@ -114,6 +111,12 @@ public class FileUtils {
         try {
 
             File file = getLogFile();
+
+            if (file == null) {
+                Log.e(TAG, "No Log file found!");
+                return;
+            }
+
             Uri uri = FileProvider.getUriForFile(context, context
                     .getApplicationContext()
                     .getPackageName() + ".provider", file);
@@ -129,9 +132,28 @@ public class FileUtils {
 
     }
 
-    private static File getLogFile() {
-        File dire = getOrCreateDirectory("PODCHAT/LOGS");
-        return new File(dire, "PodChatLog.txt");
+    private static File getLogFile() throws IOException {
+
+
+        File dire = getLogsDirectory();
+        File logFile;
+        boolean resultDire;
+        if (!dire.exists()) {
+            resultDire = dire.mkdirs();
+        } else {
+            resultDire = true;
+        }
+
+        if (resultDire) {
+            logFile = new File(dire, "PodChatLog.txt");
+            if (!logFile.exists()) {
+                boolean resultFile = logFile.createNewFile();
+                if (resultFile) return logFile;
+            } else return logFile;
+        }
+
+
+        return null;
     }
 
 
@@ -910,11 +932,11 @@ public class FileUtils {
 
     public static File saveBitmap(Bitmap bitmap, String name) throws Exception {
 
-        File destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+        File destinationFolder = getPicturesDirectory();
 
         if (destinationFolder != null && !destinationFolder.exists()) {
             boolean r = destinationFolder.mkdirs();
-            if(!r) throw new Exception("Couldn't create path");
+            if (!r) throw new Exception("Couldn't create path");
         }
 
         OutputStream fOut = null;
@@ -927,7 +949,7 @@ public class FileUtils {
 
             if (!file.exists()) {
                 boolean re = file.createNewFile();
-                if(!re) throw new Exception("Couldn't create file");
+                if (!re) throw new Exception("Couldn't create file");
 
             }
 
@@ -945,6 +967,18 @@ public class FileUtils {
             return null;
         }
         return file;
+    }
+
+    private static File getPicturesDirectory() {
+        return FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+    }
+
+    private static File getFilesDirectory() {
+        return FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.FILES) : FileUtils.getOrCreateDirectory(FileUtils.FILES);
+    }
+
+    private static File getLogsDirectory() {
+        return FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.LOGS) : FileUtils.getOrCreateDirectory(FileUtils.LOGS);
     }
 
 
