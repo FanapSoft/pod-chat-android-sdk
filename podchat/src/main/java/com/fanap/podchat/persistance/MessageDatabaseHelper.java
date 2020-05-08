@@ -461,7 +461,7 @@ public class MessageDatabaseHelper {
     }
 
     private boolean canUseDatabase() {
-        return appDatabase != null && appDatabase.isOpen();
+        return appDatabase != null;
     }
 
     @Nullable

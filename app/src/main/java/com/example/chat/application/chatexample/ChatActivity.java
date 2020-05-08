@@ -114,7 +114,6 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "POD-Chat";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
-    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
     private ChatContract.presenter presenter;
@@ -143,7 +142,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "5cd90fdd2319475e919b019ddd3c045f";
+    private static String TOKEN = "574d093190854be0b56d4c42a3f72cb2";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -190,29 +189,31 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 8032;
+//    public static int TEST_THREAD_ID = 8032;
+//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 19868;
+    public static int TEST_THREAD_ID = 19868;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -673,7 +674,7 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("8GQRBPY93WHN9SGW")
+        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("52JUSH5YJT7LP12I")
                 .build();
 
 
@@ -827,10 +828,16 @@ public class ChatActivity extends AppCompatActivity
         List<Invitee> invite = new ArrayList<>();
 
         //f.kh sandbox
-        invite.add(new Invitee("4893", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        invite.add(new Invitee("4893", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
-        //p.pa main
-//        invite.add(new Invitee(1151568, InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //POURIA main
+        invite.add(new Invitee(1151568, InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //MASOUD
+//        invite.add(new Invitee(1511971, InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //ARVIN
+        invite.add(new Invitee(1512305, InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //MAHYAR
+//        invite.add(new Invitee(1196793, InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
 //        RequestThreadInnerMessage innerMessage = new RequestThreadInnerMessage
 //                .Builder(TextMessageType.Constants.PICTURE)
@@ -840,7 +847,10 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
-                .Builder(ThreadType.Constants.OWNER_GROUP, invite, requestUploadFile, TextMessageType.Constants.PICTURE)
+                .Builder(ThreadType.Constants.OWNER_GROUP,
+                invite, requestUploadFile,
+                TextMessageType.Constants.POD_SPACE_FILE)
+                .title("Test File PodSpace")
 //                .message(innerMessage)
                 .build();
 
@@ -2331,7 +2341,7 @@ public class ChatActivity extends AppCompatActivity
     private void replyFileMessage() {
         String messageContent = "Hello! just be happy!! : ) ";
         long threadId = TEST_THREAD_ID;
-        long messageId = 108292;
+        long messageId = 370907;
         Uri fileUri = getUri();
         Inviter inviter = new Inviter();
         inviter.setName("Me");
