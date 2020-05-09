@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.kezong.fat-aar'
-
+apply plugin: 'com.google.gms.google-services'
 
 ext {
 
@@ -89,6 +89,9 @@ dependencies {
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
 //    api project(path: ':podasync')
     api 'com.fanap.async:podasync:0.2.8.3'
+
+    implementation 'com.google.firebase:firebase-analytics:16.0.0'
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'
 
 
 }

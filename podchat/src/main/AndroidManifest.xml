@@ -9,21 +9,6 @@
 
     <application>
 
-<!--        <receiver-->
-<!--            android:name=".notification.PodPushNotificationReceiver"-->
-<!--            android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="com.arissystem.touca.app" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-
-<!--        <receiver android:name="com.arissystem.touca.tmtp.sdk.receivers.TmtpBootReceiver">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
-<!--                <action android:name="android.intent.action.QUICKBOOT_POWERON" />-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
-
         <provider
             android:name=".util.GenericFileProvider"
             android:authorities="${applicationId}.provider"
@@ -33,6 +18,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
+
+
+        <service
+            android:name="com.fanap.podchat.notification.PodChatPushNotification"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

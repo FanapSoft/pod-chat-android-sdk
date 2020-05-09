@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -151,6 +152,7 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.PodChatPushNotification;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -431,6 +433,11 @@ public class Chat extends AsyncAdapter {
 
 
         }
+
+        Intent i = new Intent("ACTION_SET_USER_ID");
+        i.putExtra("UID", 123342);
+
+        context.sendBroadcast(i);
 
 
         return instance;
@@ -9259,12 +9266,12 @@ public class Chat extends AsyncAdapter {
 
         pingRunOnUIThread(() -> {
 
-            long currentTime = new Date().getTime();
+                    long currentTime = new Date().getTime();
 
-            if (currentTime - lastSentMessageTime > lastSentMessageTimeout && chatReady) {
-                ping();
-            }
-        },
+                    if (currentTime - lastSentMessageTime > lastSentMessageTimeout && chatReady) {
+                        ping();
+                    }
+                },
                 PING_INTERVAL);
 
     }
@@ -9330,7 +9337,7 @@ public class Chat extends AsyncAdapter {
             try {
                 FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
             } catch (IOException e) {
-                Log.e(TAG,"Saving log failed: " + e.getMessage());
+                Log.e(TAG, "Saving log failed: " + e.getMessage());
             }
         }
     }
@@ -9341,7 +9348,7 @@ public class Chat extends AsyncAdapter {
             try {
                 FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
             } catch (IOException e) {
-                Log.e(TAG,"Saving log failed: " + e.getMessage());
+                Log.e(TAG, "Saving log failed: " + e.getMessage());
             }
         }
     }
@@ -9351,7 +9358,7 @@ public class Chat extends AsyncAdapter {
         try {
             FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
         } catch (IOException e) {
-            Log.e(TAG,"Saving log failed: " + e.getMessage());
+            Log.e(TAG, "Saving log failed: " + e.getMessage());
         }
 
     }
@@ -10827,6 +10834,7 @@ public class Chat extends AsyncAdapter {
 
             //ping start after the response of the get userInfo
             pingWithDelay();
+
         }
     }
 
