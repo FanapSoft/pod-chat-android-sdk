@@ -3,6 +3,60 @@
 **Fanap's POD** Chat service
 
 
+## Version [0.6.5.3] -2020-5-10
+
+- getHistory by messageType:
+
+        
+        
+          RequestGetHistory request = new RequestGetHistory
+                        .Builder(threadId)
+                        .offset(0)
+                        .count(50)
+                        .setMessageType(messageType) // TextMessageType.Constants.POD_SPACE_FILE
+                        .build();
+                        
+             
+                        
+          chat.getHistory(request, null);
+
+
+
+
+
+## Version [0.6.5.0] -2020-5-8
+
+- Add userGroupHash to all file messages request and set new TextMessageTypes
+
+
+        
+         RequestFileMessage request = new RequestFileMessage.Builder(
+                                        Activity,
+                                        threadId,
+                                        Uri,
+                                        TextMessageType.Constants.POD_SPACE_FILE) //new messageType
+                                        .description("new file message")             
+                                        .setUserGroupHash(userGroupHash)
+                                        .build();
+                                        
+         chat.sendFileMessage(request, new ProgressHandler.sendFileMessage());
+
+
+
+- Download uploaded file:
+
+
+        
+        RequestGetPodSpaceFile request = new RequestGetPodSpaceFile.Builder(fileHash)
+                        .build();
+
+
+        getFile(request,ProgressHandler)
+
+
+
+
+
 ## Version [0.6.4.4] -2020-4-26
 
 -Customize Notification

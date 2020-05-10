@@ -7,6 +7,12 @@ All notable changes to this project will be documented here.
 
 
 
+## Version [0.6.5.3] -2020-5-10
+
+[Added] getHistory by messageType
+
+
+
 
 
 ## Version [0.6.5.0] -2020-5-8
@@ -14,6 +20,8 @@ All notable changes to this project will be documented here.
 [Added] podSpaceServer to RequestConnect
 
 [Added] userGroupHash to Thread
+
+[Added] New TextMessageTypes
 
 [Changed] following functions needs userGroupHash:
         

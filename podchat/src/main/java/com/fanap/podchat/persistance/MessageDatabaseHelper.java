@@ -1143,6 +1143,9 @@ public class MessageDatabaseHelper {
 
         rawQuery = addMessageTypeIfExist(messageType, rawQuery);
 
+
+        long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(rawQuery.replaceFirst("SELECT \\* ","SELECT COUNT(ID) ")));
+
         rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
 
         SupportSQLiteQuery sqLiteQuery = new SimpleSQLiteQuery(rawQuery);
@@ -1150,9 +1153,6 @@ public class MessageDatabaseHelper {
         cacheMessageVOS = messageDao.getRawHistory(sqLiteQuery);
 
         prepareMessageVOs(messageVOS, cacheMessageVOS);
-
-
-        long contentCount = getHistoryContentCount(threadId);
 
         List<Sending> sendingList = getAllSendingQueueByThreadId(threadId);
 
