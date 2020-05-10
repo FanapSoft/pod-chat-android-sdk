@@ -3,7 +3,7 @@
 **Fanap's POD** Chat service
 
 
-## Version [0.6.5.3] -2020-5-10
+## Version [0.6.5.4] -2020-5-10
 
 - getHistory by messageType:
 
