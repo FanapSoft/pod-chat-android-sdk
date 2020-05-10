@@ -22,6 +22,7 @@ public class ChatConstant {
 
     public static final int ERROR_CODE_DOWNLOAD_FILE = 6500;
     public static final int ERROR_CODE_WRITING_FILE = 6501;
+    public static final int ERROR_CODE_CALL_NESHAN_API = 6502;
 
 
 
@@ -49,4 +50,5 @@ public class ChatConstant {
     public static final String ERROR_NUMBER_MESSAGEID = "Number of messageIds exceeded! Just add one message Id";
 
     public static final String ERROR_LOW_FREE_SPACE = "More free space is needed for using cache!";
+    public static final String ERROR_CALL_NESHAN_API = "Call neshan api failed";
 }

@@ -143,7 +143,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         chat.isLoggable(true);
-        chat.activateLogger(activity);
         chat.rawLog(true);
 
         chat.setDownloadDirectory(context.getCacheDir());

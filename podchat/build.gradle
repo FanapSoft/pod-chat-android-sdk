@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.5.3'
+    libraryVersion = '0.6.5.4'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 83
+        versionCode 84
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -199,6 +199,24 @@ afterEvaluate { project ->
                 }
             }
         }
+    }
+
+
+    task publishIt {
+
+        doFirst {
+            println 'start publishing'
+        }
+        doLast {
+            println 'Published successfully!'
+        }
+        dependsOn 'clean'
+        dependsOn 'install'
+        dependsOn 'bintrayUpload'
+        tasks.findByName('install').mustRunAfter('clean')
+        tasks.findByName('bintrayUpload').mustRunAfter('install')
+
+
     }
 
 

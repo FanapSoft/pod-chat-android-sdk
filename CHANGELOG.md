@@ -7,9 +7,13 @@ All notable changes to this project will be documented here.
 
 
 
-## Version [0.6.5.3] -2020-5-10
+## Version [0.6.5.4] -2020-5-10
 
-[Added] getHistory by messageType
+[Added] getHistory by messageType added
+
+[Removed] Unused permissions have been removed
+
+[Improved] All Exceptions have been handled
 
 
 
