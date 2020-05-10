@@ -2,6 +2,7 @@ package com.fanap.podchat.chat;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -152,10 +153,9 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
-import com.fanap.podchat.notification.PodChatPushNotification;
+import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
-import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
@@ -215,7 +215,6 @@ import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
-import com.fanap.podchat.util.FunctionalListener;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 import com.fanap.podchat.util.NetworkUtils.NetworkStateListener;
@@ -373,6 +372,8 @@ public class Chat extends AsyncAdapter {
     @Inject
     public PhoneContactDbHelper phoneContactDbHelper;
 
+    BroadcastReceiver fcmRefreshTokenReceiver;
+
     private String socketAddress;
     private String appId;
     private String serverName;
@@ -434,13 +435,20 @@ public class Chat extends AsyncAdapter {
 
         }
 
-        Intent i = new Intent("ACTION_SET_USER_ID");
-        i.putExtra("UID", 123342);
-
-        context.sendBroadcast(i);
-
-
         return instance;
+    }
+
+
+    public void setupNotification() {
+
+        fcmRefreshTokenReceiver = PodNotificationManager.getBroadcastReceiver();
+
+        try {
+            context.registerReceiver(fcmRefreshTokenReceiver, PodNotificationManager.getFCMTokenIntentFilter());
+        } catch (Exception e) {
+            showErrorLog("Register fcm token receiver failed!");
+        }
+
     }
 
     private static void runDatabase(Context context) {

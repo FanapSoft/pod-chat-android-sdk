@@ -1,81 +1,31 @@
 package com.fanap.podchat.notification;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-public class PodChatPushNotification extends FirebaseMessagingService {
+public class PodChatPushNotificationService extends FirebaseMessagingService {
 
 
     private static final String TAG = "CHAT_SDK_NOTIFICATION";
+    public static final String ACTION_REFRESH = "ACTION_TOKEN_REFRESHED";
+    public static final String KEY_TOKEN = "TOKEN";
 
-    long userId = 0;
-
-    BroadcastReceiver receiver;
-
-    @Override
-    public void onDestroy() {
-
-        unregisterReceiver(receiver);
-        receiver = null;
-        super.onDestroy();
-    }
-
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("ACTION_SET_USER_ID");
-
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                Log.e(TAG, "On Receive BroadCast");
-
-                userId = intent.getLongExtra("UID", -1);
-
-                Log.e(TAG, "UserId: " + userId);
-
-            }
-        };
-
-        registerReceiver(receiver, filter);
-
-    }
-
-    public PodChatPushNotification() {
+    public PodChatPushNotificationService() {
         super();
 
-        Log.i(TAG, "FCM CONSTRUCTOR");
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
 
             Log.i(TAG, "FCM ON GET INSTANCE COMPLETE");
 
             if (task.isSuccessful()) {
-
                 String token = task.getResult().getToken();
-
-                Log.i(TAG, "FCM ON GET INSTANCE SUCCESS: Token: " + token);
-
-
+                broadcastNewFCMToken(token);
             } else {
-
-                Log.i(TAG, "FCM ON GET INSTANCE Failed cause: " + task.getException());
-
+                // TODO: 5/10/2020 handle failure
             }
 
 
@@ -112,7 +62,12 @@ public class PodChatPushNotification extends FirebaseMessagingService {
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
-        Log.i(TAG, "FCM ON TOKEN REFRESHED: " + s);
+        broadcastNewFCMToken(s);
+    }
 
+    private void broadcastNewFCMToken(String s) {
+        Intent intent = new Intent(ACTION_REFRESH);
+        intent.putExtra(KEY_TOKEN, s);
+        sendBroadcast(intent);
     }
 }

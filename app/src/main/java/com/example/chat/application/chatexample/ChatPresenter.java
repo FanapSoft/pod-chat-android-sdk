@@ -137,6 +137,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.addListener(this);
 
+        chat.setupNotification();
+
 
         //
         chat.isCacheables(true);

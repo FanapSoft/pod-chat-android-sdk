@@ -21,7 +21,7 @@
 
 
         <service
-            android:name="com.fanap.podchat.notification.PodChatPushNotification"
+            android:name="com.fanap.podchat.notification.PodChatPushNotificationService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
