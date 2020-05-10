@@ -9,16 +9,24 @@ public class RequestUploadFile {
 
     private Activity activity;
     private Uri fileUri;
+    private String userGroupHashCode;
 
     RequestUploadFile(Builder builder) {
-        this.activity = builder.activity;
-        this.fileUri = builder.fileUri;
+        activity = builder.activity;
+        fileUri = builder.fileUri;
+        userGroupHashCode = builder.userGroupHashCode;
+    }
+
+
+    public String getUserGroupHashCode() {
+        return userGroupHashCode;
     }
 
     public RequestUploadFile() {
     }
 
     public static class Builder {
+        private String userGroupHashCode;
         private Activity activity;
         private Uri fileUri;
 
@@ -34,6 +42,11 @@ public class RequestUploadFile {
 
         public Builder setFileUri(Uri fileUri) {
             this.fileUri = fileUri;
+            return this;
+        }
+
+        public Builder setUserGroupHashCode(String hashCode) {
+            this.userGroupHashCode = hashCode;
             return this;
         }
 

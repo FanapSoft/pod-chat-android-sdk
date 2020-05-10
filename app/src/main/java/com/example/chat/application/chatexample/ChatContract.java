@@ -32,6 +32,7 @@ import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -311,7 +312,7 @@ public interface ChatContract {
 
         String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
 
-        void sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler);
+        String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler);
 
         void syncContact(Activity activity);
 
@@ -381,7 +382,7 @@ public interface ChatContract {
 
         void removeAuditor(RequestSetAuditor requestAddAdmin);
 
-        void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.onProgressFile handler);
+        void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.sendFileMessage handler);
 
         void getUserRoles(RequestGetUserRoles req);
 
@@ -432,5 +433,7 @@ public interface ChatContract {
         void getThreadParticipant(RequestThreadParticipant request);
 
         void shareLogs();
+
+        String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile);
     }
 }

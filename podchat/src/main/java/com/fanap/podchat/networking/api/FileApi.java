@@ -2,6 +2,7 @@ package com.fanap.podchat.networking.api;
 
 import android.support.annotation.NonNull;
 
+import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResponse;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.networking.ProgressResponseBody;
@@ -25,6 +26,8 @@ import retrofit2.http.Url;
 import rx.Observable;
 
 public interface FileApi {
+
+
     @NonNull
     @Multipart
     @POST("nzh/uploadFile")
@@ -33,6 +36,17 @@ public interface FileApi {
             , @Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") RequestBody fileName);
+
+
+    @NonNull
+    @Multipart
+    @POST("userGroup/uploadFile")
+    Observable<Response<UploadToPodSpaceResponse>> uploadToPodSpace(
+            @Part MultipartBody.Part file
+            , @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("filename") RequestBody fileName,
+            @Part("userGroupHash") RequestBody userGroupHash);
 
 
     @NonNull
@@ -85,7 +99,7 @@ public interface FileApi {
 //                    , @Query("hashCode") String hashCode);
 
 
- @NonNull
+    @NonNull
     @GET("nzh/file/")
     @Streaming
     Call<ResponseBody> getFile
@@ -107,7 +121,12 @@ public interface FileApi {
     @Streaming
     Call<ResponseBody> download(@Url String url);
 
-
+    @GET("nzh/drive/downloadFile")
+    @Streaming
+    Call<ResponseBody> download(
+            @Query("hash") String hash,
+            @Header("_token_") String token,
+            @Header("_token_issuer_") int tokenIssuer);
 
 
 }

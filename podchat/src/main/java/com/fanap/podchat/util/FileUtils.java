@@ -1,20 +1,5 @@
 package com.fanap.podchat.util;
 
-/*
- * Copyright (C) 2007-2008 OpenIntents.org
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -48,15 +33,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
-/**
- * @author Peli
- * @author paulburke (ipaulpro)
- * @version 2013-12-11
- */
+
 public class FileUtils {
 
     private FileUtils() {
@@ -77,6 +57,7 @@ public class FileUtils {
     public static final String VIDEOS = Media + "/Videos";
     public static final String SOUNDS = Media + "/Sounds";
     public static final String PICTURES = Media + "/Pictures";
+    public static final String LOGS = Media + "/Files/LOGS";
 
 
     public static final String MIME_TYPE_AUDIO = "audio/*";
@@ -104,17 +85,13 @@ public class FileUtils {
 
     }
 
-    public static void appendLog(String text) {
+    public static void appendLog(String text) throws java.io.IOException {
 
 
         File logFile = getLogFile();
 
-        if (!logFile.exists()) {
-            try {
-                logFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (logFile == null || !logFile.exists()) {
+            throw new IOException("Create Log file failed!");
         }
         try {
             //BufferedWriter for performance, true to set append to file flag
@@ -123,7 +100,7 @@ public class FileUtils {
             buf.newLine();
             buf.close();
         } catch (IOException e) {
-            Log.e(TAG, "Logger need permission");
+            Log.e(TAG, "Appending  to log failed! cause: " + e.getMessage());
         } catch (Exception ex) {
             Log.e(TAG, "Logger exception: " + ex.getMessage());
         }
@@ -134,6 +111,12 @@ public class FileUtils {
         try {
 
             File file = getLogFile();
+
+            if (file == null) {
+                Log.e(TAG, "No Log file found!");
+                return;
+            }
+
             Uri uri = FileProvider.getUriForFile(context, context
                     .getApplicationContext()
                     .getPackageName() + ".provider", file);
@@ -149,9 +132,28 @@ public class FileUtils {
 
     }
 
-    private static File getLogFile() {
-        File dire = getOrCreateDirectory("PODCHAT/LOGS");
-        return new File(dire, "PodChatLog.txt");
+    private static File getLogFile() throws IOException {
+
+
+        File dire = getLogsDirectory();
+        File logFile;
+        boolean resultDire;
+        if (!dire.exists()) {
+            resultDire = dire.mkdirs();
+        } else {
+            resultDire = true;
+        }
+
+        if (resultDire) {
+            logFile = new File(dire, "PodChatLog.txt");
+            if (!logFile.exists()) {
+                boolean resultFile = logFile.createNewFile();
+                if (resultFile) return logFile;
+            } else return logFile;
+        }
+
+
+        return null;
     }
 
 
@@ -393,8 +395,7 @@ public class FileUtils {
 
     public static File getOrCreateDirectory(String path) {
 
-        File directory = Environment.getExternalStorageDirectory();
-
+        File directory = Environment.getDownloadCacheDirectory();
 
         File destFolder = new File(directory, path);
 
@@ -929,14 +930,29 @@ public class FileUtils {
         return intent;
     }
 
-    public static File saveBitmap(Bitmap bitmap, String name) {
-        String path = Environment.getExternalStorageDirectory().toString();
+    public static File saveBitmap(Bitmap bitmap, String name) throws Exception {
+
+        File destinationFolder = getPicturesDirectory();
+
+        if (destinationFolder != null && !destinationFolder.exists()) {
+            boolean r = destinationFolder.mkdirs();
+            if (!r) throw new Exception("Couldn't create path");
+        }
+
         OutputStream fOut = null;
 //        Integer counter = 0;
         int counter = randomNumber(1, 1000);
         // the File to save , append increasing numeric counter to prevent files from getting overwritten.
-        File file = new File(path, name + counter + ".jpg");
+        File file = new File(destinationFolder, name + counter + ".jpg");
+
         try {
+
+            if (!file.exists()) {
+                boolean re = file.createNewFile();
+                if (!re) throw new Exception("Couldn't create file");
+
+            }
+
             fOut = new FileOutputStream(file);
 
             // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
@@ -951,6 +967,18 @@ public class FileUtils {
             return null;
         }
         return file;
+    }
+
+    private static File getPicturesDirectory() {
+        return FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+    }
+
+    private static File getFilesDirectory() {
+        return FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.FILES) : FileUtils.getOrCreateDirectory(FileUtils.FILES);
+    }
+
+    private static File getLogsDirectory() {
+        return FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.LOGS) : FileUtils.getOrCreateDirectory(FileUtils.LOGS);
     }
 
 

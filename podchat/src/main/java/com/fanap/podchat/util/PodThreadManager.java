@@ -1,5 +1,6 @@
 package com.fanap.podchat.util;
 
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -142,30 +143,52 @@ public class PodThreadManager {
 
     }
 
-    public synchronized void doWithUI(Runnable task, Runnable actionOnUI, Runnable actionOnError) {
+    public synchronized void doWithUI(Runnable actionOnUI, Runnable actionOnError, Runnable... task) {
 
 
-        Thread backgroundThread = new Thread(() -> {
-
-            try {
-                Thread oneTaskThread = new Thread(task);
-                oneTaskThread.setName("Pod-Block-Thread");
-                oneTaskThread.start();
-                oneTaskThread.join();
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(actionOnUI);
-            } catch (InterruptedException e) {
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(actionOnError);
-            }
-
-
-        });
-        backgroundThread.setName("Pod-Background-Thread");
-        backgroundThread.start();
+        new PodAsyncTask(actionOnUI, actionOnError).execute(task);
 
 
     }
+
+
+    static class PodAsyncTask extends AsyncTask<Runnable, Void, Boolean> {
+
+        Runnable taskOnUI;
+        Runnable taskOnError;
+
+        PodAsyncTask(Runnable taskOnUI, Runnable taskOnError) {
+            this.taskOnUI = taskOnUI;
+            this.taskOnError = taskOnError;
+        }
+
+        @Override
+        protected Boolean doInBackground(Runnable... runnables) {
+
+            try {
+                for (Runnable task :
+                        runnables) {
+                    task.run();
+                }
+                return true;
+            } catch (Exception exc) {
+                exc.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+
+            if (aBoolean) {
+                taskOnUI.run();
+            } else taskOnError.run();
+
+        }
+
+
+    }
+
 
     public interface IComplete {
 

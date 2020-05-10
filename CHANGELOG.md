@@ -6,7 +6,52 @@
 All notable changes to this project will be documented here.
 
 
-##Version [0.6.4.7] -2020-5-1
+
+## Version [0.6.5.3] -2020-5-10
+
+[Added] getHistory by messageType
+
+
+
+
+
+## Version [0.6.5.0] -2020-5-8
+
+[Added] podSpaceServer to RequestConnect
+
+[Added] userGroupHash to Thread
+
+[Added] New TextMessageTypes
+
+[Changed] following functions needs userGroupHash:
+        
+        sendFileMessage
+        
+        createThreadWithFile
+        
+        replyFileMessage
+        
+        sendLocationMessage
+        
+[Added] retryUploadPodSpace
+
+[Added] getFile(RequestPodSpaceFile,ProgressHandler)
+
+[Removed] Notification removed
+
+[Changed] Remove Permissions from sdk manifest
+
+[BugFixed] minor bug fixed
+
+
+## Version [0.6.4.8] -2020-5-3
+[BugFixed] Room integrity exception handled
+
+[BugFixed] minor bug fixed 
+
+
+
+## Version [0.6.4.7] -2020-5-1
 [Added] logger and shareLogs function
 
 [BugFixed] leaveThread cache bug fixed
@@ -14,7 +59,7 @@ All notable changes to this project will be documented here.
 
 
 
-##Version [0.6.4.6] -2020-4-28
+## Version [0.6.4.6] -2020-4-28
 [BugFixed] syncContact Contact Version Problem fixed
 
 

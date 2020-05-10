@@ -39,7 +39,8 @@ public abstract class ProgressHandler {
         default void onImageFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
         }
 
-        default void onError(String jsonError, ErrorOutPut error) { }
+        default void onError(String jsonError, ErrorOutPut error) {
+        }
     }
 
     public interface sendFileMessage {
@@ -57,22 +58,27 @@ public abstract class ProgressHandler {
         }
     }
 
-
     public interface IDownloadFile {
 
+        default void onProgressUpdate(String uniqueId, long bytesDownloaded, long totalBytesToDownload) {
+        }
 
-        default void onProgressUpdate(String uniqueId, long bytesDownloaded, long totalBytesToDownload){}
-        default void onProgressUpdate(String uniqueId, int progress){}
-        void onError(String uniqueId, String error,String url);
-        default void onLowFreeSpace(String uniqueId,String url){}
-        default void onFileReady(ChatResponse<ResultDownloadFile> response){}
+        default void onProgressUpdate(String uniqueId, int progress) {
+        }
+
+        void onError(String uniqueId, String error, String url);
+
+        default void onLowFreeSpace(String uniqueId, String url) {
+        }
+
+        default void onFileReady(ChatResponse<ResultDownloadFile> response) {
+        }
 
 
     }
 
     public interface cancelUpload {
         default void cancelUpload(String uniqueId) {
-
         }
     }
 

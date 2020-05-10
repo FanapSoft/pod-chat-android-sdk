@@ -1,2 +1,2 @@
-include ':app', ':tmtp_sdk', ':podotp'
+include ':app'
 include ':podchat'
