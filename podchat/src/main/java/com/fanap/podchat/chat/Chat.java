@@ -154,7 +154,6 @@ import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
-import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
@@ -213,7 +212,6 @@ import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
-import com.fanap.podchat.util.FunctionalListener;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 import com.fanap.podchat.util.NetworkUtils.NetworkStateListener;
@@ -277,7 +275,7 @@ import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.OPEN;
 public class Chat extends AsyncAdapter {
     private static final String MTAG = "MTAG";
     public static final String PING = "PING";
-    public static final int WRITE_EXTERNAL_STORAGE_CODE = 1007;
+    public static final int READ_EXTERNAL_STORAGE_CODE = 1007;
     public static final int READ_CONTACTS_CODE = 1008;
     private static final int PING_INTERVAL = 20000;
     private static final int signalIntervalTime = 3000;
@@ -2004,7 +2002,7 @@ public class Chat extends AsyncAdapter {
 
         if (!Permission.Check_READ_STORAGE(activity)) {
 
-            Permission.Request_READ_STORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
+            Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
 
             getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
@@ -2013,14 +2011,6 @@ public class Chat extends AsyncAdapter {
             return true;
         }
         return false;
-    }
-
-
-    private boolean hasReadAndWriteStoragePermission() {
-
-
-        return Permission.Check_READ_STORAGE(getContext()) &&
-                Permission.Check_Write_STORAGE(getContext());
     }
 
     /**
@@ -3733,15 +3723,6 @@ public class Chat extends AsyncAdapter {
 
         String url = getFile(request.getFileId(), request.getHashCode(), true);
 
-        if (!isExternalStorageWritable() || !hasReadAndWriteStoragePermission()) {
-
-            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
-
-            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
-
-            return uniqueId;
-        }
-
 
         PodDownloader.IDownloaderError downloaderErrorInterface =
                 getDownloaderErrorInterface(progressHandler, uniqueId, url);
@@ -3848,16 +3829,6 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
         String url = getImage(request.getImageId(), request.getHashCode(), true);
-
-        if (!isExternalStorageWritable() || !hasReadAndWriteStoragePermission()) {
-
-            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
-
-            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
-
-            return uniqueId;
-        }
-
 
         PodDownloader.IDownloaderError downloaderErrorInterface =
                 getDownloaderErrorInterface(progressHandler, uniqueId, url);
@@ -9313,12 +9284,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public void activateLogger(Activity activity) {
-
-        Permission.Request_WRITE_TORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
-
-    }
-
     private void showLog(String i, String json) {
         if (log) {
             Log.i(TAG, i);
@@ -12440,7 +12405,7 @@ public class Chat extends AsyncAdapter {
             }
         } else {
 
-            Permission.Request_WRITE_TORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
+            Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
 
             getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
@@ -12726,7 +12691,7 @@ public class Chat extends AsyncAdapter {
                     getErrorOutPut("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                 }
             } else {
-                Permission.Request_WRITE_TORAGE(activity, WRITE_EXTERNAL_STORAGE_CODE);
+                Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
                 String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                         , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
                 if (log) Log.e(TAG, jsonError);
