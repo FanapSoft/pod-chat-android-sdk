@@ -202,6 +202,24 @@ afterEvaluate { project ->
     }
 
 
+    task publishIt {
+
+        doFirst {
+            println 'start publishing'
+        }
+        doLast {
+            println 'Published successfully!'
+        }
+        dependsOn 'clean'
+        dependsOn 'install'
+        dependsOn 'bintrayUpload'
+        tasks.findByName('install').mustRunAfter('clean')
+        tasks.findByName('bintrayUpload').mustRunAfter('install')
+
+
+    }
+
+
     task sourcesJar(type: Jar) {
         classifier = 'sources'
         from android.sourceSets.main.java.srcDirs
