@@ -142,7 +142,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "574d093190854be0b56d4c42a3f72cb2";
+    private static String TOKEN = "a95c4bfd5bc1407cad2ec9313d5f0d76";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -189,31 +189,31 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 8032;
-//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+    public static int TEST_THREAD_ID = 8032;
+    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 19868;
-    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//    public static int TEST_THREAD_ID = 19868;
+//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 

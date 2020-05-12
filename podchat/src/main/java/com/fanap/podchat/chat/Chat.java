@@ -153,7 +153,9 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.notification.PodNotificationManager;
+import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -405,7 +407,6 @@ public class Chat extends AsyncAdapter {
 
     public synchronized static Chat init(Context context) {
 
-
         if (instance == null) {
 
             async = Async.getInstance(context);
@@ -439,15 +440,26 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public void setupNotification() {
+    public void setupNotification(CustomNotificationConfig notificationConfig) {
 
-        fcmRefreshTokenReceiver = PodNotificationManager.getBroadcastReceiver();
+        PodNotificationManager.withConfig(notificationConfig,context);
+        PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
+            @Override
+            public void onLogEvent(String log) {
+                showLog(log);
+            }
 
-        try {
-            context.registerReceiver(fcmRefreshTokenReceiver, PodNotificationManager.getFCMTokenIntentFilter());
-        } catch (Exception e) {
-            showErrorLog("Register fcm token receiver failed!");
-        }
+            @Override
+            public void onInitialTokenReceived(String token) {
+                saveFCMToken(token);
+            }
+
+            @Override
+            public void onTokenRefreshed(String token) {
+                saveFCMToken(token);
+            }
+        });
+        PodNotificationManager.registerFCMTokenReceiver(context);
 
     }
 
@@ -607,14 +619,12 @@ public class Chat extends AsyncAdapter {
             context.unregisterReceiver(networkStateReceiver);
             if (pinger != null) pinger.stopPing();
             closeSocketServer();
-
+            PodNotificationManager.unRegisterReceiver(context);
         } catch (Exception ex) {
 
             if (log) {
-
                 Log.e(TAG, "Exception When Closing Chat. Unregistering Receiver failed. cause: " + ex.getMessage());
                 Log.w(TAG, "Pinger has been stopped");
-
             }
         }
     }
@@ -10935,13 +10945,17 @@ public class Chat extends AsyncAdapter {
         return mSecurePrefs.getString("KEY", null);
     }
 
+    private String getFCMToken(){
+
+        return mSecurePrefs.getString("FCM_TOKEN", null);
+
+    }
+
     private void setKey(String key) {
         mSecurePrefs.edit().putString("KEY", key).apply();
     }
 
-    private static void setTheKey(String key) {
-        mSecurePrefs.edit().putString("KEY", key).apply();
-    }
+    private void saveFCMToken(String token){mSecurePrefs.edit().putString("FCM_TOKEN", token).apply();}
 
     private void retryOnGetUserInfo() {
         runOnUIUserInfoThread(new Runnable() {
