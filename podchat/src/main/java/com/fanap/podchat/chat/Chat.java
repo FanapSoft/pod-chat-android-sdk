@@ -1257,7 +1257,8 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable throwable) {
             if (log) {
-                showLog("CONNECTION_ERROR", throwable.getMessage());;
+                showLog("CONNECTION_ERROR", throwable.getMessage());
+                ;
             }
         }
     }
@@ -1785,7 +1786,7 @@ public class Chat extends AsyncAdapter {
      * First we get the contact from server then at the respond of that
      *
      * @param activity its for check the permission of reading the phone contact
-     *                 {@link #getPhoneContact(Context,String, OnContactLoaded)}
+     *                 {@link #getPhoneContact(Context, String, OnContactLoaded)}
      */
     public String syncContact(Activity activity) {
 
@@ -1797,7 +1798,7 @@ public class Chat extends AsyncAdapter {
 
             if (chatReady) {
 
-                getPhoneContact(getContext(),uniqueId, phoneContacts -> {
+                getPhoneContact(getContext(), uniqueId, phoneContacts -> {
 
 
                     if (phoneContacts.size() > 0) {
@@ -3712,7 +3713,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private String getPodSpaceFileUrl(String hashCode) {
-        return getPodSpaceServer() + "downloadFile?hash=" + hashCode;
+        return getPodSpaceServer() + "nzh/drive/downloadFile?hash=" + hashCode;
     }
 
     private String getPodSpaceServer() {
@@ -9304,7 +9305,7 @@ public class Chat extends AsyncAdapter {
 
     private void showErrorLog(String message) {
 
-        if(log){
+        if (log) {
 
             Log.e(TAG, message);
             try {
@@ -11863,7 +11864,7 @@ public class Chat extends AsyncAdapter {
      * Get the list of the Device Contact
      */
 
-    private void getPhoneContact(Context context,String uniqueId, OnContactLoaded listener) {
+    private void getPhoneContact(Context context, String uniqueId, OnContactLoaded listener) {
 
 
         try {
@@ -11958,7 +11959,8 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);        }
+            onUnknownException(uniqueId);
+        }
 
     }
 
