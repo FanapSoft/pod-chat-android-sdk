@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -155,7 +154,6 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.notification.PodNotificationManager;
-import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -442,7 +440,7 @@ public class Chat extends AsyncAdapter {
 
     public void setupNotification(CustomNotificationConfig notificationConfig) {
 
-        PodNotificationManager.withConfig(notificationConfig,context);
+        PodNotificationManager.withConfig(notificationConfig, context);
         PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
             @Override
             public void onLogEvent(String log) {
@@ -450,18 +448,19 @@ public class Chat extends AsyncAdapter {
             }
 
             @Override
-            public void onInitialTokenReceived(String token) {
-                saveFCMToken(token);
-            }
+            public void sendAsyncMessage(String message, String info) {
 
-            @Override
-            public void onTokenRefreshed(String token) {
-                saveFCMToken(token);
+                if (chatReady) {
+                    showLog(info, message);
+                    async.sendMessage(message, AsyncAckType.Constants.WITHOUT_ACK);
+                }
+
             }
         });
         PodNotificationManager.registerFCMTokenReceiver(context);
 
     }
+
 
     private static void runDatabase(Context context) {
 
@@ -840,6 +839,22 @@ public class Chat extends AsyncAdapter {
             case Constants.USER_INFO:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
+
+
+//            case Constants.REGISTER_FCM_APP: {
+//                PodNotificationManager.handleOnAppRegistered(chatMessage, context, getUserId());
+//                break;
+//            }
+
+            case Constants.REGISTER_FCM_USER_DEVICE: {
+                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage);
+                break;
+            }
+
+            case Constants.UPDATE_FCM_APP_USERS_DEVICE: {
+                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage);
+                break;
+            }
 
 
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
@@ -3745,7 +3760,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private String getPodSpaceFileUrl(String hashCode) {
-        return getPodSpaceServer() + "downloadFile?hash=" + hashCode;
+        return getPodSpaceServer() + "nzh/drive/downloadFile?hash=" + hashCode;
     }
 
     private String getPodSpaceServer() {
@@ -9427,8 +9442,19 @@ public class Chat extends AsyncAdapter {
 
             return;
         }
+
+
+
         String errorMessage = error.getMessage();
         long errorCode = error.getCode();
+
+        boolean isNotif = PodNotificationManager.isNotificationError(
+                chatMessage,
+                error,
+                context,
+                getUserId());
+
+        if(isNotif) return;
 
         getErrorOutPut(errorMessage, errorCode, chatMessage.getUniqueId());
     }
@@ -10200,7 +10226,7 @@ public class Chat extends AsyncAdapter {
                             initDatabase();
                         }
 
-                        setChatReady("CHAT_READY", true);
+                        setChatReady("CHAT_READY");
 
 
                     } else {
@@ -10212,7 +10238,7 @@ public class Chat extends AsyncAdapter {
 
                         initDatabase();
 
-                        setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_US", false);
+                        setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_US");
 
 
                     }
@@ -10225,7 +10251,7 @@ public class Chat extends AsyncAdapter {
                         Log.e(TAG, response.errorBody().toString());
                     }
                     initDatabase();
-                    setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_NS", false);
+                    setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_NS");
 
                 }
 
@@ -10242,17 +10268,17 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void setChatReady(String state, boolean encrypt) {
+    private void setChatReady(String state) {
 
         listenerManager.callOnChatState("CHAT_READY");
         chatReady = true;
         chatState = CHAT_READY;
         checkMessageQueue();
-
         getAllThreads();
         showLog(state, "");
         permit = true;
         checkFreeSpace();
+        PodNotificationManager.onChatIsReady(context,userId);
 
 
     }
@@ -10836,7 +10862,7 @@ public class Chat extends AsyncAdapter {
 //            if there is a key its ok if not it will go for the key and then chat ready
 
 
-            setChatReady("CHAT_READY", true);
+            setChatReady("CHAT_READY");
 
 
 //            if (permit) {
@@ -10945,17 +10971,9 @@ public class Chat extends AsyncAdapter {
         return mSecurePrefs.getString("KEY", null);
     }
 
-    private String getFCMToken(){
-
-        return mSecurePrefs.getString("FCM_TOKEN", null);
-
-    }
-
     private void setKey(String key) {
         mSecurePrefs.edit().putString("KEY", key).apply();
     }
-
-    private void saveFCMToken(String token){mSecurePrefs.edit().putString("FCM_TOKEN", token).apply();}
 
     private void retryOnGetUserInfo() {
         runOnUIUserInfoThread(new Runnable() {

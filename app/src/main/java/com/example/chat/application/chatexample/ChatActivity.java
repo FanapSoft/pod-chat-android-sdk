@@ -142,16 +142,16 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "a95c4bfd5bc1407cad2ec9313d5f0d76";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
+//    private static String TOKEN = "155617683c14489baeb35e22e7021aff";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
 
     //local
 
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = "chatlocal";
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -162,14 +162,22 @@ public class ChatActivity extends AppCompatActivity
 
 
     private static String appId = "POD-Chat";
-    private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_sand);
+    private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
 
 
     /**
      * Integration server setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+
+    /**
+     * Nemati
+//     */
+//    private static String name = BaseApplication.getInstance().getString(R.string.nemati_serverName);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 //    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
@@ -198,16 +206,16 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 8032;
-    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+//    public static int TEST_THREAD_ID = 8032;
+//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
@@ -222,7 +230,8 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /group
 
-//    public static int TEST_THREAD_ID = 7090;
+    public static int TEST_THREAD_ID = 7090;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
 
     //test server thread
