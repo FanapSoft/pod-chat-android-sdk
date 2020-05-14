@@ -64,7 +64,7 @@ public class PodUploader {
 
 
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(new File(fileUri.getPath()));
+        String mimeType = FileUtils.getMimeType(fileUri,context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
         if (path == null) throw new NullPointerException("Invalid path!");
@@ -145,7 +145,7 @@ public class PodUploader {
 
 
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(new File(fileUri.getPath()));
+        String mimeType = FileUtils.getMimeType(fileUri,context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
         if (path == null) throw new NullPointerException("Invalid path!");
@@ -188,15 +188,26 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage()))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
-                        listener.onSuccess(response.body(), file, mimeType, file.length());
+                        if (response.body().isHasError()) {
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                        } else {
+                            listener.onSuccess(response.body(), file, mimeType, file.length());
+                        }
 
                     } else {
 
-                        listener.onFailure(response.message());
+                        if (response.body() != null) {
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                        } else {
+                            listener.onFailure(uniqueId + " - " + response.message());
+
+                        }
+
 
                     }
 
@@ -215,8 +226,9 @@ public class PodUploader {
             IPodUploadImage listener) throws Exception {
 
 
+
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(new File(fileUri.getPath()));
+        String mimeType = FileUtils.getMimeType(fileUri,context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
         if (path == null) throw new NullPointerException("Invalid path!");
@@ -259,15 +271,26 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage()))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
-                        listener.onSuccess(response.body(), file, mimeType, file.length());
+                        if (response.body().isHasError()) {
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                        } else {
+                            listener.onSuccess(response.body(), file, mimeType, file.length());
+                        }
+
 
                     } else {
 
-                        listener.onFailure(response.message());
+                        if (response.body() != null) {
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                        } else {
+                            listener.onFailure(uniqueId + " - " + response.message());
+
+                        }
 
                     }
 

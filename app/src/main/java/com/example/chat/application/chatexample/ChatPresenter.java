@@ -788,7 +788,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
                 .build();
 
+        chat.uploadImageProgress(activity,fileUri,handler);
         chat.uploadImageProgress(req, handler);
+
 
     }
 

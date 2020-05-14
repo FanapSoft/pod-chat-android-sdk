@@ -142,7 +142,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "574d093190854be0b56d4c42a3f72cb2";
+    private static String TOKEN = "d27e115aabf746009bb05aa236f05dcc";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -162,7 +162,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     private static String appId = "POD-Chat";
-    private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_sand);
+    private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
 
 
     /**
