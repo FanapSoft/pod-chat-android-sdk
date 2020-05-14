@@ -9444,7 +9444,6 @@ public class Chat extends AsyncAdapter {
         }
 
 
-
         String errorMessage = error.getMessage();
         long errorCode = error.getCode();
 
@@ -9454,7 +9453,7 @@ public class Chat extends AsyncAdapter {
                 context,
                 getUserId());
 
-        if(isNotif) return;
+        if (isNotif) return;
 
         getErrorOutPut(errorMessage, errorCode, chatMessage.getUniqueId());
     }
@@ -10278,7 +10277,7 @@ public class Chat extends AsyncAdapter {
         showLog(state, "");
         permit = true;
         checkFreeSpace();
-        PodNotificationManager.onChatIsReady(context,userId);
+        PodNotificationManager.onChatIsReady(context, userId);
 
 
     }

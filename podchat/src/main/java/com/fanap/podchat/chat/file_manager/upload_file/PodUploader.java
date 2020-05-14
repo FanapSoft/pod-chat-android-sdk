@@ -259,6 +259,7 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(er -> listener.onFailure(er.getMessage()))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {

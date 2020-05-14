@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.fanap.podchat.R;
@@ -14,6 +15,10 @@ import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.util.ChatMessageType;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.RemoteMessage;
 import com.securepreferences.SecurePreferences;
 
@@ -92,7 +97,7 @@ public class PodNotificationManager {
         String uniqueId = generateUniqueId();
         STATE = NEED_REGISTER_USER_DEVICE;
         Map<String, String> userDeviceTokenMap = new HashMap<>();
-        userDeviceTokenMap.put(String.valueOf(userId), fcmToken);
+        userDeviceTokenMap.put(fcmToken, String.valueOf(userId));
 
         FcmAppUsersVO fcmAppUsersVO = new FcmAppUsersVO();
 
@@ -174,7 +179,6 @@ public class PodNotificationManager {
 //
 //                            createUpdateUserDeviceRequest(token);
 //                        }
-
 
                         saveFCMToken(token, context);
                     }
@@ -306,6 +310,37 @@ public class PodNotificationManager {
 
     }
 
+    private static void checkForNewFCMToken(Context context) {
+
+
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+
+            if (task.isSuccessful()) {
+
+                listener.onLogEvent("Token Retrieved");
+
+                String newToken = task.getResult() != null ? task.getResult().getToken() : null;
+
+                SecurePreferences mSecurePrefs = getSecurePrefs(context);
+
+                String lastToken = mSecurePrefs.getString(KEY_FCM_TOKEN, null);
+
+                if (lastToken != null && newToken != null && !lastToken.equals(newToken)) {
+
+                    createUpdateUserDeviceRequest(newToken);
+
+                }
+
+            } else {
+
+                listener.onLogEvent("Failed to retrieve fcm token");
+            }
+
+        });
+
+
+    }
+
 //    public static void handleOnAppRegistered(ChatMessage chatMessage, Context context, long userId) {
 //
 //        String content = chatMessage.getContent();
@@ -347,15 +382,15 @@ public class PodNotificationManager {
 
         }
 
-        if (messagesQ.size() > 0) {
-
-            try {
-                if (messagesQ.containsKey(messageUniqueId))
-                    Objects.requireNonNull(messagesQ.get(messageUniqueId)).run();
-            } catch (Exception e) {
-                listener.onLogEvent("could not register app");
-            }
-        }
+//        if (messagesQ.size() > 0) {
+//
+//            try {
+//                if (messagesQ.containsKey(messageUniqueId))
+//                    Objects.requireNonNull(messagesQ.get(messageUniqueId)).run();
+//            } catch (Exception e) {
+//                listener.onLogEvent("could not register app");
+//            }
+//        }
 
     }
 
@@ -404,6 +439,7 @@ public class PodNotificationManager {
     public static boolean isNotificationError(ChatMessage chatMessage, Error error, Context context, long userId) {
 
 
+        //notification not enabled
         if (listener == null || messageUniqueId.isEmpty()) return false;
 
         if (messageUniqueId.equals(chatMessage.getUniqueId())) {
@@ -422,8 +458,7 @@ public class PodNotificationManager {
                 }
                 case NEED_REFRESH_TOKEN: {
 
-                    // TODO: 5/13/2020 Handle refreshes error
-
+                    createRegisterUserDeviceRequest(context, userId);
 
                     break;
                 }
