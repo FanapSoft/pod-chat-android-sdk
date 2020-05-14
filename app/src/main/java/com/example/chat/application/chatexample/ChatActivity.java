@@ -149,7 +149,7 @@ public class ChatActivity extends AppCompatActivity
 
     //local
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 

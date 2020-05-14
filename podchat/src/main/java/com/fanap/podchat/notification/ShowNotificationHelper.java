@@ -29,6 +29,9 @@ public class ShowNotificationHelper {
     private static final String CHANNEL_ID = "PODCHAT";
     private static final String CHANNEL_NAME = "POD_CHAT_CHANNEL";
     private static final String CHANNEL_DESCRIPTION = "Fanap soft podchat notification channel";
+    public static final String THREAD_ID = "threadId";
+    public static final String MESSAGE_ID = "messageId";
+    public static final String SENDER_USER_NAME = "senderUserName";
 
 
     public static void setupNotificationChannel(Context context) {
@@ -164,7 +167,11 @@ public class ShowNotificationHelper {
             String threadName,
             String senderName,
             String profileUrl,
-            String content,
+            String text,
+            String isGroup,
+            String messageSenderUserName,
+            String messageId,
+            String threadId,
             Context context,
             String targetClassName,
             Integer priority,
@@ -180,10 +187,10 @@ public class ShowNotificationHelper {
             RemoteViews viewExpanded = new RemoteViews(context.getPackageName(), R.layout.message_layout_expanded);
 
             view.setTextViewText(R.id.textViewSenderName, threadName + " " + senderName);
-            view.setTextViewText(R.id.textViewContent, content);
+            view.setTextViewText(R.id.textViewContent, text);
 
             viewExpanded.setTextViewText(R.id.textViewSenderName, threadName + " " + senderName);
-            viewExpanded.setTextViewText(R.id.textViewContent, content);
+            viewExpanded.setTextViewText(R.id.textViewContent, text);
 
 
             try {
@@ -208,6 +215,11 @@ public class ShowNotificationHelper {
             Intent intent = new Intent(context, c);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            intent.putExtra(THREAD_ID,threadId);
+            intent.putExtra(MESSAGE_ID,messageId);
+            intent.putExtra(SENDER_USER_NAME,senderName);
+
             PendingIntent pendingIntent = PendingIntent
                     .getActivity(context.getApplicationContext(),
                             REQUEST_CODE,
@@ -218,6 +230,7 @@ public class ShowNotificationHelper {
             Notification notification = new NotificationCompat.Builder(
                     context.getApplicationContext(), !Util.isNullOrEmpty(channelId) ?
                     channelId : CHANNEL_ID)
+                    .setAutoCancel(true)
                     .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                     .setContent(view)
                     .setCustomContentView(view)

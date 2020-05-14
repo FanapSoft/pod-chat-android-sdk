@@ -152,45 +152,45 @@ public class PodNotificationManager {
 
             fcmToken = getSavedFCMToken(context);
 
-            listener.onLogEvent("Try to register notification receiver");
+            listener.onLogEvent("Notification Manger started");
 
-            if (receiver == null) {
-
-                listener.onLogEvent("Registering notification receiver");
-
-                receiver = new BroadcastReceiver() {
-                    @Override
-                    public void onReceive(Context context, Intent intent) {
-
-                        String token = intent.getStringExtra(PodChatPushNotificationService.KEY_TOKEN);
-//                        if (fcmToken == null) {
+//            if (receiver == null) {
 //
-//                            STATE = NEED_REGISTER_USER_DEVICE;
+//                listener.onLogEvent("Registering notification receiver");
 //
-//                            listener.onLogEvent("Register new application");
+////                receiver = new BroadcastReceiver() {
+////                    @Override
+////                    public void onReceive(Context context, Intent intent) {
+////
+////                        String token = intent.getStringExtra(PodChatPushNotificationService.KEY_TOKEN);
+//////                        if (fcmToken == null) {
+//////
+//////                            STATE = NEED_REGISTER_USER_DEVICE;
+//////
+//////                            listener.onLogEvent("Register new application");
+//////
+//////                            createRegisterUserDeviceRequest(context);
+//////
+//////                        } else {
+//////
+//////                            STATE = NEED_REGISTER_USER_DEVICE;
+//////
+//////                            listener.onLogEvent("Notification token refreshed");
+//////
+//////                            createUpdateUserDeviceRequest(token);
+//////                        }
+////
+////                        saveFCMToken(token, context);
+////                    }
+////                };
+////
+////
+////                context.registerReceiver(receiver, getFCMTokenIntentFilter());
 //
-//                            createRegisterUserDeviceRequest(context);
+//                listener.onLogEvent("Notification receiver registered successfully");
 //
-//                        } else {
 //
-//                            STATE = NEED_REGISTER_USER_DEVICE;
-//
-//                            listener.onLogEvent("Notification token refreshed");
-//
-//                            createUpdateUserDeviceRequest(token);
-//                        }
-
-                        saveFCMToken(token, context);
-                    }
-                };
-
-
-                context.registerReceiver(receiver, getFCMTokenIntentFilter());
-
-                listener.onLogEvent("Notification receiver registered successfully");
-
-
-            }
+//            }
 
 
         } catch (Exception e) {
@@ -261,13 +261,27 @@ public class PodNotificationManager {
 
     private static void showNotification(Map<String, String> data, Context context) {
 
+//        isGroup
+//       /threadName
+//       /MessageSenderUserName
+//       /MessageSenderName
+//       /text
+//       /messageId
+//       /threadId
+//       /profileImage
+//
+
         SecurePreferences securePreferences = getSecurePrefs(context);
 
         ShowNotificationHelper.showNewMessageNotification(
                 data.get("threadName"),
-                data.get("senderName"),
-                data.get("image"),
-                data.get("content"),
+                data.get("MessageSenderName"),
+                data.get("profileImage"),
+                data.get("text"),
+                data.get("isGroup"),
+                data.get("MessageSenderUserName"),
+                data.get("messageId"),
+                data.get("threadId"),
                 context,
                 securePreferences.getString(TARGET_ACTIVITY, ""),
                 securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
@@ -310,7 +324,7 @@ public class PodNotificationManager {
 
     }
 
-    private static void checkForNewFCMToken(Context context) {
+    private static void checkForNewFCMToken(Context context, long userId) {
 
 
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
@@ -325,7 +339,19 @@ public class PodNotificationManager {
 
                 String lastToken = mSecurePrefs.getString(KEY_FCM_TOKEN, null);
 
+                // no token saved in device register device with new token
+                if (lastToken == null && newToken != null) {
+
+                    fcmToken = newToken;
+
+                    createRegisterUserDeviceRequest(context, userId);
+
+                }
+
+                // token refreshed, should update in server
                 if (lastToken != null && newToken != null && !lastToken.equals(newToken)) {
+
+                    fcmToken = lastToken;
 
                     createUpdateUserDeviceRequest(newToken);
 
@@ -371,8 +397,8 @@ public class PodNotificationManager {
         if (fcmToken == null) {
 
             //no fcmToken Saved in device
-            //check for device register
-            createRegisterUserDeviceRequest(context, userId);
+            //check for fcm token
+            checkForNewFCMToken(context, userId);
 
         } else {
 
@@ -394,7 +420,7 @@ public class PodNotificationManager {
 
     }
 
-    public static void handleOnUserAndDeviceRegistered(ChatMessage chatMessage) {
+    public static void handleOnUserAndDeviceRegistered(ChatMessage chatMessage, Context context) {
 
         String content = chatMessage.getContent();
 
@@ -412,11 +438,13 @@ public class PodNotificationManager {
 
             STATE = 0;
 
+            saveFCMToken(fcmToken, context);
+
         }
 
     }
 
-    public static void handleOnFCMTokenRefreshed(ChatMessage chatMessage) {
+    public static void handleOnFCMTokenRefreshed(ChatMessage chatMessage, Context context) {
 
         String content = chatMessage.getContent();
 
@@ -431,6 +459,8 @@ public class PodNotificationManager {
             messagesQ.remove(uniqueId);
 
             STATE = 0;
+
+            saveFCMToken(fcmToken, context);
 
         }
 
@@ -450,7 +480,10 @@ public class PodNotificationManager {
 
                     if (error.getCode() == DEVICE_TOKEN_HAS_ALREADY_REGISTERED) {
 
-                        createUpdateUserDeviceRequest(getSavedFCMToken(context));
+
+                        //user registered but old token not exist
+                        //we send the only token we have as old token and new token
+                        createUpdateUserDeviceRequest(fcmToken);
 
                     }
 
@@ -458,6 +491,7 @@ public class PodNotificationManager {
                 }
                 case NEED_REFRESH_TOKEN: {
 
+                    //refresh failed, maybe we need register user device
                     createRegisterUserDeviceRequest(context, userId);
 
                     break;

@@ -847,12 +847,12 @@ public class Chat extends AsyncAdapter {
 //            }
 
             case Constants.REGISTER_FCM_USER_DEVICE: {
-                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage);
+                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage,context);
                 break;
             }
 
             case Constants.UPDATE_FCM_APP_USERS_DEVICE: {
-                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage);
+                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage,context);
                 break;
             }
 
