@@ -2764,8 +2764,6 @@ public class Chat extends AsyncAdapter {
 //
 //        return uniqueId;
 //    }
-
-
     public String uploadFile(@NonNull RequestUploadFile requestUploadFile) {
 
         return uploadFileProgress(requestUploadFile, null);
@@ -2822,7 +2820,7 @@ public class Chat extends AsyncAdapter {
 
                                     ResultFile resultFile = response.getResult();
                                     resultFile.setUrl(getFile(resultFile.getId(), resultFile.getHashCode(), true));
-
+                                    resultFile.setSize(file.length());
 
                                     ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
                                     chatResponse.setResult(resultFile);

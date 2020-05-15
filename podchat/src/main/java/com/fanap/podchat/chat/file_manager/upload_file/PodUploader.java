@@ -255,7 +255,7 @@ public class PodUploader {
         });
 
         MultipartBody.Part filePart = MultipartBody
-                .Part.createFormData("file",
+                .Part.createFormData("image",
                         file.getName(),
                         requestFile);
 
