@@ -2104,6 +2104,9 @@ public class Chat extends AsyncAdapter {
                                     response.getParentHash());
 
 
+//                            createImageMetadata()
+
+
                             sendTextMessageWithFile(
                                     requestFileMessage.getDescription(),
                                     requestFileMessage.getThreadId(),
@@ -12020,6 +12023,7 @@ public class Chat extends AsyncAdapter {
 
 
     private String createFileMetadata(File file, String hashCode, long fileId, String mimeType, long fileSize, String filePath) {
+
         MetaDataFile metaDataFile = new MetaDataFile();
         FileMetaDataContent metaDataContent = new FileMetaDataContent();
 
@@ -12558,6 +12562,7 @@ public class Chat extends AsyncAdapter {
 
                             //remove from Uploading Queue
                             removeFromUploadQueue(uniqueId);
+
                             ResultImageFile result = fileUploadResponse.body().getResult();
                             long imageId = result.getId();
                             String hashCode = result.getHashCode();

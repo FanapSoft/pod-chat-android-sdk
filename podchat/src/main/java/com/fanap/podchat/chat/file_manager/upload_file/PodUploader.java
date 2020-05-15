@@ -1,8 +1,10 @@
 package com.fanap.podchat.chat.file_manager.upload_file;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.FileImageUpload;
@@ -25,6 +27,8 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+
+import static com.fanap.podchat.chat.Chat.TAG;
 
 public class PodUploader {
 
@@ -119,6 +123,19 @@ public class PodUploader {
                             listener.onFailure(response.body().getMessage());
                             return;
                         }
+
+
+//                        if (mimeType != null && FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
+//
+//                            BitmapFactory.Options options = new BitmapFactory.Options();
+//                            options.inJustDecodeBounds = true;
+//                            BitmapFactory.decodeFile(file.getAbsolutePath(),options);
+//                            int width = options.outWidth;
+//                            int height = options.outHeight;
+//                            Log.d(TAG," " + width + " " + height);
+//
+//
+//                        }
 
                         listener.onSuccess(response.body().getUploadToPodSpaceResult(), file, mimeType, file.length());
 
