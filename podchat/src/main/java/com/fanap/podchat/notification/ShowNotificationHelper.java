@@ -186,29 +186,37 @@ public class ShowNotificationHelper {
 
             RemoteViews viewExpanded = new RemoteViews(context.getPackageName(), R.layout.message_layout_expanded);
 
-            view.setTextViewText(R.id.textViewSenderName, threadName + " " + senderName);
+
+            String title = isGroup.equals("true") ? threadName + " - " + senderName : senderName;
+
+            view.setTextViewText(R.id.textViewSenderName, title);
             view.setTextViewText(R.id.textViewContent, text);
 
-            viewExpanded.setTextViewText(R.id.textViewSenderName, threadName + " " + senderName);
+            viewExpanded.setTextViewText(R.id.textViewSenderName, title);
             viewExpanded.setTextViewText(R.id.textViewContent, text);
 
 
-            try {
+            if(profileUrl!=null){
 
-                Bitmap bitmap = GlideApp.with(context)
-                        .asBitmap()
-                        .load(profileUrl)
-                        .apply(RequestOptions.circleCropTransform())
-                        .submit(512, 512)
-                        .get();
+                try {
 
-                view.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
-                viewExpanded.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
+                    Bitmap bitmap = GlideApp.with(context)
+                            .asBitmap()
+                            .load(profileUrl)
+                            .apply(RequestOptions.circleCropTransform())
+                            .submit(512, 512)
+                            .get();
+
+                    view.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
+                    viewExpanded.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
 
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
+
 
 
             Class<?> c = Class.forName(targetClassName);
@@ -216,9 +224,9 @@ public class ShowNotificationHelper {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            intent.putExtra(THREAD_ID,threadId);
-            intent.putExtra(MESSAGE_ID,messageId);
-            intent.putExtra(SENDER_USER_NAME,senderName);
+            intent.putExtra(THREAD_ID, threadId);
+            intent.putExtra(MESSAGE_ID, messageId);
+            intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
 
             PendingIntent pendingIntent = PendingIntent
                     .getActivity(context.getApplicationContext(),

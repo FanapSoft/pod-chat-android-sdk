@@ -55,6 +55,7 @@ import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
@@ -149,7 +150,7 @@ public class ChatActivity extends AppCompatActivity
 
     //local
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
@@ -228,9 +229,14 @@ public class ChatActivity extends AppCompatActivity
 //    public static int TEST_THREAD_ID = 46887;
 
 
-    //integration /group
+    //integration /group: fifi,jiji and ...
+    public static int TEST_THREAD_ID = 6886;
 
-    public static int TEST_THREAD_ID = 7090;
+    //integration /p2p: fifi, jiji
+
+//    public static int TEST_THREAD_ID = 7488;
+
+
     private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
 
@@ -2336,7 +2342,6 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-
     }
 
     @Override

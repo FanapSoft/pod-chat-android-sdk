@@ -30,6 +30,9 @@ import java.util.UUID;
 public class PodNotificationManager {
 
     private static boolean chatIsReady = false;
+
+    public static boolean shouldShowNotification = true;
+
     private static long DEVICE_TOKEN_HAS_ALREADY_REGISTERED = 152;
 
     private static final String TARGET_ACTIVITY = "TARGET_ACTIVITY";
@@ -58,39 +61,6 @@ public class PodNotificationManager {
     private static synchronized String generateUniqueId() {
         return UUID.randomUUID().toString();
     }
-
-
-//    private static void createRegisterAppRequest(Context context) {
-//
-//        String uniqueId = generateUniqueId();
-//
-//        Runnable task = () -> {
-//
-//            JsonObject content = new JsonObject();
-//
-//            content.addProperty("appId", context.getApplicationInfo().packageName);
-//
-//            AsyncMessage message = new AsyncMessage();
-//            message.setContent(content.toString());
-//            message.setType(ChatMessageType.Constants.REGISTER_FCM_APP);
-//            message.setToken(CoreConfig.token);
-//            message.setTokenIssuer(CoreConfig.tokenIssuer);
-//            message.setUniqueId(uniqueId);
-//            message.setTypeCode(CoreConfig.typeCode);
-//
-//
-//            listener.onLogEvent("App Register Request added to queue");
-//
-//            listener.sendAsyncMessage(App.getGson().toJson(message), "REGISTER NEW NOTIFICATION APP");
-//
-//        };
-//
-//        messageUniqueId = uniqueId;
-//
-//        messagesQ.put(uniqueId, task);
-//
-//
-//    }
 
     private static void createRegisterUserDeviceRequest(Context context, long userId) {
 
@@ -153,44 +123,6 @@ public class PodNotificationManager {
             fcmToken = getSavedFCMToken(context);
 
             listener.onLogEvent("Notification Manger started");
-
-//            if (receiver == null) {
-//
-//                listener.onLogEvent("Registering notification receiver");
-//
-////                receiver = new BroadcastReceiver() {
-////                    @Override
-////                    public void onReceive(Context context, Intent intent) {
-////
-////                        String token = intent.getStringExtra(PodChatPushNotificationService.KEY_TOKEN);
-//////                        if (fcmToken == null) {
-//////
-//////                            STATE = NEED_REGISTER_USER_DEVICE;
-//////
-//////                            listener.onLogEvent("Register new application");
-//////
-//////                            createRegisterUserDeviceRequest(context);
-//////
-//////                        } else {
-//////
-//////                            STATE = NEED_REGISTER_USER_DEVICE;
-//////
-//////                            listener.onLogEvent("Notification token refreshed");
-//////
-//////                            createUpdateUserDeviceRequest(token);
-//////                        }
-////
-////                        saveFCMToken(token, context);
-////                    }
-////                };
-////
-////
-////                context.registerReceiver(receiver, getFCMTokenIntentFilter());
-//
-//                listener.onLogEvent("Notification receiver registered successfully");
-//
-//
-//            }
 
 
         } catch (Exception e) {
@@ -271,14 +203,16 @@ public class PodNotificationManager {
 //       /profileImage
 //
 
+        if(!shouldShowNotification) return;
+
         SecurePreferences securePreferences = getSecurePrefs(context);
 
         ShowNotificationHelper.showNewMessageNotification(
                 data.get("threadName"),
                 data.get("MessageSenderName"),
-                data.get("profileImage"),
+                data.get("senderImage"),
                 data.get("text"),
-                data.get("isGroup"),
+                Objects.requireNonNull(data.get("isGroup")),
                 data.get("MessageSenderUserName"),
                 data.get("messageId"),
                 data.get("threadId"),
@@ -367,25 +301,6 @@ public class PodNotificationManager {
 
     }
 
-//    public static void handleOnAppRegistered(ChatMessage chatMessage, Context context, long userId) {
-//
-//        String content = chatMessage.getContent();
-//
-//        String uniqueId = chatMessage.getUniqueId();
-//
-//        if (listener != null) {
-//
-//            listener.onLogEvent("Notification App registered");
-//
-//            listener.onLogEvent(content);
-//
-//            createRegisterUserDeviceRequest(uniqueId, context, userId);
-//
-//        }
-//
-//
-//    }
-
     public static void onChatIsReady(Context context, long userId) {
 
         chatIsReady = true;
@@ -407,16 +322,6 @@ public class PodNotificationManager {
             createUpdateUserDeviceRequest(getSavedFCMToken(context));
 
         }
-
-//        if (messagesQ.size() > 0) {
-//
-//            try {
-//                if (messagesQ.containsKey(messageUniqueId))
-//                    Objects.requireNonNull(messagesQ.get(messageUniqueId)).run();
-//            } catch (Exception e) {
-//                listener.onLogEvent("could not register app");
-//            }
-//        }
 
     }
 
