@@ -18,6 +18,7 @@ import com.fanap.podchat.util.FileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -68,7 +69,7 @@ public class PodUploader {
 
 
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(fileUri,context);
+        String mimeType = FileUtils.getMimeType(fileUri, context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
         if (path == null) throw new NullPointerException("Invalid path!");
@@ -113,18 +114,15 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(throwable -> listener.onFailure(throwable.getMessage()))
+                .doOnError(error -> listener.onFailure(error.getMessage()))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
-
 
                         if (response.body().isHasError()) {
                             listener.onFailure(response.body().getMessage());
                             return;
                         }
-
-
 //                        if (mimeType != null && FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
 //
 //                            BitmapFactory.Options options = new BitmapFactory.Options();
@@ -136,16 +134,20 @@ public class PodUploader {
 //
 //
 //                        }
-
                         listener.onSuccess(response.body().getUploadToPodSpaceResult(), file, mimeType, file.length());
-
                     } else {
-
-                        listener.onFailure(response.message());
-
+                        try {
+                            if (response.errorBody() != null) {
+                                listener.onFailure(response.errorBody().string());
+                            } else {
+                                listener.onFailure(response.message());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
 
-                }, throwable -> listener.onFailure(throwable.getMessage()));
+                }, error -> listener.onFailure(error.getMessage()));
 
 
     }
@@ -162,7 +164,7 @@ public class PodUploader {
 
 
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(fileUri,context);
+        String mimeType = FileUtils.getMimeType(fileUri, context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
         if (path == null) throw new NullPointerException("Invalid path!");
@@ -243,9 +245,8 @@ public class PodUploader {
             IPodUploadImage listener) throws Exception {
 
 
-
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(fileUri,context);
+        String mimeType = FileUtils.getMimeType(fileUri, context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
         if (path == null) throw new NullPointerException("Invalid path!");

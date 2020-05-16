@@ -32,7 +32,6 @@ public class PhoneContactDbHelper {
                     Log.i("CHAT_SDK", "Save " + phoneContacts.size() + "Contact Successfully");
                 });
 
-
     }
 
 

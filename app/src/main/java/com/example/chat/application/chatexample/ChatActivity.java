@@ -142,7 +142,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "3fd90e3456504baeb0b522c1426471b2";
+    private static String TOKEN = "774cd9e171374aca8f998c9f3817d40b";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -2308,7 +2308,11 @@ public class ChatActivity extends AppCompatActivity
         presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
             public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+
                 runOnUiThread(() -> percentage.setText(progress + "%"));
+
+                Log.e("UPLOAD_IMAGE", "op " + progress + " sent " + totalBytesSent + " toSend " + totalBytesToSend);
+
             }
 
             @Override
@@ -2371,13 +2375,13 @@ public class ChatActivity extends AppCompatActivity
                 @Override
                 public void onProgressUpdate(int progress) {
 
-                    Log.e("UFP", "opu");
+                    Log.e("UFP", "opu: " + progress);
                 }
 
                 @Override
                 public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
-                    Log.e("UFP", "op");
+                    Log.e("UFP", "op" + progress + " sent" + totalBytesSent + " toSend" + totalBytesToSend);
 
                     runOnUiThread(() -> percentageFile.setText(progress + "%"));
 

@@ -106,6 +106,7 @@ import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
@@ -788,7 +789,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
                 .build();
 
-        chat.uploadImageProgress(activity,fileUri,handler);
+//        chat.uploadImageProgress(activity,fileUri,handler);
         chat.uploadImageProgress(req, handler);
 
 
@@ -798,7 +799,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
 
 
-        RequestUploadFile req = new RequestUploadImage.Builder(activity, fileUri)
+        RequestUploadFile req = new RequestUploadFile.Builder(activity, fileUri)
                 .build();
 
         chat.uploadFileProgress(req, handler);
@@ -1174,7 +1175,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onChatState(String state) {
 
         view.onState(state);
+
         this.state = state;
+
+//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+//
+//            syncContact(activity);
+//
+//        }
 
     }
 

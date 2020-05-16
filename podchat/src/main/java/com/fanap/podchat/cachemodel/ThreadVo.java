@@ -59,6 +59,15 @@ public class ThreadVo {
     private PinMessageVO pinMessageVO;
     private String uniqueName;
     private String userGroupHash;
+    private String teestParam;
+
+    public String getTeestParam() {
+        return teestParam;
+    }
+
+    public void setTeestParam(String teestParam) {
+        this.teestParam = teestParam;
+    }
 
     public String getUserGroupHash() {
         return userGroupHash;

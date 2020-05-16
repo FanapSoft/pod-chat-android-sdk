@@ -28,30 +28,27 @@ public class RetrofitHelperFileServer {
 
 
     /**
-     *
-     *
-     * @param fileServer
-     *
-     *  ** IMPORTANT ** if you adding network interceptor DON'T forget to increase
-     *
-     *   the amount of ignoreFirstNumberOfWriteToCalls in ProgressRequestBody
-     *
-     *
-     *
+     * @param fileServer ** IMPORTANT ** if you adding network interceptor DON'T forget to increase
+     *                   <p>
+     *                   the amount of ignoreFirstNumberOfWriteToCalls in ProgressRequestBody
      */
 
     public RetrofitHelperFileServer(@NonNull String fileServer) {
 
         OkHttpClient client;
 
-        if(timeoutConfig!=null){
+        if (timeoutConfig != null) {
 
             client = timeoutConfig.getClientBuilder()
+                    .addNetworkInterceptor(new HttpLoggingInterceptor()
+                            .setLevel(HttpLoggingInterceptor.Level.BODY))
                     .build();
 
-        }else {
+        } else {
 
             client = new OkHttpClient().newBuilder()
+                    .addNetworkInterceptor(new HttpLoggingInterceptor()
+                            .setLevel(HttpLoggingInterceptor.Level.BODY))
 //                        .retryOnConnectionFailure(true)
                     .connectTimeout(TIMEOUT, TIME_UNIT) // connect timeout
                     .writeTimeout(TIMEOUT, TIME_UNIT) // write timeout
@@ -67,9 +64,9 @@ public class RetrofitHelperFileServer {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
     }
 
-    public static void setTimeoutConfig(TimeoutConfig config){
+    public static void setTimeoutConfig(TimeoutConfig config) {
 
-        if(config!=null){
+        if (config != null) {
             timeoutConfig = config;
         }
     }
@@ -82,14 +79,14 @@ public class RetrofitHelperFileServer {
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((Response<T> tResponse) -> {
-            if (tResponse.isSuccessful()) {
-                listener.onSuccess(tResponse.body());
-            } else {
-                if (tResponse.errorBody() != null) {
-                    listener.onServerError(tResponse.errorBody().toString());
-                }
-            }
-        }, listener::onError);
+                    if (tResponse.isSuccessful()) {
+                        listener.onSuccess(tResponse.body());
+                    } else {
+                        if (tResponse.errorBody() != null) {
+                            listener.onServerError(tResponse.errorBody().toString());
+                        }
+                    }
+                }, listener::onError);
     }
 
     public interface ApiListener<T> {
