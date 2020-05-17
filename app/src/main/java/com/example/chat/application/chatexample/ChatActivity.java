@@ -142,7 +142,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "774cd9e171374aca8f998c9f3817d40b";
+    private static String TOKEN = "e15e0160a22b4b6ba005f75ec87ea43a";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 

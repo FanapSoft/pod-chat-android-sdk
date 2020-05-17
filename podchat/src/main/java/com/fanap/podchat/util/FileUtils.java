@@ -546,12 +546,30 @@ public class FileUtils {
 //        return "application/octet-stream";
 //    }
 
+//    @Nullable
+//    public static String getMimeType(Uri uri, Context context) {
+//
+//        return context.getContentResolver().getType(uri);
+//
+//    }
+
     @Nullable
-    public static String getMimeType(Uri uri, Context context) {
+    public static String getMimeType(Uri uri,Context context) {
 
-        return context.getContentResolver().getType(uri);
+        String mimeType = null;
 
+        if (uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver cr = context.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase());
+        }
+        return mimeType;
     }
+
 
     /**
      * @return The MIME type for the give Uri.

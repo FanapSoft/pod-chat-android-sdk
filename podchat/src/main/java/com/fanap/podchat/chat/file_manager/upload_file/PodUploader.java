@@ -1,7 +1,6 @@
 package com.fanap.podchat.chat.file_manager.upload_file;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -72,13 +71,23 @@ public class PodUploader {
         String mimeType = FileUtils.getMimeType(fileUri, context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
+
         if (path == null) throw new NullPointerException("Invalid path!");
 
         File file = new File(path);
 
         if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
 
-        listener.onUploadStarted(mimeType, file, file.length());
+
+        long fileSize = 0;
+
+        try {
+            fileSize = file.length();
+        } catch (Exception x) {
+            Log.e(TAG, "File length exception: " + x.getMessage());
+        }
+
+        listener.onUploadStarted(mimeType, file, fileSize);
 
         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
@@ -111,6 +120,7 @@ public class PodUploader {
                         hashGroupPart);
 
 
+        long finalFileSize = fileSize;
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -134,7 +144,7 @@ public class PodUploader {
 //
 //
 //                        }
-                        listener.onSuccess(response.body().getUploadToPodSpaceResult(), file, mimeType, file.length());
+                        listener.onSuccess(response.body().getUploadToPodSpaceResult(), file, mimeType, finalFileSize);
                     } else {
                         try {
                             if (response.errorBody() != null) {
@@ -173,7 +183,15 @@ public class PodUploader {
 
         if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
 
-        listener.onUploadStarted(mimeType, file, file.length());
+        long fileSize = 0;
+
+        try {
+            fileSize = file.length();
+        } catch (Exception x) {
+            Log.e(TAG, "File length exception: " + x.getMessage());
+        }
+
+        listener.onUploadStarted(mimeType, file, fileSize);
 
         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
@@ -204,6 +222,7 @@ public class PodUploader {
                         namePart);
 
 
+        long finalFileSize = fileSize;
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -215,7 +234,7 @@ public class PodUploader {
                         if (response.body().isHasError()) {
                             listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
                         } else {
-                            listener.onSuccess(response.body(), file, mimeType, file.length());
+                            listener.onSuccess(response.body(), file, mimeType, finalFileSize);
                         }
 
                     } else {
@@ -255,7 +274,17 @@ public class PodUploader {
 
         if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
 
-        listener.onUploadStarted(mimeType, file, file.length());
+
+        long fileSize = 0;
+
+        try {
+            fileSize = file.length();
+        } catch (Exception x) {
+            Log.e(TAG, "File length exception: " + x.getMessage());
+        }
+
+
+        listener.onUploadStarted(mimeType, file, fileSize);
 
         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
@@ -286,6 +315,7 @@ public class PodUploader {
                         namePart);
 
 
+        long finalFileSize = fileSize;
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -297,7 +327,7 @@ public class PodUploader {
                         if (response.body().isHasError()) {
                             listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
                         } else {
-                            listener.onSuccess(response.body(), file, mimeType, file.length());
+                            listener.onSuccess(response.body(), file, mimeType, finalFileSize);
                         }
 
 

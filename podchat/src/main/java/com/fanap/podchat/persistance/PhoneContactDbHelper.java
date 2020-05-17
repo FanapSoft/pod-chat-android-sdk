@@ -6,6 +6,7 @@ import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.persistance.dao.PhoneContactDao;
 import com.fanap.podchat.util.PodThreadManager;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,15 +22,24 @@ public class PhoneContactDbHelper {
     }
 
     public List<PhoneContact> getPhoneContacts() {
-        return phoneContactDao.getPhoneContacts();
+        try {
+            return phoneContactDao.getPhoneContacts();
+        } catch (Exception e) {
+            Log.e("CHAT_SDK", "Get Contacts failed " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     public void addPhoneContacts(List<PhoneContact> phoneContacts) {
 
         new PodThreadManager()
                 .doThisSafe(() -> {
-                    phoneContactDao.insertPhoneContacts(phoneContacts);
-                    Log.i("CHAT_SDK", "Save " + phoneContacts.size() + "Contact Successfully");
+                    try {
+                        phoneContactDao.insertPhoneContacts(phoneContacts);
+                        Log.i("CHAT_SDK", "Save " + phoneContacts.size() + "Contact Successfully");
+                    } catch (Exception e) {
+                        Log.e("CHAT_SDK", "Save Contacts failed " + e.getMessage());
+                    }
                 });
 
     }
@@ -38,4 +48,6 @@ public class PhoneContactDbHelper {
     public void addPhoneContact(PhoneContact phoneContact) {
         phoneContactDao.insertPhoneContact(phoneContact);
     }
+
+
 }

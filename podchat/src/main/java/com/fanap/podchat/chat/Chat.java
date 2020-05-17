@@ -2053,12 +2053,12 @@ public class Chat extends AsyncAdapter {
 
         }
 
-        if (!chatReady) {
-
-            onChatNotReady(uniqueId);
-
-            return uniqueId;
-        }
+//        if (!chatReady) {
+//
+//            onChatNotReady(uniqueId);
+//
+//            return uniqueId;
+//        }
 
         if (getPodSpaceServer() == null) {
 
