@@ -262,6 +262,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.ASYNC_READY;
 import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
@@ -1800,12 +1801,14 @@ public class Chat extends AsyncAdapter {
 
                 getPhoneContact(getContext(), uniqueId, phoneContacts -> {
 
-
                     if (phoneContacts.size() > 0) {
 
                         showLog(">>> Synchronizing " + phoneContacts.size() + " with server at " + new Date());
 
-                        addContacts(phoneContacts, uniqueId);
+
+                        handleAddContacts(uniqueId, phoneContacts);
+
+
                     } else {
 
                         showLog(">>> No New Contact Found. Everything is synced ");
@@ -1838,6 +1841,38 @@ public class Chat extends AsyncAdapter {
             if (log) Log.e(TAG, jsonError);
         }
         return uniqueId;
+    }
+
+    private void handleAddContacts(String uniqueId, List<PhoneContact> phoneContacts) {
+        if (phoneContacts.size() < 100) {
+
+            addContacts(phoneContacts, uniqueId);
+
+
+        } else {
+
+            showLog(">>> More than 100 contact");
+
+            List<PhoneContact> group = phoneContacts.subList(0, 100);
+
+            showLog(">>> adding a group of #" + group.size() + " contact");
+
+            PublishSubject<List<PhoneContact>> publishSubject = addGroupContacts(group, uniqueId);
+
+            publishSubject.subscribe(
+                    addedContacts -> {
+
+                        showLog(">>> adding a group of #" + group.size() + " contact done!");
+
+                        phoneContacts.removeAll(addedContacts);
+
+                        showLog(">>> #" + phoneContacts.size() + " contacts need sync");
+
+                        handleAddContacts(uniqueId, phoneContacts);
+                    }, throwable -> showErrorLog(throwable.getMessage()));
+
+
+        }
     }
 
 
@@ -2053,12 +2088,12 @@ public class Chat extends AsyncAdapter {
 
         }
 
-//        if (!chatReady) {
-//
-//            onChatNotReady(uniqueId);
-//
-//            return uniqueId;
-//        }
+        if (!chatReady) {
+
+            onChatNotReady(uniqueId);
+
+            return uniqueId;
+        }
 
         if (getPodSpaceServer() == null) {
 
@@ -2142,12 +2177,14 @@ public class Chat extends AsyncAdapter {
                                     requestFileMessage.getSystemMetadata(),
                                     mimeType, file, length);
 
-                            showLog("UPLOAD_FILE_TO_SERVER");
+                            showLog("UPLOAD_FILE_TO_SERVER_STARTED");
+
 
                         }
 
                         @Override
                         public void onProgressUpdate(int progress, int totalBytesSent, int totalBytesToSend) {
+
                             if (handler != null)
                                 handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
                         }
@@ -5546,6 +5583,21 @@ public class Chat extends AsyncAdapter {
             initDatabaseWithKey(getKey());
             showLog("Database reset successfully");
             cache = true;
+        } else {
+            showErrorLog("Database Reset Failed");
+            showLog("Please clear app data");
+        }
+    }
+
+    private void resetCache(Runnable onDone) {
+        cache = false;
+        showLog("Reset database");
+        boolean result = messageDatabaseHelper.resetDatabase();
+        if (result) {
+            initDatabaseWithKey(getKey());
+            showLog("Database reset successfully");
+            cache = true;
+            onDone.run();
         } else {
             showErrorLog("Database Reset Failed");
             showLog("Please clear app data");
@@ -11875,6 +11927,7 @@ public class Chat extends AsyncAdapter {
             showLog(">>> Getting phone contacts ");
 
             List<PhoneContact> cachePhoneContacts = new ArrayList<>();
+
             PhoneContactAsyncTask task = new PhoneContactAsyncTask(phoneContactDbHelper, contacts -> {
 
                 String firstName;
@@ -11898,8 +11951,11 @@ public class Chat extends AsyncAdapter {
                 }
 
                 Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-                if (cursor == null)
-                    throw new AssertionError();
+                if (cursor == null) {
+                    showLog("Contacts loader cursor is null");
+                    listener.onLoad(newPhoneContact);
+                    return;
+                }
 
 
                 while (cursor.moveToNext()) {
@@ -12124,26 +12180,23 @@ public class Chat extends AsyncAdapter {
         ArrayList<String> lastNames = new ArrayList<>();
         ArrayList<String> typeCodes = new ArrayList<>();
         ArrayList<String> uniqueIds = new ArrayList<>();
+        ArrayList<String> emails = new ArrayList<>();
+
 
         for (PhoneContact contact : phoneContacts) {
             firstNames.add(contact.getName());
             lastNames.add(contact.getLastName());
             uniqueIds.add(generateUniqueId());
-
-
             String phoneNum = String.valueOf(contact.getPhoneNumber());
 
             if (phoneNum.startsWith("9")) {
                 phoneNum = phoneNum.replaceFirst("9", "09");
             }
-
             cellphoneNumbers.add(phoneNum);
-        }
 
-        ArrayList<String> emails = new ArrayList<>();
-        for (int i = 0; i < cellphoneNumbers.size(); i++) {
             emails.add("");
             typeCodes.add(getTypeCode());
+
         }
 
         Observable<Response<Contacts>> addContactsObservable;
@@ -12171,19 +12224,19 @@ public class Chat extends AsyncAdapter {
                         cellphoneNumbers);
             }
 
-            showLog("Call add contacts");
+            showLog("Call add contacts " + new Date());
 
             addContactsObservable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(contactsResponse -> {
 
-                        showLog(">>> Server Respond");
+                        showLog(">>> Server Respond " + new Date());
 
                         boolean error = false;
 
                         if (contactsResponse.body() != null) {
                             error = contactsResponse.body().getHasError();
-                            showLog(">>>Response:");
+                            showLog(">>>Response: " + contactsResponse.code());
                             showLog(">>>ReferenceNumber: " + contactsResponse.body().getReferenceNumber());
                             showLog(">>>Ott: " + contactsResponse.body().getOtt());
                         }
@@ -12212,7 +12265,10 @@ public class Chat extends AsyncAdapter {
 
                                 Runnable updatePhoneContactsDBTask = () -> {
                                     try {
-                                        phoneContactDbHelper.addPhoneContacts(phoneContacts);
+                                        boolean result = phoneContactDbHelper.addPhoneContacts(phoneContacts);
+                                        if(!result){
+                                            resetCache(()-> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                        }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
                                         onUnknownException(uniqueId);
@@ -12238,10 +12294,164 @@ public class Chat extends AsyncAdapter {
 
 
                             }
+                        } else {
+
+                            getErrorOutPut(contactsResponse.message(), contactsResponse.code()
+                                    , uniqueId);
+
+                            showLog("Error add Contacts: " + contactsResponse.raw());
+
                         }
                     }, throwable ->
                             getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
         }
+
+
+    }
+
+    private PublishSubject<List<PhoneContact>> addGroupContacts(List<PhoneContact> phoneContacts, String uniqueId) {
+
+
+        PublishSubject<List<PhoneContact>> subject = PublishSubject.create();
+
+        ArrayList<String> firstNames = new ArrayList<>();
+        ArrayList<String> cellphoneNumbers = new ArrayList<>();
+        ArrayList<String> lastNames = new ArrayList<>();
+        ArrayList<String> typeCodes = new ArrayList<>();
+        ArrayList<String> uniqueIds = new ArrayList<>();
+        ArrayList<String> emails = new ArrayList<>();
+
+
+        for (PhoneContact contact : phoneContacts) {
+            firstNames.add(contact.getName());
+            lastNames.add(contact.getLastName());
+            uniqueIds.add(generateUniqueId());
+            String phoneNum = String.valueOf(contact.getPhoneNumber());
+
+            if (phoneNum.startsWith("9")) {
+                phoneNum = phoneNum.replaceFirst("9", "09");
+            }
+            cellphoneNumbers.add(phoneNum);
+
+            emails.add("");
+            typeCodes.add(getTypeCode());
+
+        }
+
+        Observable<Response<Contacts>> addContactsObservable;
+
+        if (getPlatformHost() != null) {
+
+            if (!Util.isNullOrEmpty(getTypeCode())) {
+
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers,
+                        typeCodes);
+
+            } else {
+                addContactsObservable = contactApi.addContacts(getToken(),
+                        TOKEN_ISSUER,
+                        firstNames,
+                        lastNames,
+                        emails,
+                        uniqueIds,
+                        cellphoneNumbers);
+            }
+
+            showLog("Call add contacts " + new Date());
+
+            addContactsObservable.subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(contactsResponse -> {
+
+                        showLog(">>> Server Respond " + new Date());
+
+                        boolean error = false;
+
+                        if (contactsResponse.body() != null) {
+                            error = contactsResponse.body().getHasError();
+                            showLog(">>>Response: " + contactsResponse.code());
+                            showLog(">>>ReferenceNumber: " + contactsResponse.body().getReferenceNumber());
+                            showLog(">>>Ott: " + contactsResponse.body().getOtt());
+                        }
+
+                        if (contactsResponse.isSuccessful()) {
+
+                            if (error) {
+
+                                getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
+                                        , uniqueId);
+
+                                showLog("Error add Contacts: " + contactsResponse.body().getMessage());
+
+                                subject.onError(new Throwable());
+
+                            } else {
+
+                                //successful response
+                                Contacts contacts = contactsResponse.body();
+                                ChatResponse<Contacts> chatResponse = new ChatResponse<>();
+
+                                chatResponse.setResult(contacts);
+                                chatResponse.setUniqueId(uniqueId);
+
+                                Runnable updatePhoneContactsDBTask = () -> {
+                                    try {
+                                        boolean result = phoneContactDbHelper.addPhoneContacts(phoneContacts);
+                                        if(!result){
+                                            resetCache(()-> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                        }
+                                    } catch (Exception e) {
+                                        showErrorLog("Updating Contacts cache failed: " + e.getMessage());
+                                        onUnknownException(uniqueId);
+                                    }
+                                };
+
+
+                                Runnable updateCachedContactsTask = () -> {
+                                    if (cache) {
+                                        try {
+                                            messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
+                                        } catch (Exception e) {
+                                            showErrorLog("Saving Contacts Failed: " + e.getMessage());
+                                            onUnknownException(uniqueId);
+                                        }
+                                    }
+                                };
+
+                                new PodThreadManager()
+                                        .addNewTask(updatePhoneContactsDBTask)
+                                        .addNewTask(updateCachedContactsTask)
+                                        .addNewTask(() -> subject.onNext(phoneContacts))
+                                        .runTasksSynced();
+
+
+                            }
+                        } else {
+
+                            getErrorOutPut(contactsResponse.message(), contactsResponse.code()
+                                    , uniqueId);
+
+                            showLog("Error add Contacts: " + contactsResponse.raw());
+
+                            subject.onError(new Throwable());
+                        }
+
+                    }, throwable ->
+                    {
+                        getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                        subject.onError(throwable);
+                    });
+        }
+
+        return subject;
+
+
     }
 
 
@@ -12288,43 +12498,9 @@ public class Chat extends AsyncAdapter {
 
         if (cache && permit) {
 
-            messageDatabaseHelper.saveUserInfo(userInfo, new MessageDatabaseHelper.IRoomIntegrity() {
-                @Override
-                public void onDatabaseNeedReset() {
-
-                    showLog("Reset database");
-                    initDatabaseWithKey(getKey());
-                    showLog("Database reset successfully");
-                    cache = true;
-
-
-                }
-
-                @Override
-                public void onResetFailed() {
-
-                    showErrorLog("DB reset failed...!");
-                    showErrorLog("Cache is disable...");
-                    cache = false;
-                }
-
-                @Override
-                public void onRoomIntegrityError() {
-
-                    showErrorLog("Room integrity error");
-                    cache = false;
-
-                }
-
-                @Override
-                public void onDatabaseDown() {
-
-                    showErrorLog("Database down");
-                    cache = false;
-
-
-                }
-            });
+            messageDatabaseHelper.saveUserInfo(userInfo, handleDBError(() -> {
+            }, () -> {
+            }));
         }
 
         setUserId(userInfo.getId());
@@ -12336,6 +12512,49 @@ public class Chat extends AsyncAdapter {
         outPutUserInfo.setUniqueId(chatMessage.getUniqueId());
 
         return gson.toJson(outPutUserInfo);
+    }
+
+    private MessageDatabaseHelper.IRoomIntegrity handleDBError(Runnable onSuccessAction, Runnable onErrorAction) {
+
+        return new MessageDatabaseHelper.IRoomIntegrity() {
+            @Override
+            public void onDatabaseNeedReset() {
+
+                showLog("Reset database");
+                initDatabaseWithKey(getKey());
+                showLog("Database reset successfully");
+                cache = true;
+                onSuccessAction.run();
+
+
+            }
+
+            @Override
+            public void onResetFailed() {
+
+                showErrorLog("DB reset failed...!");
+                showErrorLog("Cache is disable...");
+                cache = false;
+                onErrorAction.run();
+            }
+
+            @Override
+            public void onRoomIntegrityError() {
+
+                showErrorLog("Room integrity error");
+                cache = false;
+
+            }
+
+            @Override
+            public void onDatabaseDown() {
+
+                showErrorLog("Database down");
+                cache = false;
+
+
+            }
+        };
     }
 
     private String reformatMuteThread(ChatMessage chatMessage, ChatResponse<ResultMute> outPut) {

@@ -93,6 +93,7 @@ public class PodUploader {
         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
         RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+
         RequestBody hashGroupPart = RequestBody.create(MediaType.parse("multipart/form-data"), threadHashCode);
 
         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
@@ -100,7 +101,8 @@ public class PodUploader {
             @Override
             public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
-                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
+                if (progress < 95)
+                    listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
             }
 
         });
@@ -121,6 +123,7 @@ public class PodUploader {
 
 
         long finalFileSize = fileSize;
+
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -144,6 +147,9 @@ public class PodUploader {
 //
 //
 //                        }
+
+                        listener.onProgressUpdate(100, (int) finalFileSize, 0);
+
                         listener.onSuccess(response.body().getUploadToPodSpaceResult(), file, mimeType, finalFileSize);
                     } else {
                         try {

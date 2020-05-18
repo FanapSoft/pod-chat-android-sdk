@@ -7,7 +7,6 @@ import com.fanap.podchat.persistance.dao.PhoneContactDao;
 import com.fanap.podchat.util.PodThreadManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,17 +29,16 @@ public class PhoneContactDbHelper {
         }
     }
 
-    public void addPhoneContacts(List<PhoneContact> phoneContacts) {
+    public boolean addPhoneContacts(List<PhoneContact> phoneContacts) {
 
-        new PodThreadManager()
-                .doThisSafe(() -> {
-                    try {
-                        phoneContactDao.insertPhoneContacts(phoneContacts);
-                        Log.i("CHAT_SDK", "Save " + phoneContacts.size() + "Contact Successfully");
-                    } catch (Exception e) {
-                        Log.e("CHAT_SDK", "Save Contacts failed " + e.getMessage());
-                    }
-                });
+        try {
+            phoneContactDao.insertPhoneContacts(phoneContacts);
+            Log.i("CHAT_SDK", "Save " + phoneContacts.size() + "Contact Successfully");
+            return true;
+        } catch (Exception e) {
+            Log.e("CHAT_SDK", "Save Contacts failed " + e.getMessage());
+            return false;
+        }
 
     }
 

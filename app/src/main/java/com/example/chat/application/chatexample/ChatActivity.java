@@ -108,6 +108,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import rx.Observable;
+import rx.Observer;
+import rx.schedulers.Schedulers;
+
 
 public class ChatActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
@@ -142,7 +146,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "e15e0160a22b4b6ba005f75ec87ea43a";
+    private static String TOKEN = "70a20f2800dd47f699e9f3067433ebf6";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 

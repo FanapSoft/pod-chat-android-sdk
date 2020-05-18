@@ -148,6 +148,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.setDownloadDirectory(context.getCacheDir());
 
+        TimeoutConfig timeout = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(30, TimeUnit.SECONDS)
+                .withWriteTimeout(30, TimeUnit.MINUTES)
+                .withReadTimeout(30, TimeUnit.MINUTES)
+                .build();
+
+
+        chat.setUploadTimeoutConfig(timeout);
+
+        chat.setDownloadTimeoutConfig(timeout);
+
 
 //        chat.setNetworkListenerEnabling(false);
 //        chat.setReconnectOnClose(false);

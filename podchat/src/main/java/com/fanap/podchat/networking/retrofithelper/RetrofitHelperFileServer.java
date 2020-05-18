@@ -40,15 +40,15 @@ public class RetrofitHelperFileServer {
         if (timeoutConfig != null) {
 
             client = timeoutConfig.getClientBuilder()
-                    .addNetworkInterceptor(new HttpLoggingInterceptor()
-                            .setLevel(HttpLoggingInterceptor.Level.BODY))
+//                    .addNetworkInterceptor(new HttpLoggingInterceptor()
+//                            .setLevel(HttpLoggingInterceptor.Level.BODY))
                     .build();
 
         } else {
 
             client = new OkHttpClient().newBuilder()
-                    .addNetworkInterceptor(new HttpLoggingInterceptor()
-                            .setLevel(HttpLoggingInterceptor.Level.BODY))
+//                    .addNetworkInterceptor(new HttpLoggingInterceptor()
+//                            .setLevel(HttpLoggingInterceptor.Level.BODY))
 //                        .retryOnConnectionFailure(true)
                     .connectTimeout(TIMEOUT, TIME_UNIT) // connect timeout
                     .writeTimeout(TIMEOUT, TIME_UNIT) // write timeout
