@@ -1,6 +1,5 @@
 package com.example.chat.application.chatexample;
 
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 
 public class ConstantSample {
 

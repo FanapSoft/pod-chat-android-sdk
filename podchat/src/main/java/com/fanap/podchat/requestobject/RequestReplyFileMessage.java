@@ -15,6 +15,27 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
     private Activity activity;
     private int messageType;
 
+    private String imageXc;
+    private String imageYc;
+    private String imageHc;
+    private String imageWc;
+
+
+    public String getImageXc() {
+        return imageXc;
+    }
+
+    public String getImageYc() {
+        return imageYc;
+    }
+
+    public String getImageHc() {
+        return imageHc;
+    }
+
+    public String getImageWc() {
+        return imageWc;
+    }
 
     RequestReplyFileMessage(@NonNull Builder builder) {
         super(builder);
@@ -26,6 +47,10 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
         this.activity = builder.activity;
         this.messageType = builder.messageType;
         this.userGroupHashCode = builder.userGroupHashCode;
+        imageHc = builder.imageHc;
+        imageWc = builder.imageWc;
+        imageXc = builder.imageXc;
+        imageYc = builder.imageYc;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
@@ -38,6 +63,11 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
         private Uri fileUri;
         private Activity activity;
         private int messageType;
+        private String imageXc;
+        private String imageYc;
+        private String imageHc;
+        private String imageWc;
+
 
 
         public Builder(String messageContent,
@@ -52,6 +82,7 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
             this.fileUri = fileUri;
             this.activity = activity;
             this.messageType = messageType;
+
         }
 
         public Builder(String userGroupHashCode, String messageContent, long threadId, long messageId, Uri fileUri, Activity activity, int messageType) {
@@ -62,6 +93,29 @@ public class RequestReplyFileMessage extends GeneralRequestObject {
             this.fileUri = fileUri;
             this.activity = activity;
             this.messageType = messageType;
+        }
+
+        public Builder setImageXc(String imageXc) {
+            this.imageXc = imageXc;
+            return this;
+        }
+
+        public Builder setImageYc(String imageYc) {
+            this.imageYc = imageYc;
+            return this;
+
+        }
+
+        public Builder setImageHc(String imageHc) {
+            this.imageHc = imageHc;
+            return this;
+
+        }
+
+        public Builder setImageWc(String imageWc) {
+            this.imageWc = imageWc;
+            return this;
+
         }
 
         @NonNull

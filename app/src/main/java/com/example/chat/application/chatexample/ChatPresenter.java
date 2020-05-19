@@ -70,6 +70,7 @@ import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -288,6 +289,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
         return chat.getFile(rePod, iDownloadFile);
+
+    }
+
+    @Override
+    public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
+        return chat.getImage(rePod, iDownloadFile);
 
     }
 
@@ -799,6 +806,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+                .setyC(1)
+                .setxC(1)
+                .sethC(200)
+                .setwC(200)
                 .build();
 
 //        chat.uploadImageProgress(activity,fileUri,handler);

@@ -178,6 +178,7 @@ import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetLastSeens;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
@@ -2112,6 +2113,10 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    requestFileMessage.getImageXc(),
+                    requestFileMessage.getImageYc(),
+                    requestFileMessage.getImageHc(),
+                    requestFileMessage.getImageWc(),
                     new PodUploader.IPodUploadFileToPodSpace() {
                         @Override
                         public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
@@ -2139,7 +2144,60 @@ public class Chat extends AsyncAdapter {
                                     response.getParentHash());
 
 
-//                            createImageMetadata()
+                            sendTextMessageWithFile(
+                                    requestFileMessage.getDescription(),
+                                    requestFileMessage.getThreadId(),
+                                    jsonMeta,
+                                    requestFileMessage.getSystemMetadata(),
+                                    uniqueId,
+                                    typeCode,
+                                    requestFileMessage.getMessageType());
+
+                        }
+
+                        @Override
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int actualHeight, int width, int height) {
+
+                            removeFromUploadQueue(uniqueId);
+
+                            ResultImageFile result = PodUploader.generateImageUploadResult(response);
+                            ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                            ResultImageFile resultImageFile = new ResultImageFile();
+                            chatResponse.setUniqueId(uniqueId);
+                            resultImageFile.setId(result.getId());
+                            resultImageFile.setHashCode(result.getHashCode());
+                            resultImageFile.setName(result.getName());
+                            resultImageFile.setHeight(height);
+                            resultImageFile.setWidth(width);
+                            resultImageFile.setActualHeight(actualHeight);
+                            resultImageFile.setActualWidth(actualWidth);
+
+                            chatResponse.setResult(resultImageFile);
+
+                            String imageJson = gson.toJson(chatResponse);
+
+                            listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+
+                            if (handler != null) {
+                                handler.onFinishImage(imageJson, chatResponse);
+                            }
+
+                            showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+
+
+
+
+                            String jsonMeta = createImageMetadata(
+                                    file,
+                                    response.getHashCode(),
+                                    0,
+                                    height,
+                                    width,
+                                    mimeType,
+                                    length,
+                                    response.getParentHash(),
+                                    false,
+                                    null);
 
 
                             sendTextMessageWithFile(
@@ -2189,6 +2247,8 @@ public class Chat extends AsyncAdapter {
                                 handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
                         }
                     });
+
+
 
             initCancelUpload(uniqueId, subscription);
 
@@ -2243,6 +2303,10 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    requestFileMessage.getImageXc(),
+                    requestFileMessage.getImageYc(),
+                    requestFileMessage.getImageHc(),
+                    requestFileMessage.getImageWc(),
                     new PodUploader.IPodUploadFileToPodSpace() {
                         @Override
                         public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
@@ -2280,6 +2344,63 @@ public class Chat extends AsyncAdapter {
                                     requestFileMessage.getMessageType());
 
                         }
+
+                        @Override
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int actualHeight, int width, int height) {
+
+                            removeFromUploadQueue(uniqueId);
+
+                            ResultImageFile result = PodUploader.generateImageUploadResult(response);
+                            ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                            ResultImageFile resultImageFile = new ResultImageFile();
+                            chatResponse.setUniqueId(uniqueId);
+                            resultImageFile.setId(result.getId());
+                            resultImageFile.setHashCode(result.getHashCode());
+                            resultImageFile.setName(result.getName());
+                            resultImageFile.setHeight(height);
+                            resultImageFile.setWidth(width);
+                            resultImageFile.setActualHeight(actualHeight);
+                            resultImageFile.setActualWidth(actualWidth);
+
+                            chatResponse.setResult(resultImageFile);
+
+                            String imageJson = gson.toJson(chatResponse);
+
+                            listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+
+                            if (handler != null) {
+                                handler.onFinishImage(imageJson, chatResponse);
+                            }
+
+                            showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+
+
+
+
+                            String jsonMeta = createImageMetadata(
+                                    file,
+                                    response.getHashCode(),
+                                    0,
+                                    height,
+                                    width,
+                                    mimeType,
+                                    length,
+                                    response.getParentHash(),
+                                    false,
+                                    null);
+
+
+                            sendTextMessageWithFile(
+                                    requestFileMessage.getDescription(),
+                                    requestFileMessage.getThreadId(),
+                                    jsonMeta,
+                                    requestFileMessage.getSystemMetadata(),
+                                    uniqueId,
+                                    typeCode,
+                                    requestFileMessage.getMessageType());
+
+                        }
+
 
                         @Override
                         public void onFailure(String cause) {
@@ -2610,7 +2731,7 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        if (getFileServer() == null) {
+        if (getPodSpaceServer() == null) {
 
             getErrorOutPut("File server is null", 0, uniqueId);
 
@@ -2618,64 +2739,79 @@ public class Chat extends AsyncAdapter {
         }
 
         try {
-            Subscription subscription =
-                    PodUploader.uploadImageToChatServer(
-                            uniqueId,
-                            request.getFileUri(),
-                            context,
-                            getFileServer(),
-                            getToken(),
-                            TOKEN_ISSUER,
-                            new PodUploader.IPodUploadImage() {
-                                @Override
-                                public void onSuccess(FileImageUpload response, File file, String mimeType, long length) {
 
-                                    ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
-                                    ResultImageFile resultImageFile = new ResultImageFile();
-                                    chatResponse.setUniqueId(uniqueId);
-                                    resultImageFile.setId(response.getResult().getId());
-                                    resultImageFile.setHashCode(response.getResult().getHashCode());
-                                    resultImageFile.setName(response.getResult().getName());
-                                    resultImageFile.setHeight(response.getResult().getHeight());
-                                    resultImageFile.setWidth(response.getResult().getWidth());
-                                    resultImageFile.setActualHeight(response.getResult().getActualHeight());
-                                    resultImageFile.setActualWidth(response.getResult().getActualWidth());
+            Subscription subscription = PodUploader.uploadPublicToPodSpace(
+                    uniqueId,
+                    request.getFileUri(),
+                    context,
+                    getPodSpaceServer(),
+                    getToken(),
+                    TOKEN_ISSUER,
+                    String.valueOf(request.getxC()),
+                    String.valueOf(request.getyC()),
+                    String.valueOf(request.gethC()),
+                    String.valueOf(request.getwC()),
+                    new PodUploader.IPodUploadFileToPodSpace() {
 
-                                    chatResponse.setResult(resultImageFile);
-                                    resultImageFile.setUrl(getImage(resultImageFile.getId(), resultImageFile.getHashCode(), true));
-                                    String imageJson = gson.toJson(chatResponse);
-                                    listenerManager.callOnUploadImageFile(imageJson, chatResponse);
-                                    showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+                        @Override
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int actualHeight, int width, int height) {
 
-                                }
+                            ResultImageFile result = PodUploader.generateImageUploadResult(response);
+                            ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                            ResultImageFile resultImageFile = new ResultImageFile();
+                            chatResponse.setUniqueId(uniqueId);
+                            resultImageFile.setId(result.getId());
+                            resultImageFile.setHashCode(result.getHashCode());
+                            resultImageFile.setName(result.getName());
+                            resultImageFile.setHeight(height);
+                            resultImageFile.setWidth(width);
+                            resultImageFile.setUrl(getPodSpaceImageUrl(result.getHashCode()));
+                            resultImageFile.setActualHeight(actualHeight);
+                            resultImageFile.setActualWidth(actualWidth);
 
-                                @Override
-                                public void onFailure(String cause) {
+                            chatResponse.setResult(resultImageFile);
 
-                                    String jsonError = getErrorOutPut(cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
-                                    ErrorOutPut error = new ErrorOutPut(true, cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
-                                    if (handler != null) {
-                                        handler.onError(jsonError, error);
-                                    }
+                            String imageJson = gson.toJson(chatResponse);
 
-                                }
+                            listenerManager.callOnUploadImageFile(imageJson, chatResponse);
 
-                                @Override
-                                public void onUploadStarted(String mimeType, File file, long length) {
-
-                                    showLog("UPLOADING_FILE");
-
-                                }
-
-                                @Override
-                                public void onProgressUpdate(int progress, int totalBytesSent, int totalBytesToSend) {
-                                    if (handler != null) {
-                                        handler.onProgressUpdate(progress);
-                                        handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
-                                    }
-                                }
+                            if (handler != null) {
+                                handler.onFinish(imageJson, chatResponse);
                             }
-                    );
+
+                            showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+
+                        }
+
+                        @Override
+                        public void onFailure(String cause) {
+
+                            String jsonError = getErrorOutPut(cause
+                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+                            if (handler != null) {
+                                handler.onError(jsonError, error);
+                            }
+                        }
+
+                        @Override
+                        public void onUploadStarted(String mimeType, File file, long length) {
+
+
+                            showLog("UPLOADING_FILE");
+
+                        }
+
+                        @Override
+                        public void onProgressUpdate(int progress, int totalBytesSent, int totalBytesToSend) {
+
+                            if (handler != null) {
+                                handler.onProgressUpdate(progress);
+                                handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
+                            }
+                        }
+                    });
+
 
             initCancelUpload(uniqueId, subscription);
 
@@ -2838,7 +2974,7 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        if (getFileServer() == null) {
+        if (getPodSpaceServer() == null) {
 
             getErrorOutPut("File server is null", 0, uniqueId);
 
@@ -2846,61 +2982,65 @@ public class Chat extends AsyncAdapter {
         }
 
         try {
-            Subscription subscription =
-                    PodUploader.uploadFileToChatServer(
-                            uniqueId,
-                            request.getFileUri(),
-                            context,
-                            getFileServer(),
-                            getToken(),
-                            TOKEN_ISSUER,
-                            new PodUploader.IPodUploadFile() {
-                                @Override
-                                public void onSuccess(FileUpload response, File file, String mimeType, long length) {
 
-                                    ResultFile resultFile = response.getResult();
-                                    resultFile.setUrl(getFile(resultFile.getId(), resultFile.getHashCode(), true));
-                                    resultFile.setSize(file.length());
+            Subscription subscription = PodUploader.uploadPublicToPodSpace(
+                    uniqueId,
+                    request.getFileUri(),
+                    context,
+                    getPodSpaceServer(),
+                    getToken(),
+                    TOKEN_ISSUER,
+                    new PodUploader.IPodUploadFileToPodSpace() {
 
-                                    ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
-                                    chatResponse.setResult(resultFile);
-                                    chatResponse.setUniqueId(uniqueId);
-                                    String json = gson.toJson(chatResponse);
-                                    showLog("FINISH_UPLOAD_FILE", json);
-                                    listenerManager.callOnUploadFile(json, chatResponse);
+                        @Override
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
 
-                                    if (handler != null) {
-                                        handler.onFinish(json, response);
-                                    }
-                                }
+                            ResultFile resultFile = PodUploader.generateFileUploadResult(response);
+                            FileUpload result = new FileUpload();
+                            result.setResult(resultFile);
+                            ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+                            resultFile.setUrl(getPodSpaceFileUrl(resultFile.getHashCode()));
+                            showLog("FINISH_UPLOAD_FILE", gson.toJson(resultFile));
+                            chatResponse.setResult(resultFile);
+                            chatResponse.setUniqueId(uniqueId);
 
-                                @Override
-                                public void onFailure(String cause) {
-
-                                    String jsonError = getErrorOutPut(cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
-                                    ErrorOutPut error = new ErrorOutPut(true, cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
-                                    if (handler != null) {
-                                        handler.onError(jsonError, error);
-                                    }
-
-                                }
-
-                                @Override
-                                public void onUploadStarted(String mimeType, File file, long length) {
-
-                                    showLog("UPLOADING_FILE");
-
-                                }
-
-                                @Override
-                                public void onProgressUpdate(int progress, int totalBytesSent, int totalBytesToSend) {
-                                    if (handler != null) {
-                                        handler.onProgressUpdate(progress);
-                                        handler.onProgress(uniqueId, progress, totalBytesSent, totalBytesToSend);
-                                    }
-                                }
+                            if (handler != null) {
+                                handler.onFinish(gson.toJson(chatResponse), result);
                             }
-                    );
+
+                            listenerManager.callOnUploadFile(gson.toJson(resultFile), chatResponse);
+
+                        }
+
+                        @Override
+                        public void onFailure(String cause) {
+
+                            String jsonError = getErrorOutPut(cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            ErrorOutPut error = new ErrorOutPut(true, cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            if (handler != null) {
+                                handler.onError(jsonError, error);
+                            }
+                        }
+
+                        @Override
+                        public void onUploadStarted(String mimeType, File file, long length) {
+
+
+                            showLog("UPLOADING_FILE");
+
+                        }
+
+                        @Override
+                        public void onProgressUpdate(int progress, int totalBytesSent, int totalBytesToSend) {
+
+                            if (handler != null) {
+                                handler.onProgressUpdate(progress);
+                                handler.onProgress(uniqueId, progress, totalBytesSent, totalBytesToSend);
+                            }
+
+                        }
+                    });
+
 
             initCancelUpload(uniqueId, subscription);
 
@@ -3190,6 +3330,8 @@ public class Chat extends AsyncAdapter {
                             new PodUploader.IPodUploadFileToPodSpace() {
                                 @Override
                                 public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
+
+
                                     ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
                                     FileImageUpload fileImageUpload = new FileImageUpload();
                                     ResultImageFile resultImageFile = PodUploader.generateImageUploadResult(response);
@@ -3497,6 +3639,63 @@ public class Chat extends AsyncAdapter {
 
                                 }
 
+
+
+                                @Override
+                                public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int actualHeight, int width, int height) {
+
+                                    removeFromUploadQueue(uniqueId);
+
+                                    ResultImageFile result = PodUploader.generateImageUploadResult(response);
+                                    ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                                    ResultImageFile resultImageFile = new ResultImageFile();
+                                    chatResponse.setUniqueId(uniqueId);
+                                    resultImageFile.setId(result.getId());
+                                    resultImageFile.setHashCode(result.getHashCode());
+                                    resultImageFile.setName(result.getName());
+                                    resultImageFile.setHeight(height);
+                                    resultImageFile.setWidth(width);
+                                    resultImageFile.setActualHeight(actualHeight);
+                                    resultImageFile.setActualWidth(actualWidth);
+
+                                    chatResponse.setResult(resultImageFile);
+
+                                    String imageJson = gson.toJson(chatResponse);
+
+                                    listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+
+                                    if (handler != null) {
+                                        handler.onFinishImage(imageJson, chatResponse);
+                                    }
+
+                                    showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+
+
+                                    String jsonMeta = createImageMetadata(
+                                            file,
+                                            response.getHashCode(),
+                                            0,
+                                            height,
+                                            width,
+                                            mimeType,
+                                            length,
+                                            response.getParentHash(),
+                                            false,
+                                            null);
+
+
+                                    if (isReplyMessage(methodName)) {
+
+                                        showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
+                                        mainReplyMessage(message, threadId, messageId, systemMetadata, messageType, jsonMeta, uniqueId, null);
+
+                                    } else {
+                                        sendTextMessageWithFile(message, threadId, jsonMeta, systemMetadata, uniqueId, typeCode, messageType);
+                                    }
+
+
+                                }
+
                                 @Override
                                 public void onFailure(String cause) {
 
@@ -3638,7 +3837,6 @@ public class Chat extends AsyncAdapter {
         PodDownloader.IDownloaderError downloaderErrorInterface =
                 getDownloaderErrorInterface(progressHandler, uniqueId, url);
 
-
         File destinationFolder;
 
         if (cache && request.canUseCache()) {
@@ -3699,7 +3897,7 @@ public class Chat extends AsyncAdapter {
             showLog("Download Started");
 
 
-            Call call = PodDownloader.downloadFromPodSpace(
+            Call call = PodDownloader.downloadFileFromPodSpace(
                     new ProgressHandler.IDownloadFile() {
                         @Override
                         public void onError(String mUniqueId, String error, String mUrl) {
@@ -3752,8 +3950,144 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
+    public String getImage(RequestGetPodSpaceImage request, ProgressHandler.IDownloadFile progressHandler) {
+
+        String uniqueId = generateUniqueId();
+
+        String url = getPodSpaceImageUrl(request.getHashCode());
+
+        showLog("DOWNLOAD IMAGE: " + url);
+
+        PodDownloader.IDownloaderError downloaderErrorInterface =
+                getDownloaderErrorInterface(progressHandler, uniqueId, url);
+
+
+        File destinationFolder;
+
+        if (cache && request.canUseCache()) {
+
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getOrCreateDirectory(FileUtils.PICTURES);
+
+        } else {
+
+            destinationFolder = FileUtils.getDownloadDirectory() != null ? FileUtils.getOrCreateDownloadDirectory(FileUtils.PICTURES) : FileUtils.getPublicFilesDirectory();
+
+        }
+
+        showLog("Save in folder: " + destinationFolder);
+
+
+        String fileName = "image_" + request.getHashCode();
+
+
+        if (destinationFolder == null) {
+
+            showErrorLog("Error Creating destination folder");
+
+            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
+
+            return uniqueId;
+        }
+
+
+        File cachedFile = FileUtils.findFileInFolder(destinationFolder, fileName);
+
+        if (cachedFile != null && cachedFile.isFile() && request.canUseCache()) {
+
+            showLog("File Exist in cache: " + cachedFile);
+
+            //file exists
+            ChatResponse<ResultDownloadFile> response = PodDownloader.generatePodSpaceDownloadResult(request.getHashCode(), cachedFile);
+
+            progressHandler.onFileReady(response);
+
+            return uniqueId;
+
+        }
+
+
+        //only url should return in callback
+        if (!hasFreeSpace) {
+
+            showErrorLog("Download couldn't start. cause: LOW FREE SPACE");
+
+            progressHandler.onLowFreeSpace(uniqueId, url);
+
+            return uniqueId;
+        }
+
+
+        if (chatReady) {
+
+            showLog("Download Started");
+
+
+            Call call = PodDownloader.downloadImageFromPodSpace(
+                    new ProgressHandler.IDownloadFile() {
+                        @Override
+                        public void onError(String mUniqueId, String error, String mUrl) {
+                            progressHandler.onError(uniqueId, error, url);
+
+                            showErrorLog("Download Error. cause: " + error);
+                        }
+
+                        @Override
+                        public void onProgressUpdate(String mUniqueId, long bytesDownloaded, long totalBytesToDownload) {
+
+                            progressHandler.onProgressUpdate(uniqueId, bytesDownloaded, totalBytesToDownload);
+
+
+                            if (totalBytesToDownload > checkFreeSpace()) {
+
+                                showErrorLog("Total file space is more than free space");
+
+                                progressHandler.onLowFreeSpace(uniqueId, url);
+
+                            }
+                        }
+
+                        @Override
+                        public void onProgressUpdate(String mUniqueId, int progress) {
+
+                            progressHandler.onProgressUpdate(uniqueId, progress);
+
+                        }
+
+                        @Override
+                        public void onFileReady(ChatResponse<ResultDownloadFile> response) {
+                            progressHandler.onFileReady(response);
+                            showLog("Download is complete!");
+
+                        }
+                    },
+                    getToken(),
+                    TOKEN_ISSUER,
+                    request.getHashCode(),
+                    getPodSpaceServer(),
+                    fileName,
+                    destinationFolder,
+                    downloaderErrorInterface,
+                    request.getSize(),
+                    request.getQuality(),
+                    request.getCrop());
+
+            downloadCallList.put(uniqueId, call);
+
+        } else onChatNotReady(uniqueId);
+
+        return uniqueId;
+    }
+
+
+
+
     private String getPodSpaceFileUrl(String hashCode) {
         return getPodSpaceServer() + "nzh/drive/downloadFile?hash=" + hashCode;
+    }
+
+    private String getPodSpaceImageUrl(String hashCode) {
+        return getPodSpaceServer() + "nzh/drive/downloadImage?hash=" + hashCode;
     }
 
     private String getPodSpaceServer() {
@@ -4732,6 +5066,10 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    request.getImageXc(),
+                    request.getImageYc(),
+                    request.getImageHc(),
+                    request.getImageWc(),
                     new PodUploader.IPodUploadFileToPodSpace() {
                         @Override
                         public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
@@ -4761,6 +5099,57 @@ public class Chat extends AsyncAdapter {
 
                             showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
                             mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, jsonMeta, uniqueId, null);
+
+                        }
+
+
+                        @Override
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int actualHeight, int width, int height) {
+
+                            removeFromUploadQueue(uniqueId);
+
+                            ResultImageFile result = PodUploader.generateImageUploadResult(response);
+                            ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                            ResultImageFile resultImageFile = new ResultImageFile();
+                            chatResponse.setUniqueId(uniqueId);
+                            resultImageFile.setId(result.getId());
+                            resultImageFile.setHashCode(result.getHashCode());
+                            resultImageFile.setName(result.getName());
+                            resultImageFile.setHeight(height);
+                            resultImageFile.setWidth(width);
+                            resultImageFile.setActualHeight(actualHeight);
+                            resultImageFile.setActualWidth(actualWidth);
+
+                            chatResponse.setResult(resultImageFile);
+
+                            String imageJson = gson.toJson(chatResponse);
+
+                            listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+
+                            if (handler != null) {
+                                handler.onFinishImage(imageJson, chatResponse);
+                            }
+
+                            showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+
+
+                            String jsonMeta = createImageMetadata(
+                                    file,
+                                    response.getHashCode(),
+                                    0,
+                                    height,
+                                    width,
+                                    mimeType,
+                                    length,
+                                    response.getParentHash(),
+                                    false,
+                                    null);
+
+
+                            showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
+                            mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, jsonMeta, uniqueId, null);
+
+
 
                         }
 
@@ -7028,6 +7417,7 @@ public class Chat extends AsyncAdapter {
                                     removeFromUploadQueue(finalUniqueId);
 
                                     try {
+
                                         Subscription subscription = PodUploader.uploadToPodSpace(
                                                 finalUniqueId, fileUri,
                                                 request.getUserGroupHash(),
@@ -7037,27 +7427,50 @@ public class Chat extends AsyncAdapter {
                                                 TOKEN_ISSUER,
                                                 new PodUploader.IPodUploadFileToPodSpace() {
                                                     @Override
-                                                    public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
+                                                    public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int actualHeight, int width, int height) {
+
                                                         removeFromUploadQueue(finalUniqueId);
-                                                        ResultFile result = PodUploader.generateFileUploadResult(response);
-                                                        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
-                                                        chatResponse.setResult(result);
+
+                                                        ResultImageFile result = PodUploader.generateImageUploadResult(response);
+                                                        ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+                                                        ResultImageFile resultImageFile = new ResultImageFile();
                                                         chatResponse.setUniqueId(finalUniqueId);
-                                                        String json = gson.toJson(chatResponse);
-                                                        showLog("FILE_UPLOADED_TO_SERVER", json);
-                                                        listenerManager.callOnUploadFile(json, chatResponse);
+                                                        resultImageFile.setId(result.getId());
+                                                        resultImageFile.setHashCode(result.getHashCode());
+                                                        resultImageFile.setName(result.getName());
+                                                        resultImageFile.setHeight(height);
+                                                        resultImageFile.setWidth(width);
+                                                        resultImageFile.setActualHeight(actualHeight);
+                                                        resultImageFile.setActualWidth(actualWidth);
+
+                                                        chatResponse.setResult(resultImageFile);
+
+                                                        String imageJson = gson.toJson(chatResponse);
+
+                                                        listenerManager.callOnUploadImageFile(imageJson, chatResponse);
 
                                                         if (handler != null) {
-                                                            handler.onFinishFile(json, chatResponse);
+                                                            handler.onFinishImage(imageJson, chatResponse);
                                                         }
-                                                        String jsonMeta = createFileMetadata(
+
+                                                        showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+
+
+                                                        String jsonMeta = createImageMetadata(
                                                                 file,
                                                                 response.getHashCode(),
                                                                 0,
+                                                                height,
+                                                                width,
                                                                 mimeType,
-                                                                file.length(),
-                                                                response.getParentHash());
+                                                                length,
+                                                                response.getParentHash(),
+                                                                false,
+                                                                null);
+
+
                                                         sendTextMessageWithFile(request.getMessage(), threadId, jsonMeta, systemMetadata, finalUniqueId, typeCode, messageType);
+
                                                     }
 
                                                     @Override
@@ -7906,15 +8319,15 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(request.getFile().getActivity())) return uniqueIds;
 
-
-//        String innerMessageUniqueId = generateMessageUniqueId(request, t -> uniqueIds.add((String) t));
-        List<String> forwardUniqueIds = generateForwardingMessageId(request, t -> uniqueIds.addAll((Collection<? extends String>) t));
-
-
-//        addToUploadQueue(
-//                Constants.INVITATION,
-//                request.getMessage().getText(),
-//                uniqueIds.get(0));
+//
+////        String innerMessageUniqueId = generateMessageUniqueId(request, t -> uniqueIds.add((String) t));
+//        List<String> forwardUniqueIds = generateForwardingMessageId(request, t -> uniqueIds.addAll((Collection<? extends String>) t));
+//
+//
+////        addToUploadQueue(
+////                Constants.INVITATION,
+////                request.getMessage().getText(),
+////                uniqueIds.get(0));
 
         if (chatReady) {
 
@@ -7935,7 +8348,12 @@ public class Chat extends AsyncAdapter {
                                     request.getMessage() != null ? request.getMessage().getSystemMetadata() : null,
                                     request.getMessageType(),
                                     thread.getThread().getUserGroupHash()
-                            ).build();
+                            )
+                                    .setImageHc(String.valueOf(((RequestUploadImage) request.getFile()).gethC()))
+                                    .setImageWc(String.valueOf(((RequestUploadImage) request.getFile()).getwC()))
+                                    .setImageXc(String.valueOf(((RequestUploadImage) request.getFile()).getxC()))
+                                    .setImageYc(String.valueOf(((RequestUploadImage) request.getFile()).getyC()))
+                                    .build();
 
                     sendFileMessage(requestFile, innerMessageUniqueId, progressHandler);
 
@@ -12127,7 +12545,7 @@ public class Chat extends AsyncAdapter {
         fileMetaData.setMimeType(mimeType);
         fileMetaData.setSize(fileSize);
         if (!Util.isNullOrEmpty(hashCode)) {
-            fileMetaData.setLink(getImage(imageId, hashCode, false));
+            fileMetaData.setLink(getPodSpaceImageUrl(hashCode));
         } else {
             fileMetaData.setLink(path);
         }
@@ -12150,6 +12568,8 @@ public class Chat extends AsyncAdapter {
 
             metaDataWithName.addProperty("name", originalName);
             metaDataWithName.addProperty("id", imageId);
+            metaDataWithName.addProperty("fileHash", hashCode);
+
 
             return metaDataWithName.toString();
 
@@ -12164,6 +12584,8 @@ public class Chat extends AsyncAdapter {
 
             metaDataWithName.addProperty("name", originalName);
             metaDataWithName.addProperty("id", imageId);
+            metaDataWithName.addProperty("fileHash", hashCode);
+
 
             return metaDataWithName.toString();
         }

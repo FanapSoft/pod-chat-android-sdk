@@ -63,8 +63,10 @@ import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestImageMessage;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -221,12 +223,14 @@ public class ChatActivity extends AppCompatActivity
 
     // main server / group
 
-//    public static int TEST_THREAD_ID = 46887;
+//    public static int TEST_THREAD_ID = 47528;
+//    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
 
 
     //integration /group
 
-//    public static int TEST_THREAD_ID = 7090;
+//    public static int TEST_THREAD_ID = 7608;
+//    private static final String TEST_THREAD_HASH = "R8H7TU546ER6ZG";
 
 
     //test server thread
@@ -678,7 +682,14 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("52JUSH5YJT7LP12I")
+        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("RD2VZRMJ6DXIJQ5W")
+                .build();
+
+        RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
+                .Builder("EOU9SU8NJG1LN2W2")
+//                .setCrop(true)
+//                .setQuality(0.5f)
+                .withNoCache()
                 .build();
 
 
@@ -823,6 +834,10 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestUploadImage requestUploadImage = new RequestUploadImage.Builder(this, getUri())
+                .setwC(120)
+                .sethC(120)
+                .setxC(1)
+                .setyC(1)
                 .build();
 
         RequestUploadFile requestUploadFile = new RequestUploadFile.Builder(
@@ -852,7 +867,7 @@ public class ChatActivity extends AppCompatActivity
 
         RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
                 .Builder(ThreadType.Constants.OWNER_GROUP,
-                invite, requestUploadFile,
+                invite, requestUploadImage,
                 TextMessageType.Constants.POD_SPACE_FILE)
                 .title("Test File PodSpace")
 //                .message(innerMessage)
@@ -1188,10 +1203,14 @@ public class ChatActivity extends AppCompatActivity
                                 ChatActivity.this,
                                 TEST_THREAD_ID,
                                 getUri(),
-                                TextMessageType.Constants.POD_SPACE_FILE) // constructor
+                                TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
                                 .description("test file message")
                                 .systemMetadata(getMetaData())
                                 .setUserGroupHash(TEST_THREAD_HASH)
+                                .setImageHc("100")
+                                .setImageWc("100")
+                                .setImageXc("1")
+                                .setImageYc("1")
                                 .build();
 
                         fileUnique[0] = presenter.sendFileMessage(request,
@@ -2350,7 +2369,7 @@ public class ChatActivity extends AppCompatActivity
     private void replyFileMessage() {
         String messageContent = "Hello! just be happy!! : ) ";
         long threadId = TEST_THREAD_ID;
-        long messageId = 370907;
+        long messageId = 114334;
         Uri fileUri = getUri();
         Inviter inviter = new Inviter();
         inviter.setName("Me");
@@ -2360,6 +2379,10 @@ public class ChatActivity extends AppCompatActivity
                 TextMessageType.Constants.POD_SPACE_PICTURE)
                 .systemMetaData(meta)
                 .setUserGroupHashCode(TEST_THREAD_HASH)
+                .setImageHc("200")
+                .setImageWc("100")
+                .setImageXc("5")
+                .setImageYc("5")
                 .build();
 
 

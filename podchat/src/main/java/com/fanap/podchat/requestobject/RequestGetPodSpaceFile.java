@@ -6,7 +6,7 @@ public class RequestGetPodSpaceFile {
     private String hashCode;
     private boolean useCache = true;
 
-    private RequestGetPodSpaceFile(Builder builder) {
+    RequestGetPodSpaceFile(Builder builder) {
         this.hashCode = builder.hashCode;
         this.useCache = builder.useCache;
 
