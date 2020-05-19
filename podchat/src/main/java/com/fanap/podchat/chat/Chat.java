@@ -7315,7 +7315,7 @@ public class Chat extends AsyncAdapter {
 
                 long threadId = request.getThreadId();
 
-                int messageType = request.getMessageType() > 0 ? request.getMessageType() : TextMessageType.Constants.PICTURE;
+                int messageType = request.getMessageType() > 0 ? request.getMessageType() : TextMessageType.Constants.POD_SPACE_PICTURE;
 
 
                 String systemMetadata = request.getSystemMetadata();

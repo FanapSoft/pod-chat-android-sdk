@@ -806,10 +806,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
-                .setyC(1)
-                .setxC(1)
-                .sethC(200)
-                .setwC(200)
                 .build();
 
 //        chat.uploadImageProgress(activity,fileUri,handler);
@@ -822,7 +818,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
 
 
-        RequestUploadFile req = new RequestUploadFile.Builder(activity, fileUri)
+        RequestUploadFile req = new RequestUploadFile
+                .Builder(activity, fileUri)
                 .build();
 
         chat.uploadFileProgress(req, handler);

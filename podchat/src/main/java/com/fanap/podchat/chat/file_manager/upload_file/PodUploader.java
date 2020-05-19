@@ -483,8 +483,8 @@ public static Subscription uploadPublicToPodSpace(
     public static Subscription uploadPublicImageToPodSpace(String uniqueId, String fileServer, String token, int tokenIssuer, String xC, String yC, String hC, String wC, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) throws FileNotFoundException {
         int width = 0;
         int height = 0;
-        String nWidth = "0";
-        String nHeight = "0";
+        String nWidth = "";
+        String nHeight = "";
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -492,8 +492,8 @@ public static Subscription uploadPublicToPodSpace(
             width = options.outWidth;
             height = options.outHeight;
 
-            nWidth = !Util.isNullOrEmpty(wC) ? wC : String.valueOf(width);
-            nHeight = !Util.isNullOrEmpty(hC) ? hC : String.valueOf(height);
+            nWidth = !Util.isNullOrEmpty(wC) && Long.parseLong(wC) > 0 ? wC : String.valueOf(width);
+            nHeight = !Util.isNullOrEmpty(hC) && Long.parseLong(hC) > 0 ? hC : String.valueOf(height);
 
         } catch (Exception e) {
             throw new FileNotFoundException("Invalid image!");

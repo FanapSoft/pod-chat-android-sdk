@@ -10,6 +10,7 @@ import java.util.List;
 
 public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage{
 
+
     private RequestUploadFile file;
 
     RequestCreateThreadWithFile(Builder builder) {
