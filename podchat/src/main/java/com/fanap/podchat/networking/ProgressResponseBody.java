@@ -5,6 +5,7 @@ import android.util.Log;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.util.ChatConstant;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -24,6 +25,7 @@ import okio.Okio;
 import okio.Source;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ProgressResponseBody extends ResponseBody {
 
@@ -81,6 +83,13 @@ public class ProgressResponseBody extends ResponseBody {
                 long bytesRead = super.read(sink, byteCount);
 
                 totalBytesRead += bytesRead != -1 ? bytesRead : 100L;
+
+                if (responseBody.contentLength() < 0) {
+
+//                    progressListener.onError("", ChatConstant.ERROR_DOWNLOAD_FILE,
+//                            "");
+                    return 0;
+                }
 
                 progressListener.onProgressUpdate("", totalBytesRead, responseBody.contentLength());
 

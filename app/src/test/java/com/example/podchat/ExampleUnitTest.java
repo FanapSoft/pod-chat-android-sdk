@@ -41,6 +41,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import rx.Observable;
+import rx.Observer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -79,15 +83,11 @@ public class ExampleUnitTest {
 
     }
 
-
-
     @Test
-    public void threadTest(){
+    public void threadTest() {
 
         TestClass.main(null);
     }
-
-
 
 
     @Test

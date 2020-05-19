@@ -535,28 +535,53 @@ public class FileUtils {
     /**
      * @return The MIME type for the given file.
      */
+//    @Nullable
+//    public static String getMimeType(File file) {
+//
+//        String extension = getExtension(file.getName());
+//
+//        if (extension.length() > 0)
+//            return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1));
+//
+//        return "application/octet-stream";
+//    }
+
+//    @Nullable
+//    public static String getMimeType(Uri uri, Context context) {
+//
+//        return context.getContentResolver().getType(uri);
+//
+//    }
+
     @Nullable
-    public static String getMimeType(File file) {
+    public static String getMimeType(Uri uri,Context context) {
 
-        String extension = getExtension(file.getName());
+        String mimeType = null;
 
-        if (extension.length() > 0)
-            return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1));
-
-        return "application/octet-stream";
+        if (uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            ContentResolver cr = context.getContentResolver();
+            mimeType = cr.getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+                    .toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                    fileExtension.toLowerCase());
+        }
+        return mimeType;
     }
+
 
     /**
      * @return The MIME type for the give Uri.
      */
-    @Nullable
-    public static String getMimeType(@NonNull Context context, @NonNull Uri uri) {
-        File file = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            file = new File(Objects.requireNonNull(getPath(context, uri)));
-        }
-        return getMimeType(file);
-    }
+//    @Nullable
+//    public static String getMimeType(@NonNull Context context, @NonNull Uri uri) {
+//        File file = null;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+//            file = new File(Objects.requireNonNull(getPath(context, uri)));
+//        }
+//        return getMimeType(file);
+//    }
 
     /**
      * @param uri The Uri to check.
@@ -797,10 +822,10 @@ public class FileUtils {
      * @return
      * @author paulburke
      */
-    @Nullable
-    public static Bitmap getThumbnail(@NonNull Context context, @NonNull File file) {
-        return getThumbnail(context, getUri(file), getMimeType(file));
-    }
+//    @Nullable
+//    public static Bitmap getThumbnail(@NonNull Context context, @NonNull File file) {
+//        return getThumbnail(context, getUri(file), getMimeType(file.),context);
+//    }
 
     /**
      * Attempt to retrieve the thumbnail of given Uri from the MediaStore. This
@@ -811,10 +836,10 @@ public class FileUtils {
      * @return
      * @author paulburke
      */
-    @Nullable
-    public static Bitmap getThumbnail(@NonNull Context context, @NonNull Uri uri) {
-        return getThumbnail(context, uri, getMimeType(context, uri));
-    }
+//    @Nullable
+//    public static Bitmap getThumbnail(@NonNull Context context, @NonNull Uri uri) {
+//        return getThumbnail(context, uri, getMimeType(context, uri));
+//    }
 
     /**
      * Attempt to retrieve the thumbnail of given Uri from the MediaStore. This

@@ -14,14 +14,13 @@ public class TextMessageType {
     }
 
     @IntDef({
-            TextMessageType.Constants.TEXT,
-            TextMessageType.Constants.VOICE,
-            TextMessageType.Constants.PICTURE,
-            TextMessageType.Constants.VIDEO,
-            TextMessageType.Constants.SOUND,
-            TextMessageType.Constants.FILE,
-//            TextMessageType.Constants.LINK,
-
+            Constants.TEXT,
+            Constants.VOICE,
+            Constants.PICTURE,
+            Constants.VIDEO,
+            Constants.SOUND,
+            Constants.FILE,
+            Constants.LINK,
             Constants.POD_SPACE_FILE,
             Constants.POD_SPACE_VOICE,
             Constants.POD_SPACE_SOUND,
@@ -39,13 +38,12 @@ public class TextMessageType {
         int VIDEO = 4;
         int SOUND = 5;
         int FILE = 6;
-//        int LINK = 7;
-
         int POD_SPACE_PICTURE = 7;
         int POD_SPACE_VIDEO = 8;
         int POD_SPACE_SOUND = 9;
         int POD_SPACE_VOICE = 10;
         int POD_SPACE_FILE = 11;
+        int LINK = 12;
 
 
     }

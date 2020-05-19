@@ -6,7 +6,7 @@ apply plugin: 'com.kezong.fat-aar'
 
 ext {
 
-    libraryVersion = '0.6.5.4'
+    libraryVersion = '0.6.6.0'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 84
+        versionCode 94
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -68,6 +68,7 @@ dependencies {
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     //okHttp
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'

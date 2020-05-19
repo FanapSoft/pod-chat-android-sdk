@@ -461,7 +461,15 @@ public class MessageDatabaseHelper {
     }
 
     private boolean canUseDatabase() {
-        return appDatabase != null;
+
+        try {
+            appDatabase.beginTransaction();
+            appDatabase.setTransactionSuccessful();
+            appDatabase.endTransaction();
+            return appDatabase != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Nullable
@@ -1144,7 +1152,7 @@ public class MessageDatabaseHelper {
         rawQuery = addMessageTypeIfExist(messageType, rawQuery);
 
 
-        long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(rawQuery.replaceFirst("SELECT \\* ","SELECT COUNT(ID) ")));
+        long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(rawQuery.replaceFirst("SELECT \\* ", "SELECT COUNT(ID) ")));
 
         rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
 
@@ -2683,9 +2691,9 @@ public class MessageDatabaseHelper {
 
     @NonNull
     public void getThreadParticipant(long offset, long count, long threadId, FunctionalListener listener)
-    throws RoomIntegrityException{
+            throws RoomIntegrityException {
 
-        if(!canUseDatabase()) throw new RoomIntegrityException();
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 
@@ -2748,9 +2756,9 @@ public class MessageDatabaseHelper {
 
     public void getThreadAdmins(long offset, long count, long threadId, FunctionalListener listener)
 
-    throws RoomIntegrityException{
+            throws RoomIntegrityException {
 
-        if(!canUseDatabase()) throw new RoomIntegrityException();
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 

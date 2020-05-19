@@ -13,7 +13,12 @@ public class RequestFileMessage {
     private String description;
     private String userGroupHash;
 
-    private RequestFileMessage(Builder builder) {
+    private String imageXc;
+    private String imageYc;
+    private String imageHc;
+    private String imageWc;
+
+    RequestFileMessage(Builder builder) {
         this.setActivity(builder.activity);
         this.setThreadId(builder.threadId);
         this.setFileUri(builder.fileUri);
@@ -21,6 +26,42 @@ public class RequestFileMessage {
         this.setMessageType(builder.messageType);
         this.setDescription(builder.description);
         this.setUserGroupHash(builder.userGroupHash);
+        imageHc = builder.imageHc;
+        imageWc = builder.imageWc;
+        imageXc = builder.imageXc;
+        imageYc = builder.imageYc;
+    }
+
+    public String getImageXc() {
+        return imageXc;
+    }
+
+    public void setImageXc(String imageXc) {
+        this.imageXc = imageXc;
+    }
+
+    public String getImageYc() {
+        return imageYc;
+    }
+
+    public void setImageYc(String imageYc) {
+        this.imageYc = imageYc;
+    }
+
+    public String getImageHc() {
+        return imageHc;
+    }
+
+    public void setImageHc(String imageHc) {
+        this.imageHc = imageHc;
+    }
+
+    public String getImageWc() {
+        return imageWc;
+    }
+
+    public void setImageWc(String imageWc) {
+        this.imageWc = imageWc;
     }
 
     public String getUserGroupHash() {
@@ -87,6 +128,10 @@ public class RequestFileMessage {
         private String systemMetadata;
         private int messageType;
         private String userGroupHash;
+        private String imageXc;
+        private String imageYc;
+        private String imageHc;
+        private String imageWc;
 
         public Builder(Activity activity,
                        long threadId,
@@ -172,6 +217,28 @@ public class RequestFileMessage {
             return this;
         }
 
+        public Builder setImageXc(String imageXc) {
+            this.imageXc = imageXc;
+            return this;
+        }
+
+        public Builder setImageYc(String imageYc) {
+            this.imageYc = imageYc;
+            return this;
+
+        }
+
+        public Builder setImageHc(String imageHc) {
+            this.imageHc = imageHc;
+            return this;
+
+        }
+
+        public Builder setImageWc(String imageWc) {
+            this.imageWc = imageWc;
+            return this;
+
+        }
 
         @NonNull
         public RequestFileMessage build() {

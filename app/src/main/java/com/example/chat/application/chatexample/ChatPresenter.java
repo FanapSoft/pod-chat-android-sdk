@@ -70,6 +70,7 @@ import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -106,6 +107,7 @@ import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
@@ -146,6 +148,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.rawLog(true);
 
         chat.setDownloadDirectory(context.getCacheDir());
+
+        TimeoutConfig timeout = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(30, TimeUnit.SECONDS)
+                .withWriteTimeout(30, TimeUnit.MINUTES)
+                .withReadTimeout(30, TimeUnit.MINUTES)
+                .build();
+
+
+        chat.setUploadTimeoutConfig(timeout);
+
+        chat.setDownloadTimeoutConfig(timeout);
 
 
 //        chat.setNetworkListenerEnabling(false);
@@ -275,6 +289,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
         return chat.getFile(rePod, iDownloadFile);
+
+    }
+
+    @Override
+    public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
+        return chat.getImage(rePod, iDownloadFile);
 
     }
 
@@ -786,9 +806,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+                .setwC(240)
+                .sethC(120)
+                .setxC(10)
+                .setyC(5)
                 .build();
 
+//        chat.uploadImageProgress(activity,fileUri,handler);
         chat.uploadImageProgress(req, handler);
+
 
     }
 
@@ -796,7 +822,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
 
 
-        RequestUploadFile req = new RequestUploadImage.Builder(activity, fileUri)
+        RequestUploadFile req = new RequestUploadFile
+                .Builder(activity, fileUri)
                 .build();
 
         chat.uploadFileProgress(req, handler);
@@ -1172,7 +1199,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onChatState(String state) {
 
         view.onState(state);
+
         this.state = state;
+
+//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+//
+//            syncContact(activity);
+//
+//        }
 
     }
 
