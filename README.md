@@ -1,6 +1,33 @@
 ## Synopsis
-
 **Fanap's POD** Chat service
+
+
+## Version [0.6.6.0] -2020-5-19
+
+- Crop Picture:
+
+
+         RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+                        .setwC(240)
+                        .sethC(120)
+                        .setxC(10)
+                        .setyC(5)
+                        .build();
+        
+         chat.uploadImageProgress(req, handler);
+         
+         
+- Get cropped image:
+
+       
+          RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
+                        .Builder(fileHash)
+                        .setCrop(true)
+                        .setQuality(0.5f)                
+                        .build();
+        
+        
+          chat.getImage(rePodImage, handler);
 
 
 ## Version [0.6.5.4] -2020-5-10

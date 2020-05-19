@@ -7,6 +7,23 @@ All notable changes to this project will be documented here.
 
 
 
+
+## Version [0.6.6.0] -2020-5-19
+
+[Add] Crop picture parameters before upload
+
+[Add] Download picture option size, quality and crop
+
+[Improve] Upload file and pictures
+
+[Improve] Sync large numbers of contacts
+
+[BugFix] minor bugs fixed
+
+
+
+
+
 ## Version [0.6.5.4] -2020-5-10
 
 [Added] getHistory by messageType added
