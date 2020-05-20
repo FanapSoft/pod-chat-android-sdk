@@ -32,7 +32,7 @@ public class PodNotificationManager {
 
     private static boolean chatIsReady = false;
 
-    public static boolean shouldShowNotification = true;
+    private static boolean shouldShowNotification = true;
 
     private static long DEVICE_TOKEN_HAS_ALREADY_REGISTERED = 152;
 
@@ -60,6 +60,10 @@ public class PodNotificationManager {
 
     private static final ArrayList<Map<String, String>> notificationsList = new ArrayList<>();
 
+
+    public static void setShouldShowNotification(boolean shouldShowNotification) {
+        PodNotificationManager.shouldShowNotification = shouldShowNotification;
+    }
 
     private static synchronized String generateUniqueId() {
         return UUID.randomUUID().toString();
@@ -163,6 +167,8 @@ public class PodNotificationManager {
 
     public static void withConfig(CustomNotificationConfig mConfig, Context context) {
 
+        notificationsList.clear();
+
         ShowNotificationHelper.setupNotificationChannel(
                 mConfig.getTargetActivity(),
                 mConfig.getChannelId(),
@@ -194,7 +200,7 @@ public class PodNotificationManager {
 
     }
 
-    private static void showNotification(Map<String, String> data, Context context) {
+    public static void showNotification(Map<String, String> data, Context context) {
 
 //        isGroup
 //       /threadName
@@ -213,47 +219,16 @@ public class PodNotificationManager {
         notificationsList.add(data);
 
         ShowNotificationHelper.showGroupNewMessageNotification(notificationsList,
-                    context,
-                    securePreferences.getString(TARGET_ACTIVITY, ""),
-                    securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
-                    securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
-                    securePreferences.getString(CHANNEL_ID, "")
-            );
-
-
-//        if (notificationsList.size() > 1) {
-//
-//            ShowNotificationHelper.showGroupNewMessageNotification(notificationsList,
-//                    context,
-//                    securePreferences.getString(TARGET_ACTIVITY, ""),
-//                    securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
-//                    securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
-//                    securePreferences.getString(CHANNEL_ID, "")
-//            );
-//
-//        } else {
-//
-//            ShowNotificationHelper.showNewMessageNotification(
-//                    data.get("threadName"),
-//                    data.get("MessageSenderName"),
-//                    data.get("senderImage"),
-//                    data.get("text"),
-//                    Objects.requireNonNull(data.get("isGroup")),
-//                    data.get("MessageSenderUserName"),
-//                    data.get("messageId"),
-//                    data.get("threadId"),
-//                    context,
-//                    securePreferences.getString(TARGET_ACTIVITY, ""),
-//                    securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
-//                    securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
-//                    securePreferences.getString(CHANNEL_ID, "")
-//            );
-//
-//        }
+                context,
+                securePreferences.getString(TARGET_ACTIVITY, ""),
+                securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
+                securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
+                securePreferences.getString(CHANNEL_ID, "")
+        );
 
     }
 
-    static void handleMessage(Context context, RemoteMessage remoteMessage) {
+    public static void handleMessage(Context context, RemoteMessage remoteMessage) {
 
         Map<String, String> data = remoteMessage.getData();
 
@@ -435,6 +410,12 @@ public class PodNotificationManager {
         }
 
         return false;
+
+    }
+
+    static void clearNotifications() {
+
+        notificationsList.clear();
 
     }
 

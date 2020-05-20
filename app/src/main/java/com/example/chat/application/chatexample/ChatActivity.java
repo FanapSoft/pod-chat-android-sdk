@@ -108,7 +108,9 @@ import com.fanap.podchat.example.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ChatActivity extends AppCompatActivity
@@ -254,19 +256,44 @@ public class ChatActivity extends AppCompatActivity
     Faker faker;
     private String downloadingId = "";
 
+    long messageId = 0;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
+        if (getIntent() != null && getIntent().getExtras() != null) {
+
+            Bundle a = getIntent().getExtras();
+
+            String threadId = a.getString("threadId");
+
+            String messageId = a.getString("messageId");
+
+            Log.d("CHAT_ACTIVITY", "Notification Data: ");
+            Log.d("CHAT_ACTIVITY", "Thread Id: " + threadId);
+            Log.d("CHAT_ACTIVITY", "Message Id: " + messageId);
+
+        }
+
+
         faker = new Faker();
 
-
-//        Generator.generateFakeContact(5,getApplicationContext());
+        //        Generator.generateFakeContact(5,getApplicationContext());
 
         Logger.addLogAdapter(new AndroidLogAdapter());
         setContentView(R.layout.activity_chat);
         imageMap = findViewById(R.id.imageMap);
+
+
+        imageMap.setOnLongClickListener((v) -> {
+
+            showNotification();
+
+            return true;
+        });
 
         textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
@@ -342,6 +369,26 @@ public class ChatActivity extends AppCompatActivity
 
         });
 
+    }
+
+    private void showNotification() {
+
+        Map<String, String> data = new HashMap<>();
+
+        data.put("threadName", "گروه کاری 1");
+        data.put("MessageSenderName", "رضا احمدی");
+        data.put("text", "سلام چه خبر؟");
+        data.put("isGroup", "true");
+        data.put("MessageSenderUserName", "a.ahmadi");
+        data.put("messageId", String.valueOf(++messageId));
+        data.put("threadId", "100200");
+        data.put("messageType", "1");
+
+        if(messageId > 6)
+            messageId = 0;
+
+
+        PodNotificationManager.showNotification(data, this);
     }
 
     /*
@@ -1746,7 +1793,6 @@ public class ChatActivity extends AppCompatActivity
 // 16844 zabix1
 
 
-
                 List<String> usernames = new ArrayList<>();
                 usernames.add("z.mohammadi");
                 usernames.add("p.khoshghadam");
@@ -2384,6 +2430,19 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        presenter.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart();
     }
 
     @Override

@@ -441,6 +441,7 @@ public class Chat extends AsyncAdapter {
     public void setupNotification(CustomNotificationConfig notificationConfig) {
 
         PodNotificationManager.withConfig(notificationConfig, context);
+
         PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
             @Override
             public void onLogEvent(String log) {
@@ -458,6 +459,13 @@ public class Chat extends AsyncAdapter {
             }
         });
         PodNotificationManager.registerFCMTokenReceiver(context);
+
+    }
+
+    public void shouldShowNotification(boolean shouldShow){
+
+        PodNotificationManager.setShouldShowNotification(shouldShow);
+
 
     }
 

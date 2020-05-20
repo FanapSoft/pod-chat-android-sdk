@@ -20,7 +20,7 @@ public class TextMessageType {
             TextMessageType.Constants.VIDEO,
             TextMessageType.Constants.SOUND,
             TextMessageType.Constants.FILE,
-//            TextMessageType.Constants.LINK,
+            TextMessageType.Constants.LINK,
 
             Constants.POD_SPACE_FILE,
             Constants.POD_SPACE_VOICE,
@@ -39,13 +39,13 @@ public class TextMessageType {
         int VIDEO = 4;
         int SOUND = 5;
         int FILE = 6;
-//        int LINK = 7;
 
         int POD_SPACE_PICTURE = 7;
         int POD_SPACE_VIDEO = 8;
         int POD_SPACE_SOUND = 9;
         int POD_SPACE_VOICE = 10;
         int POD_SPACE_FILE = 11;
+        int LINK = 12;
 
 
     }

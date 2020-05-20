@@ -295,6 +295,25 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+        chat.shouldShowNotification(true);
+
+    }
+
+    @Override
+    public void onResume() {
+
+        chat.shouldShowNotification(false);
+
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 

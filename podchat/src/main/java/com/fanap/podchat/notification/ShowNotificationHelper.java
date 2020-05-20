@@ -1,5 +1,6 @@
 package com.fanap.podchat.notification;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,21 +13,30 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.R;
 import com.fanap.podchat.util.Util;
-import com.securepreferences.SecurePreferences;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 
-import static com.fanap.podchat.notification.PodChatPushNotificationService.*;
+import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
+import static com.fanap.podchat.util.TextMessageType.Constants.FILE;
+import static com.fanap.podchat.util.TextMessageType.Constants.LINK;
+import static com.fanap.podchat.util.TextMessageType.Constants.PICTURE;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_FILE;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_PICTURE;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_SOUND;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_VIDEO;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_VOICE;
+import static com.fanap.podchat.util.TextMessageType.Constants.SOUND;
+import static com.fanap.podchat.util.TextMessageType.Constants.TEXT;
+import static com.fanap.podchat.util.TextMessageType.Constants.VIDEO;
+import static com.fanap.podchat.util.TextMessageType.Constants.VOICE;
 
 public class ShowNotificationHelper {
 
@@ -37,6 +47,9 @@ public class ShowNotificationHelper {
     public static final String THREAD_ID = "threadId";
     public static final String MESSAGE_ID = "messageId";
     public static final String SENDER_USER_NAME = "senderUserName";
+
+    public static final String ACTION_1 = "action_1";
+    private static final int SUMMARY_ID = 0;
 
 
     public static void setupNotificationChannel(Context context) {
@@ -298,7 +311,7 @@ public class ShowNotificationHelper {
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-            List<Notification> notificationList = new ArrayList<>();
+            Map<String, Notification> notificationMap = new HashMap<>();
 
             NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
 
@@ -308,6 +321,12 @@ public class ShowNotificationHelper {
 
             String group = "DEFAULT_GROUP";
 
+            Intent action1Intent = new Intent(context, NotificationActionService.class)
+                    .setAction(ACTION_1);
+
+            PendingIntent action1PendingIntent = PendingIntent.getService(context, 0,
+                    action1Intent, PendingIntent.FLAG_ONE_SHOT);
+
 
             for (Map<String, String> notificationData :
                     notifications) {
@@ -316,8 +335,10 @@ public class ShowNotificationHelper {
                 String threadName = notificationData.get("threadName");
                 String senderName = notificationData.get("MessageSenderName");
                 String profileUrl = notificationData.get("senderImage");
-                String text = notificationData.get("text");
-                String isGroup = Objects.requireNonNull(notificationData.get("isGroup"));
+
+
+                String text = getNotificationText(notificationData.get("text"), notificationData.get("messageType"));
+                String isGroup = notificationData.get("isGroup") != null ? notificationData.get("isGroup") : "false";
                 String messageSenderUserName = notificationData.get("MessageSenderUserName");
                 String messageId = notificationData.get("messageId");
                 String threadId = notificationData.get("threadId");
@@ -328,7 +349,7 @@ public class ShowNotificationHelper {
 
                 RemoteViews viewExpanded = new RemoteViews(context.getPackageName(), R.layout.message_layout_expanded);
 
-                String title = isGroup.equals("true") ? threadName + " - " + senderName : senderName;
+                String title = (isGroup != null && isGroup.equals("true")) ? threadName + " - " + senderName : senderName;
 
                 view.setTextViewText(R.id.textViewSenderName, title);
                 view.setTextViewText(R.id.textViewContent, text);
@@ -372,7 +393,7 @@ public class ShowNotificationHelper {
                         .getActivity(context.getApplicationContext(),
                                 REQUEST_CODE,
                                 intent,
-                                PendingIntent.FLAG_UPDATE_CURRENT);
+                                PendingIntent.FLAG_CANCEL_CURRENT);
 
 
                 NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(
@@ -390,7 +411,7 @@ public class ShowNotificationHelper {
 
                 Notification notification = notifBuilder.build();
 
-                notificationList.add(notification);
+                notificationMap.put(messageId, notification);
 
                 inbox.addLine(title + " " + text);
 
@@ -401,13 +422,13 @@ public class ShowNotificationHelper {
 
             inbox.setBigContentTitle(!Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID);
 
-            inbox.setSummaryText("+" + notificationList.size() + " پیام جدید");
+            inbox.setSummaryText("+" + notificationMap.size() + " پیام جدید");
 
             Notification summaryBuilder = new NotificationCompat.Builder(
                     context.getApplicationContext(),
                     !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
-                    .setContentTitle(notificationList.size() + "+ پیام جدید دارید")
-                    .setContentText("شما +" + notificationList.size() + " پیام خوانده نشده دارید")
+                    .setContentTitle(notificationMap.size() + "+ پیام جدید دارید")
+                    .setContentText("شما +" + notificationMap.size() + " پیام خوانده نشده دارید")
                     .setStyle(inbox)
                     .setAutoCancel(true)
                     .setGroup(group)
@@ -419,8 +440,8 @@ public class ShowNotificationHelper {
             Notification messagesNotif = new NotificationCompat.Builder(
                     context.getApplicationContext(),
                     !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
-                    .setContentTitle(notificationList.size() + "+ پیام جدید دارید")
-                    .setContentText("شما +" + notificationList.size() + " پیام خوانده نشده دارید")
+                    .setContentTitle(notificationMap.size() + "+ پیام جدید دارید")
+                    .setContentText("شما +" + notificationMap.size() + " پیام خوانده نشده دارید")
                     .setStyle(messagingStyle)
                     .setAutoCancel(true)
                     .setGroup(group)
@@ -432,22 +453,26 @@ public class ShowNotificationHelper {
 
             if (notificationManager != null) {
 
-                for (Notification m :
-                        notificationList) {
+                for (String messageId :
+                        notificationMap.keySet()) {
 
-                    int notificationId = new Random().nextInt();
+                    int notificationId = 0;
+                    try {
+                        notificationId = Integer.parseInt(messageId);
+                    } catch (NumberFormatException e) {
+                        notificationId = new Random().nextInt();
+                    }
 
-                    notificationManager.notify(notificationId, m);
+                    notificationManager.notify(notificationId, notificationMap.get(messageId));
+
                 }
 
-                notificationList.clear();
+                if (notificationMap.size() > 2) {
 
+                    notificationManager.notify(SUMMARY_ID, summaryBuilder);
 
-                notificationManager.cancel(0);
+                }
 
-                notificationManager.notify(0, summaryBuilder);
-
-//                notificationManager.notify(0, messagesNotif);
 
             } else Log.e(TAG, "Can't create notification manager instance");
 
@@ -456,6 +481,82 @@ public class ShowNotificationHelper {
             Log.e(TAG, "Couldn't start activity: " + e.getMessage() + " " + targetClassName);
         }
 
+    }
+
+    private static String getNotificationText(String text, String messageType) {
+
+        try {
+
+            if (Util.isNullOrEmpty(messageType) || messageType.equals("null"))
+                return text;
+
+            int textMessageType = Integer.parseInt(messageType);
+
+            switch (textMessageType) {
+
+                case TEXT: {
+                    return text;
+                }
+
+                case POD_SPACE_VOICE:
+                case VOICE: {
+                    return "صدا فرستاده شد";
+                }
+
+                case POD_SPACE_PICTURE:
+                case PICTURE: {
+                    return "تصویری فرستاده شد";
+                }
+
+                case POD_SPACE_FILE:
+                case FILE: {
+                    return "فایلی فرستاده شد";
+                }
+
+                case POD_SPACE_VIDEO:
+                case VIDEO: {
+                    return "ویدئویی فرستاده شد";
+                }
+                case POD_SPACE_SOUND:
+                case SOUND: {
+                    return "فایل صوتی فرستاده شد";
+                }
+
+                case LINK: {
+                    return "لینکی فرستاده شد";
+                }
+
+                default: {
+                    return "پیام جدیدی ارسال شد";
+                }
+
+            }
+
+
+        } catch (NumberFormatException e) {
+            return "پیام جدیدی ارسال شد";
+        }
+
+
+    }
+
+
+    public static class NotificationActionService extends IntentService {
+        public NotificationActionService() {
+            super(NotificationActionService.class.getSimpleName());
+        }
+
+        @Override
+        protected void onHandleIntent(Intent intent) {
+            String action = intent.getAction();
+            Log.d(TAG, "Received notification action: " + action);
+            if (ACTION_1.equals(action)) {
+
+                PodNotificationManager.clearNotifications();
+
+
+            }
+        }
     }
 
 
