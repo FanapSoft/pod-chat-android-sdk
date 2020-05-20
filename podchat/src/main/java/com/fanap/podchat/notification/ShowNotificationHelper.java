@@ -19,6 +19,11 @@ import com.fanap.podchat.R;
 import com.fanap.podchat.util.Util;
 import com.securepreferences.SecurePreferences;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 import static com.fanap.podchat.notification.PodChatPushNotificationService.*;
@@ -196,7 +201,7 @@ public class ShowNotificationHelper {
             viewExpanded.setTextViewText(R.id.textViewContent, text);
 
 
-            if(profileUrl!=null){
+            if (profileUrl != null) {
 
                 try {
 
@@ -218,7 +223,6 @@ public class ShowNotificationHelper {
             }
 
 
-
             Class<?> c = Class.forName(targetClassName);
             Intent intent = new Intent(context, c);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -235,7 +239,7 @@ public class ShowNotificationHelper {
                             PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-            Notification notification = new NotificationCompat.Builder(
+            NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(
                     context.getApplicationContext(), !Util.isNullOrEmpty(channelId) ?
                     channelId : CHANNEL_ID)
                     .setAutoCancel(true)
@@ -244,16 +248,207 @@ public class ShowNotificationHelper {
                     .setCustomContentView(view)
                     .setCustomBigContentView(viewExpanded)
                     .setContentIntent(pendingIntent)
+                    .setGroup(threadId)
+                    .setGroupSummary(true)
                     .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
-                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
-                    .build();
+                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT);
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                notifBuilder.setCategory(Notification.CATEGORY_MESSAGE);
+            }
+
+
+            Notification notification = notifBuilder.build();
 
 
             NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             if (notificationManager != null) {
-                notificationManager.notify(new Random().nextInt(), notification);
+
+//                int notificationId = Util.isNullOrEmpty(threadId) ? new Random().nextInt() : Integer.parseInt(threadId);
+                int notificationId = new Random().nextInt();
+
+                notificationManager.notify(notificationId, notification);
+
+            } else Log.e(TAG, "Can't create notification manager instance");
+
+
+        } catch (ClassNotFoundException e) {
+            Log.e(TAG, "Couldn't start activity: " + e.getMessage() + " " + targetClassName);
+        }
+
+    }
+
+
+    static void showGroupNewMessageNotification(
+            ArrayList<Map<String, String>> notifications,
+            Context context,
+            String targetClassName,
+            Integer priority,
+            Integer smallIcon,
+            String channelId) {
+
+
+        try {
+
+
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+            List<Notification> notificationList = new ArrayList<>();
+
+            NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
+
+            NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(!Util.isNullOrEmpty(channelId) ?
+                    channelId : CHANNEL_ID);
+
+
+            String group = "DEFAULT_GROUP";
+
+
+            for (Map<String, String> notificationData :
+                    notifications) {
+
+
+                String threadName = notificationData.get("threadName");
+                String senderName = notificationData.get("MessageSenderName");
+                String profileUrl = notificationData.get("senderImage");
+                String text = notificationData.get("text");
+                String isGroup = Objects.requireNonNull(notificationData.get("isGroup"));
+                String messageSenderUserName = notificationData.get("MessageSenderUserName");
+                String messageId = notificationData.get("messageId");
+                String threadId = notificationData.get("threadId");
+
+                group = threadId;
+
+                RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.message_layout);
+
+                RemoteViews viewExpanded = new RemoteViews(context.getPackageName(), R.layout.message_layout_expanded);
+
+                String title = isGroup.equals("true") ? threadName + " - " + senderName : senderName;
+
+                view.setTextViewText(R.id.textViewSenderName, title);
+                view.setTextViewText(R.id.textViewContent, text);
+
+                viewExpanded.setTextViewText(R.id.textViewSenderName, title);
+                viewExpanded.setTextViewText(R.id.textViewContent, text);
+
+
+                if (profileUrl != null) {
+
+                    try {
+
+                        Bitmap bitmap = GlideApp.with(context)
+                                .asBitmap()
+                                .load(profileUrl)
+                                .apply(RequestOptions.circleCropTransform())
+                                .submit(512, 512)
+                                .get();
+
+                        view.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
+                        viewExpanded.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+                Class<?> c = Class.forName(targetClassName);
+                Intent intent = new Intent(context, c);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                intent.putExtra(THREAD_ID, threadId);
+                intent.putExtra(MESSAGE_ID, messageId);
+                intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
+
+                PendingIntent pendingIntent = PendingIntent
+                        .getActivity(context.getApplicationContext(),
+                                REQUEST_CODE,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+                NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(
+                        context.getApplicationContext(), !Util.isNullOrEmpty(channelId) ?
+                        channelId : CHANNEL_ID)
+                        .setAutoCancel(true)
+                        .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                        .setContent(view)
+                        .setCustomContentView(view)
+                        .setCustomBigContentView(viewExpanded)
+                        .setContentIntent(pendingIntent)
+                        .setGroup(group)
+                        .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
+                        .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT);
+
+                Notification notification = notifBuilder.build();
+
+                notificationList.add(notification);
+
+                inbox.addLine(title + " " + text);
+
+                messagingStyle.addMessage(text, new Date().getTime(), senderName);
+
+            }
+
+
+            inbox.setBigContentTitle(!Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID);
+
+            inbox.setSummaryText("+" + notificationList.size() + " پیام جدید");
+
+            Notification summaryBuilder = new NotificationCompat.Builder(
+                    context.getApplicationContext(),
+                    !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
+                    .setContentTitle(notificationList.size() + "+ پیام جدید دارید")
+                    .setContentText("شما +" + notificationList.size() + " پیام خوانده نشده دارید")
+                    .setStyle(inbox)
+                    .setAutoCancel(true)
+                    .setGroup(group)
+                    .setGroupSummary(true)
+                    .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
+                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
+                    .build();
+
+            Notification messagesNotif = new NotificationCompat.Builder(
+                    context.getApplicationContext(),
+                    !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
+                    .setContentTitle(notificationList.size() + "+ پیام جدید دارید")
+                    .setContentText("شما +" + notificationList.size() + " پیام خوانده نشده دارید")
+                    .setStyle(messagingStyle)
+                    .setAutoCancel(true)
+                    .setGroup(group)
+                    .setGroupSummary(true)
+                    .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
+                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
+                    .build();
+
+
+            if (notificationManager != null) {
+
+                for (Notification m :
+                        notificationList) {
+
+                    int notificationId = new Random().nextInt();
+
+                    notificationManager.notify(notificationId, m);
+                }
+
+                notificationList.clear();
+
+
+                notificationManager.cancel(0);
+
+                notificationManager.notify(0, summaryBuilder);
+
+//                notificationManager.notify(0, messagesNotif);
+
             } else Log.e(TAG, "Can't create notification manager instance");
 
 

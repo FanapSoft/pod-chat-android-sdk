@@ -22,6 +22,7 @@ import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.RemoteMessage;
 import com.securepreferences.SecurePreferences;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -56,6 +57,8 @@ public class PodNotificationManager {
     private static String messageUniqueId = "";
 
     private static Map<String, Runnable> messagesQ = new HashMap<>();
+
+    private static final ArrayList<Map<String, String>> notificationsList = new ArrayList<>();
 
 
     private static synchronized String generateUniqueId() {
@@ -203,25 +206,50 @@ public class PodNotificationManager {
 //       /profileImage
 //
 
-        if(!shouldShowNotification) return;
+        if (!shouldShowNotification) return;
 
         SecurePreferences securePreferences = getSecurePrefs(context);
 
-        ShowNotificationHelper.showNewMessageNotification(
-                data.get("threadName"),
-                data.get("MessageSenderName"),
-                data.get("senderImage"),
-                data.get("text"),
-                Objects.requireNonNull(data.get("isGroup")),
-                data.get("MessageSenderUserName"),
-                data.get("messageId"),
-                data.get("threadId"),
-                context,
-                securePreferences.getString(TARGET_ACTIVITY, ""),
-                securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
-                securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
-                securePreferences.getString(CHANNEL_ID, "")
-        );
+        notificationsList.add(data);
+
+        ShowNotificationHelper.showGroupNewMessageNotification(notificationsList,
+                    context,
+                    securePreferences.getString(TARGET_ACTIVITY, ""),
+                    securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
+                    securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
+                    securePreferences.getString(CHANNEL_ID, "")
+            );
+
+
+//        if (notificationsList.size() > 1) {
+//
+//            ShowNotificationHelper.showGroupNewMessageNotification(notificationsList,
+//                    context,
+//                    securePreferences.getString(TARGET_ACTIVITY, ""),
+//                    securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
+//                    securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
+//                    securePreferences.getString(CHANNEL_ID, "")
+//            );
+//
+//        } else {
+//
+//            ShowNotificationHelper.showNewMessageNotification(
+//                    data.get("threadName"),
+//                    data.get("MessageSenderName"),
+//                    data.get("senderImage"),
+//                    data.get("text"),
+//                    Objects.requireNonNull(data.get("isGroup")),
+//                    data.get("MessageSenderUserName"),
+//                    data.get("messageId"),
+//                    data.get("threadId"),
+//                    context,
+//                    securePreferences.getString(TARGET_ACTIVITY, ""),
+//                    securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
+//                    securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
+//                    securePreferences.getString(CHANNEL_ID, "")
+//            );
+//
+//        }
 
     }
 

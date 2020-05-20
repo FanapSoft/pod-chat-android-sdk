@@ -6,7 +6,7 @@ apply plugin: 'com.google.gms.google-services'
 
 ext {
 
-    libraryVersion = '0.6.5.104'
+    libraryVersion = '0.6.5.105'
 }
 
 android {

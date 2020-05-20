@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -143,16 +144,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-//    private static String TOKEN = "155617683c14489baeb35e22e7021aff";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "063739e4cb27463ca266c41cedf480b8";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -170,14 +172,14 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
-//     */
+     //     */
 //    private static String name = BaseApplication.getInstance().getString(R.string.nemati_serverName);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
@@ -207,16 +209,16 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 8032;
-//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+    public static int TEST_THREAD_ID = 8129;
+    private static final String TEST_THREAD_HASH = "EGYDK1YDE3PCUK";
 
 
 //    main server / p2p
@@ -230,12 +232,12 @@ public class ChatActivity extends AppCompatActivity
 
 
 //    integration /group: fifi,jiji and ...
-    public static int TEST_THREAD_ID = 6886;
+//    public static int TEST_THREAD_ID = 6886;
 
     //integration /p2p: fifi, jiji
 
 //    public static int TEST_THREAD_ID = 7488;
-    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
 
     //test server thread
@@ -1743,10 +1745,43 @@ public class ChatActivity extends AppCompatActivity
 //                        "");
 // 16844 zabix1
 
+
+
+                List<String> usernames = new ArrayList<>();
+                usernames.add("z.mohammadi");
+                usernames.add("p.khoshghadam");
+                usernames.add("m.hasanpour");
+                usernames.add("z.ershad");
+                usernames.add("Samira.amiri");
+                usernames.add("s.heydarizadeh");
+                usernames.add("p.pahlavani");
+                usernames.add("ma.amjadi");
+
+
+//                for (String user :
+//                        usernames) {
+//
+//
+//                    try {
+//                        RequestAddContact request = new RequestAddContact.Builder()
+//                                .firstName(user + " n ")
+//                                .lastName(user + " i ")
+//                                .username(user)
+//                                .build();
+//
+//                        presenter.addContact(request);
+//
+//                        Thread.sleep(7000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//
+//                }
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("Pooria")
-                        .lastName("Pahlavani")
-                        .cellphoneNumber("989387181694")
+                        .firstName("Farhad")
+                        .lastName("Kheirkhah")
+                        .cellphoneNumber("989159257427")
                         .build();
 
                 presenter.addContact(request);
@@ -2054,10 +2089,18 @@ public class ChatActivity extends AppCompatActivity
 //                , new Invitee(3102, 2)
 //                new Invitee(091, 1),
 //                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("27751", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("27774", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("29782", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+//                new Invitee("27774", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+//                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
 //                new Invitee(5638, 2),
+//                new Invitee("z.mohammadi", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("p.khoshghadam", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("m.hasanpour", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("z.ershad", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("samira.amiri", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("s.heydarizadeh", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("p.pahlavani", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("ma.amjadi", InviteType.Constants.TO_BE_USER_USERNAME),
 //                new Invitee(5638, 2),
         };
         Inviter inviterw = new Inviter();
@@ -2146,6 +2189,7 @@ public class ChatActivity extends AppCompatActivity
 //                .partnerCoreContactId(566)
                 .offset(0)
                 .count(50)
+//                .partnerCoreContactId(21074)
 //                .withNoCache()
                 .build();
 
