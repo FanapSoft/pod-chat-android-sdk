@@ -302,14 +302,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onStop() {
 
-        chat.shouldShowNotification(true);
+//        chat.shouldShowNotification(true);
 
     }
 
     @Override
     public void onResume() {
 
-        chat.shouldShowNotification(false);
+//        chat.shouldShowNotification(false);
 
     }
 
