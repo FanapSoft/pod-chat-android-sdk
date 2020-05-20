@@ -90,6 +90,8 @@ public class ExampleUnitTest {
     }
 
 
+
+
     @Test
     public void contactsEqualityInList() {
 

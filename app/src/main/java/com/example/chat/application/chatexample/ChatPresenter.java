@@ -64,6 +64,7 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -138,6 +139,20 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //        refWatcher.watch(chat);
 
         chat.addListener(this);
+
+
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(activity)
+                .setChannelName("POD_CHAT_CHANNEL")
+                .setChannelId("PODCHAT")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setIcon(R.mipmap.ic_launcher)
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
+                .build();
+
+
+
+        chat.setupNotification(notificationConfig);
 
 
         //
@@ -289,6 +304,25 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
         return chat.getFile(rePod, iDownloadFile);
+
+    }
+
+    @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+//        chat.shouldShowNotification(true);
+
+    }
+
+    @Override
+    public void onResume() {
+
+//        chat.shouldShowNotification(false);
 
     }
 

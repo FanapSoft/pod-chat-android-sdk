@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -56,6 +57,7 @@ import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
@@ -109,7 +111,9 @@ import com.fanap.podchat.example.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import rx.Observable;
 import rx.Observer;
@@ -156,9 +160,10 @@ public class ChatActivity extends AppCompatActivity
 
     //local
 
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
 //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = "chatlocal";
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -177,6 +182,14 @@ public class ChatActivity extends AppCompatActivity
      */
 
 //    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+
+    /**
+     * Nemati
+     //     */
+//    private static String name = BaseApplication.getInstance().getString(R.string.nemati_serverName);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 //    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
@@ -213,8 +226,8 @@ public class ChatActivity extends AppCompatActivity
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 8032;
-    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+    public static int TEST_THREAD_ID = 8129;
+    private static final String TEST_THREAD_HASH = "EGYDK1YDE3PCUK";
 
 
 //    main server / p2p
@@ -228,10 +241,13 @@ public class ChatActivity extends AppCompatActivity
 //    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
 
 
-    //integration /group
+//    integration /group: fifi,jiji and ...
+//    public static int TEST_THREAD_ID = 6886;
 
-//    public static int TEST_THREAD_ID = 7608;
-//    private static final String TEST_THREAD_HASH = "R8H7TU546ER6ZG";
+    //integration /p2p: fifi, jiji
+
+//    public static int TEST_THREAD_ID = 7488;
+//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
 
     //test server thread
@@ -248,19 +264,44 @@ public class ChatActivity extends AppCompatActivity
     Faker faker;
     private String downloadingId = "";
 
+    long messageId = 0;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
+        if (getIntent() != null && getIntent().getExtras() != null) {
+
+            Bundle a = getIntent().getExtras();
+
+            String threadId = a.getString("threadId");
+
+            String messageId = a.getString("messageId");
+
+            Log.d("CHAT_ACTIVITY", "Notification Data: ");
+            Log.d("CHAT_ACTIVITY", "Thread Id: " + threadId);
+            Log.d("CHAT_ACTIVITY", "Message Id: " + messageId);
+
+        }
+
+
         faker = new Faker();
 
-
-//        Generator.generateFakeContact(5,getApplicationContext());
+        //        Generator.generateFakeContact(5,getApplicationContext());
 
         Logger.addLogAdapter(new AndroidLogAdapter());
         setContentView(R.layout.activity_chat);
         imageMap = findViewById(R.id.imageMap);
+
+
+        imageMap.setOnLongClickListener((v) -> {
+
+            showNotification();
+
+            return true;
+        });
 
         textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
@@ -336,6 +377,26 @@ public class ChatActivity extends AppCompatActivity
 
         });
 
+    }
+
+    private void showNotification() {
+
+        Map<String, String> data = new HashMap<>();
+
+        data.put("threadName", "گروه کاری 1");
+        data.put("MessageSenderName", "رضا احمدی");
+        data.put("text", "سلام چه خبر؟");
+        data.put("isGroup", "true");
+        data.put("MessageSenderUserName", "a.ahmadi");
+        data.put("messageId", String.valueOf(++messageId));
+        data.put("threadId", "100200");
+        data.put("messageType", "1");
+
+        if(messageId > 6)
+            messageId = 0;
+
+
+        PodNotificationManager.showNotification(data, this);
     }
 
     /*
@@ -1754,10 +1815,42 @@ public class ChatActivity extends AppCompatActivity
 //                        "");
 // 16844 zabix1
 
+
+                List<String> usernames = new ArrayList<>();
+                usernames.add("z.mohammadi");
+                usernames.add("p.khoshghadam");
+                usernames.add("m.hasanpour");
+                usernames.add("z.ershad");
+                usernames.add("Samira.amiri");
+                usernames.add("s.heydarizadeh");
+                usernames.add("p.pahlavani");
+                usernames.add("ma.amjadi");
+
+
+//                for (String user :
+//                        usernames) {
+//
+//
+//                    try {
+//                        RequestAddContact request = new RequestAddContact.Builder()
+//                                .firstName(user + " n ")
+//                                .lastName(user + " i ")
+//                                .username(user)
+//                                .build();
+//
+//                        presenter.addContact(request);
+//
+//                        Thread.sleep(7000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//
+//                }
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("Pooria")
-                        .lastName("Pahlavani")
-                        .cellphoneNumber("989387181694")
+                        .firstName("Farhad")
+                        .lastName("Kheirkhah")
+                        .cellphoneNumber("989159257427")
                         .build();
 
                 presenter.addContact(request);
@@ -2065,10 +2158,18 @@ public class ChatActivity extends AppCompatActivity
 //                , new Invitee(3102, 2)
 //                new Invitee(091, 1),
 //                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("27751", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("27774", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("29782", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+//                new Invitee("27774", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+//                new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
 //                new Invitee(5638, 2),
+//                new Invitee("z.mohammadi", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("p.khoshghadam", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("m.hasanpour", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("z.ershad", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("samira.amiri", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("s.heydarizadeh", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("p.pahlavani", InviteType.Constants.TO_BE_USER_USERNAME),
+//                        new Invitee("ma.amjadi", InviteType.Constants.TO_BE_USER_USERNAME),
 //                new Invitee(5638, 2),
         };
         Inviter inviterw = new Inviter();
@@ -2158,6 +2259,7 @@ public class ChatActivity extends AppCompatActivity
 //                .partnerCoreContactId(566)
                 .offset(0)
                 .count(50)
+//                .partnerCoreContactId(21074)
 //                .withNoCache()
                 .build();
 
@@ -2356,7 +2458,19 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+        presenter.onStop();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        presenter.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        presenter.onStart();
     }
 
     @Override

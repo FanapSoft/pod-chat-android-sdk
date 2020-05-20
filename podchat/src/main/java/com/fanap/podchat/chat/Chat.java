@@ -2,6 +2,7 @@ package com.fanap.podchat.chat;
 
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -151,6 +152,8 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -371,6 +374,8 @@ public class Chat extends AsyncAdapter {
     @Inject
     public PhoneContactDbHelper phoneContactDbHelper;
 
+    BroadcastReceiver fcmRefreshTokenReceiver;
+
     private String socketAddress;
     private String appId;
     private String serverName;
@@ -402,7 +407,6 @@ public class Chat extends AsyncAdapter {
 
     public synchronized static Chat init(Context context) {
 
-
         if (instance == null) {
 
             async = Async.getInstance(context);
@@ -432,9 +436,41 @@ public class Chat extends AsyncAdapter {
 
         }
 
-
         return instance;
     }
+
+
+    public void setupNotification(CustomNotificationConfig notificationConfig) {
+
+        PodNotificationManager.withConfig(notificationConfig, context);
+
+        PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
+            @Override
+            public void onLogEvent(String log) {
+                showLog(log);
+            }
+
+            @Override
+            public void sendAsyncMessage(String message, String info) {
+
+                if (chatReady) {
+                    showLog(info, message);
+                    async.sendMessage(message, AsyncAckType.Constants.WITHOUT_ACK);
+                }
+
+            }
+        });
+        PodNotificationManager.registerFCMTokenReceiver(context);
+
+    }
+
+    public void shouldShowNotification(boolean shouldShow){
+
+        PodNotificationManager.setShouldShowNotification(shouldShow);
+
+
+    }
+
 
     private static void runDatabase(Context context) {
 
@@ -594,14 +630,12 @@ public class Chat extends AsyncAdapter {
             context.unregisterReceiver(networkStateReceiver);
             if (pinger != null) pinger.stopPing();
             closeSocketServer();
-
+            PodNotificationManager.unRegisterReceiver(context);
         } catch (Exception ex) {
 
             if (log) {
-
                 Log.e(TAG, "Exception When Closing Chat. Unregistering Receiver failed. cause: " + ex.getMessage());
                 Log.w(TAG, "Pinger has been stopped");
-
             }
         }
     }
@@ -817,6 +851,22 @@ public class Chat extends AsyncAdapter {
             case Constants.USER_INFO:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
+
+
+//            case Constants.REGISTER_FCM_APP: {
+//                PodNotificationManager.handleOnAppRegistered(chatMessage, context, getUserId());
+//                break;
+//            }
+
+            case Constants.REGISTER_FCM_USER_DEVICE: {
+                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage,context);
+                break;
+            }
+
+            case Constants.UPDATE_FCM_APP_USERS_DEVICE: {
+                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage,context);
+                break;
+            }
 
 
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
@@ -9837,8 +9887,18 @@ public class Chat extends AsyncAdapter {
 
             return;
         }
+
+
         String errorMessage = error.getMessage();
         long errorCode = error.getCode();
+
+        boolean isNotif = PodNotificationManager.isNotificationError(
+                chatMessage,
+                error,
+                context,
+                getUserId());
+
+        if (isNotif) return;
 
         getErrorOutPut(errorMessage, errorCode, chatMessage.getUniqueId());
     }
@@ -10664,11 +10724,11 @@ public class Chat extends AsyncAdapter {
         chatReady = true;
         chatState = CHAT_READY;
         checkMessageQueue();
-
         getAllThreads();
         showLog(state, "");
         permit = true;
         checkFreeSpace();
+        PodNotificationManager.onChatIsReady(context, userId);
 
 
     }
@@ -11269,6 +11329,7 @@ public class Chat extends AsyncAdapter {
 
             //ping start after the response of the get userInfo
             pingWithDelay();
+
         }
     }
 
