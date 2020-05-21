@@ -5,10 +5,8 @@ import android.app.Application;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -108,7 +106,6 @@ import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
-import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
@@ -393,7 +390,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
-        chat.retryUploadPodSpace(retry, handler);
+        chat.retryUpload(retry, handler);
     }
 
     @Override

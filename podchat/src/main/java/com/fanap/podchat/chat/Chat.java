@@ -464,7 +464,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public void shouldShowNotification(boolean shouldShow){
+    public void shouldShowNotification(boolean shouldShow) {
 
         PodNotificationManager.setShouldShowNotification(shouldShow);
 
@@ -859,12 +859,12 @@ public class Chat extends AsyncAdapter {
 //            }
 
             case Constants.REGISTER_FCM_USER_DEVICE: {
-                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage,context);
+                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
                 break;
             }
 
             case Constants.UPDATE_FCM_APP_USERS_DEVICE: {
-                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage,context);
+                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage, context);
                 break;
             }
 
@@ -2190,7 +2190,7 @@ public class Chat extends AsyncAdapter {
                                     response.getHashCode(),
                                     0,
                                     mimeType,
-                                    file.length(),
+                                    length,
                                     response.getParentHash());
 
 
@@ -2233,8 +2233,6 @@ public class Chat extends AsyncAdapter {
                             }
 
                             showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
-
-
 
 
                             String jsonMeta = createImageMetadata(
@@ -2297,7 +2295,6 @@ public class Chat extends AsyncAdapter {
                                 handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
                         }
                     });
-
 
 
             initCancelUpload(uniqueId, subscription);
@@ -2380,7 +2377,7 @@ public class Chat extends AsyncAdapter {
                                     response.getHashCode(),
                                     0,
                                     mimeType,
-                                    file.length(),
+                                    length,
                                     response.getParentHash());
 
 
@@ -2423,8 +2420,6 @@ public class Chat extends AsyncAdapter {
                             }
 
                             showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
-
-
 
 
                             String jsonMeta = createImageMetadata(
@@ -3521,64 +3516,64 @@ public class Chat extends AsyncAdapter {
      * It retry upload that they didn't send
      */
 
+//    public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
+//
+//        Runnable retryTask = () -> {
+//            String uniqueId = retry.getUniqueId();
+//            Activity activity = retry.getActivity();
+//
+//            UploadingQueueCache uploadingQ;
+//            if (cache) {
+//                uploadingQ = messageDatabaseHelper.getUploadingQ(uniqueId);
+//            } else {
+//                uploadingQ = uploadingQList.get(uniqueId);
+//            }
+//
+//            if (uploadingQ != null) {
+//                long messageId = uploadingQ.getId();
+//                int messageType = uploadingQ.getMessageType();
+//                long threadId = uploadingQ.getThreadId();
+//                String message = uploadingQ.getMessage();
+//                String systemMetadata = uploadingQ.getSystemMetadata();
+//                MetaDataFile metaDataFile = gson.fromJson(systemMetadata, MetaDataFile.class);
+//                String link = metaDataFile.getFile().getLink();
+//                String mimeType = metaDataFile.getFile().getMimeType();
+//
+//                LFileUpload lFileUpload = new LFileUpload();
+//                lFileUpload.setActivity(activity);
+//                lFileUpload.setDescription(message);
+//                lFileUpload.setFileUri(Uri.parse(link));
+//                lFileUpload.setHandler(handler);
+//                lFileUpload.setMessageType(messageType);
+//                lFileUpload.setThreadId(threadId);
+//                lFileUpload.setUniqueId(uniqueId);
+//                lFileUpload.setSystemMetaData(systemMetadata);
+//                lFileUpload.setHandler(handler);
+//                lFileUpload.setMimeType(mimeType);
+//
+//                if (!Util.isNullOrEmpty(messageId)) {
+//                    String methodName = ChatConstant.METHOD_REPLY_MSG;
+//                    lFileUpload.setMethodName(methodName);
+//                }
+//
+//                removeFromUploadQueue(uniqueId);
+//
+//                if (FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
+//                    uploadImageFileMessage(lFileUpload);
+//                } else {
+//                    uploadFileMessage(lFileUpload);
+//                }
+//
+//            }
+//        };
+//
+//        new PodThreadManager()
+//                .doThisAndGo(retryTask);
+//
+//    }
+
+
     public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
-
-        Runnable retryTask = () -> {
-            String uniqueId = retry.getUniqueId();
-            Activity activity = retry.getActivity();
-
-            UploadingQueueCache uploadingQ;
-            if (cache) {
-                uploadingQ = messageDatabaseHelper.getUploadingQ(uniqueId);
-            } else {
-                uploadingQ = uploadingQList.get(uniqueId);
-            }
-
-            if (uploadingQ != null) {
-                long messageId = uploadingQ.getId();
-                int messageType = uploadingQ.getMessageType();
-                long threadId = uploadingQ.getThreadId();
-                String message = uploadingQ.getMessage();
-                String systemMetadata = uploadingQ.getSystemMetadata();
-                MetaDataFile metaDataFile = gson.fromJson(systemMetadata, MetaDataFile.class);
-                String link = metaDataFile.getFile().getLink();
-                String mimeType = metaDataFile.getFile().getMimeType();
-
-                LFileUpload lFileUpload = new LFileUpload();
-                lFileUpload.setActivity(activity);
-                lFileUpload.setDescription(message);
-                lFileUpload.setFileUri(Uri.parse(link));
-                lFileUpload.setHandler(handler);
-                lFileUpload.setMessageType(messageType);
-                lFileUpload.setThreadId(threadId);
-                lFileUpload.setUniqueId(uniqueId);
-                lFileUpload.setSystemMetaData(systemMetadata);
-                lFileUpload.setHandler(handler);
-                lFileUpload.setMimeType(mimeType);
-
-                if (!Util.isNullOrEmpty(messageId)) {
-                    String methodName = ChatConstant.METHOD_REPLY_MSG;
-                    lFileUpload.setMethodName(methodName);
-                }
-
-                removeFromUploadQueue(uniqueId);
-
-                if (FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
-                    uploadImageFileMessage(lFileUpload);
-                } else {
-                    uploadFileMessage(lFileUpload);
-                }
-
-            }
-        };
-
-        new PodThreadManager()
-                .doThisAndGo(retryTask);
-
-    }
-
-
-    public void retryUploadPodSpace(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
 
         Runnable retryTask = () -> {
 
@@ -3673,7 +3668,7 @@ public class Chat extends AsyncAdapter {
                                             response.getHashCode(),
                                             0,
                                             mimeType,
-                                            file.length(),
+                                            length,
                                             response.getParentHash());
 
 
@@ -3688,7 +3683,6 @@ public class Chat extends AsyncAdapter {
 
 
                                 }
-
 
 
                                 @Override
@@ -3773,7 +3767,7 @@ public class Chat extends AsyncAdapter {
                                             null,
                                             methodName,
                                             file,
-                                            file.length());
+                                            length);
                                     showLog("UPLOAD_FILE_TO_SERVER");
 
                                 }
@@ -4128,8 +4122,6 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
     }
-
-
 
 
     private String getPodSpaceFileUrl(String hashCode) {
@@ -5144,7 +5136,7 @@ public class Chat extends AsyncAdapter {
                                     response.getHashCode(),
                                     0,
                                     mimeType,
-                                    file.length(),
+                                    length,
                                     response.getParentHash());
 
                             showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
@@ -5200,7 +5192,6 @@ public class Chat extends AsyncAdapter {
                             mainReplyMessage(messageContent, threadId, messageId, systemMetaData, messageType, jsonMeta, uniqueId, null);
 
 
-
                         }
 
                         @Override
@@ -5227,7 +5218,7 @@ public class Chat extends AsyncAdapter {
                                     systemMetaData,
                                     messageId,
                                     mimeType,
-                                    null, methodName, file, file.length());
+                                    null, methodName, file, length);
                             showLog("UPLOAD_FILE_TO_SERVER");
 
                         }
@@ -7548,7 +7539,7 @@ public class Chat extends AsyncAdapter {
                                                                 request.getCenter(),
                                                                 ChatConstant.METHOD_LOCATION_MSG,
                                                                 file,
-                                                                file.length());
+                                                                length);
                                                         showLog("UPLOAD_FILE_TO_SERVER");
                                                     }
 
@@ -12749,8 +12740,8 @@ public class Chat extends AsyncAdapter {
                                 Runnable updatePhoneContactsDBTask = () -> {
                                     try {
                                         boolean result = phoneContactDbHelper.addPhoneContacts(phoneContacts);
-                                        if(!result){
-                                            resetCache(()-> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                        if (!result) {
+                                            resetCache(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
@@ -12886,8 +12877,8 @@ public class Chat extends AsyncAdapter {
                                 Runnable updatePhoneContactsDBTask = () -> {
                                     try {
                                         boolean result = phoneContactDbHelper.addPhoneContacts(phoneContacts);
-                                        if(!result){
-                                            resetCache(()-> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                        if (!result) {
+                                            resetCache(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());

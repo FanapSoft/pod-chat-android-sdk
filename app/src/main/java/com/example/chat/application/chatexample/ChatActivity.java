@@ -286,7 +286,6 @@ public class ChatActivity extends AppCompatActivity
 
         }
 
-
         faker = new Faker();
 
         //        Generator.generateFakeContact(5,getApplicationContext());
