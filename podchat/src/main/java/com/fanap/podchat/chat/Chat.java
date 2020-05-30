@@ -6216,6 +6216,7 @@ public class Chat extends AsyncAdapter {
                 resultNewMessage.setMessageVO(messageVO);
                 resultNewMessage.setThreadId(threadId);
                 chatResponse.setResult(resultNewMessage);
+                chatResponse.setSubjectId(threadId);
                 String json = gson.toJson(chatResponse);
                 listenerManager.callOnNewMessage(json, chatResponse);
                 long ownerId = 0;
@@ -6261,6 +6262,7 @@ public class Chat extends AsyncAdapter {
                 deleteMessage.setId(msg.getId());
                 resultDeleteMessage.setDeletedMessage(deleteMessage);
                 chatResponse.setResult(resultDeleteMessage);
+                chatResponse.setSubjectId(threadId);
 
                 String jsonDeleteMsg = gson.toJson(chatResponse);
                 listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
@@ -6312,6 +6314,7 @@ public class Chat extends AsyncAdapter {
                     editMessage.setThreadId(threadId);
                     chatResponse.setResult(editMessage);
                     chatResponse.setUniqueId(uniqueId);
+                    chatResponse.setSubjectId(threadId);
                     String content = gson.toJson(chatResponse);
                     showLog("RECEIVE_EDIT_MESSAGE", content);
 
@@ -6808,7 +6811,7 @@ public class Chat extends AsyncAdapter {
 
             if (!Util.isNullOrEmpty(username)) {
 
-                addContactObservable = contactApi.addContactWithUserName(getToken(), 1, firstName, lastName, username, uniqueId, typeCode,"");
+                addContactObservable = contactApi.addContactWithUserName(getToken(), 1, firstName, lastName, username, uniqueId, typeCode,"","");
 
             } else if (Util.isNullOrEmpty(typeCode)) {
 
@@ -10182,6 +10185,7 @@ public class Chat extends AsyncAdapter {
             resultNewMessage.setMessageVO(messageVO);
             resultNewMessage.setThreadId(chatMessage.getSubjectId());
             chatResponse.setResult(resultNewMessage);
+            chatResponse.setSubjectId(chatMessage.getSubjectId());
             String json = gson.toJson(chatResponse);
             listenerManager.callOnNewMessage(json, chatResponse);
             long ownerId = 0;
@@ -10731,6 +10735,7 @@ public class Chat extends AsyncAdapter {
         newMessage.setThreadId(chatMessage.getSubjectId());
         chatResponse.setResult(newMessage);
         chatResponse.setUniqueId(chatMessage.getUniqueId());
+        chatResponse.setSubjectId(chatMessage.getSubjectId());
 
         String content = gson.toJson(chatResponse);
         showLog("RECEIVE_EDIT_MESSAGE", content);
@@ -11680,6 +11685,7 @@ public class Chat extends AsyncAdapter {
         deleteMessage.setId(messageId);
         resultDeleteMessage.setDeletedMessage(deleteMessage);
         chatResponse.setResult(resultDeleteMessage);
+        chatResponse.setSubjectId(chatMessage.getSubjectId());
 
         String jsonDeleteMsg = gson.toJson(chatResponse);
 

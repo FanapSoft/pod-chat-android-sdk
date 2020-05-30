@@ -2327,7 +2327,7 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestGetContact request = new RequestGetContact.Builder()
-                .count(50)
+                .count(20)
                 .offset(offset)
 //                .withNoCache()
                 .build();
@@ -2336,7 +2336,7 @@ public class ChatActivity extends AppCompatActivity
 
         presenter.getContact(request);
 
-        offset = offset + 50;
+        offset = offset + 20;
     }
 
     @Override
