@@ -57,6 +57,7 @@ public interface ContactApi {
             , @Field("username") String username
             , @Field("uniqueId") String uniqueId
             , @Field("typeCode") String typeCode
+            , @Field("cellphoneNumber") String cellphoneNumber
     );
 
     /* addContacts With type code*/

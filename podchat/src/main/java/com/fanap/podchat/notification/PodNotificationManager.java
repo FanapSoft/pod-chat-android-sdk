@@ -2,11 +2,10 @@ package com.fanap.podchat.notification;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 import com.fanap.podchat.R;
 import com.fanap.podchat.chat.App;
@@ -15,18 +14,16 @@ import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.util.ChatMessageType;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.RemoteMessage;
 import com.securepreferences.SecurePreferences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
+
+import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
 
 public class PodNotificationManager {
 
@@ -129,12 +126,12 @@ public class PodNotificationManager {
 
             fcmToken = getSavedFCMToken(context);
 
-            listener.onLogEvent("Notification Manger started");
+            listener.onNotificationEvent("Notification Manger started");
 
 
         } catch (Exception e) {
-            listener.onLogEvent("failed to registering notification receiver");
-            listener.onLogEvent(e.getMessage());
+            listener.onNotificationEvent("failed to registering notification receiver");
+            listener.onNotificationError(e.getMessage());
         }
 
     }
@@ -142,15 +139,15 @@ public class PodNotificationManager {
     public static void unRegisterReceiver(Context context) {
 
         try {
-            listener.onLogEvent("Try to unregister notification receiver");
+            listener.onNotificationEvent("Try to unregister notification receiver");
 
             context.unregisterReceiver(receiver);
             receiver = null;
-            listener.onLogEvent(" unregister notification receiver done");
+            listener.onNotificationEvent(" unregister notification receiver done");
 
         } catch (Exception e) {
-            listener.onLogEvent("failed to unregistering notification receiver");
-            listener.onLogEvent(e.getMessage());
+            listener.onNotificationEvent("failed to unregistering notification receiver");
+            listener.onNotificationError(e.getMessage());
         }
 
     }
@@ -268,7 +265,7 @@ public class PodNotificationManager {
 
             if (task.isSuccessful()) {
 
-                listener.onLogEvent("Token Retrieved");
+                listener.onNotificationEvent("Token Retrieved");
 
                 String newToken = task.getResult() != null ? task.getResult().getToken() : null;
 
@@ -296,7 +293,7 @@ public class PodNotificationManager {
 
             } else {
 
-                listener.onLogEvent("Failed to retrieve fcm token");
+                listener.onNotificationError("Failed to retrieve fcm token");
             }
 
         });
@@ -336,9 +333,9 @@ public class PodNotificationManager {
 
         if (listener != null) {
 
-            listener.onLogEvent("User and device registered successfully");
+            listener.onNotificationEvent("User and device registered successfully");
 
-            listener.onLogEvent(content);
+            listener.onNotificationEvent(content);
 
             messagesQ.remove(uniqueId);
 
@@ -360,9 +357,9 @@ public class PodNotificationManager {
 
         if (listener != null) {
 
-            listener.onLogEvent("FCM token refreshed successfully");
+            listener.onNotificationEvent("FCM token refreshed successfully");
 
-            listener.onLogEvent(content);
+            listener.onNotificationEvent(content);
 
             messagesQ.remove(uniqueId);
 
@@ -382,6 +379,8 @@ public class PodNotificationManager {
 
         if (messageUniqueId.equals(chatMessage.getUniqueId())) {
 
+            Log.e(TAG,chatMessage.getContent());
+
             switch (STATE) {
 
                 case NEED_REGISTER_USER_DEVICE: {
@@ -393,6 +392,10 @@ public class PodNotificationManager {
                         //we send the only token we have as old token and new token
                         createUpdateUserDeviceRequest(fcmToken);
 
+                    }else if(error.getCode() == 100){
+
+                        listener.onNotificationError(chatMessage.getContent());
+
                     }
 
                     break;
@@ -403,6 +406,11 @@ public class PodNotificationManager {
                     createRegisterUserDeviceRequest(context, userId);
 
                     break;
+                }
+
+                default: {
+
+                    listener.onNotificationError(chatMessage.getContent());
                 }
             }
 
@@ -421,7 +429,9 @@ public class PodNotificationManager {
 
     public interface IPodNotificationManager {
 
-        void onLogEvent(String log);
+        void onNotificationEvent(String log);
+
+        void onNotificationError(String log);
 
         void sendAsyncMessage(String message, String info);
     }

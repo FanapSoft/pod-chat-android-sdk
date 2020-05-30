@@ -29,7 +29,6 @@ public class PodChatPushNotificationService extends FirebaseMessagingService {
         Log.i(TAG, "Message Data: " + remoteMessage.getData());
 
         PodNotificationManager.handleMessage(this,remoteMessage);
-
     }
 
     @Override

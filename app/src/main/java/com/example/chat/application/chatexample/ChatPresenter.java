@@ -148,7 +148,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .build();
 
 
-
         chat.setupNotification(notificationConfig);
 
 
@@ -327,6 +326,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
         return chat.getImage(rePod, iDownloadFile);
 
+    }
+
+    @Override
+    public String updateThreadInfo(RequestThreadInfo request) {
+        return chat.updateThreadInfo(request, null);
     }
 
     @Override

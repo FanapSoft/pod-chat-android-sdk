@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -34,6 +33,9 @@ import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -41,7 +43,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
-import com.fanap.podchat.mainmodel.ChatMessage;
+import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -50,48 +52,44 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlockList;
+import com.fanap.podchat.requestobject.RequestClearHistory;
+import com.fanap.podchat.requestobject.RequestConnect;
+import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestImageMessage;
-import com.fanap.podchat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
-import com.fanap.podchat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.requestobject.RequestClearHistory;
-import com.fanap.podchat.requestobject.RequestConnect;
-import com.fanap.podchat.requestobject.RequestCreateThread;
-import com.fanap.podchat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestForwardMessage;
-import com.fanap.podchat.requestobject.RequestGetAdmin;
-import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
@@ -106,7 +104,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
-import com.fanap.podchat.example.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,10 +111,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import rx.Observable;
-import rx.Observer;
-import rx.schedulers.Schedulers;
 
 
 public class ChatActivity extends AppCompatActivity
@@ -153,7 +146,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "70a20f2800dd47f699e9f3067433ebf6";
+    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -175,6 +168,7 @@ public class ChatActivity extends AppCompatActivity
 
     private static String appId = "POD-Chat";
     private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
+
 
 
     /**
@@ -226,8 +220,8 @@ public class ChatActivity extends AppCompatActivity
 
 //    //sand box / group
 
-    public static int TEST_THREAD_ID = 8129;
-    private static final String TEST_THREAD_HASH = "EGYDK1YDE3PCUK";
+    public static int TEST_THREAD_ID = 5182;
+    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
@@ -237,8 +231,8 @@ public class ChatActivity extends AppCompatActivity
 
     // main server / group
 
-//    public static int TEST_THREAD_ID = 47528;
-//    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
+//    public static int TEST_THREAD_ID = 48807;
+//    private static final String TEST_THREAD_HASH = "COZ6W9T436D67C";
 
 
 //    integration /group: fifi,jiji and ...
@@ -265,6 +259,9 @@ public class ChatActivity extends AppCompatActivity
     private String downloadingId = "";
 
     long messageId = 0;
+
+    int offset = 0;
+
 
 
     @Override
@@ -391,7 +388,7 @@ public class ChatActivity extends AppCompatActivity
         data.put("threadId", "100200");
         data.put("messageType", "1");
 
-        if(messageId > 6)
+        if (messageId > 6)
             messageId = 0;
 
 
@@ -482,17 +479,40 @@ public class ChatActivity extends AppCompatActivity
                                 break;
                             }
                             case 6: {
-                                ThreadInfoVO threadInfoVO = new ThreadInfoVO
-                                        .Builder()
-                                        .description("this is test description updated on " + new Date().toString())
-                                        .title("flower").build();
 
-                                presenter.updateThreadInfo(TEST_THREAD_ID, threadInfoVO, new ChatHandler() {
-                                    @Override
-                                    public void onUpdateThreadInfo(String uniqueId) {
-                                        super.onUpdateThreadInfo(uniqueId);
-                                    }
-                                });
+                                RequestUploadImage requestUploadImage =
+                                        new RequestUploadImage.Builder(ChatActivity.this, getUri())
+                                                .sethC(140)
+                                                .setwC(140)
+                                                .build();
+
+//                                ThreadInfoVO threadInfoVO = new ThreadInfoVO
+//                                        .Builder()
+//                                        .description("this is test description updated on " + new Date().toString())
+//                                        .title("Test File PodSpace")
+//                                        .build();
+
+                                RequestThreadInfo request =
+                                        new RequestThreadInfo.Builder(TEST_THREAD_ID)
+                                                .name("Test File PodSpace")
+                                                .description("this is test description updated on " + new Date().toString())
+                                                .setUploadThreadImageRequest(requestUploadImage)
+                                                .setUserGroupHash(TEST_THREAD_HASH)
+                                        .build();
+
+                                presenter.updateThreadInfo(request);
+//
+//                                presenter.updateThreadInfo(TEST_THREAD_ID,
+//                                        threadInfoVO,
+//                                        new ChatHandler() {
+//                                            @Override
+//                                            public void onUpdateThreadInfo(String uniqueId) {
+//
+//                                                super.onUpdateThreadInfo(uniqueId);
+//                                            }
+//                                        });
+//
+
                                 break;
                             }
 
@@ -1847,9 +1867,9 @@ public class ChatActivity extends AppCompatActivity
 //
 //                }
                 RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("Farhad")
-                        .lastName("Kheirkhah")
-                        .cellphoneNumber("989159257427")
+                        .firstName("مسعود")
+                        .lastName("امجدی")
+                        .username("ma.amjadi")
                         .build();
 
                 presenter.addContact(request);
@@ -2305,15 +2325,18 @@ public class ChatActivity extends AppCompatActivity
 
     private void getContacts() {
 
+
         RequestGetContact request = new RequestGetContact.Builder()
                 .count(50)
-                .offset(0)
+                .offset(offset)
 //                .withNoCache()
                 .build();
 
 //        presenter.getContact(0, 0L, null);
 
         presenter.getContact(request);
+
+        offset = offset + 50;
     }
 
     @Override

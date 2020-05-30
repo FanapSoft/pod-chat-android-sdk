@@ -49,7 +49,7 @@ public class ThreadInfoVO {
         }
 
         @NonNull
-        public Builder metadat(String metadata) {
+        public Builder metadata(String metadata) {
             this.metadata = metadata;
             return this;
         }

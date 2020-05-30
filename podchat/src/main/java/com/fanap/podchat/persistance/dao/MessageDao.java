@@ -76,7 +76,7 @@ public interface MessageDao {
     @Query("DELETE FROM CacheContact WHERE id =:id")
     void deleteContactById(long id);
 
-    @Query("select * from CacheContact order by lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
+    @Query("select * from CacheContact order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
 
     @RawQuery
