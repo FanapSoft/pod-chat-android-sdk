@@ -938,7 +938,6 @@ public class Chat extends AsyncAdapter {
 
                 break;
             case Constants.UPDATE_THREAD_INFO:
-
                 handleUpdateThreadInfo(chatMessage, messageUniqueId, callback);
                 break;
             case Constants.BLOCK:
@@ -972,7 +971,6 @@ public class Chat extends AsyncAdapter {
                     else
                         handleOnGetMentionList(chatMessage);
 
-                    //todo add callbacks for pagination
                 } else {
                     handleOnGetThreadHistory(callback, chatMessage);
                 }
@@ -5884,6 +5882,13 @@ public class Chat extends AsyncAdapter {
                                 public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
                                     super.onGetHistory(chatResponse, chatMessage, callback);
 
+                                    if(!chatResponse.getUniqueId().equals(uniqueId)){
+
+                                        showLog("This response has not been requested!");
+
+                                        return;
+                                    }
+
                                     //insert new messages
                                     updateChatHistoryCache(callback, chatMessage, chatResponse.getResult().getHistory());
 
@@ -6248,37 +6253,37 @@ public class Chat extends AsyncAdapter {
     private void findDeletedMessages(List<MessageVO> messagesFromCache, List<MessageVO> newMessagesFromServer, String uniqueId, long threadId) {
 
 
-        for (MessageVO msg :
-                messagesFromCache) {
+            for (MessageVO msg :
+                    messagesFromCache) {
 
 
-            if (!newMessagesFromServer.contains(msg)) {
+                if (!newMessagesFromServer.contains(msg)) {
 
 
-                ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
-                chatResponse.setUniqueId(uniqueId);
-                ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
-                DeleteMessageContent deleteMessage = new DeleteMessageContent();
-                deleteMessage.setId(msg.getId());
-                resultDeleteMessage.setDeletedMessage(deleteMessage);
-                chatResponse.setResult(resultDeleteMessage);
-                chatResponse.setSubjectId(threadId);
+                    ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
+                    chatResponse.setUniqueId(uniqueId);
+                    ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
+                    DeleteMessageContent deleteMessage = new DeleteMessageContent();
+                    deleteMessage.setId(msg.getId());
+                    resultDeleteMessage.setDeletedMessage(deleteMessage);
+                    chatResponse.setResult(resultDeleteMessage);
+                    chatResponse.setSubjectId(threadId);
 
-                String jsonDeleteMsg = gson.toJson(chatResponse);
-                listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
-                showLog("RECEIVE_DELETE_MESSAGE", jsonDeleteMsg);
+                    String jsonDeleteMsg = gson.toJson(chatResponse);
+                    listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
+                    showLog("RECEIVE_DELETE_MESSAGE", jsonDeleteMsg);
 
-                if (cache) {
+                    if (cache) {
 
-                    messageDatabaseHelper.deleteMessage(msg.getId(), threadId);
+                        messageDatabaseHelper.deleteMessage(msg.getId(), threadId);
 
-                    showLog("Delete message from database with this messageId" + " " + msg.getId(), "");
+                        showLog("Delete message from database with this messageId" + " " + msg.getId(), "");
+
+                    }
+
 
                 }
-
-
             }
-        }
 
 
     }
@@ -6625,6 +6630,8 @@ public class Chat extends AsyncAdapter {
         return getContactMain((int) count, offset, false, typeCode, useCache, handler);
     }
 
+
+
     /**
      * Get all of the contacts of the user
      */
@@ -6634,11 +6641,9 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    //TODO test again on cache
     public String searchContact(RequestSearchContact requestSearchContact) {
 
         String uniqueId = generateUniqueId();
-
 
         Runnable cacheLoading = () -> {
 
@@ -6754,6 +6759,8 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
+
     /**
      * Add one contact to the contact list
      * <p>
@@ -6765,6 +6772,8 @@ public class Chat extends AsyncAdapter {
      * @param cellphoneNumber Notice: If you just  put the cellPhoneNumber doesn't necessary to add email
      * @param email           email of the contact
      */
+
+    @Deprecated
     public String addContact(String firstName, String lastName, String cellphoneNumber, String email, String typeCode, String username) {
 
         if (Util.isNullOrEmpty(firstName)) {
@@ -6785,6 +6794,10 @@ public class Chat extends AsyncAdapter {
         }
 
         String uniqueId = generateUniqueId();
+
+        typeCode = Util.isNullOrEmpty(typeCode) ? getTypeCode() : typeCode;
+
+
 
         JsonObject jsonObject = new JsonObject();
 
@@ -6811,7 +6824,7 @@ public class Chat extends AsyncAdapter {
 
             if (!Util.isNullOrEmpty(username)) {
 
-                addContactObservable = contactApi.addContactWithUserName(getToken(), 1, firstName, lastName, username, uniqueId, typeCode,"","");
+                addContactObservable = contactApi.addContactWithUserName(getToken(), 1, firstName, lastName, username, uniqueId, typeCode, "", "");
 
             } else if (Util.isNullOrEmpty(typeCode)) {
 
@@ -8165,7 +8178,6 @@ public class Chat extends AsyncAdapter {
 
                 chatMessageContent.addProperty("uniqueName", uniqueName);
 
-
             }
 
             AsyncMessage chatMessage = new AsyncMessage();
@@ -8178,6 +8190,24 @@ public class Chat extends AsyncAdapter {
 
             String asyncContent = gson.toJson(chatMessage);
 
+            //if upload thread image request is set
+            //upload selected image and updateThreadInfo
+
+            if (request.getUploadThreadImageRequest() != null) {
+
+                handlerSend.put(uniqueId, new ChatHandler() {
+                    @Override
+                    public void onThreadCreated(ResultThread thread) {
+                        super.onThreadCreated(thread);
+
+                        updateThreadImage(thread, request.getUploadThreadImageRequest());
+
+                    }
+
+                });
+            }
+
+
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CREATE_THREAD");
 
         } else {
@@ -8188,7 +8218,25 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String createThread(RequestCreateThread request, String uniqueId) {
+    private void updateThreadImage(ResultThread thread, RequestUploadImage uploadImageRequest) {
+
+
+        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder()
+                .title(thread.getThread().getTitle())
+                .description(thread.getThread().getDescription())
+                .image(thread.getThread().getImage())
+                .metadata(thread.getThread().getMetadata())
+                .build();
+
+
+        updateThreadInfo(thread.getThread().getId(),
+                threadInfoVO, thread.getThread().getUserGroupHash(),
+                uploadImageRequest, null);
+
+
+    }
+
+    private String createThread(RequestCreateThread request, String uniqueId) {
 
         if (chatReady) {
 
@@ -8385,6 +8433,12 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    //
+    // 1. Create thread.
+    // 2.1. Upload thread image and update thread info if RequestUploadImage is set.
+    // 2.2. Upload file to server with thread userGroupHash and send uploaded file as message by sendFileMessage.
+    //
+
     public ArrayList<String> createThreadWithFile(RequestCreateThreadWithFile request, @Nullable ProgressHandler.sendFileMessage progressHandler) {
 
         ArrayList<String> uniqueIds = new ArrayList<>();
@@ -8395,23 +8449,17 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(request.getFile().getActivity())) return uniqueIds;
 
-//
-////        String innerMessageUniqueId = generateMessageUniqueId(request, t -> uniqueIds.add((String) t));
-//        List<String> forwardUniqueIds = generateForwardingMessageId(request, t -> uniqueIds.addAll((Collection<? extends String>) t));
-//
-//
-////        addToUploadQueue(
-////                Constants.INVITATION,
-////                request.getMessage().getText(),
-////                uniqueIds.get(0));
-
         if (chatReady) {
-
 
             handlerSend.put(requestUniqueId, new ChatHandler() {
                 @Override
                 public void onThreadCreated(ResultThread thread) {
                     super.onThreadCreated(thread);
+
+
+                    if (request.getUploadThreadImageRequest() != null)
+                        new PodThreadManager()
+                                .doThisAndGo(() -> updateThreadImage(thread, request.getUploadThreadImageRequest()));
 
                     String innerMessageUniqueId = generateUniqueId();
 
@@ -8423,8 +8471,7 @@ public class Chat extends AsyncAdapter {
                                     request.getFile().getFileUri(),
                                     request.getMessage() != null ? request.getMessage().getSystemMetadata() : null,
                                     request.getMessageType(),
-                                    thread.getThread().getUserGroupHash()
-                            )
+                                    thread.getThread().getUserGroupHash())
                                     .setImageHc(String.valueOf(((RequestUploadImage) request.getFile()).gethC()))
                                     .setImageWc(String.valueOf(((RequestUploadImage) request.getFile()).getwC()))
                                     .setImageXc(String.valueOf(((RequestUploadImage) request.getFile()).getxC()))
@@ -8730,6 +8777,24 @@ public class Chat extends AsyncAdapter {
 
                 setCallBacks(null, null, null, true, Constants.INVITATION, null, threadUniqueId);
 
+
+                if (threadRequest.getUploadThreadImageRequest() != null) {
+
+
+                    handlerSend.put(threadUniqueId, new ChatHandler() {
+                        @Override
+                        public void onThreadCreated(ResultThread thread) {
+                            super.onThreadCreated(thread);
+
+                            updateThreadImage(thread, threadRequest.getUploadThreadImageRequest());
+
+                        }
+                    });
+
+
+                }
+
+
                 sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_CREATE_THREAD_WITH_MESSAGE");
             } else {
 
@@ -8832,8 +8897,7 @@ public class Chat extends AsyncAdapter {
                     threadMetadataObject = new JsonObject();
 
                 } else {
-
-                    threadMetadataObject = (JsonObject) gson.toJsonTree(threadInfoVO.getMetadata());
+                    threadMetadataObject = parser.parse(threadInfoVO.getMetadata()).getAsJsonObject();
 
                 }
 
@@ -11148,12 +11212,12 @@ public class Chat extends AsyncAdapter {
         }
 
         // when thread created we send file to thread
-
         if (handlerSend.containsKey(chatResponse.getUniqueId())
-
                 && handlerSend.get(chatResponse.getUniqueId()) != null) {
+
             handlerSend.get(chatResponse.getUniqueId())
                     .onThreadCreated(chatResponse.getResult());
+
         }
 
     }
@@ -11689,13 +11753,15 @@ public class Chat extends AsyncAdapter {
 
         String jsonDeleteMsg = gson.toJson(chatResponse);
 
+        listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
+        showLog("RECEIVE_DELETE_MESSAGE", jsonDeleteMsg);
+
         if (cache) {
             messageDatabaseHelper.deleteMessage(messageId, chatMessage.getSubjectId());
             showLog("DeleteMessage from dataBase with this messageId" + " " + messageId, "");
         }
 
-        listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
-        showLog("RECEIVE_DELETE_MESSAGE", jsonDeleteMsg);
+
     }
 
     private void handleOutPutBlock(ChatMessage chatMessage, String messageUniqueId) {
@@ -11986,10 +12052,13 @@ public class Chat extends AsyncAdapter {
         List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
         }.getType());
 
-        new PodThreadManager()
-                .addNewTask(() -> messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS))
-                .addNewTask(() -> messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId()))
-                .runTasksSynced();
+        if (messageVOS.size() > 0) {
+            new PodThreadManager()
+                    .addNewTask(() -> messageDatabaseHelper.updateGetHistoryResponse(callback, messageVOS, chatMessage.getSubjectId(), cMessageVOS))
+                    .addNewTask(() -> messageDatabaseHelper.saveHistory(cMessageVOS, chatMessage.getSubjectId()))
+                    .runTasksSynced();
+
+        }
 
 
     }
@@ -12003,6 +12072,10 @@ public class Chat extends AsyncAdapter {
         rh.setHistory(messageVOS);
 
         chr.setResult(rh);
+
+        chr.setSubjectId(chatMessage.getSubjectId());
+
+        chr.setUniqueId(chatMessage.getUniqueId());
 
         Objects.requireNonNull(handlerSend.get(chatMessage.getUniqueId()))
                 .onGetHistory(chr, chatMessage, callback);

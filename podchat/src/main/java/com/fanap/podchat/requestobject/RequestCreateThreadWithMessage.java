@@ -17,6 +17,10 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
     private String description;
     private String image;
 
+
+    private transient RequestUploadImage uploadImageRequest;
+
+
     private int messageType;
 
     RequestCreateThreadWithMessage(Builder<?> builder) {
@@ -28,11 +32,17 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
         this.description = builder.description;
         this.image = builder.image;
         this.messageType = builder.messageType;
+        this.uploadImageRequest = builder.uploadImageRequest;
+
 
     }
 
     public RequestCreateThreadWithMessage(BaseRequestObject.Builder<?> builder) {
         super(builder);
+    }
+
+    public RequestUploadImage getUploadThreadImageRequest() {
+        return uploadImageRequest;
     }
 
     public RequestCreateThreadWithMessage() {
@@ -110,6 +120,8 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
         private String description;
         private String image;
         private int messageType;
+        private RequestUploadImage uploadImageRequest;
+
 
         public Builder(int type, List<Invitee> invitees, int messageType) {
             this.invitees = invitees;
@@ -117,6 +129,11 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
             this.messageType = messageType;
         }
 
+
+        public Builder setUploadThreadImageRequest(RequestUploadImage uploadImageRequest) {
+            this.uploadImageRequest = uploadImageRequest;
+            return this;
+        }
 
         public Builder message(RequestThreadInnerMessage message) {
             this.message = message;

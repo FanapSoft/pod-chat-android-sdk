@@ -445,5 +445,7 @@ public interface ChatContract {
         String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile);
 
         String updateThreadInfo(RequestThreadInfo request);
+
+        String createThread(RequestCreateThread requestCreateThread);
     }
 }

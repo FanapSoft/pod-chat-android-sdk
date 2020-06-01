@@ -334,6 +334,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public String createThread(RequestCreateThread requestCreateThread) {
+        return chat.createThread(requestCreateThread);
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 
@@ -627,16 +632,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void addContact(String firstName, String lastName, String cellphoneNumber, String email, String username) {
 
 
-        RequestAddContact requestAddContact = new RequestAddContact.Builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .cellphoneNumber(cellphoneNumber)
-                .email(email)
-                .username(username)
-                .build();
+//        RequestAddContact requestAddContact = new RequestAddContact.Builder()
+//                .firstName(firstName)
+//                .lastName(lastName)
+//                .cellphoneNumber(cellphoneNumber)
+//                .email(email)
+//                .username(username)
+//                .build();
 
 
-        chat.addContact(requestAddContact);
+        chat.addContact(firstName,lastName,cellphoneNumber,email,null,username);
+
 
     }
 

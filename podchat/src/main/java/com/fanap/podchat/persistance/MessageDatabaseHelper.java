@@ -687,9 +687,10 @@ public class MessageDatabaseHelper {
 
                 if (threadVo != null) {
 
-                    long threadLastMessageId = threadVo.getLastMessageVOId();
+                    long threadLastMessageId = threadVo.getLastMessageVOId() != null ? threadVo.getLastMessageVOId()
+                            : 0;
 
-                    if (threadLastMessageId == id) {
+                    if (threadLastMessageId == id && threadLastMessageId > 0) {
 
                         //this is last message
                         List<CacheMessageVO> cacheMessage = messageDao.getMessage(id);
