@@ -28,6 +28,9 @@ public class ChatConstant {
 
     public static long ERROR_CODE_NOTIFICATION_ERROR = 6700;
 
+    public static final int ERROR_CODE_INVALID_CONTACT_ID = 6800;
+
+
 
 
 

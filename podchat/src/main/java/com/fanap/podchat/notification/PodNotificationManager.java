@@ -130,7 +130,7 @@ public class PodNotificationManager {
 
 
         } catch (Exception e) {
-            listener.onNotificationEvent("failed to registering notification receiver");
+            listener.onNotificationEvent("failed to register notification receiver");
             listener.onNotificationError(e.getMessage());
         }
 
@@ -293,7 +293,11 @@ public class PodNotificationManager {
 
             } else {
 
-                listener.onNotificationError("Failed to retrieve fcm token");
+                String cause = task.getException()!=null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
+
+                listener.onNotificationError("Failed to retrieve fcm token: " + cause);
+                Log.w(TAG, "getInstanceId failed", task.getException());
+
             }
 
         });

@@ -44,18 +44,21 @@ import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.PinMessageVO;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.util.Callback;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.FunctionalListener;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.PodThreadManager;
@@ -2887,6 +2890,118 @@ public class MessageDatabaseHelper {
         }
         return contacts;
     }
+
+
+    @NonNull
+    public ChatResponse<ResultContact> searchContacts(RequestSearchContact requestSearchContact, String size, String offset) {
+
+        List<Contact> contacts = new ArrayList<>();
+
+        ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+        chatResponse.setCache(true);
+        ResultContact resultContact = new ResultContact();
+        resultContact.setContacts(new ArrayList<>(contacts));
+        chatResponse.setHasError(false);
+
+        long nextOffset = Long.parseLong(offset) + Long.parseLong(size);
+
+        resultContact.setHasNext(false);
+        resultContact.setNextOffset(nextOffset);
+
+
+        if (requestSearchContact.getId() != null) {
+            try {
+                CacheContact cacheContact = messageDao.getContactById(Long.parseLong(requestSearchContact.getId()));
+                contacts.add(cacheContactToContactMapper(cacheContact));
+                resultContact.setContacts(new ArrayList<>(contacts));
+                resultContact.setContentCount(1);
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Invalid Id");
+                chatResponse.setHasError(true);
+                chatResponse.setErrorMessage("Invalid Id");
+                chatResponse.setErrorCode(ChatConstant.ERROR_CODE_INVALID_CONTACT_ID);
+                resultContact.setContentCount(0);
+            }
+            chatResponse.setResult(resultContact);
+            return chatResponse;
+        }
+
+        String order = Util.isNullOrEmpty(requestSearchContact.getOrder()) ? "desc" : requestSearchContact.getOrder();
+
+        String orderBy = " order by hasUser " + order + ", lastName is null or lastName='', lastName, firstName is null or firstName='', firstName";
+
+        String query = "select * from CacheContact where";
+
+        if(!Util.isNullOrEmpty(requestSearchContact.getQuery())){
+
+            query += " (firstName LIKE '%" + requestSearchContact.getQuery() + "%' OR lastName LIKE '%" + requestSearchContact.getQuery() + "%') AND";
+
+        } else if (!Util.isNullOrEmpty(requestSearchContact.getFirstName()) && !Util.isNullOrEmpty(requestSearchContact.getLastName()))
+            query += " (firstName LIKE '%" + requestSearchContact.getFirstName() + "%' AND lastName LIKE '%" + requestSearchContact.getLastName() + "%') AND";
+        else if (!Util.isNullOrEmpty(requestSearchContact.getFirstName()))
+            query += " firstName LIKE '%" + requestSearchContact.getFirstName() + "%' AND";
+        else if (!Util.isNullOrEmpty(requestSearchContact.getLastName()))
+            query += " lastName LIKE '%" + requestSearchContact.getLastName() + "%' AND";
+
+
+        if (!Util.isNullOrEmpty(requestSearchContact.getEmail()))
+            query += " email LIKE '%" + requestSearchContact.getEmail() + "%' AND";
+
+        if (!Util.isNullOrEmpty(requestSearchContact.getCellphoneNumber()))
+            query += " cellphoneNumber LIKE '%" + requestSearchContact.getCellphoneNumber() + "%'";
+
+
+        if (query.endsWith("AND")) {
+
+            query = query.substring(0, query.lastIndexOf("AND") - 1);
+
+        }
+
+        long contentCount = messageDao.getRawContactsCount(new SimpleSQLiteQuery(query.replaceFirst("select \\* ", "select count(id) ")));
+
+
+        query += orderBy + " LIMIT " + size + " OFFSET " + offset;
+
+        List<CacheContact> cachedContacts = messageDao.getRawContacts(new SimpleSQLiteQuery(query));
+
+        if (!Util.isNullOrEmpty(cachedContacts)) {
+            for (CacheContact cachedContact :
+                    cachedContacts) {
+                contacts.add(cacheContactToContactMapper(cachedContact));
+            }
+        }
+
+
+        resultContact.setContacts(new ArrayList<>(contacts));
+        resultContact.setHasNext(Long.parseLong(offset) + contacts.size() < contentCount);
+        resultContact.setNextOffset(Long.parseLong(offset) + contacts.size());
+        resultContact.setContentCount(contentCount);
+
+        chatResponse.setResult(resultContact);
+
+
+        return chatResponse;
+    }
+
+    private Contact cacheContactToContactMapper(CacheContact cacheContact) {
+        Contact contact = new Contact(
+                cacheContact.getId(),
+                cacheContact.getFirstName(),
+                cacheContact.getUserId(),
+                cacheContact.getLastName(),
+                cacheContact.getBlocked(),
+                cacheContact.getCreationDate(),
+                cacheContact.getLinkedUser(),
+                cacheContact.getCellphoneNumber(),
+                cacheContact.getEmail(),
+                cacheContact.getUniqueId(),
+                cacheContact.getNotSeenDuration(),
+                cacheContact.isHasUser()
+        );
+        contact.setCache(true);
+        return contact;
+    }
+
 
     @NonNull
     public List<Contact> getContactsByLast(String lastName) {

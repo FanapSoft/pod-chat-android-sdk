@@ -21,7 +21,6 @@ public class RequestCreateThread extends BaseRequestObject {
     private String image;
     private String metadata;
 
-//    @Expose(serialize = false, deserialize = false)
     private transient RequestUploadImage uploadImageRequest;
 
 

@@ -9,7 +9,7 @@ public class RequestThreadInfo  extends GeneralRequestObject{
     private String description;
     private String metadata;
 
-    //upload thread picture
+    //upload thread image
     private RequestUploadImage uploadImageRequest;
     private String userGroupHash;
 

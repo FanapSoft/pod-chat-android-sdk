@@ -1,5 +1,6 @@
 package com.fanap.podchat.persistance.dao;
 
+import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
@@ -81,6 +82,9 @@ public interface MessageDao {
 
     @RawQuery
     List<CacheContact> getRawContacts(SupportSQLiteQuery sqLiteQuery);
+
+    @RawQuery
+    long getRawContactsCount(SupportSQLiteQuery sqLiteQuery);
 
 
 
@@ -358,19 +362,19 @@ public interface MessageDao {
     @Query("select * from CacheContact where id = :id")
     CacheContact getContactById(long id);
 
-    @Query("select * from CacheContact where firstName LIKE :firstName ")
+    @Query("select * from CacheContact where firstName LIKE '%'||:firstName||'%'")
     List<CacheContact> getContactsByFirst(String firstName);
 
-    @Query("select * from CacheContact where lastName LIKE :lastName ")
+    @Query("select * from CacheContact where lastName LIKE '%'||:lastName||'%' ")
     List<CacheContact> getContactsByLast(String lastName);
 
-    @Query("select * from CacheContact where firstName LIKE :firstName AND lastName LIKE :lastName")
+    @Query("select * from CacheContact where firstName LIKE '%'||:firstName||'%' AND lastName LIKE '%'||:lastName||'%'")
     List<CacheContact> getContactsByFirstAndLast(String firstName, String lastName);
 
-    @Query("select * from CacheContact where cellphoneNumber LIKE :cellphoneNumber")
+    @Query("select * from CacheContact where cellphoneNumber LIKE '%'||:cellphoneNumber||'%'")
     List<CacheContact> getContactByCell(String cellphoneNumber);
 
-    @Query("select * from CacheContact where email LIKE :email ")
+    @Query("select * from CacheContact where email LIKE '%'||:email||'%'")
     List<CacheContact> getContactsByEmail(String email);
 
     //cache replyInfoVO

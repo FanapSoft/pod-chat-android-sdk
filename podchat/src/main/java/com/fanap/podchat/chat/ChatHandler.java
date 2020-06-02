@@ -2,6 +2,7 @@ package com.fanap.podchat.chat;
 
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
@@ -40,6 +41,8 @@ public abstract class ChatHandler {
     public  void onSearchHistory(String uniqueId){}
 
     public void onGetContact(String uniqueId) { }
+
+    public void onGetContact(String contactJson, ChatResponse<ResultContact> chatResponse) { }
 
     public void onBlock(String uniqueId) { }
 

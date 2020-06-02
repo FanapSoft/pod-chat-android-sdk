@@ -247,6 +247,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -5882,7 +5883,7 @@ public class Chat extends AsyncAdapter {
                                 public void onGetHistory(ChatResponse<ResultHistory> chatResponse, ChatMessage chatMessage, Callback callback) {
                                     super.onGetHistory(chatResponse, chatMessage, callback);
 
-                                    if(!chatResponse.getUniqueId().equals(uniqueId)){
+                                    if (!chatResponse.getUniqueId().equals(uniqueId)) {
 
                                         showLog("This response has not been requested!");
 
@@ -6253,37 +6254,37 @@ public class Chat extends AsyncAdapter {
     private void findDeletedMessages(List<MessageVO> messagesFromCache, List<MessageVO> newMessagesFromServer, String uniqueId, long threadId) {
 
 
-            for (MessageVO msg :
-                    messagesFromCache) {
+        for (MessageVO msg :
+                messagesFromCache) {
 
 
-                if (!newMessagesFromServer.contains(msg)) {
+            if (!newMessagesFromServer.contains(msg)) {
 
 
-                    ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
-                    chatResponse.setUniqueId(uniqueId);
-                    ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
-                    DeleteMessageContent deleteMessage = new DeleteMessageContent();
-                    deleteMessage.setId(msg.getId());
-                    resultDeleteMessage.setDeletedMessage(deleteMessage);
-                    chatResponse.setResult(resultDeleteMessage);
-                    chatResponse.setSubjectId(threadId);
+                ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
+                chatResponse.setUniqueId(uniqueId);
+                ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
+                DeleteMessageContent deleteMessage = new DeleteMessageContent();
+                deleteMessage.setId(msg.getId());
+                resultDeleteMessage.setDeletedMessage(deleteMessage);
+                chatResponse.setResult(resultDeleteMessage);
+                chatResponse.setSubjectId(threadId);
 
-                    String jsonDeleteMsg = gson.toJson(chatResponse);
-                    listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
-                    showLog("RECEIVE_DELETE_MESSAGE", jsonDeleteMsg);
+                String jsonDeleteMsg = gson.toJson(chatResponse);
+                listenerManager.callOnDeleteMessage(jsonDeleteMsg, chatResponse);
+                showLog("RECEIVE_DELETE_MESSAGE", jsonDeleteMsg);
 
-                    if (cache) {
+                if (cache) {
 
-                        messageDatabaseHelper.deleteMessage(msg.getId(), threadId);
+                    messageDatabaseHelper.deleteMessage(msg.getId(), threadId);
 
-                        showLog("Delete message from database with this messageId" + " " + msg.getId(), "");
-
-                    }
-
+                    showLog("Delete message from database with this messageId" + " " + msg.getId(), "");
 
                 }
+
+
             }
+        }
 
 
     }
@@ -6631,7 +6632,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
     /**
      * Get all of the contacts of the user
      */
@@ -6641,110 +6641,233 @@ public class Chat extends AsyncAdapter {
     }
 
 
+//    public String searchContact(RequestSearchContact requestSearchContact) {
+//
+//        String uniqueId = generateUniqueId();
+//
+//        Runnable cacheLoading = () -> {
+//
+//            if (cache && requestSearchContact.canUseCache()) {
+//                List<Contact> contacts = new ArrayList<>();
+//                if (requestSearchContact.getId() != null) {
+//                    Contact contact = messageDatabaseHelper.getContactById(Long.parseLong(requestSearchContact.getId()));
+//                    contacts.add(contact);
+//                } else if (requestSearchContact.getFirstName() != null) {
+//                    contacts = messageDatabaseHelper.getContactsByFirst(requestSearchContact.getFirstName());
+//                } else if (requestSearchContact.getFirstName() != null && requestSearchContact.getLastName() != null && !requestSearchContact.getFirstName().isEmpty() && !requestSearchContact.getLastName().isEmpty()) {
+//                    contacts = messageDatabaseHelper.getContactsByFirstAndLast(requestSearchContact.getFirstName(), requestSearchContact.getLastName());
+//                } else if (requestSearchContact.getEmail() != null && !requestSearchContact.getEmail().isEmpty()) {
+//                    contacts = messageDatabaseHelper.getContactsByEmail(requestSearchContact.getEmail());
+//                } else if (requestSearchContact.getCellphoneNumber() != null && !requestSearchContact.getCellphoneNumber().isEmpty()) {
+//                    contacts = messageDatabaseHelper.getContactByCell(requestSearchContact.getCellphoneNumber());
+//                }
+//
+//                ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+//                chatResponse.setCache(true);
+//
+//                ResultContact resultContact = new ResultContact();
+//                ArrayList<Contact> listContact = new ArrayList<>(contacts);
+//                resultContact.setContacts(listContact);
+//                chatResponse.setUniqueId(uniqueId);
+//                chatResponse.setHasError(false);
+//                chatResponse.setErrorCode(0);
+//                chatResponse.setErrorMessage("");
+//                chatResponse.setResult(resultContact);
+//
+//                String jsonContact = gson.toJson(chatResponse);
+//                listenerManager.callOnSearchContact(jsonContact, chatResponse);
+//                showLog("CACHE_SEARCH_CONTACT", jsonContact);
+//
+//
+//            }
+//        };
+//
+//        Runnable requestServer = () -> {
+//            if (chatReady) {
+//
+//                JsonObject jsonObject = (JsonObject) gson.toJsonTree(requestSearchContact);
+//
+//                jsonObject.addProperty("uniqueId", uniqueId);
+//
+//                jsonObject.addProperty("tokenIssuer", 1);
+//
+//                showLog("SEND_SEARCH_CONTACT", getJsonForLog(jsonObject));
+//
+//
+//                Observable<Response<SearchContactVO>> observable = contactApi.searchContact(
+//                        getToken(),
+//                        TOKEN_ISSUER,
+//                        requestSearchContact.getId()
+//                        , requestSearchContact.getFirstName()
+//                        , requestSearchContact.getLastName()
+//                        , requestSearchContact.getEmail()
+//                        , null
+//                        , requestSearchContact.getOffset()
+//                        , requestSearchContact.getSize()
+//                        , null
+//                        , requestSearchContact.getQuery()
+//                        , requestSearchContact.getCellphoneNumber());
+//
+//                observable
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .subscribe(contactResponse -> {
+//
+//
+//                            if (contactResponse.isSuccessful()) {
+//
+//                                if (contactResponse.body() != null && contactResponse.body().getResult() != null) {
+//
+//                                    ArrayList<Contact> contacts = new ArrayList<>(contactResponse.body().getResult());
+//
+//                                    ResultContact resultContacts = new ResultContact();
+//                                    resultContacts.setContacts(contacts);
+//
+//                                    ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+//                                    chatResponse.setUniqueId(uniqueId);
+//                                    chatResponse.setResult(resultContacts);
+//
+//                                    String content = gson.toJson(chatResponse);
+//
+//
+//                                    showLog("RECEIVE_SEARCH_CONTACT", content);
+//
+//                                    listenerManager.callOnSearchContact(content, chatResponse);
+//
+//                                }
+//
+//                            } else {
+//
+//                                if (contactResponse.body() != null) {
+//                                    String errorMessage = contactResponse.body().getMessage() != null ? contactResponse.body().getMessage() : "";
+//                                    int errorCode = contactResponse.body().getErrorCode() != null ? contactResponse.body().getErrorCode() : 0;
+//                                    getErrorOutPut(errorMessage, errorCode, uniqueId);
+//                                }
+//                            }
+//
+//                        }, (Throwable throwable) -> Log.e(TAG, throwable.getMessage()));
+//            } else {
+//                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+//            }
+//        };
+//
+//
+//        new PodThreadManager()
+//                .addNewTask(cacheLoading)
+//                .addNewTask(requestServer)
+//                .runTasksSynced();
+//
+//        return uniqueId;
+//    }
+
+
     public String searchContact(RequestSearchContact requestSearchContact) {
 
         String uniqueId = generateUniqueId();
 
+        String size = !Util.isNullOrEmpty(requestSearchContact.getSize()) &&
+                !requestSearchContact.getSize().equals("0") ? requestSearchContact.getSize()
+                : "50";
+
+        String offset = !Util.isNullOrEmpty(requestSearchContact.getOffset()) ?
+                requestSearchContact.getOffset()
+                : "0";
+
+        String order = !Util.isNullOrEmpty(requestSearchContact.getOrder()) ?
+                requestSearchContact.getOrder()
+                : "asc";
+
+
         Runnable cacheLoading = () -> {
 
             if (cache && requestSearchContact.canUseCache()) {
-                List<Contact> contacts = new ArrayList<>();
-                if (requestSearchContact.getId() != null) {
-                    Contact contact = messageDatabaseHelper.getContactById(Long.parseLong(requestSearchContact.getId()));
-                    contacts.add(contact);
-                } else if (requestSearchContact.getFirstName() != null) {
-                    contacts = messageDatabaseHelper.getContactsByFirst(requestSearchContact.getFirstName());
-                } else if (requestSearchContact.getFirstName() != null && requestSearchContact.getLastName() != null && !requestSearchContact.getFirstName().isEmpty() && !requestSearchContact.getLastName().isEmpty()) {
-                    contacts = messageDatabaseHelper.getContactsByFirstAndLast(requestSearchContact.getFirstName(), requestSearchContact.getLastName());
-                } else if (requestSearchContact.getEmail() != null && !requestSearchContact.getEmail().isEmpty()) {
-                    contacts = messageDatabaseHelper.getContactsByEmail(requestSearchContact.getEmail());
-                } else if (requestSearchContact.getCellphoneNumber() != null && !requestSearchContact.getCellphoneNumber().isEmpty()) {
-                    contacts = messageDatabaseHelper.getContactByCell(requestSearchContact.getCellphoneNumber());
-                }
 
-                ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
-                chatResponse.setCache(true);
 
-                ResultContact resultContact = new ResultContact();
-                ArrayList<Contact> listContact = new ArrayList<>(contacts);
-                resultContact.setContacts(listContact);
+                ChatResponse<ResultContact> chatResponse = messageDatabaseHelper.searchContacts(requestSearchContact, size, offset);
                 chatResponse.setUniqueId(uniqueId);
-                chatResponse.setHasError(false);
-                chatResponse.setErrorCode(0);
-                chatResponse.setErrorMessage("");
-                chatResponse.setResult(resultContact);
 
                 String jsonContact = gson.toJson(chatResponse);
                 listenerManager.callOnSearchContact(jsonContact, chatResponse);
                 showLog("CACHE_SEARCH_CONTACT", jsonContact);
 
-
             }
         };
 
+
         Runnable requestServer = () -> {
+
             if (chatReady) {
 
-                JsonObject jsonObject = (JsonObject) gson.toJsonTree(requestSearchContact);
+                JsonObject jObj = new JsonObject();
 
-                jsonObject.addProperty("uniqueId", uniqueId);
+                String query = requestSearchContact.getQuery();
 
-                jsonObject.addProperty("tokenIssuer", 1);
+                if (Util.isNullOrEmpty(query)) {
+                    query = "";
 
-                showLog("SEND_SEARCH_CONTACT", getJsonForLog(jsonObject));
+                    if (!Util.isNullOrEmpty(requestSearchContact.getFirstName())) {
+                        query += requestSearchContact.getFirstName() + " ";
+                    }
+
+                    if (!Util.isNullOrEmpty(requestSearchContact.getLastName())) {
+                        query += requestSearchContact.getLastName();
+                    }
+                }
+
+                if (!Util.isNullOrEmpty(query)) {
+                    jObj.addProperty("query", query);
+                }
+
+                if (!Util.isNullOrEmpty(requestSearchContact.getEmail())) {
+                    jObj.addProperty("email", requestSearchContact.getEmail());
+                }
+
+                if (!Util.isNullOrEmpty(requestSearchContact.getCellphoneNumber())) {
+                    jObj.addProperty("cellphoneNumber", requestSearchContact.getCellphoneNumber());
+                }
+
+                if (!Util.isNullOrEmpty(requestSearchContact.getId())) {
+                    jObj.addProperty("id", requestSearchContact.getId());
+                }
+
+                jObj.addProperty("size", size);
+
+                jObj.addProperty("offset", offset);
+
+                jObj.addProperty("order", order);
+
+                AsyncMessage chatMessage = new AsyncMessage();
+                chatMessage.setContent(jObj.toString());
+                chatMessage.setType(Constants.GET_CONTACTS);
+                chatMessage.setToken(getToken());
+                chatMessage.setUniqueId(uniqueId);
+                chatMessage.setTypeCode(Util.isNullOrEmpty(typeCode) ? typeCode : getTypeCode());
+
+                chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
+
+                JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+
+                String asyncContent = jsonObject.toString();
+
+                setCallBacks(null, null, null, true, Constants.GET_CONTACTS, Long.valueOf(offset), uniqueId);
+
+                handlerSend.put(uniqueId, new ChatHandler() {
+                    @Override
+                    public void onGetContact(String contactJson, ChatResponse<ResultContact> chatResponse) {
+                        super.onGetContact(contactJson, chatResponse);
+
+                        showLog("RECEIVE_SEARCH_CONTACT", contactJson);
+
+                        listenerManager.callOnSearchContact(contactJson, chatResponse);
+
+                        handlerSend.remove(uniqueId);
+
+                    }
+                });
+
+                sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_SEARCH_CONTACT");
 
 
-                Observable<Response<SearchContactVO>> observable = contactApi.searchContact(
-                        getToken(),
-                        TOKEN_ISSUER,
-                        requestSearchContact.getId()
-                        , requestSearchContact.getFirstName()
-                        , requestSearchContact.getLastName()
-                        , requestSearchContact.getEmail()
-                        , null
-                        , requestSearchContact.getOffset()
-                        , requestSearchContact.getSize()
-                        , null
-                        , requestSearchContact.getQuery()
-                        , requestSearchContact.getCellphoneNumber());
-
-                observable
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(contactResponse -> {
-
-
-                            if (contactResponse.isSuccessful()) {
-
-                                if (contactResponse.body() != null && contactResponse.body().getResult() != null) {
-                                    ArrayList<Contact> contacts = new ArrayList<>(contactResponse.body().getResult());
-
-                                    ResultContact resultContacts = new ResultContact();
-                                    resultContacts.setContacts(contacts);
-
-                                    ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
-                                    chatResponse.setUniqueId(uniqueId);
-                                    chatResponse.setResult(resultContacts);
-
-                                    String content = gson.toJson(chatResponse);
-
-
-                                    showLog("RECEIVE_SEARCH_CONTACT", content);
-
-                                    listenerManager.callOnSearchContact(content, chatResponse);
-
-                                }
-
-                            } else {
-
-                                if (contactResponse.body() != null) {
-                                    String errorMessage = contactResponse.body().getMessage() != null ? contactResponse.body().getMessage() : "";
-                                    int errorCode = contactResponse.body().getErrorCode() != null ? contactResponse.body().getErrorCode() : 0;
-                                    getErrorOutPut(errorMessage, errorCode, uniqueId);
-                                }
-                            }
-
-                        }, (Throwable throwable) -> Log.e(TAG, throwable.getMessage()));
             } else {
                 getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
@@ -6758,7 +6881,6 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
     }
-
 
 
     /**
@@ -6796,7 +6918,6 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
         typeCode = Util.isNullOrEmpty(typeCode) ? getTypeCode() : typeCode;
-
 
 
         JsonObject jsonObject = new JsonObject();
@@ -10634,7 +10755,6 @@ public class Chat extends AsyncAdapter {
 //                            handleOutPutGetHistory(callback, chatMessage);
 //                            break;
                         case Constants.GET_CONTACTS:
-
                             handleGetContact(callback, chatMessage, messageUniqueId);
                             break;
                         case Constants.GET_THREADS:
@@ -11165,6 +11285,16 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultContact> chatResponse = reformatGetContactResponse(chatMessage, callback);
         String contactJson = gson.toJson(chatResponse);
+
+        if (handlerSend.containsKey(chatMessage.getUniqueId())
+                && handlerSend.get(chatMessage.getUniqueId()) != null) {
+
+            Objects.requireNonNull(handlerSend.get(chatMessage.getUniqueId()))
+                    .onGetContact(contactJson, chatResponse);
+
+            return;
+        }
+
         listenerManager.callOnGetContacts(contactJson, chatResponse);
         messageCallbacks.remove(messageUniqueId);
         showLog("RECEIVE_GET_CONTACT", contactJson);
@@ -14070,7 +14200,7 @@ public class Chat extends AsyncAdapter {
         ChatResponse<ResultContact> outPutContact = new ChatResponse<>();
         ArrayList<Contact> contacts = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Contact>>() {
         }.getType());
-        if (log) Log.i(TAG, String.valueOf(cache));
+
         if (cache) {
             messageDatabaseHelper.saveContacts(contacts, getExpireAmount());
         }
