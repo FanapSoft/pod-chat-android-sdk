@@ -1,9 +1,12 @@
 package com.fanap.podchat.requestobject;
 
+import android.arch.persistence.room.Ignore;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.JsonAdapter;
 
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class RequestCreateThread extends BaseRequestObject {
     private String image;
     private String metadata;
 
+    private transient RequestUploadImage uploadImageRequest;
+
 
     protected RequestCreateThread(@NonNull Builder builder) {
         super(builder);
@@ -28,14 +33,23 @@ public class RequestCreateThread extends BaseRequestObject {
         this.description = builder.description;
         this.image = builder.image;
         this.metadata = builder.metadata;
+        this.uploadImageRequest = builder.uploadImageRequest;
+
 
     }
+
+    public RequestUploadImage getUploadThreadImageRequest() {
+        return uploadImageRequest;
+    }
+
 
     public static class Builder extends BaseRequestObject.Builder<Builder> {
         private final int type;
         private final List<Invitee> invitees;
         private String title;
         private RequestThreadInnerMessage message;
+        private RequestUploadImage uploadImageRequest;
+
 
         private String description;
         private String image;
@@ -69,13 +83,18 @@ public class RequestCreateThread extends BaseRequestObject {
             this.image = image;
             return this;
         }
-         @NonNull
+
+        @NonNull
         public Builder withMetadata(String metadata) {
             this.metadata = metadata;
             return this;
         }
 
 
+        public Builder setUploadThreadImageRequest(RequestUploadImage uploadImageRequest) {
+            this.uploadImageRequest = uploadImageRequest;
+            return this;
+        }
 
         @NonNull
         @Override
@@ -141,8 +160,6 @@ public class RequestCreateThread extends BaseRequestObject {
     public String getMetadata() {
         return metadata;
     }
-
-
 
 
 }

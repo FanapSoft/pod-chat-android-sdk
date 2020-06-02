@@ -5,10 +5,8 @@ import android.app.Application;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -64,6 +62,7 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
+import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -107,7 +106,6 @@ import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
-import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
@@ -138,6 +136,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //        refWatcher.watch(chat);
 
         chat.addListener(this);
+
+
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(activity)
+                .setChannelName("POD_CHAT_CHANNEL")
+                .setChannelId("PODCHAT")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setIcon(R.mipmap.ic_launcher)
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
+                .build();
+
+
+        chat.setupNotification(notificationConfig);
 
 
         //
@@ -293,9 +304,38 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+//        chat.shouldShowNotification(true);
+
+    }
+
+    @Override
+    public void onResume() {
+
+//        chat.shouldShowNotification(false);
+
+    }
+
+    @Override
     public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
         return chat.getImage(rePod, iDownloadFile);
 
+    }
+
+    @Override
+    public String updateThreadInfo(RequestThreadInfo request) {
+        return chat.updateThreadInfo(request, null);
+    }
+
+    @Override
+    public String createThread(RequestCreateThread requestCreateThread) {
+        return chat.createThread(requestCreateThread);
     }
 
     @Override
@@ -359,7 +399,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
-        chat.retryUploadPodSpace(retry, handler);
+        chat.retryUpload(retry, handler);
     }
 
     @Override
@@ -592,16 +632,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void addContact(String firstName, String lastName, String cellphoneNumber, String email, String username) {
 
 
-        RequestAddContact requestAddContact = new RequestAddContact.Builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .cellphoneNumber(cellphoneNumber)
-                .email(email)
-                .username(username)
-                .build();
+//        RequestAddContact requestAddContact = new RequestAddContact.Builder()
+//                .firstName(firstName)
+//                .lastName(lastName)
+//                .cellphoneNumber(cellphoneNumber)
+//                .email(email)
+//                .username(username)
+//                .build();
 
 
-        chat.addContact(requestAddContact);
+        chat.addContact(firstName,lastName,cellphoneNumber,email,null,username);
+
 
     }
 

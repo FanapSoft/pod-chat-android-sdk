@@ -7,6 +7,13 @@ All notable changes to this project will be documented here.
 
 
 
+## Version [0.6.6.2] -2020-5-21
+
+[Add] FCM Push Notification Support
+
+[Remove] retryUploadPodSpace
+
+
 
 ## Version [0.6.6.0] -2020-5-19
 

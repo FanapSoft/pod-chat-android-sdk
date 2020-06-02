@@ -2,6 +2,81 @@
 **Fanap's POD** Chat service
 
 
+
+
+## Version [0.6.6.1] -2020-5-21
+
+
+- Push Notification Activation: 
+
+
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(targetActivity)
+                .setChannelName("CHANNEL_NAME")
+                .setChannelId("CHANNEL_ID")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setIcon(R.mipmap.ic_launcher)
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
+                .build();
+
+
+
+        chat.setupNotification(notificationConfig);
+    
+    
+- Stop showing push notification:
+
+
+        @Override
+        public void onResume() {
+    
+            chat.shouldShowNotification(false);
+    
+        }
+       
+   Remember to enable it after OnPause.
+   
+   
+        @Override
+        public void onPause() {
+        
+                chat.shouldShowNotification(true);
+        
+        }
+   
+   
+         
+- Receive message data after clicking on the push notification:
+
+    
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+    
+    
+            if (getIntent() != null && getIntent().getExtras() != null) {
+    
+                Bundle a = getIntent().getExtras();
+    
+                String threadId = a.getString("threadId");
+   
+                String messageId = a.getString("messageId");
+    
+                Log.d("CHAT_ACTIVITY", "Notification Data: ");
+                Log.d("CHAT_ACTIVITY", "Thread Id: " + threadId);
+                Log.d("CHAT_ACTIVITY", "Message Id: " + messageId);
+    
+            }
+                    
+        }
+        
+        
+
+
+
+
+
+
 ## Version [0.6.6.0] -2020-5-19
 
 - Crop Picture:
@@ -80,47 +155,6 @@
 
         getFile(request,ProgressHandler)
 
-
-
-
-
-## Version [0.6.4.4] -2020-4-26
-
--Customize Notification
-
-        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(
-                String, //Registered Application id
-                 Activity 
-                 ) 
-                .setChannelName(String)
-                .setChannelId(String)
-                .setChannelDescription(String)
-                .setNotificationImportance(Integer)
-                .build();
-
-        chat.enableNotification(notificationConfig, new INotification() {
-            @Override
-            public void onUserIdUpdated(String userId) {
-
-                Log.i(TAG, "UserId Received: " + userId);
-
-            }
-
-            @Override
-            public void onPushMessageReceived(String message) {
-
-                Log.i(TAG, "Push Received on presenter " + message);
-
-                ShowNotificationHelper.showNotification(
-                        String, //title
-                        message, //message
-                        Context, // context
-                        Class, //target class
-                        Integer, // priority
-                        int); //icon
-            }
-        });
 
 
 

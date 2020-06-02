@@ -436,6 +436,16 @@ public interface ChatContract {
         void shareLogs();
 
         String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile);
+
+        void onStart();
+
+        void onStop();
+
+        void onResume();
         String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile);
+
+        String updateThreadInfo(RequestThreadInfo request);
+
+        String createThread(RequestCreateThread requestCreateThread);
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage{
 
 
-    private RequestUploadFile file;
+    private transient RequestUploadFile file;
 
     RequestCreateThreadWithFile(Builder builder) {
         super(builder);
@@ -53,6 +53,12 @@ public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage{
         @Override
         public Builder message(RequestThreadInnerMessage message) {
             super.message(message);
+            return this;
+        }
+
+        @Override
+        public Builder setUploadThreadImageRequest(RequestUploadImage uploadImageRequest) {
+            super.setUploadThreadImageRequest(uploadImageRequest);
             return this;
         }
 

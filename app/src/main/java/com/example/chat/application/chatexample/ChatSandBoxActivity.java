@@ -293,7 +293,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     public void updateThreadInfo() {
         //                        1104 is a group
-        RequestThreadInfo threadInfo = new RequestThreadInfo.Builder().threadId(1104).description("yes").name("this is test").build();
+        RequestThreadInfo threadInfo = new RequestThreadInfo.Builder(1104).threadId(1104).description("yes").name("this is test").build();
 
         presenter.updateThreadInfo(threadInfo, null);
 
