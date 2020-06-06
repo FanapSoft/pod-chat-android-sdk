@@ -4,6 +4,50 @@
 
 
 
+## Version [0.7.2.0] -2020-6-2
+
+- Upload thread image when creating:
+
+
+        RequestUploadImage uploadThreadImageRequest =
+                        new RequestUploadImage.Builder(Activity, Uri)
+                                .sethC(140)
+                                .setwC(140)
+                                .build();
+
+
+        RequestCreateThread request = new RequestCreateThread
+                        .Builder(THREAD_TYPE, List<Invitee>)
+                        .title(String)
+                        .withDescription(String)
+                        .withMetadata(String)
+                        .setUploadThreadImageRequest(uploadThreadImageRequest)
+                        .build();
+
+
+        chat.createThread(request);
+
+- Upload thread image when updating:
+
+
+        RequestUploadImage uploadThreadImageRequest =
+                        new RequestUploadImage.Builder(Activity, Uri)
+                                .sethC(140)
+                                .setwC(140)
+                                .build();
+                                
+                                
+        RequestThreadInfo request =
+                        new RequestThreadInfo.Builder(THREAD_ID)
+                                 .name(String)
+                                 .description(String)
+                                 .setUploadThreadImageRequest(uploadThreadImageRequest)
+                                 .setUserGroupHash(THREAD_USER_GROUP_HASH)
+                                 .build();                        
+
+        
+        chat.updateThreadInfo(request);
+
 ## Version [0.6.6.1] -2020-5-21
 
 
