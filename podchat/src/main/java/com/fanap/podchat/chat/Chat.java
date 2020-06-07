@@ -539,32 +539,23 @@ public class Chat extends AsyncAdapter {
             pinger = new NetworkPingSender(context, new NetworkStateListener() {
                 @Override
                 public void networkAvailable() {
-
                     tryToConnectOrReconnect();
-
                 }
 
                 @Override
                 public void networkUnavailable() {
-
                     closeSocketServer();
-
                 }
 
                 @Override
                 public void sendPingToServer() {
-
                     pingForCheckConnection();
-
                 }
 
                 @Override
                 public void onConnectionLost() {
-
                     chatState = CLOSED;
-
                     scheduleForReconnect();
-
                 }
             });
 
@@ -663,7 +654,10 @@ public class Chat extends AsyncAdapter {
                 return;
 
 
-            async.stopSocket();
+            chatState = CLOSED;
+
+            scheduleForReconnect();
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -676,9 +670,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (isAsyncReady()) {
-
             pingAfterSetToken();
-
         } else {
             scheduleForReconnect();
         }
@@ -698,51 +690,39 @@ public class Chat extends AsyncAdapter {
         connectHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-
                 if (log) Log.i(TAG, "The Connection Watcher is trying to reconnect...");
-
-
                 if (connectNumberOfRetry < maxReconnectStepTime) {
-
                     connectNumberOfRetry = connectNumberOfRetry * 2;
-
                 } else {
-
                     connectNumberOfRetry = maxReconnectStepTime;
-
                 }
-
                 if (log) Log.i(TAG, "Next retry is after " + connectNumberOfRetry);
 
 
                 boolean shouldReconnect = TextUtils.equals(chatState, CLOSED)
-                        || shouldReconnectOnOpenState();
+                        || shouldReconnectAtOpenState() || shouldReconnectAtConnectingState();
 
                 if (shouldReconnect) {
 
                     async.connect(socketAddress, appId, serverName, token, ssoHost, "");
 
-                    connectHandler.postDelayed(this, connectNumberOfRetry);
-
                 } else if (!chatReady) {
-
                     if (isAsyncReady()) {
-
                         pingAfterSetToken();
-
                     }
-
-                    connectHandler.postDelayed(this, connectNumberOfRetry);
                 }
-
-
+                connectHandler.postDelayed(this, connectNumberOfRetry);
             }
         }, connectNumberOfRetry);
 
     }
 
-    private boolean shouldReconnectOnOpenState() {
+    private boolean shouldReconnectAtOpenState() {
         return TextUtils.equals(chatState, OPEN) && connectNumberOfRetry == maxReconnectStepTime;
+    }
+
+    private boolean shouldReconnectAtConnectingState() {
+        return TextUtils.equals(chatState, CONNECTING) && connectNumberOfRetry >= (maxReconnectStepTime / 2);
     }
 
 
@@ -812,7 +792,6 @@ public class Chat extends AsyncAdapter {
                 retrySetToken = 1;
                 getUserInfoNumberOfTry = 0;
                 tokenHandler.removeCallbacksAndMessages(null);
-                if (pinger != null) pinger.asyncIsClosedOrClosing();
                 break;
         }
     }
@@ -1493,7 +1472,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException(uniqueId,throwable);
+            onUnknownException(uniqueId, throwable);
         }
         return uniqueId;
     }
@@ -5626,7 +5605,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -5802,7 +5781,7 @@ public class Chat extends AsyncAdapter {
                             showLog("THREADS CACHE UPDATED", "");
                         } catch (Exception e) {
                             showErrorLog(e.getMessage());
-                            onUnknownException(uniqueId,e);
+                            onUnknownException(uniqueId, e);
                         }
 
                     });
@@ -6278,7 +6257,7 @@ public class Chat extends AsyncAdapter {
 
             } catch (Exception e) {
                 showErrorLog(e.getMessage());
-                onUnknownException(uniqueId,e);
+                onUnknownException(uniqueId, e);
 
             }
 
@@ -7775,7 +7754,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException(uniqueId,throwable);
+            onUnknownException(uniqueId, throwable);
         }
         return uniqueId;
     }
@@ -8128,7 +8107,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -8943,7 +8922,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueIds.get(0),e);
+            onUnknownException(uniqueIds.get(0), e);
         }
         return uniqueIds;
     }
@@ -9006,7 +8985,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
 
         return uniqueId;
@@ -9109,7 +9088,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
 
         return uniqueId;
@@ -9458,7 +9437,7 @@ public class Chat extends AsyncAdapter {
                     }
                 } catch (Exception e) {
                     showErrorLog(e.getMessage());
-                    onUnknownException(uniqueId,e);
+                    onUnknownException(uniqueId, e);
                 }
 
 
@@ -9545,7 +9524,7 @@ public class Chat extends AsyncAdapter {
                     }
                 } catch (Exception e) {
                     showErrorLog(e.getMessage());
-                    onUnknownException(uniqueId,e);
+                    onUnknownException(uniqueId, e);
                 }
 
 
@@ -9641,7 +9620,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
 
         return uniqueId;
@@ -9699,7 +9678,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -9741,7 +9720,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -9796,7 +9775,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -10298,7 +10277,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (JsonSyntaxException e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
 
     }
@@ -10350,14 +10329,6 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVED_CHAT_PING", "");
 
         if (checkToken) {
-
-
-//            if (cache && !permit) {
-//
-//                //todo handle condition
-////                showLog("GENERATE_KEY", "");
-////                generateEncryptionKey(getSsoHost());
-//            } else {
             chatReady = true;
             chatState = CHAT_READY;
             checkToken = false;
@@ -10368,9 +10339,6 @@ public class Chat extends AsyncAdapter {
             listenerManager.callOnChatState(CHAT_READY);
             showLog("** CLIENT_AUTHENTICATED_NOW", "");
             pingWithDelay();
-//            }
-
-
         }
 
 
@@ -10427,7 +10395,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
 
         }
 
@@ -10545,7 +10513,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -10642,7 +10610,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException("",throwable);
+            onUnknownException("", throwable);
         }
     }
 
@@ -10747,7 +10715,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -10895,7 +10863,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -10994,7 +10962,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -11309,13 +11277,13 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
-    private void onUnknownException(String uniqueId,Throwable throwable) {
+    private void onUnknownException(String uniqueId, Throwable throwable) {
         captureError(ChatConstant.ERROR_UNKNOWN_EXCEPTION,
-                ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId,throwable);
+                ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable);
     }
 
     private void handleGetContact(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
@@ -11546,7 +11514,7 @@ public class Chat extends AsyncAdapter {
             signalMessage = gson.fromJson(chatMessage.getContent(), ResultSignalMessage.class);
         } catch (JsonSyntaxException e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),e);
+            onUnknownException(chatMessage.getUniqueId(), e);
             return null;
 
         }
@@ -11615,7 +11583,7 @@ public class Chat extends AsyncAdapter {
                     .getAsJsonObject();
 
         } catch (Exception e) {
-            captureError(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId(),e);
+            captureError(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId(), e);
             return null;
 
         }
@@ -12381,7 +12349,7 @@ public class Chat extends AsyncAdapter {
         // is not authenticated, will not be captured.
 
         if (errorCode != ChatConstant.ERROR_CODE_CHAT_READY
-                && errorCode != 21){
+                && errorCode != 21) {
 
             Sentry.captureException(new PodChatException(errorMessage, uniqueId, getToken()));
 
@@ -12541,7 +12509,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } catch (Throwable e) {
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -12589,7 +12557,7 @@ public class Chat extends AsyncAdapter {
                 sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_SEEN_MESSAGE_LIST");
             } catch (Throwable e) {
                 showErrorLog(e.getMessage());
-                onUnknownException(uniqueId,e);
+                onUnknownException(uniqueId, e);
             }
         } else {
             captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
@@ -12610,7 +12578,7 @@ public class Chat extends AsyncAdapter {
                 }.getType());
             } catch (Exception e) {
                 showErrorLog(e.getMessage());
-                onUnknownException(chatMessage.getUniqueId(),e);
+                onUnknownException(chatMessage.getUniqueId(), e);
             }
 
 
@@ -12627,7 +12595,7 @@ public class Chat extends AsyncAdapter {
                     }.getType());
                 } catch (JsonSyntaxException e) {
                     showErrorLog(e.getMessage());
-                    onUnknownException(chatMessage.getUniqueId(),e);
+                    onUnknownException(chatMessage.getUniqueId(), e);
                 }
             }
 
@@ -12766,7 +12734,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -12792,7 +12760,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -12821,7 +12789,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -12832,7 +12800,7 @@ public class Chat extends AsyncAdapter {
                 async.sendMessage(asyncContent, asyncMsgType);
             } catch (Exception e) {
                 showErrorLog(e.getMessage());
-                onUnknownException("",e);
+                onUnknownException("", e);
                 return;
             }
 
@@ -12946,7 +12914,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
 
     }
@@ -13203,7 +13171,7 @@ public class Chat extends AsyncAdapter {
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
-                                        onUnknownException(uniqueId,e);
+                                        onUnknownException(uniqueId, e);
                                     }
                                 };
 
@@ -13214,7 +13182,7 @@ public class Chat extends AsyncAdapter {
                                             messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
                                         } catch (Exception e) {
                                             showErrorLog("Saving Contacts Failed: " + e.getMessage());
-                                            onUnknownException(uniqueId,e);
+                                            onUnknownException(uniqueId, e);
                                         }
                                     }
                                 };
@@ -13340,7 +13308,7 @@ public class Chat extends AsyncAdapter {
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
-                                        onUnknownException(uniqueId,e);
+                                        onUnknownException(uniqueId, e);
                                     }
                                 };
 
@@ -13351,7 +13319,7 @@ public class Chat extends AsyncAdapter {
                                             messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
                                         } catch (Exception e) {
                                             showErrorLog("Saving Contacts Failed: " + e.getMessage());
-                                            onUnknownException(uniqueId,e);
+                                            onUnknownException(uniqueId, e);
                                         }
                                     }
                                 };
@@ -13792,7 +13760,7 @@ public class Chat extends AsyncAdapter {
                         }
                     } catch (Exception e) {
                         showErrorLog(e.getMessage());
-                        onUnknownException(uniqueId,e);
+                        onUnknownException(uniqueId, e);
                     }
 
                 });
@@ -13872,7 +13840,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId,e);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -14275,7 +14243,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException(chatMessage.getUniqueId(),throwable);
+            onUnknownException(chatMessage.getUniqueId(), throwable);
         } finally {
 
             if (handlerSend.get(chatMessage.getUniqueId()) != null) {

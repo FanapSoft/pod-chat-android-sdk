@@ -5,9 +5,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.fanap.podasync.Async;
+import com.fanap.podasync.AsyncListener;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.mainmodel.ChatMessage;
+import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.Util;
 
@@ -46,8 +49,6 @@ public class NetworkPingSender {
 
     private boolean isConnecting = false;
 
-    private NetworkStateConfig config;
-
     private int numberOfPingsWithoutPong = 0;
 
 
@@ -60,41 +61,13 @@ public class NetworkPingSender {
     private boolean hasPing = false;
 
 
-    public void setDisConnectionThreshold(int disConnectionThreshold) {
-
-        this.disConnectionThreshold = disConnectionThreshold;
-    }
-
-    public void setHostName(String hostName) {
-
-        if (!Util.isNullOrEmpty(hostName))
-            this.hostName = hostName;
-    }
-
-    public void setPort(int port) {
-
-        if (port != -1)
-            this.port = port;
-    }
-
-
-    public void setInterval(int interval) {
-        this.interval = interval;
-    }
-
-
     public NetworkPingSender(NetworkStateListener listener, boolean connected) {
         this.listener = listener;
         this.connected = connected;
     }
 
 
-    public NetworkStateConfig getConfig() {
-        return config;
-    }
-
     public void setConfig(NetworkStateConfig config) {
-
 
         if (config != null) {
 
@@ -117,15 +90,10 @@ public class NetworkPingSender {
         this.context = context;
         this.listener = listener;
         setVPNState();
-
-
         runVPNConnectionChecker();
-
-
     }
 
     private void runVPNConnectionChecker() {
-
 
         if (handlerVPNThread != null) {
 
@@ -196,7 +164,6 @@ public class NetworkPingSender {
 
     private void ping() {
 
-
         try {
 
             if (isConnecting)
@@ -225,6 +192,7 @@ public class NetworkPingSender {
     public void onPong(ChatMessage chatMessage) {
 
         numberOfPingsWithoutPong--;
+
         hasPing = numberOfPingsWithoutPong == 0;
 
     }
@@ -244,7 +212,6 @@ public class NetworkPingSender {
             numberOfPingsWithoutPong++;
             hasPing = false;
             listener.sendPingToServer();
-
             handler.postDelayed(() -> {
 
                 //connection is not alive. we should reconnect.
@@ -258,6 +225,7 @@ public class NetworkPingSender {
                     listener.onConnectionLost();
                 }
             }, connectTimeout);
+
             setVPNState();
         }
     }
@@ -284,6 +252,38 @@ public class NetworkPingSender {
 
     }
 
+    public void listenToAsync(Async async){
+
+        async.addListener(new AsyncListener() {
+            @Override
+            public void onReceivedMessage(String textMessage) throws IOException {
+
+
+
+            }
+
+            @Override
+            public void onStateChanged(String state) throws IOException {
+
+            }
+
+            @Override
+            public void onDisconnected(String textMessage) throws IOException {
+
+            }
+
+            @Override
+            public void onError(String textMessage) throws IOException {
+
+            }
+
+            @Override
+            public void handleCallbackError(Throwable cause) throws Exception {
+
+            }
+        });
+
+    }
 
     //check if vpn connected or not.
     // so we can detect further changes on
@@ -332,14 +332,6 @@ public class NetworkPingSender {
 
     }
 
-    //todo test it
-    public void asyncIsClosedOrClosing() {
-
-        connected = false;
-
-    }
-
-
     public void setStateListener(Chat chat) {
 
         chat.addListener(new ChatListener() {
@@ -363,7 +355,10 @@ public class NetworkPingSender {
 
             }
 
+            @Override
+            public void onError(String content, ErrorOutPut error) {
 
+            }
         });
 
 
