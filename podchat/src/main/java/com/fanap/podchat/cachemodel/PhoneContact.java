@@ -3,6 +3,7 @@ package com.fanap.podchat.cachemodel;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 @Entity
 public class PhoneContact {
@@ -46,5 +47,21 @@ public class PhoneContact {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+
+        try {
+            PhoneContact b = (PhoneContact) obj;
+
+            if (b != null) {
+                return this.phoneNumber.equals(b.phoneNumber);
+            }
+            return false;
+        } catch (Exception e) {
+            return super.equals(obj);
+        }
+
     }
 }

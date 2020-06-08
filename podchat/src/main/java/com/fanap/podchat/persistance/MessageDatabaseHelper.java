@@ -44,18 +44,21 @@ import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.PinMessageVO;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.util.Callback;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.FunctionalListener;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.PodThreadManager;
@@ -198,11 +201,16 @@ public class MessageDatabaseHelper {
 
                 if (cacheMessageVO.getReplyInfoVO() != null) {
                     cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getRepliedToMessageId());
-                    messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
                     if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
                         cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
                         messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
                     }
+
+                    if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
+                        cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
+                        messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
+                    }
+                    messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
                 }
 
                 cacheMessageVOList.add(cacheMessageVO);
@@ -308,11 +316,11 @@ public class MessageDatabaseHelper {
 
             if (cacheMessageVO.getReplyInfoVO() != null) {
                 cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getRepliedToMessageId());
-                messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
                 if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
                     cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
                     messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
                 }
+                messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
             }
 
 
@@ -386,11 +394,12 @@ public class MessageDatabaseHelper {
 
             if (cacheMessageVO.getReplyInfoVO() != null) {
                 cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getRepliedToMessageId());
-                messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
+
                 if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
                     cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
                     messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
                 }
+                messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
             }
 
             messageDao.updateMessage(cacheMessageVO);
@@ -429,7 +438,9 @@ public class MessageDatabaseHelper {
         return messageQueueDao.getAllWaitQueueMsg();
     }
 
-    public void getWaitQueueUniqueIdList(OnWorkDone listener) {
+    public void getWaitQueueUniqueIdList(OnWorkDone listener) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         List<String> items = new ArrayList<>();
 
@@ -450,6 +461,18 @@ public class MessageDatabaseHelper {
                             }
                         });
 
+    }
+
+    private boolean canUseDatabase() {
+
+        try {
+            appDatabase.beginTransaction();
+            appDatabase.setTransactionSuccessful();
+            appDatabase.endTransaction();
+            return appDatabase != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Nullable
@@ -667,9 +690,10 @@ public class MessageDatabaseHelper {
 
                 if (threadVo != null) {
 
-                    long threadLastMessageId = threadVo.getLastMessageVOId();
+                    long threadLastMessageId = threadVo.getLastMessageVOId() != null ? threadVo.getLastMessageVOId()
+                            : 0;
 
-                    if (threadLastMessageId == id) {
+                    if (threadLastMessageId == id && threadLastMessageId > 0) {
 
                         //this is last message
                         List<CacheMessageVO> cacheMessage = messageDao.getMessage(id);
@@ -1110,6 +1134,7 @@ public class MessageDatabaseHelper {
         long messageId = history.getId();
         long offset = history.getOffset();
         long count = history.getCount();
+        int messageType = history.getMessageType();
         String query = history.getQuery();
         String order = history.getOrder();
         offset = offset >= 0 ? offset : 0;
@@ -1128,17 +1153,18 @@ public class MessageDatabaseHelper {
 
         rawQuery = addQueryIfExist(query, rawQuery);
 
+        rawQuery = addMessageTypeIfExist(messageType, rawQuery);
+
+
+        long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(rawQuery.replaceFirst("SELECT \\* ", "SELECT COUNT(ID) ")));
+
         rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
 
         SupportSQLiteQuery sqLiteQuery = new SimpleSQLiteQuery(rawQuery);
 
         cacheMessageVOS = messageDao.getRawHistory(sqLiteQuery);
 
-
         prepareMessageVOs(messageVOS, cacheMessageVOS);
-
-
-        long contentCount = getHistoryContentCount(threadId);
 
         List<Sending> sendingList = getAllSendingQueueByThreadId(threadId);
 
@@ -1188,17 +1214,18 @@ public class MessageDatabaseHelper {
             Thread thread = null;
             ConversationSummery conversationSummery = null;
 
-            if (!Util.isNullOrEmpty(cacheMessageVO.getConversationId())) {
-                cacheMessageVO.setConversation(messageDao.getThreadById(cacheMessageVO.getConversationId()));
-                ThreadVo threadVo = cacheMessageVO.getConversation();
+//            if (!Util.isNullOrEmpty(cacheMessageVO.getThreadVoId())) {
+//                cacheMessageVO.setConversation(messageDao.getThreadById(cacheMessageVO.getThreadVoId()));
+//                ThreadVo threadVo = cacheMessageVO.getConversation();
+//
+//
+//                //adding pinned message of thread if exist
+//                addPinnedMessageOfThread(threadVo);
+//
+//
+//                thread = threadVoToThreadMapper(threadVo, null);
+//            }
 
-
-                //adding pinned message of thread if exist
-                addPinnedMessageOfThread(threadVo);
-
-
-                thread = threadVoToThreadMapper(threadVo, null);
-            }
             if (cacheMessageVO.getForwardInfoId() != null) {
                 cacheMessageVO.setForwardInfo(messageDao.getForwardInfo(cacheMessageVO.getForwardInfoId()));
             }
@@ -1208,6 +1235,7 @@ public class MessageDatabaseHelper {
 
             }
             if (cacheMessageVO.getReplyInfoVOId() != null) {
+
                 CacheReplyInfoVO cacheReplyInfoVO = messageDao.getReplyInfo(cacheMessageVO.getReplyInfoVOId());
 
 
@@ -1247,6 +1275,7 @@ public class MessageDatabaseHelper {
                         participant = cacheToParticipantMapper(cacheParticipant, null, null);
                     }
                     if (Util.isNullOrEmpty(cacheForwardInfo.getConversationId())) {
+                        //todo check it again
                         conversationSummery = messageDao.getConversationSummery(cacheForwardInfo.getConversationId());
                     }
                     forwardInfo = new ForwardInfo(participant, conversationSummery);
@@ -1257,7 +1286,7 @@ public class MessageDatabaseHelper {
 
             }
 
-            MessageVO messageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, forwardInfo, thread, cacheMessageVO);
+            MessageVO messageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, forwardInfo, null, cacheMessageVO);
 
             messageVOS.add(messageVO);
         }
@@ -1340,6 +1369,15 @@ public class MessageDatabaseHelper {
         if (messageDao.getMessage(messageId) != null && messageId > 0) {
             rawQuery = rawQuery + " AND id=" + messageId;
         }
+        return rawQuery;
+    }
+
+    private String addMessageTypeIfExist(int messageType, String rawQuery) {
+
+        if (messageType > 0) {
+            rawQuery = rawQuery + " AND messageType=" + messageType;
+        }
+
         return rawQuery;
     }
 
@@ -1476,7 +1514,9 @@ public class MessageDatabaseHelper {
 
 
     @NonNull
-    public List<Contact> getContacts(Integer count, Long offset) {
+    public List<Contact> getContacts(Integer count, Long offset) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         List<Contact> contacts = new ArrayList<>();
 
@@ -1834,25 +1874,89 @@ public class MessageDatabaseHelper {
     }
 
 
+    public interface IRoomIntegrity {
+
+        void onDatabaseNeedReset();
+
+        void onResetFailed();
+
+        void onRoomIntegrityError();
+
+        void onDatabaseDown();
+
+    }
+
     /**
      * Cache UserInfo
      */
-    public void saveUserInfo(UserInfo userInfo) {
+    public void saveUserInfo(UserInfo userInfo, IRoomIntegrity listener) {
 
         worker(() -> {
-            messageDao.insertUserInfo(userInfo);
 
+            try {
+                messageDao.insertUserInfo(userInfo);
 
-            //set user id for profile table
-            if (userInfo.getChatProfileVO() != null) {
+                //set user id for profile table
+                if (userInfo.getChatProfileVO() != null) {
 
-                userInfo.getChatProfileVO().setId(userInfo.getId());
+                    userInfo.getChatProfileVO().setId(userInfo.getId());
 
-                messageDao.insertChatProfile(userInfo.getChatProfileVO());
+                    messageDao.insertChatProfile(userInfo.getChatProfileVO());
+                }
+            } catch (Exception e) {
+
+                handleDatabaseException(listener, e);
             }
+
+
         });
 
 
+    }
+
+    private void handleDatabaseException(IRoomIntegrity listener, Exception e) {
+        listener.onDatabaseDown();
+
+        if (e instanceof IllegalStateException
+                || e instanceof net.sqlcipher.database.SQLiteException) {
+            Log.i(TAG, "Reset DB");
+            listener.onRoomIntegrityError();
+
+            File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+            try {
+                boolean del = file.delete();
+                if (del) {
+                    File db = new File(String.valueOf(context.getDatabasePath("cache.db")));
+                    boolean res = db.createNewFile();
+                    if (res) {
+                        listener.onDatabaseNeedReset();
+                    }
+                }
+            } catch (Exception err) {
+                listener.onResetFailed();
+            }
+
+        }
+    }
+
+
+    public boolean resetDatabase() {
+
+        File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+        try {
+            boolean del = file.delete();
+            if (del) {
+                File db = new File(String.valueOf(context.getDatabasePath("cache.db")));
+                boolean res = db.createNewFile();
+                if (res) {
+                    return true;
+                }
+            }
+        } catch (Exception err) {
+            return false;
+        }
+
+        return false;
     }
 
     public UserInfo getUserInfo() {
@@ -1882,7 +1986,10 @@ public class MessageDatabaseHelper {
                              @Nullable ArrayList<Integer> threadIds,
                              @Nullable String threadName,
                              boolean isNew,
-                             OnWorkDone listener) {
+                             OnWorkDone listener) throws RoomIntegrityException {
+
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 
@@ -2020,7 +2127,8 @@ public class MessageDatabaseHelper {
                 threadVo.isPin(),
                 threadVo.isMentioned(),
                 threadVo.getPinMessageVO(),
-                threadVo.getUniqueName());
+                threadVo.getUniqueName(),
+                threadVo.getUserGroupHash());
 
 
     }
@@ -2065,9 +2173,8 @@ public class MessageDatabaseHelper {
                 thread.isPin() != null && thread.isPin(),
                 thread.isMentioned(),
                 null,
-                thread.getUniqueName()
-
-        );
+                thread.getUniqueName(),
+                thread.getUserGroupHash());
     }
 
     @NonNull
@@ -2431,6 +2538,11 @@ public class MessageDatabaseHelper {
         cacheReplyInfoVO = threadVo.getLastMessageVO().getReplyInfoVO();
         cacheMessageVO.setReplyInfoVOId(threadVo.getLastMessageVO().getReplyInfoVO().getRepliedToMessageId());
         messageDao.insertLastMessageVO(cacheMessageVO);
+        if (cacheReplyInfoVO.getParticipant() != null) {
+            cacheReplyInfoVO.setParticipantId(cacheReplyInfoVO.getParticipant().getId());
+            messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
+        }
+
         messageDao.insertReplyInfoVO(cacheReplyInfoVO);
         return cacheReplyInfoVO;
     }
@@ -2487,12 +2599,14 @@ public class MessageDatabaseHelper {
     }
 
     public void leaveThread(long threadId) {
+
         worker(() -> {
             deleteLastMessageVo(threadId);
             messageDao.deleteThread(threadId);
             messageDao.deleteAllThreadParticipant(threadId);
             messageDao.deleteAllMessageByThread(threadId);
         });
+
     }
 
     private void deleteLastMessageVo(long threadId) {
@@ -2580,8 +2694,10 @@ public class MessageDatabaseHelper {
 
 
     @NonNull
-    public void getThreadParticipant(long offset, long count, long threadId, FunctionalListener listener) {
+    public void getThreadParticipant(long offset, long count, long threadId, FunctionalListener listener)
+            throws RoomIntegrityException {
 
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 
@@ -2642,8 +2758,11 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void getThreadAdmins(long offset, long count, long threadId, FunctionalListener listener) {
+    public void getThreadAdmins(long offset, long count, long threadId, FunctionalListener listener)
 
+            throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
 
@@ -2771,6 +2890,118 @@ public class MessageDatabaseHelper {
         }
         return contacts;
     }
+
+
+    @NonNull
+    public ChatResponse<ResultContact> searchContacts(RequestSearchContact requestSearchContact, String size, String offset) {
+
+        List<Contact> contacts = new ArrayList<>();
+
+        ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+        chatResponse.setCache(true);
+        ResultContact resultContact = new ResultContact();
+        resultContact.setContacts(new ArrayList<>(contacts));
+        chatResponse.setHasError(false);
+
+        long nextOffset = Long.parseLong(offset) + Long.parseLong(size);
+
+        resultContact.setHasNext(false);
+        resultContact.setNextOffset(nextOffset);
+
+
+        if (requestSearchContact.getId() != null) {
+            try {
+                CacheContact cacheContact = messageDao.getContactById(Long.parseLong(requestSearchContact.getId()));
+                contacts.add(cacheContactToContactMapper(cacheContact));
+                resultContact.setContacts(new ArrayList<>(contacts));
+                resultContact.setContentCount(1);
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "Invalid Id");
+                chatResponse.setHasError(true);
+                chatResponse.setErrorMessage("Invalid Id");
+                chatResponse.setErrorCode(ChatConstant.ERROR_CODE_INVALID_CONTACT_ID);
+                resultContact.setContentCount(0);
+            }
+            chatResponse.setResult(resultContact);
+            return chatResponse;
+        }
+
+        String order = Util.isNullOrEmpty(requestSearchContact.getOrder()) ? "desc" : requestSearchContact.getOrder();
+
+        String orderBy = " order by hasUser " + order + ", lastName is null or lastName='', lastName, firstName is null or firstName='', firstName";
+
+        String query = "select * from CacheContact where";
+
+        if(!Util.isNullOrEmpty(requestSearchContact.getQuery())){
+
+            query += " (firstName LIKE '%" + requestSearchContact.getQuery() + "%' OR lastName LIKE '%" + requestSearchContact.getQuery() + "%') AND";
+
+        } else if (!Util.isNullOrEmpty(requestSearchContact.getFirstName()) && !Util.isNullOrEmpty(requestSearchContact.getLastName()))
+            query += " (firstName LIKE '%" + requestSearchContact.getFirstName() + "%' AND lastName LIKE '%" + requestSearchContact.getLastName() + "%') AND";
+        else if (!Util.isNullOrEmpty(requestSearchContact.getFirstName()))
+            query += " firstName LIKE '%" + requestSearchContact.getFirstName() + "%' AND";
+        else if (!Util.isNullOrEmpty(requestSearchContact.getLastName()))
+            query += " lastName LIKE '%" + requestSearchContact.getLastName() + "%' AND";
+
+
+        if (!Util.isNullOrEmpty(requestSearchContact.getEmail()))
+            query += " email LIKE '%" + requestSearchContact.getEmail() + "%' AND";
+
+        if (!Util.isNullOrEmpty(requestSearchContact.getCellphoneNumber()))
+            query += " cellphoneNumber LIKE '%" + requestSearchContact.getCellphoneNumber() + "%'";
+
+
+        if (query.endsWith("AND")) {
+
+            query = query.substring(0, query.lastIndexOf("AND") - 1);
+
+        }
+
+        long contentCount = messageDao.getRawContactsCount(new SimpleSQLiteQuery(query.replaceFirst("select \\* ", "select count(id) ")));
+
+
+        query += orderBy + " LIMIT " + size + " OFFSET " + offset;
+
+        List<CacheContact> cachedContacts = messageDao.getRawContacts(new SimpleSQLiteQuery(query));
+
+        if (!Util.isNullOrEmpty(cachedContacts)) {
+            for (CacheContact cachedContact :
+                    cachedContacts) {
+                contacts.add(cacheContactToContactMapper(cachedContact));
+            }
+        }
+
+
+        resultContact.setContacts(new ArrayList<>(contacts));
+        resultContact.setHasNext(Long.parseLong(offset) + contacts.size() < contentCount);
+        resultContact.setNextOffset(Long.parseLong(offset) + contacts.size());
+        resultContact.setContentCount(contentCount);
+
+        chatResponse.setResult(resultContact);
+
+
+        return chatResponse;
+    }
+
+    private Contact cacheContactToContactMapper(CacheContact cacheContact) {
+        Contact contact = new Contact(
+                cacheContact.getId(),
+                cacheContact.getFirstName(),
+                cacheContact.getUserId(),
+                cacheContact.getLastName(),
+                cacheContact.getBlocked(),
+                cacheContact.getCreationDate(),
+                cacheContact.getLinkedUser(),
+                cacheContact.getCellphoneNumber(),
+                cacheContact.getEmail(),
+                cacheContact.getUniqueId(),
+                cacheContact.getNotSeenDuration(),
+                cacheContact.isHasUser()
+        );
+        contact.setCache(true);
+        return contact;
+    }
+
 
     @NonNull
     public List<Contact> getContactsByLast(String lastName) {
@@ -2988,8 +3219,10 @@ public class MessageDatabaseHelper {
             for (Long id :
                     deletedThreadsIds) {
 
+                deleteLastMessageVo(id);
                 messageDao.deleteThread(id);
-
+                messageDao.deleteAllThreadParticipant(id);
+                messageDao.deleteAllMessageByThread(id);
 
             }
 
@@ -3096,8 +3329,11 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void loadAllUnreadMessagesCount(RequestGetUnreadMessagesCount req, OnWorkDone listener) {
+    public void loadAllUnreadMessagesCount(RequestGetUnreadMessagesCount req, OnWorkDone listener)
 
+            throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
 
         long count;
 
@@ -3145,5 +3381,8 @@ public class MessageDatabaseHelper {
 
     }
 
+    public void deleteMessagesOfThread(long subjectId) {
 
+        worker(() -> messageDao.deleteAllMessageByThread(subjectId));
+    }
 }

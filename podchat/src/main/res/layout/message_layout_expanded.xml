@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="RtlHardcoded"
+    android:orientation="vertical">
+
+    <TextView
+        android:gravity="right"
+        android:id="@+id/textViewSenderName"
+        style="@style/TextAppearance.Compat.Notification.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="جان دو" />
+
+
+    <LinearLayout
+        android:layout_marginTop="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="horizontal"
+       >
+
+
+
+        <TextView
+            android:layout_marginRight="4dp"
+            android:gravity="right"
+            android:maxLines="8"
+            android:ellipsize="end"
+            android:id="@+id/textViewContent"
+            style="@style/TextAppearance.Compat.Notification"
+            android:layout_width="0dp"
+            android:layout_weight="0.7"
+            android:layout_height="wrap_content"
+            tools:text="@string/big_content" />
+
+        <ImageView
+            android:src="@mipmap/ic_profile"
+            android:layout_gravity="top|right"
+            android:id="@+id/imageViewProfilePicture"
+            android:layout_width="45dp"
+            android:layout_height="45dp" />
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

@@ -130,6 +130,7 @@ public class RequestAddParticipants extends GeneralRequestObject {
 
         @Override
         public BuildStep withUsername(String username) {
+            userNames = new ArrayList<>();
             this.userNames.add(username);
             return this;
         }

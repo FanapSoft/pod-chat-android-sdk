@@ -67,12 +67,14 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
-
+import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
@@ -107,6 +109,7 @@ import com.fanap.podchat.requestobject.RequestThreadParticipant;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RequestUploadFile;
+import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
@@ -142,6 +145,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.addListener(this);
 
 
+        CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(activity)
+                .setChannelName("POD_CHAT_CHANNEL")
+                .setChannelId("PODCHAT")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setIcon(R.mipmap.ic_launcher)
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
+                .build();
+
+
+        chat.setupNotification(notificationConfig);
+
+
         //
         chat.isCacheables(true);
 
@@ -150,6 +166,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.rawLog(true);
 
         chat.setDownloadDirectory(context.getCacheDir());
+
+        TimeoutConfig timeout = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(30, TimeUnit.SECONDS)
+                .withWriteTimeout(30, TimeUnit.MINUTES)
+                .withReadTimeout(30, TimeUnit.MINUTES)
+                .build();
+
+
+        chat.setUploadTimeoutConfig(timeout);
+
+        chat.setDownloadTimeoutConfig(timeout);
 
 
 //        chat.setNetworkListenerEnabling(false);
@@ -194,19 +222,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
-
-        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer, typeCode);
-
-//        PodNotify podNotify = new PodNotify.newBuilder()
-//                .setAppId(appId)
-//                .setServerName("172.16.110.61:8017")
-//                .setSocketServerAddress(serverAddress)
-//                .setSsoHost(ssoHost)
-//                .setToken(token)
-//                .build(context);
-//
-//        podNotify.start(context);
-//
 
     }
 
@@ -316,6 +331,54 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String getNameById(int partnerId) {
         return getCallerName(partnerId);
+    }
+
+    @Override
+    public void shareLogs() {
+        if (chat != null) {
+            chat.shareLogs(context);
+        }
+    }
+
+    @Override
+    public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
+        return chat.getFile(rePod, iDownloadFile);
+
+    }
+
+    @Override
+    public void onStart() {
+
+    }
+
+    @Override
+    public void onStop() {
+
+//        chat.shouldShowNotification(true);
+
+    }
+
+    @Override
+    public void onResume() {
+
+//        chat.shouldShowNotification(false);
+
+    }
+
+    @Override
+    public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
+        return chat.getImage(rePod, iDownloadFile);
+
+    }
+
+    @Override
+    public String updateThreadInfo(RequestThreadInfo request) {
+        return chat.updateThreadInfo(request, null);
+    }
+
+    @Override
+    public String createThread(RequestCreateThread requestCreateThread) {
+        return chat.createThread(requestCreateThread);
     }
 
     @Override
@@ -628,16 +691,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void addContact(String firstName, String lastName, String cellphoneNumber, String email, String username) {
 
 
-        RequestAddContact requestAddContact = new RequestAddContact.Builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .cellphoneNumber(cellphoneNumber)
-                .email(email)
-                .username(username)
-                .build();
+//        RequestAddContact requestAddContact = new RequestAddContact.Builder()
+//                .firstName(firstName)
+//                .lastName(lastName)
+//                .cellphoneNumber(cellphoneNumber)
+//                .email(email)
+//                .username(username)
+//                .build();
 
 
-        chat.addContact(requestAddContact);
+        chat.addContact(firstName,lastName,cellphoneNumber,email,null,username);
+
 
     }
 
@@ -724,8 +788,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
-        chat.sendFileMessage(requestFileMessage, handler);
+    public String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
+        return chat.sendFileMessage(requestFileMessage, handler);
     }
 
     @Override
@@ -755,7 +819,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void uploadImage(Activity activity, Uri fileUri) {
-        chat.uploadImage(activity, fileUri);
+
+        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+                .build();
+        chat.uploadImage(req);
     }
 
     @Override
@@ -803,8 +870,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId)
                 .build();
         chat.leaveThread(leaveThread, null);
-
-        chat.leaveThread(threadId, handler);
     }
 
     @Override
@@ -838,13 +903,30 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
-        chat.uploadImageProgress(activity, fileUri, handler);
+
+
+        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+                .setwC(240)
+                .sethC(120)
+                .setxC(10)
+                .setyC(5)
+                .build();
+
+//        chat.uploadImageProgress(activity,fileUri,handler);
+        chat.uploadImageProgress(req, handler);
+
 
     }
 
     @Override
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
-        chat.uploadFileProgress(activity, fileUri, handler);
+
+
+        RequestUploadFile req = new RequestUploadFile
+                .Builder(activity, fileUri)
+                .build();
+
+        chat.uploadFileProgress(req, handler);
     }
 
     @Override
@@ -939,7 +1021,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.onProgressFile handler) {
+    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.sendFileMessage handler) {
         chat.createThreadWithFile(request, handler);
     }
 
@@ -1220,22 +1302,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
+//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+//
+//            syncContact(activity);
+//
+//        }
+
     }
 
     @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
         super.onNewMessage(content, chatResponse);
-//        outPutNewMessage = JsonUtil.fromJSON(content, OutPutNewMessage.class);
-//        MessageVO messageVO = outPutNewMessage.getResult();
-//        Participant participant = messageVO.getParticipant();
-
-//        long id = messageVO.getId();
-//        chat.seenMessage(id, participant.getId(), new ChatHandler() {
-//            @Override
-//            public void onSeen(String uniqueId) {
-//                super.onSeen(uniqueId);
-//            }
-//        });
 
     }
 

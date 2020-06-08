@@ -50,7 +50,7 @@ class App extends Application {
      *
      * @return
      */
-    public SharedPreferences getSharedPreferences() {
+    public SecurePreferences getSharedPreferences() {
         if (mSecurePrefs == null) {
             mSecurePrefs = new SecurePreferences(this, "", "chat_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);

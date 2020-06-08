@@ -81,6 +81,9 @@ public class ChatMessageType {
             Constants.DEFINE_BOT_COMMAND,
             Constants.START_BOT,
             Constants.STOP_BOT,
+            Constants.REGISTER_FCM_APP,
+            Constants.REGISTER_FCM_USER_DEVICE,
+            Constants.UPDATE_FCM_APP_USERS_DEVICE
             Constants.CALL_REQUEST,
             Constants.ACCEPT_CALL,
             Constants.REJECT_CALL,
@@ -164,6 +167,10 @@ public class ChatMessageType {
         int REJECT_CALL = 72;
         int START_CALL = 73;
 
+
+        int REGISTER_FCM_APP = 80;
+        int REGISTER_FCM_USER_DEVICE = 81;
+        int UPDATE_FCM_APP_USERS_DEVICE = 82;
 
         int ERROR = 999;
 

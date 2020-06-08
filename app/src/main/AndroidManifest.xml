@@ -22,6 +22,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity" />
         <!-- <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver" -->
         <!-- android:exported="true"> -->
         <!-- <intent-filter> -->
@@ -34,15 +35,20 @@
         <!-- <action android:name="android.intent.action.QUICKBOOT_POWERON" /> -->
         <!-- </intent-filter> -->
         <!-- </receiver> -->
-        <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity" />
         <activity android:name="com.example.chat.application.chatexample.ChatActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 

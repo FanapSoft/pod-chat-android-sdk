@@ -2,6 +2,7 @@ package com.fanap.podchat.networking.api;
 
 import android.support.annotation.NonNull;
 
+import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResponse;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.networking.ProgressResponseBody;
@@ -25,6 +26,8 @@ import retrofit2.http.Url;
 import rx.Observable;
 
 public interface FileApi {
+
+
     @NonNull
     @Multipart
     @POST("nzh/uploadFile")
@@ -33,6 +36,57 @@ public interface FileApi {
             , @Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") RequestBody fileName);
+
+
+    @NonNull
+    @Multipart
+    @POST("userGroup/uploadFile")
+    Observable<Response<UploadToPodSpaceResponse>> uploadToPodSpace(
+            @Part MultipartBody.Part file
+            , @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("filename") RequestBody fileName,
+            @Part("userGroupHash") RequestBody userGroupHash);
+
+    @NonNull
+    @Multipart
+    @POST("nzh/drive/uploadFile")
+    Observable<Response<UploadToPodSpaceResponse>> uploadPublicFileToPodSpace(
+            @Part MultipartBody.Part file
+            , @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("filename") RequestBody fileName,
+            @Part("isPublic") Boolean isPublic
+    );
+
+
+    @NonNull
+    @Multipart
+    @POST("userGroup/uploadImage")
+    Observable<Response<UploadToPodSpaceResponse>> uploadImageToPodSpace(
+            @Part MultipartBody.Part file
+            , @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("filename") RequestBody fileName,
+            @Part("userGroupHash") RequestBody userGroupHash,
+            @Part("xC") RequestBody xC,
+            @Part("yC") RequestBody yC,
+            @Part("wC") RequestBody wC,
+            @Part("hC") RequestBody hC);
+
+    @NonNull
+    @Multipart
+    @POST("nzh/drive/uploadImage")
+    Observable<Response<UploadToPodSpaceResponse>> uploadPublicImageToPodSpace(
+            @Part MultipartBody.Part file
+            , @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("filename") RequestBody fileName,
+            @Part("xC") RequestBody xC,
+            @Part("yC") RequestBody yC,
+            @Part("wC") RequestBody wC,
+            @Part("hC") RequestBody hC,
+            @Part("isPublic") Boolean isPublic);
 
 
     @NonNull
@@ -85,7 +139,7 @@ public interface FileApi {
 //                    , @Query("hashCode") String hashCode);
 
 
- @NonNull
+    @NonNull
     @GET("nzh/file/")
     @Streaming
     Call<ResponseBody> getFile
@@ -108,6 +162,22 @@ public interface FileApi {
     Call<ResponseBody> download(@Url String url);
 
 
+    @GET("nzh/drive/downloadFile")
+    @Streaming
+    Call<ResponseBody> downloadPodSpaceFile(
+            @Query("hash") String hash,
+            @Header("_token_") String token,
+            @Header("_token_issuer_") int tokenIssuer);
+
+    @GET("nzh/drive/downloadImage")
+    @Streaming
+    Call<ResponseBody> downloadPodSpaceImage(
+            @Query("hash") String hash,
+            @Query("size") String size,
+            @Query("quality") Float quality,
+            @Query("crop") Boolean crop,
+            @Header("_token_") String token,
+            @Header("_token_issuer_") int tokenIssuer);
 
 
 }

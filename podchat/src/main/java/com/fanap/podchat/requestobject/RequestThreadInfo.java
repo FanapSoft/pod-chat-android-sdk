@@ -9,6 +9,11 @@ public class RequestThreadInfo  extends GeneralRequestObject{
     private String description;
     private String metadata;
 
+    //upload thread image
+    private RequestUploadImage uploadImageRequest;
+    private String userGroupHash;
+
+
     RequestThreadInfo (@NonNull Builder builder){
         super(builder);
         this.description = builder.description;
@@ -16,6 +21,16 @@ public class RequestThreadInfo  extends GeneralRequestObject{
         this.metadata = builder.metadata;
         this.name = builder.name;
         this.threadId = builder.threadId;
+        this.uploadImageRequest = builder.uploadImageRequest;
+        this.userGroupHash = builder.userGroupHash;
+    }
+
+    public RequestUploadImage getUploadThreadImageRequest() {
+        return uploadImageRequest;
+    }
+
+    public String getUserGroupHash() {
+        return userGroupHash;
     }
 
     public static class Builder extends GeneralRequestObject.Builder<Builder> {
@@ -24,6 +39,13 @@ public class RequestThreadInfo  extends GeneralRequestObject{
         private String description;
         private String metadata;
         private long threadId;
+        private RequestUploadImage uploadImageRequest;
+        private String userGroupHash;
+
+
+        public Builder(long threadId) {
+            this.threadId = threadId;
+        }
 
         @NonNull
         public Builder image(String image) {
@@ -50,8 +72,18 @@ public class RequestThreadInfo  extends GeneralRequestObject{
         }
 
         @NonNull
-        public Builder metadat(String metadata) {
+        public Builder metadata(String metadata) {
             this.metadata = metadata;
+            return this;
+        }
+
+        public Builder setUploadThreadImageRequest(RequestUploadImage uploadImageRequest) {
+            this.uploadImageRequest = uploadImageRequest;
+            return this;
+        }
+
+        public Builder setUserGroupHash(String userGroupHash) {
+            this.userGroupHash = userGroupHash;
             return this;
         }
 

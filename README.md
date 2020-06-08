@@ -1,45 +1,160 @@
 ## Synopsis
-
 **Fanap's POD** Chat service
 
 
-## Version [0.6.4.4] -2020-4-26
 
--Customize Notification
+
+## Version [0.6.6.1] -2020-5-21
+
+
+- Push Notification Activation: 
+
 
         CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(
-                String, //Registered Application id
-                 Activity 
-                 ) 
-                .setChannelName(String)
-                .setChannelId(String)
-                .setChannelDescription(String)
-                .setNotificationImportance(Integer)
+                .Builder(targetActivity)
+                .setChannelName("CHANNEL_NAME")
+                .setChannelId("CHANNEL_ID")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setIcon(R.mipmap.ic_launcher)
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
                 .build();
 
-        chat.enableNotification(notificationConfig, new INotification() {
-            @Override
-            public void onUserIdUpdated(String userId) {
 
-                Log.i(TAG, "UserId Received: " + userId);
 
+        chat.setupNotification(notificationConfig);
+    
+    
+- Stop showing push notification:
+
+
+        @Override
+        public void onResume() {
+    
+            chat.shouldShowNotification(false);
+    
+        }
+       
+   Remember to enable it after OnPause.
+   
+   
+        @Override
+        public void onPause() {
+        
+                chat.shouldShowNotification(true);
+        
+        }
+   
+   
+         
+- Receive message data after clicking on the push notification:
+
+    
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+    
+    
+            if (getIntent() != null && getIntent().getExtras() != null) {
+    
+                Bundle a = getIntent().getExtras();
+    
+                String threadId = a.getString("threadId");
+   
+                String messageId = a.getString("messageId");
+    
+                Log.d("CHAT_ACTIVITY", "Notification Data: ");
+                Log.d("CHAT_ACTIVITY", "Thread Id: " + threadId);
+                Log.d("CHAT_ACTIVITY", "Message Id: " + messageId);
+    
             }
+                    
+        }
+        
+        
 
-            @Override
-            public void onPushMessageReceived(String message) {
 
-                Log.i(TAG, "Push Received on presenter " + message);
 
-                ShowNotificationHelper.showNotification(
-                        String, //title
-                        message, //message
-                        Context, // context
-                        Class, //target class
-                        Integer, // priority
-                        int); //icon
-            }
-        });
+
+
+
+## Version [0.6.6.0] -2020-5-19
+
+- Crop Picture:
+
+
+         RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+                        .setwC(240)
+                        .sethC(120)
+                        .setxC(10)
+                        .setyC(5)
+                        .build();
+        
+         chat.uploadImageProgress(req, handler);
+         
+         
+- Get cropped image:
+
+       
+          RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
+                        .Builder(fileHash)
+                        .setCrop(true)
+                        .setQuality(0.5f)                
+                        .build();
+        
+        
+          chat.getImage(rePodImage, handler);
+
+
+## Version [0.6.5.4] -2020-5-10
+
+- getHistory by messageType:
+
+        
+        
+          RequestGetHistory request = new RequestGetHistory
+                        .Builder(threadId)
+                        .offset(0)
+                        .count(50)
+                        .setMessageType(messageType) // TextMessageType.Constants.POD_SPACE_FILE
+                        .build();
+                        
+             
+                        
+          chat.getHistory(request, null);
+
+
+
+
+
+## Version [0.6.5.0] -2020-5-8
+
+- Add userGroupHash to all file messages request and set new TextMessageTypes
+
+
+        
+         RequestFileMessage request = new RequestFileMessage.Builder(
+                                        Activity,
+                                        threadId,
+                                        Uri,
+                                        TextMessageType.Constants.POD_SPACE_FILE) //new messageType
+                                        .description("new file message")             
+                                        .setUserGroupHash(userGroupHash)
+                                        .build();
+                                        
+         chat.sendFileMessage(request, new ProgressHandler.sendFileMessage());
+
+
+
+- Download uploaded file:
+
+
+        
+        RequestGetPodSpaceFile request = new RequestGetPodSpaceFile.Builder(fileHash)
+                        .build();
+
+
+        getFile(request,ProgressHandler)
+
 
 
 

@@ -18,6 +18,7 @@ public class RequestGetHistory extends BaseRequestObject {
     private long firstMessageId;
     private long lastMessageId;
     private String[] uniqueIds;
+    private int messageType;
 
     public RequestGetHistory(@NonNull Builder builder) {
         super(builder);
@@ -34,10 +35,12 @@ public class RequestGetHistory extends BaseRequestObject {
         this.toTimeNanos = builder.toTimeNanos;
         this.metadataCriteria = builder.metadataCriteria;
         this.uniqueIds = builder.uniqueIds;
+        this.messageType = builder.messageType;
 
     }
 
     public static class Builder extends BaseRequestObject.Builder<Builder> {
+        private int messageType;
         private long threadId;
         private String order;
         private long firstMessageId;
@@ -137,6 +140,11 @@ public class RequestGetHistory extends BaseRequestObject {
             return this;
         }
 
+        public Builder setMessageType(int messageType) {
+            this.messageType = messageType;
+            return this;
+        }
+
         @NonNull
         public RequestGetHistory build() {
             return new RequestGetHistory(this);
@@ -147,6 +155,10 @@ public class RequestGetHistory extends BaseRequestObject {
         protected Builder self() {
             return this;
         }
+    }
+
+    public int getMessageType() {
+        return messageType;
     }
 
     public long getThreadId() {

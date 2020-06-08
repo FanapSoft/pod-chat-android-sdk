@@ -58,7 +58,15 @@ public class ThreadVo {
     @Ignore
     private PinMessageVO pinMessageVO;
     private String uniqueName;
+    private String userGroupHash;
 
+    public String getUserGroupHash() {
+        return userGroupHash;
+    }
+
+    public void setUserGroupHash(String userGroupHash) {
+        this.userGroupHash = userGroupHash;
+    }
 
     public String getUniqueName() {
         return uniqueName;
@@ -386,7 +394,8 @@ public class ThreadVo {
                     long participantCount, boolean canSpam,
                     boolean admin, boolean pin, boolean mentioned,
                     PinMessageVO pinMessageVO,
-                    String uniqueName) {
+                    String uniqueName,
+                    String userGroupHash) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -425,5 +434,8 @@ public class ThreadVo {
         this.mentioned = mentioned;
         this.pinMessageVO = pinMessageVO;
         this.uniqueName = uniqueName;
+        this.userGroupHash = userGroupHash;
     }
+
+
 }

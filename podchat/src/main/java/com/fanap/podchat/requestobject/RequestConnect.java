@@ -11,6 +11,7 @@ public class RequestConnect extends BaseRequestObject {
     private String ssoHost;
     private String platformHost;
     private String fileServer;
+    private String podSpaceServer;
 
 
      public RequestConnect(@NonNull Builder builder) {
@@ -22,9 +23,12 @@ public class RequestConnect extends BaseRequestObject {
          this.severName = builder.severName;
          this.token = builder.token;
          this.ssoHost = builder.ssoHost;
+         this.podSpaceServer = builder.podSpaceServer;
     }
 
+
     public static class Builder extends BaseRequestObject.Builder<Builder> {
+        private String podSpaceServer;
         private String socketAddress;
         private String appId;
         private String severName;
@@ -43,6 +47,17 @@ public class RequestConnect extends BaseRequestObject {
             this.severName = severName;
             this.token = token;
             this.ssoHost = ssoHost;
+        }
+
+        public Builder(String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer,String podSpaceServer) {
+            this.podSpaceServer = podSpaceServer;
+            this.socketAddress = socketAddress;
+            this.appId = appId;
+            this.severName = severName;
+            this.token = token;
+            this.ssoHost = ssoHost;
+            this.platformHost = platformHost;
+            this.fileServer = fileServer;
         }
 
         @NonNull
@@ -112,5 +127,13 @@ public class RequestConnect extends BaseRequestObject {
 
     public void setFileServer(String fileServer) {
         this.fileServer = fileServer;
+    }
+
+    public String getPodSpaceServer() {
+        return podSpaceServer;
+    }
+
+    public void setPodSpaceServer(String podSpaceServer) {
+        this.podSpaceServer = podSpaceServer;
     }
 }

@@ -71,6 +71,7 @@ public class ProgressRequestBody extends RequestBody {
                         // publish progress
                         // update progress on UI thread
                         handler.post(new ProgressUpdater(uniqueId, uploaded, fileLength));
+
                         lastProgressPercentUpdate = progress;
                     }
                 }

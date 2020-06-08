@@ -11,6 +11,12 @@ public class RequestFileMessage {
     private String systemMetadata;
     private int messageType;
     private String description;
+    private String userGroupHash;
+
+    private String imageXc;
+    private String imageYc;
+    private String imageHc;
+    private String imageWc;
 
     RequestFileMessage(Builder builder) {
         this.setActivity(builder.activity);
@@ -19,6 +25,51 @@ public class RequestFileMessage {
         this.setSystemMetadata(builder.systemMetadata);
         this.setMessageType(builder.messageType);
         this.setDescription(builder.description);
+        this.setUserGroupHash(builder.userGroupHash);
+        imageHc = builder.imageHc;
+        imageWc = builder.imageWc;
+        imageXc = builder.imageXc;
+        imageYc = builder.imageYc;
+    }
+
+    public String getImageXc() {
+        return imageXc;
+    }
+
+    public void setImageXc(String imageXc) {
+        this.imageXc = imageXc;
+    }
+
+    public String getImageYc() {
+        return imageYc;
+    }
+
+    public void setImageYc(String imageYc) {
+        this.imageYc = imageYc;
+    }
+
+    public String getImageHc() {
+        return imageHc;
+    }
+
+    public void setImageHc(String imageHc) {
+        this.imageHc = imageHc;
+    }
+
+    public String getImageWc() {
+        return imageWc;
+    }
+
+    public void setImageWc(String imageWc) {
+        this.imageWc = imageWc;
+    }
+
+    public String getUserGroupHash() {
+        return userGroupHash;
+    }
+
+    public void setUserGroupHash(String userGroupHash) {
+        this.userGroupHash = userGroupHash;
     }
 
     public Activity getActivity() {
@@ -70,29 +121,58 @@ public class RequestFileMessage {
     }
 
     public static class Builder {
-        public String description;
+        private String description;
         private Activity activity;
         private long threadId;
         private Uri fileUri;
         private String systemMetadata;
         private int messageType;
+        private String userGroupHash;
+        private String imageXc;
+        private String imageYc;
+        private String imageHc;
+        private String imageWc;
 
-        public Builder(Activity activity, long threadId, Uri fileUri,int messageType) {
+        public Builder(Activity activity,
+                       long threadId,
+                       Uri fileUri,
+                       int messageType) {
             this.activity = activity;
             this.threadId = threadId;
             this.fileUri = fileUri;
             this.messageType = messageType;
         }
 
-        public Builder(Activity activity, long threadId, Uri fileUri, String description, String systemMetadata, int messageType) {
+        public Builder(Activity activity,
+                       long threadId,
+                       Uri fileUri,
+                       String description,
+                       String systemMetadata,
+                       int messageType) {
+
             this.activity = activity;
             this.threadId = threadId;
             this.fileUri = fileUri;
             this.description = description;
             this.systemMetadata = systemMetadata;
             this.messageType = messageType;
+        }
 
+        public Builder(String description,
+                       Activity activity,
+                       long threadId,
+                       Uri fileUri,
+                       String systemMetadata,
+                       int messageType,
+                       String userGroupHash) {
 
+            this.description = description;
+            this.activity = activity;
+            this.threadId = threadId;
+            this.fileUri = fileUri;
+            this.systemMetadata = systemMetadata;
+            this.messageType = messageType;
+            this.userGroupHash = userGroupHash;
         }
 
         @NonNull
@@ -104,6 +184,12 @@ public class RequestFileMessage {
         @NonNull
         public Builder threadId(long threadId) {
             this.threadId = threadId;
+            return this;
+        }
+
+        @NonNull
+        public Builder setUserGroupHash(String userGroupHash) {
+            this.userGroupHash = userGroupHash;
             return this;
         }
 
@@ -131,6 +217,28 @@ public class RequestFileMessage {
             return this;
         }
 
+        public Builder setImageXc(String imageXc) {
+            this.imageXc = imageXc;
+            return this;
+        }
+
+        public Builder setImageYc(String imageYc) {
+            this.imageYc = imageYc;
+            return this;
+
+        }
+
+        public Builder setImageHc(String imageHc) {
+            this.imageHc = imageHc;
+            return this;
+
+        }
+
+        public Builder setImageWc(String imageWc) {
+            this.imageWc = imageWc;
+            return this;
+
+        }
 
         @NonNull
         public RequestFileMessage build() {

@@ -48,6 +48,7 @@ import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestUnBlock;
 import com.fanap.podchat.requestobject.RequestUpdateContact;
 
+import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.TextMessageType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -292,7 +293,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     public void updateThreadInfo() {
         //                        1104 is a group
-        RequestThreadInfo threadInfo = new RequestThreadInfo.Builder().threadId(1104).description("yes").name("this is test").build();
+        RequestThreadInfo threadInfo = new RequestThreadInfo.Builder(1104).threadId(1104).description("yes").name("this is test").build();
 
         presenter.updateThreadInfo(threadInfo, null);
 

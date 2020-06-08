@@ -87,11 +87,23 @@ public class RetrofitHelperPlatformHost {
 
     public RetrofitHelperPlatformHost(@NonNull String platformHost, Context context) {
         this.context = context;
+
+
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor()
+                .setLevel(HttpLoggingInterceptor.Level.BODY);
+
+
+        OkHttpClient okHttpClient = new OkHttpClient()
+                .newBuilder().
+                        addNetworkInterceptor(loggingInterceptor)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .build();
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
-                .client(new OkHttpClient().newBuilder().
-                        addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).
-                        build())
+                .client(okHttpClient)
 //                .client(enableTls12OnPreLollipop(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());

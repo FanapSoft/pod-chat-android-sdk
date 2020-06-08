@@ -11,10 +11,15 @@ import android.support.v4.content.ContextCompat;
 public class Permission {
 
     //Request Permission
-    public static void Request_STORAGE(@NonNull Activity act, int code) {
+    public static void Request_WRITE_STORAGE(@NonNull Activity act, int code) {
 
         ActivityCompat.requestPermissions(act, new
                 String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, code);
+    }
+
+    public static void Request_READ_STORAGE(@NonNull Activity act, int code) {
+        ActivityCompat.requestPermissions(act, new
+                String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, code);
     }
 
     public static void Request_CAMERA(@NonNull Activity act, int code) {

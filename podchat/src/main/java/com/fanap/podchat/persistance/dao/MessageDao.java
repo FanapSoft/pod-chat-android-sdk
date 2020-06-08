@@ -1,5 +1,6 @@
 package com.fanap.podchat.persistance.dao;
 
+import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
@@ -76,8 +77,16 @@ public interface MessageDao {
     @Query("DELETE FROM CacheContact WHERE id =:id")
     void deleteContactById(long id);
 
-    @Query("select * from CacheContact LIMIT :count OFFSET :offset")
+    @Query("select * from CacheContact order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
+
+    @RawQuery
+    List<CacheContact> getRawContacts(SupportSQLiteQuery sqLiteQuery);
+
+    @RawQuery
+    long getRawContactsCount(SupportSQLiteQuery sqLiteQuery);
+
+
 
     @Query("SELECT COUNT(id) FROM CacheContact")
     int getContactCount();
@@ -192,7 +201,7 @@ public interface MessageDao {
      * Delete message
      */
 
-    @Query("DELETE FROM CACHEMESSAGEVO WHERE id = :threadId")
+    @Query("DELETE FROM CACHEMESSAGEVO WHERE threadVoId = :threadId")
     void deleteAllMessageByThread(long threadId);
 
     @Query("DELETE FROM CacheMessageVo WHERE threadVoId = :threadVoId AND timeStamp IN (select timeStamp from CacheMessageVO ORDER BY timeStamp ASC LIMIT :count OFFSET :offset )")
@@ -353,19 +362,19 @@ public interface MessageDao {
     @Query("select * from CacheContact where id = :id")
     CacheContact getContactById(long id);
 
-    @Query("select * from CacheContact where firstName LIKE :firstName ")
+    @Query("select * from CacheContact where firstName LIKE '%'||:firstName||'%'")
     List<CacheContact> getContactsByFirst(String firstName);
 
-    @Query("select * from CacheContact where lastName LIKE :lastName ")
+    @Query("select * from CacheContact where lastName LIKE '%'||:lastName||'%' ")
     List<CacheContact> getContactsByLast(String lastName);
 
-    @Query("select * from CacheContact where firstName LIKE :firstName AND lastName LIKE :lastName")
+    @Query("select * from CacheContact where firstName LIKE '%'||:firstName||'%' AND lastName LIKE '%'||:lastName||'%'")
     List<CacheContact> getContactsByFirstAndLast(String firstName, String lastName);
 
-    @Query("select * from CacheContact where cellphoneNumber LIKE :cellphoneNumber")
+    @Query("select * from CacheContact where cellphoneNumber LIKE '%'||:cellphoneNumber||'%'")
     List<CacheContact> getContactByCell(String cellphoneNumber);
 
-    @Query("select * from CacheContact where email LIKE :email ")
+    @Query("select * from CacheContact where email LIKE '%'||:email||'%'")
     List<CacheContact> getContactsByEmail(String email);
 
     //cache replyInfoVO

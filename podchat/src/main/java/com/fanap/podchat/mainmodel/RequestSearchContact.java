@@ -12,6 +12,7 @@ public class RequestSearchContact {
     private String typeCode;
     @SerializedName("q")
     private String query;
+    private String order;
     private String id;
     private final String offset;
     private final String size;
@@ -28,6 +29,11 @@ public class RequestSearchContact {
         this.typeCode = builder.typeCode;
         this.query = builder.query;
         this.useCache = builder.useCache;
+        this.order = builder.order;
+    }
+
+    public String getOrder() {
+        return order;
     }
 
     public RequestSearchContact(String size, String offset) {
@@ -91,6 +97,7 @@ public class RequestSearchContact {
         this.useCache = useCache;
     }
 
+
     public static class Builder {
         private String firstName;
         private String lastName;
@@ -99,8 +106,10 @@ public class RequestSearchContact {
         private String email;
         private String typeCode;
         private String query;
+        private String order;
         private final String offset;
         private final String size;
+
         private boolean useCache = true;
 
 
@@ -142,6 +151,11 @@ public class RequestSearchContact {
         @NonNull
         public Builder query(String query) {
             this.query = query;
+            return this;
+        }
+ @NonNull
+        public Builder order(String order) {
+            this.order = order;
             return this;
         }
 
