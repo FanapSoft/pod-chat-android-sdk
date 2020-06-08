@@ -83,7 +83,7 @@ public class ChatMessageType {
             Constants.STOP_BOT,
             Constants.REGISTER_FCM_APP,
             Constants.REGISTER_FCM_USER_DEVICE,
-            Constants.UPDATE_FCM_APP_USERS_DEVICE
+            Constants.UPDATE_FCM_APP_USERS_DEVICE,
             Constants.CALL_REQUEST,
             Constants.ACCEPT_CALL,
             Constants.REJECT_CALL,
