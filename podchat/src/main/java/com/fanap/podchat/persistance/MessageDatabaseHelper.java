@@ -1713,21 +1713,29 @@ public class MessageDatabaseHelper {
                 c.add(Calendar.SECOND, expireAmount);
                 String expireDate = format.format(c.getTime());
 
-                Contact contact = blockedContact.getContactVO();
-
-                //Contact to CacheContact
-                CacheContact cacheContact = getCacheContact(expireDate, contact, true, null);
+                @Nullable Contact contact = blockedContact.getContactVO();
 
                 //BlockedContact to CacheBlockedContact
-                CacheBlockedContact cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, cacheContact);
+                CacheBlockedContact cacheBlockedContact;
+
+                if (contact != null) {
+
+                    CacheContact cacheContact = getCacheContact(expireDate, contact, true, null);
+
+                    cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, cacheContact);
+
+                    saveContactVoInBlockedContact(cacheContact);
+
+                } else {
+                    cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, null);
+                }
 
                 cacheBlockedContacts.add(cacheBlockedContact);
 
-                saveContactVoInBlockedContact(cacheContact);
-
             }
 
-            messageDao.insertBlockedContacts(cacheBlockedContacts);
+            if (cacheBlockedContacts.size() > 0)
+                messageDao.insertBlockedContacts(cacheBlockedContacts);
 
         });
 
@@ -2932,7 +2940,7 @@ public class MessageDatabaseHelper {
 
         String query = "select * from CacheContact where";
 
-        if(!Util.isNullOrEmpty(requestSearchContact.getQuery())){
+        if (!Util.isNullOrEmpty(requestSearchContact.getQuery())) {
 
             query += " (firstName LIKE '%" + requestSearchContact.getQuery() + "%' OR lastName LIKE '%" + requestSearchContact.getQuery() + "%') AND";
 
