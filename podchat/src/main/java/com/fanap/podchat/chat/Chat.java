@@ -2318,7 +2318,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    private String sendFileMessage(RequestFileMessage requestFileMessage, String uniqueId, ProgressHandler.sendFileMessage handler) {
+    private void sendFileMessage(RequestFileMessage requestFileMessage, String uniqueId, ProgressHandler.sendFileMessage handler) {
 
         if (needReadStoragePermission(requestFileMessage.getActivity())) {
 
@@ -2329,7 +2329,7 @@ public class Chat extends AsyncAdapter {
                 handler.onError(jsonError, error);
             }
 
-            return uniqueId;
+            return;
 
         }
 
@@ -2337,14 +2337,14 @@ public class Chat extends AsyncAdapter {
 
             onChatNotReady(uniqueId);
 
-            return uniqueId;
+            return;
         }
 
         if (getPodSpaceServer() == null) {
 
             getErrorOutPut("File server is null", 0, uniqueId);
 
-            return uniqueId;
+            return;
         }
 
         try {
@@ -2500,7 +2500,7 @@ public class Chat extends AsyncAdapter {
             }
         }
 
-        return uniqueId;
+        return;
     }
 
     private void initCancelUpload(String uniqueId, Subscription subscription) {
@@ -8582,8 +8582,6 @@ public class Chat extends AsyncAdapter {
                         new PodThreadManager()
                                 .doThisAndGo(() -> updateThreadImage(thread, request.getUploadThreadImageRequest()));
 
-                    String innerMessageUniqueId = generateUniqueId();
-
                     RequestFileMessage requestFile =
                             new RequestFileMessage.Builder(
                                     request.getMessage() != null ? request.getMessage().getText() : null,
@@ -8599,7 +8597,7 @@ public class Chat extends AsyncAdapter {
                                     .setImageYc(String.valueOf(((RequestUploadImage) request.getFile()).getyC()))
                                     .build();
 
-                    sendFileMessage(requestFile, innerMessageUniqueId, progressHandler);
+                    sendFileMessage(requestFile, requestUniqueId, progressHandler);
 
                 }
             });
