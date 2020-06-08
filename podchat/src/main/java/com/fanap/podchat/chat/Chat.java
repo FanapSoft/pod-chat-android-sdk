@@ -154,9 +154,6 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
-import com.fanap.podchat.notification.CustomNotificationConfig;
-import com.fanap.podchat.notification.INotification;
-import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
@@ -9286,33 +9283,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public void enableNotification(CustomNotificationConfig config, INotification listener) {
-
-        try {
-            PodNotificationManager.enableNotification(config, listener);
-        } catch (Exception e) {
-            Log.e(TAG, "Enabling Notification Failed");
-            Log.e(TAG, e.getMessage());
-        }
-
-
-    }
-
-    public void enableDefaultNotification(String applicationId, Activity activity, INotification listener) {
-
-        try {
-            PodNotificationManager.enableNotification(applicationId, activity, false, listener);
-        } catch (Exception e) {
-            Log.e(TAG, "Enabling Notification Failed");
-            Log.e(TAG, e.getMessage());
-        }
-
-    }
-
-
-    public boolean disableNotification(Activity activity) {
-        return PodNotificationManager.disableNotification(activity);
-    }
 
     private void initDatabase() {
 
