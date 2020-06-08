@@ -2499,8 +2499,6 @@ public class Chat extends AsyncAdapter {
                 handler.onError(jsonError, error);
             }
         }
-
-        return;
     }
 
     private void initCancelUpload(String uniqueId, Subscription subscription) {
@@ -8582,7 +8580,7 @@ public class Chat extends AsyncAdapter {
                         new PodThreadManager()
                                 .doThisAndGo(() -> updateThreadImage(thread, request.getUploadThreadImageRequest()));
 
-                    RequestFileMessage requestFile =
+                    RequestFileMessage.Builder requestFileBuilder =
                             new RequestFileMessage.Builder(
                                     request.getMessage() != null ? request.getMessage().getText() : null,
                                     request.getFile().getActivity(),
@@ -8590,12 +8588,19 @@ public class Chat extends AsyncAdapter {
                                     request.getFile().getFileUri(),
                                     request.getMessage() != null ? request.getMessage().getSystemMetadata() : null,
                                     request.getMessageType(),
-                                    thread.getThread().getUserGroupHash())
-                                    .setImageHc(String.valueOf(((RequestUploadImage) request.getFile()).gethC()))
-                                    .setImageWc(String.valueOf(((RequestUploadImage) request.getFile()).getwC()))
-                                    .setImageXc(String.valueOf(((RequestUploadImage) request.getFile()).getxC()))
-                                    .setImageYc(String.valueOf(((RequestUploadImage) request.getFile()).getyC()))
-                                    .build();
+                                    thread.getThread().getUserGroupHash());
+
+
+                    if (request.getFile() instanceof RequestUploadImage) {
+
+                        requestFileBuilder.setImageHc(String.valueOf(((RequestUploadImage) request.getFile()).gethC()));
+                        requestFileBuilder.setImageWc(String.valueOf(((RequestUploadImage) request.getFile()).getwC()));
+                        requestFileBuilder.setImageXc(String.valueOf(((RequestUploadImage) request.getFile()).getxC()));
+                        requestFileBuilder.setImageYc(String.valueOf(((RequestUploadImage) request.getFile()).getyC()));
+
+                    }
+
+                    RequestFileMessage requestFile = requestFileBuilder.build();
 
                     sendFileMessage(requestFile, requestUniqueId, progressHandler);
 

@@ -945,7 +945,7 @@ public class ChatActivity extends AppCompatActivity
         RequestCreateThreadWithFile request = new RequestCreateThreadWithFile
                 .Builder(ThreadType.Constants.OWNER_GROUP,
                 invite,
-                requestUploadImage,
+                requestUploadFile,
                 TextMessageType.Constants.POD_SPACE_FILE)
                 .title("Test File PodSpace")
                 .setUploadThreadImageRequest(requestUploadThreadImageImage)
