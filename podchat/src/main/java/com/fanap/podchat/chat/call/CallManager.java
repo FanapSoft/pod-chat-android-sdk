@@ -125,11 +125,17 @@ public class CallManager {
 
     }
 
-    public static ChatResponse<ResultCallRequest> handleOnCallStarted(ChatMessage chatMessage) {
+    public static ChatResponse<ResultStartCall> handleOnCallStarted(ChatMessage chatMessage) {
+
+        ChatResponse<ResultStartCall> response = new ChatResponse<>();
 
         String content = chatMessage.getContent();
+        ResultStartCall result = App.getGson().fromJson(content,ResultStartCall.class);
+        response.setResult(result);
+        response.setUniqueId(chatMessage.getUniqueId());
+        response.setSubjectId(chatMessage.getSubjectId());
 
 
-        return null;
+        return response;
     }
 }

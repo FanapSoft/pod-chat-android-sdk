@@ -42,6 +42,7 @@ import com.fanap.podchat.chat.call.CallManager;
 import com.fanap.podchat.chat.call.CallRequest;
 import com.fanap.podchat.chat.call.RejectCallRequest;
 import com.fanap.podchat.chat.call.ResultCallRequest;
+import com.fanap.podchat.chat.call.ResultStartCall;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
@@ -165,6 +166,7 @@ import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
+import com.fanap.podchat.podcall.PodAudioCallManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -1257,9 +1259,11 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnCallStarted(ChatMessage chatMessage) {
 
-        ChatResponse<ResultCallRequest> response
+        ChatResponse<ResultStartCall> response
                 = CallManager.handleOnCallStarted(chatMessage);
         listenerManager.callOnCallVoiceCallStarted(response);
+        new PodAudioCallManager()
+                .startCallStream(response.getResult());
         showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
 
     }

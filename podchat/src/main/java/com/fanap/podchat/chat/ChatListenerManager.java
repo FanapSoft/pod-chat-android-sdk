@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fanap.podchat.chat.call.ResultCallRequest;
+import com.fanap.podchat.chat.call.ResultStartCall;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
@@ -885,7 +886,7 @@ public class ChatListenerManager {
 
     }
 
-    public void callOnCallVoiceCallStarted(ChatResponse<ResultCallRequest> response) {
+    public void callOnCallVoiceCallStarted(ChatResponse<ResultStartCall> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onVoiceCallStarted(response);

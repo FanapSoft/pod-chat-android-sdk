@@ -165,7 +165,10 @@ public class ChatMessageType {
         int CALL_REQUEST = 70;
         int ACCEPT_CALL = 71;
         int REJECT_CALL = 72;
-        int START_CALL = 73;
+        int CANCEL_CALL = 73;
+        int START_CALL = 74;
+        int END_CALL_REQUEST = 75;
+        int END_CALL = 76;
 
 
         int REGISTER_FCM_APP = 80;
