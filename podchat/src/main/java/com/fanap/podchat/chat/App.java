@@ -37,6 +37,10 @@ class App extends Application {
         return instance;
     }
 
+    public static void setInstance(App instance) {
+        App.instance = instance;
+    }
+
     public static Gson getGson() {
 
         if (gson == null)

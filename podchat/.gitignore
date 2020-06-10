@@ -63,3 +63,4 @@ captures/
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
+/src/main/res/values/firebase_config.xml

@@ -14,6 +14,8 @@ import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.util.ChatMessageType;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
 import com.securepreferences.SecurePreferences;
@@ -261,7 +263,18 @@ public class PodNotificationManager {
     private static void checkForNewFCMToken(Context context, long userId) {
 
 
-        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+        // TODO: 6/10/2020 fix it save notification fields later
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setApplicationId( context.getString(R.string.google_app_id))
+                .setApiKey( context.getString(R.string.google_api_key))
+                .setProjectId( context.getString(R.string.project_id))
+                .build();
+
+        FirebaseApp.initializeApp(context /* Context */, options, "secondary");
+
+        FirebaseApp secondary = FirebaseApp.getInstance("secondary");
+
+        FirebaseInstanceId.getInstance(secondary).getInstanceId().addOnCompleteListener(task -> {
 
             if (task.isSuccessful()) {
 
@@ -293,7 +306,7 @@ public class PodNotificationManager {
 
             } else {
 
-                String cause = task.getException()!=null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
+                String cause = task.getException() != null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
 
                 listener.onNotificationError("Failed to retrieve fcm token: " + cause);
                 Log.w(TAG, "getInstanceId failed", task.getException());
@@ -383,7 +396,7 @@ public class PodNotificationManager {
 
         if (messageUniqueId.equals(chatMessage.getUniqueId())) {
 
-            Log.e(TAG,chatMessage.getContent());
+            Log.e(TAG, chatMessage.getContent());
 
             switch (STATE) {
 
@@ -396,7 +409,7 @@ public class PodNotificationManager {
                         //we send the only token we have as old token and new token
                         createUpdateUserDeviceRequest(fcmToken);
 
-                    }else if(error.getCode() == 100){
+                    } else if (error.getCode() == 100) {
 
                         listener.onNotificationError(chatMessage.getContent());
 
