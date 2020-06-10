@@ -265,9 +265,9 @@ public class PodNotificationManager {
 
         // TODO: 6/10/2020 fix it save notification fields later
         FirebaseOptions options = new FirebaseOptions.Builder()
-                .setApplicationId( context.getString(R.string.google_app_id))
-                .setApiKey( context.getString(R.string.google_api_key))
-                .setProjectId( context.getString(R.string.project_id))
+                .setApplicationId( context.getString(R.string.appId))
+                .setApiKey( context.getString(R.string.apiKey))
+                .setProjectId( context.getString(R.string.projectId))
                 .build();
 
         FirebaseApp.initializeApp(context /* Context */, options, "secondary");
