@@ -8,7 +8,7 @@
     android:visibility="gone"
     tools:showIn="@layout/activity_call"
     android:id="@+id/viewCallRequest"
-    tools:visibility="visible">
+    tools:visibility="gone">
 
 
     <ImageButton

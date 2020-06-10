@@ -9,6 +9,17 @@
 
 
     <Button
+        android:id="@+id/btnCallTest"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        android:background="@color/colorPrimary"
+        android:text="TestCall"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toTopOf="@+id/btnCallRequest" />
+
+
+    <Button
         android:visibility="invisible"
         android:id="@+id/btnCallRequest"
         android:layout_width="match_parent"

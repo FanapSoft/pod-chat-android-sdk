@@ -92,7 +92,6 @@ import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
@@ -254,7 +253,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -4488,6 +4486,13 @@ public class Chat extends AsyncAdapter {
     public void setDownloadTimeoutConfig(TimeoutConfig config) {
 
         ProgressResponseBody.setTimeoutConfig(config);
+    }
+
+    public void testCall() {
+
+        new PodAudioCallManager()
+                .testStream();
+
     }
 
 

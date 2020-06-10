@@ -382,6 +382,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void testCall() {
+
+        chat.testCall();
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 

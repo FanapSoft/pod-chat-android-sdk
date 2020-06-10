@@ -457,5 +457,7 @@ public interface ChatContract {
         String updateThreadInfo(RequestThreadInfo request);
 
         String createThread(RequestCreateThread requestCreateThread);
+
+        void testCall();
     }
 }

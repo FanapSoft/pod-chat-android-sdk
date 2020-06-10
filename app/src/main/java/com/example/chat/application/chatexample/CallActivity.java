@@ -48,7 +48,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private ChatContract.presenter presenter;
 
-    Button buttonCall, buttonConnect;
+    Button buttonCall, buttonConnect,buttonTestCall;
     TextView tvStatus;
     TextView tvCallerName;
     RadioGroup groupCaller;
@@ -107,6 +107,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
+        buttonTestCall.setOnClickListener(v-> presenter.testCall());
+
+
         groupCaller.setOnCheckedChangeListener((group, checkedId) -> {
 
             Log.e(TAG, "Checked -> " + checkedId);
@@ -124,7 +127,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
-
         buttonAcceptCall.setOnClickListener(v -> {
 
             updateViewOnCallReaction();
@@ -138,6 +140,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             presenter.rejectIncomingCall();
 
         });
+
+
+
     }
 
     private void updateViewOnCallReaction() {
@@ -222,6 +227,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         presenter = new ChatPresenter(this, this, this);
         buttonCall = findViewById(R.id.btnCallRequest);
         buttonConnect = findViewById(R.id.btnConnect);
+        buttonTestCall = findViewById(R.id.btnCallTest);
         groupCaller = findViewById(R.id.radioCaller);
         groupPartner = findViewById(R.id.radioPartner);
         tvStatus = findViewById(R.id.tvStatus);

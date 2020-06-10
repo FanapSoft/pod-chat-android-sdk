@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -79,6 +80,23 @@ public class ExampleUnitTest {
         boolean e = a.equals(b);
         System.out.println(e);
         assertEquals(a, b);
+
+
+    }
+
+    @Test
+    public void byteTest(){
+
+
+
+        String a = "salam";
+
+        byte[] b = a.getBytes();
+
+        String res = new String(b, StandardCharsets.UTF_8);
+
+        assertEquals(res,a);
+
 
 
     }
