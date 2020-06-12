@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
@@ -23,7 +24,11 @@
         tools:targetApi="n">
 
         <activity android:name="com.example.chat.application.chatexample.CallActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity" />
         <!-- <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver" -->
@@ -39,11 +44,7 @@
         <!-- </intent-filter> -->
         <!-- </receiver> -->
         <activity android:name="com.example.chat.application.chatexample.ChatActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

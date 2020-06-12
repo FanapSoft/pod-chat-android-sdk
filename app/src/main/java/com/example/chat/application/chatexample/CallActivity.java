@@ -2,6 +2,7 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -237,6 +238,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonRejectCall = findViewById(R.id.buttonReject);
 
 
+        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+
     }
 
     @Override
@@ -290,7 +293,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     }
 
-    //        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
 //
 //        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
