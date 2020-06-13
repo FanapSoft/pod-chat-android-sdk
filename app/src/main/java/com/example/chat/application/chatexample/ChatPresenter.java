@@ -152,13 +152,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         //
-        chat.isCacheables(true);
+        chat.isCacheables(false);
 
 
         chat.isLoggable(true);
         chat.rawLog(true);
 
-        chat.setDownloadDirectory(context.getCacheDir());
+        //todo check create directory
+//        chat.setDownloadDirectory(context.getCacheDir());
 
         TimeoutConfig timeout = new TimeoutConfig()
                 .newConfigBuilder()

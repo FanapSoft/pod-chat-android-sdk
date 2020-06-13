@@ -52,6 +52,7 @@ import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
+import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.PublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
@@ -86,7 +87,6 @@ import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
@@ -247,7 +247,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -332,6 +331,8 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, SendingQueueCache> sendingQList;
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
+    private HashMap<String, ThreadManager.IThreadInfoCompletor> threadInfoCompletor = new HashMap<>();
+
     private ProgressHandler.cancelUpload cancelUpload;
     private static final String API_KEY_MAP = "8b77db18704aa646ee5aaea13e7370f4f88b9e8c";
     private long lastSentMessageTime;
@@ -476,7 +477,6 @@ public class Chat extends AsyncAdapter {
     public void shouldShowNotification(boolean shouldShow) {
 
         PodNotificationManager.setShouldShowNotification(shouldShow);
-
 
     }
 
@@ -867,6 +867,7 @@ public class Chat extends AsyncAdapter {
 //                break;
 //            }
 
+
             case Constants.REGISTER_FCM_USER_DEVICE: {
                 PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
                 break;
@@ -941,6 +942,8 @@ public class Chat extends AsyncAdapter {
             case Constants.UPDATE_THREAD_INFO:
                 handleUpdateThreadInfo(chatMessage, messageUniqueId, callback);
                 break;
+
+
             case Constants.BLOCK:
                 handleOutPutBlock(chatMessage, messageUniqueId);
                 break;
@@ -976,12 +979,16 @@ public class Chat extends AsyncAdapter {
                     handleOnGetThreadHistory(callback, chatMessage);
                 }
                 break;
-            case Constants.GET_THREADS:
-                if (callback == null) {
+            case Constants.GET_THREADS: {
+                if (threadInfoCompletor.containsKey(messageUniqueId)) {
+                    threadInfoCompletor.get(messageUniqueId)
+                            .onThreadInfoReceived(chatMessage);
+                } else if (callback == null) {
                     handleGetThreads(null, chatMessage, messageUniqueId);
-                }
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
+                } else handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
+            }
+
             case Constants.INVITATION:
                 if (callback == null) {
                     handleCreateThread(null, chatMessage, messageUniqueId);
@@ -1008,9 +1015,20 @@ public class Chat extends AsyncAdapter {
                 }
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
+
+
             case Constants.THREAD_INFO_UPDATED:
                 handleThreadInfoUpdated(chatMessage);
                 break;
+
+            case Constants.LAST_MESSAGE_DELETED: {
+                handleOnLastMessageDeleted(chatMessage);
+                break;
+            }
+            case Constants.LAST_MESSAGE_EDITED: {
+                handleOnLastMessageEdited(chatMessage);
+                break;
+            }
             case Constants.LAST_SEEN_UPDATED:
                 handleLastSeenUpdated(chatMessage);
                 break;
@@ -1317,7 +1335,6 @@ public class Chat extends AsyncAdapter {
         } catch (Throwable throwable) {
             if (log) {
                 showLog("CONNECTION_ERROR", throwable.getMessage());
-                ;
             }
         }
     }
@@ -2021,77 +2038,6 @@ public class Chat extends AsyncAdapter {
 //
 //    }
 
-
-    /**
-     * This method first check the messageType of the file and then choose the right
-     * server and send that
-     *
-     * @param description    Its the description that you want to send with file in the thread
-     * @param fileUri        Uri of the file that you want to send to thread
-     * @param threadId       Id of the thread that you want to send file
-     * @param systemMetaData [optional]
-     * @param handler        it is for send file message with progress
-     */
-
-    private String sendFileMessage(Activity activity,
-                                   String description,
-                                   long threadId,
-                                   Uri fileUri,
-                                   String systemMetaData,
-                                   Integer messageType,
-                                   ProgressHandler.sendFileMessage handler) {
-        String uniqueId;
-
-        uniqueId = generateUniqueId();
-
-        if (needReadStoragePermission(activity)) return uniqueId;
-
-        LFileUpload lFileUpload = new LFileUpload();
-        lFileUpload.setActivity(activity);
-        lFileUpload.setDescription(description);
-        lFileUpload.setFileUri(fileUri);
-        lFileUpload.setHandler(handler);
-        lFileUpload.setMessageType(messageType);
-        lFileUpload.setThreadId(threadId);
-        lFileUpload.setUniqueId(uniqueId);
-        lFileUpload.setSystemMetaData(systemMetaData);
-
-        try {
-            if (fileUri != null) {
-                File file = new File(fileUri.getPath());
-                String mimeType = handleMimType(fileUri, file);
-                lFileUpload.setMimeType(mimeType);
-                lFileUpload.setFile(file);
-
-                if (FileUtils.isImage(mimeType)) {
-
-                    if (FileUtils.isGif(mimeType)) {
-                        uploadFileMessage(lFileUpload);
-                    } else
-                        uploadImageFileMessage(lFileUpload);
-
-
-                } else {
-                    uploadFileMessage(lFileUpload);
-                }
-                return uniqueId;
-            } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                        , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
-                ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
-                if (handler != null) {
-                    handler.onError(jsonError, error);
-                }
-            }
-        } catch (Exception e) {
-
-            getErrorOutPut(e.getMessage()
-                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
-            showErrorLog(e.getMessage());
-            return uniqueId;
-        }
-        return uniqueId;
-    }
 
     private boolean needReadStoragePermission(Activity activity) {
 
@@ -4491,118 +4437,6 @@ public class Chat extends AsyncAdapter {
 //    }
 
 
-    /**
-     * @param request
-     * @param progressHandler
-     * @return it downloads file with id and hashCode in link request if enough space is available.
-     * <p>
-     * if free space wasn't available progressHandler @return error with url of file;
-     * <p>
-     * if cache is set to true, file will save in cache, else only downloaded file will return.
-     */
-
-
-//    public String getFile(RequestGetFile request, ProgressHandler.IDownloadFile progressHandler) {
-//
-//        String uniqueId = generateUniqueId();
-//
-//        String url = getFile(request.getFileId(), request.getHashCode(), request.isDownloadable());
-//
-//        isExternalStorageWritable();
-//
-//        if (!hasReadAndWriteStoragePermission()) {
-//
-//            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION,
-//                    ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
-//
-//            progressHandler.onError(uniqueId, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, url);
-//
-//            return uniqueId;
-//
-//        }
-//
-//        //only url should return in callback
-//
-//        if (!hasFreeSpace) {
-//
-//            progressHandler.onLowFreeSpace(uniqueId, url);
-//
-//            return uniqueId;
-//        }
-//
-//        PodDownloader.IDownloaderError downloaderErrorInterface =
-//                new PodDownloader.IDownloaderError() {
-//                    @Override
-//                    public void errorOnWritingToFile() {
-//
-//                        String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
-//                        progressHandler.onError(uniqueId, error, url);
-//
-//                    }
-//
-//                    @Override
-//                    public void errorOnDownloadingFile(int errorCode) {
-//
-//                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-//                        progressHandler.onError(uniqueId, error, url);
-//
-//                    }
-//
-//                    @Override
-//                    public void errorUnknownException(String cause) {
-//
-//                        String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
-//                        progressHandler.onError(uniqueId, error, url);
-//
-//
-//                    }
-//                };
-//
-//        File filesFolder = cache ? FileUtils.getOrCreateDirectory(FileUtils.FILES) : FileUtils.getPublicFilesDirectory();
-//
-//        if (filesFolder == null) {
-//
-//            progressHandler.onError(uniqueId, ChatConstant.ERROR_WRITING_FILE, url);
-//
-//            return uniqueId;
-//        }
-//
-//        String fileName = "file_" + request.getFileId() + "_" + request.getHashCode();
-//
-//        if (cache) {
-//
-//            File cachedFile = FileUtils.findFileInFolder(filesFolder, fileName);
-//
-//            if (cachedFile != null && cachedFile.isFile()) {
-//
-//                //file exists in cache
-//                ChatResponse<ResultDownloadFile> response = PodDownloader.generateDownloadResult(request.getHashCode(), request.getFileId(), cachedFile);
-//
-//                progressHandler.onFileReady(response);
-//
-//                return uniqueId;
-//
-//            }
-//        }
-//
-//        if (chatReady) {
-//
-//            PodDownloader.download(
-//                    progressHandler,
-//                    uniqueId, filesFolder,
-//                    url,
-//                    fileName,
-//                    request.getHashCode(),
-//                    request.getFileId(),
-//                    getContext(),
-//                    downloaderErrorInterface,
-//                    checkFreeSpace());
-//
-//        } else onChatNotReady(uniqueId);
-//
-//        return uniqueId;
-//    }
-
 
     /**
      * clearCacheDatabase interface
@@ -4670,7 +4504,10 @@ public class Chat extends AsyncAdapter {
             DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
 
 
-            int result = downloadManager.remove(downloadQList.get(uniqueId));
+            int result = 0;
+            if (downloadManager != null) {
+                result = downloadManager.remove(downloadQList.get(uniqueId));
+            }
 
             downloadQList.remove(uniqueId);
 
@@ -10241,35 +10078,64 @@ public class Chat extends AsyncAdapter {
 
         //thread last seen message updated
         //
-        //result is updated thread info
+        //result is unreadCount
         //
 
-        try {
-            ResultThread resultThread = new ResultThread();
-            Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
-            resultThread.setThread(thread);
+        Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
 
-            ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
-            chatResponse.setResult(resultThread);
-            chatResponse.setUniqueId(chatMessage.getUniqueId());
-
-
-            showLog("THREAD_LAST_SEEN_MESSAGE_UPDATED", "");
-            showLog(chatMessage.getContent(), "");
-            listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
+        if (thread != null && thread.getId() > 0) {
 
             if (cache) {
-                messageDatabaseHelper.saveNewThread(resultThread.getThread());
-            }
 
-        } catch (JsonSyntaxException e) {
-            showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+                messageDatabaseHelper.retrieveAndUpdateThreadOnLastSeenUpdated(thread, new ThreadManager.ILastMessageChanged() {
+                    @Override
+                    public void onThreadExistInCache(Thread thread) {
+
+                        onThreadLastMessageUpdated(thread, chatMessage);
+
+                    }
+
+                    @Override
+                    public void threadNotFoundInCache() {
+                        retrieveThreadInfoFromServer(thread.getId());
+                    }
+                });
+            }else {
+                retrieveThreadInfoFromServer(thread.getId());
+            }
         }
+
+
+
+
+
+//        try {
+//            ResultThread resultThread = new ResultThread();
+//            Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
+//            resultThread.setThread(thread);
+//
+//            ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
+//            chatResponse.setResult(resultThread);
+//            chatResponse.setUniqueId(chatMessage.getUniqueId());
+//
+//
+//            showLog("THREAD_LAST_SEEN_MESSAGE_UPDATED", "");
+//            showLog(chatMessage.getContent(), "");
+//            listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
+//
+//            if (cache) {
+//                messageDatabaseHelper.saveNewThread(resultThread.getThread());
+//            }
+//
+//        } catch (JsonSyntaxException e) {
+//            showErrorLog(e.getMessage());
+//            onUnknownException(chatMessage.getUniqueId());
+//        }
 
     }
 
     private void handleThreadInfoUpdated(ChatMessage chatMessage) {
+
         ResultThread resultThread = new ResultThread();
         Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
         resultThread.setThread(thread);
@@ -10281,6 +10147,25 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
         showLog("THREAD_INFO_UPDATED", chatMessage.getContent());
+
+        if (cache) {
+            messageDatabaseHelper.saveNewThread(resultThread.getThread());
+        }
+
+    }
+
+
+    private void handleThreadInfoUpdated(Thread thread,String uniqueId) {
+
+        ResultThread resultThread = new ResultThread();
+        resultThread.setThread(thread);
+
+        ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
+        chatResponse.setResult(resultThread);
+        chatResponse.setUniqueId(uniqueId);
+
+        listenerManager.callOnThreadInfoUpdated(chatResponse.getJson(), chatResponse);
+        showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
 
         if (cache) {
             messageDatabaseHelper.saveNewThread(resultThread.getThread());
@@ -10301,9 +10186,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (cache) {
-
             messageDatabaseHelper.deleteThread(chatMessage.getSubjectId());
-
         }
     }
 
@@ -10855,7 +10738,6 @@ public class Chat extends AsyncAdapter {
                             break;
                         }
 
-
                     }
                 }
             }
@@ -10863,6 +10745,125 @@ public class Chat extends AsyncAdapter {
             showErrorLog(e.getMessage());
             onUnknownException(chatMessage.getUniqueId());
         }
+    }
+
+    private void handleOnLastMessageDeleted(ChatMessage chatMessage) {
+
+
+        Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
+
+
+        if (thread != null && thread.getId() > 0) {
+
+            if (cache) {
+
+                messageDatabaseHelper.retrieveAndUpdateThreadOnLastMessageDeleted(thread, new ThreadManager.ILastMessageChanged() {
+                    @Override
+                    public void onThreadExistInCache(Thread thread) {
+
+                        onThreadLastMessageUpdated(thread, chatMessage);
+
+                    }
+
+                    @Override
+                    public void threadNotFoundInCache() {
+                        retrieveThreadInfoFromServer(thread.getId());
+                    }
+                });
+            }else {
+                retrieveThreadInfoFromServer(thread.getId());
+            }
+        }
+
+
+    }
+
+    private void handleOnLastMessageEdited(ChatMessage chatMessage) {
+
+
+        Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
+        if (thread != null && thread.getId() > 0) {
+
+            if (cache) {
+
+                messageDatabaseHelper.retrieveAndUpdateThreadOnLastMessageEdited(thread, new ThreadManager.ILastMessageChanged() {
+                    @Override
+                    public void onThreadExistInCache(Thread thread) {
+
+                        onThreadLastMessageUpdated(thread, chatMessage);
+
+                    }
+
+                    @Override
+                    public void threadNotFoundInCache() {
+                        retrieveThreadInfoFromServer(thread.getId());
+                    }
+                });
+            }else {
+                retrieveThreadInfoFromServer(thread.getId());
+            }
+        }
+    }
+
+    private void retrieveThreadInfoFromServer(long threadId) {
+
+        if (chatReady) {
+
+            String uniqueId = generateUniqueId();
+
+            ChatMessageContent chatMessageContent = new ChatMessageContent();
+
+            chatMessageContent.setCount(1);
+
+            chatMessageContent.setOffset(0);
+
+            ArrayList<Integer> threadIds = new ArrayList<>();
+
+            threadIds.add((int) threadId);
+            chatMessageContent.setThreadIds(threadIds);
+            JsonObject content = (JsonObject) gson.toJsonTree(chatMessageContent);
+
+            AsyncMessage asyncMessage = new AsyncMessage();
+            asyncMessage.setContent(content.toString());
+            asyncMessage.setType(Constants.GET_THREADS);
+            asyncMessage.setTokenIssuer("1");
+            asyncMessage.setToken(getToken());
+            asyncMessage.setUniqueId(uniqueId);
+            asyncMessage.setTypeCode(typeCode != null ? typeCode : getTypeCode());
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(asyncMessage);
+
+
+            threadInfoCompletor.put(uniqueId, chatMessage -> {
+
+                ArrayList<Thread> threads = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Thread>>() {
+                }.getType());
+
+                if(!Util.isNullOrEmpty(threads)){
+
+                    handleThreadInfoUpdated(threads.get(0),chatMessage.getUniqueId());
+
+                    threadInfoCompletor.remove(uniqueId);
+
+                }
+
+
+            });
+            sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_GET_THREAD_INFO");
+        } else {
+            showErrorLog("Couldn't complete thread info because chat is not ready");
+        }
+
+    }
+
+    private void onThreadLastMessageUpdated(Thread thread, ChatMessage chatMessage) {
+        ResultThread resultThread = new ResultThread();
+        resultThread.setThread(thread);
+        ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
+        chatResponse.setResult(resultThread);
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+        listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
+        showLog("THREAD_INFO_UPDATED", chatMessage.getContent());
     }
 
     private void handleOnGetParticipants(Callback callback, ChatMessage chatMessage, String messageUniqueId) {

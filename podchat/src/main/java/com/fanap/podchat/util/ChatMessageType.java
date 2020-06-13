@@ -83,8 +83,9 @@ public class ChatMessageType {
             Constants.STOP_BOT,
             Constants.REGISTER_FCM_APP,
             Constants.REGISTER_FCM_USER_DEVICE,
-            Constants.UPDATE_FCM_APP_USERS_DEVICE
-
+            Constants.UPDATE_FCM_APP_USERS_DEVICE,
+            Constants.LAST_MESSAGE_EDITED,
+            Constants.LAST_MESSAGE_DELETED
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -153,9 +154,13 @@ public class ChatMessageType {
         int ALL_UNREAD_MESSAGE_COUNT = 61;
 
         int CREATE_BOT = 62;
-        int DEFINE_BOT_COMMAND = 63 ;
+        int DEFINE_BOT_COMMAND = 63;
         int START_BOT = 64;
         int STOP_BOT = 65;
+
+        int LAST_MESSAGE_DELETED = 66;
+        int LAST_MESSAGE_EDITED = 67;
+
 
         int REGISTER_FCM_APP = 80;
         int REGISTER_FCM_USER_DEVICE = 81;

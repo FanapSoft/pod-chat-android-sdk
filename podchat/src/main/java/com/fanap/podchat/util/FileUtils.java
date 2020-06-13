@@ -22,6 +22,8 @@ import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.fanap.podchat.chat.Chat;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
@@ -138,20 +140,24 @@ public class FileUtils {
         File dire = getLogsDirectory();
         File logFile;
         boolean resultDire;
-        if (!dire.exists()) {
-            resultDire = dire.mkdirs();
-        } else {
-            resultDire = true;
-        }
 
-        if (resultDire) {
-            logFile = new File(dire, "PodChatLog.txt");
-            if (!logFile.exists()) {
-                boolean resultFile = logFile.createNewFile();
-                if (resultFile) return logFile;
-            } else return logFile;
-        }
 
+       if(dire!=null){
+           if (!dire.exists()) {
+               resultDire = dire.mkdirs();
+           } else {
+               resultDire = true;
+           }
+
+           if (resultDire) {
+               logFile = new File(dire, "PodChatLog.txt");
+               if (!logFile.exists()) {
+                   boolean resultFile = logFile.createNewFile();
+                   if (resultFile) return logFile;
+               } else return logFile;
+           }
+
+       }
 
         return null;
     }
@@ -395,7 +401,7 @@ public class FileUtils {
 
     public static File getOrCreateDirectory(String path) {
 
-        File directory = Environment.getDownloadCacheDirectory();
+        File directory = Environment.getExternalStorageDirectory();
 
         File destFolder = new File(directory, path);
 

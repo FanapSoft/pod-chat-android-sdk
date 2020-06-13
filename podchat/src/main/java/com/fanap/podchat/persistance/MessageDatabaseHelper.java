@@ -31,6 +31,7 @@ import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
@@ -333,7 +334,7 @@ public class MessageDatabaseHelper {
 
             if (editedMessage) {
                 long lastMessageId = messageDao.getLastMessageId(threadId);
-                if (lastMessageId == cacheMessageVO.getId()) {
+                if (lastMessageId > 0 && lastMessageId == cacheMessageVO.getId()) {
                     shouldUpdateIfEdited = true;
                 }
             }
@@ -1881,6 +1882,101 @@ public class MessageDatabaseHelper {
         messageDao.deleteBlockedContactByBlockId(blockId);
     }
 
+    public void retrieveAndUpdateThreadOnLastMessageEdited(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+      worker(()->{
+
+          long threadId = thread.getId();
+
+          ThreadVo threadVo = messageDao.getThreadById(threadId);
+
+          if (threadVo != null && threadVo.getId() > 0) {
+
+              if(thread.getLastMessageVO()!=null){
+                  updateThreadLastMessage(thread,threadVo);
+                  threadVo.setLastMessage(thread.getLastMessage());
+              }
+
+              callback.onThreadExistInCache(threadVoToThreadMapper(threadVo,thread.getLastMessageVO()));
+
+              messageDao.insertThread(threadVo);
+
+          } else {
+              callback.threadNotFoundInCache();
+          }
+
+
+
+      });
+
+
+    }
+
+    public void retrieveAndUpdateThreadOnLastMessageDeleted(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+
+        worker(()->{
+
+            long threadId = thread.getId();
+
+            ThreadVo threadVo = messageDao.getThreadById(threadId);
+
+            if (threadVo != null && threadVo.getId() > 0) {
+
+                if(thread.getLastMessageVO()!=null){
+                    updateThreadLastMessage(thread,threadVo);
+                    threadVo.setLastMessage(thread.getLastMessage());
+                }
+
+                threadVo.setTime(thread.getTime());
+
+                threadVo.setUnreadCount(thread.getUnreadCount());
+
+                callback.onThreadExistInCache(threadVoToThreadMapper(threadVo,thread.getLastMessageVO()));
+
+                messageDao.insertThread(threadVo);
+
+            } else {
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
+
+
+
+
+
+    }
+
+    public void retrieveAndUpdateThreadOnLastSeenUpdated(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+
+        worker(()->{
+
+            long threadId = thread.getId();
+
+            ThreadVo threadVo = messageDao.getThreadById(threadId);
+
+            if (threadVo != null && threadVo.getId() > 0) {
+
+                threadVo.setUnreadCount(thread.getUnreadCount());
+
+                callback.onThreadExistInCache(threadVoToThreadMapper(threadVo,thread.getLastMessageVO()));
+
+                messageDao.insertThread(threadVo);
+
+            } else {
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
+
+
+
+    }
+
 
     public interface IRoomIntegrity {
 
@@ -2481,37 +2577,48 @@ public class MessageDatabaseHelper {
 
         if (thread.getLastMessageVO() != null) {
 
-            cacheMessageVO = insertLastMessage(thread, threadVo);
+
+            updateThreadLastMessage(thread, threadVo);
 
 
-            if (threadVo.getLastMessageVO().getParticipant() != null) {
-
-                insertParticipant(cacheMessageVO, threadVo);
-
-            }
-            if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
-
-                cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
-
-                if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
-
-                    insertReplyParticipant(cacheReplyInfoVO, threadVo);
-                }
-            }
-            if (threadVo.getLastMessageVO().getForwardInfo() != null) {
-
-                cacheForwardInfo = insertForwardInfo(cacheMessageVO, threadVo);
-                if (threadVo.getLastMessageVO().getForwardInfo().getParticipant() != null) {
-
-                    insertForwardInfo(cacheForwardInfo, threadVo);
-                }
-                if (threadVo.getLastMessageVO().getForwardInfo().getConversation() != null) {
-                    insertConversationSummary(cacheForwardInfo, threadVo);
-                }
-            }
         }
 
         messageDao.insertThread(threadVo);
+    }
+
+    private void updateThreadLastMessage(Thread thread, ThreadVo threadVo) {
+        CacheMessageVO cacheMessageVO;
+        CacheReplyInfoVO cacheReplyInfoVO;
+        CacheForwardInfo cacheForwardInfo;
+
+        cacheMessageVO = insertLastMessage(thread, threadVo);
+
+
+        if (threadVo.getLastMessageVO().getParticipant() != null) {
+
+            insertParticipant(cacheMessageVO, threadVo);
+
+        }
+        if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
+
+            cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
+
+            if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
+
+                insertReplyParticipant(cacheReplyInfoVO, threadVo);
+            }
+        }
+        if (threadVo.getLastMessageVO().getForwardInfo() != null) {
+
+            cacheForwardInfo = insertForwardInfo(cacheMessageVO, threadVo);
+            if (threadVo.getLastMessageVO().getForwardInfo().getParticipant() != null) {
+
+                insertForwardInfo(cacheForwardInfo, threadVo);
+            }
+            if (threadVo.getLastMessageVO().getForwardInfo().getConversation() != null) {
+                insertConversationSummary(cacheForwardInfo, threadVo);
+            }
+        }
     }
 
     private void insertConversationSummary(CacheForwardInfo cacheForwardInfo, ThreadVo threadVo) {
