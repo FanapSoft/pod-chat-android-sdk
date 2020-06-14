@@ -8948,6 +8948,7 @@ public class Chat extends AsyncAdapter {
      */
 
     public String updateThreadInfo(RequestThreadInfo request, ChatHandler handler) {
+
         ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder()
                 .title(request.getName())
                 .description(request.getDescription())
@@ -10091,7 +10092,7 @@ public class Chat extends AsyncAdapter {
                     @Override
                     public void onThreadExistInCache(Thread thread) {
 
-                        onThreadLastMessageUpdated(thread, chatMessage);
+                        onThreadLastMessageUpdated(thread, chatMessage.getUniqueId());
 
                     }
 
@@ -10274,15 +10275,46 @@ public class Chat extends AsyncAdapter {
                     showLog("SEND_DELIVERY_MESSAGE", asyncContent);
                 }
             }
+
+
+            if (messageVO != null) {
+                handleOnNewMessageAdded(messageVO.getConversation(),chatMessage.getUniqueId());
+            }
+
+
         } catch (Exception e) {
             showErrorLog(e.getMessage());
             onUnknownException(chatMessage.getUniqueId());
-
         }
 
     }
 
-    //TODO Problem in message id in forwardMessage
+    private void handleOnNewMessageAdded(Thread thread, String uniqueId) {
+
+        if (thread != null && thread.getId() > 0) {
+
+            if (cache) {
+
+                messageDatabaseHelper.retrieveAndUpdateThreadOnNewMessageAdded(thread, new ThreadManager.ILastMessageChanged() {
+                    @Override
+                    public void onThreadExistInCache(Thread thread) {
+                        onThreadLastMessageUpdated(thread, uniqueId);
+                    }
+
+                    @Override
+                    public void threadNotFoundInCache() {
+                        retrieveThreadInfoFromServer(thread.getId());
+                    }
+                });
+            }else {
+                retrieveThreadInfoFromServer(thread.getId());
+            }
+        }
+
+
+    }
+
+
     private void handleSent(ChatMessage chatMessage, String messageUniqueId, long threadId) {
 
 
@@ -10761,7 +10793,7 @@ public class Chat extends AsyncAdapter {
                     @Override
                     public void onThreadExistInCache(Thread thread) {
 
-                        onThreadLastMessageUpdated(thread, chatMessage);
+                        onThreadLastMessageUpdated(thread, chatMessage.getUniqueId());
 
                     }
 
@@ -10785,13 +10817,10 @@ public class Chat extends AsyncAdapter {
         if (thread != null && thread.getId() > 0) {
 
             if (cache) {
-
                 messageDatabaseHelper.retrieveAndUpdateThreadOnLastMessageEdited(thread, new ThreadManager.ILastMessageChanged() {
                     @Override
                     public void onThreadExistInCache(Thread thread) {
-
-                        onThreadLastMessageUpdated(thread, chatMessage);
-
+                        onThreadLastMessageUpdated(thread, chatMessage.getUniqueId());
                     }
 
                     @Override
@@ -10856,14 +10885,15 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void onThreadLastMessageUpdated(Thread thread, ChatMessage chatMessage) {
+    private void onThreadLastMessageUpdated(Thread thread, String uniqueId) {
         ResultThread resultThread = new ResultThread();
         resultThread.setThread(thread);
         ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
         chatResponse.setResult(resultThread);
-        chatResponse.setUniqueId(chatMessage.getUniqueId());
-        listenerManager.callOnThreadInfoUpdated(chatMessage.getContent(), chatResponse);
-        showLog("THREAD_INFO_UPDATED", chatMessage.getContent());
+        chatResponse.setUniqueId(uniqueId);
+        chatResponse.setSubjectId(thread.getId());
+        listenerManager.callOnThreadInfoUpdated(chatResponse.getJson(), chatResponse);
+        showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
     }
 
     private void handleOnGetParticipants(Callback callback, ChatMessage chatMessage, String messageUniqueId) {

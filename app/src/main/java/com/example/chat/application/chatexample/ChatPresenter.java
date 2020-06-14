@@ -151,8 +151,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.setupNotification(notificationConfig);
 
 
-        //
-        chat.isCacheables(false);
+
+        chat.isCacheables(true);
 
 
         chat.isLoggable(true);
@@ -189,9 +189,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         tokenHandler.addListener(new TokenHandler.ITokenHandler() {
             @Override
             public void onGetToken(String token) {
-
                 view.onGetToken(token);
-
             }
 
             @Override

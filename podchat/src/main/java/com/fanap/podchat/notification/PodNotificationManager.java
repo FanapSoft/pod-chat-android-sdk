@@ -98,6 +98,7 @@ public class PodNotificationManager {
     private static void createUpdateUserDeviceRequest(String newToken) {
 
         String uniqueId = generateUniqueId();
+
         STATE = NEED_REFRESH_TOKEN;
 
         Map<String, String> tokensMap = new HashMap<>();

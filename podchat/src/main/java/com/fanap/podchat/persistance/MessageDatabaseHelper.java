@@ -691,8 +691,7 @@ public class MessageDatabaseHelper {
 
                 if (threadVo != null) {
 
-                    long threadLastMessageId = threadVo.getLastMessageVOId() != null ? threadVo.getLastMessageVOId()
-                            : 0;
+                    long threadLastMessageId = threadVo.getLastMessageVOId();
 
                     if (threadLastMessageId == id && threadLastMessageId > 0) {
 
@@ -1884,96 +1883,167 @@ public class MessageDatabaseHelper {
 
     public void retrieveAndUpdateThreadOnLastMessageEdited(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
-      worker(()->{
+        worker(()->{
 
-          long threadId = thread.getId();
+            long threadId = thread.getId();
 
-          ThreadVo threadVo = messageDao.getThreadById(threadId);
+            ArrayList<Integer> tIds = new ArrayList<>();
 
-          if (threadVo != null && threadVo.getId() > 0) {
+            tIds.add((int) threadId);
 
-              if(thread.getLastMessageVO()!=null){
-                  updateThreadLastMessage(thread,threadVo);
-                  threadVo.setLastMessage(thread.getLastMessage());
-              }
+            try {
+                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
 
-              callback.onThreadExistInCache(threadVoToThreadMapper(threadVo,thread.getLastMessageVO()));
+                    List<Thread> threadList = (List<Thread>) threads;
 
-              messageDao.insertThread(threadVo);
+                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
 
-          } else {
-              callback.threadNotFoundInCache();
-          }
+                        Thread threadFromCache = threadList.get(0);
 
+                        thread.setLastMessage(thread.getLastMessage());
 
+                        threadFromCache.setLastMessageVO(thread.getLastMessageVO());
 
-      });
+                        callback.onThreadExistInCache(threadFromCache);
 
+                        saveNewThread(threadFromCache);
+
+                    }else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
 
     }
 
     public void retrieveAndUpdateThreadOnLastMessageDeleted(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
-
         worker(()->{
 
             long threadId = thread.getId();
 
-            ThreadVo threadVo = messageDao.getThreadById(threadId);
+            ArrayList<Integer> tIds = new ArrayList<>();
 
-            if (threadVo != null && threadVo.getId() > 0) {
+            tIds.add((int) threadId);
 
-                if(thread.getLastMessageVO()!=null){
-                    updateThreadLastMessage(thread,threadVo);
-                    threadVo.setLastMessage(thread.getLastMessage());
-                }
+            try {
+                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
 
-                threadVo.setTime(thread.getTime());
+                    List<Thread> threadList = (List<Thread>) threads;
 
-                threadVo.setUnreadCount(thread.getUnreadCount());
+                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
 
-                callback.onThreadExistInCache(threadVoToThreadMapper(threadVo,thread.getLastMessageVO()));
+                        Thread threadFromCache = threadList.get(0);
 
-                messageDao.insertThread(threadVo);
+                        thread.setLastMessage(thread.getLastMessage());
 
-            } else {
+                        threadFromCache.setLastMessageVO(thread.getLastMessageVO());
+
+                        threadFromCache.setTime(thread.getTime());
+
+                        threadFromCache.setUnreadCount(thread.getUnreadCount());
+
+                        callback.onThreadExistInCache(threadFromCache);
+
+                        saveNewThread(threadFromCache);
+
+                    }else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
                 callback.threadNotFoundInCache();
             }
 
         });
-
-
-
-
-
 
     }
 
     public void retrieveAndUpdateThreadOnLastSeenUpdated(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
-
         worker(()->{
 
             long threadId = thread.getId();
 
-            ThreadVo threadVo = messageDao.getThreadById(threadId);
+            ArrayList<Integer> tIds = new ArrayList<>();
 
-            if (threadVo != null && threadVo.getId() > 0) {
+            tIds.add((int) threadId);
 
-                threadVo.setUnreadCount(thread.getUnreadCount());
+            try {
+                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
 
-                callback.onThreadExistInCache(threadVoToThreadMapper(threadVo,thread.getLastMessageVO()));
+                    List<Thread> threadList = (List<Thread>) threads;
 
-                messageDao.insertThread(threadVo);
+                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
 
-            } else {
+                        Thread threadFromCache = threadList.get(0);
+                        threadFromCache.setUnreadCount(thread.getUnreadCount());
+                        callback.onThreadExistInCache(threadFromCache);
+                        saveNewThread(threadFromCache);
+                    }else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
                 callback.threadNotFoundInCache();
             }
 
         });
 
+    }
 
+    public void retrieveAndUpdateThreadOnNewMessageAdded(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
+        worker(()->{
+
+            long threadId = thread.getId();
+
+            ArrayList<Integer> tIds = new ArrayList<>();
+
+            tIds.add((int) threadId);
+
+            try {
+                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
+
+                    List<Thread> threadList = (List<Thread>) threads;
+
+                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
+
+                        Thread threadFromCache = threadList.get(0);
+
+                        threadFromCache.setTitle(thread.getTitle());
+                        threadFromCache.setImage(thread.getImage());
+                        threadFromCache.setDescription(thread.getDescription());
+                        threadFromCache.setMetadata(thread.getMetadata());
+                        threadFromCache.setTime(thread.getTime());
+                        threadFromCache.setUserGroupHash(thread.getUserGroupHash());
+                        threadFromCache.setUnreadCount(thread.getUnreadCount());
+
+                        callback.onThreadExistInCache(threadFromCache);
+
+                        saveNewThread(threadFromCache);
+
+                    }else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
 
     }
 
@@ -2147,11 +2217,11 @@ public class MessageDatabaseHelper {
                     Participant participant = null;
                     ReplyInfoVO replyInfoVO = null;
                     MessageVO lastMessageVO = null;
-                    if (threadVo.getInviterId() != null) {
+                    if (threadVo.getInviterId() >0) {
                         threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                     }
 
-                    if (threadVo.getLastMessageVOId() != null) {
+                    if (threadVo.getLastMessageVOId() > 0) {
                         threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                         CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                         if (cacheLastMessageVO != null && cacheLastMessageVO.getParticipantId() != null) {
@@ -2161,7 +2231,7 @@ public class MessageDatabaseHelper {
                             }
 
                         }
-                        if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                        if (cacheLastMessageVO != null && cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
                             replyInfoVO = new ReplyInfoVO(
                                     cacheReplyInfoVO.getRepliedToMessageId(),
@@ -2243,9 +2313,9 @@ public class MessageDatabaseHelper {
                 thread.getId(),
                 thread.getJoinDate(),
                 null,
+                0,
                 null,
-                null,
-                null,
+                0,
                 thread.getTitle(),
                 null,
                 thread.getTime(),
@@ -2324,10 +2394,10 @@ public class MessageDatabaseHelper {
             ReplyInfoVO replyInfoVO = null;
             for (ThreadVo threadVo : threadVos) {
                 MessageVO lastMessageVO = null;
-                if (threadVo.getInviterId() != null) {
+                if (threadVo.getInviterId() > 0) {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
-                if (threadVo.getLastMessageVOId() != null) {
+                if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
@@ -2436,10 +2506,10 @@ public class MessageDatabaseHelper {
                 Participant participant = null;
                 ReplyInfoVO replyInfoVO = null;
                 MessageVO lastMessageVO = null;
-                if (threadVo.getInviterId() != null) {
+                if (threadVo.getInviterId() > 0) {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
-                if (threadVo.getLastMessageVOId() != null) {
+                if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
@@ -2492,10 +2562,10 @@ public class MessageDatabaseHelper {
                 Participant participant = null;
                 ReplyInfoVO replyInfoVO = null;
                 MessageVO lastMessageVO = null;
-                if (threadVo.getInviterId() != null) {
+                if (threadVo.getInviterId() > 0) {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
-                if (threadVo.getLastMessageVOId() != null) {
+                if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
@@ -2557,9 +2627,6 @@ public class MessageDatabaseHelper {
 
     private void prepareThreadVOAndSaveIt(Thread thread) {
 
-        CacheMessageVO cacheMessageVO;
-        CacheReplyInfoVO cacheReplyInfoVO;
-        CacheForwardInfo cacheForwardInfo;
         String threadJson = App.getGson().toJson(thread);
 
         ThreadVo threadVo = App.getGson().fromJson(threadJson, ThreadVo.class);

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class FcmAppUsersVO implements Serializable {
+
     private String appId;
 
     //userId => deviceToken
