@@ -3,10 +3,6 @@
     package="com.fanap.podchat"
     tools:targetApi="n">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-
-
     <application>
 
         <provider
@@ -16,9 +12,17 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
+
+        <receiver
+            android:name=".notification.ShowNotificationHelper$NotificationClickReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="action_1" />
+            </intent-filter>
+        </receiver>
 
         <service
             android:name="com.fanap.podchat.notification.PodChatPushNotificationService"
@@ -30,5 +34,8 @@
         </service>
 
     </application>
+
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

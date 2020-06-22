@@ -14,6 +14,7 @@ import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.Util;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
+import static com.fanap.podchat.notification.ShowNotificationHelper.MESSAGE_ID;
 
 public class PodNotificationManager {
 
@@ -265,9 +267,9 @@ public class PodNotificationManager {
 
 
         FirebaseOptions options = new FirebaseOptions.Builder()
-                .setApplicationId( context.getString(R.string.firebase_app_id))
-                .setApiKey( context.getString(R.string.firebase_api_key))
-                .setProjectId( context.getString(R.string.firebase_project_id))
+                .setApplicationId(context.getString(R.string.firebase_app_id))
+                .setApiKey(context.getString(R.string.firebase_api_key))
+                .setProjectId(context.getString(R.string.firebase_project_id))
                 .build();
 
         FirebaseApp.initializeApp(context /* Context */, options, "secondary");
@@ -442,6 +444,28 @@ public class PodNotificationManager {
 
         notificationsList.clear();
 
+    }
+
+    public static void clearNotification(String messageId) {
+
+
+        ArrayList<Map<String, String>> shownNotificationsList = new ArrayList<>();
+
+        for (Map<String, String> notifData : notificationsList) {
+            String sMessageId = notifData.get(MESSAGE_ID);
+            if (!Util.isNullOrEmpty(sMessageId))
+                if (sMessageId.equals(messageId)) {
+                    shownNotificationsList.add(notifData);
+                }
+        }
+
+
+        notificationsList.removeAll(shownNotificationsList);
+
+    }
+
+    public static void dismissAllNotifications(Context context) {
+        ShowNotificationHelper.dismissOtherNotifications(context);
     }
 
     public interface IPodNotificationManager {

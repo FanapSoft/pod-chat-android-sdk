@@ -257,7 +257,8 @@ public class ChatActivity extends AppCompatActivity
     Faker faker;
     private String downloadingId = "";
 
-    long messageId = 0;
+    long notificationThreadId = 0;
+    long notificationMessageId = 0;
 
     int offset = 0;
 
@@ -386,12 +387,12 @@ public class ChatActivity extends AppCompatActivity
         data.put("text", "سلام چه خبر؟");
         data.put("isGroup", "true");
         data.put("MessageSenderUserName", "a.ahmadi");
-        data.put("messageId", String.valueOf(++messageId));
-        data.put("threadId", "100200");
+        data.put("messageId", String.valueOf(++notificationMessageId));
+        data.put("threadId", String.valueOf(++notificationThreadId));
         data.put("messageType", "1");
 
-        if (messageId > 6)
-            messageId = 0;
+        if (notificationThreadId > 2)
+            notificationThreadId = 0;
 
 
         PodNotificationManager.showNotification(data, this);
@@ -1873,7 +1874,7 @@ public class ChatActivity extends AppCompatActivity
                         .build();
 
 //                presenter.addContact(request);
-                presenter.addContact("تست","تست زاده","","","user-15860676455262");
+                presenter.addContact("تست", "تست زاده", "", "", "user-15860676455262");
 
 
                 break;

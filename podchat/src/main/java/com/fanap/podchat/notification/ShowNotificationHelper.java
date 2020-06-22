@@ -5,10 +5,12 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -50,6 +52,7 @@ public class ShowNotificationHelper {
 
     public static final String ACTION_1 = "action_1";
     private static final int SUMMARY_ID = 0;
+    private static final String TARGET_CLASS = "T_CLASS";
 
 
     public static void setupNotificationChannel(Context context) {
@@ -321,12 +324,6 @@ public class ShowNotificationHelper {
 
             String group = "DEFAULT_GROUP";
 
-            Intent action1Intent = new Intent(context, NotificationActionService.class)
-                    .setAction(ACTION_1);
-
-            PendingIntent action1PendingIntent = PendingIntent.getService(context, 0,
-                    action1Intent, PendingIntent.FLAG_ONE_SHOT);
-
 
             for (Map<String, String> notificationData :
                     notifications) {
@@ -343,7 +340,7 @@ public class ShowNotificationHelper {
                 String messageId = notificationData.get("messageId");
                 String threadId = notificationData.get("threadId");
 
-                group = threadId;
+//                group = threadId;
 
                 RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.message_layout);
 
@@ -379,21 +376,25 @@ public class ShowNotificationHelper {
 
                 }
 
+                Intent action1Intent = new Intent();
+                action1Intent.putExtra(THREAD_ID, threadId);
+                action1Intent.putExtra(MESSAGE_ID, messageId);
+                action1Intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
+                action1Intent.putExtra(TARGET_CLASS, targetClassName);
+                action1Intent.setAction(ACTION_1);
 
-                Class<?> c = Class.forName(targetClassName);
-                Intent intent = new Intent(context, c);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                intent.putExtra(THREAD_ID, threadId);
-                intent.putExtra(MESSAGE_ID, messageId);
-                intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
-
-                PendingIntent pendingIntent = PendingIntent
-                        .getActivity(context.getApplicationContext(),
-                                REQUEST_CODE,
-                                intent,
+                PendingIntent action1PendingIntent = PendingIntent
+                        .getBroadcast(context.getApplicationContext(),
+                                Util.isNullOrEmpty(messageId) ? REQUEST_CODE : Integer.parseInt(messageId),
+                                action1Intent,
                                 PendingIntent.FLAG_CANCEL_CURRENT);
+
+
+//                PendingIntent pendingIntent = PendingIntent
+//                        .getActivity(context.getApplicationContext(),
+//                                Util.isNullOrEmpty(messageId) ? REQUEST_CODE : Integer.parseInt(messageId),
+//                                intent,
+//                                PendingIntent.FLAG_CANCEL_CURRENT);
 
 
                 NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(
@@ -404,7 +405,7 @@ public class ShowNotificationHelper {
                         .setContent(view)
                         .setCustomContentView(view)
                         .setCustomBigContentView(viewExpanded)
-                        .setContentIntent(pendingIntent)
+                        .setContentIntent(action1PendingIntent)
                         .setGroup(group)
                         .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
                         .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT);
@@ -437,18 +438,18 @@ public class ShowNotificationHelper {
                     .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
                     .build();
 
-            Notification messagesNotif = new NotificationCompat.Builder(
-                    context.getApplicationContext(),
-                    !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
-                    .setContentTitle(notificationMap.size() + "+ پیام جدید دارید")
-                    .setContentText("شما +" + notificationMap.size() + " پیام خوانده نشده دارید")
-                    .setStyle(messagingStyle)
-                    .setAutoCancel(true)
-                    .setGroup(group)
-                    .setGroupSummary(true)
-                    .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
-                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
-                    .build();
+//            Notification messagesNotif = new NotificationCompat.Builder(
+//                    context.getApplicationContext(),
+//                    !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
+//                    .setContentTitle(notificationMap.size() + "+ پیام جدید دارید")
+//                    .setContentText("شما +" + notificationMap.size() + " پیام خوانده نشده دارید")
+//                    .setStyle(messagingStyle)
+//                    .setAutoCancel(true)
+//                    .setGroup(group)
+//                    .setGroupSummary(true)
+//                    .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
+//                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
+//                    .build();
 
 
             if (notificationManager != null) {
@@ -467,17 +468,16 @@ public class ShowNotificationHelper {
 
                 }
 
-                if (notificationMap.size() > 2) {
+                if (notificationMap.size() > 5) {
 
                     notificationManager.notify(SUMMARY_ID, summaryBuilder);
 
                 }
 
-
             } else Log.e(TAG, "Can't create notification manager instance");
 
 
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Couldn't start activity: " + e.getMessage() + " " + targetClassName);
         }
 
@@ -540,25 +540,50 @@ public class ShowNotificationHelper {
 
     }
 
-
-    public static class NotificationActionService extends IntentService {
-        public NotificationActionService() {
-            super(NotificationActionService.class.getSimpleName());
-        }
+    public static class NotificationClickReceiver extends BroadcastReceiver {
 
         @Override
-        protected void onHandleIntent(Intent intent) {
-            String action = intent.getAction();
-            Log.d(TAG, "Received notification action: " + action);
-            if (ACTION_1.equals(action)) {
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() != null)
+                if (intent.getAction().equals(ACTION_1)) {
 
-                PodNotificationManager.clearNotifications();
+                    String tId = intent.getStringExtra(THREAD_ID);
+                    String mId = intent.getStringExtra(MESSAGE_ID);
+                    String sNa = intent.getStringExtra(SENDER_USER_NAME);
+                    String tCa = intent.getStringExtra("T_CLASS");
+
+                    if (tCa != null)
+                        try {
+                            Class<?> c = Class.forName(tCa);
+                            Intent targetIntent = new Intent(context, c);
+                            targetIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            targetIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            targetIntent.putExtra(THREAD_ID, tId);
+                            targetIntent.putExtra(MESSAGE_ID, mId);
+                            targetIntent.putExtra(SENDER_USER_NAME, sNa);
+                            context.startActivity(targetIntent);
+                            PodNotificationManager.clearNotification(mId);
+
+                            dismissOtherNotifications(context);
+
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
 
 
-            }
+                }
+
         }
     }
 
-
+    //application is open. other notifications are not necessary!
+    static void dismissOtherNotifications(Context context) {
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancelAll();
+        }
+    }
 }
 
