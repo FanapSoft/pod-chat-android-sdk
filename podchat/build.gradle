@@ -6,7 +6,7 @@ apply plugin: 'com.google.gms.google-services'
 
 ext {
 
-    libraryVersion = '0.7.2.5'
+    libraryVersion = '0.7.2.8'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 109
+        versionCode 112
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -89,7 +89,7 @@ dependencies {
 
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
 //    api project(path: ':podasync')
-    api 'com.fanap.async:podasync:0.2.8.3'
+    api 'com.fanap.async:podasync:0.2.9.0'
 
     //using for notification layout
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'

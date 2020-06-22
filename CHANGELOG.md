@@ -5,6 +5,22 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.7.3.0] -2020-6-16
+
+[Improve] Handle Thread Info Update Events
+
+[BugFix] Connection problem on Android 5 and below
+
+
+
+
+
+## Version [0.7.2.0] -2020-6-2
+
+[Improve] Upload Thread Image
+
+[Improve] Search Contacts 
+
 
 
 ## Version [0.6.6.2] -2020-5-21
