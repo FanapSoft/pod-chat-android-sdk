@@ -169,6 +169,7 @@ public class ChatMessageType {
         int START_CALL = 74;
         int END_CALL_REQUEST = 75;
         int END_CALL = 76;
+        int GET_CALLS = 77;
 
 
         int REGISTER_FCM_APP = 80;

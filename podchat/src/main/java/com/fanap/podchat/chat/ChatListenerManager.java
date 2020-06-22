@@ -3,8 +3,10 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.chat.call.ResultCallRequest;
-import com.fanap.podchat.chat.call.ResultStartCall;
+import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.result_model.CallRequestResult;
+import com.fanap.podchat.chat.call.result_model.EndCallResult;
+import com.fanap.podchat.chat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
@@ -860,7 +862,7 @@ public class ChatListenerManager {
 
     }
 
-    public void callOnCallRequest(ChatResponse<ResultCallRequest> response) {
+    public void callOnCallRequest(ChatResponse<CallRequestResult> response) {
 
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -873,7 +875,7 @@ public class ChatListenerManager {
 
     }
 
-    public void callOnCallRequestRejected(ChatResponse<ResultCallRequest> response) {
+    public void callOnCallRequestRejected(ChatResponse<CallRequestResult> response) {
 
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -886,7 +888,7 @@ public class ChatListenerManager {
 
     }
 
-    public void callOnCallVoiceCallStarted(ChatResponse<ResultStartCall> response) {
+    public void callOnCallVoiceCallStarted(ChatResponse<StartCallResult> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onVoiceCallStarted(response);
@@ -894,6 +896,31 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+
+    }
+
+    public void callOnVoiceCallEnded(ChatResponse<EndCallResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onVoiceCallEnded(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callOnGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetCallHistory(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
 
     }
 

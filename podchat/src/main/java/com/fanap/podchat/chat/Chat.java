@@ -37,12 +37,16 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
-import com.fanap.podchat.chat.call.AcceptCallRequest;
+import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.chat.call.CallManager;
-import com.fanap.podchat.chat.call.CallRequest;
-import com.fanap.podchat.chat.call.RejectCallRequest;
-import com.fanap.podchat.chat.call.ResultCallRequest;
-import com.fanap.podchat.chat.call.ResultStartCall;
+import com.fanap.podchat.chat.call.request_model.CallRequest;
+import com.fanap.podchat.chat.call.request_model.EndCallRequest;
+import com.fanap.podchat.chat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.chat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.chat.call.result_model.CallRequestResult;
+import com.fanap.podchat.chat.call.result_model.EndCallResult;
+import com.fanap.podchat.chat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
@@ -386,6 +390,10 @@ public class Chat extends AsyncAdapter {
     private String serverName;
     private boolean hasFreeSpace = true;
 
+
+    private static PodAudioCallManager audioCallManager;
+
+
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
@@ -437,6 +445,7 @@ public class Chat extends AsyncAdapter {
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
+            audioCallManager = new PodAudioCallManager(context);
 
 
         }
@@ -892,6 +901,15 @@ public class Chat extends AsyncAdapter {
                 handleOnCallStarted(chatMessage);
                 break;
 
+            case Constants.END_CALL:
+                handleOnVoiceCallEnded(chatMessage);
+                break;
+
+            case Constants.GET_CALLS:
+                handleOnGetCallsHistory(chatMessage);
+                break;
+
+
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
                 handleOnGetUnreadMessagesCount(chatMessage);
                 break;
@@ -1057,6 +1075,8 @@ public class Chat extends AsyncAdapter {
                 break;
         }
     }
+
+
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
 
@@ -1237,9 +1257,10 @@ public class Chat extends AsyncAdapter {
 
     }
 
+
     private void handleOnCallRequestReceived(ChatMessage chatMessage) {
 
-        ChatResponse<ResultCallRequest> response
+        ChatResponse<CallRequestResult> response
                 = CallManager.handleOnCallRequest(chatMessage);
         listenerManager.callOnCallRequest(response);
         showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
@@ -1248,7 +1269,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnCallRequestRejected(ChatMessage chatMessage) {
 
-        ChatResponse<ResultCallRequest> response
+        ChatResponse<CallRequestResult> response
                 = CallManager.handleOnRejectCallRequest(chatMessage);
         listenerManager.callOnCallRequestRejected(response);
         showLog("CALL_REQUEST_REJECTED", gson.toJson(chatMessage));
@@ -1257,12 +1278,39 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnCallStarted(ChatMessage chatMessage) {
 
-        ChatResponse<ResultStartCall> response
+        ChatResponse<StartCallResult> response
                 = CallManager.handleOnCallStarted(chatMessage);
         listenerManager.callOnCallVoiceCallStarted(response);
-        new PodAudioCallManager()
-                .startCallStream(response.getResult());
+        audioCallManager.startCallStream(response.getResult());
         showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
+
+    }
+
+
+
+    private void handleOnVoiceCallEnded(ChatMessage chatMessage) {
+
+        ChatResponse<EndCallResult> response = CallManager.handleOnCallEnded(chatMessage);
+
+        listenerManager.callOnVoiceCallEnded(response);
+
+        audioCallManager.endStream();
+
+        showLog("VOICE_CALL_ENDED",gson.toJson(chatMessage));
+
+    }
+
+
+    private void handleOnGetCallsHistory(ChatMessage chatMessage) {
+
+        ChatResponse<GetCallHistoryResult> response = CallManager.handleOnGetCallHistory(chatMessage);
+
+        listenerManager.callOnGetCallHistory(response);
+
+        showLog("RECEIVED_CALL_HISTORY",gson.toJson(chatMessage));
+
+        // TODO: 6/21/2020 implement cache
+
 
     }
 
@@ -1541,6 +1589,21 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
+
+    public String endAudioCall(EndCallRequest endCallRequest) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createEndCallRequestMessage(endCallRequest, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_END_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
+
     public String rejectVoiceCall(RejectCallRequest request) {
 
         String uniqueId = generateUniqueId();
@@ -1568,6 +1631,18 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    public String getCallsHistory(GetCallHistoryRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createGetCallHistoryRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_GET_CALL_HISTORIES");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
 
     public String unPinThread(RequestPinThread request) {
 
@@ -4473,7 +4548,6 @@ public class Chat extends AsyncAdapter {
                 String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
                 progressHandler.onError(uniqueId, error, url);
 
-
             }
         };
     }
@@ -4489,11 +4563,19 @@ public class Chat extends AsyncAdapter {
     }
 
     public void testCall() {
-
-        new PodAudioCallManager()
-                .testStream();
-
+        audioCallManager.startStream();
     }
+
+    public void endAudioStream() {
+        audioCallManager.endStream();
+    }
+
+    public void testCall(String groupId, String sender, String receiver) {
+
+        audioCallManager.testStream(groupId, sender, receiver);
+    }
+
+
 
 
 //    public String getImage(RequestGetImage request, ProgressHandler.IDownloadFile progressHandler) {
@@ -10017,7 +10099,7 @@ public class Chat extends AsyncAdapter {
 
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode;
-        CoreConfig.typeCode = typeCode;
+        CoreConfig.typeCode = getTypeCode();
     }
 
 
@@ -11722,6 +11804,7 @@ public class Chat extends AsyncAdapter {
         if (cache) {
             messageDatabaseHelper.saveNewThread(thread);
         }
+
 
     }
 

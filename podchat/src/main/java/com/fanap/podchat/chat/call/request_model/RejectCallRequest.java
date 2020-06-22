@@ -1,4 +1,4 @@
-package com.fanap.podchat.chat.call;
+package com.fanap.podchat.chat.call.request_model;
 
 import com.fanap.podchat.mainmodel.Invitee;
 
@@ -24,9 +24,16 @@ public class RejectCallRequest extends AcceptCallRequest {
             return this;
         }
 
+
         @Override
-        public Builder setPartnerId(long partnerId) {
-            super.setPartnerId(partnerId);
+        public Builder setInvitees(List<Invitee> invitees) {
+            super.setInvitees(invitees);
+            return this;
+        }
+
+        @Override
+        public Builder setCallType(int callType) {
+            super.setCallType(callType);
             return this;
         }
 

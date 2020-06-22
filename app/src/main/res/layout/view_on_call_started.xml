@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/viewCall"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:visibility="gone"
+    tools:showIn="@layout/activity_call"
+    tools:visibility="gone">
+
+
+    <ImageButton
+        android:id="@+id/buttonEndCall"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="48dp"
+        android:background="@drawable/circle_red"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.384"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:srcCompat="@drawable/ic_call_end_24dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.75" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="End Call"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/buttonEndCall"
+        app:layout_constraintStart_toStartOf="@+id/buttonEndCall"
+        app:layout_constraintTop_toBottomOf="@+id/buttonEndCall" />
+
+
+</android.support.constraint.ConstraintLayout>

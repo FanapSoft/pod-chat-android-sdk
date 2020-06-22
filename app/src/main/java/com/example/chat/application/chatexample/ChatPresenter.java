@@ -16,11 +16,16 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.call.AcceptCallRequest;
-import com.fanap.podchat.chat.call.CallRequest;
+import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
+import com.fanap.podchat.chat.call.request_model.CallRequest;
 import com.fanap.podchat.chat.call.CallType;
-import com.fanap.podchat.chat.call.RejectCallRequest;
-import com.fanap.podchat.chat.call.ResultCallRequest;
+import com.fanap.podchat.chat.call.request_model.EndCallRequest;
+import com.fanap.podchat.chat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.chat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.chat.call.result_model.CallRequestResult;
+import com.fanap.podchat.chat.call.result_model.EndCallResult;
+import com.fanap.podchat.chat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -132,7 +137,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
     private TokenHandler tokenHandler = null;
     private String state = "";
-    private ChatResponse<ResultCallRequest> callRequestResponse;
+
+
+    private ChatResponse<CallRequestResult> callRequestResponse;
 
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
@@ -305,7 +312,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 callRequestResponse.getResult().getType(),
                 callRequestResponse.getSubjectId())
                 .setCreatorId(callRequestResponse.getResult().getCreatorId())
-                .setPartnerId(callRequestResponse.getResult().getPartnerId())
+                .setInvitees(callRequestResponse.getResult().getInvitees())
                 .build();
 
         String uniqueId = chat.acceptVoiceCall(request);
@@ -321,7 +328,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 callRequestResponse.getResult().getType(),
                 callRequestResponse.getSubjectId())
                 .setCreatorId(callRequestResponse.getResult().getCreatorId())
-                .setPartnerId(callRequestResponse.getResult().getPartnerId())
+                .setInvitees(callRequestResponse.getResult().getInvitees())
                 .build();
 
         String uniqueId = chat.rejectVoiceCall(request);
@@ -382,10 +389,22 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void testCall() {
+    public void testCall(String groupId, String sender, String receiver) {
 
+        chat.testCall(groupId,sender,receiver);
+    }
+
+    @Override
+    public void endStream() {
+        chat.endAudioStream();
+    }
+
+    @Override
+    public void testCall() {
         chat.testCall();
     }
+
+
 
     @Override
     public void enableAutoRefresh(Activity activity, String entry) {
@@ -1482,7 +1501,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onReceiveCallRequest(ChatResponse<ResultCallRequest> response) {
+    public void onReceiveCallRequest(ChatResponse<CallRequestResult> response) {
 
         if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
 
@@ -1492,9 +1511,30 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
             String callerName = getCallerName(callerId);
 
-
             view.onVoiceCallRequestReceived(callerName);
+
         }
+
+    }
+
+    @Override
+    public void onVoiceCallStarted(ChatResponse<StartCallResult> response) {
+
+
+        if(callRequestResponse==null){
+            callRequestResponse = new ChatResponse<CallRequestResult>();
+        }
+        callRequestResponse.setSubjectId(response.getSubjectId());
+        view.onVoiceCallStarted(response.getUniqueId(),response.getResult().getClientId());
+
+
+    }
+
+    @Override
+    public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
+
+
+        view.onVoiceCallEnded(response.getUniqueId(),response.getResult().getSubjectId());
 
     }
 
@@ -1513,7 +1553,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void onCallRequestRejected(ChatResponse<ResultCallRequest> response) {
+    public void onCallRequestRejected(ChatResponse<CallRequestResult> response) {
 
         if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
 
@@ -1527,6 +1567,44 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         }
 
+    }
+
+    @Override
+    public void onGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
+
+
+        view.onGetCallHistory(response);
 
     }
+
+    @Override
+    public void endRunningCall() {
+
+
+        if(callRequestResponse!=null){
+
+            EndCallRequest endCallRequest = new EndCallRequest.Builder()
+                    .setSubjectId(callRequestResponse.getSubjectId())
+                    .build();
+
+
+            String uniqueId = chat.endAudioCall(endCallRequest);
+
+        }
+
+    }
+
+    @Override
+    public void getCallHistory() {
+
+
+        GetCallHistoryRequest request = new GetCallHistoryRequest.Builder()
+                .setType(CallType.Constants.VOICE_CALL)
+                .count(10)
+                .build();
+
+        chat.getCallsHistory(request);
+
+    }
+
 }

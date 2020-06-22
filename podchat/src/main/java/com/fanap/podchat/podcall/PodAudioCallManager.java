@@ -1,98 +1,90 @@
 package com.fanap.podchat.podcall;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ConsumerClient;
 import com.example.kafkassl.kafkaclient.ProducerClient;
-import com.fanap.podchat.chat.call.ResultStartCall;
+import com.fanap.podchat.chat.call.result_model.StartCallResult;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Properties;
 
-public class PodAudioCallManager {
+public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendReceiveSync,
+        PodAudioStreamManager.IPodAudioListener,
+        PodAudioStreamManager.IPodAudioPlayerListener{
 
 
     private static final String TAG = "CHAT_SDK_CALL";
-    private static final String SENDING_TOPIC = "test3";
-    private static final String RECEIVING_TOPIC = "test3";
+
+    private String GROUP_ID = "0";
+
+    private static final String DEFAULT_TOPIC = "test" + new Date().getTime();
+
+    private String SENDING_TOPIC = DEFAULT_TOPIC;
+
+    private String RECEIVING_TOPIC = DEFAULT_TOPIC;
+
+    private String BROKER_ADDRESS = "172.16.106.158:9093";
+
+
     private ProducerClient producerClient;
     private ConsumerClient consumerClient;
 
-    public void startCallStream(ResultStartCall result) {
+    private PodAudioStreamManager.IPodAudioSendReceiveSync sendReceiveSynchronizer;
+
+    private boolean streaming = false;
+
+    private boolean firstByteReceived = false;
 
 
-        final Properties propertiesProducer = new Properties();
-        propertiesProducer.setProperty("bootstrap.servers", "172.16.106.158:9097");
+    private PodAudioStreamManager audioStreamManager;
 
-        producerClient = new ProducerClient(propertiesProducer);
-
-        producerClient.connect();
-
-
-        propertiesProducer.setProperty("group.id", "0");
-
-        propertiesProducer.setProperty("auto.offset.reset", "end");
-
-
-        consumerClient = new ConsumerClient(propertiesProducer, result.getTopicReceive());
-
-        consumerClient.connect();
-
-        PodAudioStreamManager a = new PodAudioStreamManager();
-
-        a.recordAudio(new PodAudioStreamManager.IPodAudioListener() {
-            @Override
-            public void onByteRecorded(byte[] bytes) {
-
-                producerClient.produceMessege(bytes, result.getClientId(), result.getTopicSend());
-
-            }
-
-            @Override
-            public void onRecordStopped() {
-
-                Log.e(TAG, "STOPPED");
-
-            }
-
-            @Override
-            public void onErrorOccurred(String cause) {
-
-                Log.e(TAG, "ERROR bc: " + cause);
-
-
-            }
-        });
-
-
-        while (true) {
-
-            byte[] bytes = consumerClient.consumingTopic();
-
-            Log.i(TAG, "bytes consumed: " + Arrays.toString(bytes));
-
-            if (bytes == null) break;
-
-        }
-
+    public PodAudioCallManager(Context mContext) {
+        audioStreamManager = new PodAudioStreamManager(mContext);
+        sendReceiveSynchronizer = this;
     }
 
 
-    public void testStream() {
+    public void testStream(String groupId, String sender, String receiver) {
 
-        final Properties propertiesProducer = new Properties();
+        GROUP_ID = groupId;
 
-        propertiesProducer.setProperty("bootstrap.servers", "172.16.106.158:9092");
+        SENDING_TOPIC = sender;
 
-        producerClient = new ProducerClient(propertiesProducer);
-        producerClient.connect();
+        RECEIVING_TOPIC = receiver;
 
-        propertiesProducer.setProperty("group.id", "0");
-        propertiesProducer.setProperty("auto.offset.reset", "end");
+        startStream();
 
-        consumerClient = new ConsumerClient(propertiesProducer, RECEIVING_TOPIC);
-        consumerClient.connect();
+    }
 
+    public void startCallStream(StartCallResult result) {
+
+        SENDING_TOPIC = result.getTopicSend();
+
+        RECEIVING_TOPIC = result.getTopicReceive();
+
+        GROUP_ID = result.getClientId();
+
+        BROKER_ADDRESS = result.getBrokerAddress();
+
+        startStream();
+
+    }
+
+    public void startStream() {
+
+        Log.e(TAG,">>> Start stream: Sending: " + SENDING_TOPIC
+        + " Receiving: " + RECEIVING_TOPIC + " Group Id: " + GROUP_ID);
+
+        streaming = true;
+
+        firstByteReceived = false;
+
+        configConsumer();
+
+        audioStreamManager.initAudioPlayer(this);
 
 //        try {
 //
@@ -129,59 +121,129 @@ public class PodAudioCallManager {
 //            e.printStackTrace();
 //        }
 
-        PodAudioStreamManager audioStreamManager = new PodAudioStreamManager();
+    }
 
+    private void configConsumer() {
+        final Properties consumerProperties = new Properties();
 
-        audioStreamManager.recordAudio(new PodAudioStreamManager.IPodAudioListener() {
-            @Override
-            public void onByteRecorded(byte[] bytes) {
+        consumerProperties.setProperty("bootstrap.servers", BROKER_ADDRESS); //9093 تست
 
+        consumerProperties.setProperty("group.id", GROUP_ID);
+        consumerProperties.setProperty("auto.offset.reset", "end");
 
-                String x = producerClient.produceMessege(bytes, "masoud", SENDING_TOPIC);
-                Log.e(TAG, "SEND: " + Arrays.toString(bytes));
+        consumerClient = new ConsumerClient(consumerProperties, RECEIVING_TOPIC);
 
-            }
+        consumerClient.connect();
+    }
 
-            @Override
-            public void onRecordStopped() {
+    private void configProducer() {
+        final Properties producerProperties = new Properties();
 
-                Log.e(TAG, "STOPPED");
-            }
+        producerProperties.setProperty("bootstrap.servers", BROKER_ADDRESS); //9093 تست
 
-            @Override
-            public void onErrorOccurred(String cause) {
-                Log.e(TAG, "ERROR " + cause);
+        producerClient = new ProducerClient(producerProperties);
 
-            }
-        });
+        producerClient.connect();
+    }
 
+    public void endStream() {
+        streaming = false;
+        audioStreamManager.stopRecording();
+        audioStreamManager.stopPlaying();
+    }
 
+    @Override
+    public void onConsumerReady() {
 
-        Runnable t = ()->{
+        audioStreamManager.recordAudio(this);
 
-            audioStreamManager.initPlayAudio(new PodAudioStreamManager.IPodAudioPlayerListener() {
-                @Override
-                public void onPlayStopped() {
-                    Log.e(TAG, "PLAYING STOPPED");
-                }
+    }
 
-                @Override
-                public void onErrorOccurred(String cause) {
-                    Log.e(TAG, "PLAY ERROR: " + cause);
-                }
-            });
+    @Override
+    public void onFirstBytesRecorded() {
 
+        configProducer();
 
-            while (true) {
+        Runnable t = () -> {
 
+            Log.e(TAG, "Consume from: " + RECEIVING_TOPIC);
+
+            while (streaming) {
                 audioStreamManager.playAudio(consumerClient.consumingTopic());
             }
 
-
         };
 
-        Thread r = new Thread(t,"PLAYING");
+        Thread r = new Thread(t, "PLAYING");
         audioStreamManager.setPlayingThread(r);
         r.start();
+
+
+
+    }
+
+    @Override
+    public void onByteRecorded(byte[] bytes) {
+
+
+        if (!firstByteReceived) {
+
+            firstByteReceived = true;
+
+            sendReceiveSynchronizer.onFirstBytesRecorded();
+        }
+
+        if (streaming) {
+            String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+            Log.e(TAG, "SEND GID: "+GROUP_ID+" SEND TO: "+SENDING_TOPIC+ " bits: " + Arrays.toString(bytes));
+        }
+
+
+    }
+
+    @Override
+    public void onRecordStopped() {
+
+        Log.e(TAG, "STOPPED");
+        streaming = false;
+
+    }
+
+    @Override
+    public void onAudioRecordError(String cause) {
+
+        Log.e(TAG, "ERROR " + cause);
+        streaming = false;
+
+    }
+
+    @Override
+    public void onRecordRestarted() {
+
+        streaming = true;
+
+    }
+
+    @Override
+    public void onPlayStopped() {
+
+        Log.e(TAG, "PLAYING STOPPED");
+        streaming = false;
+
+    }
+
+    @Override
+    public void onAudioPlayError(String cause) {
+
+        Log.e(TAG, "PLAY ERROR: " + cause);
+        streaming = false;
+
+    }
+
+    @Override
+    public void onPlayerReady() {
+
+        sendReceiveSynchronizer.onConsumerReady();
+
     }
 }

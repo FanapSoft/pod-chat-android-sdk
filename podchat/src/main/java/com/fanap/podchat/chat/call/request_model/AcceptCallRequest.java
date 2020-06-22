@@ -1,4 +1,4 @@
-package com.fanap.podchat.chat.call;
+package com.fanap.podchat.chat.call.request_model;
 
 import com.fanap.podchat.mainmodel.Invitee;
 
@@ -8,13 +8,19 @@ public class AcceptCallRequest extends CallRequest {
 
     private long callId;
     private long creatorId;
-    private long partnerId;
+    private List<Invitee> invitees;
+
 
     AcceptCallRequest(Builder builder) {
         super(builder);
         this.callId = builder.callId;
         this.creatorId = builder.creatorId;
-        this.partnerId = builder.partnerId;
+        this.invitees = builder.invitees;
+    }
+
+    @Override
+    public List<Invitee> getInvitees() {
+        return invitees;
     }
 
     public long getCallId() {
@@ -25,19 +31,18 @@ public class AcceptCallRequest extends CallRequest {
         return creatorId;
     }
 
-    public long getPartnerId() {
-        return partnerId;
-    }
 
     public static class Builder extends CallRequest.Builder {
 
         private long callId;
         private long creatorId;
-        private long partnerId;
+        private List<Invitee> invitees;
+
 
         public Builder(List<Invitee> invitees, int callType, long callId) {
             super(invitees, callType);
             this.callId = callId;
+            this.invitees = invitees;
         }
 
         public Builder setCreatorId(long creatorId) {
@@ -45,8 +50,20 @@ public class AcceptCallRequest extends CallRequest {
             return this;
         }
 
-        public Builder setPartnerId(long partnerId) {
-            this.partnerId = partnerId;
+        public Builder setCallId(long callId) {
+            this.callId = callId;
+            return this;
+        }
+
+        @Override
+        public Builder setInvitees(List<Invitee> invitees) {
+            super.setInvitees(invitees);
+            return this;
+        }
+
+        @Override
+        public Builder setCallType(int callType) {
+            super.setCallType(callType);
             return this;
         }
 

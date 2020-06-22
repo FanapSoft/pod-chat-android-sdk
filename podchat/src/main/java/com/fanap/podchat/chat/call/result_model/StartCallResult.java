@@ -1,8 +1,8 @@
-package com.fanap.podchat.chat.call;
+package com.fanap.podchat.chat.call.result_model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ResultStartCall {
+public class StartCallResult {
 
 	@SerializedName("topicSend")
 	private String topicSend;
@@ -12,6 +12,11 @@ public class ResultStartCall {
 
 	@SerializedName("topicReceive")
 	private String topicReceive;
+
+	@SerializedName("brokerAddress")
+	private String brokerAddress;
+
+
 
 	public String getTopicSend(){
 		return topicSend;
@@ -24,4 +29,9 @@ public class ResultStartCall {
 	public String getTopicReceive(){
 		return topicReceive;
 	}
+
+	public String getBrokerAddress() {
+		return brokerAddress;
+	}
+
 }

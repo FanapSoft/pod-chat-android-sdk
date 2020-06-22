@@ -1,4 +1,4 @@
-package com.fanap.podchat.chat.call;
+package com.fanap.podchat.chat.call.request_model;
 
 import com.fanap.podchat.mainmodel.Invitee;
 
@@ -14,6 +14,10 @@ public class CallRequest {
         this.invitees = builder.invitees;
         this.callType = builder.callType;
 
+    }
+
+    public void setInvitees(List<Invitee> invitees) {
+        this.invitees = invitees;
     }
 
     public List<Invitee> getInvitees() {
@@ -34,6 +38,16 @@ public class CallRequest {
             this.callType = callType;
         }
 
+
+        public Builder setInvitees(List<Invitee> invitees) {
+            this.invitees = invitees;
+            return this;
+        }
+
+        public Builder setCallType(int callType) {
+            this.callType = callType;
+            return this;
+        }
 
         public CallRequest build() {
 

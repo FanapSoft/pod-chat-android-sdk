@@ -1,20 +1,27 @@
 package com.example.chat.application.chatexample;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podchat.chat.call.CallVO;
+import com.fanap.podchat.chat.call.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.util.ChatStateType;
+import com.fanap.podchat.util.Util;
 
 
 public class CallActivity extends AppCompatActivity implements ChatContract.view {
@@ -49,14 +56,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private ChatContract.presenter presenter;
 
-    Button buttonCall, buttonConnect,buttonTestCall;
-    TextView tvStatus;
-    TextView tvCallerName;
+    Button buttonCall, buttonConnect, buttonTestCall,buttonCloseHistory;
+    TextView tvStatus,tvCallerName,tvHistory;
+
     RadioGroup groupCaller;
     RadioGroup groupPartner;
-    View callRequestView;
-    ImageButton buttonAcceptCall;
-    ImageButton buttonRejectCall;
+    View callRequestView,inCallView,viewHistory;
+    ImageButton buttonRejectCall,buttonAcceptCall,buttonEndCall,buttonGetHistory;
+    EditText etGroupId, etSender, etReceiver;
 
 
     private int partnerId = 122;
@@ -108,7 +115,29 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
-        buttonTestCall.setOnClickListener(v-> presenter.testCall());
+        buttonTestCall.setOnClickListener(v -> {
+
+
+            if (!etGroupId.getText().toString().isEmpty()
+                    && !etSender.getText().toString().isEmpty()
+                    && !etReceiver.getText().toString().isEmpty()){
+
+                presenter.testCall(etGroupId.getText().toString(),
+                        etSender.getText().toString(),
+                        etReceiver.getText().toString()
+                        );
+
+            }
+
+                presenter.testCall();
+
+
+        });
+
+        buttonTestCall.setOnLongClickListener(v -> {
+            presenter.endStream();
+            return true;
+        });
 
 
         groupCaller.setOnCheckedChangeListener((group, checkedId) -> {
@@ -143,6 +172,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         });
 
 
+        buttonEndCall.setOnClickListener(v -> {
+
+            presenter.endRunningCall();
+
+        });
+
+
+        buttonGetHistory.setOnClickListener(v -> presenter.getCallHistory());
+
+        buttonCloseHistory.setOnClickListener(v -> viewHistory.setVisibility(View.INVISIBLE));
 
     }
 
@@ -229,13 +268,22 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonCall = findViewById(R.id.btnCallRequest);
         buttonConnect = findViewById(R.id.btnConnect);
         buttonTestCall = findViewById(R.id.btnCallTest);
+        buttonCloseHistory = findViewById(R.id.buttonCloseHistory);
         groupCaller = findViewById(R.id.radioCaller);
         groupPartner = findViewById(R.id.radioPartner);
         tvStatus = findViewById(R.id.tvStatus);
         tvCallerName = findViewById(R.id.tvCallerName);
+        tvHistory = findViewById(R.id.tvHistory);
         callRequestView = findViewById(R.id.viewCallRequest);
+        inCallView = findViewById(R.id.viewCall);
+        viewHistory = findViewById(R.id.viewHistory);
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
+        buttonEndCall = findViewById(R.id.buttonEndCall);
+        buttonGetHistory = findViewById(R.id.buttonGetHistory);
+        etGroupId = findViewById(R.id.etGroupId);
+        etSender = findViewById(R.id.etSender);
+        etReceiver = findViewById(R.id.etReceiver);
 
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
@@ -276,7 +324,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.VISIBLE);
+            viewHistory.setVisibility(View.INVISIBLE);
             buttonCall.setVisibility(View.INVISIBLE);
+            buttonTestCall.setVisibility(View.INVISIBLE);
             tvCallerName.setText(callerName);
         });
 
@@ -287,6 +337,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         runOnUiThread(() -> {
             buttonCall.setVisibility(View.VISIBLE);
+            buttonTestCall.setVisibility(View.VISIBLE);
             tvStatus.setText(String.format("%s Rejected Your Call Request", callerName));
         });
 
@@ -294,7 +345,73 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
 
-//
+    @Override
+    public void onVoiceCallStarted(String uniqueId, String clientId) {
+
+        runOnUiThread(() -> {
+            inCallView.setVisibility(View.VISIBLE);
+            callRequestView.setVisibility(View.INVISIBLE);
+            buttonCall.setVisibility(View.INVISIBLE);
+            buttonTestCall.setVisibility(View.INVISIBLE);
+        });
+
+
+    }
+
+    @Override
+    public void onVoiceCallEnded(String uniqueId, long subjectId) {
+
+        runOnUiThread(() -> {
+            inCallView.setVisibility(View.INVISIBLE);
+            callRequestView.setVisibility(View.INVISIBLE);
+            buttonCall.setVisibility(View.VISIBLE);
+            buttonTestCall.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "Call has been ended", Toast.LENGTH_SHORT).show();
+        });
+
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void onGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
+
+        runOnUiThread(()->{
+
+            viewHistory.setVisibility(View.VISIBLE);
+
+            tvHistory.setText("");
+
+            tvHistory.append("Content Count: " + response.getResult().getContentCount() + "\n\n");
+
+            tvHistory.append("\n====================\n");
+
+            if(!Util.isNullOrEmpty(response.getResult().getCallsList()))
+            for (CallVO call :
+                    response.getResult().getCallsList()) {
+
+                tvHistory.append("Call id: " + call.getId() +"\n");
+                tvHistory.append("Call CreatorId: " + call.getCreatorId() +"\n");
+                tvHistory.append("Call CreateTime: " + call.getCreateTime() +"\n");
+                tvHistory.append("Call StartTime: " + call.getStartTime() +"\n");
+                tvHistory.append("Call EndTime: " + call.getEndTime() +"\n");
+                tvHistory.append("Call Status: " + call.getStatus() +"\n");
+                tvHistory.append("Call getType: " + call.getType() +"\n");
+                tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipant().toString() +"\n");
+
+            }
+            else{
+                tvHistory.append("\nNo call history\n");
+            }
+
+            tvHistory.append("\n====================\n");
+
+        });
+
+
+    }
+
+    //
 //        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
 //        permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
 //        if (!permissionToRecordAccepted) Log.e(TAG, "NOT ACCEPTED");
@@ -404,4 +521,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //
 //
 //    }
+
+
 }

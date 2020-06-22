@@ -10,17 +10,22 @@
 
     <Button
         android:id="@+id/btnCallTest"
-        android:layout_width="match_parent"
+        android:layout_width="240dp"
         android:layout_height="60dp"
-        android:layout_margin="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@color/colorPrimary"
         android:text="TestCall"
         android:textColor="#ffffff"
-        app:layout_constraintBottom_toTopOf="@+id/btnCallRequest" />
+        app:layout_constraintBottom_toTopOf="@+id/btnCallRequest"
+        app:layout_constraintStart_toStartOf="@+id/btnCallRequest"
+        tools:visibility="visible" />
+
+
 
 
     <Button
-        android:visibility="invisible"
+        tools:visibility="visible"
+
         android:id="@+id/btnCallRequest"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -28,13 +33,15 @@
         android:background="@color/colorPrimaryDark"
         android:text="Call"
         android:textColor="#ffffff"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <Button
-        android:visibility="visible"
+        tools:visibility="visible"
         android:id="@+id/btnConnect"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -42,10 +49,72 @@
         android:background="@color/colorAccent"
         android:text="Connect"
         android:textColor="#ffffff"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/buttonGetHistory"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:background="@drawable/circle_green"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCallTest"
+        app:layout_constraintEnd_toEndOf="@+id/btnCallRequest"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/btnCallTest"
+        app:layout_constraintTop_toTopOf="@+id/btnCallTest"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/ic_history" />
+
+    <LinearLayout
+        android:layout_marginTop="16dp"
+        android:id="@+id/layoutTestParam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioPartner">
+
+
+        <EditText
+            android:inputType="text"
+            android:hint="Group id"
+            android:textColorHint="@color/colorPrimary"
+            android:id="@+id/etGroupId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/white" />
+
+        <EditText
+            android:inputType="text"
+
+            android:hint="Sender"
+            android:textColorHint="@color/colorPrimary"
+
+            android:id="@+id/etSender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/white" />
+
+        <EditText
+            android:hint="Receiver"
+            android:textColorHint="@color/colorPrimary"
+            android:inputType="text"
+
+            android:id="@+id/etReceiver"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/white" />
+
+
+    </LinearLayout>
 
     <RadioGroup
         android:id="@+id/radioCaller"
@@ -144,10 +213,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <include layout="@layout/call_request_receive_layout" />
 
-    <include
+    <include layout="@layout/view_on_call_started" />
 
-        layout="@layout/call_request_receive_layout" />
-
+    <include layout="@layout/layout_history" />
 
 </android.support.constraint.ConstraintLayout>

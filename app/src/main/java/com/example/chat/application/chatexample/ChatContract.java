@@ -3,11 +3,11 @@ package com.example.chat.application.chatexample;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.call.GetCallHistoryResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -208,6 +208,12 @@ public interface ChatContract {
         default void onVoiceCallRequestReceived(String callerName){}
 
         default void onVoiceCallRequestRejected(String callerName){}
+
+        default void onVoiceCallEnded(String uniqueId, long subjectId){}
+
+        default void onVoiceCallStarted(String uniqueId, String clientId){}
+
+        default void onGetCallHistory(ChatResponse<GetCallHistoryResult> result){}
     }
 
     interface presenter {
@@ -458,6 +464,15 @@ public interface ChatContract {
 
         String createThread(RequestCreateThread requestCreateThread);
 
+        void testCall(String groupId, String sender, String receiver);
+
+        void endStream();
+
         void testCall();
+
+        void endRunningCall();
+
+        void getCallHistory();
+
     }
 }
