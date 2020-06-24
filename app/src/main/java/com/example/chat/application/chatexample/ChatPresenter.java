@@ -151,7 +151,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.setupNotification(notificationConfig);
 
 
-
         chat.isCacheables(true);
 
 
@@ -640,7 +639,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //                .build();
 
 
-        chat.addContact(firstName,lastName,cellphoneNumber,email,null,username);
+        chat.addContact(firstName, lastName, cellphoneNumber, email, null, username);
 
 
     }
@@ -850,6 +849,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .sethC(120)
                 .setxC(10)
                 .setyC(5)
+                .setPublic(false)
                 .build();
 
 //        chat.uploadImageProgress(activity,fileUri,handler);
@@ -864,6 +864,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         RequestUploadFile req = new RequestUploadFile
                 .Builder(activity, fileUri)
+                .setPublic(false)
                 .build();
 
         chat.uploadFileProgress(req, handler);

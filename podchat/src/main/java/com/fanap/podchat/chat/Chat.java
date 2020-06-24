@@ -2750,6 +2750,7 @@ public class Chat extends AsyncAdapter {
                     String.valueOf(request.getyC()),
                     String.valueOf(request.gethC()),
                     String.valueOf(request.getwC()),
+                    request.isPublic(),
                     new PodUploader.IPodUploadFileToPodSpace() {
 
                         @Override
@@ -2989,6 +2990,7 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    request.isPublic(),
                     new PodUploader.IPodUploadFileToPodSpace() {
 
                         @Override
