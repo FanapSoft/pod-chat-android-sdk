@@ -201,26 +201,26 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 //
 
 //    //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
-//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+    public static int TEST_THREAD_ID = 5182;
+    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
@@ -230,8 +230,8 @@ public class ChatActivity extends AppCompatActivity
 
     // main server / group
 
-    public static int TEST_THREAD_ID = 47528;
-    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
+//    public static int TEST_THREAD_ID = 47528;
+//    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
 
 
 //    integration /group: fifi,jiji and ...
@@ -382,9 +382,9 @@ public class ChatActivity extends AppCompatActivity
 
         Map<String, String> data = new HashMap<>();
 
-        data.put("threadName", "گروه کاری 1");
+        data.put("threadName", "گروه کاری "+notificationThreadId);
         data.put("MessageSenderName", "رضا احمدی");
-        data.put("text", "سلام چه خبر؟");
+        data.put("text", "سلام چه خبر؟ " + notificationMessageId);
         data.put("isGroup", "true");
         data.put("MessageSenderUserName", "a.ahmadi");
         data.put("messageId", String.valueOf(++notificationMessageId));
@@ -2271,13 +2271,13 @@ public class ChatActivity extends AppCompatActivity
 
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
-                .offset(offset)
-                .count(5)
+                .offset(0)
+                .count(50)
                 .order("desc")
 //                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)
 //                .uniqueIds(uniqueIds)
 //                .withNoCache()
-//                .toTime(System.currentTimeMillis())
+                .fromTimeNanos(System.currentTimeMillis())
                 .build();
 
         //            history.setToTime(System.currentTimeMillis());

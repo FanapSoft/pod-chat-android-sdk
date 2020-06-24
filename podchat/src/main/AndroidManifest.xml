@@ -17,10 +17,9 @@
 
 
         <receiver
-            android:name=".notification.ShowNotificationHelper$NotificationClickReceiver"
-            android:exported="false">
+            android:name=".notification.ShowNotificationHelper$NotificationClickReceiver">
             <intent-filter>
-                <action android:name="action_1" />
+                <action android:name="com.fanap.podchat.action_click_notification" />
             </intent-filter>
         </receiver>
 

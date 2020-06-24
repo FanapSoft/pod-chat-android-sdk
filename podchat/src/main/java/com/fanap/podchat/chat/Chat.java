@@ -470,7 +470,10 @@ public class Chat extends AsyncAdapter {
 
             }
         });
+
         PodNotificationManager.registerFCMTokenReceiver(context);
+
+        PodNotificationManager.registerClickReceiver(context);
 
     }
 
@@ -5376,6 +5379,7 @@ public class Chat extends AsyncAdapter {
                     content.remove("lastMessageId");
                     content.remove("firstMessageId");
 
+
                     AsyncMessage chatMessage = new AsyncMessage();
                     chatMessage.setContent(content.toString());
                     chatMessage.setType(Constants.GET_THREADS);
@@ -5385,6 +5389,7 @@ public class Chat extends AsyncAdapter {
                     chatMessage.setTypeCode(typeCode != null ? typeCode : getTypeCode());
 
                     JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
+                    jsonObject.remove("subjectId");
 
                     setCallBacks(null, null, null, true, Constants.GET_THREADS, finalOffset, uniqueId);
 

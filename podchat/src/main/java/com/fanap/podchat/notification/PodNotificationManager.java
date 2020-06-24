@@ -179,6 +179,7 @@ public class PodNotificationManager {
                 mConfig.getNotificationImportance());
 
         saveConfig(mConfig, context);
+
     }
 
     private static void saveConfig(CustomNotificationConfig mConfig, Context context) {
@@ -220,7 +221,7 @@ public class PodNotificationManager {
 
         notificationsList.add(data);
 
-        ShowNotificationHelper.showGroupNewMessageNotification(notificationsList,
+        ShowNotificationHelper.showGroupNewMessageNotification(data,
                 context,
                 securePreferences.getString(TARGET_ACTIVITY, ""),
                 securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
@@ -230,7 +231,7 @@ public class PodNotificationManager {
 
     }
 
-    public static void handleMessage(Context context, RemoteMessage remoteMessage) {
+    static void handleMessage(Context context, RemoteMessage remoteMessage) {
 
         Map<String, String> data = remoteMessage.getData();
 
@@ -466,6 +467,32 @@ public class PodNotificationManager {
 
     public static void dismissAllNotifications(Context context) {
         ShowNotificationHelper.dismissOtherNotifications(context);
+    }
+
+    public static void registerClickReceiver(Context context) {
+
+//        try {
+//            listener.onNotificationEvent("registering click receiver...");
+//
+//            IntentFilter filter = new IntentFilter(ShowNotificationHelper.ACTION_1);
+//
+//            ShowNotificationHelper.NotificationClickReceiver receiver = new ShowNotificationHelper.NotificationClickReceiver();
+//
+//            context.registerReceiver(receiver, filter);
+//
+//            listener.onNotificationEvent("registering click done!");
+//
+//            ShowNotificationHelper.isClickReceiverRegistered(true);
+//
+//        } catch (Exception e) {
+//            ShowNotificationHelper.isClickReceiverRegistered(false);
+//
+//            if (listener != null) {
+//                listener.onNotificationError("click receiver registration failed: " + e.getMessage());
+//            }
+//        }
+
+
     }
 
     public interface IPodNotificationManager {

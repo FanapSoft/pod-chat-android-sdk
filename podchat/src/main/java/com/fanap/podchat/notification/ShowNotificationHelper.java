@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -52,7 +51,6 @@ public class ShowNotificationHelper {
 
     public static final String ACTION_1 = "action_1";
     private static final int SUMMARY_ID = 0;
-    private static final String TARGET_CLASS = "T_CLASS";
 
 
     public static void setupNotificationChannel(Context context) {
@@ -299,7 +297,7 @@ public class ShowNotificationHelper {
 
 
     static void showGroupNewMessageNotification(
-            ArrayList<Map<String, String>> notifications,
+            Map<String, String> notificationData,
             Context context,
             String targetClassName,
             Integer priority,
@@ -314,129 +312,122 @@ public class ShowNotificationHelper {
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-            Map<String, Notification> notificationMap = new HashMap<>();
+//            Map<String, Notification> notificationMap = new HashMap<>();
 
-            NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
-
-            NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(!Util.isNullOrEmpty(channelId) ?
-                    channelId : CHANNEL_ID);
-
-
-            String group = "DEFAULT_GROUP";
+//            NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
+//
+//            NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(!Util.isNullOrEmpty(channelId) ?
+//                    channelId : CHANNEL_ID);
 
 
-            for (Map<String, String> notificationData :
-                    notifications) {
+//            String group = "DEFAULT_GROUP";
 
 
-                String threadName = notificationData.get("threadName");
-                String senderName = notificationData.get("MessageSenderName");
-                String profileUrl = notificationData.get("senderImage");
+            String threadName = notificationData.get("threadName");
+            String senderName = notificationData.get("MessageSenderName");
+            String profileUrl = notificationData.get("senderImage");
 
 
-                String text = getNotificationText(notificationData.get("text"), notificationData.get("messageType"));
-                String isGroup = notificationData.get("isGroup") != null ? notificationData.get("isGroup") : "false";
-                String messageSenderUserName = notificationData.get("MessageSenderUserName");
-                String messageId = notificationData.get("messageId");
-                String threadId = notificationData.get("threadId");
+            String text = getNotificationText(notificationData.get("text"), notificationData.get("messageType"));
+            String isGroup = notificationData.get("isGroup") != null ? notificationData.get("isGroup") : "false";
+            String messageSenderUserName = notificationData.get("MessageSenderUserName");
+            String messageId = notificationData.get("messageId");
+            String threadId = notificationData.get("threadId");
 
-//                group = threadId;
+            if(Util.isNullOrEmpty(messageId)) messageId = "1000";
+            if(Util.isNullOrEmpty(threadId)) threadId = "2000";
 
-                RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.message_layout);
+//            group = threadId;
 
-                RemoteViews viewExpanded = new RemoteViews(context.getPackageName(), R.layout.message_layout_expanded);
+            RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.message_layout);
 
-                String title = (isGroup != null && isGroup.equals("true")) ? threadName + " - " + senderName : senderName;
+            RemoteViews viewExpanded = new RemoteViews(context.getPackageName(), R.layout.message_layout_expanded);
 
-                view.setTextViewText(R.id.textViewSenderName, title);
-                view.setTextViewText(R.id.textViewContent, text);
+            String title = (isGroup != null && isGroup.equals("true")) ? threadName + " - " + senderName : senderName;
 
-                viewExpanded.setTextViewText(R.id.textViewSenderName, title);
-                viewExpanded.setTextViewText(R.id.textViewContent, text);
+            view.setTextViewText(R.id.textViewSenderName, title);
+            view.setTextViewText(R.id.textViewContent, text);
 
-
-                if (profileUrl != null) {
-
-                    try {
-
-                        Bitmap bitmap = GlideApp.with(context)
-                                .asBitmap()
-                                .load(profileUrl)
-                                .apply(RequestOptions.circleCropTransform())
-                                .submit(512, 512)
-                                .get();
-
-                        view.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
-                        viewExpanded.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
+            viewExpanded.setTextViewText(R.id.textViewSenderName, title);
+            viewExpanded.setTextViewText(R.id.textViewContent, text);
 
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            if (profileUrl != null) {
 
+                try {
+
+                    Bitmap bitmap = GlideApp.with(context)
+                            .asBitmap()
+                            .load(profileUrl)
+                            .apply(RequestOptions.circleCropTransform())
+                            .submit(512, 512)
+                            .get();
+
+                    view.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
+                    viewExpanded.setImageViewBitmap(R.id.imageViewProfilePicture, bitmap);
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                Intent action1Intent = new Intent();
-                action1Intent.putExtra(THREAD_ID, threadId);
-                action1Intent.putExtra(MESSAGE_ID, messageId);
-                action1Intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
-                action1Intent.putExtra(TARGET_CLASS, targetClassName);
-                action1Intent.setAction(ACTION_1);
-
-                PendingIntent action1PendingIntent = PendingIntent
-                        .getBroadcast(context.getApplicationContext(),
-                                Util.isNullOrEmpty(messageId) ? REQUEST_CODE : Integer.parseInt(messageId),
-                                action1Intent,
-                                PendingIntent.FLAG_CANCEL_CURRENT);
-
-
-//                PendingIntent pendingIntent = PendingIntent
-//                        .getActivity(context.getApplicationContext(),
-//                                Util.isNullOrEmpty(messageId) ? REQUEST_CODE : Integer.parseInt(messageId),
-//                                intent,
-//                                PendingIntent.FLAG_CANCEL_CURRENT);
-
-
-                NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(
-                        context.getApplicationContext(), !Util.isNullOrEmpty(channelId) ?
-                        channelId : CHANNEL_ID)
-                        .setAutoCancel(true)
-                        .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                        .setContent(view)
-                        .setCustomContentView(view)
-                        .setCustomBigContentView(viewExpanded)
-                        .setContentIntent(action1PendingIntent)
-                        .setGroup(group)
-                        .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
-                        .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT);
-
-                Notification notification = notifBuilder.build();
-
-                notificationMap.put(messageId, notification);
-
-                inbox.addLine(title + " " + text);
-
-                messagingStyle.addMessage(text, new Date().getTime(), senderName);
 
             }
 
 
-            inbox.setBigContentTitle(!Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID);
+            Class<?> c = Class.forName(targetClassName);
+            Intent intent = new Intent(context, c);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            inbox.setSummaryText("+" + notificationMap.size() + " پیام جدید");
+            intent.putExtra(THREAD_ID, threadId);
+            intent.putExtra(MESSAGE_ID, messageId);
+            intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
 
-            Notification summaryBuilder = new NotificationCompat.Builder(
-                    context.getApplicationContext(),
-                    !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
-                    .setContentTitle(notificationMap.size() + "+ پیام جدید دارید")
-                    .setContentText("شما +" + notificationMap.size() + " پیام خوانده نشده دارید")
-                    .setStyle(inbox)
+            PendingIntent pendingIntent = PendingIntent
+                    .getActivity(context.getApplicationContext(),
+                            Integer.parseInt(messageId),
+                            intent,
+                            PendingIntent.FLAG_CANCEL_CURRENT);
+
+
+            NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(
+                    context.getApplicationContext(), !Util.isNullOrEmpty(channelId) ?
+                    channelId : CHANNEL_ID)
                     .setAutoCancel(true)
-                    .setGroup(group)
-                    .setGroupSummary(true)
+                    .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                    .setContent(view)
+                    .setCustomContentView(view)
+                    .setCustomBigContentView(viewExpanded)
+                    .setContentIntent(pendingIntent)
+                    .setGroup(threadId)
                     .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
-                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
-                    .build();
+                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT);
+
+            Notification notification = notifBuilder.build();
+
+//                notificationMap.put(messageId, notification);
+
+//                inbox.addLine(title + " " + text);
+
+//                messagingStyle.addMessage(text, new Date().getTime(), senderName);
+
+
+//            inbox.setBigContentTitle(!Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID);
+
+//            inbox.setSummaryText("+" + notificationMap.size() + " پیام جدید");
+
+//            Notification summaryBuilder = new NotificationCompat.Builder(
+//                    context.getApplicationContext(),
+//                    !Util.isNullOrEmpty(channelId) ? channelId : CHANNEL_ID)
+//                    .setContentTitle(notificationMap.size() + "+ پیام جدید دارید")
+//                    .setContentText("شما +" + notificationMap.size() + " پیام خوانده نشده دارید")
+//                    .setStyle(inbox)
+//                    .setAutoCancel(true)
+//                    .setGroup(group)
+//                    .setGroupSummary(true)
+//                    .setSmallIcon(smallIcon != null && smallIcon > 0 ? smallIcon : R.drawable.ic_message)
+//                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
+//                    .build();
 
 //            Notification messagesNotif = new NotificationCompat.Builder(
 //                    context.getApplicationContext(),
@@ -451,33 +442,25 @@ public class ShowNotificationHelper {
 //                    .setPriority(priority != null ? priority : NotificationCompat.PRIORITY_DEFAULT)
 //                    .build();
 
-
             if (notificationManager != null) {
 
-                for (String messageId :
-                        notificationMap.keySet()) {
 
-                    int notificationId = 0;
-                    try {
-                        notificationId = Integer.parseInt(messageId);
-                    } catch (NumberFormatException e) {
-                        notificationId = new Random().nextInt();
-                    }
-
-                    notificationManager.notify(notificationId, notificationMap.get(messageId));
-
+                int notificationId = 0;
+                if (!Util.isNullOrEmpty(messageId)) {
+                    notificationId = Integer.parseInt(messageId) > 0 ? Integer.parseInt(messageId) : 1000;
                 }
 
-                if (notificationMap.size() > 5) {
-
-                    notificationManager.notify(SUMMARY_ID, summaryBuilder);
-
-                }
+                notificationManager.notify(notificationId, notification);
+//                if (notificationMap.size() > 2) {
+//
+//                    notificationManager.notify(SUMMARY_ID, summaryBuilder);
+//
+//                }
 
             } else Log.e(TAG, "Can't create notification manager instance");
 
 
-        } catch (Exception e) {
+        } catch (ClassNotFoundException e) {
             Log.e(TAG, "Couldn't start activity: " + e.getMessage() + " " + targetClassName);
         }
 
@@ -505,7 +488,8 @@ public class ShowNotificationHelper {
 
                 case POD_SPACE_PICTURE:
                 case PICTURE: {
-                    return "تصویری فرستاده شد";
+                    String emoji = new String(Character.toChars(0x1F306));
+                    return emoji + " تصویری فرستاده شد";
                 }
 
                 case POD_SPACE_FILE:
