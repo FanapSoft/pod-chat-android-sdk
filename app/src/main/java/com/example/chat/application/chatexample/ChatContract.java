@@ -442,6 +442,7 @@ public interface ChatContract {
         void onStop();
 
         void onResume();
+
         String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile);
 
         String updateThreadInfo(RequestThreadInfo request);

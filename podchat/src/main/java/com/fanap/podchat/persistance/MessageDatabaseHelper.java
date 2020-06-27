@@ -1883,7 +1883,7 @@ public class MessageDatabaseHelper {
 
     public void retrieveAndUpdateThreadOnLastMessageEdited(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
-        worker(()->{
+        worker(() -> {
 
             long threadId = thread.getId();
 
@@ -1892,15 +1892,15 @@ public class MessageDatabaseHelper {
             tIds.add((int) threadId);
 
             try {
-                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
 
                     List<Thread> threadList = (List<Thread>) threads;
 
-                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
 
                         Thread threadFromCache = threadList.get(0);
 
-                        thread.setLastMessage(thread.getLastMessage());
+                        threadFromCache.setLastMessage(thread.getLastMessage());
 
                         threadFromCache.setLastMessageVO(thread.getLastMessageVO());
 
@@ -1908,7 +1908,7 @@ public class MessageDatabaseHelper {
 
                         saveNewThread(threadFromCache);
 
-                    }else {
+                    } else {
                         callback.threadNotFoundInCache();
                     }
 
@@ -1924,7 +1924,7 @@ public class MessageDatabaseHelper {
 
     public void retrieveAndUpdateThreadOnLastMessageDeleted(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
-        worker(()->{
+        worker(() -> {
 
             long threadId = thread.getId();
 
@@ -1933,15 +1933,15 @@ public class MessageDatabaseHelper {
             tIds.add((int) threadId);
 
             try {
-                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
 
                     List<Thread> threadList = (List<Thread>) threads;
 
-                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
 
                         Thread threadFromCache = threadList.get(0);
 
-                        thread.setLastMessage(thread.getLastMessage());
+                        threadFromCache.setLastMessage(thread.getLastMessage());
 
                         threadFromCache.setLastMessageVO(thread.getLastMessageVO());
 
@@ -1953,7 +1953,7 @@ public class MessageDatabaseHelper {
 
                         saveNewThread(threadFromCache);
 
-                    }else {
+                    } else {
                         callback.threadNotFoundInCache();
                     }
 
@@ -1969,7 +1969,7 @@ public class MessageDatabaseHelper {
 
     public void retrieveAndUpdateThreadOnLastSeenUpdated(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
-        worker(()->{
+        worker(() -> {
 
             long threadId = thread.getId();
 
@@ -1978,17 +1978,17 @@ public class MessageDatabaseHelper {
             tIds.add((int) threadId);
 
             try {
-                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
 
                     List<Thread> threadList = (List<Thread>) threads;
 
-                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
 
                         Thread threadFromCache = threadList.get(0);
                         threadFromCache.setUnreadCount(thread.getUnreadCount());
                         callback.onThreadExistInCache(threadFromCache);
                         saveNewThread(threadFromCache);
-                    }else {
+                    } else {
                         callback.threadNotFoundInCache();
                     }
 
@@ -2004,7 +2004,7 @@ public class MessageDatabaseHelper {
 
     public void retrieveAndUpdateThreadOnNewMessageAdded(Thread thread, ThreadManager.ILastMessageChanged callback) {
 
-        worker(()->{
+        worker(() -> {
 
             long threadId = thread.getId();
 
@@ -2013,11 +2013,11 @@ public class MessageDatabaseHelper {
             tIds.add((int) threadId);
 
             try {
-                getThreadRaw(1, (long) 0,tIds,null,false, threads->{
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
 
                     List<Thread> threadList = (List<Thread>) threads;
 
-                    if(!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0){
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
 
                         Thread threadFromCache = threadList.get(0);
 
@@ -2033,7 +2033,60 @@ public class MessageDatabaseHelper {
 
                         saveNewThread(threadFromCache);
 
-                    }else {
+                    } else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
+    }
+
+    public void retrieveAndUpdateThreadOnThreadInfoUpdated(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+        worker(() -> {
+
+            long threadId = thread.getId();
+
+            ArrayList<Integer> tIds = new ArrayList<>();
+
+            tIds.add((int) threadId);
+
+            try {
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
+
+                    List<Thread> threadList = (List<Thread>) threads;
+
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
+
+                        Thread threadFromCache = threadList.get(0);
+
+                        if (!Util.isNullOrEmpty(thread.getTitle()))
+                            threadFromCache.setTitle(thread.getTitle());
+
+                        if (!Util.isNullOrEmpty(thread.getImage()))
+                            threadFromCache.setImage(thread.getImage());
+
+                        if (!Util.isNullOrEmpty(thread.getDescription()))
+                            threadFromCache.setDescription(thread.getDescription());
+
+                        if (!Util.isNullOrEmpty(thread.getMetadata()))
+                            threadFromCache.setMetadata(thread.getMetadata());
+
+
+                        threadFromCache.setTime(thread.getTime());
+                        threadFromCache.setUserGroupHash(thread.getUserGroupHash());
+
+                        callback.onThreadExistInCache(threadFromCache);
+
+                        saveNewThread(threadFromCache);
+
+                    } else {
                         callback.threadNotFoundInCache();
                     }
 
@@ -2217,7 +2270,7 @@ public class MessageDatabaseHelper {
                     Participant participant = null;
                     ReplyInfoVO replyInfoVO = null;
                     MessageVO lastMessageVO = null;
-                    if (threadVo.getInviterId() >0) {
+                    if (threadVo.getInviterId() > 0) {
                         threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                     }
 

@@ -201,7 +201,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-//
+////
 //    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
@@ -215,7 +215,7 @@ public class ChatActivity extends AppCompatActivity
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-//
+
 
 //    //sand box / group
 
@@ -224,9 +224,9 @@ public class ChatActivity extends AppCompatActivity
 
 
 //    main server / p2p
-
-//    public static int TEST_THREAD_ID = 19868;
-//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//
+//    public static int TEST_THREAD_ID = 39478;
+//    private static final String TEST_THREAD_HASH = "YS1V7W4DG4R96M";
 
     // main server / group
 
@@ -483,11 +483,11 @@ public class ChatActivity extends AppCompatActivity
                             }
                             case 6: {
 
-                                RequestUploadImage requestUploadImage =
-                                        new RequestUploadImage.Builder(ChatActivity.this, getUri())
-                                                .sethC(140)
-                                                .setwC(140)
-                                                .build();
+//                                RequestUploadImage requestUploadImage =
+//                                        new RequestUploadImage.Builder(ChatActivity.this, getUri())
+//                                                .sethC(140)
+//                                                .setwC(140)
+//                                                .build();
 
 //                                ThreadInfoVO threadInfoVO = new ThreadInfoVO
 //                                        .Builder()
@@ -497,10 +497,12 @@ public class ChatActivity extends AppCompatActivity
 
                                 RequestThreadInfo request =
                                         new RequestThreadInfo.Builder(TEST_THREAD_ID)
-                                                .name("Test File PodSpace")
+//                                                .name("Test File PodSpace")
+//                                                .metadata("{}")
+//                                                .image()
                                                 .description("this is test description updated on " + new Date().toString())
-                                                .setUploadThreadImageRequest(requestUploadImage)
-                                                .setUserGroupHash(TEST_THREAD_HASH)
+//                                                .setUploadThreadImageRequest(requestUploadImage)
+//                                                .setUserGroupHash(TEST_THREAD_HASH)
                                                 .build();
 
                                 presenter.updateThreadInfo(request);
@@ -2202,7 +2204,7 @@ public class ChatActivity extends AppCompatActivity
         // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
-        invite.add(new Invitee("29782", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("we", InviteType.Constants.TO_BE_USER_USERNAME));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
 //                                invite.add(new Invitee(121, 5)); // user zizi
@@ -2210,20 +2212,20 @@ public class ChatActivity extends AppCompatActivity
 //                                invite.add(new Invitee(122, 1));  //user jiji
 
 
-        RequestUploadImage requestUploadImage =
-                new RequestUploadImage.Builder(ChatActivity.this, getUri())
-                        .sethC(140)
-                        .setwC(140)
-                        .build();
+//        RequestUploadImage requestUploadImage =
+//                new RequestUploadImage.Builder(ChatActivity.this, getUri())
+//                        .sethC(140)
+//                        .setwC(140)
+//                        .build();
 
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(ThreadType.Constants.OWNER_GROUP, invite)
+                .Builder(ThreadType.Constants.NORMAL, invite)
                 .title("A New Thread " + (new Date().getTime() / 1000))
                 .withDescription("Description created at "
                         + new Date().getTime())
                 .withMetadata(metac)
-                .setUploadThreadImageRequest(requestUploadImage)
+//                .setUploadThreadImageRequest(requestUploadImage)
                 .build();
 
         presenter.createThread(requestCreateThread);
@@ -2269,15 +2271,20 @@ public class ChatActivity extends AppCompatActivity
 //        uniqueIds[1] = "212ls;dfk";
 //        uniqueIds[2] = "212ls;dfk";
 
-        RequestGetHistory request = new RequestGetHistory
+        long seenTime =1592928839801L;
+        long seenNano = 801336000;
+
+        RequestGetHistory requestBefore = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
                 .count(50)
                 .order("desc")
+//                .withNoCache()
 //                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)
 //                .uniqueIds(uniqueIds)
 //                .withNoCache()
-                .fromTimeNanos(System.currentTimeMillis())
+                .toTime(seenTime)
+                .toTimeNanos(seenNano)
                 .build();
 
         //            history.setToTime(System.currentTimeMillis());
@@ -2285,10 +2292,29 @@ public class ChatActivity extends AppCompatActivity
 //            history.setFromTimeNanos(298708000);
 //            history.setCount(7);
 
-        offset += 5;
+//        offset += 5;
 
-        presenter.getHistory(request, null);
+        presenter.getHistory(requestBefore, null);
 
+
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException ignored) {}
+
+        RequestGetHistory requestAfter = new RequestGetHistory
+                .Builder(TEST_THREAD_ID)
+                .offset(0)
+                .count(50)
+                .order("asc")
+//                .withNoCache()
+//                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)
+//                .uniqueIds(uniqueIds)
+//                .withNoCache()
+                .fromTime(seenTime)
+                .fromTimeNanos(seenNano)
+                .build();
+
+        presenter.getHistory(requestAfter, null);
 
 //        History history = new History.
 //                Builder()

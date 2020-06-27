@@ -4442,7 +4442,6 @@ public class Chat extends AsyncAdapter {
 //    }
 
 
-
     /**
      * clearCacheDatabase interface
      * <p>
@@ -5377,6 +5376,9 @@ public class Chat extends AsyncAdapter {
                     if (partnerCoreContactId > 0) {
                         content.addProperty("partnerCoreContactId", partnerCoreContactId);
                     }
+
+                    if (!isNew)
+                        content.remove("new");
 
                     content.remove("lastMessageId");
                     content.remove("firstMessageId");
@@ -8923,14 +8925,7 @@ public class Chat extends AsyncAdapter {
                         contentObject.addProperty("image", imageLink);
                         updateThreadTask.run();
 
-                    } else {
-
-                        contentObject.addProperty("metadata", threadMetadataObject.toString());
-                        contentObject.addProperty("image", threadInfoVO.getImage());
-                        updateThreadTask.run();
                     }
-
-
                 });
 
 
@@ -10105,16 +10100,13 @@ public class Chat extends AsyncAdapter {
 
                     @Override
                     public void threadNotFoundInCache() {
-                        retrieveThreadInfoFromServer(thread.getId());
+                        retrieveThreadInfoFromServer(thread.getId(), false);
                     }
                 });
-            }else {
-                retrieveThreadInfoFromServer(thread.getId());
+            } else {
+                retrieveThreadInfoFromServer(thread.getId(), false);
             }
         }
-
-
-
 
 
 //        try {
@@ -10163,7 +10155,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    private void handleThreadInfoUpdated(Thread thread,String uniqueId) {
+    private void handleThreadInfoUpdated(Thread thread, String uniqueId) {
 
         ResultThread resultThread = new ResultThread();
         resultThread.setThread(thread);
@@ -10173,6 +10165,7 @@ public class Chat extends AsyncAdapter {
         chatResponse.setUniqueId(uniqueId);
 
         listenerManager.callOnThreadInfoUpdated(chatResponse.getJson(), chatResponse);
+
         showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
 
         if (cache) {
@@ -10285,7 +10278,7 @@ public class Chat extends AsyncAdapter {
 
 
             if (messageVO != null) {
-                handleOnNewMessageAdded(messageVO.getConversation(),chatMessage.getUniqueId());
+                handleOnNewMessageAdded(messageVO.getConversation(), chatMessage.getUniqueId());
             }
 
 
@@ -10310,11 +10303,11 @@ public class Chat extends AsyncAdapter {
 
                     @Override
                     public void threadNotFoundInCache() {
-                        retrieveThreadInfoFromServer(thread.getId());
+                        retrieveThreadInfoFromServer(thread.getId(), false);
                     }
                 });
-            }else {
-                retrieveThreadInfoFromServer(thread.getId());
+            } else {
+                retrieveThreadInfoFromServer(thread.getId(), false);
             }
         }
 
@@ -10806,11 +10799,11 @@ public class Chat extends AsyncAdapter {
 
                     @Override
                     public void threadNotFoundInCache() {
-                        retrieveThreadInfoFromServer(thread.getId());
+                        retrieveThreadInfoFromServer(thread.getId(), false);
                     }
                 });
-            }else {
-                retrieveThreadInfoFromServer(thread.getId());
+            } else {
+                retrieveThreadInfoFromServer(thread.getId(), false);
             }
         }
 
@@ -10832,16 +10825,16 @@ public class Chat extends AsyncAdapter {
 
                     @Override
                     public void threadNotFoundInCache() {
-                        retrieveThreadInfoFromServer(thread.getId());
+                        retrieveThreadInfoFromServer(thread.getId(), false);
                     }
                 });
-            }else {
-                retrieveThreadInfoFromServer(thread.getId());
+            } else {
+                retrieveThreadInfoFromServer(thread.getId(), false);
             }
         }
     }
 
-    private void retrieveThreadInfoFromServer(long threadId) {
+    private void retrieveThreadInfoFromServer(long threadId, boolean isThreadInfoUpdate) {
 
         if (chatReady) {
 
@@ -10875,9 +10868,12 @@ public class Chat extends AsyncAdapter {
                 ArrayList<Thread> threads = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Thread>>() {
                 }.getType());
 
-                if(!Util.isNullOrEmpty(threads)){
+                if (!Util.isNullOrEmpty(threads)) {
 
-                    handleThreadInfoUpdated(threads.get(0),chatMessage.getUniqueId());
+                    if (isThreadInfoUpdate)
+                        onThreadInfoUpdated(threads.get(0), chatMessage.getUniqueId());
+                    else
+                        handleThreadInfoUpdated(threads.get(0), chatMessage.getUniqueId());
 
                     threadInfoCompletor.remove(uniqueId);
 
@@ -10901,6 +10897,18 @@ public class Chat extends AsyncAdapter {
         chatResponse.setSubjectId(thread.getId());
         listenerManager.callOnThreadInfoUpdated(chatResponse.getJson(), chatResponse);
         showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
+    }
+
+    private void onThreadInfoUpdated(Thread thread, String uniqueId) {
+        ResultThread resultThread = new ResultThread();
+        resultThread.setThread(thread);
+        ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
+        chatResponse.setResult(resultThread);
+        chatResponse.setUniqueId(uniqueId);
+        chatResponse.setSubjectId(thread.getId());
+        listenerManager.callOnUpdateThreadInfo(chatResponse.getJson(), chatResponse);
+        showLog("RECEIVE_UPDATE_THREAD_INFO", chatResponse.getJson());
+        messageCallbacks.remove(uniqueId);
     }
 
     private void handleOnGetParticipants(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
@@ -11647,28 +11655,26 @@ public class Chat extends AsyncAdapter {
 
     private void handleUpdateThreadInfo(ChatMessage chatMessage, String messageUniqueId, Callback callback) {
 
-        ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
-
         Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
 
-        ResultThread resultThread = new ResultThread();
+        if (thread != null && thread.getId() > 0) {
 
-        resultThread.setThread(thread);
-        chatResponse.setErrorCode(0);
-        chatResponse.setErrorMessage("");
-        chatResponse.setHasError(false);
-        chatResponse.setUniqueId(chatMessage.getUniqueId());
-        chatResponse.setResult(resultThread);
+            if (cache) {
 
+                messageDatabaseHelper.retrieveAndUpdateThreadOnThreadInfoUpdated(thread, new ThreadManager.ILastMessageChanged() {
+                    @Override
+                    public void onThreadExistInCache(Thread thread) {
+                        onThreadInfoUpdated(thread, messageUniqueId);
+                    }
 
-        String threadJson = gson.toJson(chatResponse);
-        messageCallbacks.remove(messageUniqueId);
-
-        listenerManager.callOnUpdateThreadInfo(threadJson, chatResponse);
-        showLog("RECEIVE_UPDATE_THREAD_INFO", threadJson);
-
-        if (cache) {
-            messageDatabaseHelper.saveNewThread(thread);
+                    @Override
+                    public void threadNotFoundInCache() {
+                        retrieveThreadInfoFromServer(thread.getId(), true);
+                    }
+                });
+            } else {
+                retrieveThreadInfoFromServer(thread.getId(), true);
+            }
         }
 
     }
