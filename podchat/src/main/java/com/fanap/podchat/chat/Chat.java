@@ -37,13 +37,14 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
-import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.chat.call.CallManager;
 import com.fanap.podchat.chat.call.request_model.CallRequest;
 import com.fanap.podchat.chat.call.request_model.EndCallRequest;
 import com.fanap.podchat.chat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.chat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.chat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.chat.call.result_model.CallRequestResult;
 import com.fanap.podchat.chat.call.result_model.EndCallResult;
 import com.fanap.podchat.chat.call.result_model.StartCallResult;
@@ -908,6 +909,9 @@ public class Chat extends AsyncAdapter {
             case Constants.GET_CALLS:
                 handleOnGetCallsHistory(chatMessage);
                 break;
+            case Constants.CALL_RECONNECT:
+                handleOnReceivedCallReconnect(chatMessage);
+                break;
 
 
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
@@ -1075,6 +1079,7 @@ public class Chat extends AsyncAdapter {
                 break;
         }
     }
+
 
 
 
@@ -1309,10 +1314,20 @@ public class Chat extends AsyncAdapter {
 
         showLog("RECEIVED_CALL_HISTORY",gson.toJson(chatMessage));
 
-        // TODO: 6/21/2020 implement cache
-
-
+        messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
     }
+
+
+    private void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
+
+        ChatResponse<CallReconnectResult> response = CallManager.handleOnCallReconnectReceived(chatMessage);
+
+        listenerManager.callOnCallReconnectReceived(response);
+
+        showLog("RECEIVED_CALL_RECONNECT",gson.toJson(chatMessage));
+    }
+
+
 
     /**
      * It Connects to the Async .

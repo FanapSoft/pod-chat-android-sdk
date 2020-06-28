@@ -29,6 +29,7 @@ import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.call.model.CallVO;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
@@ -1873,6 +1874,29 @@ public class MessageDatabaseHelper {
         messageDao.deleteBlockedContactByBlockId(blockId);
     }
 
+    public void saveCallsHistory(ArrayList<CallVO> callsList) {
+
+
+        for (CallVO call :
+                callsList) {
+
+            List<Participant> participants = call.getCallParticipants();
+
+
+            Participant participant = call.getPartnerParticipantVO();
+
+//            messageDao.
+
+
+
+        }
+
+
+
+
+
+    }
+
 
     public interface IRoomIntegrity {
 
@@ -2057,7 +2081,7 @@ public class MessageDatabaseHelper {
                             }
 
                         }
-                        if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                        if (cacheLastMessageVO != null && cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
                             replyInfoVO = new ReplyInfoVO(
                                     cacheReplyInfoVO.getRepliedToMessageId(),

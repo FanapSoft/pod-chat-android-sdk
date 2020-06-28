@@ -1,14 +1,21 @@
 package com.fanap.podchat.chat.call;
 
+import android.util.Log;
+
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
+import com.fanap.podchat.chat.call.model.CallVO;
+import com.fanap.podchat.chat.call.model.ClientDTO;
+import com.fanap.podchat.chat.call.model.CreateCallVO;
 import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.chat.call.request_model.CallRequest;
 import com.fanap.podchat.chat.call.request_model.EndCallRequest;
 import com.fanap.podchat.chat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.chat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.chat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.chat.call.result_model.CallRequestResult;
 import com.fanap.podchat.chat.call.result_model.EndCallResult;
+import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.call.result_model.StartCallResult;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -20,6 +27,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+
+import static com.fanap.podchat.chat.Chat.TAG;
 
 public class CallManager {
 
@@ -233,4 +242,34 @@ public class CallManager {
         return response;
 
     }
+
+    public static ChatResponse<CallReconnectResult> handleOnCallReconnectReceived(ChatMessage chatMessage) {
+
+        ChatResponse<CallReconnectResult> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(chatMessage.getUniqueId());
+
+            response.setSubjectId(chatMessage.getSubjectId());
+
+            ClientDTO clientDTO = App.getGson().fromJson(chatMessage.getContent(),ClientDTO.class);
+
+            CallReconnectResult result = new CallReconnectResult();
+
+            result.setCallId(chatMessage.getSubjectId());
+
+            result.setClientId(clientDTO.getClientId());
+
+            response.setResult(result);
+
+        } catch (Exception e) {
+            Log.wtf(TAG,e);
+        }
+
+        return response;
+
+    }
+
+
 }

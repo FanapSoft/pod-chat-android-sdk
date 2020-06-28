@@ -1,4 +1,4 @@
-package com.fanap.podchat.chat.call;
+package com.fanap.podchat.chat.call.model;
 
 import com.fanap.podchat.mainmodel.Invitee;
 

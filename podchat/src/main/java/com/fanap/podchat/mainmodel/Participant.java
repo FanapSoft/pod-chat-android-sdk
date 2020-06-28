@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.NonNull;
+
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 
 import java.util.ArrayList;
@@ -292,5 +294,36 @@ public class Participant {
 
     public void setChatProfileVO(ChatProfileVO chatProfileVO) {
         this.chatProfileVO = chatProfileVO;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Participant{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", image='" + image + '\'' +
+                ", notSeenDuration=" + notSeenDuration +
+                ", contactId=" + contactId +
+                ", coreUserId=" + coreUserId +
+                ", contactName='" + contactName + '\'' +
+                ", contactFirstName='" + contactFirstName + '\'' +
+                ", contactLastName='" + contactLastName + '\'' +
+                ", sendEnable=" + sendEnable +
+                ", receiveEnable=" + receiveEnable +
+                ", cellphoneNumber='" + cellphoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                ", myFriend=" + myFriend +
+                ", online=" + online +
+                ", blocked=" + blocked +
+                ", admin=" + admin +
+                ", auditor=" + auditor +
+                ", roles=" + roles +
+                ", keyId='" + keyId + '\'' +
+                ", username='" + username + '\'' +
+                ", chatProfileVO=" + chatProfileVO.toString() +
+                '}';
     }
 }

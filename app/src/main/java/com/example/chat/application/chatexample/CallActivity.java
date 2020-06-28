@@ -2,7 +2,6 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +14,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fanap.podchat.chat.call.CallVO;
-import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.model.CallVO;
+import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestConnect;
@@ -384,11 +383,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             tvHistory.append("Content Count: " + response.getResult().getContentCount() + "\n\n");
 
-            tvHistory.append("\n====================\n");
+
 
             if(!Util.isNullOrEmpty(response.getResult().getCallsList()))
             for (CallVO call :
                     response.getResult().getCallsList()) {
+
+                tvHistory.append("\n====================\n");
 
                 tvHistory.append("Call id: " + call.getId() +"\n");
                 tvHistory.append("Call CreatorId: " + call.getCreatorId() +"\n");
@@ -397,7 +398,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 tvHistory.append("Call EndTime: " + call.getEndTime() +"\n");
                 tvHistory.append("Call Status: " + call.getStatus() +"\n");
                 tvHistory.append("Call getType: " + call.getType() +"\n");
-                tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipant().toString() +"\n");
+                tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() +"\n");
 
             }
             else{
@@ -408,119 +409,12 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
-
     }
 
-    //
-//        if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
-//        permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-//        if (!permissionToRecordAccepted) Log.e(TAG, "NOT ACCEPTED");
-////            else recordAudio();
-//    }
+    @Override
+    public void onCallReconnect(long callId) {
 
-//    private void recordAudio() {
-//
-//
-//        if (!permissionToRecordAccepted) return;
-//
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//
-//        ParcelFileDescriptor[] descriptors = new ParcelFileDescriptor[0];
-//        try {
-//            descriptors = ParcelFileDescriptor.createPipe();
-//
-//            ParcelFileDescriptor parcelRead = new ParcelFileDescriptor(descriptors[0]);
-//            ParcelFileDescriptor parcelWrite = new ParcelFileDescriptor(descriptors[1]);
-//
-//            InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(parcelRead);
-//
-//            recorder = new MediaRecorder();
-//            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//            recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
-//            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//            recorder.setOutputFile(parcelWrite.getFileDescriptor());
-//
-////            recorder = new MediaRecorder();
-////            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-////            recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-////            recorder.setOutputFile(fileName);
-////            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//
-//
-//            recorder.prepare();
-//
-//            recorder.start();
-//
-//
-//            int read = 0;
-//            byte[] data = new byte[16384];
-//
-//            while ((read = inputStream.read(data, 0, data.length)) != -1) {
-//
-//                byteArrayOutputStream.write(data, 0, read);
-//
-//                byte[] d2 = byteArrayOutputStream.toByteArray();
-//            }
-//
-//            byteArrayOutputStream.flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//
-//    private void stopStream() {
-//
-//        currentlySendingAudio = false;
-//
-//    }
-//
-//    private void startStream() {
-//
-//
-//        // the audio recording options
-//        final int RECORDING_RATE = 44100;
-//        final int CHANNEL = AudioFormat.CHANNEL_IN_MONO;
-//        final int FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-//        int BUFFER_SIZE = AudioRecord.getMinBufferSize(
-//                RECORDING_RATE, CHANNEL, FORMAT);
-//
-//        Log.i(TAG, "Starting the background thread to stream the audio data");
-//
-//        Thread streamThread = new Thread(() -> {
-//
-//            Log.d(TAG, "Creating the buffer of size " + BUFFER_SIZE);
-//            byte[] buffer = new byte[BUFFER_SIZE];
-////            short sData[] = new short[BufferElements2Rec];
-////            int BytesPerElement = 2; // 2 bytes in 16bit format
-//
-////            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-////                    RECORDER_SAMPLERATE, RECORDER_CHANNELS,
-////                    RECORDER_AUDIO_ENCODING, BufferElements2Rec * BytesPerElement);
-//
-//            Log.d(TAG, "Creating the AudioRecord");
-//            AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-//                    RECORDING_RATE, CHANNEL, FORMAT, BUFFER_SIZE * 10);
-//
-//            Log.d(TAG, "AudioRecord recording...");
-//            recorder.startRecording();
-//            currentlySendingAudio = true;
-//            while (currentlySendingAudio) {
-//
-//                int read = recorder.read(buffer, 0, buffer.length);
-//
-//                Log.e(TAG, "Bytes: " + Arrays.toString(buffer));
-//                Log.e(TAG, "READ: " + read);
-//
-//            }
-//
-//
-//        });
-//        streamThread.setName("STREAM THREAD");
-//        streamThread.start();
-//
-//
-//    }
+        Toast.makeText(this, "Call with id " + callId + " is reconnecting", Toast.LENGTH_LONG).show();
 
-
+    }
 }

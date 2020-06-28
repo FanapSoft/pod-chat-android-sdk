@@ -16,13 +16,14 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.chat.call.request_model.CallRequest;
 import com.fanap.podchat.chat.call.CallType;
 import com.fanap.podchat.chat.call.request_model.EndCallRequest;
 import com.fanap.podchat.chat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.chat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.chat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.chat.call.result_model.CallRequestResult;
 import com.fanap.podchat.chat.call.result_model.EndCallResult;
 import com.fanap.podchat.chat.call.result_model.StartCallResult;
@@ -1607,4 +1608,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+    @Override
+    public void onCallReconnect(ChatResponse<CallReconnectResult> response) {
+
+
+
+        view.onCallReconnect(response.getResult().getCallId());
+    }
 }

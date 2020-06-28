@@ -3,7 +3,8 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.chat.call.result_model.CallRequestResult;
 import com.fanap.podchat.chat.call.result_model.EndCallResult;
 import com.fanap.podchat.chat.call.result_model.StartCallResult;
@@ -921,6 +922,19 @@ public class ChatListenerManager {
             }
         }
 
+
+    }
+
+    public void callOnCallReconnectReceived(ChatResponse<CallReconnectResult> response) {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallReconnect(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
 
     }
 

@@ -1,8 +1,7 @@
-package com.fanap.podchat.chat.call;
+package com.fanap.podchat.chat.call.model;
 
 import com.fanap.podchat.mainmodel.Participant;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 public class CallVO {
@@ -11,13 +10,13 @@ public class CallVO {
     private long id;
     private long creatorId;
     private int type;
-    private Timestamp createTime;
-    private Timestamp startTime;
-    private Timestamp endTime;
+    private long createTime;
+    private long startTime;
+    private long endTime;
     private int status;
     private boolean isGroup;
     private List<Participant> callParticipants;
-    private Participant partnerParticipant;
+    private Participant partnerParticipantVO;
 
 
 
@@ -45,27 +44,27 @@ public class CallVO {
         this.type = type;
     }
 
-    public Timestamp getCreateTime() {
+    public long getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Timestamp createTime) {
+    public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
 
-    public Timestamp getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
-    public Timestamp getEndTime() {
+    public long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
 
@@ -94,11 +93,11 @@ public class CallVO {
         isGroup = group;
     }
 
-    public Participant getPartnerParticipant() {
-        return partnerParticipant;
+    public Participant getPartnerParticipantVO() {
+        return partnerParticipantVO;
     }
 
-    public void setPartnerParticipant(Participant partnerParticipant) {
-        this.partnerParticipant = partnerParticipant;
+    public void setPartnerParticipantVO(Participant partnerParticipantVO) {
+        this.partnerParticipantVO = partnerParticipantVO;
     }
 }

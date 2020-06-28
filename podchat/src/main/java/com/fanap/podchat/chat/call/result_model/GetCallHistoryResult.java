@@ -1,4 +1,6 @@
-package com.fanap.podchat.chat.call;
+package com.fanap.podchat.chat.call.result_model;
+
+import com.fanap.podchat.chat.call.model.CallVO;
 
 import java.util.ArrayList;
 

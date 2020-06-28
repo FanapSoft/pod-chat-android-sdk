@@ -7,7 +7,7 @@ import android.net.Uri;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.call.GetCallHistoryResult;
+import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -214,6 +214,8 @@ public interface ChatContract {
         default void onVoiceCallStarted(String uniqueId, String clientId){}
 
         default void onGetCallHistory(ChatResponse<GetCallHistoryResult> result){}
+
+        default void onCallReconnect(long callId){}
     }
 
     interface presenter {
