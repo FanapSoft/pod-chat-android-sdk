@@ -67,6 +67,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private int partnerId = 122;
     private boolean chatReady;
+    private boolean isTestMode = false;
 
 
     @Override
@@ -116,6 +117,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonTestCall.setOnClickListener(v -> {
 
+            isTestMode = true;
 
             if (!etGroupId.getText().toString().isEmpty()
                     && !etSender.getText().toString().isEmpty()
@@ -130,11 +132,20 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             presenter.testCall();
 
+            runOnUiThread(() -> {
+                inCallView.setVisibility(View.VISIBLE);
+                callRequestView.setVisibility(View.INVISIBLE);
+                buttonCall.setVisibility(View.INVISIBLE);
+                buttonTestCall.setVisibility(View.INVISIBLE);
+                buttonConnect.setVisibility(View.INVISIBLE);
+            });
+
 
         });
 
         buttonTestCall.setOnLongClickListener(v -> {
             presenter.endStream();
+
             return true;
         });
 
@@ -173,7 +184,24 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonEndCall.setOnClickListener(v -> {
 
-            presenter.endRunningCall();
+
+
+            if(isTestMode){
+
+                presenter.endStream();
+                inCallView.setVisibility(View.INVISIBLE);
+                callRequestView.setVisibility(View.INVISIBLE);
+                buttonCall.setVisibility(View.VISIBLE);
+                buttonTestCall.setVisibility(View.VISIBLE);
+                buttonConnect.setVisibility(View.VISIBLE);
+
+                isTestMode = false;
+
+            }else {
+                presenter.endRunningCall();
+            }
+
+
 
         });
 

@@ -1,4 +1,4 @@
-package com.fanap.podchat.podcall;
+package com.fanap.podchat.chat.call.audio_call;
 
 import android.content.Context;
 import android.util.Log;
@@ -162,21 +162,21 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     @Override
     public void onFirstBytesRecorded() {
 
-        configProducer();
-
-        Runnable t = () -> {
-
-            Log.e(TAG, "Consume from: " + RECEIVING_TOPIC);
-
-            while (streaming) {
-                audioStreamManager.playAudio(consumerClient.consumingTopic());
-            }
-
-        };
-
-        Thread r = new Thread(t, "PLAYING");
-        audioStreamManager.setPlayingThread(r);
-        r.start();
+//        configProducer();
+//
+//        Runnable t = () -> {
+//
+//            Log.e(TAG, "Consume from: " + RECEIVING_TOPIC);
+//
+//            while (streaming) {
+//                audioStreamManager.playAudio(consumerClient.consumingTopic());
+//            }
+//
+//        };
+//
+//        Thread r = new Thread(t, "PLAYING");
+//        audioStreamManager.setPlayingThread(r);
+//        r.start();
 
 
 
@@ -186,17 +186,20 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     public void onByteRecorded(byte[] bytes) {
 
 
-        if (!firstByteReceived) {
-
-            firstByteReceived = true;
-
-            sendReceiveSynchronizer.onFirstBytesRecorded();
-        }
-
-        if (streaming) {
-            String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
-            Log.e(TAG, "SEND GID: "+GROUP_ID+" SEND TO: "+SENDING_TOPIC+ " bits: " + Arrays.toString(bytes));
-        }
+//        while (streaming) {
+                audioStreamManager.playAudio(bytes);
+//            }
+//        if (!firstByteReceived) {
+//
+//            firstByteReceived = true;
+//
+//            sendReceiveSynchronizer.onFirstBytesRecorded();
+//        }
+//
+//        if (streaming) {
+//            String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+//            Log.e(TAG, "SEND GID: "+GROUP_ID+" SEND TO: "+SENDING_TOPIC+ " bits: " + Arrays.toString(bytes));
+//        }
 
 
     }
