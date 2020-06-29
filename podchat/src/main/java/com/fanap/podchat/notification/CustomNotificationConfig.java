@@ -11,8 +11,8 @@ public class CustomNotificationConfig {
     private String channelName;
     private String channelDescription;
     private Integer notificationImportance;
-    @NonNull
     private Activity targetActivity;
+    private String targetActivityString;
     private int icon;
 
     private CustomNotificationConfig(Builder builder) {
@@ -23,6 +23,11 @@ public class CustomNotificationConfig {
         notificationImportance = builder.notificationImportance;
         targetActivity = builder.activity;
         this.icon = builder.icon;
+        this.targetActivityString = builder.targetActivityString;
+    }
+
+    public String getTargetActivityString() {
+        return targetActivityString;
     }
 
     public String getChannelId() {
@@ -41,7 +46,6 @@ public class CustomNotificationConfig {
         return notificationImportance;
     }
 
-    @NonNull
     public Activity getTargetActivity() {
         return targetActivity;
     }
@@ -58,10 +62,16 @@ public class CustomNotificationConfig {
         private String channelDescription;
         private Integer notificationImportance;
         private Activity activity;
+        private String targetActivityString;
+
 
 
         public Builder(@NonNull Activity activity) {
             this.activity = activity;
+        }
+
+        public Builder(@NonNull String targetActivityString) {
+            this.targetActivityString = targetActivityString;
         }
 
         public Builder setChannelId(String channelId) {

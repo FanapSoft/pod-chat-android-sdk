@@ -443,7 +443,7 @@ public class Chat extends AsyncAdapter {
 
     public void setupNotification(CustomNotificationConfig notificationConfig) {
 
-        PodNotificationManager.withConfig(notificationConfig, context);
+
 
         PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
             @Override
@@ -470,6 +470,8 @@ public class Chat extends AsyncAdapter {
 
             }
         });
+
+        PodNotificationManager.withConfig(notificationConfig, context);
 
         PodNotificationManager.registerFCMTokenReceiver(context);
 

@@ -172,13 +172,17 @@ public class PodNotificationManager {
         notificationsList.clear();
 
         ShowNotificationHelper.setupNotificationChannel(
-                mConfig.getTargetActivity(),
+                context,
                 mConfig.getChannelId(),
                 mConfig.getChannelName(),
                 mConfig.getChannelDescription(),
                 mConfig.getNotificationImportance());
 
-        saveConfig(mConfig, context);
+        try {
+            saveConfig(mConfig, context);
+        } catch (IllegalStateException e) {
+            if (listener != null) listener.onNotificationError(e.getMessage());
+        }
 
     }
 
@@ -188,7 +192,11 @@ public class PodNotificationManager {
 
         SharedPreferences.Editor e = s.edit();
 
-        e.putString(TARGET_ACTIVITY, mConfig.getTargetActivity().getClass().getName());
+        if (mConfig.getTargetActivity() != null) {
+            e.putString(TARGET_ACTIVITY, mConfig.getTargetActivity().getClass().getName());
+        } else if (!Util.isNullOrEmpty(mConfig.getTargetActivityString())) {
+            e.putString(TARGET_ACTIVITY, mConfig.getTargetActivityString());
+        } else throw new IllegalStateException("Target Activity Could not be null");
 
         e.putInt(ICON, mConfig.getIcon());
 
@@ -196,7 +204,7 @@ public class PodNotificationManager {
 
         e.putString(CHANNEL_ID, mConfig.getChannelId());
 
-        e.putString(PACKAGE_NAME, mConfig.getTargetActivity().getApplication().getApplicationInfo().packageName);
+        e.putString(PACKAGE_NAME, context.getApplicationInfo().packageName);
 
         e.apply();
 
@@ -229,6 +237,10 @@ public class PodNotificationManager {
                 securePreferences.getString(CHANNEL_ID, "")
         );
 
+    }
+
+    public static ArrayList<Map<String, String>> getNotificationsList() {
+        return notificationsList;
     }
 
     static void handleMessage(Context context, RemoteMessage remoteMessage) {
