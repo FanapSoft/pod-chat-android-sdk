@@ -20,6 +20,7 @@ import com.fanap.podchat.chat.call.result_model.StartCallResult;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.JsonObject;
@@ -223,7 +224,7 @@ public class CallManager {
 
     }
 
-    public static ChatResponse<GetCallHistoryResult> handleOnGetCallHistory(ChatMessage chatMessage) {
+    public static ChatResponse<GetCallHistoryResult> handleOnGetCallHistory(ChatMessage chatMessage, Callback callback) {
 
         ChatResponse<GetCallHistoryResult> response = new ChatResponse<>();
 
@@ -231,17 +232,34 @@ public class CallManager {
 
         ArrayList<CallVO> calls = new ArrayList<>();
 
+        long offset = callback != null ? callback.getOffset() : 0;
+
         try {
             calls = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CallVO>>() {
             }.getType());
         } catch (JsonSyntaxException ignored) {
         }
 
-        response.setResult(new GetCallHistoryResult(calls, chatMessage.getContentCount()));
+        response.setResult(new GetCallHistoryResult(calls, chatMessage.getContentCount(),(calls.size() + offset < chatMessage.getContentCount()),(calls.size() + offset)));
 
         return response;
 
     }
+
+    public static ChatResponse<GetCallHistoryResult> handleOnGetCallHistoryFromCache(String uniqueId, ArrayList<CallVO> calls, long contentCount,long offset) {
+
+        ChatResponse<GetCallHistoryResult> response = new ChatResponse<>();
+
+        response.setUniqueId(uniqueId);
+
+        response.setResult(new GetCallHistoryResult(calls, contentCount,(calls.size() + offset < contentCount),(calls.size() + offset)));
+
+        response.setCache(true);
+
+        return response;
+
+    }
+
 
     public static ChatResponse<CallReconnectResult> handleOnCallReconnectReceived(ChatMessage chatMessage) {
 
@@ -253,7 +271,7 @@ public class CallManager {
 
             response.setSubjectId(chatMessage.getSubjectId());
 
-            ClientDTO clientDTO = App.getGson().fromJson(chatMessage.getContent(),ClientDTO.class);
+            ClientDTO clientDTO = App.getGson().fromJson(chatMessage.getContent(), ClientDTO.class);
 
             CallReconnectResult result = new CallReconnectResult();
 
@@ -264,7 +282,7 @@ public class CallManager {
             response.setResult(result);
 
         } catch (Exception e) {
-            Log.wtf(TAG,e);
+            Log.wtf(TAG, e);
         }
 
         return response;

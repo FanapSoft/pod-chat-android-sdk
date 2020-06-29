@@ -17,4 +17,13 @@ public class ChatProfileVO extends ResultUpdateProfile {
     public void setId(long id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "ChatProfileVO{" +
+                "id=" + id +
+                ", bio='" + getBio() + '\'' +
+                ", metadata='" + getMetadata() + '\'' +
+                '}';
+    }
 }

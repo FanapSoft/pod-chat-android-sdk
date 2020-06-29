@@ -55,13 +55,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private ChatContract.presenter presenter;
 
-    Button buttonCall, buttonConnect, buttonTestCall,buttonCloseHistory;
-    TextView tvStatus,tvCallerName,tvHistory;
+    Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory;
+    TextView tvStatus, tvCallerName, tvHistory;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
-    View callRequestView,inCallView,viewHistory;
-    ImageButton buttonRejectCall,buttonAcceptCall,buttonEndCall,buttonGetHistory;
+    View callRequestView, inCallView, viewHistory;
+    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory;
     EditText etGroupId, etSender, etReceiver;
 
 
@@ -119,16 +119,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             if (!etGroupId.getText().toString().isEmpty()
                     && !etSender.getText().toString().isEmpty()
-                    && !etReceiver.getText().toString().isEmpty()){
+                    && !etReceiver.getText().toString().isEmpty()) {
 
                 presenter.testCall(etGroupId.getText().toString(),
                         etSender.getText().toString(),
                         etReceiver.getText().toString()
-                        );
+                );
 
             }
 
-                presenter.testCall();
+            presenter.testCall();
 
 
         });
@@ -375,33 +375,36 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
 
-        runOnUiThread(()->{
+        runOnUiThread(() -> {
 
             viewHistory.setVisibility(View.VISIBLE);
 
-            tvHistory.setText("");
+            String source = Util.parserBoolean(response.isCache()) ? "Cache" : "Server";
+
+            tvHistory.setText("Source: " + source + "\n");
 
             tvHistory.append("Content Count: " + response.getResult().getContentCount() + "\n\n");
 
+            tvHistory.append("Has Next: " + response.getResult().isHasNext() + "\n\n");
 
 
-            if(!Util.isNullOrEmpty(response.getResult().getCallsList()))
-            for (CallVO call :
-                    response.getResult().getCallsList()) {
+            if (!Util.isNullOrEmpty(response.getResult().getCallsList()))
+                for (CallVO call :
+                        response.getResult().getCallsList()) {
 
-                tvHistory.append("\n====================\n");
+                    tvHistory.append("\n====================\n");
 
-                tvHistory.append("Call id: " + call.getId() +"\n");
-                tvHistory.append("Call CreatorId: " + call.getCreatorId() +"\n");
-                tvHistory.append("Call CreateTime: " + call.getCreateTime() +"\n");
-                tvHistory.append("Call StartTime: " + call.getStartTime() +"\n");
-                tvHistory.append("Call EndTime: " + call.getEndTime() +"\n");
-                tvHistory.append("Call Status: " + call.getStatus() +"\n");
-                tvHistory.append("Call getType: " + call.getType() +"\n");
-                tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() +"\n");
+                    tvHistory.append("Call id: " + call.getId() + "\n");
+                    tvHistory.append("Call CreatorId: " + call.getCreatorId() + "\n");
+                    tvHistory.append("Call CreateTime: " + call.getCreateTime() + "\n");
+                    tvHistory.append("Call StartTime: " + call.getStartTime() + "\n");
+                    tvHistory.append("Call EndTime: " + call.getEndTime() + "\n");
+                    tvHistory.append("Call Status: " + call.getStatus() + "\n");
+                    tvHistory.append("Call Type: " + call.getType() + "\n");
+                    tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() + "\n");
 
-            }
-            else{
+                }
+            else {
                 tvHistory.append("\nNo call history\n");
             }
 

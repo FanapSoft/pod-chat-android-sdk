@@ -8,19 +8,38 @@ public class GetCallHistoryResult {
 
     private ArrayList<CallVO> callsList;
 
-    private int contentCount;
+    private long contentCount;
+
+    private boolean hasNext;
+
+    private long nextOffset;
 
 
-    public GetCallHistoryResult(ArrayList<CallVO> callsList, int contentCount) {
+    public GetCallHistoryResult(ArrayList<CallVO> callsList, long contentCount, boolean hasNext, long nextOffset) {
         this.callsList = callsList;
         this.contentCount = contentCount;
+        this.hasNext = hasNext;
+        this.nextOffset = nextOffset;
+    }
+
+    public GetCallHistoryResult(ArrayList<CallVO> callsList, long contentCount) {
+        this.callsList = callsList;
+        this.contentCount = contentCount;
+    }
+
+    public boolean isHasNext() {
+        return hasNext;
+    }
+
+    public long getNextOffset() {
+        return nextOffset;
     }
 
     public ArrayList<CallVO> getCallsList() {
         return callsList;
     }
 
-    public int getContentCount() {
+    public long getContentCount() {
         return contentCount;
     }
 }

@@ -37,6 +37,7 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.call.model.CallVO;
 import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.chat.call.CallManager;
@@ -223,10 +224,12 @@ import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.AsyncAckType;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
+import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
+import com.fanap.podchat.util.FunctionalListener;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 import com.fanap.podchat.util.NetworkUtils.NetworkStateListener;
@@ -254,6 +257,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -907,7 +911,7 @@ public class Chat extends AsyncAdapter {
                 break;
 
             case Constants.GET_CALLS:
-                handleOnGetCallsHistory(chatMessage);
+                handleOnGetCallsHistory(chatMessage, callback);
                 break;
             case Constants.CALL_RECONNECT:
                 handleOnReceivedCallReconnect(chatMessage);
@@ -1079,8 +1083,6 @@ public class Chat extends AsyncAdapter {
                 break;
         }
     }
-
-
 
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
@@ -1292,7 +1294,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
     private void handleOnVoiceCallEnded(ChatMessage chatMessage) {
 
         ChatResponse<EndCallResult> response = CallManager.handleOnCallEnded(chatMessage);
@@ -1301,20 +1302,21 @@ public class Chat extends AsyncAdapter {
 
         audioCallManager.endStream();
 
-        showLog("VOICE_CALL_ENDED",gson.toJson(chatMessage));
+        showLog("VOICE_CALL_ENDED", gson.toJson(chatMessage));
 
     }
 
 
-    private void handleOnGetCallsHistory(ChatMessage chatMessage) {
+    private void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
 
-        ChatResponse<GetCallHistoryResult> response = CallManager.handleOnGetCallHistory(chatMessage);
+        ChatResponse<GetCallHistoryResult> response = CallManager.handleOnGetCallHistory(chatMessage, callback);
 
         listenerManager.callOnGetCallHistory(response);
 
-        showLog("RECEIVED_CALL_HISTORY",gson.toJson(chatMessage));
+        showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
 
-        messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
+        if (cache)
+            messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
     }
 
 
@@ -1324,9 +1326,8 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnCallReconnectReceived(response);
 
-        showLog("RECEIVED_CALL_RECONNECT",gson.toJson(chatMessage));
+        showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
     }
-
 
 
     /**
@@ -1605,7 +1606,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
     public String endAudioCall(EndCallRequest endCallRequest) {
 
         String uniqueId = generateUniqueId();
@@ -1649,8 +1649,24 @@ public class Chat extends AsyncAdapter {
     public String getCallsHistory(GetCallHistoryRequest request) {
 
         String uniqueId = generateUniqueId();
+
+
+        if (cache) {
+            messageDatabaseHelper.getCallHistory(request, (contentCount, callVoList) -> {
+                ChatResponse<GetCallHistoryResult> cacheResponse = CallManager.handleOnGetCallHistoryFromCache(uniqueId, new ArrayList<>((Collection<? extends CallVO>) callVoList), (Long) contentCount, request.getOffset());
+
+                listenerManager.callOnGetCallHistory(cacheResponse);
+
+                showLog("RECEIVED_CACHED_CALL_HISTORY", cacheResponse.getJson());
+            });
+        }
+
+
         if (chatReady) {
             String message = CallManager.createGetCallHistoryRequest(request, uniqueId);
+
+            setCallBacks(false, false, false, false, Constants.GET_CALLS, request.getOffset(), uniqueId);
+
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_GET_CALL_HISTORIES");
         } else {
             onChatNotReady(uniqueId);
@@ -4589,8 +4605,6 @@ public class Chat extends AsyncAdapter {
 
         audioCallManager.testStream(groupId, sender, receiver);
     }
-
-
 
 
 //    public String getImage(RequestGetImage request, ProgressHandler.IDownloadFile progressHandler) {

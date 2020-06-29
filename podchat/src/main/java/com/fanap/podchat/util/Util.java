@@ -181,4 +181,8 @@ public class Util {
         else return uniqueIds.length == 0;
 
     }
+
+    public static boolean parserBoolean(Boolean aBoolean) {
+        return aBoolean == null ? false : aBoolean;
+    }
 }

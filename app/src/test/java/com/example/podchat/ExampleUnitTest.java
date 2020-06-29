@@ -5,8 +5,10 @@ import android.util.Log;
 import com.example.chat.application.chatexample.TestClass;
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
@@ -58,6 +60,44 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
+
+    @Test
+    public void concatTest(){
+
+        String ids = "";
+        ArrayList<Long> longs = new ArrayList<>();
+        longs.add(1L);
+        longs.add(3L);
+        longs.add(111L);
+        for (Long callId :
+                longs) {
+
+            ids = ids.concat(""+callId+", ");
+
+        }
+        ids = ids.substring(0,ids.lastIndexOf(","));
+
+        System.out.println(ids);
+
+    }
+
+    @Test
+    public void testCallParticipant(){
+
+
+        Participant participant = new Participant();
+        participant.setName("John");
+        participant.setLastName("Doe");
+        participant.setImage("mmm");
+
+        CacheCallParticipant callParticipant = new CacheCallParticipant()
+                .fromParticipant(participant,1000);
+
+        assertEquals(participant.getFirstName(),callParticipant.getFirstName());
+
+
+    }
 
 
     @Test

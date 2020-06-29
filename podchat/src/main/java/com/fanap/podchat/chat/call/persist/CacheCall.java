@@ -3,15 +3,17 @@ package com.fanap.podchat.chat.call.persist;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 
+import com.fanap.podchat.chat.call.model.CallVO;
 import com.fanap.podchat.mainmodel.Participant;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
 public class CacheCall {
 
+    @PrimaryKey
     private long id;
     private long creatorId;
     private int type;
@@ -24,9 +26,53 @@ public class CacheCall {
     @Ignore
     private List<Participant> callParticipants;
 
-    @Ignore
-    private Participant partnerParticipant;
+    private long partnerParticipantId;
 
+    @Ignore
+    private Participant partnerParticipantVO;
+
+
+    public CacheCall() {
+    }
+
+    public CacheCall(long id, long creatorId, int type, long createTime, long startTime, long endTime, int status, boolean isGroup, List<Participant> callParticipants, long partnerParticipantId, Participant partnerParticipantVO) {
+        this.id = id;
+        this.creatorId = creatorId;
+        this.type = type;
+        this.createTime = createTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
+        this.isGroup = isGroup;
+        this.callParticipants = callParticipants;
+        this.partnerParticipantId = partnerParticipantId;
+        this.partnerParticipantVO = partnerParticipantVO;
+    }
+
+    public CacheCall fromCall(CallVO call) {
+        this.id = call.getId();
+        this.creatorId = call.getCreatorId();
+        this.type = call.getType();
+        this.createTime = call.getCreateTime();
+        this.startTime = call.getStartTime();
+        this.endTime = call.getEndTime();
+        this.status = call.getStatus();
+        this.isGroup = call.isGroup();
+        this.callParticipants = call.getCallParticipants();
+        this.partnerParticipantVO = call.getPartnerParticipantVO();
+        this.partnerParticipantId = call.getPartnerParticipantVO() != null ?
+                call.getPartnerParticipantVO().getId() : 0;
+
+        return this;
+    }
+
+    public long getPartnerParticipantId() {
+        return partnerParticipantId;
+    }
+
+    public void setPartnerParticipantId(long partnerParticipantId) {
+        this.partnerParticipantId = partnerParticipantId;
+    }
 
     public void setId(long id) {
         this.id = id;
@@ -64,8 +110,8 @@ public class CacheCall {
         this.callParticipants = callParticipants;
     }
 
-    public void setPartnerParticipant(Participant partnerParticipant) {
-        this.partnerParticipant = partnerParticipant;
+    public void setPartnerParticipantVO(Participant partnerParticipantVO) {
+        this.partnerParticipantVO = partnerParticipantVO;
     }
 
     public long getId() {
@@ -104,7 +150,25 @@ public class CacheCall {
         return callParticipants;
     }
 
-    public Participant getPartnerParticipant() {
-        return partnerParticipant;
+    public Participant getPartnerParticipantVO() {
+        return partnerParticipantVO;
+    }
+
+    public CallVO toCallVo() {
+
+        CallVO callVO = new CallVO();
+
+        callVO.setPartnerParticipantVO(this.partnerParticipantVO);
+        callVO.setCallParticipants(this.callParticipants);
+        callVO.setCreateTime(this.createTime);
+        callVO.setCreatorId(this.creatorId);
+        callVO.setEndTime(this.endTime);
+        callVO.setGroup(this.isGroup);
+        callVO.setType(this.type);
+        callVO.setId(this.id);
+        callVO.setStartTime(this.startTime);
+        callVO.setStatus(this.status);
+
+        return callVO;
     }
 }
