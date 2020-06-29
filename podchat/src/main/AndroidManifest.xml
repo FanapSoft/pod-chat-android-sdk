@@ -1,17 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.fanap.podchat"
     tools:targetApi="n">
 
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <uses-sdk tools:overrideLibrary="com.example.kafkassl" />
-
-
     <application>
-
         <provider
             android:name=".util.GenericFileProvider"
             android:authorities="${applicationId}.provider"
@@ -19,19 +12,27 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
+        <service
+            android:name=".chat.call.audio_call.AudioCallService"
+            android:enabled="true"
+            android:exported="false" />
 
         <service
-            android:name="com.fanap.podchat.notification.PodChatPushNotificationService"
+            android:name=".notification.PodChatPushNotificationService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
     </application>
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-sdk tools:overrideLibrary="com.example.kafkassl" />
 
 </manifest>

@@ -1,6 +1,8 @@
 package com.fanap.podchat.chat.call.audio_call;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ConsumerClient;
@@ -40,12 +42,13 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
 
     private PodAudioStreamManager audioStreamManager;
+    private Context mContext;
 
-    public PodAudioCallManager(Context mContext) {
-        audioStreamManager = new PodAudioStreamManager(mContext);
+    public PodAudioCallManager(Context context) {
+        audioStreamManager = new PodAudioStreamManager(context);
         sendReceiveSynchronizer = this;
+        mContext = context;
     }
-
 
     public void testStream(String groupId, String sender, String receiver) {
 
@@ -74,6 +77,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     }
 
     public void startStream() {
+
+//        startAudioCallService();
 
         Log.e(TAG,">>> Start stream: Sending: " + SENDING_TOPIC
         + " Receiving: " + RECEIVING_TOPIC + " Group Id: " + GROUP_ID);
@@ -123,7 +128,18 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     }
 
+    private void startAudioCallService() {
+        Intent i = new Intent(mContext, AudioCallService.class);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mContext.startForegroundService(i);
+        }else {
+            mContext.startService(i);
+        }
+    }
+
     private void configConsumer() {
+
         final Properties consumerProperties = new Properties();
 
         consumerProperties.setProperty("bootstrap.servers", BROKER_ADDRESS); //9093 تست
@@ -150,6 +166,13 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
         streaming = false;
         audioStreamManager.stopRecording();
         audioStreamManager.stopPlaying();
+
+//        stopAudioCallService();
+    }
+
+    private void stopAudioCallService() {
+        Intent i = new Intent(mContext, AudioCallService.class);
+        mContext.stopService(i);
     }
 
     @Override
@@ -162,23 +185,21 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     @Override
     public void onFirstBytesRecorded() {
 
-//        configProducer();
-//
-//        Runnable t = () -> {
-//
-//            Log.e(TAG, "Consume from: " + RECEIVING_TOPIC);
-//
-//            while (streaming) {
-//                audioStreamManager.playAudio(consumerClient.consumingTopic());
-//            }
-//
-//        };
-//
-//        Thread r = new Thread(t, "PLAYING");
-//        audioStreamManager.setPlayingThread(r);
-//        r.start();
+        configProducer();
 
+        Runnable t = () -> {
 
+            Log.e(TAG, "Consume from: " + RECEIVING_TOPIC);
+
+            while (streaming) {
+                audioStreamManager.playAudio(consumerClient.consumingTopic());
+            }
+
+        };
+
+        Thread r = new Thread(t, "PLAYING");
+        audioStreamManager.setPlayingThread(r);
+        r.start();
 
     }
 
@@ -186,20 +207,17 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     public void onByteRecorded(byte[] bytes) {
 
 
-//        while (streaming) {
-                audioStreamManager.playAudio(bytes);
-//            }
-//        if (!firstByteReceived) {
-//
-//            firstByteReceived = true;
-//
-//            sendReceiveSynchronizer.onFirstBytesRecorded();
-//        }
-//
-//        if (streaming) {
-//            String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
-//            Log.e(TAG, "SEND GID: "+GROUP_ID+" SEND TO: "+SENDING_TOPIC+ " bits: " + Arrays.toString(bytes));
-//        }
+        if (!firstByteReceived) {
+
+            firstByteReceived = true;
+
+            sendReceiveSynchronizer.onFirstBytesRecorded();
+        }
+
+        if (streaming) {
+            String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+            Log.e(TAG, "SEND GID: "+GROUP_ID+" SEND TO: "+SENDING_TOPIC+ " bits: " + Arrays.toString(bytes));
+        }
 
 
     }
