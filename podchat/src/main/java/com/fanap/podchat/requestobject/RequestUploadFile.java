@@ -10,11 +10,13 @@ public class RequestUploadFile {
     private Activity activity;
     private Uri fileUri;
     private String userGroupHashCode;
+    private boolean isPublic;
 
     RequestUploadFile(Builder builder) {
         activity = builder.activity;
         fileUri = builder.fileUri;
         userGroupHashCode = builder.userGroupHashCode;
+        isPublic = builder.isPublic;
     }
 
 
@@ -29,6 +31,8 @@ public class RequestUploadFile {
         private String userGroupHashCode;
         private Activity activity;
         private Uri fileUri;
+        private boolean isPublic = true;
+
 
         public Builder(Activity activity, Uri fileUri) {
             this.activity = activity;
@@ -42,6 +46,11 @@ public class RequestUploadFile {
 
         public Builder setFileUri(Uri fileUri) {
             this.fileUri = fileUri;
+            return this;
+        }
+
+        public Builder setPublic(boolean isPublic) {
+            this.isPublic = isPublic;
             return this;
         }
 
@@ -70,5 +79,9 @@ public class RequestUploadFile {
 
     public void setFileUri(Uri fileUri) {
         this.fileUri = fileUri;
+    }
+
+    public boolean isPublic() {
+        return isPublic;
     }
 }

@@ -7,6 +7,7 @@ import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.notification.PodPushMessage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
@@ -88,8 +89,6 @@ public class ExampleUnitTest {
 
         TestClass.main(null);
     }
-
-
 
 
     @Test
@@ -508,5 +507,42 @@ public class ExampleUnitTest {
 
     }
 
+    @Test
+    public void testMapVAlues() {
+
+        Map<String, ArrayList<Long>> notificationsGroup = new HashMap<>();
+
+        ArrayList<Long> a = new ArrayList<>();
+        a.add(123L);
+        a.add(122L);
+        a.add(121L);
+        a.add(120L);
+        ArrayList<Long> b = new ArrayList<>();
+        b.add(23L);
+        b.add(12L);
+        b.add(21L);
+        b.add(11L);
+        b.add(1220L);
+        b.add(111110L);
+        b.add(11L);
+
+        notificationsGroup.put("a", a);
+        notificationsGroup.put("b", b);
+
+
+        int count = 0;
+        for (String key :
+                notificationsGroup.keySet()) {
+
+            try {
+                count += notificationsGroup.get(key) != null ? notificationsGroup.get(key).size() : 0;
+            } catch (Exception ignored) { }
+
+        }
+
+
+        assertEquals(count, a.size() + b.size());
+
+    }
 
 }

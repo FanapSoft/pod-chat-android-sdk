@@ -27,7 +27,9 @@
         <!-- <action android:name="android.intent.action.QUICKBOOT_POWERON" /> -->
         <!-- </intent-filter> -->
         <!-- </receiver> -->
-        <activity android:name="com.example.chat.application.chatexample.ChatActivity">
+        <activity
+            android:launchMode="singleInstance"
+            android:name="com.example.chat.application.chatexample.ChatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,7 +42,6 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 

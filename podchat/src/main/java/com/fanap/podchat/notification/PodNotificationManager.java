@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
@@ -14,6 +15,9 @@ import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.Util;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
 import com.securepreferences.SecurePreferences;
@@ -24,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
+import static com.fanap.podchat.notification.ShowNotificationHelper.MESSAGE_ID;
 
 public class PodNotificationManager {
 
@@ -55,7 +60,8 @@ public class PodNotificationManager {
 
     private static Map<String, Runnable> messagesQ = new HashMap<>();
 
-    private static final ArrayList<Map<String, String>> notificationsList = new ArrayList<>();
+    //    private static final ArrayList<Map<String, String>> notificationsList = new ArrayList<>();
+    private static final ArrayList<PodPushMessage> notificationsList = new ArrayList<>();
 
 
     public static void setShouldShowNotification(boolean shouldShowNotification) {
@@ -96,6 +102,7 @@ public class PodNotificationManager {
     private static void createUpdateUserDeviceRequest(String newToken) {
 
         String uniqueId = generateUniqueId();
+
         STATE = NEED_REFRESH_TOKEN;
 
         Map<String, String> tokensMap = new HashMap<>();
@@ -167,13 +174,18 @@ public class PodNotificationManager {
         notificationsList.clear();
 
         ShowNotificationHelper.setupNotificationChannel(
-                mConfig.getTargetActivity(),
+                context,
                 mConfig.getChannelId(),
                 mConfig.getChannelName(),
                 mConfig.getChannelDescription(),
                 mConfig.getNotificationImportance());
 
-        saveConfig(mConfig, context);
+        try {
+            saveConfig(mConfig, context);
+        } catch (IllegalStateException e) {
+            if (listener != null) listener.onNotificationError(e.getMessage());
+        }
+
     }
 
     private static void saveConfig(CustomNotificationConfig mConfig, Context context) {
@@ -182,7 +194,11 @@ public class PodNotificationManager {
 
         SharedPreferences.Editor e = s.edit();
 
-        e.putString(TARGET_ACTIVITY, mConfig.getTargetActivity().getClass().getName());
+        if (mConfig.getTargetActivity() != null) {
+            e.putString(TARGET_ACTIVITY, mConfig.getTargetActivity().getClass().getName());
+        } else if (!Util.isNullOrEmpty(mConfig.getTargetActivityString())) {
+            e.putString(TARGET_ACTIVITY, mConfig.getTargetActivityString());
+        } else throw new IllegalStateException("Target Activity Could not be null");
 
         e.putInt(ICON, mConfig.getIcon());
 
@@ -190,7 +206,7 @@ public class PodNotificationManager {
 
         e.putString(CHANNEL_ID, mConfig.getChannelId());
 
-        e.putString(PACKAGE_NAME, mConfig.getTargetActivity().getApplication().getApplicationInfo().packageName);
+        e.putString(PACKAGE_NAME, context.getApplicationInfo().packageName);
 
         e.apply();
 
@@ -213,19 +229,57 @@ public class PodNotificationManager {
 
         SecurePreferences securePreferences = getSecurePrefs(context);
 
-        notificationsList.add(data);
 
-        ShowNotificationHelper.showGroupNewMessageNotification(notificationsList,
+        PodPushMessage pushMessage = new PodPushMessage().createFromMapData(data);
+
+        notificationsList.add(pushMessage);
+
+        PodThreadPushMessages.addNewMessage(pushMessage);
+
+
+        new Thread(() -> ShowNotificationHelper.showNewMessageNotification(
                 context,
                 securePreferences.getString(TARGET_ACTIVITY, ""),
                 securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
                 securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
                 securePreferences.getString(CHANNEL_ID, "")
-        );
+        )).start();
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//            new Thread(() -> ShowNotificationHelper.showSampleNotification2(context)).start();
+//        } else {
+//            new Thread(() -> ShowNotificationHelper.showSampleNotification(context)).start();
+//        }
 
     }
 
-    public static void handleMessage(Context context, RemoteMessage remoteMessage) {
+
+    public static Map<String, ArrayList<PodPushMessage>> getNotificationsGroup() {
+        return PodThreadPushMessages.getNotificationsGroup();
+    }
+
+    public static void deliverThreadMessages(long threadId) {
+
+        PodThreadPushMessages.markThreadAsRead(threadId);
+
+    }
+
+    public static void deliverThreadMessages(String threadId) {
+
+        try {
+            if (Util.isNotNullOrEmpty(threadId))
+                PodThreadPushMessages.markThreadAsRead(Long.parseLong(threadId));
+        } catch (NumberFormatException e) {
+            if (listener != null) listener.onNotificationError(e.getMessage());
+        }
+
+    }
+
+    public static ArrayList<PodPushMessage> getNotificationsList() {
+        return notificationsList;
+    }
+
+    static void handleMessage(Context context, RemoteMessage remoteMessage) {
 
         Map<String, String> data = remoteMessage.getData();
 
@@ -261,7 +315,17 @@ public class PodNotificationManager {
     private static void checkForNewFCMToken(Context context, long userId) {
 
 
-        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setApplicationId(context.getString(R.string.firebase_app_id))
+                .setApiKey(context.getString(R.string.firebase_api_key))
+                .setProjectId(context.getString(R.string.firebase_project_id))
+                .build();
+
+        FirebaseApp.initializeApp(context /* Context */, options, "secondary");
+
+        FirebaseApp secondary = FirebaseApp.getInstance("secondary");
+
+        FirebaseInstanceId.getInstance(secondary).getInstanceId().addOnCompleteListener(task -> {
 
             if (task.isSuccessful()) {
 
@@ -293,7 +357,7 @@ public class PodNotificationManager {
 
             } else {
 
-                String cause = task.getException()!=null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
+                String cause = task.getException() != null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
 
                 listener.onNotificationError("Failed to retrieve fcm token: " + cause);
                 Log.w(TAG, "getInstanceId failed", task.getException());
@@ -383,7 +447,7 @@ public class PodNotificationManager {
 
         if (messageUniqueId.equals(chatMessage.getUniqueId())) {
 
-            Log.e(TAG,chatMessage.getContent());
+            Log.e(TAG, chatMessage.getContent());
 
             switch (STATE) {
 
@@ -396,7 +460,7 @@ public class PodNotificationManager {
                         //we send the only token we have as old token and new token
                         createUpdateUserDeviceRequest(fcmToken);
 
-                    }else if(error.getCode() == 100){
+                    } else if (error.getCode() == 100) {
 
                         listener.onNotificationError(chatMessage.getContent());
 
@@ -425,9 +489,59 @@ public class PodNotificationManager {
 
     }
 
-    static void clearNotifications() {
+    public static void clearNotifications(Context context) {
 
+        PodThreadPushMessages.clearMessages();
         notificationsList.clear();
+        ShowNotificationHelper.dismissOtherNotifications(context);
+
+    }
+
+    public static void clearNotification(String messageId) {
+
+
+        ArrayList<PodPushMessage> shownNotificationsList = new ArrayList<>();
+
+        for (PodPushMessage notifData : notificationsList) {
+            String sMessageId = String.valueOf(notifData.getMessageId());
+            if (!Util.isNullOrEmpty(sMessageId))
+                if (sMessageId.equals(messageId)) {
+                    shownNotificationsList.add(notifData);
+                }
+        }
+
+
+        notificationsList.removeAll(shownNotificationsList);
+
+    }
+
+    public static void dismissAllNotifications(Context context) {
+        ShowNotificationHelper.dismissOtherNotifications(context);
+    }
+
+    public static void registerClickReceiver(Context context) {
+
+//        try {
+//            listener.onNotificationEvent("registering click receiver...");
+//
+//            IntentFilter filter = new IntentFilter(ShowNotificationHelper.ACTION_1);
+//
+//            ShowNotificationHelper.NotificationClickReceiver receiver = new ShowNotificationHelper.NotificationClickReceiver();
+//
+//            context.registerReceiver(receiver, filter);
+//
+//            listener.onNotificationEvent("registering click done!");
+//
+//            ShowNotificationHelper.isClickReceiverRegistered(true);
+//
+//        } catch (Exception e) {
+//            ShowNotificationHelper.isClickReceiverRegistered(false);
+//
+//            if (listener != null) {
+//                listener.onNotificationError("click receiver registration failed: " + e.getMessage());
+//            }
+//        }
+
 
     }
 

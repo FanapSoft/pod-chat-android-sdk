@@ -139,7 +139,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(activity)
+                .Builder(ChatActivity.class.getName())
                 .setChannelName("POD_CHAT_CHANNEL")
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")
@@ -151,14 +151,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.setupNotification(notificationConfig);
 
 
-        //
         chat.isCacheables(true);
 
 
         chat.isLoggable(true);
         chat.rawLog(true);
 
-        chat.setDownloadDirectory(context.getCacheDir());
+        //todo check create directory
+//        chat.setDownloadDirectory(context.getCacheDir());
 
         TimeoutConfig timeout = new TimeoutConfig()
                 .newConfigBuilder()
@@ -188,9 +188,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         tokenHandler.addListener(new TokenHandler.ITokenHandler() {
             @Override
             public void onGetToken(String token) {
-
                 view.onGetToken(token);
-
             }
 
             @Override
@@ -336,6 +334,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String createThread(RequestCreateThread requestCreateThread) {
         return chat.createThread(requestCreateThread);
+    }
+
+    @Override
+    public void deliverNotification(String threadId) {
+        chat.deliverNotification(threadId);
+    }
+
+    @Override
+    public void clearNotifications() {
+        chat.clearAllNotifications();
     }
 
     @Override
@@ -641,7 +649,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //                .build();
 
 
-        chat.addContact(firstName,lastName,cellphoneNumber,email,null,username);
+        chat.addContact(firstName, lastName, cellphoneNumber, email, null, username);
 
 
     }
@@ -851,6 +859,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .sethC(120)
                 .setxC(10)
                 .setyC(5)
+                .setPublic(false)
                 .build();
 
 //        chat.uploadImageProgress(activity,fileUri,handler);
@@ -865,6 +874,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         RequestUploadFile req = new RequestUploadFile
                 .Builder(activity, fileUri)
+                .setPublic(false)
                 .build();
 
         chat.uploadFileProgress(req, handler);

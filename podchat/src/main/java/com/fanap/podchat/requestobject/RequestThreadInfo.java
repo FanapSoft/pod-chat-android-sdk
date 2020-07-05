@@ -14,7 +14,7 @@ public class RequestThreadInfo  extends GeneralRequestObject{
     private String userGroupHash;
 
 
-    RequestThreadInfo (@NonNull Builder builder){
+    private RequestThreadInfo(@NonNull Builder builder){
         super(builder);
         this.description = builder.description;
         this.image = builder.image;

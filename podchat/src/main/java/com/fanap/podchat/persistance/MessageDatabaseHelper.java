@@ -31,6 +31,7 @@ import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
@@ -333,7 +334,7 @@ public class MessageDatabaseHelper {
 
             if (editedMessage) {
                 long lastMessageId = messageDao.getLastMessageId(threadId);
-                if (lastMessageId == cacheMessageVO.getId()) {
+                if (lastMessageId > 0 && lastMessageId == cacheMessageVO.getId()) {
                     shouldUpdateIfEdited = true;
                 }
             }
@@ -690,8 +691,7 @@ public class MessageDatabaseHelper {
 
                 if (threadVo != null) {
 
-                    long threadLastMessageId = threadVo.getLastMessageVOId() != null ? threadVo.getLastMessageVOId()
-                            : 0;
+                    long threadLastMessageId = threadVo.getLastMessageVOId();
 
                     if (threadLastMessageId == id && threadLastMessageId > 0) {
 
@@ -1713,21 +1713,29 @@ public class MessageDatabaseHelper {
                 c.add(Calendar.SECOND, expireAmount);
                 String expireDate = format.format(c.getTime());
 
-                Contact contact = blockedContact.getContactVO();
-
-                //Contact to CacheContact
-                CacheContact cacheContact = getCacheContact(expireDate, contact, true, null);
+                @Nullable Contact contact = blockedContact.getContactVO();
 
                 //BlockedContact to CacheBlockedContact
-                CacheBlockedContact cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, cacheContact);
+                CacheBlockedContact cacheBlockedContact;
+
+                if (contact != null) {
+
+                    CacheContact cacheContact = getCacheContact(expireDate, contact, true, null);
+
+                    cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, cacheContact);
+
+                    saveContactVoInBlockedContact(cacheContact);
+
+                } else {
+                    cacheBlockedContact = getCacheBlockedContact(blockedContact, expireDate, null);
+                }
 
                 cacheBlockedContacts.add(cacheBlockedContact);
 
-                saveContactVoInBlockedContact(cacheContact);
-
             }
 
-            messageDao.insertBlockedContacts(cacheBlockedContacts);
+            if (cacheBlockedContacts.size() > 0)
+                messageDao.insertBlockedContacts(cacheBlockedContacts);
 
         });
 
@@ -1871,6 +1879,225 @@ public class MessageDatabaseHelper {
 
     public void deleteBlockedContactByBlockId(long blockId) {
         messageDao.deleteBlockedContactByBlockId(blockId);
+    }
+
+    public void retrieveAndUpdateThreadOnLastMessageEdited(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+        worker(() -> {
+
+            long threadId = thread.getId();
+
+            ArrayList<Integer> tIds = new ArrayList<>();
+
+            tIds.add((int) threadId);
+
+            try {
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
+
+                    List<Thread> threadList = (List<Thread>) threads;
+
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
+
+                        Thread threadFromCache = threadList.get(0);
+
+                        threadFromCache.setLastMessage(thread.getLastMessage());
+
+                        threadFromCache.setLastMessageVO(thread.getLastMessageVO());
+
+                        callback.onThreadExistInCache(threadFromCache);
+
+                        saveNewThread(threadFromCache);
+
+                    } else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
+    }
+
+    public void retrieveAndUpdateThreadOnLastMessageDeleted(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+        worker(() -> {
+
+            long threadId = thread.getId();
+
+            ArrayList<Integer> tIds = new ArrayList<>();
+
+            tIds.add((int) threadId);
+
+            try {
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
+
+                    List<Thread> threadList = (List<Thread>) threads;
+
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
+
+                        Thread threadFromCache = threadList.get(0);
+
+                        threadFromCache.setLastMessage(thread.getLastMessage());
+
+                        threadFromCache.setLastMessageVO(thread.getLastMessageVO());
+
+                        threadFromCache.setTime(thread.getTime());
+
+                        threadFromCache.setUnreadCount(thread.getUnreadCount());
+
+                        callback.onThreadExistInCache(threadFromCache);
+
+                        saveNewThread(threadFromCache);
+
+                    } else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
+    }
+
+    public void retrieveAndUpdateThreadOnLastSeenUpdated(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+        worker(() -> {
+
+            long threadId = thread.getId();
+
+            ArrayList<Integer> tIds = new ArrayList<>();
+
+            tIds.add((int) threadId);
+
+            try {
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
+
+                    List<Thread> threadList = (List<Thread>) threads;
+
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
+
+                        Thread threadFromCache = threadList.get(0);
+                        threadFromCache.setUnreadCount(thread.getUnreadCount());
+                        callback.onThreadExistInCache(threadFromCache);
+                        saveNewThread(threadFromCache);
+                    } else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
+    }
+
+    public void retrieveAndUpdateThreadOnNewMessageAdded(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+        worker(() -> {
+
+            long threadId = thread.getId();
+
+            ArrayList<Integer> tIds = new ArrayList<>();
+
+            tIds.add((int) threadId);
+
+            try {
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
+
+                    List<Thread> threadList = (List<Thread>) threads;
+
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
+
+                        Thread threadFromCache = threadList.get(0);
+
+                        threadFromCache.setTitle(thread.getTitle());
+                        threadFromCache.setImage(thread.getImage());
+                        threadFromCache.setDescription(thread.getDescription());
+                        threadFromCache.setMetadata(thread.getMetadata());
+                        threadFromCache.setTime(thread.getTime());
+                        threadFromCache.setUserGroupHash(thread.getUserGroupHash());
+                        threadFromCache.setUnreadCount(thread.getUnreadCount());
+
+                        callback.onThreadExistInCache(threadFromCache);
+
+                        saveNewThread(threadFromCache);
+
+                    } else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
+    }
+
+    public void retrieveAndUpdateThreadOnThreadInfoUpdated(Thread thread, ThreadManager.ILastMessageChanged callback) {
+
+        worker(() -> {
+
+            long threadId = thread.getId();
+
+            ArrayList<Integer> tIds = new ArrayList<>();
+
+            tIds.add((int) threadId);
+
+            try {
+                getThreadRaw(1, (long) 0, tIds, null, false, threads -> {
+
+                    List<Thread> threadList = (List<Thread>) threads;
+
+                    if (!Util.isNullOrEmpty(threadList) && threadList.get(0).getId() > 0) {
+
+                        Thread threadFromCache = threadList.get(0);
+
+                        if (!Util.isNullOrEmpty(thread.getTitle()))
+                            threadFromCache.setTitle(thread.getTitle());
+
+                        if (!Util.isNullOrEmpty(thread.getImage()))
+                            threadFromCache.setImage(thread.getImage());
+
+                        if (!Util.isNullOrEmpty(thread.getDescription()))
+                            threadFromCache.setDescription(thread.getDescription());
+
+                        if (!Util.isNullOrEmpty(thread.getMetadata()))
+                            threadFromCache.setMetadata(thread.getMetadata());
+
+
+                        threadFromCache.setTime(thread.getTime());
+                        threadFromCache.setUserGroupHash(thread.getUserGroupHash());
+
+                        callback.onThreadExistInCache(threadFromCache);
+
+                        saveNewThread(threadFromCache);
+
+                    } else {
+                        callback.threadNotFoundInCache();
+                    }
+
+                });
+            } catch (RoomIntegrityException e) {
+                e.printStackTrace();
+                callback.threadNotFoundInCache();
+            }
+
+        });
+
     }
 
 
@@ -2043,11 +2270,11 @@ public class MessageDatabaseHelper {
                     Participant participant = null;
                     ReplyInfoVO replyInfoVO = null;
                     MessageVO lastMessageVO = null;
-                    if (threadVo.getInviterId() != null) {
+                    if (threadVo.getInviterId() > 0) {
                         threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                     }
 
-                    if (threadVo.getLastMessageVOId() != null) {
+                    if (threadVo.getLastMessageVOId() > 0) {
                         threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                         CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                         if (cacheLastMessageVO != null && cacheLastMessageVO.getParticipantId() != null) {
@@ -2057,7 +2284,7 @@ public class MessageDatabaseHelper {
                             }
 
                         }
-                        if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                        if (cacheLastMessageVO != null && cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
                             replyInfoVO = new ReplyInfoVO(
                                     cacheReplyInfoVO.getRepliedToMessageId(),
@@ -2139,9 +2366,9 @@ public class MessageDatabaseHelper {
                 thread.getId(),
                 thread.getJoinDate(),
                 null,
+                0,
                 null,
-                null,
-                null,
+                0,
                 thread.getTitle(),
                 null,
                 thread.getTime(),
@@ -2220,10 +2447,10 @@ public class MessageDatabaseHelper {
             ReplyInfoVO replyInfoVO = null;
             for (ThreadVo threadVo : threadVos) {
                 MessageVO lastMessageVO = null;
-                if (threadVo.getInviterId() != null) {
+                if (threadVo.getInviterId() > 0) {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
-                if (threadVo.getLastMessageVOId() != null) {
+                if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
@@ -2332,10 +2559,10 @@ public class MessageDatabaseHelper {
                 Participant participant = null;
                 ReplyInfoVO replyInfoVO = null;
                 MessageVO lastMessageVO = null;
-                if (threadVo.getInviterId() != null) {
+                if (threadVo.getInviterId() > 0) {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
-                if (threadVo.getLastMessageVOId() != null) {
+                if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
@@ -2388,10 +2615,10 @@ public class MessageDatabaseHelper {
                 Participant participant = null;
                 ReplyInfoVO replyInfoVO = null;
                 MessageVO lastMessageVO = null;
-                if (threadVo.getInviterId() != null) {
+                if (threadVo.getInviterId() > 0) {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
-                if (threadVo.getLastMessageVOId() != null) {
+                if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
                     if (cacheLastMessageVO.getParticipantId() != null) {
@@ -2453,9 +2680,6 @@ public class MessageDatabaseHelper {
 
     private void prepareThreadVOAndSaveIt(Thread thread) {
 
-        CacheMessageVO cacheMessageVO;
-        CacheReplyInfoVO cacheReplyInfoVO;
-        CacheForwardInfo cacheForwardInfo;
         String threadJson = App.getGson().toJson(thread);
 
         ThreadVo threadVo = App.getGson().fromJson(threadJson, ThreadVo.class);
@@ -2473,37 +2697,48 @@ public class MessageDatabaseHelper {
 
         if (thread.getLastMessageVO() != null) {
 
-            cacheMessageVO = insertLastMessage(thread, threadVo);
+
+            updateThreadLastMessage(thread, threadVo);
 
 
-            if (threadVo.getLastMessageVO().getParticipant() != null) {
-
-                insertParticipant(cacheMessageVO, threadVo);
-
-            }
-            if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
-
-                cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
-
-                if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
-
-                    insertReplyParticipant(cacheReplyInfoVO, threadVo);
-                }
-            }
-            if (threadVo.getLastMessageVO().getForwardInfo() != null) {
-
-                cacheForwardInfo = insertForwardInfo(cacheMessageVO, threadVo);
-                if (threadVo.getLastMessageVO().getForwardInfo().getParticipant() != null) {
-
-                    insertForwardInfo(cacheForwardInfo, threadVo);
-                }
-                if (threadVo.getLastMessageVO().getForwardInfo().getConversation() != null) {
-                    insertConversationSummary(cacheForwardInfo, threadVo);
-                }
-            }
         }
 
         messageDao.insertThread(threadVo);
+    }
+
+    private void updateThreadLastMessage(Thread thread, ThreadVo threadVo) {
+        CacheMessageVO cacheMessageVO;
+        CacheReplyInfoVO cacheReplyInfoVO;
+        CacheForwardInfo cacheForwardInfo;
+
+        cacheMessageVO = insertLastMessage(thread, threadVo);
+
+
+        if (threadVo.getLastMessageVO().getParticipant() != null) {
+
+            insertParticipant(cacheMessageVO, threadVo);
+
+        }
+        if (threadVo.getLastMessageVO().getReplyInfoVO() != null) {
+
+            cacheReplyInfoVO = insertReplyInfo(cacheMessageVO, threadVo);
+
+            if (threadVo.getLastMessageVO().getReplyInfoVO().getParticipant() != null) {
+
+                insertReplyParticipant(cacheReplyInfoVO, threadVo);
+            }
+        }
+        if (threadVo.getLastMessageVO().getForwardInfo() != null) {
+
+            cacheForwardInfo = insertForwardInfo(cacheMessageVO, threadVo);
+            if (threadVo.getLastMessageVO().getForwardInfo().getParticipant() != null) {
+
+                insertForwardInfo(cacheForwardInfo, threadVo);
+            }
+            if (threadVo.getLastMessageVO().getForwardInfo().getConversation() != null) {
+                insertConversationSummary(cacheForwardInfo, threadVo);
+            }
+        }
     }
 
     private void insertConversationSummary(CacheForwardInfo cacheForwardInfo, ThreadVo threadVo) {
@@ -2932,7 +3167,7 @@ public class MessageDatabaseHelper {
 
         String query = "select * from CacheContact where";
 
-        if(!Util.isNullOrEmpty(requestSearchContact.getQuery())){
+        if (!Util.isNullOrEmpty(requestSearchContact.getQuery())) {
 
             query += " (firstName LIKE '%" + requestSearchContact.getQuery() + "%' OR lastName LIKE '%" + requestSearchContact.getQuery() + "%') AND";
 

@@ -65,6 +65,10 @@ public class Util {
         return string == null || string.isEmpty();
     }
 
+    public static boolean isNotNullOrEmpty(@Nullable String string) {
+        return string != null && !string.isEmpty();
+    }
+
     public static <T extends Number> boolean isNullOrEmpty(@Nullable ArrayList<T> list) {
         return list == null || list.size() == 0;
     }
@@ -76,6 +80,10 @@ public class Util {
 
     public static <T extends Object> boolean isNullOrEmpty(@Nullable List<T> list) {
         return list == null || list.size() == 0;
+    }
+
+    public static <T extends Object> boolean isNotNullOrEmpty(@Nullable List<T> list) {
+        return list != null && list.size() > 0;
     }
 
     public static boolean isNullOrEmptyMessageVO(@Nullable List<MessageVO> list) {

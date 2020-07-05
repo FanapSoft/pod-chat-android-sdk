@@ -16,10 +16,10 @@ public class ThreadVo {
     private long joinDate;
     @Ignore
     private Inviter inviter;
-    private Long inviterId;
+    private long inviterId;
     @Ignore
     private CacheMessageVO lastMessageVO;
-    private Long lastMessageVOId;
+    private long lastMessageVOId;
     private String title;
     @Ignore
     private List<CacheParticipant> participants;
@@ -268,19 +268,19 @@ public class ThreadVo {
         this.metadata = metadata;
     }
 
-    public Long getInviterId() {
+    public long getInviterId() {
         return inviterId;
     }
 
-    public void setInviterId(Long inviterId) {
+    public void setInviterId(long inviterId) {
         this.inviterId = inviterId;
     }
 
-    public Long getLastMessageVOId() {
+    public long getLastMessageVOId() {
         return lastMessageVOId;
     }
 
-    public void setLastMessageVOId(Long lastMessageVOId) {
+    public void setLastMessageVOId(long lastMessageVOId) {
         this.lastMessageVOId = lastMessageVOId;
     }
 
@@ -378,8 +378,8 @@ public class ThreadVo {
 
     public ThreadVo(long id,
                     long joinDate, Inviter inviter,
-                    Long inviterId, CacheMessageVO lastMessageVO,
-                    Long lastMessageVOId, String title,
+                    long inviterId, CacheMessageVO lastMessageVO,
+                    long lastMessageVOId, String title,
                     List<CacheParticipant> participants, long time,
                     String lastMessage, String lastParticipantName,
                     String lastParticipantImage, boolean group,

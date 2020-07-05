@@ -275,7 +275,7 @@ public interface MessageDao {
     @Query("update ThreadVo set lastMessageVOId = :lastMessageId, lastMessage = :lastMessage where id = :threadId")
     void updateThreadLastMessageVOId(long threadId, long lastMessageId, String lastMessage);
 
-    @Query("update ThreadVo set lastMessageVOId = null, lastMessage = null where id = :threadId")
+    @Query("update ThreadVo set lastMessageVOId = 0, lastMessage = null where id = :threadId")
     void removeThreadLastMessageVO(long threadId);
 
 

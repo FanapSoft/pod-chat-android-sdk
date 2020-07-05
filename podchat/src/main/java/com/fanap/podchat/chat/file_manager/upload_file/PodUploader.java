@@ -71,8 +71,8 @@ public class PodUploader {
             int tokenIssuer,
             IPodUploadFileToPodSpace listener) throws Exception {
 
-
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
+
         String mimeType = FileUtils.getMimeType(fileUri, context);
 
         String path = FilePick.getSmartFilePath(context, fileUri);
@@ -150,8 +150,6 @@ public class PodUploader {
     }
 
 
-
-
     public static Subscription uploadPublicToPodSpace(
             String uniqueId,
             @NonNull Uri fileUri,
@@ -163,6 +161,7 @@ public class PodUploader {
             String yC,
             String hC,
             String wC,
+            boolean isPublic,
             IPodUploadFileToPodSpace listener) throws Exception {
 
 
@@ -189,21 +188,22 @@ public class PodUploader {
 
         if (mimeType != null && FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
 
-            return uploadPublicImageToPodSpace(uniqueId, fileServer, token, tokenIssuer, xC, yC, hC, wC, listener, mimeType, file, fileSize);
+            return uploadPublicImageToPodSpace(uniqueId, fileServer, token, tokenIssuer, xC, yC, hC, wC, isPublic, listener, mimeType, file, fileSize);
 
         }
 
-        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer, listener, mimeType, file, fileSize);
+        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer, isPublic, listener, mimeType, file, fileSize);
 
     }
 
-public static Subscription uploadPublicToPodSpace(
+    public static Subscription uploadPublicToPodSpace(
             String uniqueId,
             @NonNull Uri fileUri,
             Context context,
             String fileServer,
             String token,
             int tokenIssuer,
+            boolean isPublic,
             IPodUploadFileToPodSpace listener) throws Exception {
 
 
@@ -230,15 +230,13 @@ public static Subscription uploadPublicToPodSpace(
 
         if (mimeType != null && FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
 
-            return uploadPublicImageToPodSpace(uniqueId, fileServer, token, tokenIssuer, "", "", "", "", listener, mimeType, file, fileSize);
+            return uploadPublicImageToPodSpace(uniqueId, fileServer, token, tokenIssuer, "", "", "", "",isPublic, listener, mimeType, file, fileSize);
 
         }
 
-        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer, listener, mimeType, file, fileSize);
+        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer, isPublic,listener, mimeType, file, fileSize);
 
     }
-
-
 
 
     private static Subscription uploadFileToPodSpace(String uniqueId, String threadHashCode, String fileServer, String token, int tokenIssuer, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) {
@@ -412,10 +410,15 @@ public static Subscription uploadPublicToPodSpace(
     }
 
 
-
-
-
-    public static Subscription uploadPublicFileToPodSpace(String uniqueId, String fileServer, String token, int tokenIssuer, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) {
+    private static Subscription uploadPublicFileToPodSpace(String uniqueId,
+                                                           String fileServer,
+                                                           String token,
+                                                           int tokenIssuer,
+                                                           boolean isPublic,
+                                                           IPodUploadFileToPodSpace listener,
+                                                           String mimeType,
+                                                           File file,
+                                                           long fileSize) {
 
         listener.onUploadStarted(mimeType, file, fileSize);
 
@@ -446,7 +449,7 @@ public static Subscription uploadPublicToPodSpace(
                         token,
                         tokenIssuer,
                         namePart,
-                        true);
+                        isPublic);
 
 
         return uploadObservable
@@ -477,10 +480,20 @@ public static Subscription uploadPublicToPodSpace(
                         }
                     }
 
-                }, error -> listener.onFailure(error.getMessage()));
+                },
+                        error -> listener.onFailure(error.getMessage()));
     }
 
-    public static Subscription uploadPublicImageToPodSpace(String uniqueId, String fileServer, String token, int tokenIssuer, String xC, String yC, String hC, String wC, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) throws FileNotFoundException {
+    private static Subscription uploadPublicImageToPodSpace(String uniqueId,
+                                                            String fileServer,
+                                                            String token,
+                                                            int tokenIssuer,
+                                                            String xC,
+                                                            String yC,
+                                                            String hC,
+                                                            String wC,
+                                                            boolean isPublic,
+                                                            IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) throws FileNotFoundException {
         int width = 0;
         int height = 0;
         String nWidth = "";
@@ -539,7 +552,7 @@ public static Subscription uploadPublicToPodSpace(
                         yCPart,
                         wCPart,
                         hCPart,
-                        true);
+                        isPublic);
 
 
         int finalWidth = width;
@@ -577,10 +590,6 @@ public static Subscription uploadPublicToPodSpace(
 
                 }, error -> listener.onFailure(error.getMessage()));
     }
-
-
-
-
 
 
     public static Subscription uploadFileToChatServer(
@@ -766,11 +775,6 @@ public static Subscription uploadPublicToPodSpace(
 
 
     }
-
-
-
-
-
 
 
     public static ResultFile generateFileUploadResult(UploadToPodSpaceResult response) {

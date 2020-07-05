@@ -6,12 +6,40 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.7.4.0] -2020-7-4
+
+[Improved] Push Notification Grouping, all notifications are grouped by thread.
+
+[Added] ```deliverNotification(threadId)```, marks thread notifications as read.
+
+[Added] ```clearAllNotifications()```, removes all notifications from notification bar.
+
+[Added] Upload private files by ```setPublic(false)``` in RequestUploadFile and RequestUploadImage.
+
+
+
+
+## Version [0.7.3.0] -2020-6-16
+
+[Improved] Handle Thread Info Update Events
+
+[BugFixed] Connection problem on Android 5 and below
+
+
+
+## Version [0.7.2.0] -2020-6-2
+
+[Improved] Upload Thread Image
+
+[Improved] Search Contacts 
+
+
 
 ## Version [0.6.6.2] -2020-5-21
 
-[Add] FCM Push Notification Support
+[Added] FCM Push Notification Support
 
-[Remove] retryUploadPodSpace
+[Removed] retryUploadPodSpace
 
 
 

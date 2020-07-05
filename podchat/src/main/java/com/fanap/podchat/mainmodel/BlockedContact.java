@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class BlockedContact {
@@ -45,6 +47,7 @@ public class BlockedContact {
         this.coreUserId = coreUserId;
     }
 
+    @Nullable
     public Contact getContactVO() {
         return contactVO;
     }

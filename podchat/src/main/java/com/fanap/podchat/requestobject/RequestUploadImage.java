@@ -20,15 +20,15 @@ public class RequestUploadImage extends RequestUploadFile {
     }
 
     public static class Builder extends RequestUploadFile.Builder {
-        
+
         int xC;
         int yC;
         int hC;
         int wC;
-        
-        
+
+
         public Builder(Activity activity, Uri fileUri) {
-            super(activity,fileUri);
+            super(activity, fileUri);
         }
 
 
@@ -44,6 +44,11 @@ public class RequestUploadImage extends RequestUploadFile {
             return this;
         }
 
+        @Override
+        public Builder setUserGroupHashCode(String hashCode) {
+            super.setUserGroupHashCode(hashCode);
+            return this;
+        }
 
         public Builder setxC(int xC) {
             this.xC = xC;
@@ -65,14 +70,19 @@ public class RequestUploadImage extends RequestUploadFile {
             return this;
         }
 
+        @Override
+        public Builder setPublic(boolean isPublic) {
+            super.setPublic(isPublic);
+            return this;
+        }
+
         @NonNull
-     
+
         public RequestUploadImage build() {
             return new RequestUploadImage(this);
         }
-        
-        
-        
+
+
     }
 
 
