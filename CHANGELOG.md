@@ -8,11 +8,13 @@ All notable changes to this project will be documented here.
 
 ## Version [0.7.4.0] -2020-7-4
 
-[Improved] Push Notification Grouping
+[Improved] Push Notification Grouping, all notifications are grouped by thread.
 
-[Added] deliverNotification(threadId)
+[Added] ```deliverNotification(threadId)```, marks thread notifications as read.
 
-[Added] clearAllNotifications()
+[Added] ```clearAllNotifications()```, removes all notifications from notification bar.
+
+[Added] Upload private files by ```setPublic(false)``` in RequestUploadFile and RequestUploadImage.
 
 
 

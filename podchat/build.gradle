@@ -6,7 +6,7 @@ apply plugin: 'com.google.gms.google-services'
 
 ext {
 
-    libraryVersion = '0.7.3.10'
+    libraryVersion = '0.7.4.0'
 }
 
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 122
+        versionCode 123
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

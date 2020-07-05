@@ -1,5 +1,6 @@
 package com.fanap.podchat.notification;
 
+import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.Util;
 
 import java.util.Date;
@@ -21,6 +22,15 @@ import static com.fanap.podchat.util.TextMessageType.Constants.VOICE;
 public class PodPushMessage {
 
 
+    private static final String THREAD_NAME = "threadName";
+    private static final String MESSAGE_SENDER_NAME = "MessageSenderName";
+    private static final String SENDER_IMAGE = "senderImage";
+    private static final String TEXT = "text";
+    private static final String MESSAGE_TYPE = "messageType";
+    private static final String IS_GROUP = "isGroup";
+    private static final String MESSAGE_SENDER_USER_NAME = "MessageSenderUserName";
+    private static final String MESSAGE_ID = "messageId";
+    private static final String THREAD_ID = "threadId";
     private boolean isGroup;
     private String threadName;
     private String messageSenderUserName;
@@ -34,14 +44,14 @@ public class PodPushMessage {
     PodPushMessage createFromMapData(Map<String, String> notificationData) {
 
 
-        String threadName = notificationData.get("threadName");
-        String senderName = notificationData.get("MessageSenderName");
-        String profileUrl = notificationData.get("senderImage");
-        String text = getNotificationText(notificationData.get("text"), notificationData.get("messageType"));
-        String isGroup = notificationData.get("isGroup") != null ? notificationData.get("isGroup") : "false";
-        String messageSenderUserName = notificationData.get("MessageSenderUserName");
-        String messageId = notificationData.get("messageId");
-        String threadId = notificationData.get("threadId");
+        String threadName = notificationData.get(THREAD_NAME);
+        String senderName = notificationData.get(MESSAGE_SENDER_NAME);
+        String profileUrl = notificationData.get(SENDER_IMAGE);
+        String text = getNotificationText(notificationData.get(TEXT), notificationData.get(MESSAGE_TYPE));
+        String isGroup = notificationData.get(IS_GROUP) != null ? notificationData.get(IS_GROUP) : "false";
+        String messageSenderUserName = notificationData.get(MESSAGE_SENDER_USER_NAME);
+        String messageId = notificationData.get(MESSAGE_ID);
+        String threadId = notificationData.get(THREAD_ID);
 
 
         this.threadName = threadName;
@@ -169,7 +179,7 @@ public class PodPushMessage {
 
             switch (textMessageType) {
 
-                case TEXT: {
+                case TextMessageType.Constants.TEXT: {
                     return text;
                 }
 
