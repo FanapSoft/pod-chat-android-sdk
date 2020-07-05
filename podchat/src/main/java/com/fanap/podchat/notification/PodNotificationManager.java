@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
@@ -59,7 +60,8 @@ public class PodNotificationManager {
 
     private static Map<String, Runnable> messagesQ = new HashMap<>();
 
-    private static final ArrayList<Map<String, String>> notificationsList = new ArrayList<>();
+    //    private static final ArrayList<Map<String, String>> notificationsList = new ArrayList<>();
+    private static final ArrayList<PodPushMessage> notificationsList = new ArrayList<>();
 
 
     public static void setShouldShowNotification(boolean shouldShowNotification) {
@@ -227,19 +229,53 @@ public class PodNotificationManager {
 
         SecurePreferences securePreferences = getSecurePrefs(context);
 
-        notificationsList.add(data);
 
-        ShowNotificationHelper.showGroupNewMessageNotification(data,
+        PodPushMessage pushMessage = new PodPushMessage().createFromMapData(data);
+
+        notificationsList.add(pushMessage);
+
+        PodThreadPushMessages.addNewMessage(pushMessage);
+
+
+        new Thread(() -> ShowNotificationHelper.showNewMessageNotification(
                 context,
                 securePreferences.getString(TARGET_ACTIVITY, ""),
                 securePreferences.getInt(NOTIF_IMPORTANCE, NotificationManagerCompat.IMPORTANCE_DEFAULT),
                 securePreferences.getInt(ICON, R.drawable.common_google_signin_btn_icon_dark),
                 securePreferences.getString(CHANNEL_ID, "")
-        );
+        )).start();
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//            new Thread(() -> ShowNotificationHelper.showSampleNotification2(context)).start();
+//        } else {
+//            new Thread(() -> ShowNotificationHelper.showSampleNotification(context)).start();
+//        }
 
     }
 
-    public static ArrayList<Map<String, String>> getNotificationsList() {
+
+    public static Map<String, ArrayList<PodPushMessage>> getNotificationsGroup() {
+        return PodThreadPushMessages.getNotificationsGroup();
+    }
+
+    public static void deliverThreadMessages(long threadId) {
+
+        PodThreadPushMessages.markThreadAsRead(threadId);
+
+    }
+
+    public static void deliverThreadMessages(String threadId) {
+
+        try {
+            if (Util.isNotNullOrEmpty(threadId))
+                PodThreadPushMessages.markThreadAsRead(Long.parseLong(threadId));
+        } catch (NumberFormatException e) {
+            if (listener != null) listener.onNotificationError(e.getMessage());
+        }
+
+    }
+
+    public static ArrayList<PodPushMessage> getNotificationsList() {
         return notificationsList;
     }
 
@@ -453,19 +489,21 @@ public class PodNotificationManager {
 
     }
 
-    static void clearNotifications() {
+    public static void clearNotifications(Context context) {
 
+        PodThreadPushMessages.clearMessages();
         notificationsList.clear();
+        ShowNotificationHelper.dismissOtherNotifications(context);
 
     }
 
     public static void clearNotification(String messageId) {
 
 
-        ArrayList<Map<String, String>> shownNotificationsList = new ArrayList<>();
+        ArrayList<PodPushMessage> shownNotificationsList = new ArrayList<>();
 
-        for (Map<String, String> notifData : notificationsList) {
-            String sMessageId = notifData.get(MESSAGE_ID);
+        for (PodPushMessage notifData : notificationsList) {
+            String sMessageId = String.valueOf(notifData.getMessageId());
             if (!Util.isNullOrEmpty(sMessageId))
                 if (sMessageId.equals(messageId)) {
                     shownNotificationsList.add(notifData);

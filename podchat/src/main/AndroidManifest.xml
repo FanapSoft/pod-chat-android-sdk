@@ -22,6 +22,9 @@
                 <action android:name="com.fanap.podchat.action_click_notification" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:enabled="true"
+            android:name=".notification.ShowNotificationHelper$NotificationDismissReceiver" />
 
         <service
             android:name="com.fanap.podchat.notification.PodChatPushNotificationService"

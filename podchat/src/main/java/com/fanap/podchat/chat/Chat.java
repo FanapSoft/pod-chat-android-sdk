@@ -485,6 +485,18 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    public void deliverNotification(String threadId){
+
+        PodNotificationManager.deliverThreadMessages(threadId);
+
+    }
+
+    public void clearAllNotifications() {
+
+        PodNotificationManager.clearNotifications(context);
+
+    }
+
 
     private static void runDatabase(Context context) {
 
@@ -6687,7 +6699,7 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setType(Constants.GET_CONTACTS);
                 chatMessage.setToken(getToken());
                 chatMessage.setUniqueId(uniqueId);
-                chatMessage.setTypeCode(Util.isNullOrEmpty(typeCode) ? typeCode : getTypeCode());
+                chatMessage.setTypeCode(!Util.isNullOrEmpty(typeCode) ? typeCode : getTypeCode());
 
                 chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
 
@@ -12294,7 +12306,7 @@ public class Chat extends AsyncAdapter {
                 chatMessage.setType(Constants.GET_CONTACTS);
                 chatMessage.setToken(getToken());
                 chatMessage.setUniqueId(uniqueId);
-                chatMessage.setTypeCode(Util.isNullOrEmpty(typeCode) ? typeCode : getTypeCode());
+                chatMessage.setTypeCode(Util.isNotNullOrEmpty(typeCode) ? typeCode : getTypeCode());
 
                 chatMessage.setTokenIssuer("1");
 
@@ -14356,23 +14368,13 @@ public class Chat extends AsyncAdapter {
     @Override
     public void onError(String textMessage) {
         super.onError(textMessage);
-
         getErrorOutPut("On Async Error: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
-
     }
 
     @Override
     public void handleCallbackError(Throwable cause) {
         super.handleCallbackError(cause);
-
-        try {
-
             getErrorOutPut("Async Callback Error: " + cause.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
 }

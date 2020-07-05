@@ -337,6 +337,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void deliverNotification(String threadId) {
+        chat.deliverNotification(threadId);
+    }
+
+    @Override
+    public void clearNotifications() {
+        chat.clearAllNotifications();
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 

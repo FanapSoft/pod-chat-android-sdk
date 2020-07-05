@@ -448,5 +448,9 @@ public interface ChatContract {
         String updateThreadInfo(RequestThreadInfo request);
 
         String createThread(RequestCreateThread requestCreateThread);
+
+        void deliverNotification(String threadId);
+
+        void clearNotifications();
     }
 }

@@ -5,29 +5,39 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+
+## Version [0.7.4.0] -2020-7-4
+
+[Improved] Push Notification Grouping
+
+[Added] deliverNotification(threadId)
+
+[Added] clearAllNotifications()
+
+
+
+
 ## Version [0.7.3.0] -2020-6-16
 
-[Improve] Handle Thread Info Update Events
+[Improved] Handle Thread Info Update Events
 
-[BugFix] Connection problem on Android 5 and below
-
-
+[BugFixed] Connection problem on Android 5 and below
 
 
 
 ## Version [0.7.2.0] -2020-6-2
 
-[Improve] Upload Thread Image
+[Improved] Upload Thread Image
 
-[Improve] Search Contacts 
+[Improved] Search Contacts 
 
 
 
 ## Version [0.6.6.2] -2020-5-21
 
-[Add] FCM Push Notification Support
+[Added] FCM Push Notification Support
 
-[Remove] retryUploadPodSpace
+[Removed] retryUploadPodSpace
 
 
 

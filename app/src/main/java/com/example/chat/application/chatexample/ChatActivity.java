@@ -98,6 +98,7 @@ import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.ThreadType;
+import com.fanap.podchat.util.Util;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -202,31 +203,31 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 ////
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
 //    //sand box / group
-
-    public static int TEST_THREAD_ID = 5182;
-    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+//
+//    public static int TEST_THREAD_ID = 5182;
+//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 //
-//    public static int TEST_THREAD_ID = 39478;
-//    private static final String TEST_THREAD_HASH = "YS1V7W4DG4R96M";
+    public static int TEST_THREAD_ID = 39478;
+    private static final String TEST_THREAD_HASH = "YS1V7W4DG4R96M";
 
     // main server / group
 
@@ -267,19 +268,7 @@ public class ChatActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getIntent() != null && getIntent().getExtras() != null) {
 
-            Bundle a = getIntent().getExtras();
-
-            String threadId = a.getString("threadId");
-
-            String messageId = a.getString("messageId");
-
-            Log.d("CHAT_ACTIVITY", "Notification Data: ");
-            Log.d("CHAT_ACTIVITY", "Thread Id: " + threadId);
-            Log.d("CHAT_ACTIVITY", "Message Id: " + messageId);
-
-        }
 
         faker = new Faker();
 
@@ -321,10 +310,6 @@ public class ChatActivity extends AppCompatActivity
             return true;
         });
 
-        ArrayList<Contact> contacts = new ArrayList<>();
-        One<Contact> one = new One<>();
-        one.setList(contacts);
-
         textViewToken.setText(TOKEN + name);
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
@@ -341,6 +326,9 @@ public class ChatActivity extends AppCompatActivity
         };
 
         presenter = new ChatPresenter(this, this, this);
+
+        presenter.clearNotifications();
+        getNotificationData();
 
         setupFirstSpinner(spinner);
         setupSecondSpinner(spinnerSecond);
@@ -378,15 +366,180 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    private void getNotificationData() {
+        if (getIntent() != null && getIntent().getExtras() != null) {
+
+            Bundle a = getIntent().getExtras();
+
+            String threadId = a.getString("threadId");
+
+            String messageId = a.getString("messageId");
+
+            Log.d("CHAT_ACTIVITY", "Notification Data: ");
+            Log.d("CHAT_ACTIVITY", "Thread Id: " + threadId);
+            Log.d("CHAT_ACTIVITY", "Message Id: " + messageId);
+
+            if(Util.isNotNullOrEmpty(threadId))
+                presenter.deliverNotification(threadId);
+
+        }
+    }
+
     private void showNotification() {
+
+//        for (int i = 0; i < 6; i++) {
+//
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException ignored) { }
+//
+//
+//            Map<String, String> data0 = new HashMap<>();
+//
+//            data0.put("threadName", "رضا احمدی");
+//            data0.put("MessageSenderName", "رضا احمدی");
+//            data0.put("text", "سلام " );
+//            data0.put("isGroup", "false");
+//            data0.put("MessageSenderUserName", "a.ahmadi");
+//            data0.put("messageId", String.valueOf(i));
+//            data0.put("threadId", String.valueOf(notificationThreadId));
+//            data0.put("messageType", "1");
+//
+//            PodNotificationManager.showNotification(data0, this);
+//
+//
+//            Map<String, String> data = new HashMap<>();
+//
+//            data.put("threadName", "رضا احمدی");
+//            data.put("MessageSenderName", "رضا احمدی");
+//            data.put("text", " چه خبر؟ " );
+//            data.put("isGroup", "false");
+//            data.put("MessageSenderUserName", "a.ahmadi");
+//            data.put("messageId", String.valueOf(i*100));
+//            data.put("threadId", String.valueOf(notificationThreadId));
+//            data.put("messageType", "1");
+//
+//            PodNotificationManager.showNotification(data, this);
+//
+//            Map<String, String> data2 = new HashMap<>();
+//
+//            data2.put("threadName", faker.gameOfThrones().house());
+//            data2.put("MessageSenderName", faker.gameOfThrones().character());
+//            data2.put("text", faker.gameOfThrones().quote());
+//            data2.put("isGroup", "true");
+//            data2.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data2.put("messageId", String.valueOf(i*2));
+//            data2.put("threadId", String.valueOf(notificationThreadId*3));
+//            data2.put("messageType", "1");
+//
+//            PodNotificationManager.showNotification(data2, this);
+//
+//
+//            Map<String, String> data3 = new HashMap<>();
+//
+//            data3.put("threadName", faker.gameOfThrones().house());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            data3.put("isGroup", "true");
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("messageId", String.valueOf(i*3));
+//            data3.put("threadId", String.valueOf(notificationThreadId*3));
+//            data3.put("messageType", "1");
+//
+//            PodNotificationManager.showNotification(data3, this);
+//
+//        }
+
+
+//
+//            try {
+//                Thread.sleep(3000);
+//            } catch (InterruptedException ignored) { }
+
+
+//        for (int i = 0; i < 3; i++){
+//
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException ignored) { }
+//
+//
+//            Map<String, String> data3 = new HashMap<>();
+//            data3.put("threadName", faker.gameOfThrones().house());
+//            data3.put("isGroup", "true");
+//            data3.put("threadId", String.valueOf(i));
+//            data3.put("messageType", "1");
+//
+//
+//
+//
+//            data3.put("messageId", String.valueOf(i));
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            PodNotificationManager.showNotification(data3, this);
+//
+//            data3.put("messageId", String.valueOf(i+1));
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            PodNotificationManager.showNotification(data3, this);
+//
+//            data3.put("messageId", String.valueOf(i+2));
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            PodNotificationManager.showNotification(data3, this);
+//
+//            data3.put("messageId", String.valueOf(i+3));
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            PodNotificationManager.showNotification(data3, this);
+//
+//
+//            data3.put("messageId", String.valueOf(i+4));
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            PodNotificationManager.showNotification(data3, this);
+//
+//
+//            data3.put("messageId", String.valueOf(i+5));
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            PodNotificationManager.showNotification(data3, this);
+//
+//            data3.put("messageId", String.valueOf(i+6));
+//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
+//            data3.put("MessageSenderName", faker.gameOfThrones().character());
+//            data3.put("text", faker.gameOfThrones().quote());
+//            PodNotificationManager.showNotification(data3, this);
+//
+//        }
+        Map<String, String> data2 = new HashMap<>();
+        data2.put("messageId", "488779");
+        data2.put("messageType", "1");
+        data2.put("MessageSenderName", "پوریا");
+        data2.put("text", "3");
+        data2.put("senderImage", "http://sandbox.pod.ir:8080/nzh/image/?imageId=62606&width=1272&height=1272&hashCode=16bf4878c16-0.7172112194509095");
+        data2.put("threadId", "12269");
+        data2.put("isGroup", "false");
+        PodNotificationManager.showNotification(data2, this);
+
+
+
+
+        String d =  "{messageId=488779, messageType=1, MessageSenderName=پوریا, text=3, senderImage=http://sandbox.pod.ir:8080/nzh/image/?imageId=62606&width=1272&height=1272&hashCode=16bf4878c16-0.7172112194509095, threadId=12269, isGroup=false}";
 
         Map<String, String> data = new HashMap<>();
 
         data.put("threadName", "گروه کاری "+notificationThreadId);
-        data.put("MessageSenderName", "رضا احمدی");
+        data.put("MessageSenderName", "رضا احمدی"+notificationThreadId%2);
         data.put("text", "سلام چه خبر؟ " + notificationMessageId);
         data.put("isGroup", "true");
-        data.put("MessageSenderUserName", "a.ahmadi");
+        data.put("MessageSenderUserName", "a.ahmadi" + notificationThreadId%2);
         data.put("messageId", String.valueOf(++notificationMessageId));
         data.put("threadId", String.valueOf(++notificationThreadId));
         data.put("messageType", "1");
@@ -395,7 +548,8 @@ public class ChatActivity extends AppCompatActivity
             notificationThreadId = 0;
 
 
-        PodNotificationManager.showNotification(data, this);
+//        PodNotificationManager.showNotification(data, this);
+
     }
 
     /*
@@ -2548,6 +2702,9 @@ public class ChatActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         presenter.onResume();
+
+
+
     }
 
     @Override
