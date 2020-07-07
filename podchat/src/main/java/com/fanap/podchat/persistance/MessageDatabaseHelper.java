@@ -297,7 +297,7 @@ public class MessageDatabaseHelper {
 
                 cacheMessageVO.setTimeStamp(timestamp);
             } catch (Exception e) {
-                Log.e("CHAT_SDK", e.getMessage());
+                Log.w("CHAT_SDK_CACHE", e);
             }
 
 
@@ -341,7 +341,6 @@ public class MessageDatabaseHelper {
 
 
             messageDao.insertMessage(cacheMessageVO);
-
 
             boolean shouldUpdateLastMessage = !editedMessage || shouldUpdateIfEdited;
 

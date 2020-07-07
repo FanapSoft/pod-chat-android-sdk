@@ -35,6 +35,9 @@
             </intent-filter>
         </service>
 
+
+        <meta-data android:name="io.sentry.dsn" android:value="@string/key"/>
+
     </application>
 
 

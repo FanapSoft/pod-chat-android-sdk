@@ -29,6 +29,7 @@ import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.R;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -222,6 +223,7 @@ import com.fanap.podchat.util.NetworkUtils.NetworkStateListener;
 import com.fanap.podchat.util.NetworkUtils.NetworkStateReceiver;
 import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Permission;
+import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.RequestMapSearch;
 import com.fanap.podchat.util.TextMessageType;
@@ -255,6 +257,11 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import io.sentry.core.Breadcrumb;
+import io.sentry.core.Sentry;
+import io.sentry.core.SentryLevel;
+import io.sentry.core.SentryOptions;
+import io.sentry.core.protocol.User;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -303,7 +310,6 @@ public class Chat extends AsyncAdapter {
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
     public static final String TAG = "CHAT_SDK";
     private String chatState = "CLOSED";
-    private boolean isWebSocketNull = true;
 
 
     private int getUserInfoRetryCount = 5;
@@ -364,7 +370,7 @@ public class Chat extends AsyncAdapter {
 
     private static NetworkStateReceiver networkStateReceiver;
 
-    private static NetworkPingSender pinger;
+    private NetworkPingSender pinger;
 
     private static HandlerThread signalMessageHandlerThread = null;
 //    private static HandlerThread signalMessageHandlerThread = null;
@@ -434,7 +440,6 @@ public class Chat extends AsyncAdapter {
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
 
-
         }
 
         return instance;
@@ -455,7 +460,7 @@ public class Chat extends AsyncAdapter {
             public void onNotificationError(String log) {
 
 
-                getErrorOutPut(log, ChatConstant.ERROR_CODE_NOTIFICATION_ERROR, "");
+                captureError(log, ChatConstant.ERROR_CODE_NOTIFICATION_ERROR, "");
 
 
             }
@@ -554,32 +559,23 @@ public class Chat extends AsyncAdapter {
             pinger = new NetworkPingSender(context, new NetworkStateListener() {
                 @Override
                 public void networkAvailable() {
-
                     tryToConnectOrReconnect();
-
                 }
 
                 @Override
                 public void networkUnavailable() {
-
                     closeSocketServer();
-
                 }
 
                 @Override
                 public void sendPingToServer() {
-
                     pingForCheckConnection();
-
                 }
 
                 @Override
                 public void onConnectionLost() {
-
                     chatState = CLOSED;
-
                     scheduleForReconnect();
-
                 }
             });
 
@@ -678,7 +674,10 @@ public class Chat extends AsyncAdapter {
                 return;
 
 
-            async.stopSocket();
+            chatState = CLOSED;
+
+            scheduleForReconnect();
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -691,9 +690,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (isAsyncReady()) {
-
             pingAfterSetToken();
-
         } else {
             scheduleForReconnect();
         }
@@ -713,51 +710,39 @@ public class Chat extends AsyncAdapter {
         connectHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-
                 if (log) Log.i(TAG, "The Connection Watcher is trying to reconnect...");
-
-
                 if (connectNumberOfRetry < maxReconnectStepTime) {
-
                     connectNumberOfRetry = connectNumberOfRetry * 2;
-
                 } else {
-
                     connectNumberOfRetry = maxReconnectStepTime;
-
                 }
-
                 if (log) Log.i(TAG, "Next retry is after " + connectNumberOfRetry);
 
 
                 boolean shouldReconnect = TextUtils.equals(chatState, CLOSED)
-                        || shouldReconnectOnOpenState();
+                        || shouldReconnectAtOpenState() || shouldReconnectAtConnectingState();
 
                 if (shouldReconnect) {
 
                     async.connect(socketAddress, appId, serverName, token, ssoHost, "");
 
-                    connectHandler.postDelayed(this, connectNumberOfRetry);
-
                 } else if (!chatReady) {
-
                     if (isAsyncReady()) {
-
                         pingAfterSetToken();
-
                     }
-
-                    connectHandler.postDelayed(this, connectNumberOfRetry);
                 }
-
-
+                connectHandler.postDelayed(this, connectNumberOfRetry);
             }
         }, connectNumberOfRetry);
 
     }
 
-    private boolean shouldReconnectOnOpenState() {
+    private boolean shouldReconnectAtOpenState() {
         return TextUtils.equals(chatState, OPEN) && connectNumberOfRetry == maxReconnectStepTime;
+    }
+
+    private boolean shouldReconnectAtConnectingState() {
+        return TextUtils.equals(chatState, CONNECTING) && connectNumberOfRetry >= (maxReconnectStepTime / 2);
     }
 
 
@@ -827,7 +812,6 @@ public class Chat extends AsyncAdapter {
                 retrySetToken = 1;
                 getUserInfoNumberOfTry = 0;
                 tokenHandler.removeCallbacksAndMessages(null);
-                if (pinger != null) pinger.asyncIsClosedOrClosing();
                 break;
         }
     }
@@ -1075,6 +1059,40 @@ public class Chat extends AsyncAdapter {
 
             case Constants.SYSTEM_MESSAGE:
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
+                break;
+            case Constants.CHANGE_THREAD_PRIVACY:
+                break;
+            case Constants.CREATE_BOT:
+                break;
+            case Constants.DEFINE_BOT_COMMAND:
+                break;
+            case Constants.GET_REPORT_REASONS:
+                break;
+            case Constants.GET_THING_INFO:
+                break;
+            case Constants.GET_THREAD_INFO:
+                break;
+            case Constants.INTERACT_MESSAGE:
+                break;
+            case Constants.PRIVATE_THREAD:
+                break;
+            case Constants.PUBLIC_THREAD_AND_SET_NAME:
+                break;
+            case Constants.REGISTER_FCM_APP:
+                break;
+            case Constants.REPORT_MESSAGE:
+                break;
+            case Constants.REPORT_THREAD:
+                break;
+            case Constants.REPORT_USER:
+                break;
+            case Constants.SET_PRIVATE_THREAD_HASH:
+                break;
+            case Constants.START_BOT:
+                break;
+            case Constants.STOP_BOT:
+                break;
+            case Constants.UPDATE_USER_PROFILE:
                 break;
         }
     }
@@ -1345,7 +1363,7 @@ public class Chat extends AsyncAdapter {
 
 
             } else {
-                getErrorOutPut("PlatformHost " + ChatConstant.ERROR_CHECK_URL
+                captureError("PlatformHost " + ChatConstant.ERROR_CHECK_URL
                         , ChatConstant.ERROR_CODE_CHECK_URL, null);
 
             }
@@ -1372,7 +1390,6 @@ public class Chat extends AsyncAdapter {
     private void connectToAsync(String socketAddress, String appId, String severName, String token, String ssoHost) {
         async.addListener(this);
         async.connect(socketAddress, appId, severName, token, ssoHost, "");
-        isWebSocketNull = false;
     }
 
     private void setupContactApi(String platformHost) {
@@ -1492,7 +1509,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, throwable);
         }
         return uniqueId;
     }
@@ -1819,7 +1836,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void onChatNotReady(String uniqueId) {
-        String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+        String jsonError = captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         if (log) Log.e(TAG, jsonError);
     }
 
@@ -1925,7 +1942,7 @@ public class Chat extends AsyncAdapter {
             }
         } else {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION
                     , uniqueId);
 
             Permission.Request_READ_CONTACTS(activity, READ_CONTACTS_CODE);
@@ -2056,13 +2073,84 @@ public class Chat extends AsyncAdapter {
 //    }
 
 
+    /**
+     * This method first check the messageType of the file and then choose the right
+     * server and send that
+     *
+     * @param description    Its the description that you want to send with file in the thread
+     * @param fileUri        Uri of the file that you want to send to thread
+     * @param threadId       Id of the thread that you want to send file
+     * @param systemMetaData [optional]
+     * @param handler        it is for send file message with progress
+     */
+
+    private String sendFileMessage(Activity activity,
+                                   String description,
+                                   long threadId,
+                                   Uri fileUri,
+                                   String systemMetaData,
+                                   Integer messageType,
+                                   ProgressHandler.sendFileMessage handler) {
+        String uniqueId;
+
+        uniqueId = generateUniqueId();
+
+        if (needReadStoragePermission(activity)) return uniqueId;
+
+        LFileUpload lFileUpload = new LFileUpload();
+        lFileUpload.setActivity(activity);
+        lFileUpload.setDescription(description);
+        lFileUpload.setFileUri(fileUri);
+        lFileUpload.setHandler(handler);
+        lFileUpload.setMessageType(messageType);
+        lFileUpload.setThreadId(threadId);
+        lFileUpload.setUniqueId(uniqueId);
+        lFileUpload.setSystemMetaData(systemMetaData);
+
+        try {
+            if (fileUri != null) {
+                File file = new File(fileUri.getPath());
+                String mimeType = handleMimType(fileUri, file);
+                lFileUpload.setMimeType(mimeType);
+                lFileUpload.setFile(file);
+
+                if (FileUtils.isImage(mimeType)) {
+
+                    if (FileUtils.isGif(mimeType)) {
+                        uploadFileMessage(lFileUpload);
+                    } else
+                        uploadImageFileMessage(lFileUpload);
+
+
+                } else {
+                    uploadFileMessage(lFileUpload);
+                }
+                return uniqueId;
+            } else {
+                String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                        , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+                ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+                if (handler != null) {
+                    handler.onError(jsonError, error);
+                }
+            }
+        } catch (Exception e) {
+
+            captureError(e.getMessage()
+                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, e);
+            showErrorLog(e.getMessage());
+            return uniqueId;
+        }
+        return uniqueId;
+    }
+
     private boolean needReadStoragePermission(Activity activity) {
 
         if (!Permission.Check_READ_STORAGE(activity)) {
 
             Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
 
-            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
 
 
@@ -2098,7 +2186,7 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(requestFileMessage.getActivity())) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             if (handler != null) {
@@ -2118,7 +2206,7 @@ public class Chat extends AsyncAdapter {
 
         if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("PodSpace server is null", 0, uniqueId);
+            captureError("PodSpace server is null", 0, uniqueId);
 
             return uniqueId;
         }
@@ -2230,10 +2318,10 @@ public class Chat extends AsyncAdapter {
                         }
 
                         @Override
-                        public void onFailure(String cause) {
+                        public void onFailure(String cause, Throwable t) {
 
-                            String jsonError = getErrorOutPut(cause
-                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            String jsonError = captureError(cause
+                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                             if (handler != null) {
                                 handler.onError(jsonError, error);
@@ -2270,8 +2358,8 @@ public class Chat extends AsyncAdapter {
             initCancelUpload(uniqueId, subscription);
 
         } catch (Exception e) {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+            String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
             if (handler != null) {
                 handler.onError(jsonError, error);
@@ -2285,7 +2373,7 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(requestFileMessage.getActivity())) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             if (handler != null) {
@@ -2305,7 +2393,7 @@ public class Chat extends AsyncAdapter {
 
         if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("File server is null", 0, uniqueId);
+            captureError("File server is null", 0, uniqueId);
 
             return;
         }
@@ -2418,10 +2506,10 @@ public class Chat extends AsyncAdapter {
 
 
                         @Override
-                        public void onFailure(String cause) {
+                        public void onFailure(String cause, Throwable t) {
 
-                            String jsonError = getErrorOutPut(cause
-                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            String jsonError = captureError(cause
+                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                             if (handler != null) {
                                 handler.onError(jsonError, error);
@@ -2455,8 +2543,8 @@ public class Chat extends AsyncAdapter {
             initCancelUpload(uniqueId, subscription);
 
         } catch (Exception e) {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+            String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
             if (handler != null) {
                 handler.onError(jsonError, error);
@@ -2726,7 +2814,7 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(request.getActivity())) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             if (handler != null) {
@@ -2746,7 +2834,7 @@ public class Chat extends AsyncAdapter {
 
         if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("File server is null", 0, uniqueId);
+            captureError("File server is null", 0, uniqueId);
 
             return uniqueId;
         }
@@ -2798,10 +2886,10 @@ public class Chat extends AsyncAdapter {
                         }
 
                         @Override
-                        public void onFailure(String cause) {
+                        public void onFailure(String cause, Throwable t) {
 
-                            String jsonError = getErrorOutPut(cause
-                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            String jsonError = captureError(cause
+                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                             if (handler != null) {
                                 handler.onError(jsonError, error);
@@ -2831,8 +2919,8 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+            String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
 
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
 
@@ -2970,7 +3058,7 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(request.getActivity())) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             if (handler != null) {
@@ -2990,7 +3078,7 @@ public class Chat extends AsyncAdapter {
 
         if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("File server is null", 0, uniqueId);
+            captureError("File server is null", 0, uniqueId);
 
             return uniqueId;
         }
@@ -3028,9 +3116,10 @@ public class Chat extends AsyncAdapter {
                         }
 
                         @Override
-                        public void onFailure(String cause) {
+                        public void onFailure(String cause, Throwable t) {
 
-                            String jsonError = getErrorOutPut(cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            String jsonError = captureError(cause
+                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                             ErrorOutPut error = new ErrorOutPut(true, cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
                             if (handler != null) {
                                 handler.onError(jsonError, error);
@@ -3061,8 +3150,8 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+            String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
 
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
 
@@ -3182,7 +3271,7 @@ public class Chat extends AsyncAdapter {
     private void uploadFileToThread(RequestUploadFile request, String userGroupHash, String uniqueId, @Nullable ProgressHandler.onProgressFile handler, OnWorkDone listener) {
         if (needReadStoragePermission(request.getActivity())) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             if (handler != null) {
@@ -3202,7 +3291,7 @@ public class Chat extends AsyncAdapter {
 
         if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("File server is null", 0, uniqueId);
+            captureError("File server is null", 0, uniqueId);
 
             return;
         }
@@ -3246,9 +3335,10 @@ public class Chat extends AsyncAdapter {
                                 }
 
                                 @Override
-                                public void onFailure(String cause) {
+                                public void onFailure(String cause, Throwable t) {
 
-                                    String jsonError = getErrorOutPut(cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                                    String jsonError = captureError(cause
+                                            , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                                     ErrorOutPut error = new ErrorOutPut(true, cause, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
                                     if (handler != null) {
                                         handler.onError(jsonError, error);
@@ -3277,8 +3367,8 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+            String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
 
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
 
@@ -3294,7 +3384,7 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(request.getActivity())) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             if (handler != null) {
@@ -3320,7 +3410,7 @@ public class Chat extends AsyncAdapter {
 
             listener.onWorkDone(null);
 
-            getErrorOutPut("File server is null", 0, uniqueId);
+            captureError("File server is null", 0, uniqueId);
 
             return;
         }
@@ -3374,10 +3464,10 @@ public class Chat extends AsyncAdapter {
                         }
 
                         @Override
-                        public void onFailure(String cause) {
+                        public void onFailure(String cause, Throwable t) {
 
-                            String jsonError = getErrorOutPut(cause
-                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            String jsonError = captureError(cause
+                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                             if (handler != null) {
                                 handler.onError(jsonError, error);
@@ -3410,8 +3500,8 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+            String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
 
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
 
@@ -3590,7 +3680,7 @@ public class Chat extends AsyncAdapter {
 
                 if (needReadStoragePermission(activity)) {
 
-                    String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+                    String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                             , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
                     ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
                     if (handler != null) {
@@ -3610,7 +3700,7 @@ public class Chat extends AsyncAdapter {
 
                 if (getPodSpaceServer() == null) {
 
-                    getErrorOutPut("File server is null", 0, uniqueId);
+                    captureError("File server is null", 0, uniqueId);
 
                     return;
                 }
@@ -3723,10 +3813,10 @@ public class Chat extends AsyncAdapter {
                                 }
 
                                 @Override
-                                public void onFailure(String cause) {
+                                public void onFailure(String cause, Throwable t) {
 
-                                    String jsonError = getErrorOutPut(cause
-                                            , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                                    String jsonError = captureError(cause
+                                            , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                                     ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                                     if (handler != null) {
                                         handler.onError(jsonError, error);
@@ -3768,8 +3858,8 @@ public class Chat extends AsyncAdapter {
 
 
                 } catch (Exception e) {
-                    String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                            , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+                    String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                            , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
                     ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                     if (handler != null) {
                         handler.onError(jsonError, error);
@@ -3841,7 +3931,7 @@ public class Chat extends AsyncAdapter {
 
             listenerManager.callOnLowFreeSpace(bytesAvailable);
 
-            getErrorOutPut(ChatConstant.ERROR_LOW_FREE_SPACE, ChatConstant.ERROR_CODE_LOW_FREE_SPACE, "");
+            captureError(ChatConstant.ERROR_LOW_FREE_SPACE, ChatConstant.ERROR_CODE_LOW_FREE_SPACE, "");
 
         }
         return bytesAvailable;
@@ -4336,7 +4426,7 @@ public class Chat extends AsyncAdapter {
             @Override
             public void errorOnWritingToFile() {
 
-                String error = getErrorOutPut(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
+                String error = captureError(ChatConstant.ERROR_WRITING_FILE, ChatConstant.ERROR_CODE_WRITING_FILE, uniqueId);
                 progressHandler.onError(uniqueId, error, url);
 
             }
@@ -4344,7 +4434,7 @@ public class Chat extends AsyncAdapter {
             @Override
             public void errorOnDownloadingFile(int errorCode) {
 
-                String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+                String error = captureError(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
                 progressHandler.onError(uniqueId, error, url);
 
             }
@@ -4352,7 +4442,7 @@ public class Chat extends AsyncAdapter {
             @Override
             public void errorUnknownException(String cause) {
 
-                String error = getErrorOutPut(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId);
+                String error = captureError(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId, new PodChatException(cause, uniqueId, token));
                 progressHandler.onError(uniqueId, error, url);
 
 
@@ -4633,7 +4723,7 @@ public class Chat extends AsyncAdapter {
                 }
 
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
 
@@ -4707,7 +4797,7 @@ public class Chat extends AsyncAdapter {
                 handler.onAddParticipants(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
         return uniqueId;
@@ -4756,7 +4846,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -4806,7 +4896,7 @@ public class Chat extends AsyncAdapter {
                 handler.onLeaveThread(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
         return uniqueId;
@@ -4894,7 +4984,7 @@ public class Chat extends AsyncAdapter {
         } else {
             if (Util.isNullOrEmpty(uniqueIds)) {
                 for (String uniqueId : uniqueIds) {
-                    getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                    captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
                 }
             }
         }
@@ -4940,7 +5030,7 @@ public class Chat extends AsyncAdapter {
 
         if (needReadStoragePermission(request.getActivity())) {
 
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
             if (handler != null) {
@@ -4960,7 +5050,7 @@ public class Chat extends AsyncAdapter {
 
         if (getPodSpaceServer() == null) {
 
-            getErrorOutPut("PodSpace server is null", 0, uniqueId);
+            captureError("PodSpace server is null", 0, uniqueId);
 
             return uniqueId;
         }
@@ -5067,10 +5157,10 @@ public class Chat extends AsyncAdapter {
                         }
 
                         @Override
-                        public void onFailure(String cause) {
+                        public void onFailure(String cause, Throwable t) {
 
-                            String jsonError = getErrorOutPut(cause
-                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                            String jsonError = captureError(cause
+                                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, t);
                             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                             if (handler != null) {
                                 handler.onError(jsonError, error);
@@ -5109,8 +5199,8 @@ public class Chat extends AsyncAdapter {
 
 
         } catch (Exception e) {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+            String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                    , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId, e);
             ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
             if (handler != null) {
                 handler.onError(jsonError, error);
@@ -5223,7 +5313,7 @@ public class Chat extends AsyncAdapter {
                 handler.onDeleteMessage(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
 //        uniqueIds.add(uniqueId);
@@ -5267,7 +5357,7 @@ public class Chat extends AsyncAdapter {
 
 
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
 
@@ -5288,7 +5378,7 @@ public class Chat extends AsyncAdapter {
 
         if (request.getMessageIds().size() > 1) {
 
-            return getErrorOutPut(ChatConstant.ERROR_NUMBER_MESSAGEID, ChatConstant.ERROR_CODE_NUMBER_MESSAGE_ID, null);
+            return captureError(ChatConstant.ERROR_NUMBER_MESSAGEID, ChatConstant.ERROR_CODE_NUMBER_MESSAGE_ID, null);
         }
 
         return deleteMessage(request.getMessageIds().get(0), request.isDeleteForAll(), handler);
@@ -5417,7 +5507,7 @@ public class Chat extends AsyncAdapter {
                         handler.onGetThread(uniqueId);
                     }
                 } else {
-                    getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                    captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
                 }
 
             };
@@ -5447,7 +5537,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -5623,7 +5713,7 @@ public class Chat extends AsyncAdapter {
                             showLog("THREADS CACHE UPDATED", "");
                         } catch (Exception e) {
                             showErrorLog(e.getMessage());
-                            onUnknownException(uniqueId);
+                            onUnknownException(uniqueId, e);
                         }
 
                     });
@@ -5782,14 +5872,14 @@ public class Chat extends AsyncAdapter {
                                 }
                             }, uniqueId);
                         } else {
-                            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
                         }
                     });
 
                 } else if (chatReady) {
                     getHistoryMain(history, threadId, handler, uniqueId);
                 } else {
-                    getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                    captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
                 }
             }
         });
@@ -6099,7 +6189,7 @@ public class Chat extends AsyncAdapter {
 
             } catch (Exception e) {
                 showErrorLog(e.getMessage());
-                onUnknownException(uniqueId);
+                onUnknownException(uniqueId, e);
 
             }
 
@@ -6253,7 +6343,7 @@ public class Chat extends AsyncAdapter {
                 handler.onSearchHistory(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -6727,7 +6817,7 @@ public class Chat extends AsyncAdapter {
 
 
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         };
 
@@ -6839,17 +6929,17 @@ public class Chat extends AsyncAdapter {
                                         messageDatabaseHelper.saveContact(chatResponse.getResult().getContact(), getExpireAmount());
                                     }
                                 } else {
-                                    getErrorOutPut(contacts.getMessage(), contacts.getErrorCode(), uniqueId);
+                                    captureError(contacts.getMessage(), contacts.getErrorCode(), uniqueId);
                                 }
                             }
                         }
                     }, (Throwable throwable) ->
                     {
-                        Log.e("Error on add contact", throwable.getMessage());
+                        captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable);
                         Log.e(TAG, throwable.getMessage());
                     });
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -6923,13 +7013,13 @@ public class Chat extends AsyncAdapter {
                                 listenerManager.callOnRemoveContact(json, chatResponse);
                                 showLog("RECEIVED_REMOVE_CONTACT", json);
                             } else {
-                                getErrorOutPut(contactRemove.getErrorMessage(), contactRemove.getErrorCode(), uniqueId);
+                                captureError(contactRemove.getErrorMessage(), contactRemove.getErrorCode(), uniqueId);
                             }
                         }
                     }, (Throwable throwable) ->
-                            getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
+                            captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable));
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -7044,18 +7134,18 @@ public class Chat extends AsyncAdapter {
 
                                     errorMsg = errorMsg != null ? errorMsg : "";
 
-                                    getErrorOutPut(errorMsg, errorCodeMsg, uniqueId);
+                                    captureError(errorMsg, errorCodeMsg, uniqueId);
                                 }
                             }
                         }
                     }, (Throwable throwable) ->
                     {
                         if (throwable != null) {
-                            getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                            captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable);
                         }
                     });
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
         return uniqueId;
@@ -7091,7 +7181,7 @@ public class Chat extends AsyncAdapter {
                     MapNeshan mapNeshan = mapNeshanResponse.body();
 
                     if (mapNeshan == null) {
-                        getErrorOutPut(mapNeshanResponse.message(), mapNeshanResponse.code(), uniqueId);
+                        captureError(mapNeshanResponse.message(), mapNeshanResponse.code(), uniqueId);
                         return;
                     }
                     outPutMapNeshan = new OutPutMapNeshan();
@@ -7103,26 +7193,11 @@ public class Chat extends AsyncAdapter {
                     listenerManager.callOnMapSearch(json, outPutMapNeshan);
                     showLog("RECEIVE_MAP_SEARCH", json);
                 } else {
-//                        ErrorOutPut errorOutPut = new ErrorOutPut();
-//                        errorOutPut.setErrorCode(mapNeshanResponse.code());
-//                        errorOutPut.setErrorMessage(mapNeshanResponse.message());
-//                        errorOutPut.setHasError(true);
-//                        String json = gson.toJson(outPutMapNeshan);
-//                        listenerManager.callOnError(json, errorOutPut);
-                    getErrorOutPut(mapNeshanResponse.message(), mapNeshanResponse.code(), uniqueId);
+                    captureError(mapNeshanResponse.message(), mapNeshanResponse.code(), uniqueId);
                 }
-            }, (Throwable throwable) -> {
-//                ErrorOutPut errorOutPut = new ErrorOutPut();
-//                errorOutPut.setErrorMessage(throwable.getMessage());
-//                errorOutPut.setHasError(true);
-//                String json = gson.toJson(errorOutPut);
-//
-//                listenerManager.callOnError(json, errorOutPut);
-                getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
-
-            });
+            }, (Throwable throwable) -> captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable));
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -7157,12 +7232,9 @@ public class Chat extends AsyncAdapter {
                     listenerManager.callOnMapRouting(jsonMapRout);
                     showLog("RECEIVE_MAP_ROUTING", jsonMapRout);
                 }
-            }, (Throwable throwable) -> {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-                if (log) Log.e(TAG, throwable.getMessage());
-            });
+            }, (Throwable throwable) -> captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId, throwable));
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -7186,9 +7258,9 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnMapRouting(jsonMapRout);
                 showLog("RECEIVE_MAP_ROUTING", jsonMapRout);
             } else {
-                getErrorOutPut(mapRoutResponse.message(), mapRoutResponse.code(), finalUniqueId);
+                captureError(mapRoutResponse.message(), mapRoutResponse.code(), finalUniqueId);
             }
-        }, (Throwable throwable) -> getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId));
+        }, (Throwable throwable) -> captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, throwable));
         return uniqueId;
     }
 
@@ -7282,14 +7354,14 @@ public class Chat extends AsyncAdapter {
                                     try {
                                         file = FileUtils.saveBitmap(bitmap, "map");
                                     } catch (Exception e) {
-                                        getErrorOutPut(ChatConstant.ERROR_WRITING_FILE,
+                                        captureError(ChatConstant.ERROR_WRITING_FILE,
                                                 ChatConstant.ERROR_CODE_WRITING_FILE,
                                                 finalUniqueId1);
                                     }
 
                                     if (file == null) {
 
-                                        getErrorOutPut(ChatConstant.ERROR_WRITING_FILE,
+                                        captureError(ChatConstant.ERROR_WRITING_FILE,
                                                 ChatConstant.ERROR_CODE_WRITING_FILE,
                                                 finalUniqueId1);
 
@@ -7321,7 +7393,7 @@ public class Chat extends AsyncAdapter {
                             }
                         } else {
 
-                            getErrorOutPut(ChatConstant.ERROR_CALL_NESHAN_API,
+                            captureError(ChatConstant.ERROR_CALL_NESHAN_API,
                                     ChatConstant.ERROR_CODE_CALL_NESHAN_API, finalUniqueId);
                             showErrorLog(response.message());
                         }
@@ -7329,17 +7401,18 @@ public class Chat extends AsyncAdapter {
 
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        getErrorOutPut(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                        captureError(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, t);
                     }
                 });
 
 
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         } catch (Throwable throwable) {
-            if (log) Log.e(TAG, throwable.getMessage());
+            captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable);
+
         }
         return uniqueId;
     }
@@ -7453,13 +7526,13 @@ public class Chat extends AsyncAdapter {
                                     try {
                                         file = FileUtils.saveBitmap(bitmap, "map");
                                     } catch (Exception e) {
-                                        getErrorOutPut(ChatConstant.ERROR_WRITING_FILE,
+                                        captureError(ChatConstant.ERROR_WRITING_FILE,
                                                 ChatConstant.ERROR_CODE_WRITING_FILE,
-                                                finalUniqueId);
+                                                finalUniqueId, e);
                                     }
                                     if (file == null) {
 
-                                        getErrorOutPut(ChatConstant.ERROR_WRITING_FILE,
+                                        captureError(ChatConstant.ERROR_WRITING_FILE,
                                                 ChatConstant.ERROR_CODE_WRITING_FILE,
                                                 finalUniqueId);
 
@@ -7477,7 +7550,7 @@ public class Chat extends AsyncAdapter {
 
                                     if (getPodSpaceServer() == null) {
 
-                                        getErrorOutPut("PodSpace server is null", 0, finalUniqueId);
+                                        captureError("PodSpace server is null", 0, finalUniqueId);
 
                                         return;
                                     }
@@ -7542,10 +7615,10 @@ public class Chat extends AsyncAdapter {
                                                     }
 
                                                     @Override
-                                                    public void onFailure(String cause) {
+                                                    public void onFailure(String cause, Throwable t) {
 
-                                                        String jsonError = getErrorOutPut(cause
-                                                                , ChatConstant.ERROR_CODE_UPLOAD_FILE, finalUniqueId);
+                                                        String jsonError = captureError(cause
+                                                                , ChatConstant.ERROR_CODE_UPLOAD_FILE, finalUniqueId, t);
                                                         ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, finalUniqueId);
                                                         if (handler != null) {
                                                             handler.onError(jsonError, error);
@@ -7583,8 +7656,8 @@ public class Chat extends AsyncAdapter {
 
 
                                     } catch (Exception e) {
-                                        String jsonError = getErrorOutPut(ChatConstant.ERROR_INVALID_FILE_URI
-                                                , ChatConstant.ERROR_CODE_INVALID_FILE_URI, finalUniqueId);
+                                        String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
+                                                , ChatConstant.ERROR_CODE_INVALID_FILE_URI, finalUniqueId, e);
                                         ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, finalUniqueId);
                                         if (handler != null) {
                                             handler.onError(jsonError, error);
@@ -7596,7 +7669,7 @@ public class Chat extends AsyncAdapter {
                         } else {
 
 
-                            getErrorOutPut(ChatConstant.ERROR_CALL_NESHAN_API,
+                            captureError(ChatConstant.ERROR_CALL_NESHAN_API,
                                     ChatConstant.ERROR_CODE_CALL_NESHAN_API, finalUniqueId);
                             showErrorLog(response.message());
                         }
@@ -7604,16 +7677,16 @@ public class Chat extends AsyncAdapter {
 
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        getErrorOutPut(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                        captureError(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, t);
                     }
                 });
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, throwable);
         }
         return uniqueId;
     }
@@ -7681,7 +7754,7 @@ public class Chat extends AsyncAdapter {
 
                             if (mapReverse == null) {
 
-                                getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                                captureError(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
 
                                 return;
                             }
@@ -7713,20 +7786,18 @@ public class Chat extends AsyncAdapter {
                                     JSONObject jObjError = new JSONObject(errorBody);
                                     String errorMessage = jObjError.getString("message");
                                     int errorCode = jObjError.getInt("code");
-                                    getErrorOutPut(errorMessage, errorCode, finalUniqueId);
+                                    captureError(errorMessage, errorCode, finalUniqueId);
                                 }
 
                             } catch (JSONException e) {
 
-                                getErrorOutPut(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
-                                if (log) Log.e(TAG, e.getMessage());
+                                captureError(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, e);
                             } catch (IOException e) {
-                                getErrorOutPut(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId);
+                                captureError(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, e);
 
-                                if (log) Log.e(TAG, e.getMessage());
                             }
                         }
-                    }, (Throwable throwable) -> getErrorOutPut(throwable.getCause().getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId));
+                    }, (Throwable throwable) -> captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, throwable));
         }
         return uniqueId;
     }
@@ -7781,7 +7852,7 @@ public class Chat extends AsyncAdapter {
                 handler.onBlock(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
         return uniqueId;
@@ -7863,7 +7934,7 @@ public class Chat extends AsyncAdapter {
                 handler.onUnBlock(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
         return uniqueId;
@@ -7917,7 +7988,7 @@ public class Chat extends AsyncAdapter {
             setCallBacks(null, null, null, true, Constants.SPAM_PV_THREAD, null, uniqueId);
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_REPORT_SPAM");
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -7964,11 +8035,11 @@ public class Chat extends AsyncAdapter {
 
                 sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_REPORT_SPAM");
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -8043,7 +8114,7 @@ public class Chat extends AsyncAdapter {
                 handler.onGetBlockList(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -8120,7 +8191,7 @@ public class Chat extends AsyncAdapter {
                     handler.onGetBlockList(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         });
 
@@ -8405,7 +8476,7 @@ public class Chat extends AsyncAdapter {
                 handler.onCreateThread(uniqueId);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
         return uniqueId;
@@ -8483,7 +8554,7 @@ public class Chat extends AsyncAdapter {
 
 
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, requestUniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, requestUniqueId);
         }
 
         return uniqueIds;
@@ -8612,12 +8683,11 @@ public class Chat extends AsyncAdapter {
                 sendAsyncMessage(asyncRequestObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_CREATE_THREAD_WITH_FILE");
 
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, requestUniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, requestUniqueId);
             }
 
         } catch (Exception e) {
-            getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, requestUniqueId);
-            Log.e(TAG, e.getMessage());
+            captureError(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, requestUniqueId, e);
         }
     }
 
@@ -8783,13 +8853,13 @@ public class Chat extends AsyncAdapter {
             } else {
 
 
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, threadUniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, threadUniqueId);
 
             }
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueIds.get(0));
+            onUnknownException(uniqueIds.get(0), e);
         }
         return uniqueIds;
     }
@@ -8848,11 +8918,11 @@ public class Chat extends AsyncAdapter {
                     handler.onUpdateThreadInfo(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
 
         return uniqueId;
@@ -8866,7 +8936,7 @@ public class Chat extends AsyncAdapter {
 
             if (Util.isNullOrEmpty(userGroupHash)) {
 
-                getErrorOutPut(ChatConstant.ERROR_INVALID_USER_GROUP_HASH,
+                captureError(ChatConstant.ERROR_INVALID_USER_GROUP_HASH,
                         ChatConstant.ERROR_CODE_INVALID_USER_GROUP_HASH, uniqueId);
 
                 return uniqueId;
@@ -8944,11 +9014,11 @@ public class Chat extends AsyncAdapter {
 
 
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
 
         return uniqueId;
@@ -9045,7 +9115,7 @@ public class Chat extends AsyncAdapter {
                     handler.onGetThreadParticipant(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         });
@@ -9149,7 +9219,7 @@ public class Chat extends AsyncAdapter {
                     handler.onGetThreadParticipant(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         });
@@ -9246,7 +9316,7 @@ public class Chat extends AsyncAdapter {
                 }
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
 
         return uniqueId;
@@ -9298,7 +9368,7 @@ public class Chat extends AsyncAdapter {
                     }
                 } catch (Exception e) {
                     showErrorLog(e.getMessage());
-                    onUnknownException(uniqueId);
+                    onUnknownException(uniqueId, e);
                 }
 
 
@@ -9385,7 +9455,7 @@ public class Chat extends AsyncAdapter {
                     }
                 } catch (Exception e) {
                     showErrorLog(e.getMessage());
-                    onUnknownException(uniqueId);
+                    onUnknownException(uniqueId, e);
                 }
 
 
@@ -9476,12 +9546,12 @@ public class Chat extends AsyncAdapter {
                     handler.onMuteThread(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
 
         return uniqueId;
@@ -9535,11 +9605,11 @@ public class Chat extends AsyncAdapter {
                     handler.onUnMuteThread(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -9576,12 +9646,12 @@ public class Chat extends AsyncAdapter {
                     handler.onUnMuteThread(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -9631,12 +9701,12 @@ public class Chat extends AsyncAdapter {
                     handler.onEditMessage(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -9994,6 +10064,13 @@ public class Chat extends AsyncAdapter {
                 Log.e(TAG, "Saving log failed: " + e.getMessage());
             }
         }
+
+        Breadcrumb c = new Breadcrumb();
+        c.setCategory("LOG");
+        c.setData(i, json);
+        c.setLevel(SentryLevel.INFO);
+        c.setMessage(i);
+        Sentry.addBreadcrumb(c, "NORMAL_INFO");
     }
 
     private void showLog(String info) {
@@ -10005,6 +10082,12 @@ public class Chat extends AsyncAdapter {
                 Log.e(TAG, "Saving log failed: " + e.getMessage());
             }
         }
+        Breadcrumb c = new Breadcrumb();
+        c.setCategory("LOG");
+        c.setLevel(SentryLevel.INFO);
+        c.setMessage(info);
+        Sentry.addBreadcrumb(c, "INFO");
+
     }
 
     private void showErrorLog(String message) {
@@ -10012,12 +10095,19 @@ public class Chat extends AsyncAdapter {
         if (log) {
 
             Log.e(TAG, message);
+
             try {
                 FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
             } catch (IOException e) {
                 Log.e(TAG, "Saving log failed: " + e.getMessage());
             }
         }
+
+        Breadcrumb c = new Breadcrumb();
+        c.setCategory("LOG");
+        c.setLevel(SentryLevel.ERROR);
+        c.setMessage(message);
+        Sentry.addBreadcrumb(c, "ERROR_LOG");
 
 
     }
@@ -10057,7 +10147,7 @@ public class Chat extends AsyncAdapter {
 
             String errorMessage = error.getMessage();
             long errorCode = error.getCode();
-            getErrorOutPut(errorMessage, errorCode, chatMessage.getUniqueId());
+            captureError(errorMessage, errorCode, chatMessage.getUniqueId());
 
             pingHandler.removeCallbacksAndMessages(null);
 
@@ -10081,7 +10171,7 @@ public class Chat extends AsyncAdapter {
 
         if (isNotif) return;
 
-        getErrorOutPut(errorMessage, errorCode, chatMessage.getUniqueId());
+        captureError(errorMessage, errorCode, chatMessage.getUniqueId());
     }
 
 
@@ -10166,6 +10256,9 @@ public class Chat extends AsyncAdapter {
             messageDatabaseHelper.saveNewThread(resultThread.getThread());
         }
 
+        } catch (JsonSyntaxException e) {
+            showErrorLog(e.getMessage());
+            onUnknownException(chatMessage.getUniqueId(), e);
     }
 
 
@@ -10214,14 +10307,6 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVED_CHAT_PING", "");
 
         if (checkToken) {
-
-
-//            if (cache && !permit) {
-//
-//                //todo handle condition
-////                showLog("GENERATE_KEY", "");
-////                generateEncryptionKey(getSsoHost());
-//            } else {
             chatReady = true;
             chatState = CHAT_READY;
             checkToken = false;
@@ -10232,9 +10317,6 @@ public class Chat extends AsyncAdapter {
             listenerManager.callOnChatState(CHAT_READY);
             showLog("** CLIENT_AUTHENTICATED_NOW", "");
             pingWithDelay();
-//            }
-
-
         }
 
 
@@ -10298,7 +10380,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
 
     }
@@ -10440,7 +10522,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -10537,7 +10619,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException("");
+            onUnknownException("", throwable);
         }
     }
 
@@ -10642,7 +10724,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -10789,7 +10871,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -11020,7 +11102,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
@@ -11335,13 +11417,13 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), e);
         }
     }
 
-    private void onUnknownException(String uniqueId) {
-        getErrorOutPut(ChatConstant.ERROR_UNKNOWN_EXCEPTION,
-                ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+    private void onUnknownException(String uniqueId, Throwable throwable) {
+        captureError(ChatConstant.ERROR_UNKNOWN_EXCEPTION,
+                ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable);
     }
 
     private void handleGetContact(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
@@ -11572,7 +11654,7 @@ public class Chat extends AsyncAdapter {
             signalMessage = gson.fromJson(chatMessage.getContent(), ResultSignalMessage.class);
         } catch (JsonSyntaxException e) {
             showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), e);
             return null;
 
         }
@@ -11601,8 +11683,6 @@ public class Chat extends AsyncAdapter {
             if (result == null) {
 
                 messageCallbacks.remove(messageUniqueId);
-
-                onUnknownException(messageUniqueId);
 
                 return;
 
@@ -11643,8 +11723,7 @@ public class Chat extends AsyncAdapter {
                     .getAsJsonObject();
 
         } catch (Exception e) {
-            e.printStackTrace();
-            getErrorOutPut(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId());
+            captureError(e.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, chatMessage.getUniqueId(), e);
             return null;
 
         }
@@ -11702,6 +11781,10 @@ public class Chat extends AsyncAdapter {
             userInfoResponse = true;
             ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
             UserInfo userInfo = gson.fromJson(chatMessage.getContent(), UserInfo.class);
+
+            //add user info for sentry
+            setSentryUser(userInfo);
+
             String userInfoJson = reformatUserInfo(chatMessage, chatResponse, userInfo);
             showLog("RECEIVE_USER_INFO", userInfoJson);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
@@ -11728,6 +11811,19 @@ public class Chat extends AsyncAdapter {
             pingWithDelay();
 
         }
+    }
+
+    private void setSentryUser(UserInfo userInfo) {
+        User sentryUser = new User();
+        sentryUser.setId(String.valueOf(userInfo.getId()));
+        sentryUser.setEmail(userInfo.getCellphoneNumber());
+        sentryUser.setUsername(userInfo.getName());
+        Map<String, String> sentryInfoMap = new HashMap<>();
+        sentryInfoMap.put("token", getToken());
+        sentryInfoMap.put("tokenIssuer", String.valueOf(TOKEN_ISSUER));
+        sentryInfoMap.put("typeCode", getTypeCode());
+        sentryUser.setOthers(sentryInfoMap);
+        Sentry.setUser(sentryUser);
     }
 
     private String mainReplyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, String metaData, String iUniqueId, ChatHandler handler) {
@@ -11795,7 +11891,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -11843,7 +11939,7 @@ public class Chat extends AsyncAdapter {
                         runOnUIUserInfoThread(this, retryStepUserInfo * 1000);
                         showLog("getUserInfo " + " retry in " + retryStepUserInfo + " s ", "");
                     } else {
-                        getErrorOutPut(ChatConstant.ERROR_CANT_GET_USER_INFO, ChatConstant.ERROR_CODE_CANT_GET_USER_INFO, "");
+                        captureError(ChatConstant.ERROR_CANT_GET_USER_INFO, ChatConstant.ERROR_CODE_CANT_GET_USER_INFO, "");
                     }
                 }
             }
@@ -12324,7 +12420,7 @@ public class Chat extends AsyncAdapter {
                     handler.onGetContact(uniqueId);
                 }
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         };
 
@@ -12373,12 +12469,56 @@ public class Chat extends AsyncAdapter {
     }
 
     @NonNull
-    private String getErrorOutPut(String errorMessage, long errorCode, String uniqueId) {
+    private String captureError(String errorMessage,
+                                long errorCode,
+                                String uniqueId) {
+
         ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
+
         String jsonError = gson.toJson(error);
+
         listenerManager.callOnError(jsonError, error);
+
         showLog("Error", jsonError);
+
         showErrorLog(jsonError);
+
+        //The chat is not ready and the client
+        // is not authenticated, will not be captured.
+
+        if (errorCode != ChatConstant.ERROR_CODE_CHAT_READY
+                && errorCode != 21) {
+
+            Sentry.captureException(new PodChatException(errorMessage, uniqueId, getToken()));
+
+        }
+
+        if (log) {
+            Log.e(TAG, "ErrorMessage: " + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId);
+        }
+
+
+        return jsonError;
+    }
+
+
+    @NonNull
+    private String captureError(String errorMessage,
+                                long errorCode,
+                                String uniqueId,
+                                Throwable throwable) {
+
+        ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
+
+        String jsonError = gson.toJson(error);
+
+        listenerManager.callOnError(jsonError, error);
+
+        showLog("Error", jsonError);
+
+        showErrorLog(jsonError);
+
+        Sentry.captureException(throwable, error);
 
         if (log) {
             Log.e(TAG, "ErrorMessage: " + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId);
@@ -12503,11 +12643,11 @@ public class Chat extends AsyncAdapter {
                 sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_DELIVERED_MESSAGE_LIST");
 
             } else {
-                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
 
         } catch (Throwable e) {
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
         return uniqueId;
     }
@@ -12555,10 +12695,10 @@ public class Chat extends AsyncAdapter {
                 sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_SEEN_MESSAGE_LIST");
             } catch (Throwable e) {
                 showErrorLog(e.getMessage());
-                onUnknownException(uniqueId);
+                onUnknownException(uniqueId, e);
             }
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
@@ -12576,7 +12716,7 @@ public class Chat extends AsyncAdapter {
                 }.getType());
             } catch (Exception e) {
                 showErrorLog(e.getMessage());
-                onUnknownException(chatMessage.getUniqueId());
+                onUnknownException(chatMessage.getUniqueId(), e);
             }
 
 
@@ -12593,7 +12733,7 @@ public class Chat extends AsyncAdapter {
                     }.getType());
                 } catch (JsonSyntaxException e) {
                     showErrorLog(e.getMessage());
-                    onUnknownException(chatMessage.getUniqueId());
+                    onUnknownException(chatMessage.getUniqueId(), e);
                 }
             }
 
@@ -12695,7 +12835,7 @@ public class Chat extends AsyncAdapter {
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TXT_MSG_WITH_FILE");
             stopTyping();
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
     }
 
@@ -12732,7 +12872,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -12758,7 +12898,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -12787,7 +12927,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -12798,14 +12938,14 @@ public class Chat extends AsyncAdapter {
                 async.sendMessage(asyncContent, asyncMsgType);
             } catch (Exception e) {
                 showErrorLog(e.getMessage());
-                onUnknownException("");
+                onUnknownException("", e);
                 return;
             }
 
             pingWithDelay();
 
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, null);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, null);
         }
     }
 
@@ -12912,7 +13052,7 @@ public class Chat extends AsyncAdapter {
 
         } catch (Exception e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
 
     }
@@ -13143,7 +13283,7 @@ public class Chat extends AsyncAdapter {
 
                             if (error) {
 
-                                getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
+                                captureError(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
                                         , uniqueId);
 
                                 showLog("Error add Contacts: " + contactsResponse.body().getMessage());
@@ -13169,7 +13309,7 @@ public class Chat extends AsyncAdapter {
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
-                                        onUnknownException(uniqueId);
+                                        onUnknownException(uniqueId, e);
                                     }
                                 };
 
@@ -13180,7 +13320,7 @@ public class Chat extends AsyncAdapter {
                                             messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
                                         } catch (Exception e) {
                                             showErrorLog("Saving Contacts Failed: " + e.getMessage());
-                                            onUnknownException(uniqueId);
+                                            onUnknownException(uniqueId, e);
                                         }
                                     }
                                 };
@@ -13194,14 +13334,14 @@ public class Chat extends AsyncAdapter {
                             }
                         } else {
 
-                            getErrorOutPut(contactsResponse.message(), contactsResponse.code()
+                            captureError(contactsResponse.message(), contactsResponse.code()
                                     , uniqueId);
 
                             showLog("Error add Contacts: " + contactsResponse.raw());
 
                         }
                     }, throwable ->
-                            getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
+                            captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId));
         }
 
 
@@ -13282,7 +13422,7 @@ public class Chat extends AsyncAdapter {
 
                             if (error) {
 
-                                getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
+                                captureError(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode()
                                         , uniqueId);
 
                                 showLog("Error add Contacts: " + contactsResponse.body().getMessage());
@@ -13306,7 +13446,7 @@ public class Chat extends AsyncAdapter {
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
-                                        onUnknownException(uniqueId);
+                                        onUnknownException(uniqueId, e);
                                     }
                                 };
 
@@ -13317,7 +13457,7 @@ public class Chat extends AsyncAdapter {
                                             messageDatabaseHelper.saveContacts(chatResponse.getResult().getResult(), getExpireAmount());
                                         } catch (Exception e) {
                                             showErrorLog("Saving Contacts Failed: " + e.getMessage());
-                                            onUnknownException(uniqueId);
+                                            onUnknownException(uniqueId, e);
                                         }
                                     }
                                 };
@@ -13332,7 +13472,7 @@ public class Chat extends AsyncAdapter {
                             }
                         } else {
 
-                            getErrorOutPut(contactsResponse.message(), contactsResponse.code()
+                            captureError(contactsResponse.message(), contactsResponse.code()
                                     , uniqueId);
 
                             showLog("Error add Contacts: " + contactsResponse.raw());
@@ -13342,7 +13482,7 @@ public class Chat extends AsyncAdapter {
 
                     }, throwable ->
                     {
-                        getErrorOutPut(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                        captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
                         subject.onError(throwable);
                     });
         }
@@ -13539,13 +13679,13 @@ public class Chat extends AsyncAdapter {
 
             } else {
                 if (log) Log.e(TAG, "File Is Not Exist");
-                getErrorOutPut("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+                captureError("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
             }
         } else {
 
             Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
 
-            getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+            captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                     , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
 //            listenerManager.callOnLogEvent(jsonError);
         }
@@ -13666,7 +13806,7 @@ public class Chat extends AsyncAdapter {
                         if (hasError) {
                             String errorMessage = fileUploadResponse.body().getMessage();
                             int errorCode = fileUploadResponse.body().getErrorCode();
-                            String jsonError = getErrorOutPut(errorMessage, errorCode, uniqueId);
+                            String jsonError = captureError(errorMessage, errorCode, uniqueId);
 //                            listenerManager.callOnLogEvent(jsonError);
                             ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
 
@@ -13745,7 +13885,7 @@ public class Chat extends AsyncAdapter {
                 }, throwable -> {
 
                     try {
-                        String jsonError = getErrorOutPut(throwable.getMessage()
+                        String jsonError = captureError(throwable.getMessage()
                                 , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
 
 
@@ -13758,7 +13898,7 @@ public class Chat extends AsyncAdapter {
                         }
                     } catch (Exception e) {
                         showErrorLog(e.getMessage());
-                        onUnknownException(uniqueId);
+                        onUnknownException(uniqueId, e);
                     }
 
                 });
@@ -13775,7 +13915,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
     }
 
@@ -13828,17 +13968,17 @@ public class Chat extends AsyncAdapter {
 
                 } else {
                     if (log) Log.e(TAG, "File Is Not Exist");
-                    getErrorOutPut("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+                    captureError("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
                 }
             } else {
                 Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+                String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
                         , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
                 if (log) Log.e(TAG, jsonError);
             }
         } catch (Throwable e) {
             showErrorLog(e.getMessage());
-            onUnknownException(uniqueId);
+            onUnknownException(uniqueId, e);
         }
     }
 
@@ -14021,7 +14161,7 @@ public class Chat extends AsyncAdapter {
 
                                     if (handler != null) {
 
-                                        String jsonError = getErrorOutPut(ChatConstant.ERROR_UPLOAD_FILE, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+                                        String jsonError = captureError(ChatConstant.ERROR_UPLOAD_FILE, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
                                         ErrorOutPut errorOutPut = new ErrorOutPut(true, ChatConstant.ERROR_UPLOAD_FILE, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
                                         handler.onError(jsonError, errorOutPut);
 
@@ -14082,7 +14222,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-            getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
 //            listenerManager.callOnLogEvent(jsonError);
         }
     }
@@ -14117,14 +14257,14 @@ public class Chat extends AsyncAdapter {
                             }
                         }
                         if (!currentDeviceExist) {
-                            getErrorOutPut(ChatConstant.ERROR_CURRENT_DEVICE, ChatConstant.ERROR_CODE_CURRENT_DEVICE, null);
+                            captureError(ChatConstant.ERROR_CURRENT_DEVICE, ChatConstant.ERROR_CODE_CURRENT_DEVICE, null);
                         }
                     } else {
                         if (deviceResults.code() == 401) {
-                            getErrorOutPut("unauthorized", deviceResults.code(), null);
+                            captureError("unauthorized", deviceResults.code(), null);
 
                         } else {
-                            getErrorOutPut(deviceResults.message(), deviceResults.code(), null);
+                            captureError(deviceResults.message(), deviceResults.code(), null);
                         }
                     }
 
@@ -14241,7 +14381,7 @@ public class Chat extends AsyncAdapter {
             }
         } catch (Throwable throwable) {
             showErrorLog(throwable.getMessage());
-            onUnknownException(chatMessage.getUniqueId());
+            onUnknownException(chatMessage.getUniqueId(), throwable);
         } finally {
 
             if (handlerSend.get(chatMessage.getUniqueId()) != null) {
@@ -14362,19 +14502,27 @@ public class Chat extends AsyncAdapter {
     @Override
     public void onDisconnected(String textMessage) {
         super.onDisconnected(textMessage);
-        getErrorOutPut("On Async Disconnected: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+        captureError("On Async Disconnected: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
     }
 
     @Override
     public void onError(String textMessage) {
         super.onError(textMessage);
-        getErrorOutPut("On Async Error: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+        captureError("On Async Error: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
     }
 
     @Override
     public void handleCallbackError(Throwable cause) {
         super.handleCallbackError(cause);
-            getErrorOutPut("Async Callback Error: " + cause.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+
+        try {
+
+            captureError("Async Callback Error: " + cause.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

@@ -5,6 +5,12 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.7.2.0] -2020-6-2
+
+[Improve] Upload Thread Image
+
+[Improve] Search Contacts 
+
 
 ## Version [0.7.4.0] -2020-7-4
 

@@ -15,6 +15,7 @@ import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
+import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.Util;
 
 import java.io.File;
@@ -37,7 +38,7 @@ public class PodUploader {
 
     public interface IPodUploader {
 
-        void onFailure(String cause);
+        void onFailure(String cause, Throwable throwable);
 
         void onUploadStarted(String mimeType, File file, long length);
 
@@ -280,13 +281,15 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(error.getMessage()))
+                .doOnError(error -> listener.onFailure(error.getMessage(), error))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
                         if (response.body().isHasError()) {
-                            listener.onFailure(response.body().getMessage());
+                            listener.onFailure(response.body().getMessage(),
+                                    new PodChatException(response.body().getMessage(),
+                                            uniqueId, token));
                             return;
                         }
 
@@ -296,16 +299,21 @@ public class PodUploader {
                     } else {
                         try {
                             if (response.errorBody() != null) {
-                                listener.onFailure(response.errorBody().string());
+                                listener.onFailure(response.errorBody().string(),
+
+                                        new PodChatException(response.errorBody().string(),
+                                                uniqueId, token));
                             } else {
-                                listener.onFailure(response.message());
+                                listener.onFailure(response.message(), new PodChatException(response.message(),
+                                        uniqueId, token)
+                                );
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
 
-                }, error -> listener.onFailure(error.getMessage()));
+                }, error -> listener.onFailure(error.getMessage(),error));
     }
 
     private static Subscription uploadImageToPodSpace(String uniqueId, String threadHashCode, String fileServer, String token, int tokenIssuer, String xC, String yC, String hC, String wC, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) throws FileNotFoundException {
@@ -380,13 +388,15 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(error.getMessage()))
+                .doOnError(error -> listener.onFailure(error.getMessage(),error))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
                         if (response.body().isHasError()) {
-                            listener.onFailure(response.body().getMessage());
+                            listener.onFailure(response.body().getMessage(),
+                                    new PodChatException(response.body().getMessage(),
+                                            uniqueId, token));
                             return;
                         }
 
@@ -397,16 +407,20 @@ public class PodUploader {
                     } else {
                         try {
                             if (response.errorBody() != null) {
-                                listener.onFailure(response.errorBody().string());
+                                listener.onFailure(response.errorBody().string(),
+                                        new PodChatException(response.errorBody().string(),
+                                                uniqueId, token));
                             } else {
-                                listener.onFailure(response.message());
+                                listener.onFailure(response.message(),
+                                        new PodChatException(response.message(),
+                                                uniqueId, token));
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
 
-                }, error -> listener.onFailure(error.getMessage()));
+                }, error -> listener.onFailure(error.getMessage(),error));
     }
 
 
@@ -419,6 +433,9 @@ public class PodUploader {
                                                            String mimeType,
                                                            File file,
                                                            long fileSize) {
+
+
+    public static Subscription uploadPublicFileToPodSpace(String uniqueId, String fileServer, String token, int tokenIssuer, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) {
 
         listener.onUploadStarted(mimeType, file, fileSize);
 
@@ -455,13 +472,15 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(error.getMessage()))
+                .doOnError(error -> listener.onFailure(error.getMessage(),error))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
                         if (response.body().isHasError()) {
-                            listener.onFailure(response.body().getMessage());
+                            listener.onFailure(response.body().getMessage(),
+                                    new PodChatException(response.body().getMessage(),
+                                            uniqueId, token));
                             return;
                         }
 
@@ -471,9 +490,13 @@ public class PodUploader {
                     } else {
                         try {
                             if (response.errorBody() != null) {
-                                listener.onFailure(response.errorBody().string());
+                                listener.onFailure(response.errorBody().string(),
+                                        new PodChatException(response.errorBody().string(),
+                                                uniqueId, token));
                             } else {
-                                listener.onFailure(response.message());
+                                listener.onFailure(response.message(),
+                                        new PodChatException(response.message(),
+                                                uniqueId, token));
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -481,7 +504,7 @@ public class PodUploader {
                     }
 
                 },
-                        error -> listener.onFailure(error.getMessage()));
+                        error -> listener.onFailure(error.getMessage(),error));
     }
 
     private static Subscription uploadPublicImageToPodSpace(String uniqueId,
@@ -562,13 +585,15 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(error.getMessage()))
+                .doOnError(error -> listener.onFailure(error.getMessage(),error))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
                         if (response.body().isHasError()) {
-                            listener.onFailure(response.body().getMessage());
+                            listener.onFailure(response.body().getMessage(),
+                                    new PodChatException(response.body().getMessage(),
+                                            uniqueId, token));
                             return;
                         }
 
@@ -579,16 +604,20 @@ public class PodUploader {
                     } else {
                         try {
                             if (response.errorBody() != null) {
-                                listener.onFailure(response.errorBody().string());
+                                listener.onFailure(response.errorBody().string(),
+                                        new PodChatException(response.errorBody().string(),
+                                                uniqueId, token));
                             } else {
-                                listener.onFailure(response.message());
+                                listener.onFailure(response.message(),
+                                        new PodChatException(response.message(),
+                                                uniqueId, token));
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
 
-                }, error -> listener.onFailure(error.getMessage()));
+                }, error -> listener.onFailure(error.getMessage(),error));
     }
 
 
@@ -655,13 +684,15 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage()))
+                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage(),error))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
                         if (response.body().isHasError()) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                            uniqueId, token));
                         } else {
                             listener.onSuccess(response.body(), file, mimeType, finalFileSize);
                         }
@@ -669,9 +700,13 @@ public class PodUploader {
                     } else {
 
                         if (response.body() != null) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                            uniqueId,token));
                         } else {
-                            listener.onFailure(uniqueId + " - " + response.message());
+                            listener.onFailure(uniqueId + " - " + response.message(),
+                                    new PodChatException(uniqueId + " - " + response.message(),
+                                            uniqueId,token));
 
                         }
 
@@ -748,13 +783,16 @@ public class PodUploader {
         return uploadObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage()))
+                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage(),error))
                 .subscribe(response -> {
                     if (response.isSuccessful()
                             && response.body() != null) {
 
                         if (response.body().isHasError()) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                            uniqueId,
+                                            token));
                         } else {
                             listener.onSuccess(response.body(), file, mimeType, finalFileSize);
                         }
@@ -763,9 +801,14 @@ public class PodUploader {
                     } else {
 
                         if (response.body() != null) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber());
+                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+                                            uniqueId,token));
                         } else {
-                            listener.onFailure(uniqueId + " - " + response.message());
+                            listener.onFailure(uniqueId + " - " + response.message(),
+                                    new PodChatException(uniqueId + " - " + response.message(),
+                                            uniqueId,
+                                            token));
 
                         }
 
