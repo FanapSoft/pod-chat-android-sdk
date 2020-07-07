@@ -2,6 +2,7 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -61,7 +62,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory;
+    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory,buttonMute,buttonSpeaker;
     EditText etGroupId, etSender, etReceiver;
 
 
@@ -119,6 +120,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             isTestMode = true;
 
+            setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
             if (!etGroupId.getText().toString().isEmpty()
                     && !etSender.getText().toString().isEmpty()
                     && !etReceiver.getText().toString().isEmpty()) {
@@ -128,9 +130,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                         etReceiver.getText().toString()
                 );
 
-            }
-
-            presenter.testCall();
+            }else presenter.testCall();
 
             runOnUiThread(() -> {
                 inCallView.setVisibility(View.VISIBLE);
@@ -210,6 +210,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonCloseHistory.setOnClickListener(v -> viewHistory.setVisibility(View.INVISIBLE));
 
+        buttonMute.setOnClickListener(v->presenter.switchMute());
+
+        buttonSpeaker.setOnClickListener(v->presenter.switchSpeaker());
     }
 
     private void updateViewOnCallReaction() {
@@ -308,6 +311,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
         buttonGetHistory = findViewById(R.id.buttonGetHistory);
+        buttonMute = findViewById(R.id.buttonMute);
+        buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
         etGroupId = findViewById(R.id.etGroupId);
         etSender = findViewById(R.id.etSender);
         etReceiver = findViewById(R.id.etReceiver);
@@ -435,17 +440,18 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             else {
                 tvHistory.append("\nNo call history\n");
             }
-
             tvHistory.append("\n====================\n");
-
         });
 
     }
 
     @Override
     public void onCallReconnect(long callId) {
-
         Toast.makeText(this, "Call with id " + callId + " is reconnecting", Toast.LENGTH_LONG).show();
+    }
 
+    @Override
+    public void onCallConnect(long callId) {
+        Toast.makeText(this, "Call with id " + callId + " is connected", Toast.LENGTH_LONG).show();
     }
 }

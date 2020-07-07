@@ -289,5 +289,34 @@ public class CallManager {
 
     }
 
+    public static ChatResponse<CallReconnectResult> handleOnCallConnectReceived(ChatMessage chatMessage) {
+
+        ChatResponse<CallReconnectResult> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(chatMessage.getUniqueId());
+
+            response.setSubjectId(chatMessage.getSubjectId());
+
+            ClientDTO clientDTO = App.getGson().fromJson(chatMessage.getContent(), ClientDTO.class);
+
+            CallReconnectResult result = new CallReconnectResult();
+
+            result.setCallId(chatMessage.getSubjectId());
+
+            result.setClientId(clientDTO.getClientId());
+
+            response.setResult(result);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+
+        return response;
+
+    }
+
+
 
 }

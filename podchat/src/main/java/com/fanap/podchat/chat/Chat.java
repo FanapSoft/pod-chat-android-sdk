@@ -914,6 +914,9 @@ public class Chat extends AsyncAdapter {
             case Constants.CALL_RECONNECT:
                 handleOnReceivedCallReconnect(chatMessage);
                 break;
+            case Constants.CALL_CONNECT:
+                handleOnReceivedCallConnect(chatMessage);
+                break;
 
 
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
@@ -1081,6 +1084,8 @@ public class Chat extends AsyncAdapter {
                 break;
         }
     }
+
+
 
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
@@ -1325,6 +1330,17 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnCallReconnectReceived(response);
 
         showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
+    }
+
+    private void handleOnReceivedCallConnect(ChatMessage chatMessage) {
+
+        ChatResponse<CallReconnectResult> response = CallManager.handleOnCallConnectReceived(chatMessage);
+
+        listenerManager.callOnCallConnectReceived(response);
+
+        showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
+
+
     }
 
 
@@ -4602,6 +4618,21 @@ public class Chat extends AsyncAdapter {
     public void testCall(String groupId, String sender, String receiver) {
 
         audioCallManager.testStream(groupId, sender, receiver);
+    }
+
+    public void testAudio(){
+        audioCallManager.testAudio();
+    }
+
+    public void switchCallSpeakerState(boolean isSpeakerOn) {
+
+        audioCallManager.switchAudioSpeakerState(isSpeakerOn);
+    }
+
+    public void switchCallMuteState(boolean isMute) {
+
+        audioCallManager.switchAudioMuteState(isMute);
+
     }
 
 

@@ -9,13 +9,15 @@ import com.example.kafkassl.kafkaclient.ConsumerClient;
 import com.example.kafkassl.kafkaclient.ProducerClient;
 import com.fanap.podchat.chat.call.result_model.StartCallResult;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 
 public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendReceiveSync,
         PodAudioStreamManager.IPodAudioListener,
-        PodAudioStreamManager.IPodAudioPlayerListener{
+        PodAudioStreamManager.IPodAudioPlayerListener {
 
 
     private static final String TAG = "CHAT_SDK_CALL";
@@ -40,7 +42,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     private boolean firstByteReceived = false;
 
-
+    private AudioTestClass audioTestClass;
     private PodAudioStreamManager audioStreamManager;
     private Context mContext;
 
@@ -48,6 +50,55 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
         audioStreamManager = new PodAudioStreamManager(context);
         sendReceiveSynchronizer = this;
         mContext = context;
+        audioTestClass = new AudioTestClass();
+    }
+
+    public void testAudio() {
+
+
+        streaming = true;
+
+                    audioStreamManager.initAudioPlayer(new PodAudioStreamManager.IPodAudioPlayerListener() {
+                        @Override
+                        public void onPlayStopped() {
+
+                        }
+
+                        @Override
+                        public void onAudioPlayError(String cause) {
+
+                        }
+
+                        @Override
+                        public void onPlayerReady() {
+
+                            audioStreamManager.recordAudio(new PodAudioStreamManager.IPodAudioListener() {
+                                @Override
+                                public void onByteRecorded(byte[] bytes) {
+
+                                    audioStreamManager.playAudio(bytes);
+                                }
+
+                                @Override
+                                public void onRecordStopped() {
+
+                                }
+
+                                @Override
+                                public void onAudioRecordError(String cause) {
+
+                                }
+
+                                @Override
+                                public void onRecordRestarted() {
+
+                                }
+                            });
+
+                        }
+                    });
+//        new Thread(() -> audioTestClass.start(mContext)).start();
+
     }
 
     public void testStream(String groupId, String sender, String receiver) {
@@ -80,8 +131,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
 //        startAudioCallService();
 
-        Log.e(TAG,">>> Start stream: Sending: " + SENDING_TOPIC
-        + " Receiving: " + RECEIVING_TOPIC + " Group Id: " + GROUP_ID);
+        Log.e(TAG, ">>> Start stream: Sending: " + SENDING_TOPIC
+                + " Receiving: " + RECEIVING_TOPIC + " Group Id: " + GROUP_ID);
 
         streaming = true;
 
@@ -133,7 +184,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mContext.startForegroundService(i);
-        }else {
+        } else {
             mContext.startService(i);
         }
     }
@@ -164,8 +215,10 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     public void endStream() {
         streaming = false;
-        audioStreamManager.stopRecording();
-        audioStreamManager.stopPlaying();
+//        audioTestClass.stop();
+        audioStreamManager.endStream();
+//        audioStreamManager.stopRecording();
+//        audioStreamManager.stopPlaying();
 
 //        stopAudioCallService();
     }
@@ -216,7 +269,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         if (streaming) {
             String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
-            Log.e(TAG, "SEND GID: "+GROUP_ID+" SEND TO: "+SENDING_TOPIC+ " bits: " + Arrays.toString(bytes));
+            Log.e(TAG, "SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
         }
 
 
@@ -266,5 +319,15 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         sendReceiveSynchronizer.onConsumerReady();
 
+    }
+
+    public void switchAudioSpeakerState(boolean speakerOn) {
+
+        audioStreamManager.switchSpeakerState(speakerOn);
+    }
+
+    public void switchAudioMuteState(boolean isMute) {
+
+        audioStreamManager.switchMuteState(isMute);
     }
 }

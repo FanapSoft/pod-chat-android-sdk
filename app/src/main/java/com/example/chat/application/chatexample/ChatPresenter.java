@@ -141,6 +141,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     private ChatResponse<CallRequestResult> callRequestResponse;
+    private boolean speakerOn = false;
+    private boolean isMute = false;
 
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
@@ -402,7 +404,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void testCall() {
-        chat.testCall();
+//        chat.testCall();
+        chat.testAudio();
+
     }
 
 
@@ -1609,10 +1613,40 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void switchMute() {
+
+        this.isMute = !this.isMute;
+
+        Log.d(TAG,"CHANGE MUTE: " + isMute);
+
+        chat.switchCallMuteState(isMute);
+
+    }
+
+    @Override
+    public void switchSpeaker() {
+
+        this.speakerOn = !this.speakerOn;
+
+        Log.d(TAG,"CHANGE SPEAKER: " + speakerOn);
+
+        chat.switchCallSpeakerState(speakerOn);
+
+
+    }
+
+    @Override
     public void onCallReconnect(ChatResponse<CallReconnectResult> response) {
 
 
 
         view.onCallReconnect(response.getResult().getCallId());
+    }
+
+    @Override
+    public void onCallConnect(ChatResponse<CallReconnectResult> response) {
+
+
+        view.onCallConnect(response.getResult().getCallId());
     }
 }

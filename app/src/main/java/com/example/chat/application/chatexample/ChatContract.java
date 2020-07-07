@@ -216,6 +216,8 @@ public interface ChatContract {
         default void onGetCallHistory(ChatResponse<GetCallHistoryResult> result){}
 
         default void onCallReconnect(long callId){}
+
+        default void onCallConnect(long callId){}
     }
 
     interface presenter {
@@ -476,5 +478,8 @@ public interface ChatContract {
 
         void getCallHistory();
 
+        void switchMute();
+
+        void switchSpeaker();
     }
 }

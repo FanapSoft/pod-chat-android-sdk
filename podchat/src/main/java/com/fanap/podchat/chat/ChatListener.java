@@ -283,4 +283,6 @@ public interface ChatListener {
     default void onGetCallHistory(ChatResponse<GetCallHistoryResult> response){}
 
     default void onCallReconnect(ChatResponse<CallReconnectResult> response){}
+
+    default void onCallConnect(ChatResponse<CallReconnectResult> response){}
 }

@@ -90,7 +90,8 @@ public class ChatMessageType {
             Constants.START_CALL,
             Constants.GET_CALLS,
             Constants.END_CALL,
-            Constants.CALL_RECONNECT
+            Constants.CALL_RECONNECT,
+            Constants.CALL_CONNECT
 
     })
 
@@ -174,6 +175,7 @@ public class ChatMessageType {
         int END_CALL = 76;
         int GET_CALLS = 77;
         int CALL_RECONNECT = 78;
+        int CALL_CONNECT = 79;
 
 
         int REGISTER_FCM_APP = 80;

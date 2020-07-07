@@ -6,7 +6,6 @@ public class CallRequestResult extends CreateCallVO {
     public CallRequestResult(CreateCallVO createCallVO) {
         this.setCreatorId(createCallVO.getCreatorId());
         this.setInvitees(createCallVO.getInvitees());
-        this.setInvitees(createCallVO.getInvitees());
         this.setType(createCallVO.getType());
     }
 }

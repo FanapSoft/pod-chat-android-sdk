@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.chat.application.chatexample.TestClass;
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.call.model.ClientDTO;
 import com.fanap.podchat.chat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -63,7 +64,7 @@ public class ExampleUnitTest {
 
 
     @Test
-    public void concatTest(){
+    public void concatTest() {
 
         String ids = "";
         ArrayList<Long> longs = new ArrayList<>();
@@ -73,17 +74,17 @@ public class ExampleUnitTest {
         for (Long callId :
                 longs) {
 
-            ids = ids.concat(""+callId+", ");
+            ids = ids.concat("" + callId + ", ");
 
         }
-        ids = ids.substring(0,ids.lastIndexOf(","));
+        ids = ids.substring(0, ids.lastIndexOf(","));
 
         System.out.println(ids);
 
     }
 
     @Test
-    public void testCallParticipant(){
+    public void testCallParticipant() {
 
 
         Participant participant = new Participant();
@@ -92,9 +93,9 @@ public class ExampleUnitTest {
         participant.setImage("mmm");
 
         CacheCallParticipant callParticipant = new CacheCallParticipant()
-                .fromParticipant(participant,1000);
+                .fromParticipant(participant, 1000);
 
-        assertEquals(participant.getFirstName(),callParticipant.getFirstName());
+        assertEquals(participant.getFirstName(), callParticipant.getFirstName());
 
 
     }
@@ -125,8 +126,7 @@ public class ExampleUnitTest {
     }
 
     @Test
-    public void byteTest(){
-
+    public void byteTest() {
 
 
         String a = "salam";
@@ -135,8 +135,7 @@ public class ExampleUnitTest {
 
         String res = new String(b, StandardCharsets.UTF_8);
 
-        assertEquals(res,a);
-
+        assertEquals(res, a);
 
 
     }
@@ -146,8 +145,6 @@ public class ExampleUnitTest {
 
         TestClass.main(null);
     }
-
-
 
 
     @Test
@@ -304,6 +301,7 @@ public class ExampleUnitTest {
 
 
     }
+
 
     @Test
     public void addition_isCorrect() {

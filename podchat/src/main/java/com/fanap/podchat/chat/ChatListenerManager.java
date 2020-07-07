@@ -938,6 +938,18 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnCallConnectReceived(ChatResponse<CallReconnectResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallConnect(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
 //
