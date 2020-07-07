@@ -17,6 +17,7 @@ import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
@@ -25,6 +26,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
@@ -105,9 +107,6 @@ public class ChatTest extends ChatAdapter {
 
 
     }
-
-
-
 
 
 

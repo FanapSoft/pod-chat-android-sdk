@@ -30,7 +30,7 @@
         </service>
 
 
-        <meta-data android:name="io.sentry.dsn" android:value="https://80fdd7a96ab547328af3048d8691d39f@o403627.ingest.sentry.io/5266495" />
+        <meta-data android:name="io.sentry.dsn" android:value="@string/key"/>
 
     </application>
 
