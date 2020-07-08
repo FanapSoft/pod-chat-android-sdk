@@ -68,7 +68,7 @@ public class ShowNotificationHelper {
 
     }
 
-    static void setupNotificationChannel(Context context,
+    public static void setupNotificationChannel(Context context,
                                          String channelId,
                                          String channelName,
                                          String channelDescription,

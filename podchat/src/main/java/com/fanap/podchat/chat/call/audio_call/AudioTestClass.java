@@ -6,8 +6,10 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import static android.content.Context.AUDIO_SERVICE;
 
@@ -15,67 +17,80 @@ public class AudioTestClass {
 
 
     private static final int bufferSize = 2048 * 2;
+    private static final int SAMPLE_RATE_IN_HZ = 8000;
+    private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
     private boolean running = true;
 
     public void start(Context context) {
 
         AudioManager audioManager = (AudioManager) context.getSystemService(AUDIO_SERVICE);
 
-//        ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+
+        audioManager.setSpeakerphoneOn(true);
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
+
+        int b1 = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+
+        int b2 = AudioTrack.getMinBufferSize(SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
+
+        AudioRecord recorder = new AudioRecord(
+                MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO,
+                ENCODING, bufferSize);
+
+        AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC
+                ,
+                SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_OUT_MONO,
+                ENCODING, bufferSize, AudioTrack.MODE_STREAM);
+
+        track.play();
+
+        recorder.startRecording();
 
 
-        int b1 = AudioRecord.getMinBufferSize(8000,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);
-        int b2 = AudioTrack.getMinBufferSize(8000,AudioFormat.CHANNEL_OUT_MONO,AudioFormat.ENCODING_PCM_16BIT);
-
-        int recordBufferSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        if (recordBufferSize <= 0) {
-            recordBufferSize = 1280;
-        }
-
-
-
-        AudioRecord audioRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, recordBufferSize * 10);
-
-        audioRecorder.startRecording();
-
-
-
-
-
-        int playerBufferSize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        if (playerBufferSize <= 0) {
-            playerBufferSize = 3840;
-        }
-
-        AudioTrack audioTrackPlayer = new AudioTrack(AudioManager.STREAM_MUSIC, 48000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, playerBufferSize, AudioTrack.MODE_STREAM);
-        audioTrackPlayer.setStereoVolume(1.0f, 1.0f);
-
-        audioTrackPlayer.play();
-
-//        AudioRecord recorder = new AudioRecord(
-//                MediaRecorder.AudioSource.VOICE_COMMUNICATION,
-//                8000, AudioFormat.CHANNEL_IN_MONO,
-//                AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-//
-//        AudioTrack track = new AudioTrack(AudioManager.STREAM_VOICE_CALL,
-//                8000, AudioFormat.CHANNEL_OUT_MONO,
-//                AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
-//
-//        track.play();
-//
-//        recorder.startRecording();
-
-        ByteBuffer buffer = ByteBuffer.allocateDirect(recordBufferSize);
-
-
-        byte[] bufferBytes = new byte[playerBufferSize];
+        byte[] bytes = new byte[bufferSize];
 
         while (running) {
 
-            int len = audioRecorder.read(buffer, buffer.capacity());
+            int len = recorder.read(buffer, buffer.capacity());
 
 
-            audioTrackPlayer.write(bufferBytes, 0, playerBufferSize);
+            Log.e("CHAT_AUDIO", "BYTES: " + Arrays.toString(buffer.array()));
+            Log.e("CHAT_AUDIO", "LEN: " + len);
+            Log.e("CHAT_AUDIO", "SIZE: " + buffer.array().length);
+
+//            long sume = 0;
+//            byte min = 0;
+//            byte max = 0;
+//            for (byte b :
+//                    buffer.array()) {
+//
+//                if (b > max)
+//                    max = b;
+//                if (b < min)
+//                    min = b;
+//
+//            }
+//
+//            byte avg = (byte) ((max + min) / 2);
+//
+//            byte[] as = new byte[buffer.array().length];
+//
+//            for (int i = 0; i < buffer.array().length - 1; i++) {
+//
+//                byte oo = buffer.array()[i];
+//                byte op = oo;
+//
+//                if(Math.abs(oo) > (Math.abs(avg) + 30)){
+//                    op = avg;
+//                }
+//                as[i] = op;
+//            }
+
+            if (len > 0)
+                track.write(buffer.array(), 0, buffer.array().length);
 
         }
 

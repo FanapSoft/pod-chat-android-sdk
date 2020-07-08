@@ -2,13 +2,22 @@ package com.fanap.podchat.chat.call.audio_call;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ConsumerClient;
 import com.example.kafkassl.kafkaclient.ProducerClient;
+import com.fanap.podchat.R;
+import com.fanap.podchat.chat.call.model.CallSSLData;
 import com.fanap.podchat.chat.call.result_model.StartCallResult;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
@@ -46,6 +55,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     private PodAudioStreamManager audioStreamManager;
     private Context mContext;
 
+    private CallSSLData callSSLData;
+
     public PodAudioCallManager(Context context) {
         audioStreamManager = new PodAudioStreamManager(context);
         sendReceiveSynchronizer = this;
@@ -58,47 +69,48 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         streaming = true;
 
-                    audioStreamManager.initAudioPlayer(new PodAudioStreamManager.IPodAudioPlayerListener() {
-                        @Override
-                        public void onPlayStopped() {
+        audioStreamManager.initAudioPlayer(new PodAudioStreamManager.IPodAudioPlayerListener() {
+            @Override
+            public void onPlayStopped() {
 
-                        }
+            }
 
-                        @Override
-                        public void onAudioPlayError(String cause) {
+            @Override
+            public void onAudioPlayError(String cause) {
 
-                        }
+            }
 
-                        @Override
-                        public void onPlayerReady() {
+            @Override
+            public void onPlayerReady() {
 
-                            audioStreamManager.recordAudio(new PodAudioStreamManager.IPodAudioListener() {
-                                @Override
-                                public void onByteRecorded(byte[] bytes) {
+                audioStreamManager.recordAudio(new PodAudioStreamManager.IPodAudioListener() {
+                    @Override
+                    public void onByteRecorded(byte[] bytes) {
 
-                                    audioStreamManager.playAudio(bytes);
-                                }
+                        audioStreamManager.playAudio(bytes);
+                    }
 
-                                @Override
-                                public void onRecordStopped() {
+                    @Override
+                    public void onRecordStopped() {
 
-                                }
+                    }
 
-                                @Override
-                                public void onAudioRecordError(String cause) {
+                    @Override
+                    public void onAudioRecordError(String cause) {
 
-                                }
+                    }
 
-                                @Override
-                                public void onRecordRestarted() {
+                    @Override
+                    public void onRecordRestarted() {
 
-                                }
-                            });
+                    }
+                });
 
-                        }
-                    });
+            }
+        });
 //        new Thread(() -> audioTestClass.start(mContext)).start();
 
+//        startStream();
     }
 
     public void testStream(String groupId, String sender, String receiver) {
@@ -142,41 +154,6 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         audioStreamManager.initAudioPlayer(this);
 
-//        try {
-//
-//          new Thread(()->{
-//
-//              AtomicBoolean r = new AtomicBoolean(true);
-//
-//              while (r.get()) {
-//
-//
-//                  byte[] endBuffer = "salam".getBytes();
-//
-//                  String x = producerClient.produceMessege(endBuffer, "masoud", SENDING_TOPIC);
-//
-//                  String result = null;
-//
-//                  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-//                      result = new String(consumerClient.consumingTopic(), StandardCharsets.UTF_8);
-//                      if (!"salam".equals(result) && result.length() > 0)
-//                          Log.e(TAG, "Consume: " + result);
-//                  }
-//
-//                  try {
-//                      Thread.sleep(1000);
-//                  } catch (InterruptedException e) {
-//                      e.printStackTrace();
-//                  }
-//
-//              }
-//
-//          }).start();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
     }
 
     private void startAudioCallService() {
@@ -195,7 +172,23 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         consumerProperties.setProperty("bootstrap.servers", BROKER_ADDRESS); //9093 تست
 
+        callSSLData = readFiles();
+
+        if (callSSLData != null) {
+
+            consumerProperties.setProperty("security.protocol", "SASL_SSL");
+            consumerProperties.setProperty("sasl.mechanisms", "PLAIN");
+            consumerProperties.setProperty("sasl.username", "rrrr");
+            consumerProperties.setProperty("sasl.password", "rrrr");
+            consumerProperties.setProperty("ssl.ca.location", callSSLData.getCert().getAbsolutePath());
+            consumerProperties.setProperty("ssl.certificate.location", callSSLData.getClient().getAbsolutePath());
+            consumerProperties.setProperty("ssl.key.location", callSSLData.getKey().getAbsolutePath());
+            consumerProperties.setProperty("ssl.key.password", "masoud");
+
+        }
+
         consumerProperties.setProperty("group.id", GROUP_ID);
+
         consumerProperties.setProperty("auto.offset.reset", "end");
 
         consumerClient = new ConsumerClient(consumerProperties, RECEIVING_TOPIC);
@@ -206,20 +199,88 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     private void configProducer() {
         final Properties producerProperties = new Properties();
 
-        producerProperties.setProperty("bootstrap.servers", BROKER_ADDRESS); //9093 تست
+        producerProperties.setProperty("bootstrap.servers", BROKER_ADDRESS);
+
+        if (callSSLData != null) {
+
+            producerProperties.setProperty("security.protocol", "SASL_SSL");
+            producerProperties.setProperty("sasl.mechanisms", "PLAIN");
+            producerProperties.setProperty("sasl.username", "rrrr");
+            producerProperties.setProperty("sasl.password", "rrrr");
+            producerProperties.setProperty("ssl.ca.location", callSSLData.getCert().getAbsolutePath());
+            producerProperties.setProperty("ssl.certificate.location", callSSLData.getClient().getAbsolutePath());
+            producerProperties.setProperty("ssl.key.location", callSSLData.getKey().getAbsolutePath());
+            producerProperties.setProperty("ssl.key.password", "masoud");
+
+        }
 
         producerClient = new ProducerClient(producerProperties);
 
         producerClient.connect();
     }
 
+    private CallSSLData readFiles() {
+
+
+        InputStream inputStream1 =
+                mContext.getResources().openRawResource(R.raw.cacert);
+
+        InputStream inputStream2 =
+                mContext.getResources().openRawResource(R.raw.client);
+
+        InputStream inputStream3 =
+                mContext.getResources().openRawResource(R.raw.client_p);
+
+
+        OutputStream out1 = null;
+        OutputStream out2 = null;
+        OutputStream out3 = null;
+
+
+        try {
+            out1 = new FileOutputStream(mContext.getFilesDir() + "/ca-cert");
+            out2 = new FileOutputStream(mContext.getFilesDir() + "/client.key");
+            out3 = new FileOutputStream(mContext.getFilesDir() + "/client.pem");
+            copy(inputStream1, out1);
+            copy(inputStream2, out2);
+            copy(inputStream3, out3);
+
+
+            File cert = new File(mContext.getFilesDir() + "/ca-cert");
+            File key = new File(mContext.getFilesDir() + "/client.key");
+            File client = new File(mContext.getFilesDir() + "/client.pem");
+
+            if (cert.exists() && key.exists() && client.exists()) {
+
+                return new CallSSLData(cert, key, client);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
+    }
+
+    private void copy(InputStream inputStream1, OutputStream out1) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = inputStream1.read(buffer)) != -1) {
+            out1.write(buffer, 0, read);
+        }
+        inputStream1.close();
+        inputStream1 = null;
+        out1.flush();
+        out1.close();
+        out1 = null;
+    }
+
     public void endStream() {
         streaming = false;
-//        audioTestClass.stop();
+        audioTestClass.stop();
         audioStreamManager.endStream();
-//        audioStreamManager.stopRecording();
-//        audioStreamManager.stopPlaying();
-
 //        stopAudioCallService();
     }
 
@@ -238,22 +299,6 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     @Override
     public void onFirstBytesRecorded() {
 
-        configProducer();
-
-        Runnable t = () -> {
-
-            Log.e(TAG, "Consume from: " + RECEIVING_TOPIC);
-
-            while (streaming) {
-                audioStreamManager.playAudio(consumerClient.consumingTopic());
-            }
-
-        };
-
-        Thread r = new Thread(t, "PLAYING");
-        audioStreamManager.setPlayingThread(r);
-        r.start();
-
     }
 
     @Override
@@ -261,14 +306,16 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
 
         if (!firstByteReceived) {
-
             firstByteReceived = true;
-
-            sendReceiveSynchronizer.onFirstBytesRecorded();
+            configProducer();
         }
 
         if (streaming) {
+
             String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+
+            audioStreamManager.playAudio(consumerClient.consumingTopic());
+
             Log.e(TAG, "SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
         }
 

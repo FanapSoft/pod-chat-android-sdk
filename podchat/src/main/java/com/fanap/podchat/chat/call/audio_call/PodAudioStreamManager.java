@@ -35,31 +35,22 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
 
     private static final int BITRATE = 8000;
     private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_MONO;
-    private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    private int bufferSize = 4096;
 
-    private static final int SAMPLE_INTERVAL = 20; // Milliseconds
-    private static final int SAMPLE_SIZE = 2; // Bytes
-
-    private static final int BufferElements2Rec = 2048; // want to play 2048 (2K) since 2 bytes we use only 1024
-    private static final int BytesPerElement = 2; // 2 bytes in 16bit format
-
-    //    private static final int BUF_SIZE = SAMPLE_INTERVAL * SAMPLE_INTERVAL * SAMPLE_SIZE * 2; //Bytes
-    private int BUF_SIZE = BufferElements2Rec * BytesPerElement; //Bytes
     private static final String TAG = "CHAT_SDK_CALL";
 
 
     private AudioRecord recorder = null;
     private AudioTrack track = null;
-    //    private Thread recordingThread = null;
-    private Thread playingThread = null;
-    private Thread recordingThread = null;
+
     private boolean isRecording = false;
     private boolean isPlaying = false;
-    boolean hasPermission;
 
-    boolean isSpeakerOn = false;
-    boolean isMute = false;
-
+    private boolean isSpeakerOn = false;
+    private boolean isMute = false;
+    private boolean isHeadset = false;
+    private boolean haveAudioFocus;
 
     private SensorManager mSensorManager = null;
     private Sensor mProximitySensor = null;
@@ -80,14 +71,10 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
     private IPodAudioListener recordCallback;
 
     private IPodAudioPlayerListener playerCallback;
-    private boolean needResampling = false;
     private ByteBuffer buffer;
-    private boolean running = false;
 
     private BroadcastReceiver headsetReceiver;
 
-    private boolean isHeadset;
-    private boolean haveAudioFocus;
 
     PodAudioStreamManager(Context context) {
 
@@ -106,13 +93,6 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
         }
 
         setupHeadsetReceiver();
-
-        hasPermission = false;
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)!=null) {
-//            BUF_SIZE = Integer.parseInt(audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
-//        }
-
     }
 
     private void setupHeadsetReceiver() {
@@ -135,19 +115,12 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
     private void updateHeadsetState(Intent intent) {
         int state = intent.getIntExtra("state", -1);
         isHeadset = state == 1;
-        boolean hasMic = intent.getIntExtra("microphone", -1) == 1;
-
         resetRecorder();
-
-        Log.e(TAG, "STATE: " + intent.getIntExtra("state", -1));
-        Log.e(TAG, "NAME: " + intent.getStringExtra("name"));
-        Log.e(TAG, "mic: " + intent.getIntExtra("microphone", -1));
     }
 
     private void setupProximity() {
         try {
             mProximitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
             proximityWakelock = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).newWakeLock(PROXIMITY_SCREEN_OFF_WAKE_LOCK, "com.fanap.podchat:audio_stream");
         } catch (Exception ignored) {
         }
@@ -163,10 +136,6 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
     private void updateAudioManager() {
         isHeadset = audioManager.isWiredHeadsetOn();
         audioManager.setMode(AudioManager.MODE_IN_CALL);
-    }
-
-    private int getBufferSize(int min, int sampleRate) {
-        return Math.max(AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT), min);
     }
 
     void recordAudio(@NonNull IPodAudioListener listener) {
@@ -185,9 +154,18 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
                 isHeadset ? MediaRecorder.AudioSource.MIC
                         : MediaRecorder.AudioSource.VOICE_COMMUNICATION,
                 BITRATE, RECORDER_CHANNELS,
-                RECORDER_AUDIO_ENCODING, BUF_SIZE);
+                ENCODING, bufferSize);
 
 
+        setConfigs();
+
+
+        buffer = ByteBuffer.allocateDirect(bufferSize);
+
+        start();
+    }
+
+    private void setConfigs() {
         try {
             if (AutomaticGainControl.isAvailable()) {
                 agc = AutomaticGainControl.create(recorder.getAudioSessionId());
@@ -226,56 +204,45 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
         } catch (Throwable x) {
             Log.e(TAG, "error creating AcousticEchoCanceler", x);
         }
-
-
-        buffer = ByteBuffer.allocateDirect(BUF_SIZE);
-
-        start();
     }
 
     public boolean start() {
         if (recorder == null || recorder.getState() != AudioRecord.STATE_INITIALIZED)
             return false;
+
         try {
-            if (recordingThread == null) {
-                if (recorder == null)
-                    return false;
-                recorder.startRecording();
-                isRecording = true;
-                startThread();
-            } else {
-                recorder.startRecording();
-            }
+
+            if (recorder == null)
+                return false;
+
+            recorder.startRecording();
+
+            isRecording = true;
+
+            new Thread(() -> {
+
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+
+                while (isRecording) {
+                    try {
+                        int len = recorder.read(buffer, bufferSize);
+                        if (!isRecording) {
+                            recorder.stop();
+                            break;
+                        }
+                        if (len > 0)
+                            recordCallback.onByteRecorded(buffer.array());
+                    } catch (Exception ex) {
+                        recordCallback.onAudioRecordError(ex.getMessage());
+                    }
+                }
+            }).start();
+
             return true;
         } catch (Exception x) {
-            Log.e(TAG, "Error initializing AudioRecord", x);
+            recordCallback.onAudioRecordError(x.getMessage());
         }
         return false;
-    }
-
-    private void startThread() {
-        if (recordingThread != null) {
-            throw new IllegalStateException("thread already started");
-        }
-        running = true;
-        recordingThread = new Thread(() -> {
-
-//            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-
-            while (isRecording) {
-                try {
-                    recorder.read(buffer, BUF_SIZE);
-                    if (!isRecording) {
-                        recorder.stop();
-                        break;
-                    }
-                    recordCallback.onByteRecorded(buffer.array());
-                } catch (Exception ignored) {
-                }
-            }
-            Log.i(TAG, "audiorecord thread exits");
-        });
-        recordingThread.start();
     }
 
     void initAudioPlayer(IPodAudioPlayerListener listener) {
@@ -287,7 +254,7 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
 
         track = new AudioTrack(AudioManager.STREAM_VOICE_CALL,
                 BITRATE, AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT, BUF_SIZE, AudioTrack.MODE_STREAM);
+                AudioFormat.ENCODING_PCM_16BIT, bufferSize, AudioTrack.MODE_STREAM);
 
 
         track.play();
@@ -299,19 +266,17 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
 
     }
 
-    void setPlayingThread(Thread playingThread) {
-        this.playingThread = playingThread;
-    }
-
     void playAudio(byte[] bytes) {
 
         isPlaying = true;
 
         try {
             if (track != null) {
-                int numOfWroteBytes = track.write(bytes, 0, BUF_SIZE);
-                Log.e(TAG, "CONSUME: " + numOfWroteBytes);
-                //            Log.e(TAG, "SIZE: " + bytes.length);
+                if (bytes.length > 0) {
+                    int numOfWroteBytes = track.write(bytes, 0, bufferSize);
+                    Log.e(TAG, "CONSUME: " + numOfWroteBytes);
+                }
+                Log.e(TAG, "SIZE: " + bytes.length);
 
             }
 
@@ -331,7 +296,6 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
             track.flush();
             track.release();
             isPlaying = false;
-            playingThread = null;
             track = null;
         }
 
@@ -341,14 +305,8 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
 
     }
 
-    void stopRecording() {
+    private void stopRecording() {
         // stops the recording activity
-
-        if (recordingThread != null) {
-
-            recordingThread = null;
-
-        }
 
         if (null != recorder) {
             isRecording = false;
@@ -396,9 +354,6 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
         }
     }
 
-    public void checkPermission(Activity activity) {
-        hasPermission = Permission.Check_RECORD_AUDIO(activity);
-    }
 
     private byte[] short2byte(short[] sData) {
         int shortArrsize = sData.length;
@@ -409,10 +364,9 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
             sData[i] = 0;
         }
         return bytes;
-
     }
 
-    public void switchSpeakerState(boolean isSpeakerOn) {
+    void switchSpeakerState(boolean isSpeakerOn) {
 
         if (isSpeakerOn != this.isSpeakerOn) {
             this.isSpeakerOn = isSpeakerOn;
@@ -420,20 +374,14 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
                 audioManager.setSpeakerphoneOn(isSpeakerOn);
             }
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            AudioDeviceInfo audioDeviceInfo = track.getRoutedDevice();
-            Log.d(TAG, "DEVICE: " + audioDeviceInfo.getProductName());
-            Log.d(TAG, ">>>>: " + Arrays.toString(audioDeviceInfo.getSampleRates()));
-            Log.d(TAG, ">>>>>: " + audioDeviceInfo.getType());
-        }
     }
 
     void switchMuteState(boolean isMute) {
-
         if (isMute != this.isMute) {
             this.isMute = isMute;
-            audioManager.setMicrophoneMute(isMute);
+            if (audioManager != null) {
+                audioManager.setMicrophoneMute(isMute);
+            }
         }
     }
 
@@ -467,17 +415,11 @@ public class PodAudioStreamManager implements SensorEventListener, AudioManager.
                     isProximityNear = newIsNear;
 
                     if (isProximityNear) {
-
                         proximityWakelock.acquire(10 * 60 * 1000L /*10 minutes*/);
-
                     } else {
-
                         proximityWakelock.release();
-
                     }
-
                 }
-
             }
         }
 

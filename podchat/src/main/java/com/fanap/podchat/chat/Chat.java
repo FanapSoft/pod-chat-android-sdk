@@ -37,6 +37,7 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.call.audio_call.PodCallServiceManager;
 import com.fanap.podchat.chat.call.model.CallVO;
 import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
@@ -394,7 +395,7 @@ public class Chat extends AsyncAdapter {
     private boolean hasFreeSpace = true;
 
 
-    private static PodAudioCallManager audioCallManager;
+    private static PodCallServiceManager audioCallManager;
 
 
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
@@ -448,7 +449,7 @@ public class Chat extends AsyncAdapter {
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
-            audioCallManager = new PodAudioCallManager(context);
+            audioCallManager = new PodCallServiceManager(context);
 
 
         }

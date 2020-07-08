@@ -63,3 +63,10 @@ captures/
 
 # Google Services (e.g. APIs or Firebase)
 google-services.json
+/src/main/res/values/sentry.xml
+/src/main/res/raw/cacert.pem
+/src/main/res/raw/client.key
+/src/main/res/raw/client_p.pem
+/src/main/assets/cacert
+/src/main/assets/client.key
+/src/main/assets/client_p.pem
