@@ -35,12 +35,12 @@
             </intent-filter>
         </service>
 
-
-        <meta-data android:name="io.sentry.dsn" android:value="@string/key"/>
+        <meta-data android:name="io.sentry.dsn" android:value="@string/sentry_dsn"/>
 
     </application>
 
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
 </manifest>

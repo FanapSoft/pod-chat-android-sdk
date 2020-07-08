@@ -29,7 +29,6 @@ import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.ProgressHandler;
-import com.fanap.podchat.R;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -310,6 +309,7 @@ public class Chat extends AsyncAdapter {
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
     public static final String TAG = "CHAT_SDK";
     private String chatState = "CLOSED";
+    private boolean isWebSocketNull = true;
 
 
     private int getUserInfoRetryCount = 5;
@@ -440,6 +440,7 @@ public class Chat extends AsyncAdapter {
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
 
+
         }
 
         return instance;
@@ -559,23 +560,32 @@ public class Chat extends AsyncAdapter {
             pinger = new NetworkPingSender(context, new NetworkStateListener() {
                 @Override
                 public void networkAvailable() {
+
                     tryToConnectOrReconnect();
+
                 }
 
                 @Override
                 public void networkUnavailable() {
+
                     closeSocketServer();
+
                 }
 
                 @Override
                 public void sendPingToServer() {
+
                     pingForCheckConnection();
+
                 }
 
                 @Override
                 public void onConnectionLost() {
+
                     chatState = CLOSED;
+
                     scheduleForReconnect();
+
                 }
             });
 
@@ -690,7 +700,9 @@ public class Chat extends AsyncAdapter {
 
 
         if (isAsyncReady()) {
+
             pingAfterSetToken();
+
         } else {
             scheduleForReconnect();
         }
@@ -867,7 +879,6 @@ public class Chat extends AsyncAdapter {
 //                PodNotificationManager.handleOnAppRegistered(chatMessage, context, getUserId());
 //                break;
 //            }
-
 
             case Constants.REGISTER_FCM_USER_DEVICE: {
                 PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
@@ -1059,40 +1070,6 @@ public class Chat extends AsyncAdapter {
 
             case Constants.SYSTEM_MESSAGE:
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.CHANGE_THREAD_PRIVACY:
-                break;
-            case Constants.CREATE_BOT:
-                break;
-            case Constants.DEFINE_BOT_COMMAND:
-                break;
-            case Constants.GET_REPORT_REASONS:
-                break;
-            case Constants.GET_THING_INFO:
-                break;
-            case Constants.GET_THREAD_INFO:
-                break;
-            case Constants.INTERACT_MESSAGE:
-                break;
-            case Constants.PRIVATE_THREAD:
-                break;
-            case Constants.PUBLIC_THREAD_AND_SET_NAME:
-                break;
-            case Constants.REGISTER_FCM_APP:
-                break;
-            case Constants.REPORT_MESSAGE:
-                break;
-            case Constants.REPORT_THREAD:
-                break;
-            case Constants.REPORT_USER:
-                break;
-            case Constants.SET_PRIVATE_THREAD_HASH:
-                break;
-            case Constants.START_BOT:
-                break;
-            case Constants.STOP_BOT:
-                break;
-            case Constants.UPDATE_USER_PROFILE:
                 break;
         }
     }
@@ -1370,6 +1347,7 @@ public class Chat extends AsyncAdapter {
         } catch (Throwable throwable) {
             if (log) {
                 showLog("CONNECTION_ERROR", throwable.getMessage());
+                ;
             }
         }
     }
@@ -1390,6 +1368,7 @@ public class Chat extends AsyncAdapter {
     private void connectToAsync(String socketAddress, String appId, String severName, String token, String ssoHost) {
         async.addListener(this);
         async.connect(socketAddress, appId, severName, token, ssoHost, "");
+        isWebSocketNull = false;
     }
 
     private void setupContactApi(String platformHost) {
@@ -2072,77 +2051,6 @@ public class Chat extends AsyncAdapter {
 //
 //    }
 
-
-    /**
-     * This method first check the messageType of the file and then choose the right
-     * server and send that
-     *
-     * @param description    Its the description that you want to send with file in the thread
-     * @param fileUri        Uri of the file that you want to send to thread
-     * @param threadId       Id of the thread that you want to send file
-     * @param systemMetaData [optional]
-     * @param handler        it is for send file message with progress
-     */
-
-    private String sendFileMessage(Activity activity,
-                                   String description,
-                                   long threadId,
-                                   Uri fileUri,
-                                   String systemMetaData,
-                                   Integer messageType,
-                                   ProgressHandler.sendFileMessage handler) {
-        String uniqueId;
-
-        uniqueId = generateUniqueId();
-
-        if (needReadStoragePermission(activity)) return uniqueId;
-
-        LFileUpload lFileUpload = new LFileUpload();
-        lFileUpload.setActivity(activity);
-        lFileUpload.setDescription(description);
-        lFileUpload.setFileUri(fileUri);
-        lFileUpload.setHandler(handler);
-        lFileUpload.setMessageType(messageType);
-        lFileUpload.setThreadId(threadId);
-        lFileUpload.setUniqueId(uniqueId);
-        lFileUpload.setSystemMetaData(systemMetaData);
-
-        try {
-            if (fileUri != null) {
-                File file = new File(fileUri.getPath());
-                String mimeType = handleMimType(fileUri, file);
-                lFileUpload.setMimeType(mimeType);
-                lFileUpload.setFile(file);
-
-                if (FileUtils.isImage(mimeType)) {
-
-                    if (FileUtils.isGif(mimeType)) {
-                        uploadFileMessage(lFileUpload);
-                    } else
-                        uploadImageFileMessage(lFileUpload);
-
-
-                } else {
-                    uploadFileMessage(lFileUpload);
-                }
-                return uniqueId;
-            } else {
-                String jsonError = captureError(ChatConstant.ERROR_INVALID_FILE_URI
-                        , ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
-                ErrorOutPut error = new ErrorOutPut(true, ChatConstant.ERROR_INVALID_FILE_URI, ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
-                if (handler != null) {
-                    handler.onError(jsonError, error);
-                }
-            }
-        } catch (Exception e) {
-
-            captureError(e.getMessage()
-                    , ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId, e);
-            showErrorLog(e.getMessage());
-            return uniqueId;
-        }
-        return uniqueId;
-    }
 
     private boolean needReadStoragePermission(Activity activity) {
 
@@ -10256,9 +10164,6 @@ public class Chat extends AsyncAdapter {
             messageDatabaseHelper.saveNewThread(resultThread.getThread());
         }
 
-        } catch (JsonSyntaxException e) {
-            showErrorLog(e.getMessage());
-            onUnknownException(chatMessage.getUniqueId(), e);
     }
 
 
@@ -10294,7 +10199,9 @@ public class Chat extends AsyncAdapter {
 
 
         if (cache) {
+
             messageDatabaseHelper.deleteThread(chatMessage.getSubjectId());
+
         }
     }
 
@@ -10307,6 +10214,14 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVED_CHAT_PING", "");
 
         if (checkToken) {
+
+
+//            if (cache && !permit) {
+//
+//                //todo handle condition
+////                showLog("GENERATE_KEY", "");
+////                generateEncryptionKey(getSsoHost());
+//            } else {
             chatReady = true;
             chatState = CHAT_READY;
             checkToken = false;
@@ -10317,6 +10232,9 @@ public class Chat extends AsyncAdapter {
             listenerManager.callOnChatState(CHAT_READY);
             showLog("** CLIENT_AUTHENTICATED_NOW", "");
             pingWithDelay();
+//            }
+
+
         }
 
 
@@ -14508,7 +14426,9 @@ public class Chat extends AsyncAdapter {
     @Override
     public void onError(String textMessage) {
         super.onError(textMessage);
+
         captureError("On Async Error: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+
     }
 
     @Override

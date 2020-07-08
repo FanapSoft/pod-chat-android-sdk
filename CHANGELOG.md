@@ -5,11 +5,15 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## Version [0.7.2.0] -2020-6-2
 
-[Improve] Upload Thread Image
+## Version [0.7.4.1] -2020-7-8
 
-[Improve] Search Contacts 
+[Added] Sentry Logger
+
+[Improved] Connection Performance
+
+
+
 
 
 ## Version [0.7.4.0] -2020-7-4

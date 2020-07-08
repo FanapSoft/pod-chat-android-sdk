@@ -434,9 +434,6 @@ public class PodUploader {
                                                            File file,
                                                            long fileSize) {
 
-
-    public static Subscription uploadPublicFileToPodSpace(String uniqueId, String fileServer, String token, int tokenIssuer, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) {
-
         listener.onUploadStarted(mimeType, file, fileSize);
 
         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
@@ -503,8 +500,7 @@ public class PodUploader {
                         }
                     }
 
-                },
-                        error -> listener.onFailure(error.getMessage(),error));
+                }, error -> listener.onFailure(error.getMessage(),error));
     }
 
     private static Subscription uploadPublicImageToPodSpace(String uniqueId,
