@@ -1318,16 +1318,15 @@ public class Chat extends AsyncAdapter {
                         String typeCode) {
         try {
 
-            Sentry.setExtra("token", getToken());
-            Sentry.setExtra("tokenIssuer", String.valueOf(TOKEN_ISSUER));
-            Sentry.setExtra("typeCode", getTypeCode());
+            Sentry.setExtra("token", token);
+            Sentry.setExtra("typeCode", typeCode);
             Sentry.setExtra("socketAddress", socketAddress);
             Sentry.setExtra("appId", appId);
             Sentry.setExtra("serverName", serverName);
-            Sentry.setExtra("platformHost", getPlatformHost());
-            Sentry.setExtra("ssoHost", getSsoHost());
-            Sentry.setExtra("fileServer", getFileServer());
-            Sentry.setExtra("podSpaceServer", getPodSpaceServer());
+            Sentry.setExtra("platformHost", platformHost);
+            Sentry.setExtra("ssoHost", ssoHost);
+            Sentry.setExtra("fileServer", fileServer);
+            Sentry.setExtra("podSpaceServer", podSpaceServer);
 
             if (platformHost.endsWith("/")) {
 
