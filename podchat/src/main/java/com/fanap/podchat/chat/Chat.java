@@ -450,7 +450,6 @@ public class Chat extends AsyncAdapter {
     public void setupNotification(CustomNotificationConfig notificationConfig) {
 
 
-
         PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
             @Override
             public void onNotificationEvent(String log) {
@@ -491,7 +490,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public void deliverNotification(String threadId){
+    public void deliverNotification(String threadId) {
 
         PodNotificationManager.deliverThreadMessages(threadId);
 
@@ -1318,6 +1317,18 @@ public class Chat extends AsyncAdapter {
                         String ssoHost, String platformHost, String fileServer, String podSpaceServer,
                         String typeCode) {
         try {
+
+            Sentry.setExtra("token", getToken());
+            Sentry.setExtra("tokenIssuer", String.valueOf(TOKEN_ISSUER));
+            Sentry.setExtra("typeCode", getTypeCode());
+            Sentry.setExtra("socketAddress", socketAddress);
+            Sentry.setExtra("appId", appId);
+            Sentry.setExtra("serverName", serverName);
+            Sentry.setExtra("platformHost", getPlatformHost());
+            Sentry.setExtra("ssoHost", getSsoHost());
+            Sentry.setExtra("fileServer", getFileServer());
+            Sentry.setExtra("podSpaceServer", getPodSpaceServer());
+
             if (platformHost.endsWith("/")) {
 
                 resetAsync();
@@ -1347,7 +1358,6 @@ public class Chat extends AsyncAdapter {
         } catch (Throwable throwable) {
             if (log) {
                 showLog("CONNECTION_ERROR", throwable.getMessage());
-                ;
             }
         }
     }
@@ -11740,6 +11750,13 @@ public class Chat extends AsyncAdapter {
         sentryInfoMap.put("token", getToken());
         sentryInfoMap.put("tokenIssuer", String.valueOf(TOKEN_ISSUER));
         sentryInfoMap.put("typeCode", getTypeCode());
+        sentryInfoMap.put("socketAddress", socketAddress);
+        sentryInfoMap.put("appId", appId);
+        sentryInfoMap.put("serverName", serverName);
+        sentryInfoMap.put("platformHost", getPlatformHost());
+        sentryInfoMap.put("ssoHost", getSsoHost());
+        sentryInfoMap.put("fileServer", getFileServer());
+        sentryInfoMap.put("podSpaceServer", getPodSpaceServer());
         sentryUser.setOthers(sentryInfoMap);
         Sentry.setUser(sentryUser);
     }

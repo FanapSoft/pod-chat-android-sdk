@@ -10,7 +10,7 @@ All notable changes to this project will be documented here.
 
 [Added] Sentry Logger
 
-[Improved] Connection Performance
+[Improved] Connection Performance. Disconnection is detected faster in api level 21 and below
 
 
 
