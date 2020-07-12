@@ -3,11 +3,11 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
-import com.fanap.podchat.chat.call.result_model.CallReconnectResult;
-import com.fanap.podchat.chat.call.result_model.CallRequestResult;
-import com.fanap.podchat.chat.call.result_model.EndCallResult;
-import com.fanap.podchat.chat.call.result_model.StartCallResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.CallReconnectResult;
+import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;

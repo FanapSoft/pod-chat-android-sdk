@@ -16,11 +16,11 @@
         </provider>
 
         <receiver
-            android:name=".chat.call.audio_call.EndCallReceiver"
+            android:name=".call.audio_call.EndCallReceiver"
             android:enabled="true" />
 
         <service
-            android:name=".chat.call.audio_call.AudioCallService"
+            android:name=".call.audio_call.AudioCallService"
             android:enabled="true"
             android:exported="false" />
         <service

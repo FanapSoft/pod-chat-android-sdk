@@ -5,26 +5,35 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.R;
+import com.fanap.podchat.call.audio_call.EndCallReceiver;
+import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static com.fanap.podchat.call.audio_call.AudioCallService.REQUEST_CODE_END_CALL;
+import static com.fanap.podchat.call.audio_call.AudioCallService.REQUEST_CODE_OPEN_APP;
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
+import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
+import static com.fanap.podchat.util.ChatConstant.POD_PUSH_MESSAGE_ID;
+import static com.fanap.podchat.util.ChatConstant.POD_PUSH_SENDER_USER_NAME;
+import static com.fanap.podchat.util.ChatConstant.POD_PUSH_THREAD_ID;
 import static com.fanap.podchat.util.TextMessageType.Constants.FILE;
 import static com.fanap.podchat.util.TextMessageType.Constants.LINK;
 import static com.fanap.podchat.util.TextMessageType.Constants.PICTURE;
@@ -44,11 +53,9 @@ public class ShowNotificationHelper {
     private static final String CHANNEL_ID = "PODCHAT";
     private static final String CHANNEL_NAME = "POD_CHAT_CHANNEL";
     private static final String CHANNEL_DESCRIPTION = "Fanap soft podchat notification channel";
-    public static final String THREAD_ID = "threadId";
-    public static final String MESSAGE_ID = "messageId";
-    public static final String SENDER_USER_NAME = "senderUserName";
 
-    public static final String ACTION_1 = "action_1";
+
+    private static final String ACTION_1 = "action_1";
     private static final int SUMMARY_ID = 0;
 
 
@@ -69,10 +76,10 @@ public class ShowNotificationHelper {
     }
 
     public static void setupNotificationChannel(Context context,
-                                         String channelId,
-                                         String channelName,
-                                         String channelDescription,
-                                         Integer notificationImportance
+                                                String channelId,
+                                                String channelName,
+                                                String channelDescription,
+                                                Integer notificationImportance
     ) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -241,9 +248,9 @@ public class ShowNotificationHelper {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            intent.putExtra(THREAD_ID, threadId);
-            intent.putExtra(MESSAGE_ID, messageId);
-            intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
+            intent.putExtra(POD_PUSH_THREAD_ID, threadId);
+            intent.putExtra(POD_PUSH_MESSAGE_ID, messageId);
+            intent.putExtra(POD_PUSH_SENDER_USER_NAME, messageSenderUserName);
 
             PendingIntent pendingIntent = PendingIntent
                     .getActivity(context.getApplicationContext(),
@@ -305,7 +312,6 @@ public class ShowNotificationHelper {
 
 
         try {
-
 
             NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -385,9 +391,9 @@ public class ShowNotificationHelper {
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                intent.putExtra(THREAD_ID, threadId);
-                intent.putExtra(MESSAGE_ID, messageId);
-                intent.putExtra(SENDER_USER_NAME, messageSenderUserName);
+                intent.putExtra(POD_PUSH_THREAD_ID, threadId);
+                intent.putExtra(POD_PUSH_MESSAGE_ID, messageId);
+                intent.putExtra(POD_PUSH_SENDER_USER_NAME, messageSenderUserName);
 
                 PendingIntent pendingIntent = PendingIntent
                         .getActivity(context.getApplicationContext(),
@@ -481,6 +487,57 @@ public class ShowNotificationHelper {
             Log.e(TAG, "Couldn't start activity: " + e.getMessage() + " " + targetClassName);
         }
 
+    }
+
+    public static void showRunningCallNotification(Service context, String targetActivity,
+                                                   CallInfo callInfo, String CALL_CHANNEL_ID, int notificationId) {
+        Intent closeAction = new Intent(context, EndCallReceiver.class);
+
+        Intent openAppIntent  = new Intent(context, context.getClass());
+
+        if (!Util.isNullOrEmpty(targetActivity)) {
+            try {
+                Class<?> targetClass = Class.forName(targetActivity);
+                openAppIntent = new Intent(context, targetClass);
+            } catch (ClassNotFoundException e) {
+                openAppIntent = new Intent(context, context.getClass());
+            }
+        }
+
+        openAppIntent.putExtra(POD_CALL_INFO,callInfo);
+
+        PendingIntent pendingIntentOpenApp = PendingIntent.getActivity(context,
+                REQUEST_CODE_OPEN_APP, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent pendingIntentEnd = PendingIntent.getBroadcast(context,
+                REQUEST_CODE_END_CALL, closeAction, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Action actionStop = new NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
+                "پایان تماس", pendingIntentEnd);
+
+
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_in_call_notifiacion);
+
+        remoteViews.setTextViewText(R.id.textViewCallName, callInfo.getPartnerName());
+
+        remoteViews.setOnClickPendingIntent(R.id.buttonEndCall, pendingIntentEnd);
+
+
+        Notification notification = new NotificationCompat
+                .Builder(context, CALL_CHANNEL_ID)
+                .setCustomContentView(remoteViews)
+                .setSmallIcon(R.drawable.ic_call)
+                .setContentIntent(pendingIntentOpenApp)
+                .setOngoing(true)
+                .build();
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForeground(notificationId, notification);
+        } else {
+            NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
+            managerCompat.notify(notificationId, notification);
+        }
     }
 
     private static String getNotificationText(String text, String messageType) {

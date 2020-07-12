@@ -6,9 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
     android:visibility="gone"
-    tools:showIn="@layout/activity_call"
     android:id="@+id/viewCallRequest"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
 
     <ImageButton

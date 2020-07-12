@@ -1,6 +1,13 @@
 package com.fanap.podchat.util;
 
 public class ChatConstant {
+
+    public static final String POD_CALL_INFO = "CALL_INFO";
+    public static final String POD_PUSH_THREAD_ID = "threadId";
+    public static final String POD_PUSH_MESSAGE_ID = "messageId";
+    public static final String POD_PUSH_SENDER_USER_NAME = "senderUserName";
+
+
     public static final int ERROR_CODE_INVALID_TOKEN = 6001;
     public static final int ERROR_CODE_USER_NOT_FOUND = 6002;
     public static final int ERROR_CODE_CHAT_READY = 6003;
@@ -26,12 +33,10 @@ public class ChatConstant {
 
     public static final int ERROR_CODE_CALL_NESHAN_API = 6600;
 
+
     public static long ERROR_CODE_NOTIFICATION_ERROR = 6700;
 
     public static final int ERROR_CODE_INVALID_CONTACT_ID = 6800;
-
-
-
 
 
     public static final String ERROR_WRITING_FILE = "Error in writing file to disk";

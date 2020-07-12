@@ -37,19 +37,21 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
-import com.fanap.podchat.chat.call.audio_call.PodCallServiceManager;
-import com.fanap.podchat.chat.call.model.CallVO;
-import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
-import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
-import com.fanap.podchat.chat.call.CallManager;
-import com.fanap.podchat.chat.call.request_model.CallRequest;
-import com.fanap.podchat.chat.call.request_model.EndCallRequest;
-import com.fanap.podchat.chat.call.request_model.GetCallHistoryRequest;
-import com.fanap.podchat.chat.call.request_model.RejectCallRequest;
-import com.fanap.podchat.chat.call.result_model.CallReconnectResult;
-import com.fanap.podchat.chat.call.result_model.CallRequestResult;
-import com.fanap.podchat.chat.call.result_model.EndCallResult;
-import com.fanap.podchat.chat.call.result_model.StartCallResult;
+import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.audio_call.ICallState;
+import com.fanap.podchat.call.audio_call.PodCallServiceManager;
+import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.request_model.AcceptCallRequest;
+import com.fanap.podchat.call.CallManager;
+import com.fanap.podchat.call.request_model.CallRequest;
+import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.result_model.CallReconnectResult;
+import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
@@ -172,7 +174,6 @@ import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
-import com.fanap.podchat.chat.call.audio_call.PodAudioCallManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -1087,8 +1088,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
-
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
 
         ChatResponse<ResultUnreadMessagesCount> response =
@@ -1275,6 +1274,7 @@ public class Chat extends AsyncAdapter {
                 = CallManager.handleOnCallRequest(chatMessage);
         listenerManager.callOnCallRequest(response);
         showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
+        audioCallManager.addNewCallInfo(response);
 
     }
 
@@ -1292,11 +1292,25 @@ public class Chat extends AsyncAdapter {
         ChatResponse<StartCallResult> response
                 = CallManager.handleOnCallStarted(chatMessage);
         listenerManager.callOnCallVoiceCallStarted(response);
-        audioCallManager.startCallStream(response.getResult());
+        audioCallManager.startCallStream(response, new ICallState() {
+            @Override
+            public void onInfoEvent(String info) {
+                showLog(info);
+            }
+
+            @Override
+            public void onErrorEvent(String cause) {
+                showErrorLog(cause);
+            }
+
+            @Override
+            public void onEndCallRequested() {
+                endAudioCall(CallManager.createEndCallRequest(response.getSubjectId()));
+            }
+        });
         showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
 
     }
-
 
     private void handleOnVoiceCallEnded(ChatMessage chatMessage) {
 
@@ -1310,7 +1324,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-
     private void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
 
         ChatResponse<GetCallHistoryResult> response = CallManager.handleOnGetCallHistory(chatMessage, callback);
@@ -1322,7 +1335,6 @@ public class Chat extends AsyncAdapter {
         if (cache)
             messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
     }
-
 
     private void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
 
@@ -1343,7 +1355,6 @@ public class Chat extends AsyncAdapter {
 
 
     }
-
 
     /**
      * It Connects to the Async .
@@ -1607,6 +1618,11 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    public void setupAudioCallConfig(CallConfig callConfig) {
+        if (audioCallManager != null)
+            audioCallManager.setCallConfig(callConfig);
+    }
+
     public String requestCall(CallRequest request) {
 
         String uniqueId = generateUniqueId();
@@ -1620,7 +1636,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-
     public String endAudioCall(EndCallRequest endCallRequest) {
 
         String uniqueId = generateUniqueId();
@@ -1632,7 +1647,6 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-
 
     public String rejectVoiceCall(RejectCallRequest request) {
 
@@ -1659,7 +1673,6 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
     }
-
 
     public String getCallsHistory(GetCallHistoryRequest request) {
 
@@ -1689,6 +1702,91 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
     }
+
+    public void testCall() {
+        audioCallManager.startStream(new ICallState() {
+            @Override
+            public void onInfoEvent(String info) {
+
+            }
+
+            @Override
+            public void onErrorEvent(String cause) {
+
+            }
+
+            @Override
+            public void onEndCallRequested() {
+
+            }
+        });
+    }
+
+    public void endAudioStream() {
+        audioCallManager.endStream();
+    }
+
+    /**
+     * It is just for testing kafka server
+     * @param groupId test starter id
+     * @param sender sending topic
+     * @param receiver receiving topic
+     */
+    public void testCall(String groupId, String sender, String receiver) {
+
+        audioCallManager.testStream(groupId, sender, receiver, new ICallState() {
+            @Override
+            public void onInfoEvent(String info) {
+
+            }
+
+            @Override
+            public void onErrorEvent(String cause) {
+
+            }
+
+            @Override
+            public void onEndCallRequested() {
+
+            }
+        });
+    }
+
+    /**
+     * This is to test the quality of the recording and playback.
+     */
+    public void testAudio() {
+        audioCallManager.testAudio(new ICallState() {
+            @Override
+            public void onInfoEvent(String info) {
+
+            }
+
+            @Override
+            public void onErrorEvent(String cause) {
+
+            }
+
+            @Override
+            public void onEndCallRequested() {
+
+            }
+        });
+    }
+
+    public void switchCallSpeakerState(boolean isSpeakerOn) {
+
+        audioCallManager.switchAudioSpeakerState(isSpeakerOn);
+    }
+
+    public void switchCallMuteState(boolean isMute) {
+
+        audioCallManager.switchAudioMuteState(isMute);
+
+    }
+
+
+
 
     public String unPinThread(RequestPinThread request) {
 
@@ -4606,34 +4704,6 @@ public class Chat extends AsyncAdapter {
     public void setDownloadTimeoutConfig(TimeoutConfig config) {
 
         ProgressResponseBody.setTimeoutConfig(config);
-    }
-
-    public void testCall() {
-        audioCallManager.startStream();
-    }
-
-    public void endAudioStream() {
-        audioCallManager.endStream();
-    }
-
-    public void testCall(String groupId, String sender, String receiver) {
-
-        audioCallManager.testStream(groupId, sender, receiver);
-    }
-
-    public void testAudio(){
-        audioCallManager.testAudio();
-    }
-
-    public void switchCallSpeakerState(boolean isSpeakerOn) {
-
-        audioCallManager.switchAudioSpeakerState(isSpeakerOn);
-    }
-
-    public void switchCallMuteState(boolean isMute) {
-
-        audioCallManager.switchAudioMuteState(isMute);
-
     }
 
 

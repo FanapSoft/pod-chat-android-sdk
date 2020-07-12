@@ -1,19 +1,14 @@
 package com.example.podchat;
 
-import android.util.Log;
-
 import com.example.chat.application.chatexample.TestClass;
 import com.fanap.podchat.cachemodel.PhoneContact;
-import com.fanap.podchat.chat.App;
-import com.fanap.podchat.chat.call.model.ClientDTO;
-import com.fanap.podchat.chat.call.persist.CacheCallParticipant;
+import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
-import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,28 +22,16 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import rx.Observable;
-import rx.Observer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

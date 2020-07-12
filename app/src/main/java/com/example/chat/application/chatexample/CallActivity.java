@@ -15,11 +15,13 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fanap.podchat.chat.call.model.CallVO;
-import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.model.CallInfo;
+import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestConnect;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.Util;
 
@@ -133,10 +135,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             }else presenter.testCall();
 
             runOnUiThread(() -> {
-                inCallView.setVisibility(View.VISIBLE);
-                callRequestView.setVisibility(View.INVISIBLE);
-                buttonCall.setVisibility(View.INVISIBLE);
-                buttonTestCall.setVisibility(View.INVISIBLE);
+                showInCallView();
                 buttonConnect.setVisibility(View.INVISIBLE);
             });
 
@@ -320,6 +319,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
+
+        CallInfo callInfo = getIntent().getParcelableExtra(ChatConstant.POD_CALL_INFO);
+        if(callInfo!=null){
+            showInCallView();
+        }
     }
 
     @Override
@@ -380,14 +384,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onVoiceCallStarted(String uniqueId, String clientId) {
 
-        runOnUiThread(() -> {
-            inCallView.setVisibility(View.VISIBLE);
-            callRequestView.setVisibility(View.INVISIBLE);
-            buttonCall.setVisibility(View.INVISIBLE);
-            buttonTestCall.setVisibility(View.INVISIBLE);
-        });
+        runOnUiThread(this::showInCallView);
 
 
+    }
+
+    private void showInCallView() {
+        inCallView.setVisibility(View.VISIBLE);
+        callRequestView.setVisibility(View.INVISIBLE);
+        buttonCall.setVisibility(View.INVISIBLE);
+        buttonTestCall.setVisibility(View.INVISIBLE);
     }
 
     @Override

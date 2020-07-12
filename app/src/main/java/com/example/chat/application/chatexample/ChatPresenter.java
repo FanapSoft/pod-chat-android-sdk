@@ -13,20 +13,21 @@ import android.widget.Toast;
 
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.call.result_model.GetCallHistoryResult;
-import com.fanap.podchat.chat.call.request_model.AcceptCallRequest;
-import com.fanap.podchat.chat.call.request_model.CallRequest;
-import com.fanap.podchat.chat.call.CallType;
-import com.fanap.podchat.chat.call.request_model.EndCallRequest;
-import com.fanap.podchat.chat.call.request_model.GetCallHistoryRequest;
-import com.fanap.podchat.chat.call.request_model.RejectCallRequest;
-import com.fanap.podchat.chat.call.result_model.CallReconnectResult;
-import com.fanap.podchat.chat.call.result_model.CallRequestResult;
-import com.fanap.podchat.chat.call.result_model.EndCallResult;
-import com.fanap.podchat.chat.call.result_model.StartCallResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.request_model.AcceptCallRequest;
+import com.fanap.podchat.call.request_model.CallRequest;
+import com.fanap.podchat.call.CallType;
+import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.result_model.CallReconnectResult;
+import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -167,8 +168,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.setupNotification(notificationConfig);
 
+        CallConfig callConfig = new CallConfig(CallActivity.class.getName());
 
-        //
+        chat.setupAudioCallConfig(callConfig);
+
         chat.isCacheables(true);
 
 
@@ -1514,7 +1517,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
             long callerId = response.getResult().getCreatorId();
 
-            String callerName = getCallerName(callerId);
+            String callerName = response.getResult().getCreatorVO().getName();
 
             view.onVoiceCallRequestReceived(callerName);
 
@@ -1527,10 +1530,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         if(callRequestResponse==null){
-            callRequestResponse = new ChatResponse<CallRequestResult>();
+            callRequestResponse = new ChatResponse<>();
         }
         callRequestResponse.setSubjectId(response.getSubjectId());
-        view.onVoiceCallStarted(response.getUniqueId(),response.getResult().getClientId());
+        view.onVoiceCallStarted(response.getUniqueId(),response.getResult().getClientDTO().getClientId());
 
 
     }
