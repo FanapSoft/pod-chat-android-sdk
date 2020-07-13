@@ -4,6 +4,7 @@ public class PodChatException extends Exception {
 
     private String uniqueId;
     private String token;
+    private int code;
 
     public PodChatException(String uniqueId, String token) {
         this.uniqueId = uniqueId;
@@ -14,6 +15,18 @@ public class PodChatException extends Exception {
         super(message);
         this.uniqueId = uniqueId;
         this.token = token;
+    }
+
+    public PodChatException(String message, String uniqueId, String token, int code) {
+        super(message);
+        this.uniqueId = uniqueId;
+        this.token = token;
+        this.code = code;
+    }
+
+    public PodChatException(String message, int code) {
+        super(message);
+        this.code = code;
     }
 
     public String getUniqueId() {
@@ -30,5 +43,13 @@ public class PodChatException extends Exception {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 }

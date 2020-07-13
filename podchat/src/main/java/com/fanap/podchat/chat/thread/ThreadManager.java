@@ -14,14 +14,6 @@ import java.util.List;
 public class ThreadManager {
 
 
-
-
-
-
-
-
-
-
     public interface ILastMessageChanged{
 
         void onThreadExistInCache(Thread thread);
@@ -30,7 +22,7 @@ public class ThreadManager {
 
     }
 
-    public interface IThreadInfoCompletor{
+    public interface IThreadInfoCompleter {
 
         void onThreadInfoReceived(ChatMessage chatMessage);
 

@@ -259,7 +259,6 @@ import javax.inject.Inject;
 import io.sentry.core.Breadcrumb;
 import io.sentry.core.Sentry;
 import io.sentry.core.SentryLevel;
-import io.sentry.core.SentryOptions;
 import io.sentry.core.protocol.User;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -337,7 +336,7 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, SendingQueueCache> sendingQList;
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
-    private HashMap<String, ThreadManager.IThreadInfoCompletor> threadInfoCompletor = new HashMap<>();
+    private HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
 
     private ProgressHandler.cancelUpload cancelUpload;
     private static final String API_KEY_MAP = "8b77db18704aa646ee5aaea13e7370f4f88b9e8c";
@@ -446,6 +445,12 @@ public class Chat extends AsyncAdapter {
         return instance;
     }
 
+
+    /**
+     * Setting notification essential configuration.
+     *
+     * @param notificationConfig Includes parameters to create channel and show notification.
+     */
 
     public void setupNotification(CustomNotificationConfig notificationConfig) {
 
