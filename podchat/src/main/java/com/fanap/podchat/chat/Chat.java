@@ -1757,7 +1757,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public String defineBotCommand(DefineBotCommandRequest request) {
+    public String addBotCommand(DefineBotCommandRequest request) {
 
 
         String uniqueId = generateUniqueId();
@@ -1786,7 +1786,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-
     public String startBot(StartAndStopBotRequest request) {
 
         String uniqueId = generateUniqueId();
@@ -1814,7 +1813,6 @@ public class Chat extends AsyncAdapter {
 
 
     }
-
 
     public String stopBot(StartAndStopBotRequest request) {
 

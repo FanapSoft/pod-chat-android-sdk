@@ -354,7 +354,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void defineBotCommand(DefineBotCommandRequest request) {
-        String uniqueId = chat.defineBotCommand(request);
+        String uniqueId = chat.addBotCommand(request);
     }
 
     @Override
