@@ -37,6 +37,13 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.bot.BotManager;
+import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
+import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
+import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
@@ -884,6 +891,25 @@ public class Chat extends AsyncAdapter {
 //                break;
 //            }
 
+
+            case Constants.CREATE_BOT: {
+                handleOnBotCreated(chatMessage);
+                break;
+            }
+            case Constants.DEFINE_BOT_COMMAND: {
+                handleOnBotCommandDefined(chatMessage);
+                break;
+            }
+            case Constants.START_BOT: {
+                handleOnBotStarted(chatMessage);
+                break;
+            }
+            case Constants.STOP_BOT: {
+                handleOnBotStopped(chatMessage);
+                break;
+            }
+
+
             case Constants.REGISTER_FCM_USER_DEVICE: {
                 PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
                 break;
@@ -909,9 +935,7 @@ public class Chat extends AsyncAdapter {
 
 
             case Constants.UPDATE_CHAT_PROFILE: {
-
                 handleOnChatProfileUpdated(chatMessage);
-
                 break;
             }
 
@@ -1076,6 +1100,52 @@ public class Chat extends AsyncAdapter {
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleOnBotStopped(ChatMessage chatMessage) {
+
+        ChatResponse<StartStopBotResult> response = BotManager
+                .handleOnBotStartedOrStopped(chatMessage);
+
+        listenerManager.callOnBotStopped(response);
+
+
+        showLog("ON_BOT_STOPPED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnBotStarted(ChatMessage chatMessage) {
+
+        ChatResponse<StartStopBotResult> response = BotManager
+                .handleOnBotStartedOrStopped(chatMessage);
+
+
+        listenerManager.callOnBotStarted(response);
+
+
+        showLog("ON_BOT_STARTED", gson.toJson(chatMessage));
+    }
+
+    private void handleOnBotCommandDefined(ChatMessage chatMessage) {
+
+        ChatResponse<DefineBotCommandResult> response =
+                BotManager.handleOnBotCommandDefined(chatMessage);
+
+
+        listenerManager.callOnBotCommandsDefined(response);
+
+        showLog("ON_BOT_COMMANDS_DEFINED", gson.toJson(chatMessage));
+    }
+
+    private void handleOnBotCreated(ChatMessage chatMessage) {
+
+        ChatResponse<CreateBotResult> response =
+                BotManager.handleOnBotCreated(chatMessage);
+
+        listenerManager.callOnBotCreated(response);
+
+        showLog("ON_BOT_CREATED", gson.toJson(chatMessage));
+
     }
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
@@ -1652,6 +1722,124 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
 
+
+    }
+
+
+    /*
+    Bot
+     */
+    public String createBot(CreateBotRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = null;
+            try {
+                message = BotManager.createCreateBotRequest(request, uniqueId);
+            } catch (PodChatException e) {
+                new PodThreadManager().doThisAndGo(() -> {
+                    e.setUniqueId(uniqueId);
+                    e.setToken(getToken());
+                    captureError(e);
+                });
+                return uniqueId;
+            }
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CREATE_BOT_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+
+
+    }
+
+    public String defineBotCommand(DefineBotCommandRequest request) {
+
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = null;
+            try {
+                message = BotManager.createDefineBotCommandRequest(request, uniqueId);
+            } catch (PodChatException e) {
+                new PodThreadManager().doThisAndGo(() -> {
+                    e.setUniqueId(uniqueId);
+                    e.setToken(getToken());
+                    captureError(e);
+                });
+                return uniqueId;
+            }
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_DEFINE_BOT_COMMAND_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+
+
+    }
+
+
+    public String startBot(StartAndStopBotRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = null;
+            try {
+                message = BotManager.createStartBotRequest(request, uniqueId);
+            } catch (PodChatException e) {
+                new PodThreadManager().doThisAndGo(() -> {
+                    e.setUniqueId(uniqueId);
+                    e.setToken(getToken());
+                    captureError(e);
+                });
+                return uniqueId;
+            }
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_START_BOT_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+
+
+    }
+
+
+    public String stopBot(StartAndStopBotRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = null;
+            try {
+                message = BotManager.createStopBotRequest(request, uniqueId);
+            } catch (PodChatException e) {
+                new PodThreadManager().doThisAndGo(() -> {
+                    e.setUniqueId(uniqueId);
+                    e.setToken(getToken());
+                    captureError(e);
+                });
+                return uniqueId;
+            }
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_STOP_BOT_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
 
     }
 
@@ -10015,7 +10203,7 @@ public class Chat extends AsyncAdapter {
     private void showErrorLog(String message) {
 
         if (log) {
-
+            Log.e(TAG, "Error");
             Log.e(TAG, message);
 
             try {
@@ -12418,8 +12606,6 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnError(jsonError, error);
 
-        showLog("Error", jsonError);
-
         showErrorLog(jsonError);
 
         //The chat is not ready and the client
@@ -12453,8 +12639,6 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnError(jsonError, error);
 
-        showLog("Error", jsonError);
-
         showErrorLog(jsonError);
 
         Sentry.captureException(throwable, error);
@@ -12462,6 +12646,21 @@ public class Chat extends AsyncAdapter {
         if (log) {
             Log.e(TAG, "ErrorMessage: " + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId);
         }
+        return jsonError;
+    }
+
+    private String captureError(PodChatException exception) {
+
+        ErrorOutPut error = new ErrorOutPut(true, exception.getMessage(), exception.getCode(), exception.getUniqueId());
+
+        String jsonError = gson.toJson(error);
+
+        listenerManager.callOnError(jsonError, error);
+
+        showErrorLog(jsonError);
+
+        Sentry.captureException(exception, error);
+
         return jsonError;
     }
 

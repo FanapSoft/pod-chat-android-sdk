@@ -5,7 +5,12 @@ import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
+import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.mainmodel.AsyncMessage;
+import com.fanap.podchat.mainmodel.ChatMessage;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.PodChatException;
@@ -17,11 +22,10 @@ import java.util.List;
 public class BotManager {
 
     public static String createCreateBotRequest(CreateBotRequest request,
-                                                String uniqueId) throws Exception {
+                                                String uniqueId) throws PodChatException {
 
 
         validateBotName(request.getBotName());
-
 
         JsonObject content = new JsonObject();
 
@@ -29,7 +33,7 @@ public class BotManager {
 
 
         AsyncMessage message = new AsyncMessage();
-        message.setContent(content.toString());
+        message.setContent(request.getBotName());
         message.setToken(CoreConfig.token);
         message.setType(ChatMessageType.Constants.CREATE_BOT);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -143,10 +147,54 @@ public class BotManager {
 
     }
 
-    private static void validateThreadId(long threadId) throws PodChatException{
+    private static void validateThreadId(long threadId) throws PodChatException {
 
-        if(threadId<=0)
-            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID,ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+        if (threadId <= 0)
+            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID, ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+
+    }
+
+    public static ChatResponse<CreateBotResult> handleOnBotCreated(ChatMessage chatMessage) {
+
+        ChatResponse<CreateBotResult> response = new ChatResponse<>();
+
+        CreateBotResult result = App.getGson().fromJson(chatMessage.getContent(), CreateBotResult.class);
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+
+        return response;
+    }
+
+    public static ChatResponse<DefineBotCommandResult> handleOnBotCommandDefined(ChatMessage chatMessage) {
+
+        ChatResponse<DefineBotCommandResult> response = new ChatResponse<>();
+
+        DefineBotCommandResult result = App.getGson().fromJson(chatMessage.getContent(), DefineBotCommandResult.class);
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        return response;
+
+    }
+
+    public static ChatResponse<StartStopBotResult> handleOnBotStartedOrStopped(ChatMessage chatMessage) {
+
+        ChatResponse<StartStopBotResult> response = new ChatResponse<>();
+
+        StartStopBotResult result = new StartStopBotResult(chatMessage.getContent());
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        return response;
 
     }
 }

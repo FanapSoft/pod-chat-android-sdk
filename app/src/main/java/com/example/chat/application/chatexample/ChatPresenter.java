@@ -16,6 +16,12 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
+import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
+import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -344,6 +350,48 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void clearNotifications() {
         chat.clearAllNotifications();
+    }
+
+    @Override
+    public void defineBotCommand(DefineBotCommandRequest request) {
+        String uniqueId = chat.defineBotCommand(request);
+    }
+
+    @Override
+    public void createBot(CreateBotRequest request) {
+        String uniqueId = chat.createBot(request);
+    }
+
+    @Override
+    public void startBot(StartAndStopBotRequest request) {
+        String uniqueId = chat.startBot(request);
+    }
+
+    @Override
+    public void stopBot(StartAndStopBotRequest request) {
+        String uniqueId = chat.stopBot(request);
+    }
+
+    @Override
+    public void onBotCreated(ChatResponse<CreateBotResult> response) {
+        view.onBotCreated(response);
+    }
+
+    @Override
+    public void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response) {
+        view.onBotCommandsDefined(response);
+    }
+
+
+    @Override
+    public void onBotStopped(ChatResponse<StartStopBotResult> response) {
+        view.onBotStopped(response.getResult().getBotName());
+    }
+
+    @Override
+    public void onBotStarted(ChatResponse<StartStopBotResult> response) {
+        view.onBotStarted(response.getResult().getBotName());
+
     }
 
     @Override
