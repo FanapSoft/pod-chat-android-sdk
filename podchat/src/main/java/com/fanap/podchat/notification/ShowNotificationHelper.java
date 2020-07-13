@@ -493,7 +493,7 @@ public class ShowNotificationHelper {
                                                    CallInfo callInfo, String CALL_CHANNEL_ID, int notificationId) {
         Intent closeAction = new Intent(context, EndCallReceiver.class);
 
-        Intent openAppIntent  = new Intent(context, context.getClass());
+        Intent openAppIntent = new Intent(context, context.getClass());
 
         if (!Util.isNullOrEmpty(targetActivity)) {
             try {
@@ -504,7 +504,8 @@ public class ShowNotificationHelper {
             }
         }
 
-        openAppIntent.putExtra(POD_CALL_INFO,callInfo);
+        if (callInfo != null)
+            openAppIntent.putExtra(POD_CALL_INFO, callInfo);
 
         PendingIntent pendingIntentOpenApp = PendingIntent.getActivity(context,
                 REQUEST_CODE_OPEN_APP, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -518,7 +519,9 @@ public class ShowNotificationHelper {
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_in_call_notifiacion);
 
-        remoteViews.setTextViewText(R.id.textViewCallName, callInfo.getPartnerName());
+        if (callInfo != null) {
+            remoteViews.setTextViewText(R.id.textViewCallName, callInfo.getPartnerName());
+        }
 
         remoteViews.setOnClickPendingIntent(R.id.buttonEndCall, pendingIntentEnd);
 

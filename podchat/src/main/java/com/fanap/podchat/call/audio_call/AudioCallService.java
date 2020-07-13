@@ -57,8 +57,10 @@ public class AudioCallService extends Service {
     @Override
     public void onDestroy() {
 
-        if (callManager != null)
+        if (callManager != null) {
             callManager.endStream();
+            callManager = null;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
@@ -108,11 +110,11 @@ public class AudioCallService extends Service {
 
     private void startStreaming() {
 
-        callManager = new PodAudioCallManager(this,sendingTopic,receivingTopic,clientId,brokerAddress);
+        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, clientId, brokerAddress);
 
         if (Util.isNullOrEmpty(sendingTopic)) {
             callManager.testAudio();
-        }else callManager.startStream();
+        } else callManager.startStream();
     }
 
     private void getIntentData(Intent intent) {

@@ -86,6 +86,12 @@ public class PodCallServiceManager implements ICallServiceState {
 
     public void testStream(String groupId, String sender, String receiver, ICallState iCallState) {
         this.callStateCallback = iCallState;
+        callInfo = new CallInfo();
+        callInfo.setSubjectId(1000001);
+        callInfo.setPartnerId(15000);
+        callInfo.setPartnerName("تست کافکا");
+        callInfo.setPartnerImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
+
         startCallService(groupId, sender, receiver);
         bindService();
 
@@ -98,7 +104,7 @@ public class PodCallServiceManager implements ICallServiceState {
         callInfo = new CallInfo();
         callInfo.setSubjectId(1000001);
         callInfo.setPartnerId(15000);
-        callInfo.setPartnerName("فرهاد خیرخواه");
+        callInfo.setPartnerName("تست صدا");
         callInfo.setPartnerImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
 
 
