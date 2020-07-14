@@ -6,13 +6,23 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.7.5.0] -2020-7-14
+
+[Added] ```createBot(CreateBotRequest)```
+
+[Added] ```addBotCommand(DefineBotCommandRequest)```
+
+[Added] ```startBot(StartAndStopBotRequest)```
+
+[Added] ```stopBot(StartAndStopBotRequest)```
+
+
+
 ## Version [0.7.4.1] -2020-7-8
 
 [Added] Sentry Logger
 
 [Improved] Connection Performance. Disconnection is detected faster in api level 21 and below
-
-
 
 
 
