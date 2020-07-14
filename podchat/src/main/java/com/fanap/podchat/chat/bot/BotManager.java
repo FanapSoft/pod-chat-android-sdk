@@ -134,7 +134,7 @@ public class BotManager {
         for (String command :
                 commandList) {
 
-            if (Util.isNullOrEmpty(command))
+            if (Util.isNullOrEmpty(command) || command.replace(" ","").equals("/"))
                 throw new PodChatException(ChatConstant.ERROR_BLANK_BOT_COMMAND, ChatConstant.ERROR_CODE_INVALID_BOT_COMMAND);
 
             if (!command.startsWith("/"))
