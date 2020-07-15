@@ -207,32 +207,32 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-////
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
     //sand box / group
 
-    public static int TEST_THREAD_ID = 5182;
-    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+//    public static int TEST_THREAD_ID = 5182;
+//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 //
-//    public static int TEST_THREAD_ID = 39478;
-//    private static final String TEST_THREAD_HASH = "YS1V7W4DG4R96M";
+    public static int TEST_THREAD_ID = 19868;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -2479,13 +2479,14 @@ public class ChatActivity extends AppCompatActivity
 //        uniqueIds[1] = "212ls;dfk";
 //        uniqueIds[2] = "212ls;dfk";
 
-        long seenTime =1592928839801L;
-        long seenNano = 801336000;
+        long seenTime =1594802220647L;
+
+        long seenNano = 647140000;
 
         RequestGetHistory requestBefore = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
-                .count(50)
+                .count(5)
                 .order("desc")
 //                .withNoCache()
 //                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)
@@ -2505,9 +2506,9 @@ public class ChatActivity extends AppCompatActivity
         presenter.getHistory(requestBefore, null);
 
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException ignored) {}
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
 
         RequestGetHistory requestAfter = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
@@ -2523,6 +2524,37 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         presenter.getHistory(requestAfter, null);
+
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ignored) {}
+
+
+        seenTime = 1594802210811L;
+        seenNano = 811171000L;
+
+        RequestGetHistory requestBefore2 = new RequestGetHistory
+                .Builder(TEST_THREAD_ID)
+                .offset(0)
+                .count(5)
+                .order("desc")
+//                .withNoCache()
+//                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)
+//                .uniqueIds(uniqueIds)
+//                .withNoCache()
+                .toTime(seenTime)
+                .toTimeNanos(seenNano)
+                .build();
+
+        //            history.setToTime(System.currentTimeMillis());
+//
+//            history.setFromTimeNanos(298708000);
+//            history.setCount(7);
+
+//        offset += 5;
+
+        presenter.getHistory(requestBefore2, null);
 
 //        History history = new History.
 //                Builder()

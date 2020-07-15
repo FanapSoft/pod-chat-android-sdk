@@ -23,6 +23,7 @@ import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
@@ -509,7 +510,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getThreads(RequestThread requestThread, ChatHandler handler) {
+
         chat.getThreads(requestThread, handler);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
+
+        RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount
+                .Builder()
+                .withMuteThreads()
+                .build();
+
+        chat.getAllUnreadMessagesCount(req);
     }
 
     @Override
@@ -1301,11 +1314,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
-//
-//            syncContact(activity);
-//
-//        }
+        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+
+            RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
+                    .build();
+
+            chat.getAllUnreadMessagesCount(req);
+
+        }
 
     }
 
