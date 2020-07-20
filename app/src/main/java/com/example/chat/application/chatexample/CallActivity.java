@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
@@ -35,18 +36,39 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private final static String FIFI_TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
     private final static String JIJI_TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
 
-    static int FIFI_ID = 15507;
-    static int JIJI_ID = 15501;
-    static int ZIZI_ID = 15510;
+    //INTEGRATION
 
-    private static String appId = "POD-Chat";
+//    static int FIFI_ID = 15507;
+//    static int JIJI_ID = 15501;
+//    static int ZIZI_ID = 15510;
 
+    //NEMATI
+    static int FIFI_ID = 123;
+    static int JIJI_ID = 122;
+    static int ZIZI_ID = 121;
+
+
+    private static String appId = BaseApplication.getInstance().getString(R.string.integration_appId);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = "chatlocal";
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+
+
+    //integration
+//    private static String serverName =  BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//
+
+
+    //nemati
+    private static String serverName =  BaseApplication.getInstance().getString(R.string.nemati_serverName);
+    private static String name = BaseApplication.getInstance().getString(R.string.nemati_serverName);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.nemati_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.nemati_fileServer);
+
+
+
 //    integration /group
 
     public static int TEST_THREAD_ID = 7090;
@@ -66,6 +88,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     View callRequestView, inCallView, viewHistory;
     ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory,buttonMute,buttonSpeaker;
     EditText etGroupId, etSender, etReceiver;
+    CheckBox checkBoxSSL;
 
 
     private int partnerId = 122;
@@ -110,7 +133,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             if (chatReady) {
                 buttonCall.setVisibility(View.INVISIBLE);
-                presenter.requestCall(partnerId);
+                presenter.requestCall(partnerId,checkBoxSSL.isChecked());
                 tvStatus.setText(String.format("Calling %s", presenter.getNameById(partnerId)));
             } else
                 Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
@@ -315,6 +338,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         etGroupId = findViewById(R.id.etGroupId);
         etSender = findViewById(R.id.etSender);
         etReceiver = findViewById(R.id.etReceiver);
+        checkBoxSSL = findViewById(R.id.checkboxSSL);
 
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);

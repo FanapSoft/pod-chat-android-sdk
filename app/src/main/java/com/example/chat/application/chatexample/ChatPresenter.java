@@ -463,18 +463,26 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public String requestCall(int partnerId) {
+    public String requestCall(int partnerId, boolean checked) {
 
         List<Invitee> invitees = new ArrayList<>();
         Invitee invitee = new Invitee();
         invitee.setId(partnerId);
         invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
         invitees.add(invitee);
+
+
+        //request with invitee list
         CallRequest callRequest = new CallRequest.Builder(
                 invitees,
                 CallType.Constants.VOICE_CALL).build();
 
-        return chat.requestCall(callRequest);
+        //request with subject id
+        CallRequest callRequestt = new CallRequest.Builder(
+                100000L,
+                CallType.Constants.VOICE_CALL).build();
+
+        return chat.requestCall(callRequest,checked);
     }
 
 

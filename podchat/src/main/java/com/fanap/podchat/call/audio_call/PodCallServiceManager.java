@@ -33,6 +33,7 @@ public class PodCallServiceManager implements ICallServiceState {
     private ICallState callStateCallback;
 
     private boolean bound = false;
+    private boolean enableSSL = true;
 
     public PodCallServiceManager(Context context) {
         mContext = context;
@@ -47,6 +48,7 @@ public class PodCallServiceManager implements ICallServiceState {
             callService = binder.getService();
             bound = true;
             callService.registerCallStateCallback(PodCallServiceManager.this);
+            callService.setSSL(enableSSL);
         }
 
         @Override
@@ -236,5 +238,10 @@ public class PodCallServiceManager implements ICallServiceState {
         callInfo.setPartnerImage(response.getResult().getCreatorVO().getImage());
 
 
+    }
+
+    public void setSSL(boolean withSSL) {
+
+        enableSSL = withSSL;
     }
 }

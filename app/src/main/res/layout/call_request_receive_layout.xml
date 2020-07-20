@@ -7,7 +7,7 @@
     android:background="@color/colorPrimaryDark"
     android:visibility="gone"
     android:id="@+id/viewCallRequest"
-    tools:visibility="visible">
+    tools:visibility="gone">
 
 
     <ImageButton

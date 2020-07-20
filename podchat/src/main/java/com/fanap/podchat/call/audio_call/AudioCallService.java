@@ -169,6 +169,11 @@ public class AudioCallService extends Service {
         onDestroy();
     }
 
+    public void setSSL(boolean enableSSL) {
+
+        callManager.setSSL(enableSSL);
+    }
+
     public class CallBinder extends Binder {
 
         public AudioCallService getService() {

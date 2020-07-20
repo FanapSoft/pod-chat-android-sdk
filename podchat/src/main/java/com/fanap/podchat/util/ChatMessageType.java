@@ -85,6 +85,7 @@ public class ChatMessageType {
             Constants.REGISTER_FCM_USER_DEVICE,
             Constants.UPDATE_FCM_APP_USERS_DEVICE,
             Constants.CALL_REQUEST,
+            Constants.RECEIVE_CALL_REQUEST,
             Constants.ACCEPT_CALL,
             Constants.REJECT_CALL,
             Constants.START_CALL,
@@ -169,7 +170,7 @@ public class ChatMessageType {
         int CALL_REQUEST = 70;
         int ACCEPT_CALL = 71;
         int REJECT_CALL = 72;
-        int CANCEL_CALL = 73;
+        int RECEIVE_CALL_REQUEST = 73;
         int START_CALL = 74;
         int END_CALL_REQUEST = 75;
         int END_CALL = 76;

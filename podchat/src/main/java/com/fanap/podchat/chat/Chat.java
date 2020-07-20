@@ -1623,7 +1623,10 @@ public class Chat extends AsyncAdapter {
             audioCallManager.setCallConfig(callConfig);
     }
 
-    public String requestCall(CallRequest request) {
+    public String requestCall(CallRequest request, boolean withSSL) {
+
+        if(audioCallManager!=null)
+            audioCallManager.setSSL(withSSL);
 
         String uniqueId = generateUniqueId();
         if (chatReady) {

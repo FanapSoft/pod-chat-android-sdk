@@ -46,6 +46,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     private boolean streaming = false;
 
+    private boolean firstByteRecorded = false;
+
     private boolean firstByteReceived = false;
 
     private AudioTestClass audioTestClass;
@@ -53,6 +55,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     private Context mContext;
 
     private CallSSLData callSSLData;
+    private boolean isSSL = true;
 
     public PodAudioCallManager(Context context) {
         audioStreamManager = new PodAudioStreamManager(context);
@@ -157,7 +160,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         streaming = true;
 
-        firstByteReceived = false;
+        firstByteRecorded = false;
 
         configConsumer();
 
@@ -183,7 +186,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         callSSLData = readFiles();
 
-        if (callSSLData != null) {
+        if (callSSLData != null && isSSL) {
 
             consumerProperties.setProperty("security.protocol", "SASL_SSL");
             consumerProperties.setProperty("sasl.mechanisms", "PLAIN");
@@ -206,11 +209,12 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     }
 
     private void configProducer() {
+
         final Properties producerProperties = new Properties();
 
         producerProperties.setProperty("bootstrap.servers", BROKER_ADDRESS);
 
-        if (callSSLData != null) {
+        if (callSSLData != null && isSSL) {
 
             producerProperties.setProperty("security.protocol", "SASL_SSL");
             producerProperties.setProperty("sasl.mechanisms", "PLAIN");
@@ -314,18 +318,45 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     public void onByteRecorded(byte[] bytes) {
 
 
-        if (!firstByteReceived) {
-            firstByteReceived = true;
+        if (!firstByteRecorded) {
+            firstByteRecorded = true;
             configProducer();
         }
 
+        //start streaming. if stream started but a disconnection occurred, stop producing until it starts again.
         if (streaming) {
 
-            String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+            byte[] consumedBytes = consumerClient.consumingTopic();
 
-            audioStreamManager.playAudio(consumerClient.consumingTopic());
+            if (consumedBytes.length > 0)
+                firstByteReceived = true;
 
-            Log.e(TAG, "SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+            if (!firstByteReceived) {
+                producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+                Log.e(TAG, "START STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+            }
+
+            if (consumedBytes.length > 0) {
+                producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+                Log.e(TAG, "RUNNING STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+            }
+
+
+            audioStreamManager.playAudio(consumedBytes);
+
+
+
+//            byte[] consumedBytes = consumerClient.consumingTopic();
+//
+//            audioStreamManager.playAudio(consumedBytes);
+//
+//            if (consumedBytes.length > 0) {
+//                String x = producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
+//                Log.e(TAG, "SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+//            }else {
+//                Log.e(TAG,"Waiting for consumer to be ready");
+//            }
+
         }
 
 
@@ -385,5 +416,10 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     public void switchAudioMuteState(boolean isMute) {
 
         audioStreamManager.switchMuteState(isMute);
+    }
+
+    public void setSSL(boolean enableSSL) {
+
+        isSSL = enableSSL;
     }
 }
