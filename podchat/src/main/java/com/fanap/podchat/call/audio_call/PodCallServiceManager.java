@@ -14,6 +14,7 @@ import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.util.Util;
 
+import static com.fanap.podchat.call.audio_call.EndCallReceiver.ACTION_STOP_CALL;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
 
 public class PodCallServiceManager implements ICallServiceState {
@@ -116,13 +117,41 @@ public class PodCallServiceManager implements ICallServiceState {
 
     public void endStream() {
 
-        if (bound && callService != null)
-            callService.endCall();
 
-        unbindService();
+        showInfoLog("End Stream Requested");
+
+        if (bound && callService != null) {
+            showInfoLog("End Stream Requested => bound && callService != null");
+            callService.endCall();
+            unbindService();
+        } else {
+            showInfoLog("End Stream Requested => sendEndCallIntent(mContext)");
+            sendEndCallIntent(mContext);
+        }
+
 
         callInfo = null;
 
+    }
+
+    private void showInfoLog(String message) {
+        if (callStateCallback != null) {
+            callStateCallback.onInfoEvent(message);
+        }
+    }
+
+    private void showErrorLog(String message) {
+        if (callStateCallback != null) {
+            callStateCallback.onErrorEvent(message);
+        }
+    }
+
+    private void sendEndCallIntent(Context context) {
+        Intent intent1 = new Intent(context, AudioCallService.class);
+        intent1.setAction(ACTION_STOP_CALL);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent1);
+        } else context.startService(intent1);
     }
 
     /*
@@ -219,7 +248,8 @@ public class PodCallServiceManager implements ICallServiceState {
      */
     @Override
     public void onEndCallRequested() {
-        callStateCallback.onEndCallRequested();
+        if (callStateCallback != null)
+            callStateCallback.onEndCallRequested();
         callInfo = null;
     }
 

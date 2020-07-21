@@ -85,14 +85,17 @@ public class ChatMessageType {
             Constants.REGISTER_FCM_USER_DEVICE,
             Constants.UPDATE_FCM_APP_USERS_DEVICE,
             Constants.CALL_REQUEST,
-            Constants.RECEIVE_CALL_REQUEST,
+            Constants.DELIVER_CALL_REQUEST,
             Constants.ACCEPT_CALL,
             Constants.REJECT_CALL,
             Constants.START_CALL,
             Constants.GET_CALLS,
             Constants.END_CALL,
             Constants.CALL_RECONNECT,
-            Constants.CALL_CONNECT
+            Constants.CALL_CONNECT,
+            Constants.GROUP_CALL_REQUEST,
+            Constants.LEAVE_CALL,
+            Constants.ADD_CALL_PARTICIPANT
 
     })
 
@@ -170,13 +173,19 @@ public class ChatMessageType {
         int CALL_REQUEST = 70;
         int ACCEPT_CALL = 71;
         int REJECT_CALL = 72;
-        int RECEIVE_CALL_REQUEST = 73;
+        int DELIVER_CALL_REQUEST = 73;
         int START_CALL = 74;
         int END_CALL_REQUEST = 75;
         int END_CALL = 76;
         int GET_CALLS = 77;
         int CALL_RECONNECT = 78;
         int CALL_CONNECT = 79;
+
+
+        int GROUP_CALL_REQUEST = 91;
+        int LEAVE_CALL = 92;
+        int ADD_CALL_PARTICIPANT = 93;
+
 
 
         int REGISTER_FCM_APP = 80;

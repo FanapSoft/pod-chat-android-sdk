@@ -14,6 +14,10 @@ public class EndCallReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        sendEndCallIntent(context);
+    }
+
+    private void sendEndCallIntent(Context context) {
         Intent intent1 = new Intent(context, AudioCallService.class);
         intent1.setAction(ACTION_STOP_CALL);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

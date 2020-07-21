@@ -18,13 +18,18 @@ import android.widget.Toast;
 
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.example.R;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.Util;
+
+import java.util.List;
 
 
 public class CallActivity extends AppCompatActivity implements ChatContract.view {
@@ -483,5 +488,29 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onCallConnect(long callId) {
         Toast.makeText(this, "Call with id " + callId + " is connected", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onCallDelivered(CallDeliverResult result) {
+        Toast.makeText(this, "Call Request Delivered to " + result.getParticipant().getId(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants) {
+        Toast.makeText(this, "Group Call", Toast.LENGTH_SHORT).show();
+
+        runOnUiThread(() -> {
+            callRequestView.setVisibility(View.VISIBLE);
+            viewHistory.setVisibility(View.INVISIBLE);
+            buttonCall.setVisibility(View.INVISIBLE);
+            buttonTestCall.setVisibility(View.INVISIBLE);
+            tvCallerName.setText(callerName + " from " + title);
+        });
+
+    }
+
+    @Override
+    public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
+        Toast.makeText(this, "Call Participant Left", Toast.LENGTH_SHORT).show();
     }
 }

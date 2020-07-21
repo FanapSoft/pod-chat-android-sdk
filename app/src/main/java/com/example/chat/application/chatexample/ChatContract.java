@@ -5,6 +5,8 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
@@ -20,6 +22,7 @@ import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
@@ -218,6 +221,12 @@ public interface ChatContract {
         default void onCallReconnect(long callId){}
 
         default void onCallConnect(long callId){}
+
+        default void onCallDelivered(CallDeliverResult result){}
+
+        default void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants){}
+
+        default void onCallParticipantLeft(ChatResponse<LeaveCallResult> response){}
     }
 
     interface presenter {

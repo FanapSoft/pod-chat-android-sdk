@@ -14,6 +14,8 @@ import android.widget.Toast;
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
@@ -1643,21 +1645,39 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.switchCallSpeakerState(speakerOn);
 
-
     }
 
     @Override
     public void onCallReconnect(ChatResponse<CallReconnectResult> response) {
-
-
-
         view.onCallReconnect(response.getResult().getCallId());
     }
 
     @Override
     public void onCallConnect(ChatResponse<CallReconnectResult> response) {
-
-
         view.onCallConnect(response.getResult().getCallId());
+    }
+
+    @Override
+    public void onCallDelivered(ChatResponse<CallDeliverResult> response) {
+        view.onCallDelivered(response.getResult());
+    }
+
+    @Override
+    public void onReceiveGroupCallRequest(ChatResponse<CallRequestResult> response) {
+
+        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
+
+            callRequestResponse = response;
+
+            String callerName = response.getResult().getCreatorVO().getName();
+
+            view.onGroupVoiceCallRequestReceived(callerName,response.getResult().getConversationVO().getTitle(),response.getResult().getConversationVO().getParticipants());
+
+        }
+    }
+
+    @Override
+    public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
+        view.onCallParticipantLeft(response);
     }
 }

@@ -62,6 +62,9 @@ public class AudioCallService extends Service {
             callManager = null;
         }
 
+        if (callStateCallback != null)
+            callStateCallback.onEndCallRequested();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
         } else {

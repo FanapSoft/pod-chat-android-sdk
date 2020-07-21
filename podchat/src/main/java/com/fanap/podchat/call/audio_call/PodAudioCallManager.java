@@ -333,7 +333,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
             if (!firstByteReceived) {
                 producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
-                Log.e(TAG, "START STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+            Log.e(TAG, "START STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
             }
 
             if (consumedBytes.length > 0) {

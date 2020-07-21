@@ -41,6 +41,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.CallManager;
@@ -51,6 +52,7 @@ import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
@@ -899,15 +901,23 @@ public class Chat extends AsyncAdapter {
             case Constants.CALL_REQUEST:
                 handleOnCallRequestReceived(chatMessage);
                 break;
+            case Constants.GROUP_CALL_REQUEST:
+                handleOnGroupCallRequestReceived(chatMessage);
+                break;
+            case Constants.DELIVER_CALL_REQUEST:
+                handleOnCallRequestDelivered(chatMessage);
+                break;
             case Constants.REJECT_CALL:
                 handleOnCallRequestRejected(chatMessage);
                 break;
             case Constants.START_CALL:
                 handleOnCallStarted(chatMessage);
                 break;
-
             case Constants.END_CALL:
                 handleOnVoiceCallEnded(chatMessage);
+                break;
+            case Constants.LEAVE_CALL:
+                handleOnCallParticipantLeft(chatMessage);
                 break;
 
             case Constants.GET_CALLS:
@@ -1276,6 +1286,43 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
         audioCallManager.addNewCallInfo(response);
 
+        deliverCallRequest(chatMessage);
+
+    }
+
+    private void handleOnGroupCallRequestReceived(ChatMessage chatMessage) {
+
+        ChatResponse<CallRequestResult> response
+                = CallManager.handleOnGroupCallRequest(chatMessage);
+        listenerManager.callOnGroupCallRequest(response);
+        showLog("RECEIVE_GROUP_CALL_REQUEST", gson.toJson(chatMessage));
+        audioCallManager.addNewCallInfo(response);
+
+        deliverCallRequest(chatMessage);
+
+    }
+
+    private void deliverCallRequest(ChatMessage chatMessage) {
+
+        if (chatReady) {
+            String message = CallManager.createDeliverCallRequestMessage(chatMessage);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_DELIVER_CALL_REQUEST");
+        } else {
+            onChatNotReady(chatMessage.getUniqueId());
+        }
+
+    }
+
+
+    //call request delivered
+
+    private void handleOnCallRequestDelivered(ChatMessage chatMessage) {
+
+        ChatResponse<CallDeliverResult> response
+                = CallManager.handleOnCallDelivered(chatMessage);
+        listenerManager.callOnCallRequestDelivered(response);
+        showLog("CALL_REQUEST_DELIVERED", gson.toJson(chatMessage));
+
     }
 
     private void handleOnCallRequestRejected(ChatMessage chatMessage) {
@@ -1321,6 +1368,18 @@ public class Chat extends AsyncAdapter {
         audioCallManager.endStream();
 
         showLog("VOICE_CALL_ENDED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnCallParticipantLeft(ChatMessage chatMessage) {
+
+        ChatResponse<LeaveCallResult> response = CallManager.handleOnParticipantLeft(chatMessage);
+
+        listenerManager.callOnCallParticipantLeft(response);
+
+        audioCallManager.endStream();
+
+        showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
 
     }
 
@@ -1625,7 +1684,7 @@ public class Chat extends AsyncAdapter {
 
     public String requestCall(CallRequest request, boolean withSSL) {
 
-        if(audioCallManager!=null)
+        if (audioCallManager != null)
             audioCallManager.setSSL(withSSL);
 
         String uniqueId = generateUniqueId();
@@ -1639,7 +1698,39 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String requestGroupCall(CallRequest request, boolean withSSL) {
+
+        if (audioCallManager != null)
+            audioCallManager.setSSL(withSSL);
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createGroupCallRequestMessage(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_GROUP_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String addGroupCallParticipant(RequestAddParticipants request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createAddCallParticipantMessage(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_ADD_CALL_PARTICIPANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
     public String endAudioCall(EndCallRequest endCallRequest) {
+
+        if (audioCallManager != null)
+            audioCallManager.endStream();
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -1731,8 +1822,9 @@ public class Chat extends AsyncAdapter {
 
     /**
      * It is just for testing kafka server
-     * @param groupId test starter id
-     * @param sender sending topic
+     *
+     * @param groupId  test starter id
+     * @param sender   sending topic
      * @param receiver receiving topic
      */
     public void testCall(String groupId, String sender, String receiver) {
@@ -1787,8 +1879,6 @@ public class Chat extends AsyncAdapter {
         audioCallManager.switchAudioMuteState(isMute);
 
     }
-
-
 
 
     public String unPinThread(RequestPinThread request) {

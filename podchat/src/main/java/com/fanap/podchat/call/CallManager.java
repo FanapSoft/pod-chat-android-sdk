@@ -2,8 +2,6 @@ package com.fanap.podchat.call;
 
 import android.util.Log;
 
-import com.fanap.podchat.chat.App;
-import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.model.CreateCallVO;
@@ -12,17 +10,27 @@ import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.StartCallResult;
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
+import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.Util;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -65,37 +73,133 @@ public class CallManager {
 
     public static String createCallRequestMessage(CallRequest request, String uniqueId) {
 
-
         CreateCallVO createCallVO = new CreateCallVO();
+
         createCallVO.setCreatorId(CoreConfig.userId);
-        createCallVO.setInvitees(request.getInvitees());
+
+        if (request.getSubjectId() <= 0)
+            createCallVO.setInvitees(request.getInvitees());
+
         createCallVO.setType(request.getCallType());
 
-        JsonObject j = (JsonObject) App.getGson().toJsonTree(createCallVO);
-
-        j.remove("partnerId");
+        JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
 
         AsyncMessage message = new AsyncMessage();
-        message.setContent(j.toString());
+        message.setContent(contentObj.toString());
         message.setType(ChatMessageType.Constants.CALL_REQUEST);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setUniqueId(uniqueId);
 
-        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
-        a.remove("subjectId");
 
-        return a.toString();
+        JsonObject messageObj;
+
+        if (Util.isNullOrEmpty(request.getInvitees())) {
+            message.setSubjectId(request.getSubjectId());
+            messageObj = (JsonObject) App.getGson().toJsonTree(message);
+        } else {
+            messageObj = (JsonObject) App.getGson().toJsonTree(message);
+            messageObj.remove("subjectId");
+        }
 
 
+        return messageObj.toString();
+
+
+    }
+
+    public static String createGroupCallRequestMessage(CallRequest request, String uniqueId) {
+
+        CreateCallVO createCallVO = new CreateCallVO();
+
+        createCallVO.setCreatorId(CoreConfig.userId);
+
+        if (request.getSubjectId() <= 0)
+            createCallVO.setInvitees(request.getInvitees());
+
+        createCallVO.setType(request.getCallType());
+
+        JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(contentObj.toString());
+        message.setType(ChatMessageType.Constants.GROUP_CALL_REQUEST);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+
+
+        JsonObject messageObj;
+
+        if (Util.isNullOrEmpty(request.getInvitees())) {
+            message.setSubjectId(request.getSubjectId());
+            messageObj = (JsonObject) App.getGson().toJsonTree(message);
+        } else {
+            messageObj = (JsonObject) App.getGson().toJsonTree(message);
+            messageObj.remove("subjectId");
+        }
+
+
+        return messageObj.toString();
+
+
+    }
+
+    public static String createAddCallParticipantMessage(RequestAddParticipants request, String uniqueId) {
+
+            JsonArray participantsJsonArray = new JsonArray();
+
+
+            if (request.getContactIds() != null) {
+                for (Long p : request.getContactIds()) {
+                    participantsJsonArray.add(p);
+                }
+            } else if (request.getUserNames() != null) {
+
+                for (String username :
+                        request.getUserNames()) {
+
+                    Invitee invitee = new Invitee();
+                    invitee.setId(username);
+                    invitee.setIdType(InviteType.Constants.TO_BE_USER_USERNAME);
+                    JsonElement jsonElement = App.getGson().toJsonTree(invitee);
+                    participantsJsonArray.add(jsonElement);
+                }
+
+            } else {
+
+                for (Long coreUserId :
+                        request.getCoreUserIds()) {
+
+                    Invitee invitee = new Invitee();
+                    invitee.setId(coreUserId);
+                    invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+                    JsonElement jsonElement =  App.getGson().toJsonTree(invitee);
+                    participantsJsonArray.add(jsonElement);
+                }
+
+            }
+
+            AsyncMessage chatMessage = new AsyncMessage();
+
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setToken(CoreConfig.token);
+            chatMessage.setContent(participantsJsonArray.toString());
+            chatMessage.setSubjectId(request.getThreadId());
+            chatMessage.setUniqueId(uniqueId);
+            chatMessage.setType(ChatMessageType.Constants.ADD_CALL_PARTICIPANT);
+            chatMessage.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? CoreConfig.typeCode : request.getTypeCode());
+
+            JsonObject messageObj = (JsonObject)  App.getGson().toJsonTree(chatMessage);
+
+
+        return messageObj.toString();
     }
 
     public static String createAcceptCallRequest(AcceptCallRequest request, String uniqueId) {
 
         CreateCallVO createCallVO = new CreateCallVO();
         createCallVO.setCreatorId(request.getCreatorId());
-//        callVO.setPartnerId(request.getPartnerId());
-//        if(Util.isNullOrEmpty())
         createCallVO.setInvitees(request.getInvitees());
         createCallVO.setType(request.getCallType());
 
@@ -121,7 +225,6 @@ public class CallManager {
 
         CreateCallVO createCallVO = new CreateCallVO();
         createCallVO.setCreatorId(request.getCreatorId());
-//        callVO.setPartnerId(request.getPartnerId());
         createCallVO.setInvitees(request.getInvitees());
         createCallVO.setType(request.getCallType());
 
@@ -145,7 +248,6 @@ public class CallManager {
 
     public static String createEndCallRequestMessage(EndCallRequest request, String uniqueId) {
 
-
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.END_CALL_REQUEST);
         message.setToken(CoreConfig.token);
@@ -159,6 +261,20 @@ public class CallManager {
 
     }
 
+    public static String createDeliverCallRequestMessage(ChatMessage chatMessage) {
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.DELIVER_CALL_REQUEST);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(chatMessage.getSubjectId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(chatMessage.getUniqueId());
+        message.setTypeCode(CoreConfig.typeCode);
+        JsonObject messageObj = (JsonObject) App.getGson().toJsonTree(message);
+        return messageObj.toString();
+
+    }
+
     public static EndCallRequest createEndCallRequest(long subjectId) {
         return new EndCallRequest.Builder()
                 .setSubjectId(subjectId)
@@ -167,8 +283,25 @@ public class CallManager {
 
     public static ChatResponse<CallRequestResult> handleOnCallRequest(ChatMessage chatMessage) {
 
+        Log.d(TAG, "Chat Message: " + chatMessage.getContent());
 
-        Log.d(TAG,"Chat Message: " + chatMessage.getContent());
+        CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
+
+        CallRequestResult callRequestResult = new CallRequestResult(createCallVO);
+
+        ChatResponse<CallRequestResult> response = new ChatResponse<>();
+        response.setResult(callRequestResult);
+        response.setUniqueId(chatMessage.getUniqueId());
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        return response;
+
+
+    }
+
+    public static ChatResponse<CallRequestResult> handleOnGroupCallRequest(ChatMessage chatMessage) {
+
+        Log.d(TAG, "Chat Message: " + chatMessage.getContent());
 
         CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
 
@@ -197,6 +330,24 @@ public class CallManager {
 
         return response;
 
+
+    }
+
+    public static ChatResponse<CallDeliverResult> handleOnCallDelivered(ChatMessage chatMessage) {
+
+        Participant participant = App.getGson().fromJson(chatMessage.getContent(), Participant.class);
+
+        CallDeliverResult result = new CallDeliverResult(participant);
+
+        ChatResponse<CallDeliverResult> response = new ChatResponse<>();
+
+        response.setResult(result);
+
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        return response;
 
     }
 
@@ -232,6 +383,21 @@ public class CallManager {
 
     }
 
+    public static ChatResponse<LeaveCallResult> handleOnParticipantLeft(ChatMessage chatMessage) {
+
+        ChatResponse<LeaveCallResult> response = new ChatResponse<>();
+
+        LeaveCallResult result = App.getGson().fromJson(chatMessage.getContent(), LeaveCallResult.class);
+
+        response.setResult(result);
+        response.setSubjectId(chatMessage.getSubjectId());
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        return response;
+
+    }
+
+
     public static ChatResponse<GetCallHistoryResult> handleOnGetCallHistory(ChatMessage chatMessage, Callback callback) {
 
         ChatResponse<GetCallHistoryResult> response = new ChatResponse<>();
@@ -248,19 +414,19 @@ public class CallManager {
         } catch (JsonSyntaxException ignored) {
         }
 
-        response.setResult(new GetCallHistoryResult(calls, chatMessage.getContentCount(),(calls.size() + offset < chatMessage.getContentCount()),(calls.size() + offset)));
+        response.setResult(new GetCallHistoryResult(calls, chatMessage.getContentCount(), (calls.size() + offset < chatMessage.getContentCount()), (calls.size() + offset)));
 
         return response;
 
     }
 
-    public static ChatResponse<GetCallHistoryResult> handleOnGetCallHistoryFromCache(String uniqueId, ArrayList<CallVO> calls, long contentCount,long offset) {
+    public static ChatResponse<GetCallHistoryResult> handleOnGetCallHistoryFromCache(String uniqueId, ArrayList<CallVO> calls, long contentCount, long offset) {
 
         ChatResponse<GetCallHistoryResult> response = new ChatResponse<>();
 
         response.setUniqueId(uniqueId);
 
-        response.setResult(new GetCallHistoryResult(calls, contentCount,(calls.size() + offset < contentCount),(calls.size() + offset)));
+        response.setResult(new GetCallHistoryResult(calls, contentCount, (calls.size() + offset < contentCount), (calls.size() + offset)));
 
         response.setCache(true);
 

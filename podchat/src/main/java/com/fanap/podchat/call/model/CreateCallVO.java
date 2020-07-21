@@ -2,6 +2,7 @@ package com.fanap.podchat.call.model;
 
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.Thread;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,6 +13,7 @@ public class CreateCallVO implements Serializable {
     private int type;
     private long creatorId;
     private Participant creatorVO;
+    private Thread conversationVO;
 
 
     public List<Invitee> getInvitees() {
@@ -44,5 +46,13 @@ public class CreateCallVO implements Serializable {
 
     public void setCreatorVO(Participant creatorVO) {
         this.creatorVO = creatorVO;
+    }
+
+    public Thread getConversationVO() {
+        return conversationVO;
+    }
+
+    public void setConversationVO(Thread conversationVO) {
+        this.conversationVO = conversationVO;
     }
 }
