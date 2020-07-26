@@ -16,7 +16,14 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
+import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
+import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
@@ -347,6 +354,48 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void defineBotCommand(DefineBotCommandRequest request) {
+        String uniqueId = chat.addBotCommand(request);
+    }
+
+    @Override
+    public void createBot(CreateBotRequest request) {
+        String uniqueId = chat.createBot(request);
+    }
+
+    @Override
+    public void startBot(StartAndStopBotRequest request) {
+        String uniqueId = chat.startBot(request);
+    }
+
+    @Override
+    public void stopBot(StartAndStopBotRequest request) {
+        String uniqueId = chat.stopBot(request);
+    }
+
+    @Override
+    public void onBotCreated(ChatResponse<CreateBotResult> response) {
+        view.onBotCreated(response);
+    }
+
+    @Override
+    public void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response) {
+        view.onBotCommandsDefined(response);
+    }
+
+
+    @Override
+    public void onBotStopped(ChatResponse<StartStopBotResult> response) {
+        view.onBotStopped(response.getResult().getBotName());
+    }
+
+    @Override
+    public void onBotStarted(ChatResponse<StartStopBotResult> response) {
+        view.onBotStarted(response.getResult().getBotName());
+
+    }
+
+    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 
@@ -461,7 +510,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getThreads(RequestThread requestThread, ChatHandler handler) {
+
         chat.getThreads(requestThread, handler);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
+
+        RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount
+                .Builder()
+                .withMuteThreads()
+                .build();
+
+        chat.getAllUnreadMessagesCount(req);
     }
 
     @Override
@@ -1253,11 +1314,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
-//
-//            syncContact(activity);
-//
-//        }
+        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+
+            RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
+                    .build();
+
+            chat.getAllUnreadMessagesCount(req);
+
+        }
 
     }
 

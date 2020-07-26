@@ -78,6 +78,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import io.sentry.core.Sentry;
+
 
 @SuppressWarnings("unchecked")
 public class MessageDatabaseHelper {
@@ -1211,20 +1213,7 @@ public class MessageDatabaseHelper {
             Participant participant = null;
             ReplyInfoVO replyInfoVO = null;
             ForwardInfo forwardInfo = null;
-            Thread thread = null;
             ConversationSummery conversationSummery = null;
-
-//            if (!Util.isNullOrEmpty(cacheMessageVO.getThreadVoId())) {
-//                cacheMessageVO.setConversation(messageDao.getThreadById(cacheMessageVO.getThreadVoId()));
-//                ThreadVo threadVo = cacheMessageVO.getConversation();
-//
-//
-//                //adding pinned message of thread if exist
-//                addPinnedMessageOfThread(threadVo);
-//
-//
-//                thread = threadVoToThreadMapper(threadVo, null);
-//            }
 
             if (cacheMessageVO.getForwardInfoId() != null) {
                 cacheMessageVO.setForwardInfo(messageDao.getForwardInfo(cacheMessageVO.getForwardInfoId()));
@@ -2269,7 +2258,7 @@ public class MessageDatabaseHelper {
                     CacheReplyInfoVO cacheReplyInfoVO;
                     Participant participant = null;
                     ReplyInfoVO replyInfoVO = null;
-                    MessageVO lastMessageVO = null;
+                    @Nullable MessageVO lastMessageVO = null;
                     if (threadVo.getInviterId() > 0) {
                         threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                     }
@@ -2277,28 +2266,32 @@ public class MessageDatabaseHelper {
                     if (threadVo.getLastMessageVOId() > 0) {
                         threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                         CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
-                        if (cacheLastMessageVO != null && cacheLastMessageVO.getParticipantId() != null) {
-                            cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                            if (cacheParticipant != null) {
-                                participant = cacheToParticipantMapper(cacheParticipant, null, null);
+
+                        if (cacheLastMessageVO != null) {
+                            if (cacheLastMessageVO.getParticipantId() != null) {
+                                cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+                                if (cacheParticipant != null) {
+                                    participant = cacheToParticipantMapper(cacheParticipant, null, null);
+                                }
                             }
 
+                            if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                                cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+                                replyInfoVO = new ReplyInfoVO(
+                                        cacheReplyInfoVO.getRepliedToMessageId(),
+                                        cacheReplyInfoVO.getMessageType(),
+                                        cacheReplyInfoVO.isDeleted(),
+                                        cacheReplyInfoVO.getRepliedToMessage(),
+                                        cacheReplyInfoVO.getSystemMetadata(),
+                                        cacheReplyInfoVO.getMetadata(),
+                                        cacheReplyInfoVO.getMessage(),
+                                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                                        cacheReplyInfoVO.getRepliedToMessageNanos()
+                                );
+                            }
+
+                            lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
                         }
-                        if (cacheLastMessageVO != null && cacheLastMessageVO.getReplyInfoVOId() != null) {
-                            cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                            replyInfoVO = new ReplyInfoVO(
-                                    cacheReplyInfoVO.getRepliedToMessageId(),
-                                    cacheReplyInfoVO.getMessageType(),
-                                    cacheReplyInfoVO.isDeleted(),
-                                    cacheReplyInfoVO.getRepliedToMessage(),
-                                    cacheReplyInfoVO.getSystemMetadata(),
-                                    cacheReplyInfoVO.getMetadata(),
-                                    cacheReplyInfoVO.getMessage(),
-                                    cacheReplyInfoVO.getRepliedToMessageTime(),
-                                    cacheReplyInfoVO.getRepliedToMessageNanos()
-                            );
-                        }
-                        lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
                     }
 
                     //adding pinned message of thread if exist
@@ -2453,28 +2446,32 @@ public class MessageDatabaseHelper {
                 if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
-                    if (cacheLastMessageVO.getParticipantId() != null) {
-                        cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                        if (cacheParticipant != null) {
-                            participant = cacheToParticipantMapper(cacheParticipant, null, null);
+
+                    if (cacheLastMessageVO != null) {
+                        if (cacheLastMessageVO.getParticipantId() != null) {
+                            cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+                            if (cacheParticipant != null) {
+                                participant = cacheToParticipantMapper(cacheParticipant, null, null);
+                            }
+
                         }
+                        if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                            cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+                            replyInfoVO = new ReplyInfoVO(
+                                    cacheReplyInfoVO.getRepliedToMessageId(),
+                                    cacheReplyInfoVO.getMessageType(),
+                                    cacheReplyInfoVO.isDeleted(),
+                                    cacheReplyInfoVO.getRepliedToMessage(),
+                                    cacheReplyInfoVO.getSystemMetadata(),
+                                    cacheReplyInfoVO.getMetadata(),
+                                    cacheReplyInfoVO.getMessage(),
+                                    cacheReplyInfoVO.getRepliedToMessageTime(),
+                                    cacheReplyInfoVO.getRepliedToMessageNanos()
+                            );
+                        }
+                        lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
 
                     }
-                    if (cacheLastMessageVO.getReplyInfoVOId() != null) {
-                        cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                        replyInfoVO = new ReplyInfoVO(
-                                cacheReplyInfoVO.getRepliedToMessageId(),
-                                cacheReplyInfoVO.getMessageType(),
-                                cacheReplyInfoVO.isDeleted(),
-                                cacheReplyInfoVO.getRepliedToMessage(),
-                                cacheReplyInfoVO.getSystemMetadata(),
-                                cacheReplyInfoVO.getMetadata(),
-                                cacheReplyInfoVO.getMessage(),
-                                cacheReplyInfoVO.getRepliedToMessageTime(),
-                                cacheReplyInfoVO.getRepliedToMessageNanos()
-                        );
-                    }
-                    lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
 
                 }
 
@@ -2565,26 +2562,30 @@ public class MessageDatabaseHelper {
                 if (threadVo.getLastMessageVOId() > 0) {
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
-                    if (cacheLastMessageVO.getParticipantId() != null) {
-                        cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                        participant = cacheToParticipantMapper(cacheParticipant, null, null);
-                    }
-                    if (cacheLastMessageVO.getReplyInfoVOId() != null) {
-                        cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                        replyInfoVO = new ReplyInfoVO(
-                                cacheReplyInfoVO.getRepliedToMessageId(),
-                                cacheReplyInfoVO.getMessageType(),
-                                cacheReplyInfoVO.isDeleted(),
-                                cacheReplyInfoVO.getRepliedToMessage(),
-                                cacheReplyInfoVO.getSystemMetadata(),
-                                cacheReplyInfoVO.getMetadata(),
-                                cacheReplyInfoVO.getMessage(),
-                                cacheReplyInfoVO.getRepliedToMessageTime(),
-                                cacheReplyInfoVO.getRepliedToMessageNanos()
-                        );
-                    }
 
-                    lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
+                    if (cacheLastMessageVO != null) {
+                        if (cacheLastMessageVO.getParticipantId() != null) {
+                            cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+                            participant = cacheToParticipantMapper(cacheParticipant, null, null);
+                        }
+                        if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                            cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+                            replyInfoVO = new ReplyInfoVO(
+                                    cacheReplyInfoVO.getRepliedToMessageId(),
+                                    cacheReplyInfoVO.getMessageType(),
+                                    cacheReplyInfoVO.isDeleted(),
+                                    cacheReplyInfoVO.getRepliedToMessage(),
+                                    cacheReplyInfoVO.getSystemMetadata(),
+                                    cacheReplyInfoVO.getMetadata(),
+                                    cacheReplyInfoVO.getMessage(),
+                                    cacheReplyInfoVO.getRepliedToMessageTime(),
+                                    cacheReplyInfoVO.getRepliedToMessageNanos()
+                            );
+                        }
+
+                        lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
+
+                    }
 
                 }
 
@@ -2619,27 +2620,33 @@ public class MessageDatabaseHelper {
                     threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
                 }
                 if (threadVo.getLastMessageVOId() > 0) {
+
                     threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
+
                     CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
-                    if (cacheLastMessageVO.getParticipantId() != null) {
-                        cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
-                        participant = cacheToParticipantMapper(cacheParticipant, null, null);
+
+                    if (cacheLastMessageVO != null) {
+
+                        if (cacheLastMessageVO.getParticipantId() != null) {
+                            cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+                            participant = cacheToParticipantMapper(cacheParticipant, null, null);
+                        }
+                        if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                            cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+                            replyInfoVO = new ReplyInfoVO(
+                                    cacheReplyInfoVO.getRepliedToMessageId(),
+                                    cacheReplyInfoVO.getMessageType(),
+                                    cacheReplyInfoVO.isDeleted(),
+                                    cacheReplyInfoVO.getRepliedToMessage(),
+                                    cacheReplyInfoVO.getSystemMetadata(),
+                                    cacheReplyInfoVO.getMetadata(),
+                                    cacheReplyInfoVO.getMessage(),
+                                    cacheReplyInfoVO.getRepliedToMessageTime(),
+                                    cacheReplyInfoVO.getRepliedToMessageNanos()
+                            );
+                        }
+                        lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
                     }
-                    if (cacheLastMessageVO.getReplyInfoVOId() != null) {
-                        cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                        replyInfoVO = new ReplyInfoVO(
-                                cacheReplyInfoVO.getRepliedToMessageId(),
-                                cacheReplyInfoVO.getMessageType(),
-                                cacheReplyInfoVO.isDeleted(),
-                                cacheReplyInfoVO.getRepliedToMessage(),
-                                cacheReplyInfoVO.getSystemMetadata(),
-                                cacheReplyInfoVO.getMetadata(),
-                                cacheReplyInfoVO.getMessage(),
-                                cacheReplyInfoVO.getRepliedToMessageTime(),
-                                cacheReplyInfoVO.getRepliedToMessageNanos()
-                        );
-                    }
-                    lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
 
                 }
 
@@ -2712,6 +2719,7 @@ public class MessageDatabaseHelper {
         CacheForwardInfo cacheForwardInfo;
 
         cacheMessageVO = insertLastMessage(thread, threadVo);
+        if(cacheMessageVO==null) return;
 
 
         if (threadVo.getLastMessageVO().getParticipant() != null) {
@@ -2790,17 +2798,24 @@ public class MessageDatabaseHelper {
         messageDao.insertParticipant(threadVo.getLastMessageVO().getParticipant());
     }
 
+    @Nullable
     private CacheMessageVO insertLastMessage(Thread thread, ThreadVo threadVo) {
 
-        MessageVO messageVO = thread.getLastMessageVO();
+        CacheMessageVO cacheMessageVO;
+        try {
+            MessageVO messageVO = thread.getLastMessageVO();
 
-        String messageJson = App.getGson().toJson(messageVO);
-        CacheMessageVO cacheMessageVO = App.getGson().fromJson(messageJson, CacheMessageVO.class);
+            cacheMessageVO = new CacheMessageVO(messageVO);
 
-        threadVo.setLastMessageVO(cacheMessageVO);
-        threadVo.setLastMessageVOId(cacheMessageVO.getId());
+            threadVo.setLastMessageVO(cacheMessageVO);
 
-        messageDao.insertLastMessageVO(cacheMessageVO);
+            threadVo.setLastMessageVOId(cacheMessageVO.getId());
+
+            messageDao.insertLastMessageVO(cacheMessageVO);
+        } catch (Exception e) {
+            Sentry.captureException(e);
+            return null;
+        }
 
         return cacheMessageVO;
     }

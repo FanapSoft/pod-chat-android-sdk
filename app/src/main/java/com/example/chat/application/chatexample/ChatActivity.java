@@ -30,6 +30,11 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
+import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
+import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
+import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
@@ -202,7 +207,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-////
+//
     private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
@@ -218,16 +223,16 @@ public class ChatActivity extends AppCompatActivity
 //    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
-//    //sand box / group
-//
+    //sand box / group
+
 //    public static int TEST_THREAD_ID = 5182;
 //    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 //
-    public static int TEST_THREAD_ID = 39478;
-    private static final String TEST_THREAD_HASH = "YS1V7W4DG4R96M";
+    public static int TEST_THREAD_ID = 19868;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -1588,19 +1593,15 @@ public class ChatActivity extends AppCompatActivity
                         presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
                             @Override
                             public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
-
                             }
 
                             @Override
                             public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
-
                             }
 
                             @Override
                             public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
-
                             }
-
                         });
                         break;
                     case 14: {
@@ -1617,26 +1618,33 @@ public class ChatActivity extends AppCompatActivity
                         break;
                     }
                     case 16: {
-
                         spamThread();
                         break;
                     }
                     case 17: {
-
                         seenMessage();
-
                         break;
-
                     }
-
                     case 18: {
-
-
                         updateUserProfile();
-
                         break;
                     }
-
+                    case 19: {
+                        createBot();
+                        break;
+                    }
+                    case 20: {
+                        defineBotCommand();
+                        break;
+                    }
+                    case 21: {
+                        startBot();
+                        break;
+                    }
+                     case 22: {
+                        stopBot();
+                        break;
+                    }
                 }
             }
 
@@ -1644,6 +1652,51 @@ public class ChatActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+    }
+
+
+
+    private void stopBot() {
+
+        StartAndStopBotRequest request = new StartAndStopBotRequest.Builder(TEST_THREAD_ID,
+                "TEST2BOT")
+                .build();
+
+        presenter.stopBot(request);
+
+    }
+
+
+    private void startBot() {
+
+        StartAndStopBotRequest request = new StartAndStopBotRequest.Builder(TEST_THREAD_ID,
+                "TEST2BOT")
+                .build();
+
+        presenter.startBot(request);
+
+    }
+
+    private void defineBotCommand() {
+
+        List<String> commands = new ArrayList<>();
+        commands.add("/command1");
+        commands.add("/command2");
+
+        DefineBotCommandRequest request = new DefineBotCommandRequest.Builder("TEST2BOT",commands)
+                .build();
+
+        presenter.defineBotCommand(request);
+
+    }
+
+    private void createBot() {
+
+        CreateBotRequest request = new CreateBotRequest.Builder("TEST2BOT")
+                .build();
+
+        presenter.createBot(request);
+
     }
 
     private void updateUserProfile() {
@@ -1791,11 +1844,12 @@ public class ChatActivity extends AppCompatActivity
                 .newBuilder()
                 .threadId((long) TEST_THREAD_ID)
 //                .withCoreUserIds(982L, 5241L)
-                .withUserNames("a.rokni",
-                        "ms.alavizadeh",
-                        "bhamidpour",
-                        "z.morshedi",
-                        "m.rashed")
+//                .withUserNames("a.rokni",
+//                        "ms.alavizadeh",
+//                        "bhamidpour",
+//                        "z.morshedi",
+//                        "m.rashed")
+                .withUsername("TEST2BOT")
                 .build();
 
 
@@ -2425,13 +2479,14 @@ public class ChatActivity extends AppCompatActivity
 //        uniqueIds[1] = "212ls;dfk";
 //        uniqueIds[2] = "212ls;dfk";
 
-        long seenTime =1592928839801L;
-        long seenNano = 801336000;
+        long seenTime =1594802220647L;
+
+        long seenNano = 647140000;
 
         RequestGetHistory requestBefore = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
-                .count(50)
+                .count(5)
                 .order("desc")
 //                .withNoCache()
 //                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)
@@ -2451,9 +2506,9 @@ public class ChatActivity extends AppCompatActivity
         presenter.getHistory(requestBefore, null);
 
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException ignored) {}
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
 
         RequestGetHistory requestAfter = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
@@ -2469,6 +2524,37 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         presenter.getHistory(requestAfter, null);
+
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ignored) {}
+
+
+        seenTime = 1594802210811L;
+        seenNano = 811171000L;
+
+        RequestGetHistory requestBefore2 = new RequestGetHistory
+                .Builder(TEST_THREAD_ID)
+                .offset(0)
+                .count(5)
+                .order("desc")
+//                .withNoCache()
+//                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)
+//                .uniqueIds(uniqueIds)
+//                .withNoCache()
+                .toTime(seenTime)
+                .toTimeNanos(seenNano)
+                .build();
+
+        //            history.setToTime(System.currentTimeMillis());
+//
+//            history.setFromTimeNanos(298708000);
+//            history.setCount(7);
+
+//        offset += 5;
+
+        presenter.getHistory(requestBefore2, null);
 
 //        History history = new History.
 //                Builder()
@@ -2890,5 +2976,26 @@ public class ChatActivity extends AppCompatActivity
 
         presenter.connect(rc);
 
+    }
+
+    @Override
+    public void onBotCreated(ChatResponse<CreateBotResult> response) {
+        Toast.makeText(this, "Bot created: " + response.getResult().getThingVO().getName(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response) {
+        Toast.makeText(this, "COMMANDS DEFINED:  " + response.getResult().getCommandList(), Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onBotStopped(String botName) {
+        Toast.makeText(this, "BOT STOPPED:  " + botName, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBotStarted(String botName) {
+        Toast.makeText(this, "BOT STARTED:  " + botName, Toast.LENGTH_SHORT).show();
     }
 }

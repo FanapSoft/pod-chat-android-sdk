@@ -64,3 +64,4 @@ captures/
 # Google Services (e.g. APIs or Firebase)
 google-services.json
 /src/main/res/values/firebase_config.xml
+/src/main/res/values/sentry.xml

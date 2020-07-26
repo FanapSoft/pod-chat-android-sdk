@@ -52,7 +52,11 @@ public class ConstantSample {
             , "Get Admin List",
             "Spam ConversationVO",
             "Seen Message",
-            "Update Profile"
+            "Update Profile",
+            "Create Bot",
+            "Define Bot Command",
+            "Start Bot",
+            "Start Bot"
     };
 
     public static final String[] funcThird = {

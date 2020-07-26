@@ -8,6 +8,11 @@ import android.util.Log;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
+import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
+import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -204,6 +209,14 @@ public interface ChatContract {
         default void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
 
         default void onGetToken(String token){}
+
+        default void onBotCreated(ChatResponse<CreateBotResult> response){}
+
+        default void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response){}
+
+        default void onBotStopped(String botName){}
+
+        default void onBotStarted(String botName){}
     }
 
     interface presenter {
@@ -452,5 +465,14 @@ public interface ChatContract {
         void deliverNotification(String threadId);
 
         void clearNotifications();
+
+        void defineBotCommand(DefineBotCommandRequest request);
+
+        void createBot(CreateBotRequest request);
+
+        void startBot(StartAndStopBotRequest request);
+
+        void stopBot(StartAndStopBotRequest request);
+
     }
 }

@@ -2,6 +2,90 @@
 **Fanap's POD** Chat service
 
 
+## Version [0.7.5.0] -2020-7-14
+
+- Create new bot:
+
+
+     CreateBotRequest request = new CreateBotRequest
+                .Builder("EXAMPLEBOT") //bot name
+                .build();
+       
+     chat.createBot(request);
+     
+The bot name must end with "BOT".
+
+
+
+- Add commands for created bot:
+
+
+    List<String> commands = new ArrayList<>();
+            commands.add("/command1");
+            commands.add("/command2");
+    
+    DefineBotCommandRequest request = new DefineBotCommandRequest
+                 .Builder("EXAMPLEBOT",commands)
+                 .build();
+    
+    chat.addBotCommand(request);
+
+A bot command should start with slash "/".
+A bot command should not contain "@".
+A bot command could not be blank.
+
+
+
+- Start bot after adding it to thread:
+
+
+    StartAndStopBotRequest request = new StartAndStopBotRequest
+            .Builder(threadId,"EXAMPLEBOT")
+            .build();
+    
+    chat.startBot(request);
+
+
+
+- Stop an active bot:
+
+
+    StartAndStopBotRequest request = new StartAndStopBotRequest
+            .Builder(threadId,"EXAMPLEBOT")
+            .build();
+    
+    chat.stopBot(request);
+
+
+
+
+
+## Version [0.7.4.0] -2020-7-4
+
+
+- Mark all push messages of thread as read:
+
+
+    chat.deliverNotification(threadId)
+    
+
+- Clear all push messages from notification bar:
+
+
+    chat.clearAllNotifications()
+    
+    
+- Upload file (or image as well) privately, so only you can download it:
+
+
+     RequestUploadFile req = new RequestUploadFile
+                    .Builder(Activity, Uri)
+                    .setPublic(false)
+                    .build();
+    
+            chat.uploadFileProgress(req, handler);
+
+
 
 
 ## Version [0.7.2.0] -2020-6-2
