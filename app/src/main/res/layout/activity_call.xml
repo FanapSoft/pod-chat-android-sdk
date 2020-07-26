@@ -54,17 +54,26 @@
         tools:visibility="visible" />
 
     <CheckBox
-        android:checked="true"
-        android:background="@color/colorPrimaryDark"
         android:id="@+id/checkboxSSL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:checked="true"
         android:text="SSL"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintTop_toBottomOf="@+id/linearCallParticipants" />
+
+    <CheckBox
+        android:id="@+id/checkboxGroupCall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:checked="false"
+        android:text="Group Call"
+        android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layoutTestParam" />
+        app:layout_constraintTop_toBottomOf="@+id/linearCallParticipants" />
 
     <ImageButton
         android:id="@+id/buttonGetHistory"
@@ -124,6 +133,34 @@
             android:textColor="@color/white"
             android:textColorHint="@color/colorPrimary" />
 
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearCallParticipants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutTestParam">
+
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkboxZiziPartner"
+            style="@style/radio_button"
+            android:text="ZIZI" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkboxJijiPartner"
+            style="@style/radio_button"
+            android:text="JIJI" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkboxFifiPartner"
+            style="@style/radio_button"
+            android:text="FIFI" />
 
     </LinearLayout>
 

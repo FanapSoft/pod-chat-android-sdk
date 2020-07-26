@@ -1365,7 +1365,7 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnVoiceCallEnded(response);
 
-        audioCallManager.endStream();
+        audioCallManager.endStream(true);
 
         showLog("VOICE_CALL_ENDED", gson.toJson(chatMessage));
 
@@ -1376,8 +1376,6 @@ public class Chat extends AsyncAdapter {
         ChatResponse<LeaveCallResult> response = CallManager.handleOnParticipantLeft(chatMessage);
 
         listenerManager.callOnCallParticipantLeft(response);
-
-        audioCallManager.endStream();
 
         showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
 
@@ -1730,7 +1728,7 @@ public class Chat extends AsyncAdapter {
     public String endAudioCall(EndCallRequest endCallRequest) {
 
         if (audioCallManager != null)
-            audioCallManager.endStream();
+            audioCallManager.endStream(false);
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -1817,7 +1815,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public void endAudioStream() {
-        audioCallManager.endStream();
+        audioCallManager.endStream(false);
     }
 
     /**

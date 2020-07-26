@@ -115,7 +115,7 @@ public class PodCallServiceManager implements ICallServiceState {
         bindService();
     }
 
-    public void endStream() {
+    public void endStream(boolean fromPartner) {
 
 
         showInfoLog("End Stream Requested");
@@ -124,7 +124,7 @@ public class PodCallServiceManager implements ICallServiceState {
             showInfoLog("End Stream Requested => bound && callService != null");
             callService.endCall();
             unbindService();
-        } else {
+        } else if (!fromPartner) {
             showInfoLog("End Stream Requested => sendEndCallIntent(mContext)");
             sendEndCallIntent(mContext);
         }
@@ -246,8 +246,14 @@ public class PodCallServiceManager implements ICallServiceState {
     /*
     Call Service Callback
      */
+    /*
+    Call Stopped from service
+     */
     @Override
     public void onEndCallRequested() {
+
+        showInfoLog("End Stream From Service Requested");
+
         if (callStateCallback != null)
             callStateCallback.onEndCallRequested();
         callInfo = null;

@@ -129,6 +129,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.chat.application.chatexample.CallActivity.FIFI_CID;
+import static com.example.chat.application.chatexample.CallActivity.FIFI_ID;
+import static com.example.chat.application.chatexample.CallActivity.JIJI_CID;
+import static com.example.chat.application.chatexample.CallActivity.JIJI_ID;
+import static com.example.chat.application.chatexample.CallActivity.ZIZI_ID;
+
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
 
@@ -399,7 +405,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void testCall(String groupId, String sender, String receiver) {
 
-        chat.testCall(groupId,sender,receiver);
+        chat.testCall(groupId, sender, receiver);
     }
 
     @Override
@@ -413,7 +419,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.testAudio();
 
     }
-
 
 
     @Override
@@ -484,7 +489,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 100000L,
                 CallType.Constants.VOICE_CALL).build();
 
-        return chat.requestCall(callRequest,checked);
+        return chat.requestCall(callRequest, checked);
     }
 
 
@@ -743,7 +748,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //                .build();
 
 
-        chat.addContact(firstName,lastName,cellphoneNumber,email,null,username);
+        chat.addContact(firstName, lastName, cellphoneNumber, email, null, username);
 
 
     }
@@ -1539,11 +1544,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onVoiceCallStarted(ChatResponse<StartCallResult> response) {
 
 
-        if(callRequestResponse==null){
+        if (callRequestResponse == null) {
             callRequestResponse = new ChatResponse<>();
         }
         callRequestResponse.setSubjectId(response.getSubjectId());
-        view.onVoiceCallStarted(response.getUniqueId(),response.getResult().getClientDTO().getClientId());
+        view.onVoiceCallStarted(response.getUniqueId(), response.getResult().getClientDTO().getClientId());
 
 
     }
@@ -1552,7 +1557,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
 
 
-        view.onVoiceCallEnded(response.getUniqueId(),response.getResult().getSubjectId());
+        view.onVoiceCallEnded(response.getUniqueId(), response.getResult().getSubjectId());
 
     }
 
@@ -1561,7 +1566,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         if (callerId == CallActivity.ZIZI_ID) {
 
             callerName = "ZIZI";
-        } else if (callerId == CallActivity.FIFI_ID) {
+        } else if (callerId == FIFI_ID) {
             callerName = "FIFI";
         } else {
             callerName = "JIJI";
@@ -1599,7 +1604,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void endRunningCall() {
 
 
-        if(callRequestResponse!=null){
+        if (callRequestResponse != null) {
 
             EndCallRequest endCallRequest = new EndCallRequest.Builder()
                     .setSubjectId(callRequestResponse.getSubjectId())
@@ -1630,7 +1635,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.isMute = !this.isMute;
 
-        Log.d(TAG,"CHANGE MUTE: " + isMute);
+        Log.d(TAG, "CHANGE MUTE: " + isMute);
 
         chat.switchCallMuteState(isMute);
 
@@ -1641,9 +1646,67 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.speakerOn = !this.speakerOn;
 
-        Log.d(TAG,"CHANGE SPEAKER: " + speakerOn);
+        Log.d(TAG, "CHANGE SPEAKER: " + speakerOn);
 
         chat.switchCallSpeakerState(speakerOn);
+
+    }
+
+    @Override
+    public void requestGroupCall(boolean withFifi, boolean withZizi, boolean withJiji) {
+
+        List<Invitee> invitees = new ArrayList<>();
+
+        Invitee invitee;
+
+        if (withFifi) {
+            invitee = new Invitee();
+            invitee.setId(FIFI_CID);
+            invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
+            invitees.add(invitee);
+        }
+//        if (withZizi) {
+//            invitee = new Invitee();
+//            invitee.setId(JIJI_CID);
+//            invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
+//            invitees.add(invitee);
+//        }
+        if (withJiji) {
+            invitee = new Invitee();
+            invitee.setId(JIJI_CID);
+            invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
+            invitees.add(invitee);
+        }
+
+        CallRequest request = new CallRequest
+                .Builder(invitees,CallType.Constants.VOICE_CALL)
+                .build();
+
+        chat.requestGroupCall(request,true);
+
+    }
+
+    @Override
+    public void addCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
+
+
+        List<Long> ids = new ArrayList<>();
+
+        if(fifiChecked)
+            ids.add((long) FIFI_ID);
+        if(jijiChecked)
+            ids.add((long) JIJI_ID);
+        if(ziziChecked)
+            ids.add((long) ZIZI_ID);
+
+        RequestAddParticipants request =  RequestAddParticipants.newBuilder()
+                .threadId(1L)
+                .withCoreUserIds(ids)
+                .build();
+
+
+        chat.addGroupCallParticipant(request);
+
 
     }
 
@@ -1671,7 +1734,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
             String callerName = response.getResult().getCreatorVO().getName();
 
-            view.onGroupVoiceCallRequestReceived(callerName,response.getResult().getConversationVO().getTitle(),response.getResult().getConversationVO().getParticipants());
+            view.onGroupVoiceCallRequestReceived(callerName, response.getResult().getConversationVO().getTitle(), response.getResult().getConversationVO().getParticipants());
 
         }
     }

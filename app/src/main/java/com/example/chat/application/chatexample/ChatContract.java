@@ -490,5 +490,9 @@ public interface ChatContract {
         void switchMute();
 
         void switchSpeaker();
+
+        void requestGroupCall(boolean fifi, boolean zizi, boolean jiji);
+
+        void addCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
     }
 }

@@ -2,6 +2,7 @@ package com.fanap.podchat.call;
 
 import android.util.Log;
 
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.model.CreateCallVO;
@@ -335,7 +336,7 @@ public class CallManager {
 
     public static ChatResponse<CallDeliverResult> handleOnCallDelivered(ChatMessage chatMessage) {
 
-        Participant participant = App.getGson().fromJson(chatMessage.getContent(), Participant.class);
+        CallParticipantVO participant = App.getGson().fromJson(chatMessage.getContent(), CallParticipantVO.class);
 
         CallDeliverResult result = new CallDeliverResult(participant);
 

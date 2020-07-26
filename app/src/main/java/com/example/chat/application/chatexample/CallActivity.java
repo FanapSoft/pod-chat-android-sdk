@@ -43,14 +43,18 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     //INTEGRATION
 
-//    static int FIFI_ID = 15507;
-//    static int JIJI_ID = 15501;
-//    static int ZIZI_ID = 15510;
+    static int FIFI_ID = 15507;
+    static int JIJI_ID = 15501;
+    static int ZIZI_ID = 15510;
+
+    public final static String FIFI_CID = BaseApplication.getInstance().getString(R.string.ZIZI_FIFI_CONTACT_ID);
+    public final static String JIJI_CID = BaseApplication.getInstance().getString(R.string.ZIZI_JIJI_CONTACT_ID);
+
 
     //NEMATI
-    static int FIFI_ID = 123;
-    static int JIJI_ID = 122;
-    static int ZIZI_ID = 121;
+//    static int FIFI_ID = 123;
+//    static int JIJI_ID = 122;
+//    static int ZIZI_ID = 121;
 
 
     private static String appId = BaseApplication.getInstance().getString(R.string.integration_appId);
@@ -59,19 +63,18 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
     //integration
-//    private static String serverName =  BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 //
 
 
     //nemati
-    private static String serverName =  BaseApplication.getInstance().getString(R.string.nemati_serverName);
-    private static String name = BaseApplication.getInstance().getString(R.string.nemati_serverName);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.nemati_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.nemati_fileServer);
-
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.nemati_serverName);
+//    private static String name = BaseApplication.getInstance().getString(R.string.nemati_serverName);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.nemati_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.nemati_fileServer);
 
 
 //    integration /group
@@ -85,15 +88,22 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private ChatContract.presenter presenter;
 
-    Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory;
+    Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant;
     TextView tvStatus, tvCallerName, tvHistory;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory,buttonMute,buttonSpeaker;
+    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
     EditText etGroupId, etSender, etReceiver;
-    CheckBox checkBoxSSL;
+    CheckBox checkBoxSSL,
+            checkBoxGroupCall,
+            checkboxZiziPartner,
+            checkboxJijiPartner,
+            checkboxFifiPartner,
+            checkboxAddZizi,
+            checkboxAddJiji,
+            checkboxAddFifi;
 
 
     private int partnerId = 122;
@@ -137,9 +147,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonCall.setOnClickListener(v -> {
 
             if (chatReady) {
-                buttonCall.setVisibility(View.INVISIBLE);
-                presenter.requestCall(partnerId,checkBoxSSL.isChecked());
-                tvStatus.setText(String.format("Calling %s", presenter.getNameById(partnerId)));
+                if (checkBoxGroupCall.isChecked()) {
+                    presenter.requestGroupCall(checkboxFifiPartner.isChecked(), checkboxZiziPartner.isChecked(), checkboxJijiPartner.isChecked());
+                    tvStatus.setText("Starting Group Call");
+                } else {
+                    presenter.requestCall(partnerId, checkBoxSSL.isChecked());
+                    tvStatus.setText(String.format("Calling %s", presenter.getNameById(partnerId)));
+                }
+
             } else
                 Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
 
@@ -160,7 +175,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                         etReceiver.getText().toString()
                 );
 
-            }else presenter.testCall();
+            } else presenter.testCall();
 
             runOnUiThread(() -> {
                 showInCallView();
@@ -211,9 +226,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonEndCall.setOnClickListener(v -> {
 
+            onCallEnded();
 
-
-            if(isTestMode){
+            if (isTestMode) {
 
                 presenter.endStream();
                 inCallView.setVisibility(View.INVISIBLE);
@@ -224,11 +239,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
                 isTestMode = false;
 
-            }else {
+            } else {
                 presenter.endRunningCall();
             }
-
-
 
         });
 
@@ -237,9 +250,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonCloseHistory.setOnClickListener(v -> viewHistory.setVisibility(View.INVISIBLE));
 
-        buttonMute.setOnClickListener(v->presenter.switchMute());
+        buttonMute.setOnClickListener(v -> presenter.switchMute());
 
-        buttonSpeaker.setOnClickListener(v->presenter.switchSpeaker());
+        buttonSpeaker.setOnClickListener(v -> presenter.switchSpeaker());
+
+        buttonAddCallParticipant.setOnClickListener(v -> presenter.addCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
     }
 
     private void updateViewOnCallReaction() {
@@ -325,32 +340,52 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonCall = findViewById(R.id.btnCallRequest);
         buttonConnect = findViewById(R.id.btnConnect);
         buttonTestCall = findViewById(R.id.btnCallTest);
+
         buttonCloseHistory = findViewById(R.id.buttonCloseHistory);
+
+        buttonAddCallParticipant = findViewById(R.id.btnAddCallParticipant);
+
         groupCaller = findViewById(R.id.radioCaller);
         groupPartner = findViewById(R.id.radioPartner);
+
         tvStatus = findViewById(R.id.tvStatus);
+
         tvCallerName = findViewById(R.id.tvCallerName);
         tvHistory = findViewById(R.id.tvHistory);
+
         callRequestView = findViewById(R.id.viewCallRequest);
         inCallView = findViewById(R.id.viewCall);
         viewHistory = findViewById(R.id.viewHistory);
+
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
         buttonGetHistory = findViewById(R.id.buttonGetHistory);
+
         buttonMute = findViewById(R.id.buttonMute);
         buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
+
         etGroupId = findViewById(R.id.etGroupId);
         etSender = findViewById(R.id.etSender);
         etReceiver = findViewById(R.id.etReceiver);
+
         checkBoxSSL = findViewById(R.id.checkboxSSL);
+        checkBoxGroupCall = findViewById(R.id.checkboxGroupCall);
+
+        checkboxZiziPartner = findViewById(R.id.checkboxZiziPartner);
+        checkboxFifiPartner = findViewById(R.id.checkboxFifiPartner);
+        checkboxJijiPartner = findViewById(R.id.checkboxJijiPartner);
+
+        checkboxAddZizi = findViewById(R.id.checkboxAddZizi);
+        checkboxAddFifi = findViewById(R.id.checkboxAddFifi);
+        checkboxAddJiji = findViewById(R.id.checkboxAddJiji);
 
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
 
         CallInfo callInfo = getIntent().getParcelableExtra(ChatConstant.POD_CALL_INFO);
-        if(callInfo!=null){
+        if (callInfo != null) {
             showInCallView();
         }
     }
@@ -428,6 +463,12 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onVoiceCallEnded(String uniqueId, long subjectId) {
 
+        onCallEnded();
+
+
+    }
+
+    private void onCallEnded() {
         runOnUiThread(() -> {
             inCallView.setVisibility(View.INVISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
@@ -435,8 +476,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             buttonTestCall.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Call has been ended", Toast.LENGTH_SHORT).show();
         });
-
-
     }
 
     @SuppressLint("SetTextI18n")
@@ -482,24 +521,32 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onCallReconnect(long callId) {
-        Toast.makeText(this, "Call with id " + callId + " is reconnecting", Toast.LENGTH_LONG).show();
+        runOnUiThread(() -> Toast.makeText(this, "Call with id " + callId + " is reconnecting", Toast.LENGTH_LONG).show());
     }
 
     @Override
     public void onCallConnect(long callId) {
-        Toast.makeText(this, "Call with id " + callId + " is connected", Toast.LENGTH_LONG).show();
+        runOnUiThread(() -> {
+
+            Toast.makeText(this, "Call with id " + callId + " is connected", Toast.LENGTH_LONG).show();
+
+        });
     }
 
     @Override
     public void onCallDelivered(CallDeliverResult result) {
-        Toast.makeText(this, "Call Request Delivered to " + result.getParticipant().getId(), Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> {
+
+            Toast.makeText(this, "Call Request Delivered to " + result.getCallParticipantVO().getUserId(), Toast.LENGTH_SHORT).show();
+
+        });
     }
 
     @Override
     public void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants) {
-        Toast.makeText(this, "Group Call", Toast.LENGTH_SHORT).show();
 
         runOnUiThread(() -> {
+            Toast.makeText(this, "Group Call", Toast.LENGTH_SHORT).show();
             callRequestView.setVisibility(View.VISIBLE);
             viewHistory.setVisibility(View.INVISIBLE);
             buttonCall.setVisibility(View.INVISIBLE);
@@ -511,6 +558,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
-        Toast.makeText(this, "Call Participant Left", Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> {
+
+            Toast.makeText(this, "Call Participant Left", Toast.LENGTH_SHORT).show();
+
+        });
     }
 }

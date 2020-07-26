@@ -1,17 +1,17 @@
 package com.fanap.podchat.call.result_model;
 
-import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.call.model.CallParticipantVO;
 
 public class CallDeliverResult {
 
-   private Participant participant;
+   private CallParticipantVO callParticipantVO;
 
 
-    public CallDeliverResult(Participant participant) {
-        this.participant = participant;
+    public CallDeliverResult(CallParticipantVO callParticipantVO) {
+        this.callParticipantVO = callParticipantVO;
     }
 
-    public Participant getParticipant() {
-        return participant;
+    public CallParticipantVO getCallParticipantVO() {
+        return callParticipantVO;
     }
 }

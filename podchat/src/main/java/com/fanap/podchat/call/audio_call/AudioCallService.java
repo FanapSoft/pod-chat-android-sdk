@@ -62,9 +62,6 @@ public class AudioCallService extends Service {
             callManager = null;
         }
 
-        if (callStateCallback != null)
-            callStateCallback.onEndCallRequested();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
         } else {
@@ -92,8 +89,10 @@ public class AudioCallService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         //close command
-        if (intent.getAction() != null && intent.getAction().equals(EndCallReceiver.ACTION_STOP_CALL)) {
+        if (isCloseIntent(intent)) {
             onDestroy();
+            if (callStateCallback != null)
+                callStateCallback.onEndCallRequested();
             return START_NOT_STICKY;
         }
 
@@ -109,6 +108,11 @@ public class AudioCallService extends Service {
         startStreaming();
 
         return START_NOT_STICKY;
+    }
+
+    private boolean isCloseIntent(Intent intent) {
+        return intent.getAction() != null &&
+                intent.getAction().equals(EndCallReceiver.ACTION_STOP_CALL);
     }
 
     private void startStreaming() {
