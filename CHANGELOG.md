@@ -6,7 +6,14 @@
 All notable changes to this project will be documented here.
 
 
-## Version [0.7.5.0] -2020-7-14
+## Version [0.8.1.0] -2020-7-28
+
+- Minor bugs fixed
+
+
+
+
+## Version [0.8.0.0] -2020-7-14
 
 [Added] ```createBot(CreateBotRequest)```
 

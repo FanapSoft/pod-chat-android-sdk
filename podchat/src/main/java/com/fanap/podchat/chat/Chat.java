@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -28,6 +29,7 @@ import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
+import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
@@ -446,6 +448,10 @@ public class Chat extends AsyncAdapter {
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
 
+
+            Sentry.setExtra("chat-sdk-version-name", BuildConfig.VERSION_NAME);
+            Sentry.setExtra("chat-sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
+            Sentry.setExtra("chat-sdk-build-type", BuildConfig.BUILD_TYPE);
 
         }
 

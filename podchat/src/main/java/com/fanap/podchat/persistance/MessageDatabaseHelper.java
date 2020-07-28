@@ -2276,18 +2276,20 @@ public class MessageDatabaseHelper {
                             }
 
                             if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+
                                 cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                                replyInfoVO = new ReplyInfoVO(
-                                        cacheReplyInfoVO.getRepliedToMessageId(),
-                                        cacheReplyInfoVO.getMessageType(),
-                                        cacheReplyInfoVO.isDeleted(),
-                                        cacheReplyInfoVO.getRepliedToMessage(),
-                                        cacheReplyInfoVO.getSystemMetadata(),
-                                        cacheReplyInfoVO.getMetadata(),
-                                        cacheReplyInfoVO.getMessage(),
-                                        cacheReplyInfoVO.getRepliedToMessageTime(),
-                                        cacheReplyInfoVO.getRepliedToMessageNanos()
-                                );
+                                if (cacheReplyInfoVO != null)
+                                    replyInfoVO = new ReplyInfoVO(
+                                            cacheReplyInfoVO.getRepliedToMessageId(),
+                                            cacheReplyInfoVO.getMessageType(),
+                                            cacheReplyInfoVO.isDeleted(),
+                                            cacheReplyInfoVO.getRepliedToMessage(),
+                                            cacheReplyInfoVO.getSystemMetadata(),
+                                            cacheReplyInfoVO.getMetadata(),
+                                            cacheReplyInfoVO.getMessage(),
+                                            cacheReplyInfoVO.getRepliedToMessageTime(),
+                                            cacheReplyInfoVO.getRepliedToMessageNanos()
+                                    );
                             }
 
                             lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
@@ -2457,17 +2459,18 @@ public class MessageDatabaseHelper {
                         }
                         if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                            replyInfoVO = new ReplyInfoVO(
-                                    cacheReplyInfoVO.getRepliedToMessageId(),
-                                    cacheReplyInfoVO.getMessageType(),
-                                    cacheReplyInfoVO.isDeleted(),
-                                    cacheReplyInfoVO.getRepliedToMessage(),
-                                    cacheReplyInfoVO.getSystemMetadata(),
-                                    cacheReplyInfoVO.getMetadata(),
-                                    cacheReplyInfoVO.getMessage(),
-                                    cacheReplyInfoVO.getRepliedToMessageTime(),
-                                    cacheReplyInfoVO.getRepliedToMessageNanos()
-                            );
+                            if (cacheReplyInfoVO != null)
+                                replyInfoVO = new ReplyInfoVO(
+                                        cacheReplyInfoVO.getRepliedToMessageId(),
+                                        cacheReplyInfoVO.getMessageType(),
+                                        cacheReplyInfoVO.isDeleted(),
+                                        cacheReplyInfoVO.getRepliedToMessage(),
+                                        cacheReplyInfoVO.getSystemMetadata(),
+                                        cacheReplyInfoVO.getMetadata(),
+                                        cacheReplyInfoVO.getMessage(),
+                                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                                        cacheReplyInfoVO.getRepliedToMessageNanos()
+                                );
                         }
                         lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
 
@@ -2570,17 +2573,19 @@ public class MessageDatabaseHelper {
                         }
                         if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                            replyInfoVO = new ReplyInfoVO(
-                                    cacheReplyInfoVO.getRepliedToMessageId(),
-                                    cacheReplyInfoVO.getMessageType(),
-                                    cacheReplyInfoVO.isDeleted(),
-                                    cacheReplyInfoVO.getRepliedToMessage(),
-                                    cacheReplyInfoVO.getSystemMetadata(),
-                                    cacheReplyInfoVO.getMetadata(),
-                                    cacheReplyInfoVO.getMessage(),
-                                    cacheReplyInfoVO.getRepliedToMessageTime(),
-                                    cacheReplyInfoVO.getRepliedToMessageNanos()
-                            );
+
+                            if (cacheReplyInfoVO != null)
+                                replyInfoVO = new ReplyInfoVO(
+                                        cacheReplyInfoVO.getRepliedToMessageId(),
+                                        cacheReplyInfoVO.getMessageType(),
+                                        cacheReplyInfoVO.isDeleted(),
+                                        cacheReplyInfoVO.getRepliedToMessage(),
+                                        cacheReplyInfoVO.getSystemMetadata(),
+                                        cacheReplyInfoVO.getMetadata(),
+                                        cacheReplyInfoVO.getMessage(),
+                                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                                        cacheReplyInfoVO.getRepliedToMessageNanos()
+                                );
                         }
 
                         lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
@@ -2633,17 +2638,19 @@ public class MessageDatabaseHelper {
                         }
                         if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                            replyInfoVO = new ReplyInfoVO(
-                                    cacheReplyInfoVO.getRepliedToMessageId(),
-                                    cacheReplyInfoVO.getMessageType(),
-                                    cacheReplyInfoVO.isDeleted(),
-                                    cacheReplyInfoVO.getRepliedToMessage(),
-                                    cacheReplyInfoVO.getSystemMetadata(),
-                                    cacheReplyInfoVO.getMetadata(),
-                                    cacheReplyInfoVO.getMessage(),
-                                    cacheReplyInfoVO.getRepliedToMessageTime(),
-                                    cacheReplyInfoVO.getRepliedToMessageNanos()
-                            );
+
+                            if (cacheReplyInfoVO != null)
+                                replyInfoVO = new ReplyInfoVO(
+                                        cacheReplyInfoVO.getRepliedToMessageId(),
+                                        cacheReplyInfoVO.getMessageType(),
+                                        cacheReplyInfoVO.isDeleted(),
+                                        cacheReplyInfoVO.getRepliedToMessage(),
+                                        cacheReplyInfoVO.getSystemMetadata(),
+                                        cacheReplyInfoVO.getMetadata(),
+                                        cacheReplyInfoVO.getMessage(),
+                                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                                        cacheReplyInfoVO.getRepliedToMessageNanos()
+                                );
                         }
                         lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
                     }
@@ -2719,7 +2726,7 @@ public class MessageDatabaseHelper {
         CacheForwardInfo cacheForwardInfo;
 
         cacheMessageVO = insertLastMessage(thread, threadVo);
-        if(cacheMessageVO==null) return;
+        if (cacheMessageVO == null) return;
 
 
         if (threadVo.getLastMessageVO().getParticipant() != null) {
