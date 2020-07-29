@@ -11,6 +11,7 @@ import com.fanap.podchat.R;
 import com.fanap.podchat.call.model.CallSSLData;
 import com.fanap.podchat.call.result_model.StartCallResult;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,6 +39,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     private String BROKER_ADDRESS = "172.16.106.158:9093";
 
+    private String SSL_CERT = "";
+
 
     private ProducerClient producerClient;
     private ConsumerClient consumerClient;
@@ -64,7 +67,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
         audioTestClass = new AudioTestClass();
     }
 
-    PodAudioCallManager(Context context, String sendingTopic, String receivingTopic, String clientId, String brokerAddress) {
+    PodAudioCallManager(Context context, String sendingTopic, String receivingTopic, String clientId, String brokerAddress, String ssl_cert) {
 
         audioStreamManager = new PodAudioStreamManager(context);
         sendReceiveSynchronizer = this;
@@ -75,6 +78,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
         this.SENDING_TOPIC = sendingTopic;
         this.RECEIVING_TOPIC = receivingTopic;
         this.BROKER_ADDRESS = brokerAddress;
+        this.SSL_CERT = ssl_cert;
     }
 
     public void testAudio() {
@@ -193,8 +197,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
             consumerProperties.setProperty("sasl.username", "rrrr");
             consumerProperties.setProperty("sasl.password", "rrrr");
             consumerProperties.setProperty("ssl.ca.location", callSSLData.getCert().getAbsolutePath());
-            consumerProperties.setProperty("ssl.certificate.location", callSSLData.getClient().getAbsolutePath());
-            consumerProperties.setProperty("ssl.key.location", callSSLData.getKey().getAbsolutePath());
+//            consumerProperties.setProperty("ssl.certificate.location", callSSLData.getClient().getAbsolutePath());
+//            consumerProperties.setProperty("ssl.key.location", callSSLData.getKey().getAbsolutePath());
             consumerProperties.setProperty("ssl.key.password", "masoud");
 
         }
@@ -221,8 +225,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
             producerProperties.setProperty("sasl.username", "rrrr");
             producerProperties.setProperty("sasl.password", "rrrr");
             producerProperties.setProperty("ssl.ca.location", callSSLData.getCert().getAbsolutePath());
-            producerProperties.setProperty("ssl.certificate.location", callSSLData.getClient().getAbsolutePath());
-            producerProperties.setProperty("ssl.key.location", callSSLData.getKey().getAbsolutePath());
+//            producerProperties.setProperty("ssl.certificate.location", callSSLData.getClient().getAbsolutePath());
+//            producerProperties.setProperty("ssl.key.location", callSSLData.getKey().getAbsolutePath());
             producerProperties.setProperty("ssl.key.password", "masoud");
 
         }
@@ -236,36 +240,36 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
 
         InputStream inputStream1 =
-                mContext.getResources().openRawResource(R.raw.cacert);
+                new ByteArrayInputStream(SSL_CERT.getBytes());
 
-        InputStream inputStream2 =
-                mContext.getResources().openRawResource(R.raw.client);
-
-        InputStream inputStream3 =
-                mContext.getResources().openRawResource(R.raw.client_p);
+//        InputStream inputStream2 =
+//                mContext.getResources().openRawResource(R.raw.client);
+//
+//        InputStream inputStream3 =
+//                mContext.getResources().openRawResource(R.raw.client_p);
 
 
         OutputStream out1 = null;
-        OutputStream out2 = null;
-        OutputStream out3 = null;
+//        OutputStream out2 = null;
+//        OutputStream out3 = null;
 
 
         try {
             out1 = new FileOutputStream(mContext.getFilesDir() + "/ca-cert");
-            out2 = new FileOutputStream(mContext.getFilesDir() + "/client.key");
-            out3 = new FileOutputStream(mContext.getFilesDir() + "/client.pem");
+//            out2 = new FileOutputStream(mContext.getFilesDir() + "/client.key");
+//            out3 = new FileOutputStream(mContext.getFilesDir() + "/client.pem");
             copy(inputStream1, out1);
-            copy(inputStream2, out2);
-            copy(inputStream3, out3);
+//            copy(inputStream2, out2);
+//            copy(inputStream3, out3);
 
 
             File cert = new File(mContext.getFilesDir() + "/ca-cert");
-            File key = new File(mContext.getFilesDir() + "/client.key");
-            File client = new File(mContext.getFilesDir() + "/client.pem");
+//            File key = new File(mContext.getFilesDir() + "/client.key");
+//            File client = new File(mContext.getFilesDir() + "/client.pem");
 
-            if (cert.exists() && key.exists() && client.exists()) {
+            if (cert.exists()) {
 
-                return new CallSSLData(cert, key, client);
+                return new CallSSLData(cert, null, null);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -333,7 +337,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
             if (!firstByteReceived) {
                 producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
-            Log.e(TAG, "START STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+                Log.e(TAG, "START STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
             }
 
             if (consumedBytes.length > 0) {
@@ -343,7 +347,6 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
 
             audioStreamManager.playAudio(consumedBytes);
-
 
 
 //            byte[] consumedBytes = consumerClient.consumingTopic();

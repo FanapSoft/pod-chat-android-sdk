@@ -1628,6 +1628,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.getCallsHistory(request);
 
+
+
+        RequestGetHistory request1 = new RequestGetHistory
+                .Builder(6869)
+                .offset(0)
+                .count(10)
+                .order("desc")
+                .build();
+
+        getHistory(request1, null);
+
+
     }
 
     @Override

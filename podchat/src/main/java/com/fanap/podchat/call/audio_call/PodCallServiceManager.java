@@ -25,6 +25,8 @@ public class PodCallServiceManager implements ICallServiceState {
     static final String BROKER_ADDRESS = "BROKER_ADDRESS";
     static final String TARGET_ACTIVITY = "TARGET_ACTIVITY";
 
+    static final String SSL_CONFIG = "SSL_CONFIG";
+
     private AudioCallService callService;
     private CallConfig callConfig;
     private CallInfo callInfo;
@@ -195,6 +197,7 @@ public class PodCallServiceManager implements ICallServiceState {
         runServiceIntent.putExtra(RECEIVING_TOPIC, result.getClientDTO().getTopicReceive());
         runServiceIntent.putExtra(CLIENT_ID, result.getClientDTO().getClientId());
         runServiceIntent.putExtra(BROKER_ADDRESS, result.getClientDTO().getBrokerAddress());
+        runServiceIntent.putExtra(SSL_CONFIG, result.getCert_file());
         if (callConfig != null && !Util.isNullOrEmpty(callConfig.getTargetActivity()))
             runServiceIntent.putExtra(TARGET_ACTIVITY, callConfig.getTargetActivity());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -603,17 +603,12 @@ public class ChatActivity extends AppCompatActivity
                             }
 
                             case 22: {
-
-
                                 downloadFile();
-
                                 break;
                             }
 
                             case 23: {
-
                                 cancelDownloadImage();
-
                                 break;
                             }
 
@@ -2271,7 +2266,7 @@ public class ChatActivity extends AppCompatActivity
 
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
-                .offset(offset)
+                .offset(0)
                 .count(5)
                 .order("desc")
 //                .setMessageType(TextMessageType.Constants.POD_SPACE_FILE)

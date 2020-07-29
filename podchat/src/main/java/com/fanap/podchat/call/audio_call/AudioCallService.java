@@ -15,6 +15,7 @@ import static com.fanap.podchat.call.audio_call.PodCallServiceManager.BROKER_ADD
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.CLIENT_ID;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.RECEIVING_TOPIC;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.SENDING_TOPIC;
+import static com.fanap.podchat.call.audio_call.PodCallServiceManager.SSL_CONFIG;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.TARGET_ACTIVITY;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
 
@@ -30,10 +31,11 @@ public class AudioCallService extends Service {
 
     private IBinder serviceBinder = new CallBinder();
 
-    String sendingTopic;
-    String clientId;
-    String brokerAddress;
-    String receivingTopic;
+    private String sendingTopic;
+    private String clientId;
+    private String brokerAddress;
+    private String receivingTopic;
+    private String ssl_key;
 
     String targetActivity;
 
@@ -117,7 +119,7 @@ public class AudioCallService extends Service {
 
     private void startStreaming() {
 
-        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, clientId, brokerAddress);
+        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, clientId, brokerAddress,ssl_key);
 
         if (Util.isNullOrEmpty(sendingTopic)) {
             callManager.testAudio();
@@ -129,6 +131,7 @@ public class AudioCallService extends Service {
         receivingTopic = intent.getStringExtra(RECEIVING_TOPIC);
         clientId = intent.getStringExtra(CLIENT_ID);
         brokerAddress = intent.getStringExtra(BROKER_ADDRESS);
+        ssl_key = intent.getStringExtra(SSL_CONFIG);
 
         targetActivity = intent.getStringExtra(TARGET_ACTIVITY);
 
