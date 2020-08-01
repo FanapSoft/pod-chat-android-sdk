@@ -26,6 +26,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
@@ -62,6 +69,8 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.notification.GlideApp;
+import com.fanap.podchat.notification.PodGlideModule;
 import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -290,6 +299,8 @@ public class ChatActivity extends AppCompatActivity
 
             return true;
         });
+
+        imageMap.setOnClickListener(v->downloadWithGlide());
 
         textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
@@ -891,6 +902,38 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+
+
+    private void downloadWithGlide() {
+
+        try {
+            String url = "https://podspace.pod.ir/nzh/drive/downloadImage?hash=V61H4MEOY488X7KJ";
+
+            RequestOptions requestOptions = new RequestOptions();
+
+            requestOptions = requestOptions
+                    .placeholder(R.mipmap.ic_group)
+                    .error(R.mipmap.ic_profile);
+
+
+            LazyHeaders header = new LazyHeaders.Builder()
+                    .addHeader("_token_", TOKEN)
+                    .addHeader("_token_issuer_", "1")
+                    .build();
+
+            GlideUrl glideUrl = new GlideUrl(url, header);
+
+            Glide.with(this)
+                    .applyDefaultRequestOptions(requestOptions)
+                    .load(glideUrl)
+                    .into(imageMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
     private void downloadFile() {
 
 
@@ -918,7 +961,7 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
-                .Builder("7HYTUQGOR2IMKZZI")
+                .Builder("V61H4MEOY488X7KJ")
 //                .setCrop(true)
 //                .setQuality(0.5f)
                 .withNoCache()
@@ -1043,6 +1086,10 @@ public class ChatActivity extends AppCompatActivity
 
 
     }
+
+
+
+
 
     private void getUserRoles() {
 
