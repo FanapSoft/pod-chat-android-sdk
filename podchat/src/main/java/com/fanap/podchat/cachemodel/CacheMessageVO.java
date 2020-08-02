@@ -18,6 +18,7 @@ public class CacheMessageVO {
 
     private long timeStamp;
 
+
     private long time;
     private long timeNanos;
 

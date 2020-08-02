@@ -32,6 +32,7 @@ public class MessageVO {
     public MessageVO() {
     }
 
+
     public MessageVO(
             long id,
             boolean edited,
