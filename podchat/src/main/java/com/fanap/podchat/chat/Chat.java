@@ -1770,15 +1770,16 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
 
-
         if (cache) {
-            messageDatabaseHelper.getCallHistory(request, (contentCount, callVoList) -> {
-                ChatResponse<GetCallHistoryResult> cacheResponse = CallManager.handleOnGetCallHistoryFromCache(uniqueId, new ArrayList<>((Collection<? extends CallVO>) callVoList), (Long) contentCount, request.getOffset());
-
-                listenerManager.callOnGetCallHistory(cacheResponse);
-
-                showLog("RECEIVED_CACHED_CALL_HISTORY", cacheResponse.getJson());
-            });
+            try {
+                getCallHistoryFromCache(request, uniqueId);
+            } catch (RoomIntegrityException e) {
+                resetCache(() -> {
+                    try {
+                        getCallHistoryFromCache(request, uniqueId);
+                    } catch (RoomIntegrityException ignored) {}
+                });
+            }
         }
 
 
@@ -1793,6 +1794,18 @@ public class Chat extends AsyncAdapter {
         }
 
         return uniqueId;
+    }
+
+    private void getCallHistoryFromCache(GetCallHistoryRequest request, String uniqueId) throws RoomIntegrityException {
+
+        messageDatabaseHelper.getCallHistory(request, (contentCount, callVoList) -> {
+
+            ChatResponse<GetCallHistoryResult> cacheResponse = CallManager.handleOnGetCallHistoryFromCache(uniqueId, new ArrayList<>((Collection<? extends CallVO>) callVoList), (Long) contentCount, request.getOffset());
+
+            listenerManager.callOnGetCallHistory(cacheResponse);
+
+            showLog("RECEIVED_CACHED_CALL_HISTORY", cacheResponse.getJson());
+        });
     }
 
     public void testCall() {

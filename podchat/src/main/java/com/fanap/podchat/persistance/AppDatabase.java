@@ -18,7 +18,9 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.call.model.CallHistoryVO;
 import com.fanap.podchat.call.persist.CacheCall;
+import com.fanap.podchat.call.persist.CacheCallHistory;
 import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
@@ -53,7 +55,8 @@ import com.fanap.podchat.util.DataTypeConverter;
         PinMessageVO.class,
         CacheUserRoles.class,
         CacheCall.class,
-        CacheCallParticipant.class
+        CacheCallParticipant.class,
+        CallHistoryVO.class,
 }, version = 1, exportSchema = false)
 @TypeConverters({DataTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {

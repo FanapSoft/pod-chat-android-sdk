@@ -2,6 +2,7 @@ package com.fanap.podchat.mainmodel;
 
 import android.text.TextUtils;
 
+import com.fanap.podchat.call.model.CallHistoryVO;
 import com.fanap.podchat.model.ReplyInfoVO;
 
 public class MessageVO {
@@ -26,6 +27,7 @@ public class MessageVO {
     private boolean hasGap = false;
     private boolean mentioned = false;
     private boolean pinned = false;
+    private CallHistoryVO callHistoryVO;
 
     public MessageVO() {
     }
@@ -51,7 +53,8 @@ public class MessageVO {
             ForwardInfo forwardInfo,
             boolean mentioned,
             boolean hasGap,
-            boolean pinned
+            boolean pinned,
+            CallHistoryVO callHistoryVO
     ) {
         this.id = id;
         this.edited = edited;
@@ -74,6 +77,7 @@ public class MessageVO {
         this.mentioned = mentioned;
         this.hasGap = hasGap;
         this.pinned = pinned;
+        this.callHistoryVO = callHistoryVO;
     }
 
 
@@ -275,32 +279,30 @@ public class MessageVO {
 
     private boolean isMetadataEquals(MessageVO messageVO) {
 
-        if(this.systemMetadata != null && messageVO.systemMetadata == null) return false;
+        if (this.systemMetadata != null && messageVO.systemMetadata == null) return false;
 
-        if(messageVO.systemMetadata != null && this.systemMetadata == null) return false;
+        if (messageVO.systemMetadata != null && this.systemMetadata == null) return false;
 
-        if(this.systemMetadata == null) return true;
+        if (this.systemMetadata == null) return true;
 
         return TextUtils.equals(this.systemMetadata, messageVO.getSystemMetadata());
     }
 
-     private boolean isMessageEquals(MessageVO messageVO) {
+    private boolean isMessageEquals(MessageVO messageVO) {
 
-         if (this.message != null && messageVO.message == null) return false;
+        if (this.message != null && messageVO.message == null) return false;
 
-         if (messageVO.message != null && this.message == null) return false;
+        if (messageVO.message != null && this.message == null) return false;
 
-         if (this.message == null) return true;
+        if (this.message == null) return true;
 
-         return TextUtils.equals(this.message, messageVO.getMessage());
-     }
+        return TextUtils.equals(this.message, messageVO.getMessage());
+    }
 
-
-
-    public boolean isEdited(MessageVO messageVO){
+    public boolean isEdited(MessageVO messageVO) {
 
 
-        if(messageVO.equals(this)){
+        if (messageVO.equals(this)) {
 
             return !isMessageEquals(messageVO) || !isMetadataEquals(messageVO);
 
@@ -310,12 +312,19 @@ public class MessageVO {
 
     }
 
-
     public boolean isPinned() {
         return pinned;
     }
 
     public void setPinned(boolean pinned) {
         this.pinned = pinned;
+    }
+
+    public CallHistoryVO getCallHistoryVO() {
+        return callHistoryVO;
+    }
+
+    public void setCallHistoryVO(CallHistoryVO callHistoryVO) {
+        this.callHistoryVO = callHistoryVO;
     }
 }

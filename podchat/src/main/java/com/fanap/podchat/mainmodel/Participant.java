@@ -323,7 +323,7 @@ public class Participant {
                 ", roles=" + roles +
                 ", keyId='" + keyId + '\'' +
                 ", username='" + username + '\'' +
-                ", chatProfileVO=" + chatProfileVO.toString() +
+                ", chatProfileVO=" + (chatProfileVO != null ? chatProfileVO.toString() : "") +
                 '}';
     }
 }

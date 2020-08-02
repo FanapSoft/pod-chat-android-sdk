@@ -28,6 +28,8 @@ import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.Util;
+import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.Logger;
 
 import java.util.List;
 
@@ -383,6 +385,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
+        Logger.addLogAdapter(new AndroidLogAdapter());
+
 
         CallInfo callInfo = getIntent().getParcelableExtra(ChatConstant.POD_CALL_INFO);
         if (callInfo != null) {
@@ -488,7 +492,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             String source = Util.parserBoolean(response.isCache()) ? "Cache" : "Server";
 
-            tvHistory.setText("Source: " + source + "\n");
+            tvHistory.append("\n\n\n===\nSource: " + source + "\n===\n");
 
             tvHistory.append("Content Count: " + response.getResult().getContentCount() + "\n\n");
 
@@ -508,7 +512,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     tvHistory.append("Call EndTime: " + call.getEndTime() + "\n");
                     tvHistory.append("Call Status: " + call.getStatus() + "\n");
                     tvHistory.append("Call Type: " + call.getType() + "\n");
-                    tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() + "\n");
+                    try {
+                        tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() + "\n");
+                    } catch (Exception ignored) {}
 
                 }
             else {
@@ -563,5 +569,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             Toast.makeText(this, "Call Participant Left", Toast.LENGTH_SHORT).show();
 
         });
+    }
+
+
+    @Override
+    public void onLogEvent(String log) {
+        Logger.json(log);
     }
 }

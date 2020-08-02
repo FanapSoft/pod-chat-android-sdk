@@ -119,7 +119,7 @@ public class AudioCallService extends Service {
 
     private void startStreaming() {
 
-        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, clientId, brokerAddress,ssl_key);
+        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, clientId, brokerAddress, ssl_key);
 
         if (Util.isNullOrEmpty(sendingTopic)) {
             callManager.testAudio();
@@ -181,7 +181,8 @@ public class AudioCallService extends Service {
 
     public void setSSL(boolean enableSSL) {
 
-        callManager.setSSL(enableSSL);
+        if (callManager != null)
+            callManager.setSSL(enableSSL);
     }
 
     public class CallBinder extends Binder {

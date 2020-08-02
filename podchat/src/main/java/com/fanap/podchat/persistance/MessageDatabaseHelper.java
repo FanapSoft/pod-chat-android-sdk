@@ -1159,7 +1159,6 @@ public class MessageDatabaseHelper {
 
         rawQuery = addMessageTypeIfExist(messageType, rawQuery);
 
-
         long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(rawQuery.replaceFirst("SELECT \\* ", "SELECT COUNT(ID) ")));
 
         rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
@@ -1407,7 +1406,8 @@ public class MessageDatabaseHelper {
                 forwardInfo,
                 false,
                 cacheMessageVO.hasGap(),
-                cacheMessageVO.isPinned()
+                cacheMessageVO.isPinned(),
+                cacheMessageVO.getCallHistoryVO()
         );
     }
 
@@ -1878,9 +1878,11 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void getCallHistory(GetCallHistoryRequest request, FunctionalListener callback) {
+    public void getCallHistory(GetCallHistoryRequest request, FunctionalListener callback) throws RoomIntegrityException {
 
-        worker(()->{
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        worker(() -> {
 
             request.setCount(request.getCount() > 0 ? request.getCount() : 50);
 
@@ -1893,7 +1895,7 @@ public class MessageDatabaseHelper {
                         request.getOffset(),
                         request.getCreatorCoreUserId(), request.getType());
 
-                contentCount = messageDao.getCountOfCachedCallByUserId(request.getCreatorCoreUserId(),request.getType());
+                contentCount = messageDao.getCountOfCachedCallByUserId(request.getCreatorCoreUserId(), request.getType());
 
             } else if (!Util.isNullOrEmpty(request.getCallIds())) {
 
@@ -1931,15 +1933,21 @@ public class MessageDatabaseHelper {
             for (CacheCall cacheCall :
                     cacheCalls) {
 
+                @Nullable
                 CacheCallParticipant callPartnerParticipant = messageDao.getCachedCallParticipant(cacheCall.getPartnerParticipantId());
 
-                Participant partnerParticipant = callPartnerParticipant.toParticipant();
+                if(callPartnerParticipant!=null){
 
-                ChatProfileVO chatProfileVO = messageDao.getChatProfileVOById(partnerParticipant.getId());
+                    Participant partnerParticipant = callPartnerParticipant.toParticipant();
 
-                partnerParticipant.setChatProfileVO(chatProfileVO);
+                    ChatProfileVO chatProfileVO = messageDao.getChatProfileVOById(partnerParticipant.getId());
 
-                cacheCall.setPartnerParticipantVO(partnerParticipant);
+                    partnerParticipant.setChatProfileVO(chatProfileVO);
+
+                    cacheCall.setPartnerParticipantVO(partnerParticipant);
+
+                }
+
 
                 if (cacheCall.isGroup()) {
 
@@ -1967,10 +1975,7 @@ public class MessageDatabaseHelper {
             }
 
 
-
-
-
-            callback.onWorkDone(contentCount,callVOList);
+            callback.onWorkDone(contentCount, callVOList);
 
         });
 
@@ -2020,13 +2025,14 @@ public class MessageDatabaseHelper {
         CacheCallParticipant callParticipant = new CacheCallParticipant()
                 .fromParticipant(participant, callId);
 
-        ChatProfileVO chatProfileVO = callParticipant.getChatProfileVO();
-        chatProfileVO.setId(callParticipant.getId());
-
-
         messageDao.insertCallParticipant(callParticipant);
 
-        messageDao.insertChatProfile(chatProfileVO);
+        if (callParticipant.getChatProfileVO() != null) {
+            ChatProfileVO chatProfileVO = callParticipant.getChatProfileVO();
+            chatProfileVO.setId(callParticipant.getId());
+            messageDao.insertChatProfile(chatProfileVO);
+        }
+
 
 //        CacheParticipantRoles cpr = new CacheParticipantRoles();
 //

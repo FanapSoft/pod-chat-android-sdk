@@ -1633,6 +1633,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         RequestGetHistory request1 = new RequestGetHistory
                 .Builder(6869)
                 .offset(0)
+                .withNoCache()
                 .count(10)
                 .order("desc")
                 .build();
@@ -1641,6 +1642,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     }
+
 
     @Override
     public void switchMute() {
