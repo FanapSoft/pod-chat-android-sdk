@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
+import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
@@ -277,4 +278,6 @@ public interface ChatListener {
     default void onBotStopped(ChatResponse<StartStopBotResult> response){}
 
     default void onBotStarted(ChatResponse<StartStopBotResult> response){}
+
+    default void onContactsSynced(ChatResponse<ContactSyncedResult> response){}
 }

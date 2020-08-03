@@ -46,6 +46,8 @@ import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
+import com.fanap.podchat.chat.contact.ContactManager;
+import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
@@ -892,10 +894,10 @@ public class Chat extends AsyncAdapter {
                 break;
 
 
-//            case Constants.REGISTER_FCM_APP: {
-//                PodNotificationManager.handleOnAppRegistered(chatMessage, context, getUserId());
-//                break;
-//            }
+            case Constants.CONTACT_SYNCED: {
+                handleOnContactsSynced(chatMessage);
+                break;
+            }
 
 
             case Constants.CREATE_BOT: {
@@ -1106,6 +1108,15 @@ public class Chat extends AsyncAdapter {
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleOnContactsSynced(ChatMessage chatMessage) {
+
+        ChatResponse<ContactSyncedResult> response = ContactManager.prepareContactSyncedResult(chatMessage);
+
+        listenerManager.callOnContactsSynced(response);
+
+        showLog("ON_CONTACTS_SYNCED",gson.toJson(chatMessage));
     }
 
     private void handleOnBotStopped(ChatMessage chatMessage) {
