@@ -80,6 +80,7 @@ import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
@@ -1660,6 +1661,10 @@ public class ChatActivity extends AppCompatActivity
 //        String meta = gson.toJson(inviter);
 
         String meta = getMetaData();
+
+        RequestMessage request = new RequestMessage.Builder("Salam",1000)
+                .messageType(TextMessageType.Constants.TEXT)
+                .build();
 
 
         presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);

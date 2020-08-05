@@ -49,9 +49,9 @@ public class PodCallServiceManager implements ICallServiceState {
 
             AudioCallService.CallBinder binder = (AudioCallService.CallBinder) service;
             callService = binder.getService();
+            callService.setSSL(enableSSL);
             bound = true;
             callService.registerCallStateCallback(PodCallServiceManager.this);
-            callService.setSSL(enableSSL);
         }
 
         @Override

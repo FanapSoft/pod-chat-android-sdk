@@ -26,4 +26,14 @@ public class CallSSLData {
     public File getClient() {
         return client;
     }
+
+    public boolean clear(){
+
+        try {
+            return cert.delete() || key.delete() || client.delete();
+        } catch (Exception e) {
+            return false;
+        }
+
+    }
 }

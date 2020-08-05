@@ -10,6 +10,7 @@ import com.example.kafkassl.kafkaclient.ProducerClient;
 import com.fanap.podchat.R;
 import com.fanap.podchat.call.model.CallSSLData;
 import com.fanap.podchat.call.result_model.StartCallResult;
+import com.fanap.podchat.util.Util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -203,6 +204,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         }
 
+        consumerProperties.setProperty("auto.commit.enable","false");
+
         consumerProperties.setProperty("group.id", GROUP_ID);
 
         consumerProperties.setProperty("auto.offset.reset", "end");
@@ -238,6 +241,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     private CallSSLData readFiles() {
 
+        if(Util.isNullOrEmpty(SSL_CERT)) return null;
 
         InputStream inputStream1 =
                 new ByteArrayInputStream(SSL_CERT.getBytes());
