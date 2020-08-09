@@ -70,3 +70,5 @@ google-services.json
 /src/main/assets/cacert
 /src/main/assets/client.key
 /src/main/assets/client_p.pem
+/src/main/jni/opus/.libs/
+/src/main/jni/speexdsp/libspeexdsp/.libs/

@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ConsumerClient;
 import com.example.kafkassl.kafkaclient.ProducerClient;
-import com.fanap.podchat.R;
 import com.fanap.podchat.call.model.CallSSLData;
 import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.util.Util;
@@ -30,7 +29,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     private static final String TAG = "CHAT_SDK_CALL";
 
-    private String GROUP_ID = "0";
+    private String SEND_KEY = "0";
 
     private static final String DEFAULT_TOPIC = "test" + new Date().getTime();
 
@@ -68,19 +67,20 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
         audioTestClass = new AudioTestClass();
     }
 
-    PodAudioCallManager(Context context, String sendingTopic, String receivingTopic, String clientId, String brokerAddress, String ssl_cert) {
+    PodAudioCallManager(Context context, String sendingTopic, String receivingTopic, String sendKey, String brokerAddress, String ssl_cert) {
 
         audioStreamManager = new PodAudioStreamManager(context);
         sendReceiveSynchronizer = this;
         mContext = context;
         audioTestClass = new AudioTestClass();
 
-        this.GROUP_ID = clientId;
+        this.SEND_KEY = sendKey;
         this.SENDING_TOPIC = sendingTopic;
         this.RECEIVING_TOPIC = receivingTopic;
         this.BROKER_ADDRESS = brokerAddress;
         this.SSL_CERT = ssl_cert;
     }
+
 
     public void testAudio() {
 
@@ -133,7 +133,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
     public void testStream(String groupId, String sender, String receiver) {
 
-        GROUP_ID = groupId;
+        SEND_KEY = groupId;
 
         SENDING_TOPIC = sender;
 
@@ -149,7 +149,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         RECEIVING_TOPIC = result.getClientDTO().getTopicReceive();
 
-        GROUP_ID = result.getClientDTO().getClientId();
+        SEND_KEY = result.getClientDTO().getClientId();
 
         BROKER_ADDRESS = result.getClientDTO().getBrokerAddress();
 
@@ -161,7 +161,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
 
         Log.e(TAG, ">>> Start stream: Sending: " + SENDING_TOPIC
-                + " Receiving: " + RECEIVING_TOPIC + " Group Id: " + GROUP_ID);
+                + " Receiving: " + RECEIVING_TOPIC + " Group Id: " + SEND_KEY);
 
         streaming = true;
 
@@ -206,7 +206,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
         consumerProperties.setProperty("auto.commit.enable","false");
 
-        consumerProperties.setProperty("group.id", GROUP_ID);
+        consumerProperties.setProperty("group.id", SEND_KEY);
 
         consumerProperties.setProperty("auto.offset.reset", "end");
 
@@ -340,13 +340,13 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
                 firstByteReceived = true;
 
             if (!firstByteReceived) {
-                producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
-                Log.e(TAG, "START STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+                producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
+                Log.e(TAG, "START STATE SEND GID: " + SEND_KEY + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
             }
 
             if (consumedBytes.length > 0) {
-                producerClient.produceMessege(bytes, GROUP_ID, SENDING_TOPIC);
-                Log.e(TAG, "RUNNING STATE SEND GID: " + GROUP_ID + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+                producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
+                Log.e(TAG, "RUNNING STATE SEND GID: " + SEND_KEY + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
             }
 
 

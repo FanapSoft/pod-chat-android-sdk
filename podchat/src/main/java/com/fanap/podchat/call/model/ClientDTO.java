@@ -8,6 +8,7 @@ public class ClientDTO implements Serializable {
     private String topicSend;
     private String brokerAddress;
     private String desc;
+    private String sendKey;
 
     public String getClientId() {
         return clientId;
@@ -47,5 +48,13 @@ public class ClientDTO implements Serializable {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public String getSendKey() {
+        return sendKey;
+    }
+
+    public void setSendKey(String sendKey) {
+        this.sendKey = sendKey;
     }
 }

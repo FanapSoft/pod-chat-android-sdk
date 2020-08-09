@@ -8,11 +8,13 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.fanap.podchat.call.model.CallInfo;
+import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.util.Util;
 
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.BROKER_ADDRESS;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.CLIENT_ID;
+import static com.fanap.podchat.call.audio_call.PodCallServiceManager.KAFKA_CONFIG;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.RECEIVING_TOPIC;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.SENDING_TOPIC;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.SSL_CONFIG;
@@ -32,7 +34,8 @@ public class AudioCallService extends Service {
     private IBinder serviceBinder = new CallBinder();
 
     private String sendingTopic;
-    private String clientId;
+//    private String clientId;
+    private String sendKey;
     private String brokerAddress;
     private String receivingTopic;
     private String ssl_key;
@@ -119,7 +122,7 @@ public class AudioCallService extends Service {
 
     private void startStreaming() {
 
-        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, clientId, brokerAddress, ssl_key);
+        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
 
         if (Util.isNullOrEmpty(sendingTopic)) {
             callManager.testAudio();
@@ -127,10 +130,17 @@ public class AudioCallService extends Service {
     }
 
     private void getIntentData(Intent intent) {
-        sendingTopic = intent.getStringExtra(SENDING_TOPIC);
-        receivingTopic = intent.getStringExtra(RECEIVING_TOPIC);
-        clientId = intent.getStringExtra(CLIENT_ID);
-        brokerAddress = intent.getStringExtra(BROKER_ADDRESS);
+
+        ClientDTO client = intent.getParcelableExtra(KAFKA_CONFIG);
+
+        if(client!=null){
+            sendingTopic = client.getTopicSend();
+            receivingTopic = client.getTopicReceive();
+            sendKey = client.getSendKey();
+            brokerAddress = client.getBrokerAddress();
+        }
+
+
         ssl_key = intent.getStringExtra(SSL_CONFIG);
 
         targetActivity = intent.getStringExtra(TARGET_ACTIVITY);
