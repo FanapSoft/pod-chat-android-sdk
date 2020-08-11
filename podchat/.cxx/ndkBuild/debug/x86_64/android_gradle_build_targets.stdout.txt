@@ -20,6 +20,5 @@ C:/Work/pod-chat-android-sdk/podchat/src/main/jni
 "##########################################################"
 "####################### End Speexdsp #####################"
 "##########################################################"
-[x86_64] Compile        : podopus <= Java_com_fanap_podchat_Decoder.c
-[x86_64] SharedLibrary  : libpodopus.so
+make: Nothing to be done for `podopus'.
 make: Nothing to be done for `podspeexdsp'.

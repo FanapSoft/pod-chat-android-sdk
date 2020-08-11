@@ -72,3 +72,6 @@ google-services.json
 /src/main/assets/client_p.pem
 /src/main/jni/opus/.libs/
 /src/main/jni/speexdsp/libspeexdsp/.libs/
+/src/main/obj/
+/src/main/libs/
+

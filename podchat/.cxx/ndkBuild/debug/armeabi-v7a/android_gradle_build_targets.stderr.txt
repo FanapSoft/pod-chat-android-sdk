@@ -1,0 +1,8 @@
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/Java_com_fanap_podchat_Encoder.c:93:42: warning: cast from 'jbyte *' (aka 'signed char *') to 'const opus_int16 *' (aka 'const short *') increases required alignment from 1 to 2 [-Wcast-align]
+    int dataArraySize = opus_encode(enc, (const opus_int16 *) audioSignal, frames,
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/Java_com_fanap_podchat_Decoder.c:68:31: warning: cast from 'jbyte *' (aka 'signed char *') to 'opus_int16 *' (aka 'short *') increases required alignment from 1 to 2 [-Wcast-align]
+                              (opus_int16 *) decodedData, frames, 0);
+                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

@@ -4,7 +4,10 @@
     package="com.fanap.podchat"
     tools:targetApi="n">
 
+
     <application>
+
+
         <provider
             android:name=".util.GenericFileProvider"
             android:authorities="${applicationId}.provider"
@@ -42,5 +45,7 @@
 
 
     <uses-sdk tools:overrideLibrary="com.example.kafkassl" />
+
+
 
 </manifest>

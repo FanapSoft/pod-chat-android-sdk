@@ -1,0 +1,163 @@
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:297:39: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+    a_Q12_01234567 = _mm_loadu_si128( (__m128i *)(&a_Q12[ 0 ] ) );
+                                      ^~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:299:39: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+    a_Q12_89ABCDEF = _mm_loadu_si128( (__m128i *)(&a_Q12[ 8 ] ) );
+                                      ^~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:305:44: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+    AR_shp_Q13_76543210 = _mm_loadu_si128( (__m128i *)(&AR_shp_Q13[0] ) );
+                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:310:34: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    xmm_tempa = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[-16]) );
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:311:34: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    xmm_tempb = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[-12]) );
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:319:34: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    xmm_tempa = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[ -8 ]) );
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:320:34: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    xmm_tempb = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[ -4 ]) );
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:329:34: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    xmm_tempa = _mm_loadu_si128( (__m128i *)(&(NSQ->sAR2_Q14[ 0 ]) ) );
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:330:34: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    xmm_tempb = _mm_loadu_si128( (__m128i *)(&(NSQ->sAR2_Q14[ 4 ]) ) );
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:398:30: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+                b_Q14_3210 = OP_CVTEPI16_EPI32_M64( b_Q14 );
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:89:38: note: expanded from macro 'OP_CVTEPI16_EPI32_M64'
+ (_mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i *)(x))))
+                                     ^~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:402:54: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                pred_lag_ptr_0123 = _mm_loadu_si128( (__m128i *)(&pred_lag_ptr[ -3 ] ) );
+                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:541:23: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    _mm_storeu_si128( (__m128i *)(&NSQ->sAR2_Q14[ 4 ]), xmm_tempa );
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:542:23: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+    _mm_storeu_si128( (__m128i *)(&NSQ->sAR2_Q14[ 0 ]), xmm_tempb );
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:558:48: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+            xmm_xq_Q14_3210 = _mm_loadu_si128( (__m128i *)(&(psLPC_Q14[ i + 0 ] ) ) );
+                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:559:48: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+            xmm_xq_Q14_7654 = _mm_loadu_si128( (__m128i *)(&(psLPC_Q14[ i + 4 ] ) ) );
+                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:590:31: warning: cast from 'opus_int16 *' (aka 'short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+            _mm_storeu_si128( (__m128i *)(&xq[ i ] ), xmm_xq_Q14_3210 );
+                              ^~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:638:42: warning: cast from 'const opus_int32 *' (aka 'const int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+        xmm_x_Q3_x2x0 = _mm_loadu_si128( (__m128i *)(&(x_Q3[ i ] ) ) );
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:651:27: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+        _mm_storeu_si128( (__m128i *)(&(x_sc_Q10[ i ] ) ), xmm_x_Q3_x2x0 );
+                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:683:54: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+            xmm_sLTP_shp_Q14_x2x0 = _mm_loadu_si128( (__m128i *)(&(NSQ->sLTP_shp_Q14[ i ] ) ) );
+                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_sse4_1.c:695:31: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+            _mm_storeu_si128( (__m128i *)(&(NSQ->sLTP_shp_Q14[ i ] ) ), xmm_sLTP_shp_Q14_x2x0 );
+                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+20 warnings generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:363:18: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+    a_Q12_0123 = OP_CVTEPI16_EPI32_M64( a_Q12 );
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:89:38: note: expanded from macro 'OP_CVTEPI16_EPI32_M64'
+ (_mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i *)(x))))
+                                     ^~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:364:18: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+    a_Q12_4567 = OP_CVTEPI16_EPI32_M64( a_Q12 + 4 );
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:89:38: note: expanded from macro 'OP_CVTEPI16_EPI32_M64'
+ (_mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i *)(x))))
+                                     ^~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:367:22: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+        a_Q12_89AB = OP_CVTEPI16_EPI32_M64( a_Q12 + 8 );
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:89:38: note: expanded from macro 'OP_CVTEPI16_EPI32_M64'
+ (_mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i *)(x))))
+                                     ^~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:368:22: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+        a_Q12_CDEF = OP_CVTEPI16_EPI32_M64( a_Q12 + 12 );
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:89:38: note: expanded from macro 'OP_CVTEPI16_EPI32_M64'
+ (_mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i *)(x))))
+                                     ^~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:372:22: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+        b_Q12_0123 = OP_CVTEPI16_EPI32_M64( b_Q14 );
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:89:38: note: expanded from macro 'OP_CVTEPI16_EPI32_M64'
+ (_mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i *)(x))))
+                                     ^~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:385:56: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                pred_lag_ptr_tmp    = _mm_loadu_si128( (__m128i *)(&pred_lag_ptr[ -3 ] ) );
+                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:440:52: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                psLPC_Q14_tmp   = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[ -3 ] ) ); /* -3, -2 , -1, 0 */
+                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:454:52: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                psLPC_Q14_tmp   = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[ -7 ] ) );
+                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:469:56: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                    psLPC_Q14_tmp   = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[ -11 ] ) );
+                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:482:56: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                    psLPC_Q14_tmp   = _mm_loadu_si128( (__m128i *)(&psLPC_Q14[ -15 ] ) );
+                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:768:42: warning: cast from 'const opus_int32 *' (aka 'const int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+        xmm_x_Q3_x2x0 = _mm_loadu_si128( (__m128i *)(&(x_Q3[ i ] ) ) );
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:780:27: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+        _mm_storeu_si128( (__m128i *)(&(x_sc_Q10[ i ])), xmm_x_Q3_x2x0 );
+                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:813:58: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                xmm_sLTP_shp_Q14_x2x0 = _mm_loadu_si128( (__m128i *)(&(NSQ->sLTP_shp_Q14[ i ] ) ) );
+                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/NSQ_del_dec_sse4_1.c:825:35: warning: cast from 'opus_int32 *' (aka 'int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+                _mm_storeu_si128( (__m128i *)(&(NSQ->sLTP_shp_Q14[ i ] ) ), xmm_sLTP_shp_Q14_x2x0 );
+                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+14 warnings generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/VAD_sse4_1.c:139:44: warning: cast from 'opus_int16 *' (aka 'short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+                xmm_X   = _mm_loadu_si128( (__m128i *)&(X[ X_offset[ b ] + i + dec_subframe_offset ] ) );
+                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/VQ_WMat_EC_sse4_1.c:67:18: warning: cast from 'const opus_int16 *' (aka 'const short *') to '__m128i *' increases required alignment from 2 to 16 [-Wcast-align]
+        C_tmp1 = OP_CVTEPI16_EPI32_M64( &in_Q14[ 1 ] );
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:89:38: note: expanded from macro 'OP_CVTEPI16_EPI32_M64'
+ (_mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i *)(x))))
+                                     ^~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/VQ_WMat_EC_sse4_1.c:68:18: warning: cast from 'const opus_int8 *' (aka 'const signed char *') to 'int *' increases required alignment from 1 to 4 [-Wcast-align]
+        C_tmp2 = OP_CVTEPI8_EPI32_M32( &cb_row_Q7[ 1 ] );
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus\celt/x86/x86cpu.h:79:40: note: expanded from macro 'OP_CVTEPI8_EPI32_M32'
+ (_mm_cvtepi8_epi32(_mm_cvtsi32_si128(*(int *)(x))))
+                                       ^~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/silk/x86/VQ_WMat_EC_sse4_1.c:86:35: warning: cast from 'const opus_int32 *' (aka 'const int *') to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+        C_tmp3 = _mm_loadu_si128( (__m128i *)(&W_Q18[ 1 ] ) );
+                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+3 warnings generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:78:24: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+      _mm_storeu_si128((__m128i*)&iy[j], _mm_setzero_si128());
+                       ^~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:119:27: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+         _mm_storeu_si128((__m128i*)&iy[j], iy4);
+                          ^~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:208:28: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+      y4 = _mm_loadu_si128((__m128i*)&iy[j]);
+                           ^~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:211:24: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+      _mm_storeu_si128((__m128i*)&iy[j], y4);
+                       ^~~~~~~~~~~~~~~~
+4 warnings generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/Java_com_fanap_podchat_Encoder.c:93:42: warning: cast from 'jbyte *' (aka 'signed char *') to 'const opus_int16 *' (aka 'const short *') increases required alignment from 1 to 2 [-Wcast-align]
+    int dataArraySize = opus_encode(enc, (const opus_int16 *) audioSignal, frames,
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/Java_com_fanap_podchat_Decoder.c:68:31: warning: cast from 'jbyte *' (aka 'signed char *') to 'opus_int16 *' (aka 'short *') increases required alignment from 1 to 2 [-Wcast-align]
+                              (opus_int16 *) decodedData, frames, 0);
+                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
