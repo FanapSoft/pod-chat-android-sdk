@@ -2010,7 +2010,9 @@ public class MessageDatabaseHelper {
 
                         Thread threadFromCache = threadList.get(0);
 
-                        threadFromCache.setTitle(thread.getTitle());
+                        if (Util.isNotNullOrEmpty(thread.getTitle()))
+                            threadFromCache.setTitle(thread.getTitle());
+
                         threadFromCache.setImage(thread.getImage());
                         threadFromCache.setDescription(thread.getDescription());
                         threadFromCache.setMetadata(thread.getMetadata());

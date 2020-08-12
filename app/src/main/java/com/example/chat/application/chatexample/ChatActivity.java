@@ -160,18 +160,18 @@ public class ChatActivity extends AppCompatActivity
 
 
     //main and sandbox
-//
-//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+
+    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -189,10 +189,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 //
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -226,10 +226,10 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
     //sand box / group
@@ -239,9 +239,9 @@ public class ChatActivity extends AppCompatActivity
 
 
 //    main server / p2p
-//
-//    public static int TEST_THREAD_ID = 19868;
-//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+
+    public static int TEST_THREAD_ID = 8182;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -254,8 +254,8 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /p2p: fifi, jiji
 
-    public static int TEST_THREAD_ID = 7488;
-    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//    public static int TEST_THREAD_ID = 7488;
+//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
 
     //test server thread
