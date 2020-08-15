@@ -6,6 +6,16 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.8.2.0] -2020-8-15
+
+[Added] ```contacSynced``` to ```UserInfo```
+
+[Removed] Saving log to text file
+
+[BugFixed] Cache New Message
+
+
+
 ## Version [0.8.1.0] -2020-7-28
 
 - Minor bugs fixed

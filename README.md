@@ -1,6 +1,13 @@
 ## Synopsis
 **Fanap's POD** Chat service
 
+## Version [0.8.2.0] -2020-8-15
+
+- Added ```contactSynced```
+
+    ```contactSynced``` shows that if user contact is synced with core server (true) or not (false).
+
+
 
 ## Version [0.7.5.0] -2020-7-14
 
