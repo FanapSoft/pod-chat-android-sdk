@@ -350,24 +350,6 @@ public class MessageDatabaseHelper {
             if (shouldUpdateLastMessage)
                 messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
 
-
-//            if (!editedMessage)
-//                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
-//            else if (shouldUpdateIfEdited) {
-//                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
-//            }
-
-//          ThreadVo threadVo = messageDao.getThreadById(threadId);
-
-//          if(threadVo != null) {
-
-//              threadVo.setLastMessageVOId(cacheMessageVO.getId());
-//
-//              messageDao.insertThread(threadVo);
-
-//          }
-
-
         });
 
     }
@@ -731,7 +713,6 @@ public class MessageDatabaseHelper {
                 }
 
             }
-
 
             messageDao.deleteMessage(id);
 
@@ -2813,6 +2794,8 @@ public class MessageDatabaseHelper {
         CacheMessageVO cacheMessageVO;
         try {
             MessageVO messageVO = thread.getLastMessageVO();
+
+            messageVO.setConversation(thread);
 
             cacheMessageVO = new CacheMessageVO(messageVO);
 

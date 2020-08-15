@@ -6354,8 +6354,6 @@ public class Chat extends AsyncAdapter {
                     showLog("Delete message from database with this messageId" + " " + msg.getId(), "");
 
                 }
-
-
             }
         }
 
@@ -10183,11 +10181,11 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnLogEvent(json);
                 listenerManager.callOnLogEvent(i, json);
             }
-            try {
-                FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
-            } catch (IOException e) {
-                Log.e(TAG, "Saving log failed: " + e.getMessage());
-            }
+//            try {
+//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
+//            } catch (IOException e) {
+//                Log.e(TAG, "Saving log failed: " + e.getMessage());
+//            }
         }
 
         Breadcrumb c = new Breadcrumb();
@@ -10201,11 +10199,11 @@ public class Chat extends AsyncAdapter {
     private void showLog(String info) {
         if (log) {
             Log.d(TAG, info);
-            try {
-                FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
-            } catch (IOException e) {
-                Log.e(TAG, "Saving log failed: " + e.getMessage());
-            }
+//            try {
+//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
+//            } catch (IOException e) {
+//                Log.e(TAG, "Saving log failed: " + e.getMessage());
+//            }
         }
         Breadcrumb c = new Breadcrumb();
         c.setCategory("LOG");
@@ -10221,11 +10219,11 @@ public class Chat extends AsyncAdapter {
             Log.e(TAG, "Error");
             Log.e(TAG, message);
 
-            try {
-                FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
-            } catch (IOException e) {
-                Log.e(TAG, "Saving log failed: " + e.getMessage());
-            }
+//            try {
+//                FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
+//            } catch (IOException e) {
+//                Log.e(TAG, "Saving log failed: " + e.getMessage());
+//            }
         }
 
         Breadcrumb c = new Breadcrumb();
@@ -10237,6 +10235,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    @Deprecated
     public void shareLogs(Context context) {
 
         FileUtils.shareLogs(context);
@@ -10322,9 +10321,7 @@ public class Chat extends AsyncAdapter {
                 messageDatabaseHelper.retrieveAndUpdateThreadOnLastSeenUpdated(thread, new ThreadManager.ILastMessageChanged() {
                     @Override
                     public void onThreadExistInCache(Thread thread) {
-
                         onThreadLastMessageUpdated(thread, chatMessage.getUniqueId());
-
                     }
 
                     @Override
