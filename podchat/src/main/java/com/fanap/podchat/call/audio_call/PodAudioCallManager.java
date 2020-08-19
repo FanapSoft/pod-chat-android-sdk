@@ -58,6 +58,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
     private Context mContext;
 
     private CallSSLData callSSLData;
+
     private boolean isSSL = true;
 
     public PodAudioCallManager(Context context) {
@@ -233,8 +234,8 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
             producerProperties.setProperty("sasl.username", "rrrr");
             producerProperties.setProperty("sasl.password", "rrrr");
             producerProperties.setProperty("ssl.ca.location", callSSLData.getCert().getAbsolutePath());
-//            producerProperties.setProperty("ssl.certificate.location", callSSLData.getClient().getAbsolutePath());
-//            producerProperties.setProperty("ssl.key.location", callSSLData.getKey().getAbsolutePath());
+            producerProperties.setProperty("compression.codec", "none");
+            producerProperties.setProperty("compression.type", "none");
             producerProperties.setProperty("ssl.key.password", "masoud");
 
         }
@@ -335,6 +336,7 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
             firstByteRecorded = true;
             audioStreamManager.setPlaying();
             configProducer();
+            callSSLData.clear();
         }
 
         //start streaming. if stream started but a disconnection occurred, stop producing until it starts again.
@@ -347,12 +349,12 @@ public class PodAudioCallManager implements PodAudioStreamManager.IPodAudioSendR
 
             if (!firstByteReceived) {
                 producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
-                Log.e(TAG, "START STATE SEND GID: " + SEND_KEY + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+                Log.e(TAG, "START STATE - SEND KEY IS : " + SEND_KEY + " SEND TO TOPIC: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
             }
 
             if (consumedBytes.length > 0) {
                 producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
-                Log.e(TAG, "RUNNING STATE SEND GID: " + SEND_KEY + " SEND TO: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+                Log.e(TAG, "RUNNING STATE - SEND KEY IS: " + SEND_KEY + " SEND TO TOPIC: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
             }
 
             audioStreamManager.playAudio(consumedBytes);

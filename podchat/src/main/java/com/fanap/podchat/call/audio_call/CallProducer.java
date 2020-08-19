@@ -8,11 +8,14 @@ import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
 import android.util.Log;
 
+import com.example.kafkassl.kafkaclient.ProducerClient;
 import com.fanap.podchat.call.codec.opus.OpusEncoder;
+import com.fanap.podchat.call.model.CallSSLData;
 
 import java.util.Arrays;
+import java.util.Properties;
 
-public class RecordThread extends Thread {
+public class CallProducer implements Runnable {
 
 
     private AutomaticGainControl agc;
@@ -20,16 +23,18 @@ public class RecordThread extends Thread {
     private AcousticEchoCanceler aec;
 
 
-    private boolean isRecording = false;
+    boolean isRecording = false;
 
 
     // Sample rate must be one supported by Opus.
-    private static final int SAMPLE_RATE = 8000;
+    static final int SAMPLE_RATE = 8000;
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
-    private static final int FRAME_SIZE = 960;
+    static final int FRAME_SIZE = 160;
 
+    // 1 or 2
+    static final int NUM_CHANNELS = 1;
     private static final String TAG = "AUDIO_RECORDER";
 
     private IRecordThread callback;
@@ -38,10 +43,15 @@ public class RecordThread extends Thread {
 
     OpusEncoder encoder;
 
+    private ProducerClient producerClient;
+    private CallSSLData callSSLData;
+    private String brokerAddress;
+    private boolean firstByteRecorded = false;
 
-    public RecordThread(IRecordThread callback) {
+
+    public CallProducer(IRecordThread callback,CallSSLData sslData) {
         this.callback = callback;
-
+        callSSLData = sslData;
     }
 
     @Override
@@ -50,14 +60,14 @@ public class RecordThread extends Thread {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE);
 
         int minBufSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_MONO,
+                NUM_CHANNELS == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT);
 
         // initialize audio recorder
         if (recorder == null)
             recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION,
                     SAMPLE_RATE,
-                    AudioFormat.CHANNEL_IN_MONO,
+                    NUM_CHANNELS == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO,
                     AudioFormat.ENCODING_PCM_16BIT,
                     minBufSize);
 
@@ -66,7 +76,7 @@ public class RecordThread extends Thread {
         if (encoder == null) {
             // init opus encoder
             encoder = new OpusEncoder();
-            encoder.init(SAMPLE_RATE, 1, OpusEncoder.OPUS_APPLICATION_VOIP);
+            encoder.init(SAMPLE_RATE, NUM_CHANNELS, OpusEncoder.OPUS_APPLICATION_VOIP);
         }
 
         // start
@@ -75,10 +85,7 @@ public class RecordThread extends Thread {
         callback.onRecorderSet();
 
 
-
-
-
-        short[] inBuffer = new short[FRAME_SIZE];
+        short[] inBuffer = new short[FRAME_SIZE * NUM_CHANNELS];
         byte[] encodeBufferTemp = new byte[1024];
 
         try {
@@ -99,9 +106,28 @@ public class RecordThread extends Thread {
 
                 int encoded = encoder.encode(inBuffer, FRAME_SIZE, encodeBufferTemp);
 
+                Log.v(TAG, "Encoded " + (inBuffer.length * 2) + " bytes of audio into " + encoded + " bytes");
+
                 byte[] encodedBuffer = Arrays.copyOf(encodeBufferTemp, encoded);
 
-                Log.v(TAG, "Encoded " + /* multiple by 2 bc it's short value */ (inBuffer.length * 2) + " bytes of audio into " + encodedBuffer.length + " bytes");
+                if (!firstByteRecorded) {
+                    firstByteRecorded = true;
+                    connectProducer();
+                    callSSLData.clear();
+                }
+
+//                    if (!firstByteReceived) {
+//                        producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
+//                        Log.e(TAG, "START STATE - SEND KEY IS : " + SEND_KEY + " SEND TO TOPIC: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+//                    }
+//
+//                    if (consumedBytes.length > 0) {
+//                        producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
+//                        Log.e(TAG, "RUNNING STATE - SEND KEY IS: " + SEND_KEY + " SEND TO TOPIC: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
+//                    }
+//
+//                    audioStreamManager.playAudio(consumedBytes);
+
 
                 callback.onRecord(encodedBuffer);
 
@@ -110,7 +136,6 @@ public class RecordThread extends Thread {
             stopRecording();
             callback.onRecorderError(e.getMessage());
         }
-        super.run();
     }
 
     void stopRecording() {
@@ -193,6 +218,27 @@ public class RecordThread extends Thread {
         }
     }
 
+    private void connectProducer() {
+
+        final Properties producerProperties = new Properties();
+
+        producerProperties.setProperty("bootstrap.servers", brokerAddress);
+
+        if (callSSLData != null) {
+
+            producerProperties.setProperty("security.protocol", "SASL_SSL");
+            producerProperties.setProperty("sasl.mechanisms", "PLAIN");
+            producerProperties.setProperty("sasl.username", "rrrr");
+            producerProperties.setProperty("sasl.password", "rrrr");
+            producerProperties.setProperty("ssl.ca.location", callSSLData.getCert().getAbsolutePath());
+            producerProperties.setProperty("ssl.key.password", "masoud");
+
+        }
+
+        producerClient = new ProducerClient(producerProperties);
+
+        producerClient.connect();
+    }
 
     public interface IRecordThread {
 
