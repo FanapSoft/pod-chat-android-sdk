@@ -29,11 +29,11 @@ import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
-import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
-import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.mention.model.GetMentionedRequest;
+import com.fanap.podchat.chat.messge.GetAllUnreadMessageCountRequest;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
-import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
+import com.fanap.podchat.chat.user.profile.UpdateProfileResponse;
 import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.BlockedContact;
@@ -45,19 +45,19 @@ import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.PinMessageVO;
-import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.mainmodel.SearchContactRequest;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
-import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.GetContactsResponse;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
-import com.fanap.podchat.requestobject.RequestGetHistory;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.GetHistoryRequest;
+import com.fanap.podchat.requestobject.GetCurrentUserRolesRequest;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.FunctionalListener;
@@ -1417,7 +1417,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    private History getHistoryModelFromRequestGetHistory(RequestGetHistory request) {
+    private History getHistoryModelFromRequestGetHistory(GetHistoryRequest request) {
         return new History.Builder()
                 .count(request.getCount())
                 .firstMessageId(request.getFirstMessageId())
@@ -1434,7 +1434,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void getMentionList(RequestGetMentionList request, FunctionalListener listener) {
+    public void getMentionList(GetMentionedRequest request, FunctionalListener listener) {
 
 
         worker(() -> {
@@ -3135,13 +3135,13 @@ public class MessageDatabaseHelper {
 
 
     @NonNull
-    public ChatResponse<ResultContact> searchContacts(RequestSearchContact requestSearchContact, String size, String offset) {
+    public ChatResponse<GetContactsResponse> searchContacts(SearchContactRequest requestSearchContact, String size, String offset) {
 
         List<Contact> contacts = new ArrayList<>();
 
-        ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+        ChatResponse<GetContactsResponse> chatResponse = new ChatResponse<>();
         chatResponse.setCache(true);
-        ResultContact resultContact = new ResultContact();
+        GetContactsResponse resultContact = new GetContactsResponse();
         resultContact.setContacts(new ArrayList<>(contacts));
         chatResponse.setHasError(false);
 
@@ -3541,7 +3541,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void updateChatProfile(ResultUpdateProfile result) {
+    public void updateChatProfile(UpdateProfileResponse result) {
 
         worker(() -> {
             UserInfo userInfo = getUserInfo();
@@ -3571,7 +3571,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void loadAllUnreadMessagesCount(RequestGetUnreadMessagesCount req, OnWorkDone listener)
+    public void loadAllUnreadMessagesCount(GetAllUnreadMessageCountRequest req, OnWorkDone listener)
 
             throws RoomIntegrityException {
 
@@ -3590,7 +3590,7 @@ public class MessageDatabaseHelper {
 
     }
 
-    public void getCurrentUserRoles(RequestGetUserRoles request, OnWorkDone listener) {
+    public void getCurrentUserRoles(GetCurrentUserRolesRequest request, OnWorkDone listener) {
 
         worker(() -> {
 

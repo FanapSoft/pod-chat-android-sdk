@@ -10,7 +10,7 @@ import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
-import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
+import com.fanap.podchat.chat.user.profile.UpdateProfileResponse;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
@@ -22,10 +22,10 @@ import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
-import com.fanap.podchat.model.ResultBlock;
-import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.BlockUnblockUserResponse;
+import com.fanap.podchat.model.GetBlockedUserListResponse;
 import com.fanap.podchat.model.ResultClearHistory;
-import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.GetContactsResponse;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
@@ -45,7 +45,7 @@ import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
-import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.model.GetUserInfoResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,7 +174,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
+    public void callOnGetContacts(String content, ChatResponse<GetContactsResponse> outPutContact) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetContacts(content, outPutContact);
@@ -323,7 +323,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
+    public void callOnUserInfo(String content, ChatResponse<GetUserInfoResponse> outPutUserInfo) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onUserInfo(content, outPutUserInfo);
@@ -497,7 +497,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    public void callOnBlock(String content, ChatResponse<BlockUnblockUserResponse> outPutBlock) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onBlock(content, outPutBlock);
@@ -507,7 +507,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    public void callOnUnBlock(String content, ChatResponse<BlockUnblockUserResponse> outPutBlock) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onUnBlock(content, outPutBlock);
@@ -517,7 +517,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
+    public void callOnGetBlockList(String content, ChatResponse<GetBlockedUserListResponse> outPutBlockList) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetBlockList(content, outPutBlockList);
@@ -527,7 +527,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSearchContact(String content, ChatResponse<ResultContact> response) {
+    public void callOnSearchContact(String content, ChatResponse<GetContactsResponse> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onSearchContact(content, response);
@@ -808,7 +808,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
+    public void callOnChatProfileUpdated(ChatResponse<UpdateProfileResponse> response) {
 
 
         for (ChatListener listener : getSynchronizedListeners()) {

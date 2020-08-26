@@ -2,13 +2,13 @@ package com.fanap.podchat.model;
 
 public class OutPutUserInfo extends BaseOutPut{
 
-    private ResultUserInfo result;
+    private GetUserInfoResponse result;
 
-    public ResultUserInfo getResult() {
+    public GetUserInfoResponse getResult() {
         return result;
     }
 
-    public void setResult(ResultUserInfo resultUserInfo) {
+    public void setResult(GetUserInfoResponse resultUserInfo) {
         this.result = resultUserInfo;
     }
 }

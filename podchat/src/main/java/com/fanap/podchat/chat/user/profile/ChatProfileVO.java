@@ -5,7 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
 @Entity
-public class ChatProfileVO extends ResultUpdateProfile {
+public class ChatProfileVO extends UpdateProfileResponse {
 
     @PrimaryKey
     private long id;

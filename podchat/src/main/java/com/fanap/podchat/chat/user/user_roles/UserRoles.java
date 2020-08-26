@@ -7,18 +7,16 @@ import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.ChatResponse;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.GetCurrentUserRolesRequest;
 import com.fanap.podchat.util.ChatMessageType;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class UserRoles {
 
 
-    public static String getUserRoles(RequestGetUserRoles request, String uniqueId) {
+    public static String getUserRoles(GetCurrentUserRolesRequest request, String uniqueId) {
 
 
         long threadId = request.getThreadId();
@@ -53,7 +51,7 @@ public class UserRoles {
 
     }
 
-    public static ChatResponse<ResultCurrentUserRoles> handleOnGetUserRolesFromCache(String uniqueId, RequestGetUserRoles request, CacheUserRoles cacheUserRole) {
+    public static ChatResponse<ResultCurrentUserRoles> handleOnGetUserRolesFromCache(String uniqueId, GetCurrentUserRolesRequest request, CacheUserRoles cacheUserRole) {
 
 
         ArrayList<String> roles  = new ArrayList<>(cacheUserRole.getRole());

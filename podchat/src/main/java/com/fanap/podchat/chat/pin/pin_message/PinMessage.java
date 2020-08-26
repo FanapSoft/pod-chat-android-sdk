@@ -3,7 +3,7 @@ package com.fanap.podchat.chat.pin.pin_message;
 
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.PinUnpinMessageRequest;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -15,7 +15,7 @@ import com.google.gson.JsonObject;
 public class PinMessage {
 
 
-    public static String pinMessage(RequestPinMessage request, String uniqueId) {
+    public static String pinMessage(PinUnpinMessageRequest request, String uniqueId) {
 
         long messageId = request.getMessageId();
 
@@ -39,7 +39,7 @@ public class PinMessage {
     }
 
 
-    public static String unPinMessage(RequestPinMessage request, String uniqueId) {
+    public static String unPinMessage(PinUnpinMessageRequest request, String uniqueId) {
 
 
         long messageId = request.getMessageId();
