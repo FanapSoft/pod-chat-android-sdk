@@ -889,7 +889,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void logOut() {
-        chat.logOutSocket();
+        tokenHandler.logOut();
+        chat.closeChat();
     }
 
     @Override
@@ -1105,7 +1106,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
-        view.onGetUserInfo();
+        view.onGetUserInfo(outPutUserInfo);
     }
 
     @Override

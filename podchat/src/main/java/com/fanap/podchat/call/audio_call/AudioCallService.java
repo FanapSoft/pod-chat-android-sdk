@@ -12,11 +12,7 @@ import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.util.Util;
 
-import static com.fanap.podchat.call.audio_call.PodCallServiceManager.BROKER_ADDRESS;
-import static com.fanap.podchat.call.audio_call.PodCallServiceManager.CLIENT_ID;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.KAFKA_CONFIG;
-import static com.fanap.podchat.call.audio_call.PodCallServiceManager.RECEIVING_TOPIC;
-import static com.fanap.podchat.call.audio_call.PodCallServiceManager.SENDING_TOPIC;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.SSL_CONFIG;
 import static com.fanap.podchat.call.audio_call.PodCallServiceManager.TARGET_ACTIVITY;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
@@ -34,7 +30,7 @@ public class AudioCallService extends Service {
     private IBinder serviceBinder = new CallBinder();
 
     private String sendingTopic;
-//    private String clientId;
+    //    private String clientId;
     private String sendKey;
     private String brokerAddress;
     private String receivingTopic;
@@ -44,7 +40,7 @@ public class AudioCallService extends Service {
 
     private CallInfo callInfo;
 
-    PodAudioCallManager callManager;
+    PodAudioCallManager2 callManager;
 
     ICallServiceState callStateCallback;
 
@@ -122,18 +118,18 @@ public class AudioCallService extends Service {
 
     private void startStreaming() {
 
-        callManager = new PodAudioCallManager(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
+        callManager = new PodAudioCallManager2(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
 
-        if (Util.isNullOrEmpty(sendingTopic)) {
-            callManager.testAudio();
-        } else callManager.startStream();
+        if (!Util.isNullOrEmpty(sendingTopic)) {
+            callManager.startStream();
+        }
     }
 
     private void getIntentData(Intent intent) {
 
         ClientDTO client = intent.getParcelableExtra(KAFKA_CONFIG);
 
-        if(client!=null){
+        if (client != null) {
             sendingTopic = client.getTopicSend();
             receivingTopic = client.getTopicReceive();
             sendKey = client.getSendKey();

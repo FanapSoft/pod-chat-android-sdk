@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -45,6 +46,43 @@ import static org.junit.Assert.assertTrue;
  */
 public class ExampleUnitTest {
 
+
+    @Test
+    public void testShortArray() {
+
+//        short[] a = new short[7];
+//
+//        short[] b = new short[]{1,2};
+//        short[] c = new short[]{3,4};
+//        short[] d = new short[]{5,6,7};
+//
+//
+//        System.arraycopy(b,0,a,0,b.length);
+//        System.arraycopy(c,0,a,b.length,c.length);
+//        System.arraycopy(d,0,a,c.length + b.length,d.length);
+//
+//        System.out.println(Arrays.toString(a));
+//        System.out.println(Arrays.toString(b));
+//
+
+
+        short[] e = new short[12];
+        short[] f = new short[]{8, 9};
+
+        int toCopy = e.length;
+
+        while (toCopy > 0) {
+
+            System.out.println("e: " + Arrays.toString(e));
+
+            System.arraycopy(f, 0, e, e.length - toCopy, f.length);
+
+            toCopy -= f.length;
+
+        }
+
+
+    }
 
     @Test
     public void concatTest() {

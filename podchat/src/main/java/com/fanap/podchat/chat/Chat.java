@@ -1777,7 +1777,8 @@ public class Chat extends AsyncAdapter {
                 resetCache(() -> {
                     try {
                         getCallHistoryFromCache(request, uniqueId);
-                    } catch (RoomIntegrityException ignored) {}
+                    } catch (RoomIntegrityException ignored) {
+                    }
                 });
             }
         }
@@ -5110,7 +5111,22 @@ public class Chat extends AsyncAdapter {
     public void logOutSocket() {
 
 
-        signalMessageHandlerThread.quit();
+        if (signalMessageHandlerThread != null)
+            signalMessageHandlerThread.quit();
+
+        if(messageDatabaseHelper!=null){
+            clearCacheDatabase(new IClearMessageCache() {
+                @Override
+                public void onCacheDatabaseCleared() {
+
+                }
+
+                @Override
+                public void onExceptionOccurred(String cause) {
+
+                }
+            });
+        }
 
         async.logOut();
 

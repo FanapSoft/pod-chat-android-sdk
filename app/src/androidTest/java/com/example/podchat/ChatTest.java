@@ -208,7 +208,7 @@ public class ChatTest extends ChatAdapter {
         sleep(5000);
         presenter.getUserInfo(null);
         sleep(5000);
-        Mockito.verify(view, Mockito.times(1)).onGetUserInfo();
+        Mockito.verify(view, Mockito.times(1)).onGetUserInfo(outPutUserInfo);
 
     }
 

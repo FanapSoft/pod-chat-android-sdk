@@ -29,6 +29,7 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
@@ -81,7 +82,7 @@ public interface ChatContract {
 
 //        }
 
-        default void onGetUserInfo() {
+        default void onGetUserInfo(ChatResponse<ResultUserInfo> outPutUserInfo) {
         }
 
         default void onLogEvent(String log) {

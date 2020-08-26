@@ -24,11 +24,11 @@ public class RecordThread extends Thread {
 
 
     // Sample rate must be one supported by Opus.
-    private static final int SAMPLE_RATE = 8000;
+    private static final int SAMPLE_RATE = 12000;
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
-    private static final int FRAME_SIZE = 960;
+    private static final int FRAME_SIZE = 720;
 
     private static final String TAG = "AUDIO_RECORDER";
 

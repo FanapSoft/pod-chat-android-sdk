@@ -31,7 +31,7 @@ public class CallProducer implements Runnable {
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
-    static final int FRAME_SIZE = 160;
+    static final int FRAME_SIZE = 960;
 
     // 1 or 2
     static final int NUM_CHANNELS = 1;
@@ -47,11 +47,21 @@ public class CallProducer implements Runnable {
     private CallSSLData callSSLData;
     private String brokerAddress;
     private boolean firstByteRecorded = false;
+    private boolean firstByteReceived = false;
+    private String sendKey;
+    private String sendingTopic;
+    private boolean consuming;
 
 
-    public CallProducer(IRecordThread callback,CallSSLData sslData) {
+    public CallProducer(IRecordThread callback, CallSSLData sslData,
+                        String brokerAddress,
+                        String sendKey,
+                        String sendingTopic) {
         this.callback = callback;
-        callSSLData = sslData;
+        this.callSSLData = sslData;
+        this.brokerAddress = brokerAddress;
+        this.sendKey = sendKey;
+        this.sendingTopic = sendingTopic;
     }
 
     @Override
@@ -116,18 +126,15 @@ public class CallProducer implements Runnable {
                     callSSLData.clear();
                 }
 
-//                    if (!firstByteReceived) {
-//                        producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
-//                        Log.e(TAG, "START STATE - SEND KEY IS : " + SEND_KEY + " SEND TO TOPIC: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
-//                    }
-//
-//                    if (consumedBytes.length > 0) {
-//                        producerClient.produceMessege(bytes, SEND_KEY, SENDING_TOPIC);
-//                        Log.e(TAG, "RUNNING STATE - SEND KEY IS: " + SEND_KEY + " SEND TO TOPIC: " + SENDING_TOPIC + " bits: " + Arrays.toString(bytes));
-//                    }
-//
-//                    audioStreamManager.playAudio(consumedBytes);
+                if (!firstByteReceived) {
+                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
+                    Log.e(TAG, "START STATE - SEND KEY IS : " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
+                }
 
+                if (isConsumingStarted()) {
+                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
+                    Log.e(TAG, "RUNNING STATE - SEND KEY IS: " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
+                }
 
                 callback.onRecord(encodedBuffer);
 
@@ -136,6 +143,14 @@ public class CallProducer implements Runnable {
             stopRecording();
             callback.onRecorderError(e.getMessage());
         }
+    }
+
+    private boolean isConsumingStarted() {
+        return consuming;
+    }
+
+    public void setConsumingStarted() {
+        consuming = true;
     }
 
     void stopRecording() {

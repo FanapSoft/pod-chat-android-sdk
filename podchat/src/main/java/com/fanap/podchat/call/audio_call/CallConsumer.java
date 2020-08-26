@@ -21,7 +21,7 @@ public class CallConsumer implements Runnable {
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
-    private static final int FRAME_SIZE = 160;
+    private static final int FRAME_SIZE = 960;
 
     // 1 or 2
     private static final int NUM_CHANNELS = 1;
@@ -45,13 +45,19 @@ public class CallConsumer implements Runnable {
     private String sendKey;
     private String receivingTopic;
 
+    private IConsumer consumerCallback;
+    private boolean firstBytesReceived;
+
 
     CallConsumer(CallSSLData sslData,
                  String brokerAddress,
                  String sendKey,
-                 String receivingTopic) {
+                 String receivingTopic,
+                 IConsumer consumerCallback) {
 
         callSSLData = sslData;
+
+        this.consumerCallback = consumerCallback;
 
         this.brokerAddress = brokerAddress;
         this.sendKey = sendKey;
@@ -126,6 +132,10 @@ public class CallConsumer implements Runnable {
 
                 if (consumedBytes == null || consumedBytes.length == 0) continue;
 
+                if (!firstBytesReceived) {
+                    callOnConsumingStarted();
+                }
+
                 int decoded = decoder.decode(consumedBytes, outputBuffer, FRAME_SIZE);
 
                 Log.v(TAG, "Decoded back " + decoded * NUM_CHANNELS * 2 + " bytes");
@@ -141,6 +151,11 @@ public class CallConsumer implements Runnable {
         } catch (Exception e) {
             Log.wtf(TAG, e);
         }
+    }
+
+    private void callOnConsumingStarted() {
+        firstBytesReceived = true;
+        consumerCallback.onFirstBytesReceived();
     }
 
     private void playWithSpeexAEC(short[] outputBuffer, int decoded) {
@@ -202,8 +217,9 @@ public class CallConsumer implements Runnable {
     }
 
 
-    public interface IConsumer{
+    public interface IConsumer {
 
+        void onFirstBytesReceived();
 
 
     }

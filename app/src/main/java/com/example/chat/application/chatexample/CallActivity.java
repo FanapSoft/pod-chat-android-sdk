@@ -24,6 +24,7 @@ import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatStateType;
@@ -58,7 +59,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //    static int JIJI_ID = 122;
 //    static int ZIZI_ID = 121;
 
-
     private static String appId = BaseApplication.getInstance().getString(R.string.integration_appId);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
@@ -83,6 +83,17 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     public static int TEST_THREAD_ID = 7090;
 
+
+    private static String sandBoxSSOHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String sandBoxServerName = "chat-server";
+
+
+    private static String sandBoxName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String sandBoxSocketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String sandBoxPlatformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String sandBoxFileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+
+
     private boolean permissionToRecordAccepted = false;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
@@ -90,14 +101,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private ChatContract.presenter presenter;
 
-    Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant;
+    Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant,
+            buttonConnectSandBox, buttonStartSandboxCall;
     TextView tvStatus, tvCallerName, tvHistory;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
     ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
-    EditText etGroupId, etSender, etReceiver;
+    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId;
     CheckBox checkBoxSSL,
             checkBoxGroupCall,
             checkboxZiziPartner,
@@ -257,6 +269,36 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonSpeaker.setOnClickListener(v -> presenter.switchSpeaker());
 
         buttonAddCallParticipant.setOnClickListener(v -> presenter.addCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
+
+        buttonConnectSandBox.setOnClickListener(v -> {
+
+            presenter.enableAutoRefresh(this, etNumberOrOtp.getText().toString());
+            etNumberOrOtp.setText("");
+
+        });
+
+        buttonConnectSandBox.setOnLongClickListener(v -> {
+            presenter.logOut();
+            etNumberOrOtp.setText("");
+            return true;
+        });
+
+        buttonStartSandboxCall.setOnClickListener(v -> {
+            if (chatReady) {
+
+                if (!etSandboxPartnerId.getText().toString().isEmpty()) {
+
+                    int sandBoxPartnerID = Integer.parseInt(etSandboxPartnerId.getText().toString());
+
+                    presenter.requestCall(sandBoxPartnerID, checkBoxSSL.isChecked());
+
+                    tvStatus.setText("Calling: " + sandBoxPartnerID);
+                }
+
+            } else {
+                Toast.makeText(this, "Chat is not ready", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void updateViewOnCallReaction() {
@@ -363,6 +405,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
         buttonGetHistory = findViewById(R.id.buttonGetHistory);
+        buttonConnectSandBox = findViewById(R.id.btnConnectToSandbox);
+        buttonStartSandboxCall = findViewById(R.id.btnSandboxCall);
+
 
         buttonMute = findViewById(R.id.buttonMute);
         buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
@@ -370,6 +415,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         etGroupId = findViewById(R.id.etGroupId);
         etSender = findViewById(R.id.etSender);
         etReceiver = findViewById(R.id.etReceiver);
+        etNumberOrOtp = findViewById(R.id.etOtpNumber);
+        etSandboxPartnerId = findViewById(R.id.etSandBoxPartnerId);
 
         checkBoxSSL = findViewById(R.id.checkboxSSL);
         checkBoxGroupCall = findViewById(R.id.checkboxGroupCall);
@@ -514,7 +561,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     tvHistory.append("Call Type: " + call.getType() + "\n");
                     try {
                         tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() + "\n");
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
 
                 }
             else {
@@ -576,4 +624,33 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     public void onLogEvent(String log) {
         Logger.json(log);
     }
+
+    @Override
+    public void onGetToken(String token) {
+
+        RequestConnect request = new RequestConnect.Builder(
+                sandBoxSocketAddress,
+                appId,
+                sandBoxServerName,
+                token,
+                sandBoxSSOHost,
+                sandBoxPlatformHost,
+                sandBoxFileServer
+        ).build();
+
+        presenter.connect(request);
+
+    }
+
+
+    @Override
+    public void onGetUserInfo(ChatResponse<ResultUserInfo> outPutUserInfo) {
+
+        long id = outPutUserInfo.getResult().getUser().getId();
+
+        etNumberOrOtp.setText("Your ID is: " + id);
+
+
+    }
+
 }
