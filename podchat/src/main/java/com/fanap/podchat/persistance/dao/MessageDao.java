@@ -246,6 +246,9 @@ public interface MessageDao {
     List<ThreadVo> getThreadRaw(SupportSQLiteQuery query);
 
     @RawQuery
+    long getThreadContentCount(SupportSQLiteQuery query);
+
+    @RawQuery
     List<Long> getThreadIds(SupportSQLiteQuery query);
 
     @Query("select COUNT(*) FROM ThreadVo ")

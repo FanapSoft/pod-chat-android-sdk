@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -63,6 +62,8 @@ import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
+import com.fanap.podchat.repository.CacheDataSource;
+import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.PublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -171,6 +172,7 @@ import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
+import com.fanap.podchat.repository.MemoryDataSource;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -398,6 +400,8 @@ public class Chat extends AsyncAdapter {
     private String serverName;
     private boolean hasFreeSpace = true;
 
+    static ChatDataSource dataSource;
+
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
@@ -425,6 +429,7 @@ public class Chat extends AsyncAdapter {
     public synchronized static Chat init(Context context) {
 
         if (instance == null) {
+
 
             async = Async.getInstance(context);
 
@@ -455,6 +460,7 @@ public class Chat extends AsyncAdapter {
             Sentry.setExtra("chat-sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
             Sentry.setExtra("chat-sdk-build-type", BuildConfig.BUILD_TYPE);
 
+            dataSource = new ChatDataSource(new MemoryDataSource(), new CacheDataSource(context, instance.getKey()));
         }
 
         return instance;
@@ -1116,7 +1122,7 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnContactsSynced(response);
 
-        showLog("ON_CONTACTS_SYNCED",gson.toJson(chatMessage));
+        showLog("ON_CONTACTS_SYNCED", gson.toJson(chatMessage));
     }
 
     private void handleOnBotStopped(ChatMessage chatMessage) {
@@ -4775,7 +4781,8 @@ public class Chat extends AsyncAdapter {
     public void logOutSocket() {
 
 
-        signalMessageHandlerThread.quit();
+        if (signalMessageHandlerThread != null)
+            signalMessageHandlerThread.quit();
 
         async.logOut();
 
@@ -5646,11 +5653,24 @@ public class Chat extends AsyncAdapter {
 
             if (cache && useCache) {
 
+//                new PodThreadManager()
+//                        .addNewTask(getThreadsFromCacheJob)
+//                        .addNewTask(getThreadsFromServerJob)
+//                        .runTasksSynced();
 
-                new PodThreadManager()
-                        .addNewTask(getThreadsFromCacheJob)
-                        .addNewTask(getThreadsFromServerJob)
-                        .runTasksSynced();
+                dataSource.getThreadData(
+                        finalCount,
+                        finalOffset,
+                        threadIds,
+                        threadName,
+                        isNew)
+                        .doOnCompleted(getThreadsFromServerJob::run)
+                        .subscribe(response -> {
+                            if (response != null && Util.isNotNullOrEmpty(response.getThreadList())) {
+                                String threadJson = publishThreadsList(uniqueId, finalOffset, response);
+                                showLog("CACHE_GET_THREAD", threadJson);
+                            }
+                        });
 
 
             } else {
@@ -6075,10 +6095,7 @@ public class Chat extends AsyncAdapter {
             } else {
                 listener.onWorkDone(new ArrayList<>());
             }
-
-
         });
-
 
     }
 
@@ -8118,7 +8135,7 @@ public class Chat extends AsyncAdapter {
 
     /**
      * If someone that is not in your contact list tries to send message to you
-     * their spam value is true and you can call this method in order to set that to false
+     * their spam value is true and you can call this method in order to report them.
      *
      * @ param long threadId Id of the thread
      */
@@ -10376,6 +10393,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             messageDatabaseHelper.saveNewThread(resultThread.getThread());
+            dataSource.updateThread(resultThread.getThread());
         }
 
     }
@@ -10396,6 +10414,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
             messageDatabaseHelper.saveNewThread(resultThread.getThread());
+            dataSource.updateThread(thread);
         }
 
     }
@@ -10575,7 +10594,13 @@ public class Chat extends AsyncAdapter {
                                 chatResponse.setUniqueId(callback.getUniqueId());
                                 chatResponse.setSubjectId(chatMessage.getSubjectId());
                                 resultMessage.setConversationId(chatMessage.getSubjectId());
-                                resultMessage.setMessageId(Long.valueOf(chatMessage.getContent()));
+                                try {
+                                    resultMessage.setMessageId(Long.parseLong(chatMessage.getContent()));
+                                } catch (NumberFormatException e) {
+                                    Sentry.captureException(e);
+                                    resultMessage.setMessageId(0);
+
+                                }
                                 chatResponse.setResult(resultMessage);
 
                                 String json = gson.toJson(chatResponse);
@@ -11090,7 +11115,6 @@ public class Chat extends AsyncAdapter {
 
             JsonObject jsonObject = (JsonObject) gson.toJsonTree(asyncMessage);
 
-
             threadInfoCompletor.put(uniqueId, chatMessage -> {
 
                 ArrayList<Thread> threads = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Thread>>() {
@@ -11106,7 +11130,6 @@ public class Chat extends AsyncAdapter {
                     threadInfoCompletor.remove(uniqueId);
 
                 }
-
 
             });
             sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_GET_THREAD_INFO");
@@ -11125,6 +11148,9 @@ public class Chat extends AsyncAdapter {
         chatResponse.setSubjectId(thread.getId());
         listenerManager.callOnThreadInfoUpdated(chatResponse.getJson(), chatResponse);
         showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
+        if (cache) {
+            dataSource.updateThread(thread);
+        }
     }
 
     private void onThreadInfoUpdated(Thread thread, String uniqueId) {
@@ -11137,6 +11163,9 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnUpdateThreadInfo(chatResponse.getJson(), chatResponse);
         showLog("RECEIVE_UPDATE_THREAD_INFO", chatResponse.getJson());
         messageCallbacks.remove(uniqueId);
+        if (cache) {
+            dataSource.updateThread(thread);
+        }
     }
 
     private void handleOnGetParticipants(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
@@ -11632,6 +11661,7 @@ public class Chat extends AsyncAdapter {
     private void handleGetThreads(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
 
         ChatResponse<ResultThreads> chatResponse = reformatGetThreadsResponse(chatMessage, callback);
+        //TODO to many data
         String threadJson = gson.toJson(chatResponse);
 
         if (cache) {
@@ -12513,15 +12543,6 @@ public class Chat extends AsyncAdapter {
 
         int mCount = count > 0 ? count : 50;
 
-        Runnable cacheTask = () -> {
-
-            if (cache && useCache) {
-
-                loadContactsFromCache(uniqueId, offset, mCount);
-            }
-        };
-
-
         Runnable serverRequestTask = () -> {
             if (chatReady) {
 
@@ -12563,12 +12584,34 @@ public class Chat extends AsyncAdapter {
             }
         };
 
+        Runnable cacheTask = () -> {
+
+            if (cache && useCache) {
+
+                loadContactsFromCache(uniqueId, offset, mCount);
+
+            }
+        };
+
+
 
         new PodThreadManager()
                 .addNewTask(cacheTask)
                 .addNewTask(serverRequestTask)
                 .runTasksSynced();
 
+
+//        try {
+//            dataSource.getContactData(count, offset)
+//                    .doOnCompleted(serverRequestTask::run)
+//                    .subscribe(response -> {
+//                        if (response != null && Util.isNotNullOrEmpty(response.getContactsList())) {
+//                            publishContactResult(uniqueId, offset, new ArrayList<>(response.getContactsList()), (int) response.getContentCount());
+//                        }
+//                    });
+//        } catch (RoomIntegrityException e) {
+//            e.printStackTrace();
+//        }
 
         return uniqueId;
 
@@ -12579,32 +12622,35 @@ public class Chat extends AsyncAdapter {
         ArrayList<Contact> cacheContactsList = null;
         try {
             cacheContactsList = new ArrayList<>(messageDatabaseHelper.getContacts(mCount, offset));
-
-            ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
-
-            ResultContact resultContact = new ResultContact();
-            resultContact.setContacts(cacheContactsList);
-            chatResponse.setResult(resultContact);
-            chatResponse.setCache(true);
-            chatResponse.setUniqueId(uniqueId);
-
             int contentCount = messageDatabaseHelper.getContactCount();
-            long nextOffset = cacheContactsList.size() + offset;
-            boolean hasNext = nextOffset < contentCount;
 
-            resultContact.setContentCount(contentCount);
-            resultContact.setNextOffset(nextOffset);
-            resultContact.setHasNext(hasNext);
-
-            String contactJson = gson.toJson(chatResponse);
-
-            listenerManager.callOnGetContacts(contactJson, chatResponse);
-            showLog("CACHE_GET_CONTACT", contactJson);
+            publishContactResult(uniqueId, offset, cacheContactsList, contentCount);
 
         } catch (RoomIntegrityException e) {
             resetCache();
         }
 
+    }
+
+    private void publishContactResult(String uniqueId, long offset, ArrayList<Contact> cacheContactsList, int contentCount) {
+        ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+        ResultContact resultContact = new ResultContact();
+        resultContact.setContacts(cacheContactsList);
+        chatResponse.setResult(resultContact);
+        chatResponse.setCache(true);
+        chatResponse.setUniqueId(uniqueId);
+
+        long nextOffset = cacheContactsList.size() + offset;
+        boolean hasNext = nextOffset < contentCount;
+
+        resultContact.setContentCount(contentCount);
+        resultContact.setNextOffset(nextOffset);
+        resultContact.setHasNext(hasNext);
+
+        String contactJson = gson.toJson(chatResponse);
+
+        listenerManager.callOnGetContacts(contactJson, chatResponse);
+        showLog("CACHE_GET_CONTACT", contactJson);
     }
 
     @NonNull
@@ -12683,7 +12729,12 @@ public class Chat extends AsyncAdapter {
         return typeCode;
     }
 
-    private void loadThreadsFromCache(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, String uniqueId) {
+    private void loadThreadsFromCache(Integer count,
+                                      Long offset,
+                                      ArrayList<Integer> threadIds,
+                                      String threadName,
+                                      boolean isNew,
+                                      String uniqueId) {
 
 
         if (offset == null) {
@@ -12698,41 +12749,27 @@ public class Chat extends AsyncAdapter {
 
         try {
 
-            messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew, cachedThreads -> {
-
-                List<Thread> threads = (List<Thread>) cachedThreads;
-
-                if (!Util.isNullOrEmpty(threads)) {
-
-                    ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
-
-                    chatResponse.setCache(true);
-
-                    int contentCount = messageDatabaseHelper.getThreadCount();
-
-                    ResultThreads resultThreads = new ResultThreads();
-                    resultThreads.setThreads(threads);
-                    resultThreads.setContentCount(contentCount);
-                    chatResponse.setCache(true);
-
-
-                    if (threads.size() + finalOffset < contentCount) {
-                        resultThreads.setHasNext(true);
-                    } else {
-                        resultThreads.setHasNext(false);
-                    }
-                    resultThreads.setNextOffset(finalOffset + threads.size());
-                    chatResponse.setResult(resultThreads);
-                    chatResponse.setUniqueId(uniqueId);
-
-                    String threadJson = gson.toJson(chatResponse);
-                    listenerManager.callOnGetThread(threadJson, chatResponse);
-                    showLog("CACHE_GET_THREAD", threadJson);
-
+            messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew, new OnWorkDone() {
+                @Override
+                public void onWorkDone(@Nullable Object o) {
 
                 }
 
+                @Override
+                public void onWorkDone(@Nullable Object o, List cachedThreads) {
 
+                    List<Thread> threads = (List<Thread>) cachedThreads;
+
+                    long contentCount = (long) o;
+
+                    if (!Util.isNullOrEmpty(threads)) {
+
+                        String threadJson = publishThreadsList(uniqueId, finalOffset, new ThreadManager.CacheThread(threads, contentCount, "DISK"));
+                        showLog("CACHE_GET_THREAD", threadJson);
+                        dataSource.saveThreadResultInCache(threads);
+
+                    }
+                }
             });
 
         } catch (RoomIntegrityException e) {
@@ -12740,6 +12777,36 @@ public class Chat extends AsyncAdapter {
         }
 
 
+    }
+
+    private String publishThreadsList(String uniqueId, Long finalOffset, ThreadManager.CacheThread cacheThreadResponse) {
+
+        ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
+
+        List<Thread> threadList = cacheThreadResponse.getThreadList();
+
+        chatResponse.setCache(true);
+
+        long contentCount = cacheThreadResponse.getContentCount();
+
+        ResultThreads resultThreads = new ResultThreads();
+        resultThreads.setThreads(threadList);
+        resultThreads.setContentCount(contentCount);
+        chatResponse.setCache(true);
+
+
+        if (threadList.size() + finalOffset < contentCount) {
+            resultThreads.setHasNext(true);
+        } else {
+            resultThreads.setHasNext(false);
+        }
+        resultThreads.setNextOffset(finalOffset + threadList.size());
+        chatResponse.setResult(resultThreads);
+        chatResponse.setUniqueId(uniqueId);
+
+        String threadJson = gson.toJson(chatResponse);
+        listenerManager.callOnGetThread(threadJson, chatResponse);
+        return threadJson;
     }
 
     private int getExpireAmount() {
@@ -14438,8 +14505,10 @@ public class Chat extends AsyncAdapter {
 
 
             // get threads summary shouldn't update cache
-            if (!handlerSend.containsKey(chatMessage.getUniqueId()))
-                messageDatabaseHelper.saveThreads(threads);
+            if (!handlerSend.containsKey(chatMessage.getUniqueId())) {
+//                messageDatabaseHelper.saveThreads(threads);
+                dataSource.saveThreadResultInServer(threads);
+            }
         }
 
         ResultThreads resultThreads = new ResultThreads();

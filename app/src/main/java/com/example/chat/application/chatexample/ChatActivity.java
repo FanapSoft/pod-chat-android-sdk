@@ -69,8 +69,6 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.notification.GlideApp;
-import com.fanap.podchat.notification.PodGlideModule;
 import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -131,7 +129,7 @@ import java.util.Map;
 public class ChatActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
     private static final int FILE_REQUEST_CODE = 2;
-    public static final String APP_ID = "POD-Chat";
+    public static final String APP_ID = "appid";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
 
 
@@ -234,14 +232,14 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 
-//    public static int TEST_THREAD_ID = 5182;
-//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+    public static int TEST_THREAD_ID = 5182;
+    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 8182;
-    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//    public static int TEST_THREAD_ID = 8182;
+//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -283,7 +281,6 @@ public class ChatActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
 
-
         faker = new Faker();
 
         //        Generator.generateFakeContact(5,getApplicationContext());
@@ -300,7 +297,7 @@ public class ChatActivity extends AppCompatActivity
             return true;
         });
 
-        imageMap.setOnClickListener(v->downloadWithGlide());
+        imageMap.setOnClickListener(v -> downloadWithGlide());
 
         textViewState = findViewById(R.id.textViewStateChat);
         TextView textViewToken = findViewById(R.id.textViewUserId);
@@ -395,7 +392,7 @@ public class ChatActivity extends AppCompatActivity
             Log.d("CHAT_ACTIVITY", "Thread Id: " + threadId);
             Log.d("CHAT_ACTIVITY", "Message Id: " + messageId);
 
-            if(Util.isNotNullOrEmpty(threadId))
+            if (Util.isNotNullOrEmpty(threadId))
                 presenter.deliverNotification(threadId);
 
         }
@@ -545,17 +542,15 @@ public class ChatActivity extends AppCompatActivity
         PodNotificationManager.showNotification(data2, this);
 
 
-
-
-        String d =  "{messageId=488779, messageType=1, MessageSenderName=پوریا, text=3, senderImage=http://sandbox.pod.ir:8080/nzh/image/?imageId=62606&width=1272&height=1272&hashCode=16bf4878c16-0.7172112194509095, threadId=12269, isGroup=false}";
+        String d = "{messageId=488779, messageType=1, MessageSenderName=پوریا, text=3, senderImage=http://sandbox.pod.ir:8080/nzh/image/?imageId=62606&width=1272&height=1272&hashCode=16bf4878c16-0.7172112194509095, threadId=12269, isGroup=false}";
 
         Map<String, String> data = new HashMap<>();
 
-        data.put("threadName", "گروه کاری "+notificationThreadId);
-        data.put("MessageSenderName", "رضا احمدی"+notificationThreadId%2);
+        data.put("threadName", "گروه کاری " + notificationThreadId);
+        data.put("MessageSenderName", "رضا احمدی" + notificationThreadId % 2);
         data.put("text", "سلام چه خبر؟ " + notificationMessageId);
         data.put("isGroup", "true");
-        data.put("MessageSenderUserName", "a.ahmadi" + notificationThreadId%2);
+        data.put("MessageSenderUserName", "a.ahmadi" + notificationThreadId % 2);
         data.put("messageId", String.valueOf(++notificationMessageId));
         data.put("threadId", String.valueOf(++notificationThreadId));
         data.put("messageType", "1");
@@ -903,7 +898,6 @@ public class ChatActivity extends AppCompatActivity
     }
 
 
-
     private void downloadWithGlide() {
 
         try {
@@ -1086,9 +1080,6 @@ public class ChatActivity extends AppCompatActivity
 
 
     }
-
-
-
 
 
     private void getUserRoles() {
@@ -1688,7 +1679,7 @@ public class ChatActivity extends AppCompatActivity
                         startBot();
                         break;
                     }
-                     case 22: {
+                    case 22: {
                         stopBot();
                         break;
                     }
@@ -1700,7 +1691,6 @@ public class ChatActivity extends AppCompatActivity
             }
         });
     }
-
 
 
     private void stopBot() {
@@ -1730,7 +1720,7 @@ public class ChatActivity extends AppCompatActivity
         commands.add("/command1");
         commands.add("/command2");
 
-        DefineBotCommandRequest request = new DefineBotCommandRequest.Builder("TEST2BOT",commands)
+        DefineBotCommandRequest request = new DefineBotCommandRequest.Builder("TEST2BOT", commands)
                 .build();
 
         presenter.defineBotCommand(request);
@@ -2619,18 +2609,55 @@ public class ChatActivity extends AppCompatActivity
 //        threadIds.add(TEST_THREAD_ID);
 //                threadIds.add(1573);
 //                threadIds.add(351);
-        RequestThread requestThread = new RequestThread
-                .Builder()
-//                .newMessages()
+
+
+//        new Thread(() -> {
+//            RequestThread requestThread = new RequestThread
+//                    .Builder()
+////                    .threadName("Te")
+////                    .newMessages()
+////                .partnerCoreContactId(566)
+//                    .offset(0)
+//                    .count(10)
+////                .partnerCoreContactId(21074)
+////                .withNoCache()
+//                    .build();
+//
+//            presenter.getThreads(requestThread, null);
+//        }).start();
+//
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+////
+
+
+        new Thread(() -> {
+
+            ArrayList<Integer> ids = new ArrayList<>();
+            ids.add(5182);
+            ids.add(6630);
+            ids.add(5281);
+            RequestThread requestThread2 = new RequestThread
+                    .Builder()
+//                    .threadName("Te")
+                    .threadIds(ids)
+//                    .newMessages()
 //                .partnerCoreContactId(566)
-                .offset(0)
-                .count(50)
+                    .offset(0)
+                    .count(10)
 //                .partnerCoreContactId(21074)
 //                .withNoCache()
-                .build();
+                    .build();
 
 
-        presenter.getThreads(requestThread, null);
+            presenter.getThreads(requestThread2, null);
+
+        })
+                .start();
+
 
 //        presenter.getConversationVOS(5, null, null, null, null);
     }
@@ -2836,7 +2863,6 @@ public class ChatActivity extends AppCompatActivity
         presenter.onResume();
 
 
-
     }
 
     @Override
@@ -3002,7 +3028,7 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
 
-        showToast("There is " + response.getResult().getUnreadsCount() + " Unread message. Cache: "+response.isCache() );
+        showToast("There is " + response.getResult().getUnreadsCount() + " Unread message. Cache: " + response.isCache());
     }
 
     @Override

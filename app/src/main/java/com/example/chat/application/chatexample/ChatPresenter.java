@@ -513,16 +513,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.getThreads(requestThread, handler);
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ignored) {}
-
-        RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount
-                .Builder()
-                .withMuteThreads()
-                .build();
-
-        chat.getAllUnreadMessagesCount(req);
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException ignored) {}
+//
+//        RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount
+//                .Builder()
+//                .withMuteThreads()
+//                .build();
+//
+//        chat.getAllUnreadMessagesCount(req);
     }
 
     @Override
@@ -1314,14 +1314,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
-
-            RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
-                    .build();
-
-            chat.getAllUnreadMessagesCount(req);
-
-        }
+//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+//
+//            RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
+//                    .build();
+//
+//            chat.getAllUnreadMessagesCount(req);
+//
+//        }
 
     }
 

@@ -5,6 +5,7 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.content.Context;
+import android.database.Observable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -2196,14 +2197,15 @@ public class MessageDatabaseHelper {
 
             final String ORDER = "order by pin desc,time desc";
 
-            sQuery = "select * from ThreadVo " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+            sQuery = "select * from ThreadVo " + ORDER;
 
             if (threadName != null && !isNew) {
-                sQuery = "select  * from ThreadVo where title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+                sQuery = "select * from ThreadVo where title LIKE '%" + threadName + "%' " + ORDER;
             }
             if (threadIds != null && threadIds.size() > 0 && !isNew) {
 
                 StringBuilder stringBuilder = new StringBuilder();
+
                 for (int id : threadIds) {
                     stringBuilder.append(id).append(",");
                 }
@@ -2212,17 +2214,25 @@ public class MessageDatabaseHelper {
                 String lastString = stringIds.replaceAll(",$", "");
 
                 if (threadName != null) {
-                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + "AND title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+                    sQuery = "select * from ThreadVo where id IN " + "(" + lastString + ")" + "AND title LIKE  '%" + threadName + "%' " + ORDER;
                 } else {
-                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + " " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+                    sQuery = "select * from ThreadVo where id IN " + "(" + lastString + ")" + " " + ORDER;
                 }
             }
 
 
             //only threads with unreadCount > 0 if isNew == true
             if (isNew) {
-                sQuery = "select * from ThreadVo where unreadCount > 0 LIMIT " + count + " OFFSET " + offset;
+                sQuery = "select * from ThreadVo where unreadCount > 0 " + ORDER;
             }
+
+            long contentCount = 0;
+
+            SimpleSQLiteQuery countQuery = new SimpleSQLiteQuery(sQuery.replaceFirst("select \\* ", "select count(id) "));
+
+            contentCount = messageDao.getThreadContentCount(countQuery);
+
+            sQuery += getPaging(count, offset);
 
             SimpleSQLiteQuery query = new SimpleSQLiteQuery(sQuery);
 
@@ -2290,10 +2300,134 @@ public class MessageDatabaseHelper {
 
             listener.onWorkDone(threads);
 
+            listener.onWorkDone(contentCount,threads);
+
+
         });
 
 
     }
+
+    private String getPaging(Integer count, Long offset) {
+        return " LIMIT " + count + " OFFSET " + offset;
+    }
+
+    @NonNull
+//    public Observable<Thread> getThreadRaw(Integer count,
+//                                   Long offset,
+//                                   @Nullable ArrayList<Integer> threadIds,
+//                                   @Nullable String threadName,
+//                                   boolean isNew) throws RoomIntegrityException {
+//
+//
+//        if (!canUseDatabase()) throw new RoomIntegrityException();
+//
+//        worker(() -> {
+//
+//            String sQuery;
+//
+//            final String ORDER = "order by pin desc,time desc";
+//
+//            sQuery = "select * from ThreadVo " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//
+//            if (threadName != null && !isNew) {
+//                sQuery = "select  * from ThreadVo where title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//            }
+//            if (threadIds != null && threadIds.size() > 0 && !isNew) {
+//
+//                StringBuilder stringBuilder = new StringBuilder();
+//                for (int id : threadIds) {
+//                    stringBuilder.append(id).append(",");
+//                }
+//
+//                String stringIds = stringBuilder.toString();
+//                String lastString = stringIds.replaceAll(",$", "");
+//
+//                if (threadName != null) {
+//                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + "AND title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//                } else {
+//                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + " " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//                }
+//            }
+//
+//
+//            //only threads with unreadCount > 0 if isNew == true
+//            if (isNew) {
+//                sQuery = "select * from ThreadVo where unreadCount > 0 LIMIT " + count + " OFFSET " + offset;
+//            }
+//
+//            SimpleSQLiteQuery query = new SimpleSQLiteQuery(sQuery);
+//
+//            List<ThreadVo> threadVos = messageDao.getThreadRaw(query);
+//
+//            List<Thread> threads = new ArrayList<>();
+//
+//            if (threadVos != null) {
+//
+//                for (ThreadVo threadVo : threadVos) {
+//
+//                    if (threadVo.getId() == 0)
+//                        continue;
+//
+//                    CacheParticipant cacheParticipant;
+//                    CacheReplyInfoVO cacheReplyInfoVO;
+//                    Participant participant = null;
+//                    ReplyInfoVO replyInfoVO = null;
+//                    @Nullable MessageVO lastMessageVO = null;
+//                    if (threadVo.getInviterId() > 0) {
+//                        threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
+//                    }
+//
+//                    if (threadVo.getLastMessageVOId() > 0) {
+//                        threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
+//                        CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
+//
+//                        if (cacheLastMessageVO != null) {
+//                            if (cacheLastMessageVO.getParticipantId() != null) {
+//                                cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+//                                if (cacheParticipant != null) {
+//                                    participant = cacheToParticipantMapper(cacheParticipant, null, null);
+//                                }
+//                            }
+//
+//                            if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+//
+//                                cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+//                                if (cacheReplyInfoVO != null)
+//                                    replyInfoVO = new ReplyInfoVO(
+//                                            cacheReplyInfoVO.getRepliedToMessageId(),
+//                                            cacheReplyInfoVO.getMessageType(),
+//                                            cacheReplyInfoVO.isDeleted(),
+//                                            cacheReplyInfoVO.getRepliedToMessage(),
+//                                            cacheReplyInfoVO.getSystemMetadata(),
+//                                            cacheReplyInfoVO.getMetadata(),
+//                                            cacheReplyInfoVO.getMessage(),
+//                                            cacheReplyInfoVO.getRepliedToMessageTime(),
+//                                            cacheReplyInfoVO.getRepliedToMessageNanos()
+//                                    );
+//                            }
+//
+//                            lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
+//                        }
+//                    }
+//
+//                    //adding pinned message of thread if exist
+//                    addPinnedMessageOfThread(threadVo);
+//
+//                    Thread thread = threadVoToThreadMapper(threadVo, lastMessageVO);
+//
+//                    threads.add(thread);
+//                }
+//            }
+//
+//
+//
+//            listener.onWorkDone(threads);
+//
+//        });
+//
+//
+//    }
 
     private Thread threadVoToThreadMapper(ThreadVo threadVo, MessageVO lastMessageVO) {
 
@@ -2793,6 +2927,7 @@ public class MessageDatabaseHelper {
 
         CacheMessageVO cacheMessageVO;
         try {
+
             MessageVO messageVO = thread.getLastMessageVO();
 
             messageVO.setConversation(thread);
@@ -2804,6 +2939,9 @@ public class MessageDatabaseHelper {
             threadVo.setLastMessageVOId(cacheMessageVO.getId());
 
             messageDao.insertLastMessageVO(cacheMessageVO);
+
+            messageVO.setConversation(null);
+
         } catch (Exception e) {
             Sentry.captureException(e);
             return null;
