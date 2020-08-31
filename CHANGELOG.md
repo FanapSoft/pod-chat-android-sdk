@@ -5,6 +5,14 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.8.3.0] -2020-8-26
+
+[Improved] Threads Cache Performance 
+
+[Fixed] Threads Cache Issues
+
+
+
 
 ## Version [0.8.2.0] -2020-8-15
 
