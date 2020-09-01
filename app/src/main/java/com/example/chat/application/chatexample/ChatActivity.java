@@ -2301,8 +2301,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     private void createPublicThread() {
-
-
+        
         Invitee[] invite = new Invitee[]{
                 new Invitee("5739", InviteType.Constants.TO_BE_USER_CONTACT_ID),
                 new Invitee("5740", InviteType.Constants.TO_BE_USER_CONTACT_ID),
