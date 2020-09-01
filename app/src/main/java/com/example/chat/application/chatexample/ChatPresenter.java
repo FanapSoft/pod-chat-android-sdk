@@ -22,23 +22,23 @@ import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
-import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
-import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.mention.model.GetMentionedRequest;
+import com.fanap.podchat.chat.messge.GetAllUnreadMessageCountRequest;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
-import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.IsPublicThreadNameAvailableRequest;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
-import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.JoinPublicThreadRequest;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
-import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
-import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
+import com.fanap.podchat.chat.user.profile.UpdateProfileRequest;
+import com.fanap.podchat.chat.user.profile.UpdateProfileResponse;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.mainmodel.SearchContactRequest;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -48,10 +48,10 @@ import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
-import com.fanap.podchat.model.ResultBlock;
-import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.BlockUnblockUserResponse;
+import com.fanap.podchat.model.GetBlockedUserListResponse;
 import com.fanap.podchat.model.ResultClearHistory;
-import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.GetContactsResponse;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
@@ -67,51 +67,50 @@ import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
-import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.model.GetUserInfoResponse;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
-import com.fanap.podchat.requestobject.RequestBlockList;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestGetContact;
-import com.fanap.podchat.requestobject.RequestGetFile;
-import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.GetBlockedListRequest;
+import com.fanap.podchat.requestobject.CreateThreadWithFileRequest;
+import com.fanap.podchat.requestobject.GetContactRequest;
+import com.fanap.podchat.requestobject.GetFileRequest;
+import com.fanap.podchat.requestobject.GetImageRequest;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
-import com.fanap.podchat.requestobject.RequestAddContact;
-import com.fanap.podchat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.requestobject.RequestClearHistory;
-import com.fanap.podchat.requestobject.RequestConnect;
-import com.fanap.podchat.requestobject.RequestCreateThread;
-import com.fanap.podchat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestFileMessage;
-import com.fanap.podchat.requestobject.RequestForwardMessage;
-import com.fanap.podchat.requestobject.RequestGetAdmin;
-import com.fanap.podchat.requestobject.RequestGetHistory;
-import com.fanap.podchat.requestobject.RequestGetLastSeens;
-import com.fanap.podchat.requestobject.RequestLeaveThread;
-import com.fanap.podchat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.requestobject.RequestMapReverse;
-import com.fanap.podchat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
-import com.fanap.podchat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.requestobject.RequestReplyMessage;
-import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.GetCurrentUserRolesRequest;
+import com.fanap.podchat.chat.pin.pin_message.model.PinUnpinMessageRequest;
+import com.fanap.podchat.requestobject.SetRemoveRoleRequest;
+import com.fanap.podchat.requestobject.AddContactRequest;
+import com.fanap.podchat.requestobject.AddParticipantsRequest;
+import com.fanap.podchat.requestobject.ClearHistoryRequest;
+import com.fanap.podchat.requestobject.ConnectRequest;
+import com.fanap.podchat.requestobject.CreateThreadRequest;
+import com.fanap.podchat.requestobject.DeleteMessageRequest;
+import com.fanap.podchat.requestobject.GetMessageDeliveredSeenListRequest;
+import com.fanap.podchat.requestobject.FileMessageRequest;
+import com.fanap.podchat.requestobject.ForwardMessageRequest;
+import com.fanap.podchat.requestobject.GetAllThreadAdminsRequest;
+import com.fanap.podchat.requestobject.GetHistoryRequest;
+import com.fanap.podchat.requestobject.GetUserNotSeenDurationRequest;
+import com.fanap.podchat.requestobject.LeaveThreadRequest;
+import com.fanap.podchat.requestobject.SendLocationMessageRequest;
+import com.fanap.podchat.requestobject.MapReverseRequest;
+import com.fanap.podchat.requestobject.MapStaticImageRequest;
+import com.fanap.podchat.requestobject.SendTextMessageRequest;
+import com.fanap.podchat.chat.pin.pin_thread.model.PinUnpinThreadRequest;
+import com.fanap.podchat.requestobject.RemoveParticipantsRequest;
+import com.fanap.podchat.requestobject.SendReplyFileMessageRequest;
+import com.fanap.podchat.requestobject.ReplyTextMessageRequest;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
-import com.fanap.podchat.requestobject.RequestSpam;
-import com.fanap.podchat.requestobject.RequestThread;
-import com.fanap.podchat.requestobject.RequestThreadInfo;
-import com.fanap.podchat.requestobject.RequestThreadParticipant;
-import com.fanap.podchat.requestobject.RequestUnBlock;
-import com.fanap.podchat.requestobject.RequestUpdateContact;
-import com.fanap.podchat.requestobject.RequestUploadFile;
-import com.fanap.podchat.requestobject.RequestUploadImage;
+import com.fanap.podchat.requestobject.SpamPrivateThreadRequest;
+import com.fanap.podchat.requestobject.GetThreadsRequest;
+import com.fanap.podchat.requestobject.UpdateThreadInfoRequest;
+import com.fanap.podchat.requestobject.GetThreadParticipantsRequest;
+import com.fanap.podchat.requestobject.UnBlockRequest;
+import com.fanap.podchat.requestobject.UpdateContactsRequest;
+import com.fanap.podchat.requestobject.UploadFileRequest;
+import com.fanap.podchat.requestobject.UploadImageRequest;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
@@ -224,7 +223,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void connect(RequestConnect requestConnect) {
+    public void connect(ConnectRequest requestConnect) {
 
         NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
                 .setHostName("chat-sandbox.pod.ir")
@@ -264,9 +263,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void checkIsNameAvailable(RequestCheckIsNameAvailable request) {
+    public void checkIsNameAvailable(IsPublicThreadNameAvailableRequest request) {
 
-        chat.isNameAvailable(request);
+        chat.isPublicThreadNameAvailable(request);
     }
 
     @Override
@@ -276,22 +275,22 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void joinPublicThread(RequestJoinPublicThread request) {
+    public void joinPublicThread(JoinPublicThreadRequest request) {
         chat.joinPublicThread(request);
     }
 
     @Override
-    public void getContact(RequestGetContact request) {
+    public void getContact(GetContactRequest request) {
         chat.getContacts(request, null);
     }
 
     @Override
-    public void getBlockList(RequestBlockList request) {
+    public void getBlockList(GetBlockedListRequest request) {
         chat.getBlockList(request, null);
     }
 
     @Override
-    public void getThreadParticipant(RequestThreadParticipant request) {
+    public void getThreadParticipant(GetThreadParticipantsRequest request) {
         chat.getThreadParticipants(request, null);
     }
 
@@ -334,12 +333,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public String updateThreadInfo(RequestThreadInfo request) {
+    public String updateThreadInfo(UpdateThreadInfoRequest request) {
         return chat.updateThreadInfo(request, null);
     }
 
     @Override
-    public String createThread(RequestCreateThread requestCreateThread) {
+    public String createThread(CreateThreadRequest requestCreateThread) {
         return chat.createThread(requestCreateThread);
     }
 
@@ -433,12 +432,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendLocationMessage(RequestLocationMessage request) {
+    public void sendLocationMessage(SendLocationMessageRequest request) {
         chat.sendLocationMessage(request);
     }
 
     @Override
-    public void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage handler) {
+    public void sendLocationMessage(SendLocationMessageRequest requestLocationMessage, ProgressHandler.sendFileMessage handler) {
 
         chat.sendLocationMessage(requestLocationMessage, handler);
     }
@@ -481,21 +480,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void seenMessageList(RequestSeenMessageList requestParams) {
+    public void seenMessageList(GetMessageDeliveredSeenListRequest requestParams) {
 
         chat.getMessageSeenList(requestParams);
 
     }
 
     @Override
-    public void deliveredMessageList(RequestDeliveredMessageList requestParams) {
+    public void deliveredMessageList(GetMessageDeliveredSeenListRequest requestParams) {
 
         chat.getMessageDeliveredList(requestParams);
 
     }
 
     @Override
-    public void createThreadWithMessage(RequestCreateThread threadRequest) {
+    public void createThreadWithMessage(CreateThreadRequest threadRequest) {
 
         chat.createThreadWithMessage(threadRequest);
     }
@@ -509,20 +508,20 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThreads(RequestThread requestThread, ChatHandler handler) {
+    public void getThreads(GetThreadsRequest requestThread, ChatHandler handler) {
 
         chat.getThreads(requestThread, handler);
 
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException ignored) {}
-//
-//        RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount
-//                .Builder()
-//                .withMuteThreads()
-//                .build();
-//
-//        chat.getAllUnreadMessagesCount(req);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
+
+        GetAllUnreadMessageCountRequest req = new GetAllUnreadMessageCountRequest
+                .Builder()
+                .withMuteThreads()
+                .build();
+
+        chat.getAllUnreadMessagesCount(req);
     }
 
     @Override
@@ -535,7 +534,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                            long partnerCoreContactId,
                            ChatHandler handler) {
 
-        RequestThread request = new RequestThread.Builder()
+        GetThreadsRequest request = new GetThreadsRequest.Builder()
                 .count(count)
                 .offset(offset)
                 .threadIds(threadIds)
@@ -553,7 +552,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler) {
 
 
-        RequestThread request = new RequestThread.Builder()
+        GetThreadsRequest request = new GetThreadsRequest.Builder()
                 .count(count)
                 .offset(offset)
                 .threadIds(threadIds)
@@ -584,12 +583,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void mapStaticImage(RequestMapStaticImage request) {
+    public void mapStaticImage(MapStaticImageRequest request) {
         chat.mapStaticImage(request);
     }
 
     @Override
-    public void mapReverse(RequestMapReverse request) {
+    public void mapReverse(MapReverseRequest request) {
         chat.mapReverse(request);
     }
 
@@ -619,7 +618,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(RequestGetHistory request, ChatHandler handler) {
+    public void getHistory(GetHistoryRequest request, ChatHandler handler) {
         chat.getHistory(request, handler);
     }
 
@@ -645,7 +644,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendTextMessage(RequestMessage requestMessage, ChatHandler handler) {
+    public void sendTextMessage(SendTextMessageRequest requestMessage, ChatHandler handler) {
         chat.sendTextMessage(requestMessage, null);
     }
 
@@ -655,13 +654,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void replyFileMessage(RequestReplyFileMessage request, ProgressHandler.sendFileMessage handler) {
+    public void replyFileMessage(SendReplyFileMessageRequest request, ProgressHandler.sendFileMessage handler) {
         chat.replyFileMessage(request, handler);
     }
 
     @Override
-    public void replyMessage(RequestReplyMessage request, ChatHandler handler) {
-        chat.replyMessage(request, handler);
+    public void replyMessage(ReplyTextMessageRequest request, ChatHandler handler) {
+        chat.replyTextMessage(request, handler);
     }
 
     @Override
@@ -687,7 +686,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler) {
 
-        RequestThreadParticipant participant = new RequestThreadParticipant
+        GetThreadParticipantsRequest participant = new GetThreadParticipantsRequest
                 .Builder(threadId)
                 .count(50)
                 .offset(0)
@@ -721,7 +720,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void searchContact(RequestSearchContact requestSearchContact) {
+    public void searchContact(SearchContactRequest requestSearchContact) {
         chat.searchContact(requestSearchContact);
     }
 
@@ -743,7 +742,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void unBlock(RequestUnBlock request, ChatHandler handler) {
+    public void unBlock(UnBlockRequest request, ChatHandler handler) {
 
 //        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder()
 //                .blockId()
@@ -763,20 +762,20 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void spam(long threadId) {
 
-        RequestSpam requestSpam = new RequestSpam.Builder()
+        SpamPrivateThreadRequest requestSpam = new SpamPrivateThreadRequest.Builder()
                 .threadId(threadId)
                 .build();
 
-        chat.spam(requestSpam);
+        chat.spamPrivateThread(requestSpam);
 
 
     }
 
     @Override
-    public String spam(RequestSpam requestSpam) {
+    public String spam(SpamPrivateThreadRequest requestSpam) {
 
 
-        return chat.spam(requestSpam);
+        return chat.spamPrivateThread(requestSpam);
     }
 
     @Override
@@ -787,7 +786,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
 
-        RequestFileMessage request = new RequestFileMessage.Builder(activity, threadId, fileUri, messageType)
+        FileMessageRequest request = new FileMessageRequest.Builder(activity, threadId, fileUri, messageType)
                 .description(description)
                 .systemMetadata(metaData)
 
@@ -798,7 +797,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
+    public String sendFileMessage(FileMessageRequest requestFileMessage, ProgressHandler.sendFileMessage handler) {
         return chat.sendFileMessage(requestFileMessage, handler);
     }
 
@@ -813,7 +812,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void forwardMessage(RequestForwardMessage request) {
+    public void forwardMessage(ForwardMessageRequest request) {
         chat.forwardMessage(request);
     }
 
@@ -823,14 +822,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void updateContact(RequestUpdateContact updateContact) {
+    public void updateContact(UpdateContactsRequest updateContact) {
         chat.updateContact(updateContact);
     }
 
     @Override
     public void uploadImage(Activity activity, Uri fileUri) {
 
-        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+        UploadImageRequest req = new UploadImageRequest.Builder(activity, fileUri)
                 .build();
         chat.uploadImage(req);
     }
@@ -838,7 +837,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
 
-        RequestUploadFile request = new RequestUploadFile.Builder(activity, uri)
+        UploadFileRequest request = new UploadFileRequest.Builder(activity, uri)
                 .build();
 
         chat.uploadFile(request);
@@ -860,7 +859,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler) {
+    public void removeParticipants(RemoveParticipantsRequest requestRemoveParticipants, ChatHandler handler) {
         chat.removeParticipants(requestRemoveParticipants, handler);
     }
 
@@ -870,14 +869,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler) {
+    public void addParticipants(AddParticipantsRequest requestAddParticipants, ChatHandler handler) {
         chat.addParticipants(requestAddParticipants, handler);
     }
 
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
 
-        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId)
+        LeaveThreadRequest leaveThread = new LeaveThreadRequest.Builder(threadId)
                 .build();
         chat.leaveThread(leaveThread, null);
     }
@@ -888,14 +887,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void updateThreadInfo(RequestThreadInfo request, ChatHandler handler) {
+    public void updateThreadInfo(UpdateThreadInfoRequest request, ChatHandler handler) {
         chat.updateThreadInfo(request, handler);
     }
 
     @Override
     public void deleteMessage(ArrayList<Long> messageIds, long threadId, Boolean deleteForAll, ChatHandler handler) {
 
-        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
+        DeleteMessageRequest requestDeleteMessage = new DeleteMessageRequest
                 .Builder()
                 .messageIds(messageIds)
                 .deleteForAll(deleteForAll)
@@ -907,7 +906,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
+    public void deleteMessage(DeleteMessageRequest deleteMessage, ChatHandler handler) {
         String un = chat.deleteMessage(deleteMessage, handler);
     }
 
@@ -915,7 +914,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
 
 
-        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
+        UploadImageRequest req = new UploadImageRequest.Builder(activity, fileUri)
                 .setwC(240)
                 .sethC(120)
                 .setxC(10)
@@ -933,7 +932,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
 
 
-        RequestUploadFile req = new RequestUploadFile
+        UploadFileRequest req = new UploadFileRequest
                 .Builder(activity, fileUri)
                 .setPublic(false)
                 .build();
@@ -942,38 +941,34 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void setAdmin(RequestSetAdmin requestAddAdmin) {
+    public void setAdmin(SetRemoveRoleRequest requestAddAdmin) {
         chat.addAdmin(requestAddAdmin);
     }
 
     @Override
-    public void removeAdminRules(RequestSetAdmin requestAddAdmin) {
+    public void removeAdminRules(SetRemoveRoleRequest requestAddAdmin) {
 
         chat.removeAdmin(requestAddAdmin);
     }
 
     @Override
-    public void clearHistory(RequestClearHistory requestClearHistory) {
+    public void clearHistory(ClearHistoryRequest requestClearHistory) {
         chat.clearHistory(requestClearHistory);
     }
 
     @Override
-    public void getAdminList(RequestGetAdmin requestGetAdmin) {
-        chat.getAdminList(requestGetAdmin);
+    public void getAdminList(GetAllThreadAdminsRequest requestGetAdmin) {
+        chat.getThreadAdmins(requestGetAdmin);
     }
 
 
     @Override
     public void getNotSeenDuration(ArrayList<Integer> userIds) {
-
-
-        RequestGetLastSeens requestGetLastSeens =
-                new RequestGetLastSeens
+        GetUserNotSeenDurationRequest requestGetLastSeens =
+                new GetUserNotSeenDurationRequest
                         .Builder(userIds)
                         .build();
-
-
-        chat.getNotSeenDuration(requestGetLastSeens);
+        chat.getUserNotSeenDuration(requestGetLastSeens);
 
 
     }
@@ -1007,14 +1002,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void pinThread(RequestPinThread requestPinThread) {
+    public void pinThread(PinUnpinThreadRequest requestPinThread) {
 
         chat.pinThread(requestPinThread);
     }
 
 
     @Override
-    public void unPinThread(RequestPinThread requestPinThread) {
+    public void unPinThread(PinUnpinThreadRequest requestPinThread) {
         chat.unPinThread(requestPinThread);
     }
 
@@ -1027,13 +1022,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void removeAuditor(RequestSetAuditor requestAddAdmin) {
-
-        chat.removeAuditor(requestAddAdmin);
+//
+        // chat.removeAuditor(requestAddAdmin);
     }
 
 
     @Override
-    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.sendFileMessage handler) {
+    public void createThreadWithFile(CreateThreadWithFileRequest request, ProgressHandler.sendFileMessage handler) {
         chat.createThreadWithFile(request, handler);
     }
 
@@ -1055,7 +1050,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
+    public void onGetContacts(String content, ChatResponse<GetContactsResponse> outPutContact) {
         super.onGetContacts(content, outPutContact);
 
         view.onGetContacts();
@@ -1068,7 +1063,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
+    public void onUserInfo(String content, ChatResponse<GetUserInfoResponse> outPutUserInfo) {
         view.onGetUserInfo();
     }
 
@@ -1100,7 +1095,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getUserRoles(RequestGetUserRoles req) {
+    public void getUserRoles(GetCurrentUserRolesRequest req) {
 
         String uniqueId = chat.getCurrentUserRoles(req);
 
@@ -1108,7 +1103,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void pinMessage(RequestPinMessage requestPinMessage) {
+    public void pinMessage(PinUnpinMessageRequest requestPinMessage) {
 
         String uniqueId = chat.pinMessage(requestPinMessage);
 
@@ -1116,15 +1111,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void unPinMessage(RequestPinMessage requestPinMessage) {
+    public void unPinMessage(PinUnpinMessageRequest requestPinMessage) {
 
         String uniqueId = chat.unPinMessage(requestPinMessage);
     }
 
     @Override
-    public void getMentionList(RequestGetMentionList req) {
+    public void getMentionList(GetMentionedRequest req) {
 
-        chat.getMentionList(req);
+        chat.getMentionedMessages(req);
 
     }
 
@@ -1136,12 +1131,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public String downloadFile(RequestGetImage requestGetImage, ProgressHandler.IDownloadFile onProgressFile) {
+    public String downloadFile(GetImageRequest requestGetImage, ProgressHandler.IDownloadFile onProgressFile) {
         return chat.getImage(requestGetImage, onProgressFile);
     }
 
     @Override
-    public String downloadFile(RequestGetFile requestGetFile, ProgressHandler.IDownloadFile onProgressFile) {
+    public String downloadFile(GetFileRequest requestGetFile, ProgressHandler.IDownloadFile onProgressFile) {
         return chat.getFile(requestGetFile, onProgressFile);
     }
 
@@ -1191,12 +1186,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void addContact(RequestAddContact request) {
+    public void addContact(AddContactRequest request) {
         chat.addContact(request);
     }
 
     @Override
-    public void updateChatProfile(RequestUpdateProfile request) {
+    public void updateChatProfile(UpdateProfileRequest request) {
         chat.updateChatProfile(request);
     }
 
@@ -1301,7 +1296,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
+    public void onChatProfileUpdated(ChatResponse<UpdateProfileResponse> response) {
 
         Log.d("CHAT_SDK_PRESENTER", "Chat profile updated");
 
@@ -1314,14 +1309,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
-//
-//            RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
-//                    .build();
-//
-//            chat.getAllUnreadMessagesCount(req);
-//
-//        }
+        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+
+            GetAllUnreadMessageCountRequest req = new GetAllUnreadMessageCountRequest.Builder()
+                    .build();
+
+            chat.getAllUnreadMessagesCount(req);
+
+        }
 
     }
 
@@ -1332,13 +1327,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    public void onBlock(String content, ChatResponse<BlockUnblockUserResponse> outPutBlock) {
         super.onBlock(content, outPutBlock);
         view.onBlock();
     }
 
     @Override
-    public void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    public void onUnBlock(String content, ChatResponse<BlockUnblockUserResponse> outPutBlock) {
         super.onUnBlock(content, outPutBlock);
         view.onUnblock();
     }
@@ -1355,7 +1350,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
+    public void onGetBlockList(String content, ChatResponse<GetBlockedUserListResponse> outPutBlockList) {
         super.onGetBlockList(content, outPutBlockList);
         view.ongetBlockList();
     }
@@ -1366,7 +1361,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
+    public void onSearchContact(String content, ChatResponse<GetContactsResponse> chatResponse) {
         super.onSearchContact(content, chatResponse);
         view.onSearchContact();
     }
