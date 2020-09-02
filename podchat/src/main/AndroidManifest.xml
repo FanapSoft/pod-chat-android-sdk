@@ -5,6 +5,7 @@
     tools:targetApi="n">
 
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <application>
 
 

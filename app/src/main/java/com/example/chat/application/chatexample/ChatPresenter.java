@@ -1353,7 +1353,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 //        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
 //
-//            syncContact(activity);
+//
+//            getThreads(new RequestThread.Builder().count(15).offset(0).build(),null);
 //
 //        }
 
@@ -1694,7 +1695,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
         CallRequest request = new CallRequest
-                .Builder(invitees,CallType.Constants.VOICE_CALL)
+//                .Builder(invitees,CallType.Constants.VOICE_CALL)
+                .Builder(6952,CallType.Constants.VOICE_CALL)
                 .build();
 
         chat.requestGroupCall(request,true);

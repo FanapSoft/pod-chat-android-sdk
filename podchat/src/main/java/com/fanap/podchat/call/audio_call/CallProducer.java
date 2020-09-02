@@ -1,16 +1,23 @@
 package com.fanap.podchat.call.audio_call;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
+import android.os.Build;
 import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ProducerClient;
 import com.fanap.podchat.call.codec.opus.OpusEncoder;
 import com.fanap.podchat.call.model.CallSSLData;
+import com.fanap.podchat.model.Content;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -27,7 +34,7 @@ public class CallProducer implements Runnable {
 
 
     // Sample rate must be one supported by Opus.
-    static final int SAMPLE_RATE = 8000;
+    static final int SAMPLE_RATE = 12000;
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
@@ -51,21 +58,34 @@ public class CallProducer implements Runnable {
     private String sendKey;
     private String sendingTopic;
     private boolean consuming;
+    private boolean isHeadset;
+
 
 
     public CallProducer(IRecordThread callback, CallSSLData sslData,
                         String brokerAddress,
                         String sendKey,
-                        String sendingTopic) {
+                        String sendingTopic,
+                        boolean headsetInitialState) {
         this.callback = callback;
         this.callSSLData = sslData;
         this.brokerAddress = brokerAddress;
         this.sendKey = sendKey;
         this.sendingTopic = sendingTopic;
+        isHeadset = headsetInitialState;
+
     }
 
     @Override
     public void run() {
+
+        initial();
+
+        record();
+
+    }
+
+    private void initial() {
 
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_MORE_FAVORABLE);
 
@@ -75,9 +95,9 @@ public class CallProducer implements Runnable {
 
         // initialize audio recorder
         if (recorder == null)
-            recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+            recorder = new AudioRecord(isHeadset ? MediaRecorder.AudioSource.MIC : MediaRecorder.AudioSource.VOICE_COMMUNICATION,
                     SAMPLE_RATE,
-                    NUM_CHANNELS == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO,
+                    AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT,
                     minBufSize);
 
@@ -93,7 +113,9 @@ public class CallProducer implements Runnable {
         recorder.startRecording();
         isRecording = true;
         callback.onRecorderSet();
+    }
 
+    private void record() {
 
         short[] inBuffer = new short[FRAME_SIZE * NUM_CHANNELS];
         byte[] encodeBufferTemp = new byte[1024];
@@ -123,7 +145,9 @@ public class CallProducer implements Runnable {
                 if (!firstByteRecorded) {
                     firstByteRecorded = true;
                     connectProducer();
-                    callSSLData.clear();
+
+                    if (callSSLData != null)
+                        callSSLData.clear();
                 }
 
                 if (!firstByteReceived) {
@@ -170,8 +194,11 @@ public class CallProducer implements Runnable {
 
                 recorder.release();
             }
+
+
             isRecording = false;
 
+            recorder = null;
 
             if (agc != null) {
                 agc.release();
@@ -254,6 +281,14 @@ public class CallProducer implements Runnable {
 
         producerClient.connect();
     }
+
+    public void updateHeadsetState(boolean isHeadset) {
+        this.isHeadset = isHeadset;
+//        recorder.stop();
+        isRecording = false;
+        recorder = null;
+    }
+
 
     public interface IRecordThread {
 

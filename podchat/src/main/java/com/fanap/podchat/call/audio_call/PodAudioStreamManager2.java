@@ -1,5 +1,8 @@
 package com.fanap.podchat.call.audio_call;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothHeadset;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,17 +18,23 @@ import android.support.annotation.NonNull;
 
 import com.fanap.podchat.call.model.CallSSLData;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static android.content.Context.AUDIO_SERVICE;
 import static android.content.Context.SENSOR_SERVICE;
 
 public class PodAudioStreamManager2 implements SensorEventListener, AudioManager.OnAudioFocusChangeListener, RecordThread.IRecordThread, CallConsumer.IConsumer, CallProducer.IRecordThread {
 
+    public static final String ACTION_HEADSET_PLUG = "android.intent.action.HEADSET_PLUG";
     private boolean isRecording = false;
     private boolean isPlaying = false;
 
     private boolean isSpeakerOn = false;
     private boolean isMute = false;
-    private boolean isHeadset = false;
+    private boolean isWiredHeadset = false;
+    private boolean isBtHeadset = false;
     private boolean haveAudioFocus;
 
     private SensorManager mSensorManager = null;
@@ -33,9 +42,12 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
     private static final int PROXIMITY_SCREEN_OFF_WAKE_LOCK = 32;
     private PowerManager.WakeLock proximityWakelock;
+    private PowerManager.WakeLock cpuWakeLock;
     private boolean isProximityNear;
 
     private AudioManager audioManager;
+    private BluetoothAdapter bluetoothAdapter;
+
     private Context mContext;
 
     private IPodAudioListener recordCallback;
@@ -59,6 +71,9 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
     String sendKey;
     String receivingTopic;
     String sendingTopic;
+    List<String> topicsList;
+
+    boolean isGroupCall;
 
 
     PodAudioStreamManager2(Context context) {
@@ -71,36 +86,128 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
         if (audioManager != null) {
             setupAudioManager();
+            setupBTAdapter();
         }
 
         if (mSensorManager != null) {
             setupProximity();
         }
 
+        setupCPUWakeLock();
+
         setupHeadsetReceiver();
+    }
+
+    private void setupCPUWakeLock() {
+
+        cpuWakeLock = ((PowerManager) mContext.getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.fanap.podchat:audio_stream");
+
+
+    }
+
+    private void setupBTAdapter() {
+
+        bluetoothAdapter = audioManager.isBluetoothScoAvailableOffCall() ? BluetoothAdapter.getDefaultAdapter() : null;
+
     }
 
     private void setupHeadsetReceiver() {
         headsetReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 updateHeadsetState(intent);
             }
         };
 
         IntentFilter intentFilter = new IntentFilter();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            intentFilter.addAction(AudioManager.ACTION_HEADSET_PLUG);
+        intentFilter.addAction(ACTION_HEADSET_PLUG);
+
+        if (bluetoothAdapter != null) {
+            intentFilter.addAction(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED);
+            intentFilter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
         }
+
 
         mContext.registerReceiver(headsetReceiver, intentFilter);
     }
 
     private void updateHeadsetState(Intent intent) {
-        int state = intent.getIntExtra("state", -1);
-        isHeadset = state == 1;
-        resetRecorder();
+
+        if (ACTION_HEADSET_PLUG.equals(intent.getAction())) {
+
+            isWiredHeadset = intent.getIntExtra("state", 0) == 1;
+
+            if (isWiredHeadset && proximityWakelock != null && proximityWakelock.isHeld()) {
+                proximityWakelock.release();
+            }
+
+            if (isWiredHeadset) {
+                audioManager.setWiredHeadsetOn(true);
+            } else {
+                audioManager.setWiredHeadsetOn(false);
+            }
+
+
+        } else if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED.equals(intent.getAction())) {
+
+            boolean connected = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, BluetoothProfile.STATE_DISCONNECTED) == BluetoothProfile.STATE_CONNECTED;
+
+            if (connected != isBtHeadset) {
+
+                isBtHeadset = connected;
+
+                if (connected) {
+                    switchSpeakerState(false);
+                    audioManager.setBluetoothScoOn(true);
+                } else {
+                    audioManager.setBluetoothScoOn(false);
+                }
+
+            }
+
+        } else if (AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED.equals(intent.getAction())) {
+
+
+            int state = intent.getIntExtra(AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_DISCONNECTED);
+
+            if (state == AudioManager.SCO_AUDIO_STATE_CONNECTED) {
+                audioManager.setSpeakerphoneOn(false);
+                audioManager.setBluetoothScoOn(true);
+            }
+
+
+        }
+
+//        boolean newState = state == 1;
+
+//        if (newState != isWiredHeadset) {
+//
+//            isWiredHeadset = newState;
+//
+//            if (isWiredHeadset && proximityWakelock != null && proximityWakelock.isHeld()) {
+//                proximityWakelock.release();
+//            }
+//
+//            if (isWiredHeadset) {
+//                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+//                audioManager.startBluetoothSco();
+//                if (audioManager.isWiredHeadsetOn()) {
+//                    audioManager.setWiredHeadsetOn(true);
+//
+//                } else if (BluetoothProfile.STATE_CONNECTED)
+//                    audioManager.setBluetoothScoOn(true);
+//            } else {
+//                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+//                audioManager.stopBluetoothSco();
+//                audioManager.setBluetoothScoOn(false);
+//                audioManager.setSpeakerphoneOn(false);
+//            }
+//
+//
+////            resetRecorder();
+//        }
     }
 
     private void setupProximity() {
@@ -112,15 +219,15 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
     }
 
     private void setupAudioManager() {
-        isHeadset = audioManager.isWiredHeadsetOn();
+        isWiredHeadset = audioManager.isWiredHeadsetOn();
         audioManager.setSpeakerphoneOn(false);
         audioManager.setMicrophoneMute(false);
         audioManager.requestAudioFocus(this, AudioManager.STREAM_VOICE_CALL, AudioManager.AUDIOFOCUS_GAIN);
     }
 
     private void updateAudioManager() {
-        isHeadset = audioManager.isWiredHeadsetOn();
-        audioManager.setMode(AudioManager.MODE_IN_CALL);
+        isWiredHeadset = audioManager.isWiredHeadsetOn();
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
     }
 
     void recordAudio(@NonNull IPodAudioListener listener, String sendingTopic) {
@@ -132,9 +239,11 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
             stopRecording();
         }
 
+        runWakeLock();
+
         updateAudioManager();
 
-        callProducer = new CallProducer(this, callSSL,brokerAddress,sendKey,sendingTopic);
+        callProducer = new CallProducer(this, callSSL, brokerAddress, sendKey, sendingTopic, isWiredHeadset);
 
         producerThread = new Thread(callProducer);
         producerThread.setName("PRODUCING THREAD");
@@ -160,6 +269,14 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
         }
 
 
+        isGroupCall = isGroupCall(receivingTopic);
+
+        if (isGroupCall) {
+
+            callConsumer = new GroupCallConsumer(
+                    callSSL, brokerAddress, sendKey, new ArrayList<>(topicsList), this);
+
+        }
         callConsumer = new CallConsumer(
                 callSSL, brokerAddress, sendKey, receivingTopic, this);
 
@@ -173,6 +290,16 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
         mSensorManager.registerListener(this, mProximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
 
+    }
+
+    private boolean isGroupCall(String receiving) {
+
+
+        String[] topics = receiving.split(",");
+
+        topicsList = Arrays.asList(topics);
+
+        return topicsList.size() > 1;
     }
 
     void setPlaying() {
@@ -221,11 +348,13 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
             stopRecording();
             stopPlaying();
             mContext.unregisterReceiver(headsetReceiver);
+            stopWakeLock();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     void switchSpeakerState(boolean isSpeakerOn) {
 
@@ -249,8 +378,15 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
     private void resetRecorder() {
         if (isRecording) {
-            recordAudio(recordCallback, sendingTopic);
-            recordCallback.onRecordRestarted();
+
+            callProducer.stopRecording();
+
+            callProducer.updateHeadsetState(isWiredHeadset);
+
+            producerThread = new Thread(callProducer);
+            producerThread.setName("PRODUCING THREAD");
+            producerThread.start();
+
         }
     }
 
@@ -261,7 +397,7 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
             if (sensorEvent.sensor.getType() == Sensor.TYPE_PROXIMITY) {
 
-                if (isHeadset || audioManager.isSpeakerphoneOn()) {
+                if (isWiredHeadset || audioManager.isSpeakerphoneOn()) {
                     return;
                 }
 
@@ -276,9 +412,13 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
                     isProximityNear = newIsNear;
 
                     if (isProximityNear) {
-                        proximityWakelock.acquire(10 * 60 * 1000L /*10 minutes*/);
+                        proximityWakelock.acquire();
                     } else {
-                        proximityWakelock.release();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            proximityWakelock.release(1);
+                        } else {
+                            proximityWakelock.release();
+                        }
                     }
                 }
             }
@@ -317,6 +457,22 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
     public void onFirstBytesReceived() {
 
 
+    }
+
+    private void runWakeLock() {
+        try {
+            cpuWakeLock.acquire();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopWakeLock() {
+        try {
+            cpuWakeLock.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public interface IPodAudioListener {

@@ -2,9 +2,14 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -39,6 +44,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
     private static final String TAG = "CHAT_SDK_CALL";
+    public static final long[] VIB_PATTERN = {0, 1000, 1000};
     private String TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
     private final static String ZIZI_TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
     private final static String FIFI_TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
@@ -120,6 +126,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             checkboxAddFifi;
 
 
+    Vibrator vibrator;
+    boolean isMute = false;
+    boolean isSpeakerOn = false;
+
+
     private int partnerId = 122;
     private boolean chatReady;
     private boolean isTestMode = false;
@@ -179,7 +190,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             isTestMode = true;
 
-            setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+//            setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
             if (!etGroupId.getText().toString().isEmpty()
                     && !etSender.getText().toString().isEmpty()
                     && !etReceiver.getText().toString().isEmpty()) {
@@ -248,7 +259,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 inCallView.setVisibility(View.INVISIBLE);
                 callRequestView.setVisibility(View.INVISIBLE);
                 buttonCall.setVisibility(View.VISIBLE);
-                buttonTestCall.setVisibility(View.VISIBLE);
+//                buttonTestCall.setVisibility(View.VISIBLE);
                 buttonConnect.setVisibility(View.VISIBLE);
 
                 isTestMode = false;
@@ -264,15 +275,37 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonCloseHistory.setOnClickListener(v -> viewHistory.setVisibility(View.INVISIBLE));
 
-        buttonMute.setOnClickListener(v -> presenter.switchMute());
+        buttonMute.setOnClickListener(v -> {
 
-        buttonSpeaker.setOnClickListener(v -> presenter.switchSpeaker());
+
+            vibrate();
+
+            scaleIt(v);
+
+            presenter.switchMute();
+
+            toggleMute((ImageButton) v);
+
+        });
+
+        buttonSpeaker.setOnClickListener(v -> {
+
+            vibrate();
+
+            scaleIt(v);
+
+            presenter.switchSpeaker();
+
+            toggleSpeaker((ImageButton) v);
+
+        });
 
         buttonAddCallParticipant.setOnClickListener(v -> presenter.addCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
             presenter.enableAutoRefresh(this, etNumberOrOtp.getText().toString());
+
             etNumberOrOtp.setText("");
 
         });
@@ -301,7 +334,68 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         });
     }
 
+    private void toggleSpeaker(ImageButton v) {
+
+        isSpeakerOn = !isSpeakerOn;
+
+        if(isSpeakerOn){
+            v.setAlpha(1f);
+        }else {
+            v.setAlpha(0.6f);
+        }
+
+    }
+
+    private void toggleMute(ImageButton v) {
+
+        isMute = !isMute;
+
+        if (isMute) {
+            v.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_on));
+        } else {
+            v.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_off));
+        }
+    }
+
+    private void vibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+
+        } else {
+            //deprecated in API 26
+            vibrator.vibrate(100);
+        }
+    }
+
+    private void vibrateE() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            vibrator.vibrate(VibrationEffect.createWaveform(VIB_PATTERN, 0));
+
+        } else {
+            //deprecated in API 26
+            vibrator.vibrate(VIB_PATTERN, 0);
+        }
+    }
+
+    private void scaleIt(View v) {
+        v.animate()
+                .scaleX(0.7f)
+                .scaleY(0.7f)
+                .setDuration(250)
+                .withEndAction(() ->
+                        v.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(250)
+                                .start())
+                .start();
+    }
+
     private void updateViewOnCallReaction() {
+
+        cancelVib();
 
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.GONE);
@@ -434,6 +528,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         Logger.addLogAdapter(new AndroidLogAdapter());
 
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         CallInfo callInfo = getIntent().getParcelableExtra(ChatConstant.POD_CALL_INFO);
         if (callInfo != null) {
@@ -457,7 +552,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 buttonCall.setVisibility(View.VISIBLE);
             });
 
-
         } else {
 
             chatReady = false;
@@ -473,11 +567,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onVoiceCallRequestReceived(String callerName) {
 
+        vibrateE();
+
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.VISIBLE);
             viewHistory.setVisibility(View.INVISIBLE);
             buttonCall.setVisibility(View.INVISIBLE);
             buttonTestCall.setVisibility(View.INVISIBLE);
+            buttonConnectSandBox.setVisibility(View.INVISIBLE);
+            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
             tvCallerName.setText(callerName);
         });
 
@@ -486,9 +584,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onVoiceCallRequestRejected(String callerName) {
 
+
+        cancelVib();
+
         runOnUiThread(() -> {
             buttonCall.setVisibility(View.VISIBLE);
-            buttonTestCall.setVisibility(View.VISIBLE);
+//            buttonTestCall.setVisibility(View.VISIBLE);
+            buttonConnectSandBox.setVisibility(View.VISIBLE);
+            buttonStartSandboxCall.setVisibility(View.VISIBLE);
             tvStatus.setText(String.format("%s Rejected Your Call Request", callerName));
         });
 
@@ -499,8 +602,18 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onVoiceCallStarted(String uniqueId, String clientId) {
 
+        setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+
+        cancelVib();
+
         runOnUiThread(this::showInCallView);
 
+
+    }
+
+    private void cancelVib() {
+
+        vibrator.cancel();
 
     }
 
@@ -520,11 +633,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
     private void onCallEnded() {
+
+        setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
+
         runOnUiThread(() -> {
             inCallView.setVisibility(View.INVISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
             buttonCall.setVisibility(View.VISIBLE);
-            buttonTestCall.setVisibility(View.VISIBLE);
+//            buttonTestCall.setVisibility(View.VISIBLE);
+            buttonConnectSandBox.setVisibility(View.VISIBLE);
+            buttonStartSandboxCall.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Call has been ended", Toast.LENGTH_SHORT).show();
         });
     }
@@ -599,12 +717,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants) {
 
+        vibrateE();
+
         runOnUiThread(() -> {
             Toast.makeText(this, "Group Call", Toast.LENGTH_SHORT).show();
             callRequestView.setVisibility(View.VISIBLE);
             viewHistory.setVisibility(View.INVISIBLE);
             buttonCall.setVisibility(View.INVISIBLE);
             buttonTestCall.setVisibility(View.INVISIBLE);
+            buttonConnectSandBox.setVisibility(View.INVISIBLE);
+            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
             tvCallerName.setText(callerName + " from " + title);
         });
 

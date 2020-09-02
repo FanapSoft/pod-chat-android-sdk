@@ -14,6 +14,8 @@ public class CreateCallVO implements Serializable {
     private long creatorId;
     private Participant creatorVO;
     private Thread conversationVO;
+    private long threadId;
+    private boolean isGroup;
 
 
     public List<Invitee> getInvitees() {
@@ -54,5 +56,21 @@ public class CreateCallVO implements Serializable {
 
     public void setConversationVO(Thread conversationVO) {
         this.conversationVO = conversationVO;
+    }
+
+    public long getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
+    }
+
+    public boolean isGroup() {
+        return isGroup;
+    }
+
+    public void setGroup(boolean group) {
+        isGroup = group;
     }
 }

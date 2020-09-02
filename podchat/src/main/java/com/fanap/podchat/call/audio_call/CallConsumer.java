@@ -17,7 +17,7 @@ import java.util.Properties;
 public class CallConsumer implements Runnable {
 
     // Sample rate must be one supported by Opus.
-    private static final int SAMPLE_RATE = 8000;
+    private static final int SAMPLE_RATE = 12000;
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
@@ -67,6 +67,9 @@ public class CallConsumer implements Runnable {
 
         connectConsumerClient();
 
+    }
+
+    public CallConsumer() {
     }
 
     @Override
@@ -214,6 +217,10 @@ public class CallConsumer implements Runnable {
         consumer = new ConsumerClient(consumerProperties, receivingTopic);
 
         consumer.connect();
+    }
+
+    public void reStart() {
+
     }
 
 

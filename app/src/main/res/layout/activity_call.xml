@@ -7,8 +7,50 @@
     android:background="@color/grey"
     tools:context="com.example.chat.application.chatexample.CallActivity">
 
+    <EditText
+        android:textColor="@color/white"
+        android:id="@+id/etOtpNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Number OR Code"
+        android:inputType="phone"
+        android:textColorHint="@color/design_default_color_primary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkboxGroupCall" />
+
 
     <Button
+        android:id="@+id/btnConnectToSandbox"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/design_default_color_primary"
+        android:text="OK"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/etOtpNumber" />
+
+
+    <EditText
+        android:textColor="@color/white"
+        android:textColorHint="@color/design_default_color_primary"
+        android:hint="Enter SandBox Partner Id"
+        android:id="@+id/etSandBoxPartnerId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btnConnectToSandbox"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/btnSandboxCall"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/design_default_color_primary"
+        android:text="Call"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/etSandBoxPartnerId" />
+
+
+    <Button
+        android:visibility="gone"
         android:id="@+id/btnCallTest"
         android:layout_width="240dp"
         android:layout_height="60dp"
@@ -77,46 +119,6 @@
         app:layout_constraintTop_toBottomOf="@+id/linearCallParticipants" />
 
 
-    <EditText
-        android:textColor="@color/white"
-        android:id="@+id/etOtpNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Enter Number OR Code"
-        android:inputType="phone"
-        android:textColorHint="@color/design_default_color_primary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/checkboxGroupCall" />
-
-
-    <Button
-        android:id="@+id/btnConnectToSandbox"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/design_default_color_primary"
-        android:text="OK"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/etOtpNumber" />
-
-    
-    <EditText
-        android:textColor="@color/white"
-        android:textColorHint="@color/design_default_color_primary"
-        android:hint="Enter SandBox Partner Id"
-        android:id="@+id/etSandBoxPartnerId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/btnConnectToSandbox"
-        android:inputType="number" />
-
-    <Button
-        android:id="@+id/btnSandboxCall"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/design_default_color_primary"
-        android:text="Call"
-        android:textColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@+id/etSandBoxPartnerId" />
 
 
     <ImageButton

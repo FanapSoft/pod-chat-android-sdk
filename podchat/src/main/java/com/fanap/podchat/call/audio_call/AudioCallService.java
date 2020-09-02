@@ -122,7 +122,7 @@ public class AudioCallService extends Service {
 
         if (!Util.isNullOrEmpty(sendingTopic)) {
             callManager.startStream();
-        }
+        }else callManager.testAudio();
     }
 
     private void getIntentData(Intent intent) {

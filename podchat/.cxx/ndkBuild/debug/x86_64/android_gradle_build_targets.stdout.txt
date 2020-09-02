@@ -1,7 +1,7 @@
 "##########################################################"
 "###################### LOCAL PATH #########################"
 "##########################################################"
-C:/Work/pod-chat-android-sdk/podchat/src/main/jni
+D:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/src/main/jni
 "##########################################################"
 "##########################################################"
 "##########################################################"
@@ -20,5 +20,5 @@ C:/Work/pod-chat-android-sdk/podchat/src/main/jni
 "##########################################################"
 "####################### End Speexdsp #####################"
 "##########################################################"
-make: Nothing to be done for `podopus'.
-make: Nothing to be done for `podspeexdsp'.
+make: Nothing to be done for 'podopus'.
+make: Nothing to be done for 'podspeexdsp'.

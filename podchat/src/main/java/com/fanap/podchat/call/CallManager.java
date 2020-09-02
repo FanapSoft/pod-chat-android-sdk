@@ -117,6 +117,8 @@ public class CallManager {
 
         if (request.getSubjectId() <= 0)
             createCallVO.setInvitees(request.getInvitees());
+        else
+            createCallVO.setThreadId(request.getSubjectId());
 
         createCallVO.setType(request.getCallType());
 
@@ -130,16 +132,8 @@ public class CallManager {
         message.setUniqueId(uniqueId);
 
 
-        JsonObject messageObj;
-
-        if (Util.isNullOrEmpty(request.getInvitees())) {
-            message.setSubjectId(request.getSubjectId());
-            messageObj = (JsonObject) App.getGson().toJsonTree(message);
-        } else {
-            messageObj = (JsonObject) App.getGson().toJsonTree(message);
-            messageObj.remove("subjectId");
-        }
-
+        JsonObject messageObj = (JsonObject) App.getGson().toJsonTree(message);
+        messageObj.remove("subjectId");
 
         return messageObj.toString();
 

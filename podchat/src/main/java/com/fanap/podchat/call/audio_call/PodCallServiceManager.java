@@ -83,12 +83,30 @@ public class PodCallServiceManager implements ICallServiceState {
         bindService();
     }
 
+    /**
+     *
+     * direct connect to kafka server for connection and audio test
+     *
+     * @param iCallState call callback
+     *
+     */
     public void startStream(ICallState iCallState) {
         this.callStateCallback = iCallState;
         startCallService();
         bindService();
 
     }
+
+    /**
+     *
+     * direct connect to kafka server for connection and audio test
+     *
+     * @param iCallState call callback
+     * @param groupId client id
+     * @param sender sending topic
+     * @param receiver receiving topic
+     *
+     */
 
     public void testStream(String groupId, String sender, String receiver, ICallState iCallState) {
         this.callStateCallback = iCallState;
@@ -103,6 +121,14 @@ public class PodCallServiceManager implements ICallServiceState {
 
     }
 
+
+    /**
+     *
+     * Test Audio Record
+     *
+     * @param iCallState callback
+     *
+     */
     public void testAudio(ICallState iCallState) {
         this.callStateCallback = iCallState;
 
@@ -184,23 +210,23 @@ public class PodCallServiceManager implements ICallServiceState {
     }
 
     private void unbindService() {
-        if (bound) {
-//            callService.registerCallBack(null); // unregister
-            mContext.unbindService(serviceConnection);
-            bound = false;
+        try {
+            if (bound) {
+                mContext.unbindService(serviceConnection);
+                bound = false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
 
     private void startCallService(StartCallResult result) {
+
         runServiceIntent = new Intent(mContext, AudioCallService.class);
 
         runServiceIntent.putExtra(KAFKA_CONFIG, result.getClientDTO());
-//
-//        runServiceIntent.putExtra(SENDING_TOPIC, result.getClientDTO().getTopicSend());
-//        runServiceIntent.putExtra(RECEIVING_TOPIC, result.getClientDTO().getTopicReceive());
-//        runServiceIntent.putExtra(CLIENT_ID, result.getClientDTO().getClientId());
-//        runServiceIntent.putExtra(BROKER_ADDRESS, result.getClientDTO().getBrokerAddress());
+
         runServiceIntent.putExtra(SSL_CONFIG, result.getCert_file());
 
         if (callConfig != null && !Util.isNullOrEmpty(callConfig.getTargetActivity()))

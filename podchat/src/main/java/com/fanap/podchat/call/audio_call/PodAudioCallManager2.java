@@ -1,14 +1,9 @@
 package com.fanap.podchat.call.audio_call;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
-import com.example.kafkassl.kafkaclient.ConsumerClient;
-import com.example.kafkassl.kafkaclient.ProducerClient;
 import com.fanap.podchat.call.model.CallSSLData;
-import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.util.Util;
 
 import java.io.ByteArrayInputStream;
@@ -18,9 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Properties;
 
 public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioListener, PodAudioStreamManager2.IPodAudioPlayerListener {
 
@@ -35,19 +28,11 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
 
     private String RECEIVING_TOPIC = DEFAULT_TOPIC;
 
-    private String BROKER_ADDRESS = "172.16.106.158:9093";
+    private String BROKER_ADDRESS = "46.32.6.186:9092";
 
     private String SSL_CERT = "";
 
-
-    private ProducerClient producerClient;
-    private ConsumerClient consumerClient;
-
     private boolean streaming = false;
-
-    private boolean firstByteRecorded = false;
-
-    private boolean firstByteReceived = false;
 
     private AudioTestClass audioTestClass;
     private PodAudioStreamManager2 audioStreamManager;
@@ -86,8 +71,6 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
 
         streaming = true;
 
-        firstByteRecorded = false;
-
         callSSLData = readFiles();
 
         audioStreamManager.initAudioPlayer(callSSLData,
@@ -106,30 +89,14 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
         InputStream inputStream1 =
                 new ByteArrayInputStream(SSL_CERT.getBytes());
 
-//        InputStream inputStream2 =
-//                mContext.getResources().openRawResource(R.raw.client);
-//
-//        InputStream inputStream3 =
-//                mContext.getResources().openRawResource(R.raw.client_p);
-
-
         OutputStream out1 = null;
-//        OutputStream out2 = null;
-//        OutputStream out3 = null;
-
 
         try {
             out1 = new FileOutputStream(mContext.getFilesDir() + "/ca-cert");
-//            out2 = new FileOutputStream(mContext.getFilesDir() + "/client.key");
-//            out3 = new FileOutputStream(mContext.getFilesDir() + "/client.pem");
             copy(inputStream1, out1);
-//            copy(inputStream2, out2);
-//            copy(inputStream3, out3);
 
 
             File cert = new File(mContext.getFilesDir() + "/ca-cert");
-//            File key = new File(mContext.getFilesDir() + "/client.key");
-//            File client = new File(mContext.getFilesDir() + "/client.pem");
 
             if (cert.exists()) {
 
@@ -229,4 +196,8 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
     }
 
 
+    public void testAudio() {
+
+        audioTestClass.start(mContext);
+    }
 }
