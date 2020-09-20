@@ -10,6 +10,8 @@ import android.os.IBinder;
 import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.util.Util;
@@ -17,7 +19,7 @@ import com.fanap.podchat.util.Util;
 import static com.fanap.podchat.call.audio_call.EndCallReceiver.ACTION_STOP_CALL;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
 
-public class PodCallServiceManager implements ICallServiceState {
+public class PodCallAudioCallServiceManager implements ICallServiceState {
 
     static final String RECEIVING_TOPIC = "RECEIVING_TOPIC";
     static final String SENDING_TOPIC = "SENDING_TOPIC";
@@ -28,7 +30,7 @@ public class PodCallServiceManager implements ICallServiceState {
     static final String SSL_CONFIG = "SSL_CONFIG";
     static final String KAFKA_CONFIG = "KAFKA_CONFIG";
 
-    private AudioCallService callService;
+    private PodCallAudioCallService callService;
     private CallConfig callConfig;
     private CallInfo callInfo;
 
@@ -39,7 +41,7 @@ public class PodCallServiceManager implements ICallServiceState {
     private boolean bound = false;
     private boolean enableSSL = true;
 
-    public PodCallServiceManager(Context context) {
+    public PodCallAudioCallServiceManager(Context context) {
         mContext = context;
     }
 
@@ -48,23 +50,23 @@ public class PodCallServiceManager implements ICallServiceState {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
 
-            AudioCallService.CallBinder binder = (AudioCallService.CallBinder) service;
+            PodCallAudioCallService.CallBinder binder = (PodCallAudioCallService.CallBinder) service;
             callService = binder.getService();
             callService.setSSL(enableSSL);
             bound = true;
-            callService.registerCallStateCallback(PodCallServiceManager.this);
+            callService.registerCallStateCallback(PodCallAudioCallServiceManager.this);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             bound = false;
-            callService.unregisterCallStateCallback(PodCallServiceManager.this);
+            callService.unregisterCallStateCallback();
         }
 
         @Override
         public void onBindingDied(ComponentName name) {
             bound = false;
-            callService.unregisterCallStateCallback(PodCallServiceManager.this);
+            callService.unregisterCallStateCallback();
         }
     };
 
@@ -84,11 +86,9 @@ public class PodCallServiceManager implements ICallServiceState {
     }
 
     /**
-     *
      * direct connect to kafka server for connection and audio test
      *
      * @param iCallState call callback
-     *
      */
     public void startStream(ICallState iCallState) {
         this.callStateCallback = iCallState;
@@ -98,14 +98,12 @@ public class PodCallServiceManager implements ICallServiceState {
     }
 
     /**
-     *
      * direct connect to kafka server for connection and audio test
      *
      * @param iCallState call callback
-     * @param groupId client id
-     * @param sender sending topic
-     * @param receiver receiving topic
-     *
+     * @param groupId    client id
+     * @param sender     sending topic
+     * @param receiver   receiving topic
      */
 
     public void testStream(String groupId, String sender, String receiver, ICallState iCallState) {
@@ -123,11 +121,9 @@ public class PodCallServiceManager implements ICallServiceState {
 
 
     /**
-     *
      * Test Audio Record
      *
      * @param iCallState callback
-     *
      */
     public void testAudio(ICallState iCallState) {
         this.callStateCallback = iCallState;
@@ -176,7 +172,7 @@ public class PodCallServiceManager implements ICallServiceState {
     }
 
     private void sendEndCallIntent(Context context) {
-        Intent intent1 = new Intent(context, AudioCallService.class);
+        Intent intent1 = new Intent(context, PodCallAudioCallService.class);
         intent1.setAction(ACTION_STOP_CALL);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent1);
@@ -196,6 +192,24 @@ public class PodCallServiceManager implements ICallServiceState {
 
         if (bound && callService != null)
             callService.switchMic(isMute);
+    }
+
+    public void addCallParticipant(ChatResponse<JoinCallParticipantResult> response) {
+
+
+        if (bound && callService != null) {
+            callService.addNewCallParticipant(response.getResult().getJoinedParticipants());
+        }
+
+    }
+
+
+    public void removeCallParticipant(LeaveCallResult result) {
+
+        if (bound && callService != null) {
+            callService.removeCallParticipant(result.getCallParticipantVO());
+        }
+
     }
 
 
@@ -223,7 +237,7 @@ public class PodCallServiceManager implements ICallServiceState {
 
     private void startCallService(StartCallResult result) {
 
-        runServiceIntent = new Intent(mContext, AudioCallService.class);
+        runServiceIntent = new Intent(mContext, PodCallAudioCallService.class);
 
         runServiceIntent.putExtra(KAFKA_CONFIG, result.getClientDTO());
 
@@ -240,7 +254,7 @@ public class PodCallServiceManager implements ICallServiceState {
     }
 
     private void startCallService(String groupId, String sender, String receiver) {
-        runServiceIntent = new Intent(mContext, AudioCallService.class);
+        runServiceIntent = new Intent(mContext, PodCallAudioCallService.class);
         runServiceIntent.putExtra(SENDING_TOPIC, sender);
         runServiceIntent.putExtra(RECEIVING_TOPIC, receiver);
         runServiceIntent.putExtra(CLIENT_ID, groupId);
@@ -261,7 +275,7 @@ public class PodCallServiceManager implements ICallServiceState {
 
     private void startCallService() {
 
-        runServiceIntent = new Intent(mContext, AudioCallService.class);
+        runServiceIntent = new Intent(mContext, PodCallAudioCallService.class);
 
         if (callConfig != null && !Util.isNullOrEmpty(callConfig.getTargetActivity()))
             runServiceIntent.putExtra(TARGET_ACTIVITY, callConfig.getTargetActivity());
@@ -315,4 +329,5 @@ public class PodCallServiceManager implements ICallServiceState {
 
         enableSSL = withSSL;
     }
+
 }

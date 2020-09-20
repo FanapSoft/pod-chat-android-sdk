@@ -34,7 +34,7 @@ public class CallProducer implements Runnable {
 
 
     // Sample rate must be one supported by Opus.
-    static final int SAMPLE_RATE = 12000;
+    static final int SAMPLE_RATE = 16000;
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
@@ -73,6 +73,8 @@ public class CallProducer implements Runnable {
         this.sendKey = sendKey;
         this.sendingTopic = sendingTopic;
         isHeadset = headsetInitialState;
+
+        connectProducer();
 
     }
 
@@ -118,7 +120,12 @@ public class CallProducer implements Runnable {
     private void record() {
 
         short[] inBuffer = new short[FRAME_SIZE * NUM_CHANNELS];
+
         byte[] encodeBufferTemp = new byte[1024];
+
+
+        Log.e(TAG, "Producer Start for topic: " + sendingTopic + " on Thread: " + Thread.currentThread().getName());
+
 
         try {
 
@@ -134,33 +141,36 @@ public class CallProducer implements Runnable {
                     offset += read;
                 }
 
-                Log.e(TAG, "Recorded: " + Arrays.toString(inBuffer));
+//                Log.e(TAG, "Recorded: " + Arrays.toString(inBuffer));
 
                 int encoded = encoder.encode(inBuffer, FRAME_SIZE, encodeBufferTemp);
 
-                Log.v(TAG, "Encoded " + (inBuffer.length * 2) + " bytes of audio into " + encoded + " bytes");
+//                Log.v(TAG, "Encoded " + (inBuffer.length * 2) + " bytes of audio into " + encoded + " bytes");
 
                 byte[] encodedBuffer = Arrays.copyOf(encodeBufferTemp, encoded);
 
-                if (!firstByteRecorded) {
-                    firstByteRecorded = true;
-                    connectProducer();
+                producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
+//                Log.e(TAG, "SEND KEY IS : " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
+//
+//                if (!firstByteRecorded) {
+//                    firstByteRecorded = true;
+//
 
-                    if (callSSLData != null)
-                        callSSLData.clear();
-                }
+//                    if (callSSLData != null)
+//                        callSSLData.clear();
+//                }
 
-                if (!firstByteReceived) {
-                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
-                    Log.e(TAG, "START STATE - SEND KEY IS : " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
-                }
+//                if (!firstByteReceived) {
+//                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
+//                    Log.e(TAG, "SEND KEY IS : " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
+//                }
 
-                if (isConsumingStarted()) {
-                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
-                    Log.e(TAG, "RUNNING STATE - SEND KEY IS: " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
-                }
+//                if (isConsumingStarted()) {
+//                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
+//                    Log.e(TAG, "RUNNING STATE - SEND KEY IS: " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
+//                }
 
-                callback.onRecord(encodedBuffer);
+//                callback.onRecord(encodedBuffer);
 
             }
         } catch (Exception e) {
@@ -180,7 +190,7 @@ public class CallProducer implements Runnable {
     void stopRecording() {
         try {
 
-
+            isRecording = false;
             if (recorder != null && recorder.getState() != AudioRecord.STATE_UNINITIALIZED) {
 
                 if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED) {
@@ -194,11 +204,6 @@ public class CallProducer implements Runnable {
 
                 recorder.release();
             }
-
-
-            isRecording = false;
-
-            recorder = null;
 
             if (agc != null) {
                 agc.release();

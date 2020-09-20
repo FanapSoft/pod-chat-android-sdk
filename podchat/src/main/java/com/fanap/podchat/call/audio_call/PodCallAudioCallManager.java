@@ -3,6 +3,7 @@ package com.fanap.podchat.call.audio_call;
 import android.content.Context;
 import android.util.Log;
 
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallSSLData;
 import com.fanap.podchat.util.Util;
 
@@ -14,8 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.List;
 
-public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioListener, PodAudioStreamManager2.IPodAudioPlayerListener {
+public class PodCallAudioCallManager implements PodCallAudioCallStreamManager.IPodAudioListener, PodCallAudioCallStreamManager.IPodAudioPlayerListener {
 
 
     private static final String TAG = "CHAT_SDK_CALL";
@@ -35,23 +37,21 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
     private boolean streaming = false;
 
     private AudioTestClass audioTestClass;
-    private PodAudioStreamManager2 audioStreamManager;
+    private PodCallAudioCallStreamManager audioStreamManager;
     private Context mContext;
-
-    private CallSSLData callSSLData;
 
     private boolean isSSL = true;
 
-    public PodAudioCallManager2(Context context) {
-        audioStreamManager = new PodAudioStreamManager2(context);
+    public PodCallAudioCallManager(Context context) {
+        audioStreamManager = new PodCallAudioCallStreamManager(context);
 
         mContext = context;
         audioTestClass = new AudioTestClass();
     }
 
-    PodAudioCallManager2(Context context, String sendingTopic, String receivingTopic, String sendKey, String brokerAddress, String ssl_cert) {
+    PodCallAudioCallManager(Context context, String sendingTopic, String receivingTopic, String sendKey, String brokerAddress, String ssl_cert) {
 
-        audioStreamManager = new PodAudioStreamManager2(context);
+        audioStreamManager = new PodCallAudioCallStreamManager(context);
 
         mContext = context;
         audioTestClass = new AudioTestClass();
@@ -71,9 +71,9 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
 
         streaming = true;
 
-        callSSLData = readFiles();
 
-        audioStreamManager.initAudioPlayer(callSSLData,
+        audioStreamManager.initAudioPlayer(
+                SSL_CERT,
                 BROKER_ADDRESS,
                 SEND_KEY,
                 RECEIVING_TOPIC,
@@ -82,48 +82,9 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
     }
 
 
-    private CallSSLData readFiles() {
-
-        if (Util.isNullOrEmpty(SSL_CERT)) return null;
-
-        InputStream inputStream1 =
-                new ByteArrayInputStream(SSL_CERT.getBytes());
-
-        OutputStream out1 = null;
-
-        try {
-            out1 = new FileOutputStream(mContext.getFilesDir() + "/ca-cert");
-            copy(inputStream1, out1);
 
 
-            File cert = new File(mContext.getFilesDir() + "/ca-cert");
 
-            if (cert.exists()) {
-
-                return new CallSSLData(cert, null, null);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        return null;
-    }
-
-    private void copy(InputStream inputStream1, OutputStream out1) throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
-        while ((read = inputStream1.read(buffer)) != -1) {
-            out1.write(buffer, 0, read);
-        }
-        inputStream1.close();
-        inputStream1 = null;
-        out1.flush();
-        out1.close();
-        out1 = null;
-    }
 
     public void endStream() {
         streaming = false;
@@ -191,13 +152,24 @@ public class PodAudioCallManager2 implements PodAudioStreamManager2.IPodAudioLis
     }
 
     public void setSSL(boolean enableSSL) {
-
         isSSL = enableSSL;
     }
 
 
     public void testAudio() {
-
         audioTestClass.start(mContext);
+    }
+
+    public void addCallParticipant(List<CallParticipantVO> joinedParticipants) {
+        if(audioStreamManager!=null){
+            audioStreamManager.addCallParticipant(joinedParticipants);
+        }
+    }
+
+
+    public void removeCallParticipant(CallParticipantVO callParticipantVO) {
+        if(audioStreamManager!=null){
+            audioStreamManager.removeCallParticipant(callParticipantVO);
+        }
     }
 }

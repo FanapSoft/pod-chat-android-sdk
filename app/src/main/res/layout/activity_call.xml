@@ -7,13 +7,36 @@
     android:background="@color/grey"
     tools:context="com.example.chat.application.chatexample.CallActivity">
 
+
+<!--    <android.support.constraint.Group-->
+<!--        android:id="@+id/groupIntegration"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:visibility="visible"-->
+<!--        app:constraint_referenced_ids="btnCallRequest,-->
+<!--        btnConnect,-->
+<!--        btnCallTest,-->
+<!--        layoutTestParam,-->
+<!--        linearCallParticipants,-->
+<!--        radioCaller,textView3,-->
+<!--        textView4,-->
+<!--        radioPartner" />-->
+
+<!--    <android.support.constraint.Group-->
+<!--        android:id="@+id/groupSandBox"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:visibility="visible"-->
+<!--        app:constraint_referenced_ids="btnConnectToSandbox,-->
+<!--btnSandboxCall,etSandBoxPartnerId,etOtpNumber" />-->
+
     <EditText
-        android:textColor="@color/white"
         android:id="@+id/etOtpNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter Number OR Code"
         android:inputType="phone"
+        android:textColor="@color/white"
         android:textColorHint="@color/design_default_color_primary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkboxGroupCall" />
@@ -30,14 +53,14 @@
 
 
     <EditText
-        android:textColor="@color/white"
-        android:textColorHint="@color/design_default_color_primary"
-        android:hint="Enter SandBox Partner Id"
         android:id="@+id/etSandBoxPartnerId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/btnConnectToSandbox"
-        android:inputType="number" />
+        android:hint="Enter SandBox Partner Id"
+        android:inputType="number"
+        android:textColor="@color/white"
+        android:textColorHint="@color/design_default_color_primary"
+        app:layout_constraintTop_toBottomOf="@+id/btnConnectToSandbox" />
 
     <Button
         android:id="@+id/btnSandboxCall"
@@ -50,7 +73,6 @@
 
 
     <Button
-        android:visibility="gone"
         android:id="@+id/btnCallTest"
         android:layout_width="240dp"
         android:layout_height="60dp"
@@ -58,6 +80,7 @@
         android:background="@color/colorPrimary"
         android:text="TestCall"
         android:textColor="#ffffff"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/btnCallRequest"
         app:layout_constraintStart_toStartOf="@+id/btnCallRequest"
         tools:visibility="visible" />
@@ -95,7 +118,7 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible" />
 
-   
+
     <CheckBox
         android:id="@+id/checkboxSSL"
         android:layout_width="wrap_content"
@@ -105,7 +128,7 @@
         android:text="SSL"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearCallParticipants" />
+        app:layout_constraintTop_toBottomOf="@+id/guideline4" />
 
     <CheckBox
         android:id="@+id/checkboxGroupCall"
@@ -116,9 +139,7 @@
         android:text="Group Call"
         android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearCallParticipants" />
-
-
+        app:layout_constraintTop_toBottomOf="@+id/guideline4" />
 
 
     <ImageButton
@@ -188,6 +209,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -265,6 +287,18 @@
 
     </RadioGroup>
 
+    <Button
+        android:id="@+id/btnShareLogs"
+        android:layout_margin="4dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:background="@drawable/circle_red"
+        android:padding="4dp"
+        android:text="ُShare Log"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/radioCaller"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <TextView
         android:id="@+id/textView3"
@@ -308,10 +342,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+<!--    <CheckBox-->
+<!--        android:id="@+id/checkBoxSandBox"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:checked="true"-->
+<!--        android:text="SandBox"-->
+<!--        android:textColor="@color/white"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/textView3"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/textView2" />-->
+
+<!--    <CheckBox-->
+<!--        android:id="@+id/checkboxIntegration"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:checked="true"-->
+<!--        android:text="Integration"-->
+<!--        android:textColor="@color/white"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/checkBoxSandBox"-->
+<!--        app:layout_constraintEnd_toEndOf="@+id/radioCaller"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/textView2" />-->
+
     <include layout="@layout/call_request_receive_layout" />
 
     <include layout="@layout/view_on_call_started" />
 
     <include layout="@layout/layout_history" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.45964432" />
 
 </android.support.constraint.ConstraintLayout>

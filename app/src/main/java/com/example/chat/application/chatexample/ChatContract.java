@@ -228,6 +228,9 @@ public interface ChatContract {
         default void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants){}
 
         default void onCallParticipantLeft(ChatResponse<LeaveCallResult> response){}
+
+        default void onCallParticipantJoined(String response){}
+
     }
 
     interface presenter {
@@ -463,6 +466,7 @@ public interface ChatContract {
         void rejectIncomingCall();
 
         String getNameById(int partnerId);
+
         void shareLogs();
 
         String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile);
@@ -472,6 +476,7 @@ public interface ChatContract {
         void onStop();
 
         void onResume();
+
         String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile);
 
         String updateThreadInfo(RequestThreadInfo request);

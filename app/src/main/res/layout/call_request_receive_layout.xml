@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
     android:visibility="gone"
+    android:keepScreenOn="true"
     android:id="@+id/viewCallRequest"
     tools:visibility="gone">
 

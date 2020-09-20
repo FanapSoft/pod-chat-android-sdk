@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import static com.fanap.podchat.call.audio_call.AudioCallService.REQUEST_CODE_END_CALL;
-import static com.fanap.podchat.call.audio_call.AudioCallService.REQUEST_CODE_OPEN_APP;
+import static com.fanap.podchat.call.audio_call.PodCallAudioCallService.REQUEST_CODE_END_CALL;
+import static com.fanap.podchat.call.audio_call.PodCallAudioCallService.REQUEST_CODE_OPEN_APP;
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
 import static com.fanap.podchat.util.ChatConstant.POD_PUSH_MESSAGE_ID;

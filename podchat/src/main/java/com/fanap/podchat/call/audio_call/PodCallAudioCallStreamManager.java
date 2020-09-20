@@ -15,19 +15,36 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallSSLData;
+import com.fanap.podchat.util.Util;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.AUDIO_SERVICE;
 import static android.content.Context.SENSOR_SERVICE;
 
-public class PodAudioStreamManager2 implements SensorEventListener, AudioManager.OnAudioFocusChangeListener, RecordThread.IRecordThread, CallConsumer.IConsumer, CallProducer.IRecordThread {
+public class PodCallAudioCallStreamManager implements SensorEventListener, AudioManager.OnAudioFocusChangeListener, RecordThread.IRecordThread, CallProducer.IRecordThread {
 
     public static final String ACTION_HEADSET_PLUG = "android.intent.action.HEADSET_PLUG";
+    public static final int NUM_OF_THREADS = 6;
     private boolean isRecording = false;
     private boolean isPlaying = false;
 
@@ -56,16 +73,17 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
     private BroadcastReceiver headsetReceiver;
 
+    ExecutorService executorService;
 
-    private CallConsumer callConsumer;
+    private Map<String, CallConsumer> consumerMap = new HashMap<>();
 
     private CallProducer callProducer;
 
     private CallSSLData callSSL;
-
-    Thread consumerThread;
-
-    Thread producerThread;
+//
+//    Thread consumerThread;
+//
+//    Thread producerThread;
 
     String brokerAddress;
     String sendKey;
@@ -73,10 +91,12 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
     String sendingTopic;
     List<String> topicsList;
 
+    Semaphore semaphoreCreateConsumer = new Semaphore(1);
+
     boolean isGroupCall;
 
 
-    PodAudioStreamManager2(Context context) {
+    PodCallAudioCallStreamManager(Context context) {
 
         this.mContext = context;
 
@@ -96,6 +116,11 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
         setupCPUWakeLock();
 
         setupHeadsetReceiver();
+
+        executorService = Executors.newFixedThreadPool(NUM_OF_THREADS);
+
+//        executorServiceConsumerCreator = Executors.newSingleThreadExecutor();
+
     }
 
     private void setupCPUWakeLock() {
@@ -243,48 +268,46 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
         updateAudioManager();
 
-        callProducer = new CallProducer(this, callSSL, brokerAddress, sendKey, sendingTopic, isWiredHeadset);
+        createProducerFor(sendingTopic);
 
-        producerThread = new Thread(callProducer);
-        producerThread.setName("PRODUCING THREAD");
-        producerThread.start();
+    }
+
+    private void createProducerFor(String sendingTopic) {
+        callProducer = new CallProducer(this, callSSL, brokerAddress, sendKey, sendingTopic, isWiredHeadset);
+        executorService.execute(callProducer);
     }
 
 
-    void initAudioPlayer(CallSSLData callSSL,
-                         String brokerAddress,
-                         String sendKey,
-                         String receivingTopic,
-                         IPodAudioPlayerListener listener) {
+    void initAudioPlayer(
+            String sslCert,
+            String brokerAddress,
+            String sendKey,
+            String receivingTopic,
+            IPodAudioPlayerListener listener) {
 
         playerCallback = listener;
-        this.callSSL = callSSL;
 
         this.brokerAddress = brokerAddress;
         this.receivingTopic = receivingTopic;
         this.sendKey = sendKey;
+
+        initCert(sslCert);
 
         if (isPlaying) {
             stopPlaying();
         }
 
 
-        isGroupCall = isGroupCall(receivingTopic);
+        isGroupCall = createTopicList(receivingTopic);
 
         if (isGroupCall) {
-
-            callConsumer = new GroupCallConsumer(
-                    callSSL, brokerAddress, sendKey, new ArrayList<>(topicsList), this);
-
+            createAndConnectInitialConsumer();
+        } else {
+            createConsumerFor(receivingTopic);
         }
-        callConsumer = new CallConsumer(
-                callSSL, brokerAddress, sendKey, receivingTopic, this);
 
-        consumerThread = new Thread(callConsumer);
 
-        consumerThread.setName("CONSUMING THREAD");
-
-        consumerThread.start();
+        isPlaying = true;
 
         playerCallback.onPlayerReady();
 
@@ -292,26 +315,133 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
 
     }
 
-    private boolean isGroupCall(String receiving) {
+    private void initCert(String sslCert) {
+        try {
+            this.callSSL = generateFile(sslCert);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
-        String[] topics = receiving.split(",");
+    private CallSSLData generateFile(String sslCert) throws Exception {
 
-        topicsList = Arrays.asList(topics);
+        if (Util.isNullOrEmpty(sslCert)) throw new Exception("SSL could not be empty");
+
+        InputStream inputStream1 =
+                new ByteArrayInputStream(sslCert.getBytes());
+
+        OutputStream out1 = null;
+
+        try {
+            out1 = new FileOutputStream(mContext.getFilesDir() + "/ca-cert");
+
+            copy(inputStream1, out1);
+
+
+            File cert = new File(mContext.getFilesDir() + "/ca-cert");
+
+            if (cert.exists()) {
+
+                return new CallSSLData(cert, null, null);
+
+            } else throw new Exception("Could not create ssl file!");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new Exception("FileNotFoundException! Could not create ssl file! " + e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new Exception("IOExeption! Could not create ssl file! " + e.getMessage());
+        }
+    }
+
+    private void copy(InputStream inputStream1, OutputStream out1) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = inputStream1.read(buffer)) != -1) {
+            out1.write(buffer, 0, read);
+        }
+        inputStream1.close();
+        inputStream1 = null;
+        out1.flush();
+        out1.close();
+        out1 = null;
+    }
+
+    private void createAndConnectInitialConsumer() {
+
+        for (String topic :
+                topicsList) {
+            createConsumerFor(topic);
+        }
+
+    }
+
+    private void createConsumerFor(String topic) {
+
+        executorService.execute(() -> {
+
+            try {
+                semaphoreCreateConsumer.acquire();
+
+                CallConsumer callConsumer =
+                        new CallConsumer(callSSL, brokerAddress, sendKey, topic);
+
+
+                semaphoreCreateConsumer.release();
+
+                consumerMap.put(topic, callConsumer);
+
+                callConsumer.run();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+        });
+    }
+
+    private boolean createTopicList(String receiving) {
+
+        String[] topics = receiving
+                .replace(" ", "")
+                .split(",");
+
+        topicsList = new ArrayList<>(Arrays.asList(topics));
 
         return topicsList.size() > 1;
     }
 
-    void setPlaying() {
-        isPlaying = true;
-        callConsumer.stopPlaying();
-    }
 
+    private void stopConsumers() {
+
+        try {
+            boolean last;
+            int counter = 0;
+            for (String sendTopic : consumerMap.keySet()) {
+                counter++;
+                last = counter == consumerMap.size();
+                CallConsumer runningConsumer = consumerMap.get(sendTopic);
+                if (runningConsumer != null) {
+                    if (last) {
+                        runningConsumer.stopPlayingAndReleaseDecoder();
+                    } else {
+                        runningConsumer.stopPlaying();
+                    }
+                }
+            }
+            consumerMap.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+            playerCallback.onAudioPlayError(e.getMessage());
+        }
+    }
 
     private void stopPlaying() {
 
         if (isPlaying) {
-            callConsumer.stopPlaying();
+            stopConsumers();
             isPlaying = false;
         }
 
@@ -325,8 +455,8 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
         // stops the recording activity
 
         if (isRecording) {
-            isRecording = false;
             callProducer.stopRecording();
+            isRecording = false;
         }
 
         if (recordCallback != null) recordCallback.onRecordStopped();
@@ -347,12 +477,26 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
             }
             stopRecording();
             stopPlaying();
-            mContext.unregisterReceiver(headsetReceiver);
             stopWakeLock();
+            clearResources();
+            executorService.shutdown();
+
+            mContext.unregisterReceiver(headsetReceiver);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void clearResources() {
+
+
+        try {
+            callSSL.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -376,20 +520,6 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
     }
 
 
-    private void resetRecorder() {
-        if (isRecording) {
-
-            callProducer.stopRecording();
-
-            callProducer.updateHeadsetState(isWiredHeadset);
-
-            producerThread = new Thread(callProducer);
-            producerThread.setName("PRODUCING THREAD");
-            producerThread.start();
-
-        }
-    }
-
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 
@@ -412,7 +542,7 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
                     isProximityNear = newIsNear;
 
                     if (isProximityNear) {
-                        proximityWakelock.acquire();
+                        proximityWakelock.acquire(2*60*1000);
                     } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             proximityWakelock.release(1);
@@ -453,15 +583,10 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
         recordCallback.onAudioRecordError(cause);
     }
 
-    @Override
-    public void onFirstBytesReceived() {
-
-
-    }
 
     private void runWakeLock() {
         try {
-            cpuWakeLock.acquire();
+            cpuWakeLock.acquire(2*60*1000L /*10 minutes*/);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -473,6 +598,43 @@ public class PodAudioStreamManager2 implements SensorEventListener, AudioManager
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public void removeCallParticipant(CallParticipantVO callParticipant) {
+
+        Log.e("TAG", "Participant to remove: " + callParticipant.getParticipantVO().getName());
+        String topic = callParticipant.getSendTopic();
+
+        if (consumerMap.containsKey(topic)) {
+            CallConsumer consumer = consumerMap.get(topic);
+
+            if (consumer != null)
+                consumer.stopPlaying();
+
+
+            consumerMap.remove(topic);
+
+        }
+
+        Log.e("TAG", "Consumer stopped: " + callParticipant.getSendTopic());
+
+    }
+
+
+    public void addCallParticipant(List<CallParticipantVO> joinedParticipants) {
+
+
+        for (CallParticipantVO participant :
+                joinedParticipants) {
+            Log.e("TAG", "Participant to add: " + participant.getParticipantVO().getName());
+
+            createConsumerFor(participant.getSendTopic());
+
+            Log.e("TAG", "Producer added: " + participant.getSendTopic());
+        }
+
+
     }
 
     public interface IPodAudioListener {

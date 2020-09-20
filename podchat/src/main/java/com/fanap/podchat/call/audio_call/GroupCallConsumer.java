@@ -11,14 +11,19 @@ import com.example.kafkassl.kafkaclient.ConsumerClient;
 import com.fanap.podchat.call.codec.opus.OpusDecoder;
 import com.fanap.podchat.call.codec.speexdsp.EchoCanceller;
 import com.fanap.podchat.call.model.CallSSLData;
+import com.fanap.podchat.chat.CoreConfig;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GroupCallConsumer extends CallConsumer implements Runnable {
 
     // Sample rate must be one supported by Opus.
-    private static final int SAMPLE_RATE = 8000;
+    private static final int SAMPLE_RATE = 12000;
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
@@ -28,7 +33,7 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
     private static final int NUM_CHANNELS = 1;
     private static final String TAG = "AUDIO_RECORDER";
 
-    private boolean playing = false;
+    private AtomicBoolean playing = new AtomicBoolean(false);
     private EchoCanceller echoCanceller;
     private AudioTrack audioTrack;
 
@@ -36,9 +41,11 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
 
     private OpusDecoder decoder;
 
-    private ArrayList<ConsumerClient> consumers;
+    private final ArrayList<ConsumerClient> consumers = new ArrayList<>();
 
     private CallSSLData callSSLData;
+
+    ExecutorService executorService;
 
     //consumer properties
 
@@ -47,7 +54,6 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
     private CallConsumer.IConsumer consumerCallback;
     private boolean firstBytesReceived;
     private ArrayList<String> receivingTopics;
-
 
 
     GroupCallConsumer(CallSSLData sslData,
@@ -65,6 +71,9 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
 
         this.receivingTopics = receivingTopics;
 
+        executorService = Executors.newFixedThreadPool(receivingTopics.size());
+//        executorService = Executors.newCachedThreadPool();
+
         hasBuiltInAEC = AcousticEchoCanceler.isAvailable();
 
         connectConsumerClient();
@@ -78,7 +87,7 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
         int minBufSize = initAudioTracker();
 
         // init opus decoder
-        OpusDecoder decoder = initDecoder();
+        decoder = initDecoder();
 
         if (!hasBuiltInAEC) {
             if (echoCanceller == null) {
@@ -88,7 +97,7 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
         }
 
 
-        playAudio(decoder);
+        playAudio();
     }
 
     private OpusDecoder initDecoder() {
@@ -117,28 +126,38 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
 
         audioTrack.play();
 
-        playing = true;
+        playing.set(true);
 
         return minBufSize;
     }
 
-    private void playAudio(OpusDecoder decoder) {
+    private void playAudio() {
 
         try {
 
-            while (playing) {
+            while (playing.get()) {
 
 
-                for (ConsumerClient consumer : consumers) {
+                synchronized (consumers) {
+                    for (ConsumerClient consumer : consumers) {
 
-                    byte[] consumedBytes = consumer.consumingTopic();
+                        byte[] consumedBytes;
 
-                    if (consumedBytes == null || consumedBytes.length == 0) continue;
+                        try {
+                            consumedBytes = consumer.consumingTopic();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            continue;
+                        }
 
-                    if (!firstBytesReceived) {
-                        callOnConsumingStarted();
+                        if (consumedBytes == null || consumedBytes.length == 0) continue;
+
+                        if (!firstBytesReceived) {
+                            callOnConsumingStarted();
+                        }
+                        executorService.execute(() -> play(decoder, consumedBytes));
+//                        new Thread(() -> play(decoder, consumedBytes)).start();
                     }
-                    new Thread(() -> play(decoder, consumedBytes)).start();
                 }
             }
 
@@ -168,7 +187,6 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
     }
 
 
-
     private void playWithSpeexAEC(short[] outputBuffer, int decoded) {
         audioTrack.write(echoCanceller.capture(outputBuffer), 0, decoded * NUM_CHANNELS);
 
@@ -189,7 +207,7 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
                 }
                 audioTrack.release();
             }
-            playing = false;
+            playing.set(false);
 //            if (echoCanceller != null)
 //                echoCanceller.closeEcho();
 //            if (decoder != null)
@@ -201,6 +219,22 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
 
     private void connectConsumerClient() {
 
+        final Properties consumerProperties = createConsumerProperties();
+
+        for (String receivingTopic :
+                receivingTopics) {
+
+            ConsumerClient consumer = new ConsumerClient(consumerProperties, receivingTopic);
+
+            consumer.connect();
+
+            consumers.add(consumer);
+
+        }
+
+    }
+
+    private Properties createConsumerProperties() {
         final Properties consumerProperties = new Properties();
 
         consumerProperties.setProperty("bootstrap.servers", brokerAddress); //9093 تست
@@ -218,23 +252,47 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
 
         consumerProperties.setProperty("auto.commit.enable", "false");
 
-        consumerProperties.setProperty("group.id", sendKey);
+        consumerProperties.setProperty("group.id", sendKey + new Date().getTime());
 
         consumerProperties.setProperty("auto.offset.reset", "end");
-
-
-        for (String receivingTopic :
-                receivingTopics) {
-
-            ConsumerClient consumer = new ConsumerClient(consumerProperties, receivingTopic);
-
-            consumers.add(consumer);
-
-            consumer.connect();
-
-        }
-
+        return consumerProperties;
     }
 
 
+    public void addNewParticipant(ArrayList<String> topics) {
+
+        try {
+            Thread.currentThread().join(10);
+        } catch (InterruptedException ignored) {
+        }
+
+        playing.set(false);
+
+        topics.addAll(receivingTopics);
+
+        consumers.clear();
+
+        for (String topic :
+                topics) {
+
+            ConsumerClient consumerClient = new ConsumerClient(createConsumerProperties(), topic);
+            consumerClient.connect();
+
+            synchronized (consumers) {
+                consumers.add(consumerClient);
+            }
+        }
+
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+        playing.set(true);
+
+        playAudio();
+
+
+    }
 }

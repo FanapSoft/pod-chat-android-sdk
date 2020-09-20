@@ -28,6 +28,7 @@ import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
+import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
@@ -39,7 +40,7 @@ import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.audio_call.ICallState;
-import com.fanap.podchat.call.audio_call.PodCallServiceManager;
+import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
@@ -52,6 +53,7 @@ import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
@@ -398,7 +400,7 @@ public class Chat extends AsyncAdapter {
     private boolean hasFreeSpace = true;
 
 
-    private static PodCallServiceManager audioCallManager;
+    private static PodCallAudioCallServiceManager audioCallManager;
 
 
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
@@ -431,6 +433,9 @@ public class Chat extends AsyncAdapter {
 
             async = Async.getInstance(context);
 
+            async.rawLog(BuildConfig.DEBUG);
+            async.isLoggable(BuildConfig.DEBUG);
+
             instance = new Chat();
             gson = new GsonBuilder().setPrettyPrinting().create();
             parser = new JsonParser();
@@ -438,7 +443,7 @@ public class Chat extends AsyncAdapter {
             listenerManager = new ChatListenerManager();
             threadCallbacks = new HashMap<>();
             mSecurePrefs = new SecurePreferences(context, "", "chat_prefs.xml");
-            SecurePreferences.setLoggingEnabled(true);
+//            SecurePreferences.setLoggingEnabled(true);
 
 
             runDatabase(context);
@@ -452,7 +457,7 @@ public class Chat extends AsyncAdapter {
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
-            audioCallManager = new PodCallServiceManager(context);
+            audioCallManager = new PodCallAudioCallServiceManager(context);
 
 
         }
@@ -919,7 +924,9 @@ public class Chat extends AsyncAdapter {
             case Constants.LEAVE_CALL:
                 handleOnCallParticipantLeft(chatMessage);
                 break;
-
+            case Constants.CALL_PARTICIPANT_JOINED:
+                handleOnNewCallParticipantJoined(chatMessage);
+                break;
             case Constants.GET_CALLS:
                 handleOnGetCallsHistory(chatMessage, callback);
                 break;
@@ -1371,11 +1378,27 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void handleOnNewCallParticipantJoined(ChatMessage chatMessage) {
+
+
+        ChatResponse<JoinCallParticipantResult> response = CallManager.handleOnParticipantJoined(chatMessage);
+
+        listenerManager.callOnCallParticipantJoined(response);
+
+        audioCallManager.addCallParticipant(response);
+
+        showLog("RECEIVE_PARTICIPANT_JOINED");
+
+
+    }
+
     private void handleOnCallParticipantLeft(ChatMessage chatMessage) {
 
         ChatResponse<LeaveCallResult> response = CallManager.handleOnParticipantLeft(chatMessage);
 
         listenerManager.callOnCallParticipantLeft(response);
+
+        audioCallManager.removeCallParticipant(response.getResult());
 
         showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
 
@@ -5114,7 +5137,7 @@ public class Chat extends AsyncAdapter {
         if (signalMessageHandlerThread != null)
             signalMessageHandlerThread.quit();
 
-        if(messageDatabaseHelper!=null){
+        if (messageDatabaseHelper != null) {
             clearCacheDatabase(new IClearMessageCache() {
                 @Override
                 public void onCacheDatabaseCleared() {

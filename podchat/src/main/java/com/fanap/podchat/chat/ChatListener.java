@@ -5,6 +5,7 @@ import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
@@ -293,4 +294,6 @@ public interface ChatListener {
     default void onCallDelivered(ChatResponse<CallDeliverResult> response){}
 
     default void onCallParticipantLeft(ChatResponse<LeaveCallResult> response){}
+
+    default void onCallParticipantJoined(ChatResponse<JoinCallParticipantResult> response){}
 }

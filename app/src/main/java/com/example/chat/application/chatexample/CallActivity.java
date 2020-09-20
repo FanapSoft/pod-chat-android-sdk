@@ -108,7 +108,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private ChatContract.presenter presenter;
 
     Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant,
-            buttonConnectSandBox, buttonStartSandboxCall;
+            buttonConnectSandBox, buttonStartSandboxCall, buttonShareLog;
     TextView tvStatus, tvCallerName, tvHistory;
 
     RadioGroup groupCaller;
@@ -125,6 +125,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             checkboxAddJiji,
             checkboxAddFifi;
 
+//    CheckBox checkBoxViewSandBox, checkBoxViewIntegaration;
+//    Group groupSandBoxViews, groupIntegartionViews;
+
 
     Vibrator vibrator;
     boolean isMute = false;
@@ -134,6 +137,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private int partnerId = 122;
     private boolean chatReady;
     private boolean isTestMode = false;
+    private boolean isInCall = false;
+
 
 
     @Override
@@ -332,15 +337,23 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 Toast.makeText(this, "Chat is not ready", Toast.LENGTH_SHORT).show();
             }
         });
+
+        buttonShareLog.setOnClickListener(v -> {
+            presenter.shareLogs();
+        });
+//        checkBoxViewSandBox.setOnCheckedChangeListener((buttonView, isChecked) -> groupSandBoxViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+//
+//        checkBoxViewIntegaration.setOnCheckedChangeListener((buttonView, isChecked) -> groupIntegartionViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+
     }
 
     private void toggleSpeaker(ImageButton v) {
 
         isSpeakerOn = !isSpeakerOn;
 
-        if(isSpeakerOn){
+        if (isSpeakerOn) {
             v.setAlpha(1f);
-        }else {
+        } else {
             v.setAlpha(0.6f);
         }
 
@@ -369,14 +382,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
     private void vibrateE() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            vibrator.vibrate(VibrationEffect.createWaveform(VIB_PATTERN, 0));
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//
+//            vibrator.vibrate(VibrationEffect.createWaveform(VIB_PATTERN, 0));
+//
+//        } else {
+//            //deprecated in API 26
+//            vibrator.vibrate(VIB_PATTERN, 0);
+//        }
 
-        } else {
-            //deprecated in API 26
-            vibrator.vibrate(VIB_PATTERN, 0);
-        }
     }
 
     private void scaleIt(View v) {
@@ -402,6 +417,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             buttonCall.setVisibility(View.VISIBLE);
             tvCallerName.setText("");
         });
+
 
     }
 
@@ -523,6 +539,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         checkboxAddFifi = findViewById(R.id.checkboxAddFifi);
         checkboxAddJiji = findViewById(R.id.checkboxAddJiji);
 
+        buttonShareLog = findViewById(R.id.btnShareLogs);
+
+//        checkBoxViewSandBox = findViewById(R.id.checkBoxSandBox);
+//        checkBoxViewIntegaration = findViewById(R.id.checkboxIntegration);
+//
+//        groupSandBoxViews = findViewById(R.id.groupSandBox);
+//        groupIntegartionViews = findViewById(R.id.groupIntegration);
+
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
@@ -622,6 +646,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         callRequestView.setVisibility(View.INVISIBLE);
         buttonCall.setVisibility(View.INVISIBLE);
         buttonTestCall.setVisibility(View.INVISIBLE);
+
+        buttonConnectSandBox.setVisibility(View.INVISIBLE);
+        buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+
+        isInCall = true;
     }
 
     @Override
@@ -633,6 +662,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
     private void onCallEnded() {
+
+        isInCall = false;
 
         setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 
@@ -734,9 +765,12 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
+
+        vibrate();
+
         runOnUiThread(() -> {
 
-            Toast.makeText(this, "Call Participant Left", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Call Participant Left ", Toast.LENGTH_SHORT).show();
 
         });
     }
@@ -775,4 +809,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     }
 
+    @Override
+    public void onCallParticipantJoined(String participant) {
+
+        vibrate();
+
+        runOnUiThread(() -> Toast.makeText(this, participant + " joined!", Toast.LENGTH_SHORT).show());
+
+
+    }
 }

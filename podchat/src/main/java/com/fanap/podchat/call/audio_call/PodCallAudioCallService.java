@@ -8,16 +8,19 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.fanap.podchat.call.model.CallInfo;
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.util.Util;
 
-import static com.fanap.podchat.call.audio_call.PodCallServiceManager.KAFKA_CONFIG;
-import static com.fanap.podchat.call.audio_call.PodCallServiceManager.SSL_CONFIG;
-import static com.fanap.podchat.call.audio_call.PodCallServiceManager.TARGET_ACTIVITY;
+import java.util.List;
+
+import static com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager.KAFKA_CONFIG;
+import static com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager.SSL_CONFIG;
+import static com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager.TARGET_ACTIVITY;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
 
-public class AudioCallService extends Service {
+public class PodCallAudioCallService extends Service {
 
 
     private static final String CHANNEL_NAME = "POD_CHAT_CALL_CHANNEL";
@@ -40,18 +43,18 @@ public class AudioCallService extends Service {
 
     private CallInfo callInfo;
 
-    PodAudioCallManager2 callManager;
+    PodCallAudioCallManager callManager;
 
     ICallServiceState callStateCallback;
 
-    public AudioCallService() {
+    public PodCallAudioCallService() {
     }
 
     public void registerCallStateCallback(ICallServiceState callStateCallback) {
         this.callStateCallback = callStateCallback;
     }
 
-    public void unregisterCallStateCallback(ICallServiceState callStateCallback) {
+    public void unregisterCallStateCallback() {
         this.callStateCallback = null;
     }
 
@@ -118,7 +121,7 @@ public class AudioCallService extends Service {
 
     private void startStreaming() {
 
-        callManager = new PodAudioCallManager2(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
+        callManager = new PodCallAudioCallManager(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
 
         if (!Util.isNullOrEmpty(sendingTopic)) {
             callManager.startStream();
@@ -191,11 +194,24 @@ public class AudioCallService extends Service {
             callManager.setSSL(enableSSL);
     }
 
+    public void addNewCallParticipant(List<CallParticipantVO> joinedParticipants) {
+
+        if (callManager!=null){
+            callManager.addCallParticipant(joinedParticipants);
+        }
+
+    }
+
+    public void removeCallParticipant(CallParticipantVO callParticipantVO) {
+        if(callManager!=null)
+            callManager.removeCallParticipant(callParticipantVO);
+    }
+
     public class CallBinder extends Binder {
 
-        public AudioCallService getService() {
+        public PodCallAudioCallService getService() {
 
-            return AudioCallService.this;
+            return PodCallAudioCallService.this;
 
         }
     }

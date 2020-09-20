@@ -12,12 +12,14 @@ import com.fanap.podchat.call.codec.opus.OpusDecoder;
 import com.fanap.podchat.call.codec.speexdsp.EchoCanceller;
 import com.fanap.podchat.call.model.CallSSLData;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 
 public class CallConsumer implements Runnable {
 
     // Sample rate must be one supported by Opus.
-    private static final int SAMPLE_RATE = 12000;
+    private static final int SAMPLE_RATE = 16000;
 
     // Number of samples per frame is not arbitrary,
     // it must match one of the predefined values, specified in the standard.
@@ -39,25 +41,27 @@ public class CallConsumer implements Runnable {
 
     private CallSSLData callSSLData;
 
+
     //consumer properties
 
     private String brokerAddress;
     private String sendKey;
     private String receivingTopic;
 
-    private IConsumer consumerCallback;
+    //    private IConsumer consumerCallback;
     private boolean firstBytesReceived;
 
 
     CallConsumer(CallSSLData sslData,
                  String brokerAddress,
                  String sendKey,
-                 String receivingTopic,
-                 IConsumer consumerCallback) {
+                 String receivingTopic) {
+
+        Log.e(TAG, "Initial Consumer for topic: " + receivingTopic + " on thread: " + Thread.currentThread().getName());
 
         callSSLData = sslData;
 
-        this.consumerCallback = consumerCallback;
+//        this.consumerCallback = consumerCallback;
 
         this.brokerAddress = brokerAddress;
         this.sendKey = sendKey;
@@ -92,14 +96,6 @@ public class CallConsumer implements Runnable {
         playAudio(decoder);
     }
 
-    private OpusDecoder initDecoder() {
-        if (decoder == null) {
-            decoder = new OpusDecoder();
-            decoder.init(SAMPLE_RATE, NUM_CHANNELS);
-        }
-        return decoder;
-    }
-
     private int initAudioTracker() {
 
         int minBufSize = AudioRecord.getMinBufferSize(SAMPLE_RATE,
@@ -123,13 +119,26 @@ public class CallConsumer implements Runnable {
         return minBufSize;
     }
 
+    private OpusDecoder initDecoder() {
+        if (decoder == null) {
+            decoder = new OpusDecoder();
+            decoder.init(SAMPLE_RATE, NUM_CHANNELS);
+        }
+        return decoder;
+    }
+
     private void playAudio(OpusDecoder decoder) {
 
         short[] outputBuffer = new short[FRAME_SIZE * NUM_CHANNELS];
 
+        Log.e(TAG, "Running Consumer with Topic: " + receivingTopic + " on thread " + Thread.currentThread().getName());
+
         try {
 
             while (playing) {
+
+//                Log.d(TAG, "Running Consumer with Topic: " + receivingTopic + " on thread " + Thread.currentThread().getName());
+
 
                 byte[] consumedBytes = consumer.consumingTopic();
 
@@ -141,12 +150,14 @@ public class CallConsumer implements Runnable {
 
                 int decoded = decoder.decode(consumedBytes, outputBuffer, FRAME_SIZE);
 
-                Log.v(TAG, "Decoded back " + decoded * NUM_CHANNELS * 2 + " bytes");
+//                Log.v(TAG, "Decoded back " + decoded * NUM_CHANNELS * 2 + " bytes");
 
-                if (hasBuiltInAEC)
-                    audioTrack.write(outputBuffer, 0, decoded * NUM_CHANNELS);
-                else
-                    playWithSpeexAEC(outputBuffer, decoded);
+                audioTrack.write(outputBuffer, 0, decoded * NUM_CHANNELS);
+
+//                if (hasBuiltInAEC)
+//                    audioTrack.write(outputBuffer, 0, decoded * NUM_CHANNELS);
+//                else
+//                    playWithSpeexAEC(outputBuffer, decoded);
 
 
             }
@@ -158,18 +169,22 @@ public class CallConsumer implements Runnable {
 
     private void callOnConsumingStarted() {
         firstBytesReceived = true;
-        consumerCallback.onFirstBytesReceived();
+
     }
 
     private void playWithSpeexAEC(short[] outputBuffer, int decoded) {
-        audioTrack.write(echoCanceller.capture(outputBuffer), 0, decoded * NUM_CHANNELS);
+
+        short[] echoCancelled = echoCanceller.capture(outputBuffer);
+
+        audioTrack.write(echoCancelled, 0, decoded * NUM_CHANNELS);
 
         echoCanceller.playback(outputBuffer);
+
     }
 
     void stopPlaying() {
         try {
-
+            playing = false;
             if (audioTrack != null && audioTrack.getState() != AudioTrack.STATE_UNINITIALIZED) {
                 if (audioTrack.getPlayState() != AudioTrack.PLAYSTATE_STOPPED) {
 
@@ -181,11 +196,29 @@ public class CallConsumer implements Runnable {
                 }
                 audioTrack.release();
             }
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void stopPlayingAndReleaseDecoder() {
+        try {
             playing = false;
+            if (audioTrack != null && audioTrack.getState() != AudioTrack.STATE_UNINITIALIZED) {
+                if (audioTrack.getPlayState() != AudioTrack.PLAYSTATE_STOPPED) {
+
+                    try {
+                        audioTrack.stop();
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+                    }
+                }
+                audioTrack.release();
+            }
+            if (decoder != null)
+                decoder.close();
 //            if (echoCanceller != null)
 //                echoCanceller.closeEcho();
-//            if (decoder != null)
-//                decoder.close();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
@@ -210,17 +243,13 @@ public class CallConsumer implements Runnable {
 
         consumerProperties.setProperty("auto.commit.enable", "false");
 
-        consumerProperties.setProperty("group.id", sendKey);
+        consumerProperties.setProperty("group.id", sendKey + new Date().getTime());
 
         consumerProperties.setProperty("auto.offset.reset", "end");
 
         consumer = new ConsumerClient(consumerProperties, receivingTopic);
 
         consumer.connect();
-    }
-
-    public void reStart() {
-
     }
 
 

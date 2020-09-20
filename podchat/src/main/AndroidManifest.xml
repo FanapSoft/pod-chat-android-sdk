@@ -24,7 +24,7 @@
             android:enabled="true" />
 
         <service
-            android:name=".call.audio_call.AudioCallService"
+            android:name=".call.audio_call.PodCallAudioCallService"
             android:enabled="true"
             android:exported="false" />
         <service

@@ -14,7 +14,9 @@ import android.widget.Toast;
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
@@ -1351,12 +1353,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
-//
-//
-//            getThreads(new RequestThread.Builder().count(15).offset(0).build(),null);
-//
-//        }
+        if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
+
+
+            getThreadParticipant(new RequestThreadParticipant.Builder().threadId(6952).build());
+
+        }
 
     }
 
@@ -1631,7 +1633,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.getCallsHistory(request);
 
 
-
         RequestGetHistory request1 = new RequestGetHistory
                 .Builder(6869)
                 .offset(0)
@@ -1696,10 +1697,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(6952,CallType.Constants.VOICE_CALL)
+                .Builder(6952, CallType.Constants.VOICE_CALL)
                 .build();
 
-        chat.requestGroupCall(request,true);
+        chat.requestGroupCall(request, true);
 
     }
 
@@ -1709,15 +1710,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         List<Long> ids = new ArrayList<>();
 
-        if(fifiChecked)
-            ids.add((long) FIFI_ID);
-        if(jijiChecked)
-            ids.add((long) JIJI_ID);
-        if(ziziChecked)
-            ids.add((long) ZIZI_ID);
+        if (fifiChecked)
+            ids.add(1557L);
+        if (jijiChecked)
+            ids.add(1556L);
+        if (ziziChecked)
+            ids.add(1555L);
 
-        RequestAddParticipants request =  RequestAddParticipants.newBuilder()
-                .threadId(1L)
+        RequestAddParticipants request = RequestAddParticipants.newBuilder()
+                .threadId(callRequestResponse.getSubjectId())
                 .withCoreUserIds(ids)
                 .build();
 
@@ -1759,5 +1760,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
         view.onCallParticipantLeft(response);
+    }
+
+    @Override
+    public void onCallParticipantJoined(ChatResponse<JoinCallParticipantResult> response) {
+
+
+        for (CallParticipantVO callParticipant :
+                response.getResult().getJoinedParticipants()) {
+            view.onCallParticipantJoined(callParticipant.getParticipantVO().getFirstName() + " " + callParticipant.getParticipantVO().getLastName());
+        }
+
     }
 }

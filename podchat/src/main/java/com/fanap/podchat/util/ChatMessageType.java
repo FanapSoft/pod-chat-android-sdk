@@ -95,7 +95,8 @@ public class ChatMessageType {
             Constants.CALL_CONNECT,
             Constants.GROUP_CALL_REQUEST,
             Constants.LEAVE_CALL,
-            Constants.ADD_CALL_PARTICIPANT
+            Constants.ADD_CALL_PARTICIPANT,
+            Constants.CALL_PARTICIPANT_JOINED
 
     })
 
@@ -185,6 +186,7 @@ public class ChatMessageType {
         int GROUP_CALL_REQUEST = 91;
         int LEAVE_CALL = 92;
         int ADD_CALL_PARTICIPANT = 93;
+        int CALL_PARTICIPANT_JOINED = 94;
 
 
 

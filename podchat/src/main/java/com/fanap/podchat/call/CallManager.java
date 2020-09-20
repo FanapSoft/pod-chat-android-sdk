@@ -16,6 +16,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.App;
@@ -113,6 +114,7 @@ public class CallManager {
 
         CreateCallVO createCallVO = new CreateCallVO();
 
+        createCallVO.setGroup(true);
         createCallVO.setCreatorId(CoreConfig.userId);
 
         if (request.getSubjectId() <= 0)
@@ -382,7 +384,11 @@ public class CallManager {
 
         ChatResponse<LeaveCallResult> response = new ChatResponse<>();
 
-        LeaveCallResult result = App.getGson().fromJson(chatMessage.getContent(), LeaveCallResult.class);
+        CallParticipantVO callParticipant = App.getGson().fromJson(chatMessage.getContent(), CallParticipantVO.class);
+
+        LeaveCallResult result = new LeaveCallResult();
+        result.setCallId(chatMessage.getSubjectId());
+        result.setCallParticipantVO(callParticipant);
 
         response.setResult(result);
         response.setSubjectId(chatMessage.getSubjectId());
@@ -485,4 +491,30 @@ public class CallManager {
 
     }
 
+    public static ChatResponse<JoinCallParticipantResult> handleOnParticipantJoined(ChatMessage chatMessage) {
+        ChatResponse<JoinCallParticipantResult> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(chatMessage.getUniqueId());
+
+            response.setSubjectId(chatMessage.getSubjectId());
+
+            ArrayList<CallParticipantVO> callParticipantVOS = App.getGson().fromJson(chatMessage.getContent(),
+                    new TypeToken<ArrayList<CallParticipantVO>>(){}.getType());
+
+            JoinCallParticipantResult result = new JoinCallParticipantResult();
+
+            result.setCallId(chatMessage.getSubjectId());
+
+            result.setJoinedParticipants(callParticipantVOS);
+
+            response.setResult(result);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+
+        return response;
+    }
 }
