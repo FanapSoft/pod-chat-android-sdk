@@ -6,15 +6,14 @@ import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
-import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
-import com.fanap.podchat.model.ResultBlock;
-import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.BlockUnblockUserResponse;
+import com.fanap.podchat.model.GetBlockedUserListResponse;
 import com.fanap.podchat.model.ResultClearHistory;
-import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.GetContactsResponse;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
@@ -30,7 +29,7 @@ import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
-import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.model.GetUserInfoResponse;
 
 public class ChatAdapter implements ChatListener {
 
@@ -46,7 +45,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetContacts(String content,  ChatResponse<ResultContact> outPutContact) {
+    public void onGetContacts(String content,  ChatResponse<GetContactsResponse> outPutContact) {
 
     }
 
@@ -66,12 +65,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    public void onBlock(String content, ChatResponse<BlockUnblockUserResponse> outPutBlock) {
 
     }
 
     @Override
-    public void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
+    public void onUnBlock(String content, ChatResponse<BlockUnblockUserResponse> outPutBlock) {
 
     }
 
@@ -91,7 +90,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
+    public void onUserInfo(String content, ChatResponse<GetUserInfoResponse> outPutUserInfo) {
 
     }
 
@@ -237,7 +236,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
+    public void onGetBlockList(String content, ChatResponse<GetBlockedUserListResponse> outPutBlockList) {
 
     }
 
@@ -257,7 +256,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
+    public void onSearchContact(String content, ChatResponse<GetContactsResponse> chatResponse) {
 
     }
 

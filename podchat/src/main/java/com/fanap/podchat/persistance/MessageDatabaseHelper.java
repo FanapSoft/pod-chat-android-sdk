@@ -5,6 +5,7 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.content.Context;
+import android.database.Observable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -29,11 +30,11 @@ import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
-import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
-import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.mention.model.GetMentionedRequest;
+import com.fanap.podchat.chat.messge.GetAllUnreadMessageCountRequest;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
-import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
+import com.fanap.podchat.chat.user.profile.UpdateProfileResponse;
 import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.BlockedContact;
@@ -45,19 +46,19 @@ import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.PinMessageVO;
-import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.mainmodel.SearchContactRequest;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
-import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.GetContactsResponse;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
-import com.fanap.podchat.requestobject.RequestGetHistory;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.GetHistoryRequest;
+import com.fanap.podchat.requestobject.GetCurrentUserRolesRequest;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.FunctionalListener;
@@ -349,24 +350,6 @@ public class MessageDatabaseHelper {
 
             if (shouldUpdateLastMessage)
                 messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
-
-
-//            if (!editedMessage)
-//                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
-//            else if (shouldUpdateIfEdited) {
-//                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
-//            }
-
-//          ThreadVo threadVo = messageDao.getThreadById(threadId);
-
-//          if(threadVo != null) {
-
-//              threadVo.setLastMessageVOId(cacheMessageVO.getId());
-//
-//              messageDao.insertThread(threadVo);
-
-//          }
-
 
         });
 
@@ -731,7 +714,6 @@ public class MessageDatabaseHelper {
                 }
 
             }
-
 
             messageDao.deleteMessage(id);
 
@@ -1436,7 +1418,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    private History getHistoryModelFromRequestGetHistory(RequestGetHistory request) {
+    private History getHistoryModelFromRequestGetHistory(GetHistoryRequest request) {
         return new History.Builder()
                 .count(request.getCount())
                 .firstMessageId(request.getFirstMessageId())
@@ -1453,7 +1435,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void getMentionList(RequestGetMentionList request, FunctionalListener listener) {
+    public void getMentionList(GetMentionedRequest request, FunctionalListener listener) {
 
 
         worker(() -> {
@@ -2010,7 +1992,9 @@ public class MessageDatabaseHelper {
 
                         Thread threadFromCache = threadList.get(0);
 
-                        threadFromCache.setTitle(thread.getTitle());
+                        if (Util.isNotNullOrEmpty(thread.getTitle()))
+                            threadFromCache.setTitle(thread.getTitle());
+
                         threadFromCache.setImage(thread.getImage());
                         threadFromCache.setDescription(thread.getDescription());
                         threadFromCache.setMetadata(thread.getMetadata());
@@ -2213,14 +2197,15 @@ public class MessageDatabaseHelper {
 
             final String ORDER = "order by pin desc,time desc";
 
-            sQuery = "select * from ThreadVo " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+            sQuery = "select * from ThreadVo " + ORDER;
 
             if (threadName != null && !isNew) {
-                sQuery = "select  * from ThreadVo where title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+                sQuery = "select * from ThreadVo where title LIKE '%" + threadName + "%' " + ORDER;
             }
             if (threadIds != null && threadIds.size() > 0 && !isNew) {
 
                 StringBuilder stringBuilder = new StringBuilder();
+
                 for (int id : threadIds) {
                     stringBuilder.append(id).append(",");
                 }
@@ -2229,17 +2214,25 @@ public class MessageDatabaseHelper {
                 String lastString = stringIds.replaceAll(",$", "");
 
                 if (threadName != null) {
-                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + "AND title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+                    sQuery = "select * from ThreadVo where id IN " + "(" + lastString + ")" + "AND title LIKE  '%" + threadName + "%' " + ORDER;
                 } else {
-                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + " " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+                    sQuery = "select * from ThreadVo where id IN " + "(" + lastString + ")" + " " + ORDER;
                 }
             }
 
 
             //only threads with unreadCount > 0 if isNew == true
             if (isNew) {
-                sQuery = "select * from ThreadVo where unreadCount > 0 LIMIT " + count + " OFFSET " + offset;
+                sQuery = "select * from ThreadVo where unreadCount > 0 " + ORDER;
             }
+
+            long contentCount = 0;
+
+            SimpleSQLiteQuery countQuery = new SimpleSQLiteQuery(sQuery.replaceFirst("select \\* ", "select count(id) "));
+
+            contentCount = messageDao.getThreadContentCount(countQuery);
+
+            sQuery += getPaging(count, offset);
 
             SimpleSQLiteQuery query = new SimpleSQLiteQuery(sQuery);
 
@@ -2276,18 +2269,20 @@ public class MessageDatabaseHelper {
                             }
 
                             if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+
                                 cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                                replyInfoVO = new ReplyInfoVO(
-                                        cacheReplyInfoVO.getRepliedToMessageId(),
-                                        cacheReplyInfoVO.getMessageType(),
-                                        cacheReplyInfoVO.isDeleted(),
-                                        cacheReplyInfoVO.getRepliedToMessage(),
-                                        cacheReplyInfoVO.getSystemMetadata(),
-                                        cacheReplyInfoVO.getMetadata(),
-                                        cacheReplyInfoVO.getMessage(),
-                                        cacheReplyInfoVO.getRepliedToMessageTime(),
-                                        cacheReplyInfoVO.getRepliedToMessageNanos()
-                                );
+                                if (cacheReplyInfoVO != null)
+                                    replyInfoVO = new ReplyInfoVO(
+                                            cacheReplyInfoVO.getRepliedToMessageId(),
+                                            cacheReplyInfoVO.getMessageType(),
+                                            cacheReplyInfoVO.isDeleted(),
+                                            cacheReplyInfoVO.getRepliedToMessage(),
+                                            cacheReplyInfoVO.getSystemMetadata(),
+                                            cacheReplyInfoVO.getMetadata(),
+                                            cacheReplyInfoVO.getMessage(),
+                                            cacheReplyInfoVO.getRepliedToMessageTime(),
+                                            cacheReplyInfoVO.getRepliedToMessageNanos()
+                                    );
                             }
 
                             lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
@@ -2305,10 +2300,134 @@ public class MessageDatabaseHelper {
 
             listener.onWorkDone(threads);
 
+            listener.onWorkDone(contentCount,threads);
+
+
         });
 
 
     }
+
+    private String getPaging(Integer count, Long offset) {
+        return " LIMIT " + count + " OFFSET " + offset;
+    }
+
+    @NonNull
+//    public Observable<Thread> getThreadRaw(Integer count,
+//                                   Long offset,
+//                                   @Nullable ArrayList<Integer> threadIds,
+//                                   @Nullable String threadName,
+//                                   boolean isNew) throws RoomIntegrityException {
+//
+//
+//        if (!canUseDatabase()) throw new RoomIntegrityException();
+//
+//        worker(() -> {
+//
+//            String sQuery;
+//
+//            final String ORDER = "order by pin desc,time desc";
+//
+//            sQuery = "select * from ThreadVo " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//
+//            if (threadName != null && !isNew) {
+//                sQuery = "select  * from ThreadVo where title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//            }
+//            if (threadIds != null && threadIds.size() > 0 && !isNew) {
+//
+//                StringBuilder stringBuilder = new StringBuilder();
+//                for (int id : threadIds) {
+//                    stringBuilder.append(id).append(",");
+//                }
+//
+//                String stringIds = stringBuilder.toString();
+//                String lastString = stringIds.replaceAll(",$", "");
+//
+//                if (threadName != null) {
+//                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + "AND title LIKE  '%" + threadName + "%' " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//                } else {
+//                    sQuery = "select  * from ThreadVo where id IN " + "(" + lastString + ")" + " " + ORDER + " LIMIT " + count + " OFFSET " + offset;
+//                }
+//            }
+//
+//
+//            //only threads with unreadCount > 0 if isNew == true
+//            if (isNew) {
+//                sQuery = "select * from ThreadVo where unreadCount > 0 LIMIT " + count + " OFFSET " + offset;
+//            }
+//
+//            SimpleSQLiteQuery query = new SimpleSQLiteQuery(sQuery);
+//
+//            List<ThreadVo> threadVos = messageDao.getThreadRaw(query);
+//
+//            List<Thread> threads = new ArrayList<>();
+//
+//            if (threadVos != null) {
+//
+//                for (ThreadVo threadVo : threadVos) {
+//
+//                    if (threadVo.getId() == 0)
+//                        continue;
+//
+//                    CacheParticipant cacheParticipant;
+//                    CacheReplyInfoVO cacheReplyInfoVO;
+//                    Participant participant = null;
+//                    ReplyInfoVO replyInfoVO = null;
+//                    @Nullable MessageVO lastMessageVO = null;
+//                    if (threadVo.getInviterId() > 0) {
+//                        threadVo.setInviter(messageDao.getInviter(threadVo.getInviterId()));
+//                    }
+//
+//                    if (threadVo.getLastMessageVOId() > 0) {
+//                        threadVo.setLastMessageVO(messageDao.getLastMessageVO(threadVo.getLastMessageVOId()));
+//                        CacheMessageVO cacheLastMessageVO = threadVo.getLastMessageVO();
+//
+//                        if (cacheLastMessageVO != null) {
+//                            if (cacheLastMessageVO.getParticipantId() != null) {
+//                                cacheParticipant = messageDao.getParticipant(cacheLastMessageVO.getParticipantId());
+//                                if (cacheParticipant != null) {
+//                                    participant = cacheToParticipantMapper(cacheParticipant, null, null);
+//                                }
+//                            }
+//
+//                            if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+//
+//                                cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
+//                                if (cacheReplyInfoVO != null)
+//                                    replyInfoVO = new ReplyInfoVO(
+//                                            cacheReplyInfoVO.getRepliedToMessageId(),
+//                                            cacheReplyInfoVO.getMessageType(),
+//                                            cacheReplyInfoVO.isDeleted(),
+//                                            cacheReplyInfoVO.getRepliedToMessage(),
+//                                            cacheReplyInfoVO.getSystemMetadata(),
+//                                            cacheReplyInfoVO.getMetadata(),
+//                                            cacheReplyInfoVO.getMessage(),
+//                                            cacheReplyInfoVO.getRepliedToMessageTime(),
+//                                            cacheReplyInfoVO.getRepliedToMessageNanos()
+//                                    );
+//                            }
+//
+//                            lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
+//                        }
+//                    }
+//
+//                    //adding pinned message of thread if exist
+//                    addPinnedMessageOfThread(threadVo);
+//
+//                    Thread thread = threadVoToThreadMapper(threadVo, lastMessageVO);
+//
+//                    threads.add(thread);
+//                }
+//            }
+//
+//
+//
+//            listener.onWorkDone(threads);
+//
+//        });
+//
+//
+//    }
 
     private Thread threadVoToThreadMapper(ThreadVo threadVo, MessageVO lastMessageVO) {
 
@@ -2457,17 +2576,18 @@ public class MessageDatabaseHelper {
                         }
                         if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                            replyInfoVO = new ReplyInfoVO(
-                                    cacheReplyInfoVO.getRepliedToMessageId(),
-                                    cacheReplyInfoVO.getMessageType(),
-                                    cacheReplyInfoVO.isDeleted(),
-                                    cacheReplyInfoVO.getRepliedToMessage(),
-                                    cacheReplyInfoVO.getSystemMetadata(),
-                                    cacheReplyInfoVO.getMetadata(),
-                                    cacheReplyInfoVO.getMessage(),
-                                    cacheReplyInfoVO.getRepliedToMessageTime(),
-                                    cacheReplyInfoVO.getRepliedToMessageNanos()
-                            );
+                            if (cacheReplyInfoVO != null)
+                                replyInfoVO = new ReplyInfoVO(
+                                        cacheReplyInfoVO.getRepliedToMessageId(),
+                                        cacheReplyInfoVO.getMessageType(),
+                                        cacheReplyInfoVO.isDeleted(),
+                                        cacheReplyInfoVO.getRepliedToMessage(),
+                                        cacheReplyInfoVO.getSystemMetadata(),
+                                        cacheReplyInfoVO.getMetadata(),
+                                        cacheReplyInfoVO.getMessage(),
+                                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                                        cacheReplyInfoVO.getRepliedToMessageNanos()
+                                );
                         }
                         lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
 
@@ -2570,17 +2690,19 @@ public class MessageDatabaseHelper {
                         }
                         if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                            replyInfoVO = new ReplyInfoVO(
-                                    cacheReplyInfoVO.getRepliedToMessageId(),
-                                    cacheReplyInfoVO.getMessageType(),
-                                    cacheReplyInfoVO.isDeleted(),
-                                    cacheReplyInfoVO.getRepliedToMessage(),
-                                    cacheReplyInfoVO.getSystemMetadata(),
-                                    cacheReplyInfoVO.getMetadata(),
-                                    cacheReplyInfoVO.getMessage(),
-                                    cacheReplyInfoVO.getRepliedToMessageTime(),
-                                    cacheReplyInfoVO.getRepliedToMessageNanos()
-                            );
+
+                            if (cacheReplyInfoVO != null)
+                                replyInfoVO = new ReplyInfoVO(
+                                        cacheReplyInfoVO.getRepliedToMessageId(),
+                                        cacheReplyInfoVO.getMessageType(),
+                                        cacheReplyInfoVO.isDeleted(),
+                                        cacheReplyInfoVO.getRepliedToMessage(),
+                                        cacheReplyInfoVO.getSystemMetadata(),
+                                        cacheReplyInfoVO.getMetadata(),
+                                        cacheReplyInfoVO.getMessage(),
+                                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                                        cacheReplyInfoVO.getRepliedToMessageNanos()
+                                );
                         }
 
                         lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
@@ -2633,17 +2755,19 @@ public class MessageDatabaseHelper {
                         }
                         if (cacheLastMessageVO.getReplyInfoVOId() != null) {
                             cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
-                            replyInfoVO = new ReplyInfoVO(
-                                    cacheReplyInfoVO.getRepliedToMessageId(),
-                                    cacheReplyInfoVO.getMessageType(),
-                                    cacheReplyInfoVO.isDeleted(),
-                                    cacheReplyInfoVO.getRepliedToMessage(),
-                                    cacheReplyInfoVO.getSystemMetadata(),
-                                    cacheReplyInfoVO.getMetadata(),
-                                    cacheReplyInfoVO.getMessage(),
-                                    cacheReplyInfoVO.getRepliedToMessageTime(),
-                                    cacheReplyInfoVO.getRepliedToMessageNanos()
-                            );
+
+                            if (cacheReplyInfoVO != null)
+                                replyInfoVO = new ReplyInfoVO(
+                                        cacheReplyInfoVO.getRepliedToMessageId(),
+                                        cacheReplyInfoVO.getMessageType(),
+                                        cacheReplyInfoVO.isDeleted(),
+                                        cacheReplyInfoVO.getRepliedToMessage(),
+                                        cacheReplyInfoVO.getSystemMetadata(),
+                                        cacheReplyInfoVO.getMetadata(),
+                                        cacheReplyInfoVO.getMessage(),
+                                        cacheReplyInfoVO.getRepliedToMessageTime(),
+                                        cacheReplyInfoVO.getRepliedToMessageNanos()
+                                );
                         }
                         lastMessageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, null, null, cacheLastMessageVO);
                     }
@@ -2719,7 +2843,7 @@ public class MessageDatabaseHelper {
         CacheForwardInfo cacheForwardInfo;
 
         cacheMessageVO = insertLastMessage(thread, threadVo);
-        if(cacheMessageVO==null) return;
+        if (cacheMessageVO == null) return;
 
 
         if (threadVo.getLastMessageVO().getParticipant() != null) {
@@ -2803,7 +2927,10 @@ public class MessageDatabaseHelper {
 
         CacheMessageVO cacheMessageVO;
         try {
+
             MessageVO messageVO = thread.getLastMessageVO();
+
+            messageVO.setConversation(thread);
 
             cacheMessageVO = new CacheMessageVO(messageVO);
 
@@ -2812,6 +2939,9 @@ public class MessageDatabaseHelper {
             threadVo.setLastMessageVOId(cacheMessageVO.getId());
 
             messageDao.insertLastMessageVO(cacheMessageVO);
+
+            messageVO.setConversation(null);
+
         } catch (Exception e) {
             Sentry.captureException(e);
             return null;
@@ -3143,13 +3273,13 @@ public class MessageDatabaseHelper {
 
 
     @NonNull
-    public ChatResponse<ResultContact> searchContacts(RequestSearchContact requestSearchContact, String size, String offset) {
+    public ChatResponse<GetContactsResponse> searchContacts(SearchContactRequest requestSearchContact, String size, String offset) {
 
         List<Contact> contacts = new ArrayList<>();
 
-        ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+        ChatResponse<GetContactsResponse> chatResponse = new ChatResponse<>();
         chatResponse.setCache(true);
-        ResultContact resultContact = new ResultContact();
+        GetContactsResponse resultContact = new GetContactsResponse();
         resultContact.setContacts(new ArrayList<>(contacts));
         chatResponse.setHasError(false);
 
@@ -3549,7 +3679,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void updateChatProfile(ResultUpdateProfile result) {
+    public void updateChatProfile(UpdateProfileResponse result) {
 
         worker(() -> {
             UserInfo userInfo = getUserInfo();
@@ -3579,7 +3709,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void loadAllUnreadMessagesCount(RequestGetUnreadMessagesCount req, OnWorkDone listener)
+    public void loadAllUnreadMessagesCount(GetAllUnreadMessageCountRequest req, OnWorkDone listener)
 
             throws RoomIntegrityException {
 
@@ -3598,7 +3728,7 @@ public class MessageDatabaseHelper {
 
     }
 
-    public void getCurrentUserRoles(RequestGetUserRoles request, OnWorkDone listener) {
+    public void getCurrentUserRoles(GetCurrentUserRolesRequest request, OnWorkDone listener) {
 
         worker(() -> {
 

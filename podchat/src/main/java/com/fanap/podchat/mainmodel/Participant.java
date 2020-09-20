@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.Nullable;
+
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 
 import java.util.ArrayList;
@@ -292,5 +294,17 @@ public class Participant {
 
     public void setChatProfileVO(ChatProfileVO chatProfileVO) {
         this.chatProfileVO = chatProfileVO;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+
+        try {
+            if (obj != null) {
+                return this.id == ((Participant) obj).getId();
+            }else return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

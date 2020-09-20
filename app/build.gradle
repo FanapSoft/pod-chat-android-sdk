@@ -57,7 +57,7 @@ dependencies {
     //create fake data
     implementation 'com.github.javafaker:javafaker:1.0.0'
 
-    implementation project(path: ':podchat')
+    api project(path: ':podchat')
 
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
@@ -66,7 +66,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
 //    implementation project(path: ':podotp')
 
-
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
 
 
 }

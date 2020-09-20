@@ -3,7 +3,6 @@ package com.example.chat.application.chatexample;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
@@ -13,62 +12,61 @@ import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
-import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.mention.model.GetMentionedRequest;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
-import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
+import com.fanap.podchat.chat.thread.public_thread.IsPublicThreadNameAvailableRequest;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
-import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
+import com.fanap.podchat.chat.thread.public_thread.JoinPublicThreadRequest;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
-import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.UpdateProfileRequest;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.mainmodel.SearchContactRequest;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
-import com.fanap.podchat.requestobject.RequestAddContact;
-import com.fanap.podchat.requestobject.RequestBlockList;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestGetContact;
-import com.fanap.podchat.requestobject.RequestGetFile;
-import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.AddContactRequest;
+import com.fanap.podchat.requestobject.GetBlockedListRequest;
+import com.fanap.podchat.requestobject.CreateThreadWithFileRequest;
+import com.fanap.podchat.requestobject.GetContactRequest;
+import com.fanap.podchat.requestobject.GetFileRequest;
+import com.fanap.podchat.requestobject.GetImageRequest;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
-import com.fanap.podchat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.requestobject.RequestClearHistory;
-import com.fanap.podchat.requestobject.RequestConnect;
-import com.fanap.podchat.requestobject.RequestCreateThread;
-import com.fanap.podchat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestFileMessage;
-import com.fanap.podchat.requestobject.RequestForwardMessage;
-import com.fanap.podchat.requestobject.RequestGetAdmin;
-import com.fanap.podchat.requestobject.RequestGetHistory;
-import com.fanap.podchat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.requestobject.RequestMapReverse;
-import com.fanap.podchat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
-import com.fanap.podchat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.requestobject.RequestReplyMessage;
-import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.GetCurrentUserRolesRequest;
+import com.fanap.podchat.chat.pin.pin_message.model.PinUnpinMessageRequest;
+import com.fanap.podchat.requestobject.SetRemoveRoleRequest;
+import com.fanap.podchat.requestobject.AddParticipantsRequest;
+import com.fanap.podchat.requestobject.ClearHistoryRequest;
+import com.fanap.podchat.requestobject.ConnectRequest;
+import com.fanap.podchat.requestobject.CreateThreadRequest;
+import com.fanap.podchat.requestobject.DeleteMessageRequest;
+import com.fanap.podchat.requestobject.GetMessageDeliveredSeenListRequest;
+import com.fanap.podchat.requestobject.FileMessageRequest;
+import com.fanap.podchat.requestobject.ForwardMessageRequest;
+import com.fanap.podchat.requestobject.GetAllThreadAdminsRequest;
+import com.fanap.podchat.requestobject.GetHistoryRequest;
+import com.fanap.podchat.requestobject.SendLocationMessageRequest;
+import com.fanap.podchat.requestobject.MapReverseRequest;
+import com.fanap.podchat.requestobject.MapStaticImageRequest;
+import com.fanap.podchat.requestobject.SendTextMessageRequest;
+import com.fanap.podchat.chat.pin.pin_thread.model.PinUnpinThreadRequest;
+import com.fanap.podchat.requestobject.RemoveParticipantsRequest;
+import com.fanap.podchat.requestobject.SendReplyFileMessageRequest;
+import com.fanap.podchat.requestobject.ReplyTextMessageRequest;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
-import com.fanap.podchat.requestobject.RequestSpam;
-import com.fanap.podchat.requestobject.RequestThread;
-import com.fanap.podchat.requestobject.RequestThreadInfo;
-import com.fanap.podchat.requestobject.RequestThreadParticipant;
-import com.fanap.podchat.requestobject.RequestUnBlock;
-import com.fanap.podchat.requestobject.RequestUpdateContact;
+import com.fanap.podchat.requestobject.SpamPrivateThreadRequest;
+import com.fanap.podchat.requestobject.GetThreadsRequest;
+import com.fanap.podchat.requestobject.UpdateThreadInfoRequest;
+import com.fanap.podchat.requestobject.GetThreadParticipantsRequest;
+import com.fanap.podchat.requestobject.UnBlockRequest;
+import com.fanap.podchat.requestobject.UpdateContactsRequest;
 import com.fanap.podchat.requestobject.RetryUpload;
 
 import java.util.ArrayList;
@@ -223,9 +221,9 @@ public interface ChatContract {
 
         void enableAutoRefresh(Activity activity,String entry);
 
-        void sendLocationMessage(RequestLocationMessage request);
+        void sendLocationMessage(SendLocationMessageRequest request);
 
-        void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
+        void sendLocationMessage(SendLocationMessageRequest requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
 
 
         void isDatabaseOpen();
@@ -240,17 +238,17 @@ public interface ChatContract {
 
         void cancelUpload(String uniqueId);
 
-        void seenMessageList(RequestSeenMessageList requestParam);
+        void seenMessageList(GetMessageDeliveredSeenListRequest requestParam);
 
-        void deliveredMessageList(RequestDeliveredMessageList requestParams);
+        void deliveredMessageList(GetMessageDeliveredSeenListRequest requestParams);
 
-        void createThreadWithMessage(RequestCreateThread threadRequest);
+        void createThreadWithMessage(CreateThreadRequest threadRequest);
 
         String createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
                 , String metadata);
 
 
-        void getThreads(RequestThread requestThread, ChatHandler handler);
+        void getThreads(GetThreadsRequest requestThread, ChatHandler handler);
 
         void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,
 
@@ -263,21 +261,21 @@ public interface ChatContract {
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
                 , String platformHost, String fileServer, String typeCode);
 
-        void connect(RequestConnect requestConnect);
+        void connect(ConnectRequest requestConnect);
 
         void mapSearch(String searchTerm, Double latitude, Double longitude);
 
         void mapRouting(String origin, String destination);
 
-        void mapStaticImage(RequestMapStaticImage request);
+        void mapStaticImage(MapStaticImageRequest request);
 
-        void mapReverse(RequestMapReverse request);
+        void mapReverse(MapReverseRequest request);
 
         void getUserInfo(ChatHandler handler);
 
         void getHistory(History history, long threadId, ChatHandler handler);
 
-        void getHistory(RequestGetHistory request, ChatHandler handler);
+        void getHistory(GetHistoryRequest request, ChatHandler handler);
 
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
 
@@ -288,13 +286,13 @@ public interface ChatContract {
 
         void sendTextMessage(String textMessage, long threadId, Integer messageType, String metaData, ChatHandler handler);
 
-        void sendTextMessage(RequestMessage requestMessage, ChatHandler handler);
+        void sendTextMessage(SendTextMessageRequest requestMessage, ChatHandler handler);
 
         void replyMessage(String messageContent, long threadId, long messageId, Integer messageType, ChatHandler handler);
 
-        void replyFileMessage(RequestReplyFileMessage request, ProgressHandler.sendFileMessage handler);
+        void replyFileMessage(SendReplyFileMessageRequest request, ProgressHandler.sendFileMessage handler);
 
-        void replyMessage(RequestReplyMessage request, ChatHandler handler);
+        void replyMessage(ReplyTextMessageRequest request, ChatHandler handler);
 
         void muteThread(int threadId, ChatHandler handler);
 
@@ -310,33 +308,33 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void searchContact(RequestSearchContact requestSearchContact);
+        void searchContact(SearchContactRequest requestSearchContact);
 
         void block(Long contactId, Long userId, Long threadId, ChatHandler handler);
 
         void unBlock(Long blockId, Long userId, Long threadId, Long contactId, ChatHandler handler);
 
-        void unBlock(RequestUnBlock request, ChatHandler handler);
+        void unBlock(UnBlockRequest request, ChatHandler handler);
 
         void spam(long threadId);
 
-        String spam(RequestSpam requestSpam);
+        String spam(SpamPrivateThreadRequest requestSpam);
 
         void getBlockList(Long count, Long offset, ChatHandler handler);
 
         String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler);
 
-        String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler);
+        String sendFileMessage(FileMessageRequest requestFileMessage, ProgressHandler.sendFileMessage handler);
 
         void syncContact(Activity activity);
 
         void forwardMessage(long threadId, ArrayList<Long> messageIds);
 
-        void forwardMessage(RequestForwardMessage request);
+        void forwardMessage(ForwardMessageRequest request);
 
         void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email);
 
-        void updateContact(RequestUpdateContact updateContact);
+        void updateContact(UpdateContactsRequest updateContact);
 
         void uploadImage(Activity activity, Uri fileUri);
 
@@ -348,33 +346,33 @@ public interface ChatContract {
 
         void removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler);
 
-        void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler);
+        void removeParticipants(RemoveParticipantsRequest requestRemoveParticipants, ChatHandler handler);
 
         void addParticipants(long threadId, List<Long> contactIds, ChatHandler handler);
 
-        void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler);
+        void addParticipants(AddParticipantsRequest requestAddParticipants, ChatHandler handler);
 
         void leaveThread(long threadId, ChatHandler handler);
 
         void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler);
 
-        void updateThreadInfo(RequestThreadInfo request, ChatHandler handler);
+        void updateThreadInfo(UpdateThreadInfoRequest request, ChatHandler handler);
 
         void deleteMessage(ArrayList<Long> messageIds,long threadId, Boolean deleteForAll, ChatHandler handler);
 
-        void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler);
+        void deleteMessage(DeleteMessageRequest deleteMessage, ChatHandler handler);
 
         void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler);
 
         void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler);
 
-        void setAdmin(RequestSetAdmin requestAddAdmin);
+        void setAdmin(SetRemoveRoleRequest requestAddAdmin);
 
-        void removeAdminRules(RequestSetAdmin requestAddAdmin);
+        void removeAdminRules(SetRemoveRoleRequest requestAddAdmin);
 
-        void clearHistory(RequestClearHistory requestClearHistory);
+        void clearHistory(ClearHistoryRequest requestClearHistory);
 
-        void getAdminList(RequestGetAdmin requestGetAdmin);
+        void getAdminList(GetAllThreadAdminsRequest requestGetAdmin);
 
 //        String startSignalMessage(RequestSignalMsg requestSignalMsg);
 
@@ -388,29 +386,29 @@ public interface ChatContract {
 
         void stopAllSignalMessages();
 
-        void pinThread(RequestPinThread requestPinThread);
+        void pinThread(PinUnpinThreadRequest requestPinThread);
 
-        void unPinThread(RequestPinThread requestPinThread);
+        void unPinThread(PinUnpinThreadRequest requestPinThread);
 
         void setAuditor(RequestSetAuditor requestAddAdmin);
 
         void removeAuditor(RequestSetAuditor requestAddAdmin);
 
-        void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.sendFileMessage handler);
+        void createThreadWithFile(CreateThreadWithFileRequest request, ProgressHandler.sendFileMessage handler);
 
-        void getUserRoles(RequestGetUserRoles req);
+        void getUserRoles(GetCurrentUserRolesRequest req);
 
-        void pinMessage(RequestPinMessage requestPinMessage);
+        void pinMessage(PinUnpinMessageRequest requestPinMessage);
 
-        void unPinMessage(RequestPinMessage requestPinMessage);
+        void unPinMessage(PinUnpinMessageRequest requestPinMessage);
 
-        void getMentionList(RequestGetMentionList req);
+        void getMentionList(GetMentionedRequest req);
 
         void startTyping(RequestSignalMsg req);
 
-        String downloadFile(RequestGetImage requestGetImage, ProgressHandler.IDownloadFile onProgressFile);
+        String downloadFile(GetImageRequest requestGetImage, ProgressHandler.IDownloadFile onProgressFile);
 
-        String downloadFile(RequestGetFile requestGetFile, ProgressHandler.IDownloadFile onProgressFile);
+        String downloadFile(GetFileRequest requestGetFile, ProgressHandler.IDownloadFile onProgressFile);
 
         boolean cancelDownload(String downloadingId);
 
@@ -430,21 +428,21 @@ public interface ChatContract {
 
         void closeChat();
 
-        void addContact(RequestAddContact request);
+        void addContact(AddContactRequest request);
 
-        void updateChatProfile(RequestUpdateProfile request);
+        void updateChatProfile(UpdateProfileRequest request);
 
-        void checkIsNameAvailable(RequestCheckIsNameAvailable request);
+        void checkIsNameAvailable(IsPublicThreadNameAvailableRequest request);
 
         void createPublicThread(RequestCreatePublicThread request);
 
-        void joinPublicThread(RequestJoinPublicThread request);
+        void joinPublicThread(JoinPublicThreadRequest request);
 
-        void getContact(RequestGetContact request);
+        void getContact(GetContactRequest request);
 
-        void getBlockList(RequestBlockList request);
+        void getBlockList(GetBlockedListRequest request);
 
-        void getThreadParticipant(RequestThreadParticipant request);
+        void getThreadParticipant(GetThreadParticipantsRequest request);
 
         void shareLogs();
 
@@ -458,9 +456,9 @@ public interface ChatContract {
 
         String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile);
 
-        String updateThreadInfo(RequestThreadInfo request);
+        String updateThreadInfo(UpdateThreadInfoRequest request);
 
-        String createThread(RequestCreateThread requestCreateThread);
+        String createThread(CreateThreadRequest requestCreateThread);
 
         void deliverNotification(String threadId);
 

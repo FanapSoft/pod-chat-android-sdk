@@ -85,7 +85,8 @@ public class ChatMessageType {
             Constants.REGISTER_FCM_USER_DEVICE,
             Constants.UPDATE_FCM_APP_USERS_DEVICE,
             Constants.LAST_MESSAGE_EDITED,
-            Constants.LAST_MESSAGE_DELETED
+            Constants.LAST_MESSAGE_DELETED,
+            Constants.CONTACT_SYNCED,
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -165,6 +166,8 @@ public class ChatMessageType {
         int REGISTER_FCM_APP = 80;
         int REGISTER_FCM_USER_DEVICE = 81;
         int UPDATE_FCM_APP_USERS_DEVICE = 82;
+
+        int CONTACT_SYNCED = 90;
 
         int ERROR = 999;
 

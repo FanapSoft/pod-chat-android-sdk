@@ -15,7 +15,7 @@ public class UserProfile {
 
 
 
-    public static String setProfile(RequestUpdateProfile request,String uniqueId){
+    public static String setProfile(UpdateProfileRequest request, String uniqueId){
 
         String bio = request.getBio();
         String metadata = request.getMetadata();
@@ -37,11 +37,11 @@ public class UserProfile {
 
 
 
-    public static ChatResponse<ResultUpdateProfile> handleOutputUpdateProfile(ChatMessage chatMessage){
+    public static ChatResponse<UpdateProfileResponse> handleOutputUpdateProfile(ChatMessage chatMessage){
 
-        ChatResponse<ResultUpdateProfile> response = new ChatResponse<>();
+        ChatResponse<UpdateProfileResponse> response = new ChatResponse<>();
 
-        ResultUpdateProfile result = App.getGson().fromJson(chatMessage.getContent(),ResultUpdateProfile.class);
+        UpdateProfileResponse result = App.getGson().fromJson(chatMessage.getContent(), UpdateProfileResponse.class);
 
         response.setResult(result);
 
