@@ -28,7 +28,6 @@ import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
-import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
@@ -45,32 +44,30 @@ import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
-import com.fanap.podchat.chat.contact.ContactManager;
-import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
 import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResult;
 import com.fanap.podchat.chat.mention.Mention;
-import com.fanap.podchat.chat.mention.model.GetMentionedRequest;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
-import com.fanap.podchat.chat.messge.GetAllUnreadMessageCountRequest;
+import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.PinMessage;
-import com.fanap.podchat.chat.pin.pin_message.model.PinUnpinMessageRequest;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.PinThread;
-import com.fanap.podchat.chat.pin.pin_thread.model.PinUnpinThreadRequest;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.PublicThread;
-import com.fanap.podchat.chat.thread.public_thread.IsPublicThreadNameAvailableRequest;
+import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
-import com.fanap.podchat.chat.thread.public_thread.JoinPublicThreadRequest;
+import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
-import com.fanap.podchat.chat.user.profile.UpdateProfileRequest;
-import com.fanap.podchat.chat.user.profile.UpdateProfileResponse;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
 import com.fanap.podchat.chat.user.user_roles.UserRoles;
 import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
@@ -94,7 +91,7 @@ import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
-import com.fanap.podchat.mainmodel.SearchContactRequest;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
@@ -127,10 +124,10 @@ import com.fanap.podchat.model.OutputSetRoleToUser;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
-import com.fanap.podchat.model.BlockUnblockUserResponse;
-import com.fanap.podchat.model.GetBlockedUserListResponse;
+import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultClearHistory;
-import com.fanap.podchat.model.GetContactsResponse;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
@@ -150,7 +147,7 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultThreadsSummary;
 import com.fanap.podchat.model.ResultUpdateContact;
-import com.fanap.podchat.model.GetUserInfoResponse;
+import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.ProgressRequestBody;
 import com.fanap.podchat.networking.ProgressResponseBody;
 import com.fanap.podchat.networking.api.ContactApi;
@@ -170,53 +167,54 @@ import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
-import com.fanap.podchat.requestobject.AddContactRequest;
-import com.fanap.podchat.requestobject.AddParticipantsRequest;
-import com.fanap.podchat.requestobject.BlockRequest;
-import com.fanap.podchat.requestobject.GetBlockedListRequest;
-import com.fanap.podchat.requestobject.ClearHistoryRequest;
-import com.fanap.podchat.requestobject.ConnectRequest;
-import com.fanap.podchat.requestobject.CreateThreadRequest;
-import com.fanap.podchat.requestobject.CreateThreadWithFileRequest;
-import com.fanap.podchat.requestobject.CreateThreadWithMessageRequest;
-import com.fanap.podchat.requestobject.DeleteMessageRequest;
-import com.fanap.podchat.requestobject.GetMessageDeliveredSeenListRequest;
-import com.fanap.podchat.requestobject.EditMessageRequest;
-import com.fanap.podchat.requestobject.FileMessageRequest;
-import com.fanap.podchat.requestobject.ForwardMessageRequest;
-import com.fanap.podchat.requestobject.GetAllThreadAdminsRequest;
-import com.fanap.podchat.requestobject.GetContactRequest;
-import com.fanap.podchat.requestobject.GetFileRequest;
-import com.fanap.podchat.requestobject.GetHistoryRequest;
-import com.fanap.podchat.requestobject.GetImageRequest;
-import com.fanap.podchat.requestobject.GetUserNotSeenDurationRequest;
+import com.fanap.podchat.requestobject.RequestAddContact;
+import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestBlock;
+import com.fanap.podchat.requestobject.RequestBlockList;
+import com.fanap.podchat.requestobject.RequestClearHistory;
+import com.fanap.podchat.requestobject.RequestConnect;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithMessage;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestEditMessage;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestForwardMessage;
+import com.fanap.podchat.requestobject.RequestGetAdmin;
+import com.fanap.podchat.requestobject.RequestGetContact;
+import com.fanap.podchat.requestobject.RequestGetFile;
+import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetLastSeens;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
-import com.fanap.podchat.requestobject.GetCurrentUserRolesRequest;
-import com.fanap.podchat.requestobject.LeaveThreadRequest;
-import com.fanap.podchat.requestobject.SendLocationMessageRequest;
-import com.fanap.podchat.requestobject.MapReverseRequest;
-import com.fanap.podchat.requestobject.MapRoutingRequest;
-import com.fanap.podchat.requestobject.MapStaticImageRequest;
-import com.fanap.podchat.requestobject.SendTextMessageRequest;
-import com.fanap.podchat.requestobject.MuteUnmuteThreadRequest;
-import com.fanap.podchat.requestobject.RemoveContactRequest;
-import com.fanap.podchat.requestobject.RemoveParticipantsRequest;
-import com.fanap.podchat.requestobject.SendReplyFileMessageRequest;
-import com.fanap.podchat.requestobject.ReplyTextMessageRequest;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.RequestLeaveThread;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapRouting;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestMuteThread;
+import com.fanap.podchat.requestobject.RequestRemoveContact;
+import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
+import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
-import com.fanap.podchat.requestobject.SendDeliverSeenRequest;
-import com.fanap.podchat.requestobject.SetRemoveRoleRequest;
+import com.fanap.podchat.requestobject.RequestSeenMessage;
+import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
-import com.fanap.podchat.requestobject.SpamPrivateThreadRequest;
-import com.fanap.podchat.requestobject.GetThreadsRequest;
-import com.fanap.podchat.requestobject.UpdateThreadInfoRequest;
-import com.fanap.podchat.requestobject.GetThreadParticipantsRequest;
-import com.fanap.podchat.requestobject.UnBlockRequest;
-import com.fanap.podchat.requestobject.UpdateContactsRequest;
-import com.fanap.podchat.requestobject.UploadFileRequest;
-import com.fanap.podchat.requestobject.UploadImageRequest;
+import com.fanap.podchat.requestobject.RequestSpam;
+import com.fanap.podchat.requestobject.RequestThread;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestThreadParticipant;
+import com.fanap.podchat.requestobject.RequestUnBlock;
+import com.fanap.podchat.requestobject.RequestUpdateContact;
+import com.fanap.podchat.requestobject.RequestUploadFile;
+import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.AsyncAckType;
 import com.fanap.podchat.util.Callback;
@@ -233,7 +231,7 @@ import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.PodThreadManager;
-import com.fanap.podchat.util.MapSearchRequest;
+import com.fanap.podchat.util.RequestMapSearch;
 import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
@@ -448,10 +446,6 @@ public class Chat extends AsyncAdapter {
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
 
-
-            Sentry.setExtra("chat-sdk-version-name", BuildConfig.VERSION_NAME);
-            Sentry.setExtra("chat-sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
-            Sentry.setExtra("chat-sdk-build-type", BuildConfig.BUILD_TYPE);
 
         }
 
@@ -892,10 +886,10 @@ public class Chat extends AsyncAdapter {
                 break;
 
 
-            case Constants.CONTACT_SYNCED: {
-                handleOnContactsSynced(chatMessage);
-                break;
-            }
+//            case Constants.REGISTER_FCM_APP: {
+//                PodNotificationManager.handleOnAppRegistered(chatMessage, context, getUserId());
+//                break;
+//            }
 
 
             case Constants.CREATE_BOT: {
@@ -1108,15 +1102,6 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void handleOnContactsSynced(ChatMessage chatMessage) {
-
-        ChatResponse<ContactSyncedResult> response = ContactManager.prepareContactSyncedResult(chatMessage);
-
-        listenerManager.callOnContactsSynced(response);
-
-        showLog("ON_CONTACTS_SYNCED",gson.toJson(chatMessage));
-    }
-
     private void handleOnBotStopped(ChatMessage chatMessage) {
 
         ChatResponse<StartStopBotResult> response = BotManager
@@ -1205,7 +1190,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnChatProfileUpdated(ChatMessage chatMessage) {
 
-        ChatResponse<UpdateProfileResponse> response = UserProfile.handleOutputUpdateProfile(chatMessage);
+        ChatResponse<ResultUpdateProfile> response = UserProfile.handleOutputUpdateProfile(chatMessage);
 
         listenerManager.callOnChatProfileUpdated(response);
 
@@ -1354,7 +1339,7 @@ public class Chat extends AsyncAdapter {
      * fileServer    {**REQUIRED**}
      * ssoHost       {**REQUIRED**}
      */
-    public void connect(ConnectRequest requestConnect) {
+    public void connect(RequestConnect requestConnect) {
         String platformHost = requestConnect.getPlatformHost();
         String token = requestConnect.getToken();
         String fileServer = requestConnect.getFileServer();
@@ -1601,7 +1586,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String pinThread(PinUnpinThreadRequest request) {
+    public String pinThread(RequestPinThread request) {
 
 
         String uniqueId = generateUniqueId();
@@ -1615,7 +1600,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String unPinThread(PinUnpinThreadRequest request) {
+    public String unPinThread(RequestPinThread request) {
 
         String uniqueId = generateUniqueId();
 
@@ -1636,7 +1621,7 @@ public class Chat extends AsyncAdapter {
      *                and roles to them
      */
 
-    public String addAdmin(SetRemoveRoleRequest request) {
+    public String addAdmin(RequestSetAdmin request) {
 
 
         SetRuleVO setRuleVO = new SetRuleVO();
@@ -1660,7 +1645,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public String removeAuditor(SetRemoveRoleRequest request) {
+    public String removeAuditor(RequestSetAuditor request) {
 
 
         SetRuleVO setRuleVO = new SetRuleVO();
@@ -1672,7 +1657,7 @@ public class Chat extends AsyncAdapter {
         return removeRole(setRuleVO);
     }
 
-    public String removeAdmin(SetRemoveRoleRequest request) {
+    public String removeAdmin(RequestSetAdmin request) {
 
 
         SetRuleVO setRuleVO = new SetRuleVO();
@@ -1716,7 +1701,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String updateChatProfile(UpdateProfileRequest request) {
+    public String updateChatProfile(RequestUpdateProfile request) {
 
 
         String uniqueId = generateUniqueId();
@@ -1864,7 +1849,7 @@ public class Chat extends AsyncAdapter {
      */
 
 
-    public String getMentionedMessages(GetMentionedRequest request) {
+    public String getMentionList(RequestGetMentionList request) {
 
         String uniqueId = generateUniqueId();
 
@@ -1887,7 +1872,7 @@ public class Chat extends AsyncAdapter {
     }
 
     @SuppressWarnings("unchecked")
-    private void loadMentionsFromCache(GetMentionedRequest request, String uniqueId) {
+    private void loadMentionsFromCache(RequestGetMentionList request, String uniqueId) {
 
         messageDatabaseHelper.getMentionList(request, (messages, contentCount) -> {
 
@@ -1912,7 +1897,7 @@ public class Chat extends AsyncAdapter {
      * @return
      */
 
-    public String isPublicThreadNameAvailable(IsPublicThreadNameAvailableRequest request) {
+    public String isNameAvailable(RequestCheckIsNameAvailable request) {
 
         String uniqueId = generateUniqueId();
 
@@ -1935,7 +1920,7 @@ public class Chat extends AsyncAdapter {
      *                notifyAll: if you want notify all thread member about this message
      */
 
-    public String pinMessage(PinUnpinMessageRequest request) {
+    public String pinMessage(RequestPinMessage request) {
 
         String uniqueId = generateUniqueId();
 
@@ -1960,7 +1945,7 @@ public class Chat extends AsyncAdapter {
      */
 
 
-    public String unPinMessage(PinUnpinMessageRequest request) {
+    public String unPinMessage(RequestPinMessage request) {
 
         String uniqueId = generateUniqueId();
 
@@ -1980,7 +1965,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String getCurrentUserRoles(GetCurrentUserRolesRequest request) {
+    public String getCurrentUserRoles(RequestGetUserRoles request) {
 
         String uniqueId = generateUniqueId();
 
@@ -2003,7 +1988,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    private void loadUserRolesFromCache(GetCurrentUserRolesRequest request, String uniqueId) {
+    private void loadUserRolesFromCache(RequestGetUserRoles request, String uniqueId) {
 
         messageDatabaseHelper.getCurrentUserRoles(request, cacheRole -> {
 
@@ -2077,7 +2062,7 @@ public class Chat extends AsyncAdapter {
      *                       String jsonMetaData {metadata of the message}
      *                       long threadId {The id of a thread that its wanted to send  }
      */
-    public String sendTextMessage(SendTextMessageRequest requestMessage, ChatHandler handler) {
+    public String sendTextMessage(RequestMessage requestMessage, ChatHandler handler) {
         String textMessage = requestMessage.getTextMessage();
         long threadId = requestMessage.getThreadId();
         int messageType = requestMessage.getMessageType();
@@ -2303,7 +2288,7 @@ public class Chat extends AsyncAdapter {
 //
 //        return sendFileMessage(activity, description, threadId, fileUri, systemMetadata, messageType, handler);
 //    }
-    public String sendFileMessage(FileMessageRequest requestFileMessage, ProgressHandler.sendFileMessage handler) {
+    public String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
 
         String uniqueId = generateUniqueId();
 
@@ -2492,7 +2477,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    private void sendFileMessage(FileMessageRequest requestFileMessage, String uniqueId, ProgressHandler.sendFileMessage handler) {
+    private void sendFileMessage(RequestFileMessage requestFileMessage, String uniqueId, ProgressHandler.sendFileMessage handler) {
 
         if (needReadStoragePermission(requestFileMessage.getActivity())) {
 
@@ -2927,11 +2912,11 @@ public class Chat extends AsyncAdapter {
     /**
      * It uploads image to the server just by pass image uri
      */
-    public String uploadImage(UploadImageRequest requestUploadImage) {
+    public String uploadImage(RequestUploadImage requestUploadImage) {
         return uploadImageProgress(requestUploadImage, null);
     }
 
-    public String uploadImageProgress(UploadImageRequest request, @Nullable ProgressHandler.onProgress handler) {
+    public String uploadImageProgress(RequestUploadImage request, @Nullable ProgressHandler.onProgress handler) {
 
         String uniqueId = generateUniqueId();
 
@@ -3165,7 +3150,7 @@ public class Chat extends AsyncAdapter {
 //
 //        return uniqueId;
 //    }
-    public String uploadFile(@NonNull UploadFileRequest requestUploadFile) {
+    public String uploadFile(@NonNull RequestUploadFile requestUploadFile) {
 
         return uploadFileProgress(requestUploadFile, null);
 
@@ -3175,7 +3160,7 @@ public class Chat extends AsyncAdapter {
      * It uploads file and it shows progress of the file downloading
      */
 
-    public String uploadFileProgress(UploadFileRequest request, @Nullable ProgressHandler.onProgressFile handler) {
+    public String uploadFileProgress(RequestUploadFile request, @Nullable ProgressHandler.onProgressFile handler) {
 
         String uniqueId = generateUniqueId();
 
@@ -3391,7 +3376,7 @@ public class Chat extends AsyncAdapter {
 //    }
 
     //new upload file function
-    private void uploadFileToThread(UploadFileRequest request, String userGroupHash, String uniqueId, @Nullable ProgressHandler.onProgressFile handler, OnWorkDone listener) {
+    private void uploadFileToThread(RequestUploadFile request, String userGroupHash, String uniqueId, @Nullable ProgressHandler.onProgressFile handler, OnWorkDone listener) {
         if (needReadStoragePermission(request.getActivity())) {
 
             String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
@@ -3503,7 +3488,7 @@ public class Chat extends AsyncAdapter {
     }
 
     //new upload image function
-    private void uploadImageToThread(UploadImageRequest request, String userGroupHash, String uniqueId, @Nullable ProgressHandler.onProgress handler, OnWorkDone listener) {
+    private void uploadImageToThread(RequestUploadImage request, String userGroupHash, String uniqueId, @Nullable ProgressHandler.onProgress handler, OnWorkDone listener) {
 
         if (needReadStoragePermission(request.getActivity())) {
 
@@ -4006,7 +3991,7 @@ public class Chat extends AsyncAdapter {
     /**
      * This method generate url that you can use to get your file
      */
-    private String getFile(GetFileRequest requestGetFile) {
+    private String getFile(RequestGetFile requestGetFile) {
         return getFileServer() + "nzh/file/"
                 + "?fileId=" + requestGetFile.getFileId()
                 + "&downloadable=" + requestGetFile.isDownloadable()
@@ -4029,7 +4014,7 @@ public class Chat extends AsyncAdapter {
     /**
      * This method generate url based on your input params that you can use to get your image
      */
-    private String getImage(GetImageRequest requestGetImage) {
+    private String getImage(RequestGetImage requestGetImage) {
         String url;
         if (requestGetImage.isDownloadable()) {
             url = getFileServer() + "nzh/image/"
@@ -4331,7 +4316,7 @@ public class Chat extends AsyncAdapter {
         return podSpaceServer;
     }
 
-    public String getFile(GetFileRequest request, ProgressHandler.IDownloadFile progressHandler) {
+    public String getFile(RequestGetFile request, ProgressHandler.IDownloadFile progressHandler) {
 
         String uniqueId = generateUniqueId();
 
@@ -4438,7 +4423,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String getImage(GetImageRequest request, ProgressHandler.IDownloadFile progressHandler) {
+    public String getImage(RequestGetImage request, ProgressHandler.IDownloadFile progressHandler) {
 
         String uniqueId = generateUniqueId();
 
@@ -4863,7 +4848,7 @@ public class Chat extends AsyncAdapter {
      * threadId   Id of the thread that you are {*NOTICE*}admin of that and you are going to
      * add someone as a participant.
      */
-    public String addParticipants(AddParticipantsRequest request, ChatHandler handler) {
+    public String addParticipants(RequestAddParticipants request, ChatHandler handler) {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -4978,7 +4963,7 @@ public class Chat extends AsyncAdapter {
      * participantIds List of PARTICIPANT IDs from Thread's Participants object
      * threadId       Id of the thread that we wants to remove their participant
      */
-    public String removeParticipants(RemoveParticipantsRequest request, ChatHandler handler) {
+    public String removeParticipants(RequestRemoveParticipants request, ChatHandler handler) {
 
         List<Long> participantIds = request.getParticipantIds();
         long threadId = request.getThreadId();
@@ -5030,7 +5015,7 @@ public class Chat extends AsyncAdapter {
      *
      * @ param threadId id of the thread
      */
-    public String leaveThread(LeaveThreadRequest request, ChatHandler handler) {
+    public String leaveThread(RequestLeaveThread request, ChatHandler handler) {
 
         return leaveThread(request.getThreadId(), handler);
     }
@@ -5134,7 +5119,7 @@ public class Chat extends AsyncAdapter {
      * threadId   destination thread id
      * messageIds Array of message ids that we want to forward them
      */
-    public List<String> forwardMessage(ForwardMessageRequest request) {
+    public List<String> forwardMessage(RequestForwardMessage request) {
         return forwardMessage(request.getThreadId(), request.getMessageIds());
     }
 
@@ -5146,7 +5131,7 @@ public class Chat extends AsyncAdapter {
      * messageId      of the message that we want to reply
      * metaData       meta data of the message
      */
-    public String replyFileMessage(SendReplyFileMessageRequest request, ProgressHandler.sendFileMessage handler) {
+    public String replyFileMessage(RequestReplyFileMessage request, ProgressHandler.sendFileMessage handler) {
 
 
         String uniqueId = generateUniqueId();
@@ -5341,7 +5326,7 @@ public class Chat extends AsyncAdapter {
      * messageId      of the message that we want to reply
      * metaData       meta data of the message
      */
-    public String replyTextMessage(ReplyTextMessageRequest request, ChatHandler handler) {
+    public String replyMessage(RequestReplyMessage request, ChatHandler handler) {
         long threadId = request.getThreadId();
         long messageId = request.getMessageId();
         String messageContent = request.getMessageContent();
@@ -5496,7 +5481,7 @@ public class Chat extends AsyncAdapter {
      * deleteForAll If you want to delete message for everyone you can set it true if u don't want
      * you can set it false or even null.
      */
-    public String deleteMessage(DeleteMessageRequest request, ChatHandler handler) {
+    public String deleteMessage(RequestDeleteMessage request, ChatHandler handler) {
 
 
         if (request.getMessageIds().size() > 1) {
@@ -5524,7 +5509,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public List<String> deleteMultipleMessages(DeleteMessageRequest request, ChatHandler handler) {
+    public List<String> deleteMultipleMessage(RequestDeleteMessage request, ChatHandler handler) {
 
         return deleteMessage(request.getMessageIds(),
                 request.isDeleteForAll(),
@@ -5862,7 +5847,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public String getThreads(GetThreadsRequest requestThread, ChatHandler handler) {
+    public String getThreads(RequestThread requestThread, ChatHandler handler) {
 
         ArrayList<Integer> threadIds = requestThread.getThreadIds();
         long offset = requestThread.getOffset();
@@ -6158,7 +6143,7 @@ public class Chat extends AsyncAdapter {
      * threadId Id of the thread that we want to get the history
      */
 
-    public String getHistory(GetHistoryRequest request, ChatHandler handler) {
+    public String getHistory(RequestGetHistory request, ChatHandler handler) {
 
         History history = getHistoryModelFromRequestGetHistory(request);
 
@@ -6168,7 +6153,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private History getHistoryModelFromRequestGetHistory(GetHistoryRequest request) {
+    private History getHistoryModelFromRequestGetHistory(RequestGetHistory request) {
         return new History.Builder()
                 .count(request.getCount())
                 .firstMessageId(request.getFirstMessageId())
@@ -6352,6 +6337,8 @@ public class Chat extends AsyncAdapter {
                     showLog("Delete message from database with this messageId" + " " + msg.getId(), "");
 
                 }
+
+
             }
         }
 
@@ -6691,7 +6678,7 @@ public class Chat extends AsyncAdapter {
     /**
      * Get all of the contacts of the user
      */
-    public String getContacts(GetContactRequest request, ChatHandler handler) {
+    public String getContacts(RequestGetContact request, ChatHandler handler) {
 
         long offset = request.getOffset();
         long count = request.getCount();
@@ -6830,7 +6817,7 @@ public class Chat extends AsyncAdapter {
 //    }
 
 
-    public String searchContact(SearchContactRequest requestSearchContact) {
+    public String searchContact(RequestSearchContact requestSearchContact) {
 
         String uniqueId = generateUniqueId();
 
@@ -6852,7 +6839,7 @@ public class Chat extends AsyncAdapter {
             if (cache && requestSearchContact.canUseCache()) {
 
 
-                ChatResponse<GetContactsResponse> chatResponse = messageDatabaseHelper.searchContacts(requestSearchContact, size, offset);
+                ChatResponse<ResultContact> chatResponse = messageDatabaseHelper.searchContacts(requestSearchContact, size, offset);
                 chatResponse.setUniqueId(uniqueId);
 
                 String jsonContact = gson.toJson(chatResponse);
@@ -6922,7 +6909,7 @@ public class Chat extends AsyncAdapter {
 
                 handlerSend.put(uniqueId, new ChatHandler() {
                     @Override
-                    public void onGetContact(String contactJson, ChatResponse<GetContactsResponse> chatResponse) {
+                    public void onGetContact(String contactJson, ChatResponse<ResultContact> chatResponse) {
                         super.onGetContact(contactJson, chatResponse);
 
                         showLog("RECEIVE_SEARCH_CONTACT", contactJson);
@@ -7073,7 +7060,7 @@ public class Chat extends AsyncAdapter {
      * cellphoneNumber Notice: If you just  put the cellPhoneNumber doesn't necessary to add email
      * email           email of the contact
      */
-    public String addContact(AddContactRequest request) {
+    public String addContact(RequestAddContact request) {
 
         String firstName = request.getFirstName();
         String lastName = request.getLastName();
@@ -7150,7 +7137,7 @@ public class Chat extends AsyncAdapter {
      * <p>
      * userId id of the user that we want to remove from contact list
      */
-    public String removeContact(RemoveContactRequest request) {
+    public String removeContact(RequestRemoveContact request) {
 
         long userId = request.getUserId();
 
@@ -7276,7 +7263,7 @@ public class Chat extends AsyncAdapter {
      * Update contacts
      * all of the params all required
      */
-    public String updateContact(UpdateContactsRequest request) {
+    public String updateContact(RequestUpdateContact request) {
         String firstName = request.getFirstName();
         String lastName = request.getLastName();
         String email = request.getEmail();
@@ -7329,7 +7316,7 @@ public class Chat extends AsyncAdapter {
      * double longitude ;
      */
 
-    public String mapSearch(MapSearchRequest request) {
+    public String mapSearch(RequestMapSearch request) {
         String searchTerm = request.getSearchTerm();
         double latitude = request.getLatitude();
         double longitude = request.getLongitude();
@@ -7360,7 +7347,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String mapRouting(MapRoutingRequest request) {
+    public String mapRouting(RequestMapRouting request) {
         String origin = request.getOrigin();
         String destination = request.getDestination();
         String uniqueId;
@@ -7393,7 +7380,7 @@ public class Chat extends AsyncAdapter {
      * [default value] width = 800
      * [default value] height = 500
      */
-    private String mainMapStaticImage(SendLocationMessageRequest request,
+    private String mainMapStaticImage(RequestLocationMessage request,
                                       Activity activity,
                                       String uniqueId,
                                       boolean isMessage) {
@@ -7539,7 +7526,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    private String mainMapStaticImage(SendLocationMessageRequest request,
+    private String mainMapStaticImage(RequestLocationMessage request,
                                       Activity activity,
                                       String uniqueId,
                                       boolean isMessage,
@@ -7813,14 +7800,14 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String mapStaticImage(MapStaticImageRequest request) {
+    public String mapStaticImage(RequestMapStaticImage request) {
 
         int zoom = request.getZoom();
         int width = request.getWidth();
         int height = request.getHeight();
         String center = request.getCenter();
 
-        SendLocationMessageRequest requestLMsg = new SendLocationMessageRequest.Builder()
+        RequestLocationMessage requestLMsg = new RequestLocationMessage.Builder()
                 .height(height)
                 .width(width)
                 .center(center)
@@ -7831,7 +7818,7 @@ public class Chat extends AsyncAdapter {
         return mainMapStaticImage(requestLMsg, null, null, false, null);
     }
 
-    public String sendLocationMessage(SendLocationMessageRequest request) {
+    public String sendLocationMessage(RequestLocationMessage request) {
 
         String uniqueId = generateUniqueId();
         Activity activity = request.getActivity();
@@ -7840,7 +7827,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String sendLocationMessage(SendLocationMessageRequest request, ProgressHandler.sendFileMessage handler) {
+    public String sendLocationMessage(RequestLocationMessage request, ProgressHandler.sendFileMessage handler) {
 
 
         String uniqueId = generateUniqueId();
@@ -7853,7 +7840,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public String mapReverse(MapReverseRequest request) {
+    public String mapReverse(RequestMapReverse request) {
 
         String uniqueId = null;
         if (chatReady) {
@@ -7986,7 +7973,7 @@ public class Chat extends AsyncAdapter {
      * @ param threadId  id of the thread
      * @ param userId    id of the user
      */
-    public String block(BlockRequest request, ChatHandler handler) {
+    public String block(RequestBlock request, ChatHandler handler) {
         Long contactId = request.getContactId();
         long threadId = request.getThreadId();
         long userId = request.getUserId();
@@ -8069,7 +8056,7 @@ public class Chat extends AsyncAdapter {
      * @ param threadId Id of the thread
      * @ param contactId Id of the contact
      */
-    public String unblock(UnBlockRequest request, ChatHandler handler) {
+    public String unblock(RequestUnBlock request, ChatHandler handler) {
         long contactId = request.getContactId();
         long threadId = request.getThreadId();
         long userId = request.getUserId();
@@ -8120,7 +8107,7 @@ public class Chat extends AsyncAdapter {
      *
      * @ param long threadId Id of the thread
      */
-    public String spamPrivateThread(SpamPrivateThreadRequest request) {
+    public String spam(RequestSpam request) {
 
         String uniqueId;
         JsonObject jsonObject;
@@ -8182,12 +8169,12 @@ public class Chat extends AsyncAdapter {
             List<BlockedContact> cacheContacts = messageDatabaseHelper.getBlockedContacts(count, offset);
             if (!Util.isNullOrEmpty(cacheContacts)) {
 
-                ChatResponse<GetBlockedUserListResponse> chatResponse = new ChatResponse<>();
+                ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
                 chatResponse.setErrorCode(0);
                 chatResponse.setHasError(false);
                 chatResponse.setUniqueId(uniqueId);
                 chatResponse.setCache(true);
-                GetBlockedUserListResponse resultBlockList = new GetBlockedUserListResponse();
+                ResultBlockList resultBlockList = new ResultBlockList();
 
                 resultBlockList.setContacts(cacheContacts);
                 chatResponse.setResult(resultBlockList);
@@ -8256,12 +8243,12 @@ public class Chat extends AsyncAdapter {
                 List<BlockedContact> cacheContacts = messageDatabaseHelper.getBlockedContacts(count, offset);
                 if (!Util.isNullOrEmpty(cacheContacts)) {
 
-                    ChatResponse<GetBlockedUserListResponse> chatResponse = new ChatResponse<>();
+                    ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
                     chatResponse.setErrorCode(0);
                     chatResponse.setHasError(false);
                     chatResponse.setUniqueId(uniqueId);
                     chatResponse.setCache(true);
-                    GetBlockedUserListResponse resultBlockList = new GetBlockedUserListResponse();
+                    ResultBlockList resultBlockList = new ResultBlockList();
 
                     resultBlockList.setContacts(cacheContacts);
                     chatResponse.setResult(resultBlockList);
@@ -8327,14 +8314,14 @@ public class Chat extends AsyncAdapter {
     /**
      * It gets the list of the contacts that is on block list
      */
-    public String getBlockList(GetBlockedListRequest request, ChatHandler handler) {
+    public String getBlockList(RequestBlockList request, ChatHandler handler) {
 
 
         return getBlockList(request.getCount(), request.getOffset(), request.useCacheData(), handler);
     }
 
 
-    public String createThread(CreateThreadRequest request) {
+    public String createThread(RequestCreateThread request) {
 
         String uniqueId = generateUniqueId();
 
@@ -8389,7 +8376,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    private void updateThreadImage(ResultThread thread, UploadImageRequest uploadImageRequest) {
+    private void updateThreadImage(ResultThread thread, RequestUploadImage uploadImageRequest) {
 
 
         ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder()
@@ -8407,7 +8394,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private String createThread(CreateThreadRequest request, String uniqueId) {
+    private String createThread(RequestCreateThread request, String uniqueId) {
 
         if (chatReady) {
 
@@ -8443,7 +8430,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String joinPublicThread(JoinPublicThreadRequest request) {
+    public String joinPublicThread(RequestJoinPublicThread request) {
 
         String uniqueId = generateUniqueId();
 
@@ -8458,7 +8445,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String getAllUnreadMessagesCount(GetAllUnreadMessageCountRequest request) {
+    public String getAllUnreadMessagesCount(RequestGetUnreadMessagesCount request) {
 
         String uniqueId = generateUniqueId();
 
@@ -8484,7 +8471,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void loadUnreadMessagesCountFromCache(GetAllUnreadMessageCountRequest request, String uniqueId) {
+    private void loadUnreadMessagesCountFromCache(RequestGetUnreadMessagesCount request, String uniqueId) {
 
         try {
             messageDatabaseHelper.loadAllUnreadMessagesCount(request, count -> {
@@ -8610,7 +8597,7 @@ public class Chat extends AsyncAdapter {
     // 2.2. Upload file to server with thread userGroupHash and send uploaded file as message by sendFileMessage.
     //
 
-    public ArrayList<String> createThreadWithFile(CreateThreadWithFileRequest request, @Nullable ProgressHandler.sendFileMessage progressHandler) {
+    public ArrayList<String> createThreadWithFile(RequestCreateThreadWithFile request, @Nullable ProgressHandler.sendFileMessage progressHandler) {
 
         ArrayList<String> uniqueIds = new ArrayList<>();
 
@@ -8632,8 +8619,8 @@ public class Chat extends AsyncAdapter {
                         new PodThreadManager()
                                 .doThisAndGo(() -> updateThreadImage(thread, request.getUploadThreadImageRequest()));
 
-                    FileMessageRequest.Builder requestFileBuilder =
-                            new FileMessageRequest.Builder(
+                    RequestFileMessage.Builder requestFileBuilder =
+                            new RequestFileMessage.Builder(
                                     request.getMessage() != null ? request.getMessage().getText() : null,
                                     request.getFile().getActivity(),
                                     thread.getThread().getId(),
@@ -8643,24 +8630,24 @@ public class Chat extends AsyncAdapter {
                                     thread.getThread().getUserGroupHash());
 
 
-                    if (request.getFile() instanceof UploadImageRequest) {
+                    if (request.getFile() instanceof RequestUploadImage) {
 
-                        requestFileBuilder.setImageHc(String.valueOf(((UploadImageRequest) request.getFile()).gethC()));
-                        requestFileBuilder.setImageWc(String.valueOf(((UploadImageRequest) request.getFile()).getwC()));
-                        requestFileBuilder.setImageXc(String.valueOf(((UploadImageRequest) request.getFile()).getxC()));
-                        requestFileBuilder.setImageYc(String.valueOf(((UploadImageRequest) request.getFile()).getyC()));
+                        requestFileBuilder.setImageHc(String.valueOf(((RequestUploadImage) request.getFile()).gethC()));
+                        requestFileBuilder.setImageWc(String.valueOf(((RequestUploadImage) request.getFile()).getwC()));
+                        requestFileBuilder.setImageXc(String.valueOf(((RequestUploadImage) request.getFile()).getxC()));
+                        requestFileBuilder.setImageYc(String.valueOf(((RequestUploadImage) request.getFile()).getyC()));
 
                     }
 
-                    FileMessageRequest requestFile = requestFileBuilder.build();
+                    RequestFileMessage requestFile = requestFileBuilder.build();
 
                     sendFileMessage(requestFile, requestUniqueId, progressHandler);
 
                 }
             });
 
-            CreateThreadRequest requestCreateThread =
-                    new CreateThreadRequest.Builder(
+            RequestCreateThread requestCreateThread =
+                    new RequestCreateThread.Builder(
                             request.getType(),
                             request.getInvitees())
                             .title(request.getTitle())
@@ -8681,7 +8668,7 @@ public class Chat extends AsyncAdapter {
         return uniqueIds;
     }
 
-    private void prepareCreateThreadWithFile(CreateThreadWithFileRequest request, String requestUniqueId, String innerMessageUniqueId, List<String> forwardUniqueIds, String metaData) {
+    private void prepareCreateThreadWithFile(RequestCreateThreadWithFile request, String requestUniqueId, String innerMessageUniqueId, List<String> forwardUniqueIds, String metaData) {
 
         RequestThreadInnerMessage requestThreadInnerMessage = generateInnerMessageForCreateThreadWithFile(request, metaData);
 
@@ -8700,7 +8687,7 @@ public class Chat extends AsyncAdapter {
         return getContext().getContentResolver().getType(fileUri);
     }
 
-    private RequestThreadInnerMessage generateInnerMessageForCreateThreadWithFile(CreateThreadWithFileRequest request, String metaData) {
+    private RequestThreadInnerMessage generateInnerMessageForCreateThreadWithFile(RequestCreateThreadWithFile request, String metaData) {
 
         RequestThreadInnerMessage requestThreadInnerMessage;
 
@@ -8721,13 +8708,13 @@ public class Chat extends AsyncAdapter {
     }
 
     private void createThreadWithMessage(
-            CreateThreadWithFileRequest request,
+            RequestCreateThreadWithFile request,
             String requestUniqueId,
             String innerMessageUniqueId,
             List<String> forwardUniqueIds) {
 
 
-        CreateThreadWithMessageRequest rctm = new CreateThreadWithMessageRequest
+        RequestCreateThreadWithMessage rctm = new RequestCreateThreadWithMessage
                 .Builder(request.getType(), request.getInvitees(), request.getMessageType())
                 .message(request.getMessage())
                 .build();
@@ -8812,7 +8799,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private List<String> generateForwardingMessageId(CreateThreadWithFileRequest request, OnWorkDone listener) {
+    private List<String> generateForwardingMessageId(RequestCreateThreadWithFile request, OnWorkDone listener) {
 
 
         List<String> uniqueIds = new ArrayList<>();
@@ -8837,7 +8824,7 @@ public class Chat extends AsyncAdapter {
         return null;
     }
 
-    private String generateMessageUniqueId(CreateThreadWithFileRequest request, OnWorkDone listener) {
+    private String generateMessageUniqueId(RequestCreateThreadWithFile request, OnWorkDone listener) {
 
         String newMsgUniqueId = null;
         if (request.getMessage() != null && !Util.isNullOrEmpty(request.getMessage().getText())) {
@@ -8870,7 +8857,7 @@ public class Chat extends AsyncAdapter {
      * -------------  List<Long> forwardedMessageIds  [Optional]
      * }
      */
-    public ArrayList<String> createThreadWithMessage(CreateThreadRequest threadRequest) {
+    public ArrayList<String> createThreadWithMessage(RequestCreateThread threadRequest) {
 
         List<String> forwardUniqueIds;
         JsonObject innerMessageObj;
@@ -9049,7 +9036,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    private String updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, String userGroupHash, UploadImageRequest requestUploadThreadPicture, ChatHandler handler) {
+    private String updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, String userGroupHash, RequestUploadImage requestUploadThreadPicture, ChatHandler handler) {
 
         String uniqueId = generateUniqueId();
 
@@ -9154,7 +9141,7 @@ public class Chat extends AsyncAdapter {
      * metadata;
      */
 
-    public String updateThreadInfo(UpdateThreadInfoRequest request, ChatHandler handler) {
+    public String updateThreadInfo(RequestThreadInfo request, ChatHandler handler) {
 
         ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder()
                 .title(request.getName())
@@ -9179,7 +9166,7 @@ public class Chat extends AsyncAdapter {
      * @ param long offset offset of the participant list
      */
 
-    public String getThreadParticipants(GetThreadParticipantsRequest request, ChatHandler handler) {
+    public String getThreadParticipants(RequestThreadParticipant request, ChatHandler handler) {
 
         long count = request.getCount();
         long offset = request.getOffset();
@@ -9446,7 +9433,7 @@ public class Chat extends AsyncAdapter {
     /**
      * In order to send seen message you have to call {@link #seenMessage(long, long, ChatHandler)}
      */
-    public String seen(SendDeliverSeenRequest request, ChatHandler handler) {
+    public String seenMessage(RequestSeenMessage request, ChatHandler handler) {
         long messageId = request.getMessageId();
         long ownerId = request.getOwnerId();
 
@@ -9469,9 +9456,9 @@ public class Chat extends AsyncAdapter {
 
                     if (userInfo != null) {
 
-                        ChatResponse<GetUserInfoResponse> chatResponse = new ChatResponse<>();
+                        ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
 
-                        GetUserInfoResponse result = new GetUserInfoResponse();
+                        ResultUserInfo result = new ResultUserInfo();
 
                         setUserId(userInfo.getId());
 
@@ -9556,9 +9543,9 @@ public class Chat extends AsyncAdapter {
 
                     if (userInfo != null) {
 
-                        ChatResponse<GetUserInfoResponse> chatResponse = new ChatResponse<>();
+                        ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
 
-                        GetUserInfoResponse result = new GetUserInfoResponse();
+                        ResultUserInfo result = new ResultUserInfo();
 
                         setUserId(userInfo.getId());
 
@@ -9681,14 +9668,14 @@ public class Chat extends AsyncAdapter {
     /**
      * Mute the thread so notification is off for that thread
      */
-    public String muteThread(MuteUnmuteThreadRequest request, ChatHandler handler) {
+    public String muteThread(RequestMuteThread request, ChatHandler handler) {
         return muteThread(request.getThreadId(), handler);
     }
 
     /**
      * It Un mutes the thread so notification is on for that thread
      */
-    public String unMuteThread(MuteUnmuteThreadRequest request, ChatHandler handler) {
+    public String unMuteThread(RequestMuteThread request, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
         JsonObject jsonObject = null;
@@ -9837,7 +9824,7 @@ public class Chat extends AsyncAdapter {
      * Message can be edit when you pass the message id and the edited
      * content in order to edit your Message.
      */
-    public String editMessage(EditMessageRequest request, ChatHandler handler) {
+    public String editMessage(RequestEditMessage request, ChatHandler handler) {
 
         return editMessage((int) request.getMessageId(), request.getMessageContent(), request.getMetaData(), handler);
 
@@ -9891,11 +9878,11 @@ public class Chat extends AsyncAdapter {
 //        return uniqueId;
     }
 
-    public String getMessageDeliveredList(GetMessageDeliveredSeenListRequest requestParams) {
+    public String getMessageDeliveredList(RequestDeliveredMessageList requestParams) {
         return deliveredMessageList(requestParams);
     }
 
-    public String getMessageSeenList(GetMessageDeliveredSeenListRequest requestParams) {
+    public String getMessageSeenList(RequestSeenMessageList requestParams) {
         return seenMessageList(requestParams);
     }
 
@@ -9992,7 +9979,7 @@ public class Chat extends AsyncAdapter {
         this.ttl = ttl;
     }
 
-    public String clearHistory(ClearHistoryRequest requestClearHistory) {
+    public String clearHistory(RequestClearHistory requestClearHistory) {
 
         String uniqueId = generateUniqueId();
 
@@ -10028,7 +10015,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String getUserNotSeenDuration(GetUserNotSeenDurationRequest requestGetLastSeens) {
+    public String getNotSeenDuration(RequestGetLastSeens requestGetLastSeens) {
 
         String uniqueId = generateUniqueId();
 
@@ -10079,7 +10066,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    public String getThreadAdmins(GetAllThreadAdminsRequest requestGetAdmin) {
+    public String getAdminList(RequestGetAdmin requestGetAdmin) {
 
         long count = requestGetAdmin.getCount();
         long offset = requestGetAdmin.getOffset();
@@ -10090,7 +10077,7 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public String getAdminList(GetAllThreadAdminsRequest requestGetAdmin, ChatHandler handler) {
+    public String getAdminList(RequestGetAdmin requestGetAdmin, ChatHandler handler) {
 
         long count = requestGetAdmin.getCount();
         long offset = requestGetAdmin.getOffset();
@@ -10179,11 +10166,11 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnLogEvent(json);
                 listenerManager.callOnLogEvent(i, json);
             }
-//            try {
-//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
+            try {
+                FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
+            } catch (IOException e) {
+                Log.e(TAG, "Saving log failed: " + e.getMessage());
+            }
         }
 
         Breadcrumb c = new Breadcrumb();
@@ -10197,11 +10184,11 @@ public class Chat extends AsyncAdapter {
     private void showLog(String info) {
         if (log) {
             Log.d(TAG, info);
-//            try {
-//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
+            try {
+                FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
+            } catch (IOException e) {
+                Log.e(TAG, "Saving log failed: " + e.getMessage());
+            }
         }
         Breadcrumb c = new Breadcrumb();
         c.setCategory("LOG");
@@ -10217,11 +10204,11 @@ public class Chat extends AsyncAdapter {
             Log.e(TAG, "Error");
             Log.e(TAG, message);
 
-//            try {
-//                FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
+            try {
+                FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
+            } catch (IOException e) {
+                Log.e(TAG, "Saving log failed: " + e.getMessage());
+            }
         }
 
         Breadcrumb c = new Breadcrumb();
@@ -10233,7 +10220,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    @Deprecated
     public void shareLogs(Context context) {
 
         FileUtils.shareLogs(context);
@@ -10319,7 +10305,9 @@ public class Chat extends AsyncAdapter {
                 messageDatabaseHelper.retrieveAndUpdateThreadOnLastSeenUpdated(thread, new ThreadManager.ILastMessageChanged() {
                     @Override
                     public void onThreadExistInCache(Thread thread) {
+
                         onThreadLastMessageUpdated(thread, chatMessage.getUniqueId());
+
                     }
 
                     @Override
@@ -11399,7 +11387,7 @@ public class Chat extends AsyncAdapter {
 
     private void getHistoryWithUniqueIds(long threadId, String uniqueId, String[] uniqueIds) {
 
-        GetHistoryRequest request = new GetHistoryRequest
+        RequestGetHistory request = new RequestGetHistory
                 .Builder(threadId)
                 .offset(0)
                 .count(uniqueIds.length)
@@ -11558,7 +11546,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleGetContact(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
 
-        ChatResponse<GetContactsResponse> chatResponse = reformatGetContactResponse(chatMessage, callback);
+        ChatResponse<ResultContact> chatResponse = reformatGetContactResponse(chatMessage, callback);
         String contactJson = gson.toJson(chatResponse);
 
         if (handlerSend.containsKey(chatMessage.getUniqueId())
@@ -11576,7 +11564,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void removeContactTest(ChatResponse<GetContactsResponse> chatResponse) {
+    private void removeContactTest(ChatResponse<ResultContact> chatResponse) {
 
         for (Contact contact :
                 chatResponse.getResult().getContacts()) {
@@ -11587,7 +11575,7 @@ public class Chat extends AsyncAdapter {
 
             new PodThreadManager()
                     .doThisSafe(() -> {
-                        RemoveContactRequest request = new RemoveContactRequest.Builder(contact.getId())
+                        RequestRemoveContact request = new RequestRemoveContact.Builder(contact.getId())
                                 .build();
                         removeContact(request);
                         try {
@@ -11909,7 +11897,7 @@ public class Chat extends AsyncAdapter {
 
         if (callback.isResult()) {
             userInfoResponse = true;
-            ChatResponse<GetUserInfoResponse> chatResponse = new ChatResponse<>();
+            ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
             UserInfo userInfo = gson.fromJson(chatMessage.getContent(), UserInfo.class);
 
             //add user info for sentry
@@ -12191,8 +12179,8 @@ public class Chat extends AsyncAdapter {
     private void handleOutPutBlock(ChatMessage chatMessage, String messageUniqueId) {
 
         BlockedContact contact = gson.fromJson(chatMessage.getContent(), BlockedContact.class);
-        ChatResponse<BlockUnblockUserResponse> chatResponse = new ChatResponse<>();
-        BlockUnblockUserResponse resultBlock = new BlockUnblockUserResponse();
+        ChatResponse<ResultBlock> chatResponse = new ChatResponse<>();
+        ResultBlock resultBlock = new ResultBlock();
         resultBlock.setContact(contact);
         chatResponse.setResult(resultBlock);
         chatResponse.setErrorCode(0);
@@ -12360,8 +12348,8 @@ public class Chat extends AsyncAdapter {
     private void handleUnBlock(ChatMessage chatMessage, String messageUniqueId) {
 
         BlockedContact contact = gson.fromJson(chatMessage.getContent(), BlockedContact.class);
-        ChatResponse<BlockUnblockUserResponse> chatResponse = new ChatResponse<>();
-        BlockUnblockUserResponse resultBlock = new BlockUnblockUserResponse();
+        ChatResponse<ResultBlock> chatResponse = new ChatResponse<>();
+        ResultBlock resultBlock = new ResultBlock();
         resultBlock.setContact(contact);
         chatResponse.setResult(resultBlock);
         chatResponse.setErrorCode(0);
@@ -12382,11 +12370,11 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOutPutGetBlockList(ChatMessage chatMessage) {
-        ChatResponse<GetBlockedUserListResponse> chatResponse = new ChatResponse<>();
+        ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
         chatResponse.setErrorCode(0);
         chatResponse.setHasError(false);
         chatResponse.setUniqueId(chatMessage.getUniqueId());
-        GetBlockedUserListResponse resultBlockList = new GetBlockedUserListResponse();
+        ResultBlockList resultBlockList = new ResultBlockList();
 
         List<BlockedContact> blockedContacts = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<BlockedContact>>() {
         }.getType());
@@ -12578,9 +12566,9 @@ public class Chat extends AsyncAdapter {
         try {
             cacheContactsList = new ArrayList<>(messageDatabaseHelper.getContacts(mCount, offset));
 
-            ChatResponse<GetContactsResponse> chatResponse = new ChatResponse<>();
+            ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
 
-            GetContactsResponse resultContact = new GetContactsResponse();
+            ResultContact resultContact = new ResultContact();
             resultContact.setContacts(cacheContactsList);
             chatResponse.setResult(resultContact);
             chatResponse.setCache(true);
@@ -12750,7 +12738,7 @@ public class Chat extends AsyncAdapter {
     /**
      * The replacement method is getMessageDeliveredList.
      */
-    private String deliveredMessageList(GetMessageDeliveredSeenListRequest requestParams) {
+    private String deliveredMessageList(RequestDeliveredMessageList requestParams) {
 
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -12804,7 +12792,7 @@ public class Chat extends AsyncAdapter {
     /*
      * The replacement method is getMessageSeenList.
      * */
-    private String seenMessageList(GetMessageDeliveredSeenListRequest requestParams) {
+    private String seenMessageList(RequestSeenMessageList requestParams) {
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
@@ -13678,9 +13666,9 @@ public class Chat extends AsyncAdapter {
         return message;
     }
 
-    private String reformatUserInfo(ChatMessage chatMessage, ChatResponse<GetUserInfoResponse> outPutUserInfo, UserInfo userInfo) {
+    private String reformatUserInfo(ChatMessage chatMessage, ChatResponse<ResultUserInfo> outPutUserInfo, UserInfo userInfo) {
 
-        GetUserInfoResponse result = new GetUserInfoResponse();
+        ResultUserInfo result = new ResultUserInfo();
 
         if (cache && permit) {
 
@@ -14544,9 +14532,9 @@ public class Chat extends AsyncAdapter {
 
 
     @NonNull
-    private ChatResponse<GetContactsResponse> reformatGetContactResponse(ChatMessage chatMessage, Callback callback) {
-        GetContactsResponse resultContact = new GetContactsResponse();
-        ChatResponse<GetContactsResponse> outPutContact = new ChatResponse<>();
+    private ChatResponse<ResultContact> reformatGetContactResponse(ChatMessage chatMessage, Callback callback) {
+        ResultContact resultContact = new ResultContact();
+        ChatResponse<ResultContact> outPutContact = new ChatResponse<>();
         ArrayList<Contact> contacts = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Contact>>() {
         }.getType());
 

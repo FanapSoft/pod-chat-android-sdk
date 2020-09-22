@@ -3,11 +3,11 @@ package com.fanap.podchat.chat.thread.public_thread;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.requestobject.CreateThreadRequest;
+import com.fanap.podchat.requestobject.RequestCreateThread;
 
 import java.util.List;
 
-public class RequestCreatePublicThread extends CreateThreadRequest {
+public class RequestCreatePublicThread extends RequestCreateThread {
 
     private String uniqueName;
 
@@ -22,7 +22,7 @@ public class RequestCreatePublicThread extends CreateThreadRequest {
         return uniqueName;
     }
 
-    public static class Builder extends CreateThreadRequest.Builder {
+    public static class Builder extends RequestCreateThread.Builder {
 
         private String uniqueName;
 

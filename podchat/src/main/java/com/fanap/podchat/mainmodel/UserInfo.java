@@ -15,10 +15,9 @@ public class UserInfo {
     private String name;
     private String cellphoneNumber;
     private String image;
-    private Boolean contactSynced;
 
     @Ignore
-    private ChatProfileVO chatProfileVO;
+    ChatProfileVO chatProfileVO;
 
 
     public ChatProfileVO getChatProfileVO() {
@@ -75,13 +74,5 @@ public class UserInfo {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public Boolean getContactSynced() {
-        return contactSynced;
-    }
-
-    public void setContactSynced(Boolean contactSynced) {
-        this.contactSynced = contactSynced;
     }
 }

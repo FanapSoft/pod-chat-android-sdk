@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 public class MessageManager {
 
 
-    public static String getAllUnreadMessgesCount(GetAllUnreadMessageCountRequest request, String uniqueId) {
+    public static String getAllUnreadMessgesCount(RequestGetUnreadMessagesCount request, String uniqueId) {
 
 
         JsonObject content = new JsonObject();

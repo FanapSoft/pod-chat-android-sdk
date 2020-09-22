@@ -4,7 +4,7 @@ package com.fanap.podchat.model;
 public class OutPutBlock extends BaseOutPut {
     private String referenceNumber;
     private String ott;
-    private BlockUnblockUserResponse result;
+    private ResultBlock result;
 
     public String getReferenceNumber() {
         return referenceNumber;
@@ -22,11 +22,11 @@ public class OutPutBlock extends BaseOutPut {
         this.ott = ott;
     }
 
-    public BlockUnblockUserResponse getResult() {
+    public ResultBlock getResult() {
         return result;
     }
 
-    public void setResult(BlockUnblockUserResponse result) {
+    public void setResult(ResultBlock result) {
         this.result = result;
     }
 }

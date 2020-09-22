@@ -2,7 +2,7 @@ package com.fanap.podchat.chat.mention;
 
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
-import com.fanap.podchat.chat.mention.model.GetMentionedRequest;
+import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.MessageVO;
@@ -18,7 +18,7 @@ import java.util.List;
 public class Mention {
 
 
-    public static String getMentionList(GetMentionedRequest request, String uniqueId) {
+    public static String getMentionList(RequestGetMentionList request, String uniqueId) {
 
 
         long threadId = request.getThreadId();
@@ -68,7 +68,7 @@ public class Mention {
         return finalResponse;
     }
 
-    public static ChatResponse<ResultHistory> getMentionListCacheResponse(GetMentionedRequest request,
+    public static ChatResponse<ResultHistory> getMentionListCacheResponse(RequestGetMentionList request,
                                                                           List<MessageVO> messageVOS,
                                                                           String uniqueId,
                                                                           long contentCount) {

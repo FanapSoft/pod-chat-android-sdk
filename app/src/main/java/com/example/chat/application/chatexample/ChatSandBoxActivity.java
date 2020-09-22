@@ -29,21 +29,24 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
-import com.fanap.podchat.mainmodel.SearchContactRequest;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.requestobject.DeleteMessageRequest;
-import com.fanap.podchat.requestobject.GetMessageDeliveredSeenListRequest;
-import com.fanap.podchat.requestobject.SendLocationMessageRequest;
-import com.fanap.podchat.requestobject.MapReverseRequest;
-import com.fanap.podchat.requestobject.MapStaticImageRequest;
-import com.fanap.podchat.requestobject.SendTextMessageRequest;
-import com.fanap.podchat.requestobject.SendReplyFileMessageRequest;
+import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestFileMessage;
+import com.fanap.podchat.requestobject.RequestLocationMessage;
+import com.fanap.podchat.requestobject.RequestMapReverse;
+import com.fanap.podchat.requestobject.RequestMapStaticImage;
+import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.requestobject.UpdateThreadInfoRequest;
-import com.fanap.podchat.requestobject.UnBlockRequest;
-import com.fanap.podchat.requestobject.UpdateContactsRequest;
+import com.fanap.podchat.requestobject.RequestThreadInfo;
+import com.fanap.podchat.requestobject.RequestUnBlock;
+import com.fanap.podchat.requestobject.RequestUpdateContact;
 
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.TextMessageType;
@@ -196,11 +199,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 7:
-                        GetMessageDeliveredSeenListRequest requests = new GetMessageDeliveredSeenListRequest.Builder(17374).build();
+                        RequestSeenMessageList requests = new RequestSeenMessageList.Builder(17374).build();
                         presenter.seenMessageList(requests);
                         break;
                     case 8:
-                        GetMessageDeliveredSeenListRequest requestD = new GetMessageDeliveredSeenListRequest.Builder(17374).build();
+                        RequestDeliveredMessageList requestD = new RequestDeliveredMessageList.Builder(17374).build();
                         presenter.deliveredMessageList(requestD);
                         break;
                     case 9:
@@ -237,7 +240,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private void sendLocationMsg() {
         String center = "35.7003510,51.3376472";
 
-        SendLocationMessageRequest requestLocationMessage = new SendLocationMessageRequest.Builder()
+        RequestLocationMessage requestLocationMessage = new RequestLocationMessage.Builder()
                 .center(center)
                 .message("This is location ")
                 .activity(ChatSandBoxActivity.this)
@@ -249,14 +252,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void mapReverse() {
         double lat = 35.7003510;
         double lng = 51.3376472;
-        MapReverseRequest requestMapReverse = new MapReverseRequest.Builder(lat, lng).build();
+        RequestMapReverse requestMapReverse = new RequestMapReverse.Builder(lat, lng).build();
         presenter.mapReverse(requestMapReverse);
     }
 
     public void mapStatic() {
 //        String center = "35.7003510,51.3376472";
         String center = "35.7003510,35.7003510";
-        MapStaticImageRequest staticImage = new MapStaticImageRequest.Builder()
+        RequestMapStaticImage staticImage = new RequestMapStaticImage.Builder()
                 .center(center)
                 .build();
         presenter.mapStaticImage(staticImage);
@@ -290,7 +293,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     public void updateThreadInfo() {
         //                        1104 is a group
-        UpdateThreadInfoRequest threadInfo = new UpdateThreadInfoRequest.Builder(1104).threadId(1104).description("yes").name("this is test").build();
+        RequestThreadInfo threadInfo = new RequestThreadInfo.Builder(1104).threadId(1104).description("yes").name("this is test").build();
 
         presenter.updateThreadInfo(threadInfo, null);
 
@@ -304,7 +307,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     }
 
     public void unBlock() {
-        UnBlockRequest requestUnBlock = new UnBlockRequest.Builder().build();
+        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder().build();
 //        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder(1382).build();
         presenter.unBlock(requestUnBlock, null);
 
@@ -417,7 +420,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 9:
-                        SearchContactRequest requestSearchContact = new SearchContactRequest.Builder("0", "2").id("1063").build();
+                        RequestSearchContact requestSearchContact = new RequestSearchContact.Builder("0", "2").id("1063").build();
                         presenter.searchContact(requestSearchContact);
                         break;
                     case 10:
@@ -453,7 +456,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = gson.toJson(inviter);
-        SendReplyFileMessageRequest fileMessage = new SendReplyFileMessageRequest
+        RequestReplyFileMessage fileMessage = new RequestReplyFileMessage
                 .Builder(messageContent, threadId, messageId, fileUri, this,
                 TextMessageType.Constants.FILE).systemMetaData(meta).build();
         presenter.replyFileMessage(fileMessage, null);
@@ -462,7 +465,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     public void deleteMessage() {
         ArrayList<Long> msgIds = new ArrayList<>();
         msgIds.add(37443L);
-        DeleteMessageRequest requestDeleteMessage = new DeleteMessageRequest
+        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
                 .Builder()
                 .messageIds(msgIds)
 //                .deleteForAll(true)
@@ -499,7 +502,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = gson.toJson(inviter);
-        SendTextMessageRequest requestMessage = new SendTextMessageRequest
+        RequestMessage requestMessage = new RequestMessage
                 .Builder("test at" + " " + new Date().getTime() + name, 1105)
                 .jsonMetaData(meta)
                 .build();
@@ -675,7 +678,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
-                UpdateContactsRequest requestUpdateContact = new UpdateContactsRequest.Builder(2404)
+                RequestUpdateContact requestUpdateContact = new RequestUpdateContact.Builder(2404)
                         .cellphoneNumber("09148401824")
                         .firstName("Black Masoudi")
                         .lastName("Amjadi")

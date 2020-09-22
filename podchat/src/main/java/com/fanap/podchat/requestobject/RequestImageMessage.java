@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-public class RequestImageMessage extends FileMessageRequest {
+public class RequestImageMessage extends RequestFileMessage {
     private String imageXc;
     private String imageYc;
     private String imageHc;
@@ -34,7 +34,7 @@ public class RequestImageMessage extends FileMessageRequest {
         return imageWc;
     }
 
-    public static class Builder extends FileMessageRequest.Builder {
+    public static class Builder extends RequestFileMessage.Builder {
         private String imageXc;
         private String imageYc;
         private String imageHc;
