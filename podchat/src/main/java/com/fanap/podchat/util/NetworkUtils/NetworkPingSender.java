@@ -16,8 +16,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-import io.sentry.core.Sentry;
-
 public class NetworkPingSender {
 
     private static final int VPN_CHECK_DELAY_MILLIS = 2000;
@@ -216,9 +214,9 @@ public class NetworkPingSender {
 
             long endTime = System.currentTimeMillis();
             notifyNetworkAvailable();
-            logInfo("Ping delay: " + (endTime - startTime) + " milliseconds");
+            Log.i(TAG, "Ping delay: " + (endTime - startTime) + " milliseconds");
         } catch (IOException e) {
-            logError("Timeout Exception host: " + hostName + " port: " + port);
+            Log.e(TAG, "Timeout Exception host: " + hostName + " port: " + port);
             notifyConnectionIsLost();
         }
 
@@ -241,7 +239,7 @@ public class NetworkPingSender {
 
         if (hasVPNStateChanged(hasVPN)) {
 
-            logInfo("VPN connection change detected!");
+            Log.i(TAG, "VPN connection change detected!");
 
             numberOfPingsWithoutPong++;
             hasPing = false;
@@ -252,8 +250,7 @@ public class NetworkPingSender {
                 //connection is not alive. we should reconnect.
                 if (!hasPing) {
 
-                    logInfo(this.toString());
-                    logError("Connection lost!");
+                    Log.e(TAG, "Connection lost!");
                     connected = false;
                     isConnecting = false;
                     numberOfDisConnection = 0;
@@ -263,16 +260,6 @@ public class NetworkPingSender {
             }, connectTimeout);
             setVPNState();
         }
-    }
-
-    private void logError(String error) {
-        Log.e(TAG, error);
-        Sentry.captureMessage(error);
-    }
-
-    private void logInfo(String info) {
-        Log.i(TAG, info);
-        Sentry.addBreadcrumb(info);
     }
 
     private boolean hasVPNStateChanged(boolean hasVPN) {
@@ -442,35 +429,7 @@ public class NetworkPingSender {
         public NetworkStateConfig build() {
             return this;
         }
-
-
-        @Override
-        public String toString() {
-            return "NetworkStateConfig{" +
-                    "hostName='" + hostName + '\'' +
-                    ", port=" + port +
-                    ", interval=" + interval +
-                    ", disConnectionThreshold=" + disConnectionThreshold +
-                    ", connectTimeout=" + connectTimeout +
-                    '}';
-        }
     }
 
 
-    @Override
-    public String toString() {
-        return "NetworkPingSender{" +
-                "connectTimeout=" + connectTimeout +
-                ", hostName='" + hostName + '\'' +
-                ", port=" + port +
-                ", connected=" + connected +
-                ", interval=" + interval +
-                ", disConnectionThreshold=" + disConnectionThreshold +
-                ", numberOfDisConnection=" + numberOfDisConnection +
-                ", isConnecting=" + isConnecting +
-                ", config=" + config +
-                ", numberOfPingsWithoutPong=" + numberOfPingsWithoutPong +
-                ", hasPing=" + hasPing +
-                '}';
-    }
 }

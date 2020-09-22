@@ -1,10 +1,6 @@
 package com.fanap.podchat.mainmodel;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.fanap.podchat.cachemodel.ThreadVo;
-import com.fanap.podchat.util.Util;
 
 import java.util.List;
 
@@ -124,6 +120,7 @@ public class Thread {
         this.uniqueName = uniqueName;
         this.userGroupHash = userGroupHash;
     }
+
 
 
     public Thread() {
@@ -415,21 +412,5 @@ public class Thread {
 
     public void setUserGroupHash(String userGroupHash) {
         this.userGroupHash = userGroupHash;
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-
-        try {
-            if(this == obj)
-                return true;
-
-            if (obj != null) {
-                return this.id == ((Thread) obj).getId();
-            }
-        } catch (Exception e) {
-            return super.equals(obj);
-        }
-        return false;
     }
 }

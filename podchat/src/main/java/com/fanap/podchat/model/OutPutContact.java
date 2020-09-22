@@ -2,13 +2,13 @@ package com.fanap.podchat.model;
 
 public class OutPutContact extends BaseOutPut {
 
-    private GetContactsResponse result;
+    private ResultContact result;
 
-    public GetContactsResponse getResult() {
+    public ResultContact getResult() {
         return result;
     }
 
-    public void setResult(GetContactsResponse result) {
+    public void setResult(ResultContact result) {
         this.result = result;
     }
 

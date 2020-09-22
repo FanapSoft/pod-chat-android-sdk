@@ -1,18 +1,25 @@
 package com.fanap.podchat.chat.pin.pin_thread;
 
+import android.util.Log;
+
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.CoreConfig;
-import com.fanap.podchat.chat.pin.pin_thread.model.PinUnpinThreadRequest;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.util.AsyncAckType;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.Util;
+import com.google.gson.JsonObject;
 
 public class PinThread {
 
 
-    public static String pinThread(PinUnpinThreadRequest request, String uniqueId) {
+    public static String pinThread(RequestPinThread request, String uniqueId) {
 
 
         long threadId = request.getThreadId();
@@ -30,7 +37,7 @@ public class PinThread {
     }
 
 
-    public static String unPinThread(PinUnpinThreadRequest request, String uniqueId) {
+    public static String unPinThread(RequestPinThread request, String uniqueId) {
 
 
         long threadId = request.getThreadId();

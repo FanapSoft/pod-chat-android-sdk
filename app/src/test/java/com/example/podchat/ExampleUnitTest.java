@@ -1,47 +1,51 @@
 package com.example.podchat;
 
-import android.os.Build;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.chat.application.chatexample.TestClass;
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
-import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.notification.PodPushMessage;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
+import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import rx.Observable;
-import rx.Scheduler;
-import rx.schedulers.Schedulers;
+import rx.Observer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -55,275 +59,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class ExampleUnitTest {
 
-
-
-    @Test
-    public void sortingTest(){
-
-
-        com.fanap.podchat.mainmodel.Thread t = new com.fanap.podchat.mainmodel.Thread();
-        t.setId(100);
-        t.setUniqueName("t1");
-        t.setTitle("im pinned");
-        t.setTime(new Date().getTime() + 2);
-        t.setPin(true);
-
-        com.fanap.podchat.mainmodel.Thread v = new com.fanap.podchat.mainmodel.Thread();
-        v.setId(101);
-        v.setUniqueName("t2");
-        v.setTitle("im pinned too");
-        v.setTime(new Date().getTime() + 1);
-        v.setPin(true);
-
-        com.fanap.podchat.mainmodel.Thread c = new com.fanap.podchat.mainmodel.Thread();
-        c.setId(103);
-        c.setUniqueName("t3");
-        c.setTitle("im not pinned");
-        c.setTime(new Date().getTime());
-        c.setPin(false);
-
-        List<com.fanap.podchat.mainmodel.Thread> unsorted = new ArrayList<>();
-        unsorted.add(c);
-        unsorted.add(t);
-        unsorted.add(v);
-
-        System.out.println("unsorted -> " + App.getGson().toJson(unsorted));
-
-        List<com.fanap.podchat.mainmodel.Thread> sorted = ThreadManager.sortThreads(unsorted);
-
-        System.out.println("sorted -> " + App.getGson().toJson(sorted));
-
-        assertNotEquals(sorted,unsorted);
-
-
-
-    }
-
-    @Test
-    public void equalityTest() {
-
-        com.fanap.podchat.mainmodel.Thread t = new com.fanap.podchat.mainmodel.Thread();
-        t.setId(100);
-        t.setUniqueName("adas");
-        com.fanap.podchat.mainmodel.Thread v = new com.fanap.podchat.mainmodel.Thread();
-        v.setId(100);
-        v.setUniqueName("asdasde");
-        v.setTitle("aaaaaa");
-
-        ArrayList<com.fanap.podchat.mainmodel.Thread> oo = new ArrayList<>();
-
-        oo.add(t);
-        Assert.assertTrue(oo.contains(v));
-//        if(oo.remove(t))
-//            oo.add(v);
-        oo.set(oo.indexOf(v),v);
-
-        assertEquals(oo.get(0).getTitle(),"aaaaaa");
-
-        System.out.println("S: => " + oo.size());
-
-
-//
-//        assertEquals(t,v);
-//        assertEquals(oo.size(),1);
-    }
-
-    @Test
-    public void pagingTest() {
-
-
-        Observable.concat(getList1(), getList2())
-                .subscribeOn(Schedulers.immediate())
-                .observeOn(Schedulers.immediate())
-                .first()
-                .map(data -> page(data, 3, 2))
-                .subscribe(data -> {
-                    ArrayList<Integer> list1 = new ArrayList<>();
-//                    list1.add(0);
-//                    list1.add(1);
-                    list1.add(2);
-                    list1.add(3);
-                    list1.add(4);
-//                    list1.add(5);
-//                    list1.add(6);
-
-                    System.out.println("data -> " + data);
-                    assertEquals(data, list1);
-                });
-
-
-        Observable.concat(getList1(), getList2())
-                .subscribeOn(Schedulers.immediate())
-                .observeOn(Schedulers.immediate())
-                .first()
-                .map(data -> page(data, 10, 2))
-                .subscribe(data -> {
-                    ArrayList<Integer> list1 = new ArrayList<>();
-                    list1.add(2);
-                    list1.add(3);
-                    list1.add(4);
-                    list1.add(5);
-                    list1.add(6);
-
-                    System.out.println("data -> " + data);
-                    assertEquals(data, list1);
-                });
-
-
-        Observable.concat(getList1(), getList2())
-                .subscribeOn(Schedulers.immediate())
-                .observeOn(Schedulers.immediate())
-                .first()
-                .map(data -> page(data, 1, 0))
-                .subscribe(data -> {
-                    ArrayList<Integer> list1 = new ArrayList<>();
-                    list1.add(0);
-
-
-                    System.out.println("data -> " + data);
-                    assertEquals(data, list1);
-                });
-
-
-        Observable.concat(getList1(), getList2())
-                .subscribeOn(Schedulers.immediate())
-                .observeOn(Schedulers.immediate())
-                .first()
-                .map(data -> page(data, 100, 20))
-                .subscribe(data -> {
-                    ArrayList<Integer> list1 = new ArrayList<>();
-
-
-                    System.out.println("data -> " + data);
-                    assertEquals(data, list1);
-                });
-
-
-        Observable.concat(getList1(), getList2())
-                .subscribeOn(Schedulers.immediate())
-                .observeOn(Schedulers.immediate())
-                .first()
-                .map(data -> page(data, 1, 100))
-                .subscribe(data -> {
-                    ArrayList<Integer> list1 = new ArrayList<>();
-
-
-                    System.out.println("data -> " + data);
-                    assertEquals(data, list1);
-                });
-
-
-    }
-
-    @Test
-    public void findByIdTest() {
-
-        List<Long> threads = new ArrayList<>();
-        threads.add(1012310L);
-        threads.add(1012320L);
-        threads.add(1012340L);
-        threads.add(1012380L);
-
-        List<Integer> searchThreads = new ArrayList<>();
-        searchThreads.add(1012341);
-        searchThreads.add(1012381);
-        searchThreads.add(1012311);
-
-
-        List<Long> expected = new ArrayList<>();
-//        expected.add(1012311L);
-//        expected.add(1012341L);
-//        expected.add(1012381L);
-
-
-        getByIds(searchThreads, threads)
-                .subscribeOn(Schedulers.immediate())
-                .observeOn(Schedulers.immediate())
-                .subscribe(founded -> {
-
-                    System.out.println(founded);
-
-                    assertEquals(expected, founded);
-
-
-                });
-
-
-    }
-
-    public static Observable<List<Long>> getByIds(List<Integer> ids, List<Long> allThreads) {
-
-        try {
-            if (Util.isNotNullOrEmpty(ids))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    return Observable.from(allThreads)
-                            .filter(t -> ids.contains(Math.toIntExact(t)))
-                            .toList();
-                } else {
-                    return Observable.from(allThreads)
-                            .filter(t -> ids.contains((int) (long) t))
-                            .toList();
-                }
-        } catch (Exception e) {
-            return Observable.from(allThreads).toList();
-        }
-
-        return Observable.from(allThreads).toList();
-
-    }
-
-
-    public Observable<List<Integer>> getList1() {
-
-        ArrayList<Integer> list1 = new ArrayList<>();
-        list1.add(0);
-        list1.add(1);
-        list1.add(2);
-        list1.add(3);
-        list1.add(4);
-        list1.add(5);
-        list1.add(6);
-
-        return Observable.create(en -> en.onNext(list1));
-
-    }
-
-    public Observable<List<Integer>> getList2() {
-
-        ArrayList<Integer> list2 = new ArrayList<>();
-        list2.add(7);
-        list2.add(8);
-        list2.add(9);
-
-        return Observable.create(en -> en.onNext(list2));
-
-    }
-
-    public Observable<List<Integer>> lim(Integer lim, List<Integer> list) {
-
-        return Observable.from(list)
-                .limit(lim)
-                .toList();
-
-    }
-
-    public <T> List<T> page(List<T> items, int count, int offset) {
-
-        if (items.size() == 0 || count == 0) {
-            return new ArrayList<>();
-        }
-
-        if (count + offset > items.size()) {
-
-            if (offset > items.size())
-                return new ArrayList<>();
-
-            return items.subList(offset, items.size());
-        }
-
-        return items.subList(offset, offset + count);
-
-    }
 
     @Test
     public void contactsEquality() {
@@ -349,44 +84,10 @@ public class ExampleUnitTest {
 
     }
 
-
     @Test
-    public void testConverters() {
+    public void threadTest() {
 
-
-        String p = "";
-
-
-        List<Participant> participants = stringToList(p);
-
-        String a = ListToString(participants);
-
-        List<Participant> p2 = stringToList(a);
-
-        assertEquals(participants, p2);
-
-
-    }
-
-
-    public List<Participant> stringToList(@Nullable String data) {
-
-        Gson gson = new Gson();
-
-        if (data == null) {
-            return Collections.emptyList();
-        }
-
-        Type listType = new TypeToken<List<Participant>>() {
-        }.getType();
-
-        return gson.fromJson(data, listType);
-    }
-
-
-    public String ListToString(List<Participant> t) {
-        Gson gson = new Gson();
-        return gson.toJson(t);
+        TestClass.main(null);
     }
 
 
@@ -835,8 +536,7 @@ public class ExampleUnitTest {
 
             try {
                 count += notificationsGroup.get(key) != null ? notificationsGroup.get(key).size() : 0;
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) { }
 
         }
 

@@ -17,18 +17,18 @@ import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
-import com.fanap.podchat.chat.user.profile.UpdateProfileRequest;
+import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.SearchContactRequest;
+import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
-import com.fanap.podchat.chat.pin.pin_message.model.PinUnpinMessageRequest;
-import com.fanap.podchat.requestobject.GetCurrentUserRolesRequest;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.util.ChatMessageType;
 
@@ -90,7 +90,7 @@ public class ChatTest extends ChatAdapter {
 
         sleep(10000);
 
-        UpdateProfileRequest request = new UpdateProfileRequest
+        RequestUpdateProfile request = new RequestUpdateProfile
                 .Builder("عیب رندان مکن ای زاهد پاکیزه سرشت")
                 .build();
 
@@ -188,7 +188,7 @@ public class ChatTest extends ChatAdapter {
 
         sleep(25000);
 
-        GetCurrentUserRolesRequest req = new GetCurrentUserRolesRequest.Builder()
+        RequestGetUserRoles req = new RequestGetUserRoles.Builder()
                 .setThreadId(5801)
                 .build();
 
@@ -235,7 +235,7 @@ public class ChatTest extends ChatAdapter {
 
         sleep(25000);
 
-        PinUnpinMessageRequest requestPinMessage = new PinUnpinMessageRequest.Builder()
+        RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
                 .setMessageId(76306)
                 .setNotifyAll(true)
                 .build();
@@ -255,7 +255,7 @@ public class ChatTest extends ChatAdapter {
 
         sleep(25000);
 
-        PinUnpinMessageRequest requestPinMessage = new PinUnpinMessageRequest.Builder()
+        RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
                 .setMessageId(76306)
                 .build();
 
@@ -688,7 +688,7 @@ public class ChatTest extends ChatAdapter {
     public void searchContact() {
 
         sleep(3000);
-        SearchContactRequest requestSearchContact = new SearchContactRequest.Builder("0", "2").id("1063").build();
+        RequestSearchContact requestSearchContact = new RequestSearchContact.Builder("0", "2").id("1063").build();
         presenter.searchContact(requestSearchContact);
         sleep(3000);
         Mockito.verify(view, Mockito.times(1)).onSearchContact();
