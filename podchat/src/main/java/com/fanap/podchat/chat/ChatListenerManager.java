@@ -8,6 +8,7 @@ import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -921,6 +922,21 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onContactsSynced(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnPingStatusSent(ChatResponse<StatusPingResult> response) {
+
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onPingStatusSent(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

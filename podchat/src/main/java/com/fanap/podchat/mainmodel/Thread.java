@@ -421,15 +421,14 @@ public class Thread {
     public boolean equals(@Nullable Object obj) {
 
         try {
-            if(this == obj)
+            if (obj == null) return false;
+
+            if (this == obj)
                 return true;
 
-            if (obj != null) {
-                return this.id == ((Thread) obj).getId();
-            }
+            return this.id == ((Thread) obj).getId();
         } catch (Exception e) {
             return super.equals(obj);
         }
-        return false;
     }
 }

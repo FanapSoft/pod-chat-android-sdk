@@ -1,5 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
+import android.support.annotation.Nullable;
+
 public class Contact {
     private long id;
     private String firstName;
@@ -59,7 +61,7 @@ public class Contact {
                    String uniqueId,
                    long notSeenDuration,
                    boolean hasUser,
-                   boolean cache,String profileImage) {
+                   boolean cache, String profileImage) {
         this.id = id;
         this.firstName = firstName;
         this.userId = userId;
@@ -186,5 +188,24 @@ public class Contact {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+
+        try {
+            if (this == (obj))
+                return true;
+
+            if (obj != null) {
+                return this.id == ((Contact) obj).getId();
+            }
+        } catch (Exception e) {
+            return super.equals(obj);
+        }
+
+        return false;
+
+
     }
 }

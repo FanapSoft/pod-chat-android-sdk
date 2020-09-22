@@ -5,7 +5,6 @@ import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.db.SupportSQLiteOpenHelper;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.content.Context;
-import android.database.Observable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -31,6 +30,7 @@ import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
+import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
@@ -285,6 +285,70 @@ public class MessageDatabaseHelper {
 
     }
 
+//    public void saveHistories(@NonNull List<MessageVO> messageVOS, long threadId) {
+//
+//
+//        worker(() -> {
+//
+//            List<CacheMessageVO> cacheMessages = new ArrayList<>();
+//
+//            for (MessageVO messageVO : messageVOS) {
+//
+//                CacheMessageVO cacheMessageVO = new CacheMessageVO(messageVO);
+//
+//                cacheMessageVO.setThreadVoId(threadId);
+//
+//                long time = cacheMessageVO.getTime();
+//                long timeNanos = cacheMessageVO.getTimeNanos();
+//                long pow = (long) Math.pow(10, 9);
+//                long timestamp = ((time / 1000) * pow) + timeNanos;
+//                cacheMessageVO.setTimeStamp(timestamp);
+//
+//                if (cacheMessageVO.getParticipant() != null) {
+//                    cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
+//                    messageDao.insertParticipant(cacheMessageVO.getParticipant());
+//                }
+//
+//                if (cacheMessageVO.getConversation() != null) {
+//                    cacheMessageVO.setConversationId(cacheMessageVO.getConversation().getId());
+//                }
+//
+//                if (cacheMessageVO.getForwardInfo() != null) {
+//                    cacheMessageVO.setForwardInfoId(cacheMessageVO.getForwardInfo().getId());
+//                    messageDao.insertForwardInfo(cacheMessageVO.getForwardInfo());
+//                    if (cacheMessageVO.getForwardInfo().getParticipant() != null) {
+//                        cacheMessageVO.getForwardInfo().setParticipantId(cacheMessageVO.getForwardInfo().getParticipant().getId());
+//                        messageDao.insertParticipant(cacheMessageVO.getForwardInfo().getParticipant());
+//                    }
+//                }
+//
+//                if (cacheMessageVO.getReplyInfoVO() != null) {
+//                    CacheReplyInfoVO cacheReplyInfoVO = cacheMessageVO.getReplyInfoVO();
+//                    cacheMessageVO.setReplyInfoVOId(cacheReplyInfoVO.getRepliedToMessageId());
+//
+//                    if (cacheReplyInfoVO.getParticipant() != null) {
+//                        CacheParticipant cacheReplyParticipant = cacheReplyInfoVO.getParticipant();
+//                        cacheReplyInfoVO.setParticipantId(cacheReplyParticipant.getId());
+//                        messageDao.insertParticipant(cacheReplyParticipant);
+//
+//                    }
+//
+//                    messageDao.insertReplyInfoVO(cacheReplyInfoVO);
+//                }
+//
+//
+//                cacheMessages.add(cacheMessageVO);
+//
+//            }
+//
+//
+//            messageDao.insertHistories(cacheMessages);
+//
+//        });
+//
+//
+//    }
+
 
     public void saveMessage(@NonNull CacheMessageVO cacheMessageVO, long threadId, boolean editedMessage) {
 
@@ -300,7 +364,79 @@ public class MessageDatabaseHelper {
 
                 cacheMessageVO.setTimeStamp(timestamp);
             } catch (Exception e) {
-                Log.e("CHAT_SDK", e.getMessage());
+                Sentry.captureException(e);
+            }
+
+
+            if (cacheMessageVO.getParticipant() != null) {
+                cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
+                messageDao.insertParticipant(cacheMessageVO.getParticipant());
+            }
+
+            if (cacheMessageVO.getForwardInfo() != null) {
+                cacheMessageVO.setForwardInfoId(cacheMessageVO.getForwardInfo().getId());
+                messageDao.insertForwardInfo(cacheMessageVO.getForwardInfo());
+                if (cacheMessageVO.getForwardInfo().getParticipant() != null) {
+                    cacheMessageVO.getForwardInfo().setParticipantId(cacheMessageVO.getForwardInfo().getParticipant().getId());
+                    messageDao.insertParticipant(cacheMessageVO.getForwardInfo().getParticipant());
+                }
+            }
+
+            if (cacheMessageVO.getReplyInfoVO() != null) {
+                cacheMessageVO.setReplyInfoVOId(cacheMessageVO.getReplyInfoVO().getRepliedToMessageId());
+                if (cacheMessageVO.getReplyInfoVO().getParticipant() != null) {
+                    cacheMessageVO.getReplyInfoVO().setParticipantId(cacheMessageVO.getReplyInfoVO().getParticipant().getId());
+                    messageDao.insertParticipant(cacheMessageVO.getReplyInfoVO().getParticipant());
+                }
+                messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
+            }
+
+
+            //update thread last message id
+
+            //check if message is new or edited message is thread last message
+
+
+            boolean shouldUpdateIfEdited = false;
+
+            if (editedMessage) {
+                long lastMessageId = messageDao.getLastMessageId(threadId);
+                if (lastMessageId > 0 && lastMessageId == cacheMessageVO.getId()) {
+                    shouldUpdateIfEdited = true;
+                }
+            }
+
+
+            messageDao.insertMessage(cacheMessageVO);
+
+
+            boolean shouldUpdateLastMessage = !editedMessage || shouldUpdateIfEdited;
+
+            if (shouldUpdateLastMessage)
+                messageDao.updateThreadLastMessageVOId(threadId, cacheMessageVO.getId(), cacheMessageVO.getMessage());
+
+        });
+
+    }
+
+
+    public void saveMessage(@NonNull MessageVO message, long threadId, boolean editedMessage) {
+
+        worker(() -> {
+
+            CacheMessageVO cacheMessageVO = new CacheMessageVO(message);
+
+            cacheMessageVO.setThreadVoId(threadId);
+
+            try {
+                long time = cacheMessageVO.getTime();
+                long timeNanos = cacheMessageVO.getTimeNanos();
+                long pow = (long) Math.pow(10, 9);
+                long timestamp = ((time / 1000) * pow) + timeNanos;
+
+                cacheMessageVO.setTimeStamp(timestamp);
+            } catch (Exception e) {
+                Sentry.captureException(e);
             }
 
 
@@ -402,19 +538,11 @@ public class MessageDatabaseHelper {
 
     public void insertWaitMessageQueue(@NonNull SendingQueueCache sendingQueue) {
 
-        WaitQueueCache waitMessageQueue = new WaitQueueCache();
-
-        waitMessageQueue.setUniqueId(sendingQueue.getUniqueId());
-        waitMessageQueue.setId(sendingQueue.getId());
-        waitMessageQueue.setAsyncContent(sendingQueue.getAsyncContent());
-        waitMessageQueue.setMessage(sendingQueue.getMessage());
-        waitMessageQueue.setThreadId(sendingQueue.getThreadId());
-        waitMessageQueue.setMessageType(sendingQueue.getMessageType());
-        waitMessageQueue.setSystemMetadata(sendingQueue.getSystemMetadata());
-        waitMessageQueue.setMetadata(sendingQueue.getMetadata());
+        WaitQueueCache waitMessageQueue = MessageManager.getWaitingFromSendingMessage(sendingQueue);
 
         worker(() -> messageQueueDao.insertWaitMessageQueue(waitMessageQueue));
     }
+
 
     public void deleteWaitQueueMsgs(String uniqueId) {
         worker(() -> messageQueueDao.deleteWaitMessageQueue(uniqueId));
@@ -431,8 +559,7 @@ public class MessageDatabaseHelper {
         List<String> items = new ArrayList<>();
 
         new PodThreadManager()
-                .doThisSafe(
-                        () -> items.addAll(messageQueueDao.getAllWaitQueueMsgUniqueId()),
+                .doThisSafe(() -> items.addAll(messageQueueDao.getAllWaitQueueMsgUniqueId()),
                         new PodThreadManager.IComplete() {
                             @Override
                             public void onComplete() {
@@ -475,27 +602,13 @@ public class MessageDatabaseHelper {
 
     @NonNull
     public List<Failed> getAllWaitQueueCacheByThreadId(long threadId) {
-        List<Failed> listQueues = new ArrayList<>();
+
         List<WaitQueueCache> listCaches = messageQueueDao.getWaitQueueMsgByThreadId(threadId);
-        for (WaitQueueCache queueCache : listCaches) {
-            Failed failed = new Failed();
 
-            MessageVO messageVO = new MessageVO();
-
-            messageVO.setId(queueCache.getId());
-            messageVO.setMessage(queueCache.getMessage());
-            messageVO.setMessageType(queueCache.getMessageType());
-            messageVO.setMetadata(queueCache.getMetadata());
-            messageVO.setSystemMetadata(queueCache.getSystemMetadata());
-
-            failed.setMessageVo(messageVO);
-            failed.setThreadId(queueCache.getThreadId());
-            failed.setUniqueId(queueCache.getUniqueId());
-
-            listQueues.add(failed);
-        }
-        return listQueues;
+        return MessageManager.getFailedFromWaiting(listCaches);
     }
+
+
 
     public void getWaitQueueAsyncContent(String uniqueId) {
         messageQueueDao.getWaitQueueAsyncContent(uniqueId);
@@ -528,16 +641,6 @@ public class MessageDatabaseHelper {
             deleteSendingMessageQueue(uniqueId);
 
             insertWaitMessageQueue(sendingQueue);
-        }, new PodThreadManager.IComplete() {
-            @Override
-            public void onComplete() {
-
-            }
-
-            @Override
-            public void onError(String error) {
-
-            }
         });
 
     }
@@ -564,20 +667,11 @@ public class MessageDatabaseHelper {
 
     @NonNull
     private SendingQueueCache getWaitQueueMsgByUnique(String uniqueId) {
-        SendingQueueCache sendingQueueCache = new SendingQueueCache();
         WaitQueueCache waitQueueCache = messageQueueDao.getWaitQueueMsgByUniqueId(uniqueId);
 
-        sendingQueueCache.setAsyncContent(waitQueueCache.getAsyncContent());
-        sendingQueueCache.setId(waitQueueCache.getId());
-        sendingQueueCache.setMessage(waitQueueCache.getMessage());
-        sendingQueueCache.setMetadata(waitQueueCache.getMetadata());
-        sendingQueueCache.setThreadId(waitQueueCache.getThreadId());
-        sendingQueueCache.setUniqueId(waitQueueCache.getUniqueId());
-        sendingQueueCache.setSystemMetadata(waitQueueCache.getSystemMetadata());
-
-
-        return sendingQueueCache;
+        return MessageManager.getSendingFromWaitingMessage(waitQueueCache);
     }
+
 
 
     public List<WaitQueueCache> getWaitQueueMsg(long threadId) {
@@ -592,28 +686,14 @@ public class MessageDatabaseHelper {
     @NonNull
     public List<Sending> getAllSendingQueueByThreadId(long threadId) {
 
-        List<Sending> listQueues = new ArrayList<>();
-        List<SendingQueueCache> listCaches = messageQueueDao.getAllSendingQueueByThredId(threadId);
 
-        for (SendingQueueCache queueCache : listCaches) {
-            Sending sending = new Sending();
-            sending.setThreadId(queueCache.getThreadId());
+        List<SendingQueueCache> listCaches = messageQueueDao.getAllSendingQueueByThreadId(threadId);
 
-            MessageVO messageVO = new MessageVO();
-            messageVO.setId(queueCache.getId());
-            messageVO.setMessage(queueCache.getMessage());
-            messageVO.setMessageType(queueCache.getMessageType());
-            messageVO.setMetadata(queueCache.getMetadata());
-            messageVO.setSystemMetadata(queueCache.getSystemMetadata());
 
-            sending.setMessageVo(messageVO);
-
-            sending.setUniqueId(queueCache.getUniqueId());
-
-            listQueues.add(sending);
-        }
-        return listQueues;
+        return MessageManager.getSendingFromSendingCache(listCaches);
     }
+
+
 
     /*
      * Uploading Queue
@@ -625,28 +705,10 @@ public class MessageDatabaseHelper {
 
     @NonNull
     public List<Uploading> getAllUploadingQueueByThreadId(long threadId) {
-        List<Uploading> uploadingQueues = new ArrayList<>();
         List<UploadingQueueCache> uploadingQueueCaches = messageQueueDao.getAllUploadingQueueByThreadId(threadId);
-
-        for (UploadingQueueCache queueCache : uploadingQueueCaches) {
-            Uploading uploadingQueue = new Uploading();
-
-            MessageVO messageVO = new MessageVO();
-
-            messageVO.setId(queueCache.getId());
-            messageVO.setMessage(queueCache.getMessage());
-            messageVO.setMessageType(queueCache.getMessageType());
-            messageVO.setMetadata(queueCache.getMetadata());
-            messageVO.setSystemMetadata(queueCache.getSystemMetadata());
-
-            uploadingQueue.setMessageVo(messageVO);
-            uploadingQueue.setThreadId(queueCache.getThreadId());
-            uploadingQueue.setUniqueId(queueCache.getUniqueId());
-            uploadingQueues.add(uploadingQueue);
-        }
-
-        return uploadingQueues;
+        return MessageManager.getUploadingFromUploadCache(uploadingQueueCaches);
     }
+
 
     public void deleteUploadingQueue(String uniqueId) {
         worker(() -> messageQueueDao.deleteUploadingQueue(uniqueId));
@@ -695,10 +757,6 @@ public class MessageDatabaseHelper {
                                 String message = previousMessage.get(0).getMessage();
                                 messageDao.updateThreadLastMessageVOId(subjectId, previousMessageId, message);
 
-                            } else {
-
-                                // this thread has only one message
-                                messageDao.removeThreadLastMessageVO(subjectId);
                             }
                         }
                     }
@@ -1202,7 +1260,12 @@ public class MessageDatabaseHelper {
             }
             if (cacheMessageVO.getParticipantId() != null) {
                 CacheParticipant cacheParticipant = messageDao.getParticipant(cacheMessageVO.getParticipantId());
-                participant = cacheToParticipantMapper(cacheParticipant, null, null);
+                if (cacheParticipant != null) {
+                    participant = cacheToParticipantMapper(cacheParticipant, null, null);
+                } else {
+                    if (cacheMessageVO.getConversationId() > 0)
+                        messageDao.deleteParticipant(cacheMessageVO.getConversationId(), cacheMessageVO.getParticipantId());
+                }
 
             }
             if (cacheMessageVO.getReplyInfoVOId() != null) {
@@ -1584,8 +1647,8 @@ public class MessageDatabaseHelper {
         worker(() -> messageDao.deleteContact(cacheContact));
     }
 
-    public void deleteContactById(long id) {
-        worker(() -> messageDao.deleteContactById(id));
+    public void deleteContactById(long userId) {
+        worker(() -> messageDao.deleteContactById(userId));
     }
 
 
@@ -1842,14 +1905,6 @@ public class MessageDatabaseHelper {
         });
 
 
-    }
-
-    public void deleteBlockedContactByCoreUserId(long coreUserId) {
-        messageDao.deleteBlockedContactByCoreUserId(coreUserId);
-    }
-
-    public void deleteBlockedContactByBlockId(long blockId) {
-        messageDao.deleteBlockedContactByBlockId(blockId);
     }
 
     public void retrieveAndUpdateThreadOnLastMessageEdited(Thread thread, ThreadManager.ILastMessageChanged callback) {
@@ -2300,7 +2355,7 @@ public class MessageDatabaseHelper {
 
             listener.onWorkDone(threads);
 
-            listener.onWorkDone(contentCount,threads);
+            listener.onWorkDone(contentCount, threads);
 
 
         });

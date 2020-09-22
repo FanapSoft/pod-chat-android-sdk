@@ -42,28 +42,37 @@ public class ContactManager {
     }
 
     private static Comparator<Contact> compareContacts() {
-        return new Comparator<Contact>() {
-            @Override
-            public int compare(Contact contact1, Contact contact2) {
+        return (contact1, contact2) -> {
 
-                if (contact1.isHasUser() && contact2.isHasUser()) {
+            if (contact1.isHasUser() && contact2.isHasUser()) {
 
-                    if (Util.isNotNullOrEmpty(contact1.getLastName()) &&
-                            Util.isNotNullOrEmpty(contact2.getLastName())) {
+                if (Util.isNotNullOrEmpty(contact1.getLastName()) &&
+                        Util.isNotNullOrEmpty(contact2.getLastName())) {
 
-                        return contact1.getLastName().compareTo(contact2.getLastName());
+                    return contact1.getLastName().compareTo(contact2.getLastName());
 
-                    } else if (Util.isNotNullOrEmpty(contact1.getFirstName()) &&
-                            Util.isNotNullOrEmpty(contact2.getFirstName())) {
+                } else if (Util.isNotNullOrEmpty(contact1.getLastName()) ||
+                        Util.isNotNullOrEmpty(contact2.getLastName())) {
 
-                        return contact1.getFirstName().compareTo(contact2.getFirstName());
+                    return (contact2.getLastName() != null ? contact2.getLastName() : "")
+                            .compareTo((contact1.getLastName() != null ? contact1.getLastName() : ""));
 
-                    } else return 1;
+                } else if (Util.isNotNullOrEmpty(contact1.getFirstName()) &&
+                        Util.isNotNullOrEmpty(contact2.getFirstName())) {
 
-                } else return Boolean.compare(contact2.isHasUser(), contact1.isHasUser());
+                    return contact1.getFirstName().compareTo(contact2.getFirstName());
+
+                } else if (Util.isNotNullOrEmpty(contact1.getFirstName()) ||
+                        Util.isNotNullOrEmpty(contact2.getFirstName())) {
+
+                    return (contact2.getFirstName() != null ? contact2.getFirstName() : "")
+                            .compareTo((contact1.getFirstName() != null ? contact1.getFirstName() : ""));
+
+                } else return 1;
+
+            } else return Boolean.compare(contact2.isHasUser(), contact1.isHasUser());
 
 
-            }
         };
     }
 

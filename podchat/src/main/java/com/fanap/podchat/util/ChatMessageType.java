@@ -87,6 +87,7 @@ public class ChatMessageType {
             Constants.LAST_MESSAGE_EDITED,
             Constants.LAST_MESSAGE_DELETED,
             Constants.CONTACT_SYNCED,
+            Constants.LOCATION_PING
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -169,7 +170,12 @@ public class ChatMessageType {
 
         int CONTACT_SYNCED = 90;
 
+
+        int LOCATION_PING = 101;
+
         int ERROR = 999;
+
+
 
 
     }

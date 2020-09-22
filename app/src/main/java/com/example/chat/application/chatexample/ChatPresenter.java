@@ -16,6 +16,7 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
@@ -23,8 +24,9 @@ import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
-import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.ping.request.StatusPingRequest;
+import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -116,6 +118,7 @@ import com.fanap.podchat.requestobject.RetryUpload;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
+import com.fanap.podchat.util.TextMessageType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -282,7 +285,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getContact(RequestGetContact request) {
+
         chat.getContacts(request, null);
+
+        StatusPingRequest statusRequest = new StatusPingRequest.Builder()
+                .inContactsList()
+                .build();
+
+        chat.sendStatusPing(statusRequest);
+
     }
 
     @Override
@@ -304,8 +315,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
-        return chat.getFile(rePod, iDownloadFile);
 
+        Log.e(TAG, "isInCache="+chat.isInCache(rePod));
+
+        return chat.getFile(rePod, iDownloadFile);
     }
 
     @Override
@@ -329,6 +342,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
+
+        Log.e(TAG, "isInCache="+chat.isInCache(rePod));
+
         return chat.getImage(rePod, iDownloadFile);
 
     }
@@ -513,6 +529,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.getThreads(requestThread, handler);
 
+
+        StatusPingRequest statusRequest = new StatusPingRequest.Builder()
+                .inChat()
+                .build();
+
+        chat.sendStatusPing(statusRequest);
+
 //        try {
 //            Thread.sleep(2000);
 //        } catch (InterruptedException ignored) {}
@@ -610,7 +633,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //
 //
 //
-//        String uniq = chat.getHistory(history, threadId, handler);
+//        String uniq = chat.getHistory(history, handler);
 //        if (uniq != null) {
 //            Log.i("un", uniq);
 //        }
@@ -621,6 +644,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getHistory(RequestGetHistory request, ChatHandler handler) {
         chat.getHistory(request, handler);
+
+
+        StatusPingRequest statusRequest = new StatusPingRequest.Builder()
+                .inThread()
+                .setThreadId(request.getThreadId())
+                .build();
+
+        chat.sendStatusPing(statusRequest);
+
     }
 
     @Override
@@ -1314,14 +1346,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
-//
-//            RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount.Builder()
-//                    .build();
-//
-//            chat.getAllUnreadMessagesCount(req);
-//
-//        }
+        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+
+
+            RequestMessage req = new RequestMessage.Builder("ttt",5182)
+                    .messageType(TextMessageType.Constants.TEXT)
+                    .build();
+
+            sendTextMessage(req,null);
+
+
+        }
 
     }
 
@@ -1488,5 +1523,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onActivityDestroyed(Activity activity) {
 
+    }
+
+    @Override
+    public void onPingStatusSent(ChatResponse<StatusPingResult> response) {
+        view.pingStatusSent(response);
     }
 }

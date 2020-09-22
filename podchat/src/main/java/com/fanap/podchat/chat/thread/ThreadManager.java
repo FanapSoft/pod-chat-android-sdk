@@ -102,12 +102,12 @@ public class ThreadManager {
     }
 
 
-    public static class CacheThread {
+    public static class ThreadResponse {
         private List<Thread> threadList;
         private long contentCount;
         private String source;
 
-        public CacheThread(List<Thread> threadList, long contentCount, String source) {
+        public ThreadResponse(List<Thread> threadList, long contentCount, String source) {
             this.threadList = threadList;
             this.contentCount = contentCount;
             this.source = source;

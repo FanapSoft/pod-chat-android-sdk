@@ -10,8 +10,6 @@ import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 
 import java.util.List;
 
-import rx.Observable;
-
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 @Dao
@@ -35,7 +33,7 @@ public interface MessageQueueDao {
 
 
     @Query("SELECT * FROM SendingQueueCache WHERE threadId = :threadId ORDER by QueueId DESC")
-    List<SendingQueueCache> getAllSendingQueueByThredId(long threadId);
+    List<SendingQueueCache> getAllSendingQueueByThreadId(long threadId);
 
     /**
      * Failed Queue

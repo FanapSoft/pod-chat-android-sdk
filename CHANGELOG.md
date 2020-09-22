@@ -5,6 +5,23 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.0.0] -2020-9-22
+
+[Improved] Contacts Cache Performance
+
+[Improved] Messages Cache Performance
+
+[Added] ```isInCache(RequestGetPodSpaceFile)``` or ```isInCache(RequestGetPodSpaceImage)``` to check if a file (or image) exists in cache or not.
+
+[Added] ```sendStatusPing(StatusPingRequest)``` to locate status in chat. eg. in thread list, in a thread or in contacts list.
+
+
+
+
+
+
+
+
 ## Version [0.8.3.0] -2020-8-26
 
 [Improved] Threads Cache Performance 

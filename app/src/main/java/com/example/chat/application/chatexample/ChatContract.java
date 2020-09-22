@@ -15,6 +15,7 @@ import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -217,6 +218,8 @@ public interface ChatContract {
         default void onBotStopped(String botName){}
 
         default void onBotStarted(String botName){}
+
+        default void pingStatusSent(ChatResponse<StatusPingResult> response){}
     }
 
     interface presenter {

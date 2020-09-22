@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('D:\\Projects\\Chat-sdk\\app\\test_key.jks')
+            storePassword 'f@naps0ft'
+            keyAlias 'test_key_fanap'
+            keyPassword 'f@naps0ft'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.fanap.podchat"
@@ -14,15 +22,19 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-//        debug {
-//            minifyEnabled true
-//            shrinkResources true
-//            debuggable false
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//        }
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            debuggable true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
 
     }
     compileOptions {
@@ -35,6 +47,9 @@ android {
 //        exclude 'META-INF/rxjava.properties'
 //        exclude 'okhttp3/internal/publicsuffix/publicsuffixes.gz'
 //    }
+
+    sourceSets { main { jniLibs.srcDirs = ['libs'] } }
+
 }
 
 dependencies {

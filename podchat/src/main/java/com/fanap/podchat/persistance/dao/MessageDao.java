@@ -74,8 +74,8 @@ public interface MessageDao {
     @Delete
     void deleteContact(CacheContact cacheContact);
 
-    @Query("DELETE FROM CacheContact WHERE id =:id")
-    void deleteContactById(long id);
+    @Query("DELETE FROM CacheContact WHERE userId =:userId")
+    void deleteContactById(long userId);
 
     @Query("select * from CacheContact order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
@@ -108,12 +108,6 @@ public interface MessageDao {
 
     @Query("DELETE FROM CacheBlockedContact WHERE blockId =:id")
     void deleteBlockedContactById(long id);
-
-    @Query("DELETE FROM CacheBlockedContact WHERE coreId =:coreUserId")
-    void deleteBlockedContactByCoreUserId(long coreUserId);
-
-    @Query("DELETE FROM CacheBlockedContact WHERE blockId =:blockId")
-    void deleteBlockedContactByBlockId(long blockId);
 
 
     @Query("select * from CacheBlockedContact LIMIT :count OFFSET :offset")

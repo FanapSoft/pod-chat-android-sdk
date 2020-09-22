@@ -1,18 +1,28 @@
 package com.fanap.podchat.repository;
 
 import android.support.annotation.Nullable;
-import android.util.Log;
 
+import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.cachemodel.queue.Failed;
+import com.fanap.podchat.cachemodel.queue.Sending;
+import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
+import com.fanap.podchat.cachemodel.queue.Uploading;
+import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.chat.contact.ContactManager;
+import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.thread.ThreadManager;
+import com.fanap.podchat.mainmodel.BlockedContact;
+import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.History;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.persistance.RoomIntegrityException;
+import com.fanap.podchat.util.Callback;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class ChatDataSource {
@@ -27,58 +37,25 @@ public class ChatDataSource {
         this.cacheDataSource = cacheDataSource;
     }
 
-    public Observable<ThreadManager.CacheThread> getThreadsFromMemoryDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) {
+
+    /*
+    THREADS
+     */
+
+    public Observable<ThreadManager.ThreadResponse> getThreadsFromMemoryDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) {
         return memoryDataSource.getThreadsData(count, offset, threadIds, threadName, isNew);
     }
 
-    public Observable<ThreadManager.CacheThread> getThreadsFromCacheDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) throws RoomIntegrityException {
+    public Observable<ThreadManager.ThreadResponse> getThreadsFromCacheDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) throws RoomIntegrityException {
         //get from disk cache and put in memory cache
-        return cacheDataSource.getThreadsData(count, offset, threadIds, threadName, isNew).doOnNext(cacheThread -> memoryDataSource.cacheThreadsInMemory(cacheThread.getThreadList()));
+        return cacheDataSource.getThreadsData(count, offset, threadIds, threadName, isNew).doOnNext(threadResponse -> saveThreadResultFromCache(threadResponse.getThreadList()));
     }
 
-
-    /*
-
-
-
-     */
-
-    public Observable<ContactManager.ContactResponse> getContactsFromMemoryDataSource(Integer count, Long offset) {
-        return memoryDataSource.getContactsData(count, offset);
-    }
-
-    public Observable<ContactManager.ContactResponse> getContactsFromCacheDataSource(Integer count, Long offset) throws RoomIntegrityException {
-        //get from disk cache and put in memory cache
-        return cacheDataSource.getContactsData(count, offset).doOnNext(cacheContact -> memoryDataSource.cacheContactsInMemory(cacheContact.getContactsList()));
-    }
-
-
-
-
-
-    public void saveThreadResultInServer(List<Thread> server) {
-
-        memoryDataSource.cacheThreadsInMemory(server);
-
-        cacheDataSource.cacheThreadsInDB(server);
-
-    }
-
-    public void saveThreadResultInCache(List<Thread> server) {
-
-        memoryDataSource.cacheThreadsInMemory(server);
-
-    }
-
-    public void updateThread(Thread thread) {
-        memoryDataSource.upsertThread(thread);
-    }
-
-    public Observable<ThreadManager.CacheThread> getThreadData(Integer count,
-                                                  Long offset,
-                                                  ArrayList<Integer> threadIds,
-                                                  String threadName,
-                                                  boolean isNew) throws RoomIntegrityException {
+    public Observable<ThreadManager.ThreadResponse> getThreadData(Integer count,
+                                                                  Long offset,
+                                                                  ArrayList<Integer> threadIds,
+                                                                  String threadName,
+                                                                  boolean isNew) throws RoomIntegrityException {
 
 
         if (offset == null) {
@@ -104,8 +81,47 @@ public class ChatDataSource {
     }
 
 
+    public void saveThreadResultFromServer(List<Thread> server) {
+
+        memoryDataSource.cacheThreads(server);
+        cacheDataSource.cacheThreads(server);
+
+    }
+
+    public void saveThreadResultFromServer(Thread thread) {
+        cacheDataSource.cacheThread(thread);
+        memoryDataSource.upsertThread(thread);
+    }
+
+    public void saveThreadResultFromCache(List<Thread> server) {
+        memoryDataSource.cacheThreads(server);
+    }
+
+    public void saveThreadResultFromCache(Thread thread) {
+        memoryDataSource.upsertThread(thread);
+    }
+
+
+
+
+
+
+
+    /*
+    CONTACTS
+     */
+
+    public Observable<ContactManager.ContactResponse> getContactsFromMemoryDataSource(Integer count, Long offset) {
+        return memoryDataSource.getContactsData(count, offset);
+    }
+
+    public Observable<ContactManager.ContactResponse> getContactsFromCacheDataSource(Integer count, Long offset) {
+        //get from disk cache and put in memory cache
+        return cacheDataSource.getContactsData(count, offset).doOnNext(cacheContact -> saveContactsResultFromCache(cacheContact.getContactsList()));
+    }
+
     public Observable<ContactManager.ContactResponse> getContactData(Integer count,
-                                                               Long offset) throws RoomIntegrityException {
+                                                                     Long offset) {
 
 
         if (offset == null) {
@@ -126,13 +142,268 @@ public class ChatDataSource {
     }
 
 
+    public void saveContactsResultFromServer(List<Contact> contacts) {
+        memoryDataSource.cacheContacts(contacts);
+        cacheDataSource.cacheContacts(contacts);
+    }
+
+    public void saveContactsResultFromCache(List<Contact> contacts) {
+        memoryDataSource.cacheContacts(contacts);
+    }
+
+    public void saveContactResultFromServer(Contact contact) {
+        cacheDataSource.cacheContact(contact);
+        memoryDataSource.cacheContact(contact);
+    }
+
+    public void updateContact(Contact contact) {
+        memoryDataSource.upsertContact(contact);
+    }
+
+
+    public void deleteContactById(long userId) {
+
+        cacheDataSource.deleteContactById(userId);
+
+        memoryDataSource.deleteContactById(userId);
+
+    }
+
+    //blocked contacts
+
+    public void saveBlockedContactResultFromServer(BlockedContact contact) {
+
+        cacheDataSource.saveBlockedContact(contact);
+
+        memoryDataSource.saveBlockedContact(contact);
+
+
+    }
+
+
+    public void saveBlockedContactsResultFromServer(List<BlockedContact> blockedContacts) {
+
+        cacheDataSource.saveBlockedContacts(blockedContacts);
+
+        memoryDataSource.saveBlockedContacts(blockedContacts);
+
+    }
+
+    public void deleteBlockedContactById(long blockId) {
+
+        cacheDataSource.deleteBlockedContact(blockId);
+
+        memoryDataSource.deleteBlockedContact(blockId);
+
+
+    }
+
+
+    public void changeExpireAmount(int expireSecond) {
+        cacheDataSource.setExpireAmount(expireSecond);
+    }
 
 
 
 
 
+     /*
+    MESSAGE
+     */
+
+    public Observable<MessageManager.HistoryResponse> getMessagesFromMemoryDataSource(History request, long threadId) {
+        return memoryDataSource.getMessagesData(request, threadId);
+    }
+
+    public Observable<MessageManager.HistoryResponse> getMessagesFromCacheDataSource(History request, long threadId) {
+        //get from disk cache and put in memory cache
+        return cacheDataSource.getMessagesData(request, threadId).doOnNext(historyResponse -> saveMessageResultFromCache(historyResponse.getResponse().getResult().getHistory()));
+    }
+
+    public Observable<MessageManager.HistoryResponse> getMessagesData(History request, long threadId) {
 
 
+//        return Observable.concat(
+//                getMessagesFromMemoryDataSource(request,threadId),
+//                getMessagesFromCacheDataSource(request,threadId))
+//                .first()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io());
+
+
+        return getMessagesFromCacheDataSource(request, threadId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+
+
+    }
+
+
+    public void saveMessageResultFromServer(List<MessageVO> server, long threadId) {
+
+        memoryDataSource.cacheMessages(server);
+
+        cacheDataSource.cacheMessages(server, threadId);
+
+    }
+
+    public void saveMessageResultFromServer(MessageVO server, long threadId) {
+
+        memoryDataSource.upsertMessage(server);
+
+        cacheDataSource.cacheMessage(server, threadId);
+
+    }
+
+    public void updateMessageResultFromServer(MessageVO server, long threadId) {
+
+        memoryDataSource.upsertMessage(server);
+
+        cacheDataSource.saveMessage(server, threadId);
+
+    }
+
+    public void saveMessageResultFromCache(List<MessageVO> cached) {
+
+        memoryDataSource.cacheMessages(cached);
+
+    }
+
+    public void updateMessage(MessageVO message) {
+        memoryDataSource.upsertMessage(message);
+    }
+
+    public void updateMessage(MessageVO lastMessage, long threadId) {
+
+        memoryDataSource.upsertMessage(lastMessage);
+
+        cacheDataSource.updateMessage(lastMessage, threadId);
+
+    }
+
+    public void deleteMessage(MessageVO msg, long threadId) {
+
+        memoryDataSource.deleteMessage(msg, threadId);
+
+        cacheDataSource.deleteMessage(msg.getId(), threadId);
+
+
+    }
+
+    public void updateHistoryResponse(Callback callback, List<MessageVO> messageVOS, long subjectId, List<CacheMessageVO> cMessageVOS) {
+
+        //todo remove it!
+        cacheDataSource.updateHistoryResponse(callback, messageVOS, subjectId, cMessageVOS);
+
+    }
+
+    public void addToSendingQueue(SendingQueueCache sendingQueue) {
+        cacheDataSource.cacheSendingQueue(sendingQueue);
+        memoryDataSource.insertToSendingQueue(sendingQueue);
+    }
+
+    public void cancelMessage(String uniqueId) {
+        cacheDataSource.cancelMessage(uniqueId);
+        memoryDataSource.cancelMessage(uniqueId);
+    }
+
+
+    //Sending Queue
+
+    public void moveFromSendingToWaitingQueue(String uniqueId) {
+        cacheDataSource.moveFromSendingToWaitingQueue(uniqueId);
+        memoryDataSource.moveFromSendingToWaitingQueue(uniqueId);
+
+    }
+
+    public Observable<SendingQueueCache> moveFromWaitingToSendingQueue(String uniqueId) {
+
+
+        return Observable.concat(
+                memoryDataSource.moveFromWaitingQueueToSendingQueue(uniqueId),
+                cacheDataSource.moveFromWaitingQueueToSendingQueue(uniqueId))
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+
+
+    }
+
+    public Observable<List<SendingQueueCache>> getAllSendingQueue() {
+
+
+        return Observable.concat(
+                memoryDataSource.getAllSendingQueue(),
+                cacheDataSource.getAllSendingQueue())
+                .first()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+
+
+    }
+
+
+    public List<Sending> getAllSendingQueueByThreadId(long subjectId) {
+        return cacheDataSource.getAllSendingQueueByThreadId(subjectId);
+    }
+
+
+    //Waiting Queue
+
+
+    public List<Failed> getAllWaitQueueCacheByThreadId(long subjectId) {
+        return cacheDataSource.getAllWaitQueueCacheByThreadId(subjectId);
+    }
+
+    public Observable<List<String>> getWaitQueueUniqueIdList() {
+
+
+        return cacheDataSource.getWaitQueueUniqueIdList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+    }
+
+    public void deleteWaitQueueWithUniqueId(String uniqueId) {
+
+        cacheDataSource.deleteWaitQueueMsgs(uniqueId);
+
+        memoryDataSource.deleteFromWaitingQueue(uniqueId);
+
+    }
+
+
+    //Uploading Queue
+
+    public void insertUploadingQueue(UploadingQueueCache uploadingQueue) {
+
+        cacheDataSource.insertUploadingQueue(uploadingQueue);
+
+        memoryDataSource.insertUploadingQueue(uploadingQueue);
+    }
+
+    public void deleteUploadingQueue(String uniqueId) {
+
+        cacheDataSource.deleteUploadingQueue(uniqueId);
+
+        memoryDataSource.deleteFromUploadingQueue(uniqueId);
+    }
+
+    public UploadingQueueCache getUploadingQ(String uniqueId) {
+
+        return cacheDataSource.getUploadingQ(uniqueId);
+
+
+        // TODO: 9/21/2020 handle Queue
+//        return Observable.concat(memoryDataSource.getUploadingQ(uniqueId),
+//                cacheDataSource.getUploadingQ(uniqueId))
+//                .first()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io());
+    }
+
+    public List<Uploading> getAllUploadingQueueByThreadId(long subjectId) {
+        return cacheDataSource.getAllUploadingQueueByThreadId(subjectId);
+    }
 
 
 }

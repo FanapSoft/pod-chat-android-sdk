@@ -5,6 +5,7 @@ import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -280,4 +281,6 @@ public interface ChatListener {
     default void onBotStarted(ChatResponse<StartStopBotResult> response){}
 
     default void onContactsSynced(ChatResponse<ContactSyncedResult> response){}
+
+    default void onPingStatusSent(ChatResponse<StatusPingResult> response){}
 }

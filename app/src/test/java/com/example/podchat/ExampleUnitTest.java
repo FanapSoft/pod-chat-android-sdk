@@ -1,6 +1,9 @@
 package com.example.podchat;
 
 import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -8,11 +11,15 @@ import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
+import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,19 +35,26 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Observer;
 import rx.Scheduler;
+import rx.Single;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 import static org.junit.Assert.assertEquals;
@@ -56,9 +70,261 @@ import static org.junit.Assert.assertTrue;
 public class ExampleUnitTest {
 
 
+    @Test
+    public void testOnComplete() {
+
+
+        new PodThreadManager()
+                .doWithUI(() -> {
+                    System.out.println("On UI Im on " + Thread.currentThread().getName());
+
+                }, () -> {
+                    System.out.println("Error Im on " + Thread.currentThread().getName());
+
+                }, () -> {
+                    System.out.println("Task Im on " + Thread.currentThread().getName());
+
+                    int a = 10;
+                    int b = 0;
+
+                    int c = a / b;
+
+                });
+//
+//        new PodThreadManager()
+//                .addNewTask(()->{
+//
+//                    System.out.println("aaa " + Thread.currentThread().getName());
+//
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+//
+//                })
+//                .addNewTask(()->{
+//
+//                    System.out.println("bbb " + Thread.currentThread().getName());
+//
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
+//
+//                })
+//        .runTasksASync();
+//
+//        new PodThreadManager()
+//                .doThisSafe(()->{
+//
+//                    System.out.println("aaa " + Thread.currentThread().getName());
+//
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+//
+//                }, new PodThreadManager.IComplete() {
+//                    @Override
+//                    public void onComplete() {
+//                        System.out.println("v " + "aaa " + Thread.currentThread().getName());
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(String error) {
+//                        System.out.println("a " + "aaa " + Thread.currentThread().getName());
+//
+//                    }
+//                });
+
+
+    }
 
     @Test
-    public void sortingTest(){
+    public void testFirstObservable() {
+
+        Observable<String> a = Observable.create(ss -> {
+
+            ss.onCompleted();
+            
+        });
+
+
+        Observable<String> b =Observable.create(ss -> {
+            ss.onNext("b");
+        });
+
+
+        Observable<String> c = Observable.create(ss -> {
+            ss.onNext("c");
+        });
+
+
+        Observable.concat(a, b)
+                .doOnError(eee -> {
+                    System.out.println("errr");
+                })
+                .onErrorResumeNext(Observable.empty())
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+
+                .subscribe(d -> {
+
+                    if (d != null)
+                        System.out.println("IS : " + d);
+                    else System.out.println("uuu");
+
+                });
+
+
+    }
+
+    @Test
+    public void runCompleteAfterError() {
+
+
+        Observable<String> a = Observable.create(subscriber -> {
+
+            System.out.println("1");
+            try {
+                Thread.sleep(3000);
+
+                subscriber.onError(new RoomIntegrityException());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("2");
+
+            subscriber.onNext("Hello");
+
+        });
+
+
+        a.subscribeOn(Schedulers.immediate())
+                .onErrorResumeNext(tt -> {
+                    System.out.println("onError res: " + tt);
+                    return Observable.empty();
+                })
+                .observeOn(Schedulers.immediate())
+                .doOnCompleted(() -> System.out.println("Comp"))
+                .subscribe(System.out::println);
+
+
+    }
+
+    @Test
+    public void sortContactsWithFullNameTest() {
+
+
+        ArrayList<Contact> unsorted = new ArrayList<>();
+
+        ArrayList<Contact> expected = new ArrayList<>();
+
+        ArrayList<Contact> sorted;
+
+
+        Contact contact1 = new Contact();
+
+        contact1.setFirstName("Bahar");
+        contact1.setLastName("Bohloli");
+        contact1.setHasUser(true);
+
+        unsorted.add(contact1);
+
+
+        Contact contact2 = new Contact();
+
+        contact2.setFirstName("Ali");
+        contact2.setLastName("Alavi");
+        contact2.setHasUser(true);
+
+
+        unsorted.add(contact2);
+
+
+        expected.add(contact2);
+        expected.add(contact1);
+
+        sorted = new ArrayList<>(unsorted);
+
+        Collections.sort(sorted, compareContacts());
+
+        Assert.assertEquals(expected, sorted);
+
+
+    }
+
+    @Test
+    public void sortContactsWithFirstNameTest() {
+
+
+        ArrayList<Contact> unsorted = new ArrayList<>();
+
+        ArrayList<Contact> expected = new ArrayList<>();
+
+        ArrayList<Contact> sorted;
+
+
+        Contact contact1 = new Contact();
+
+        contact1.setFirstName("Bahar");
+        contact1.setLastName("Bohloli");
+        contact1.setHasUser(true);
+
+        unsorted.add(contact1);
+
+
+        Contact contact2 = new Contact();
+
+        contact2.setFirstName("Ali");
+
+        contact2.setHasUser(true);
+
+
+        unsorted.add(contact2);
+
+
+        Contact contact3 = new Contact();
+        contact3.setFirstName("Bahar");
+        contact3.setLastName("Alavi");
+        contact3.setHasUser(true);
+
+        unsorted.add(contact3);
+
+        Contact contact4 = new Contact();
+        contact4.setFirstName("Ahmad");
+        contact4.setLastName("Ahmadian");
+        contact4.setHasUser(false);
+
+        unsorted.add(contact4);
+
+        expected.add(contact3);
+        expected.add(contact1);
+        expected.add(contact2);
+        expected.add(contact4);
+
+        sorted = new ArrayList<>(unsorted);
+
+        Collections.sort(sorted, compareContacts());
+
+        Assert.assertEquals(expected, sorted);
+
+
+    }
+
+    @Test
+    public void sortThreadsTest() {
 
 
         com.fanap.podchat.mainmodel.Thread t = new com.fanap.podchat.mainmodel.Thread();
@@ -93,8 +359,7 @@ public class ExampleUnitTest {
 
         System.out.println("sorted -> " + App.getGson().toJson(sorted));
 
-        assertNotEquals(sorted,unsorted);
-
+        assertNotEquals(sorted, unsorted);
 
 
     }
@@ -116,9 +381,9 @@ public class ExampleUnitTest {
         Assert.assertTrue(oo.contains(v));
 //        if(oo.remove(t))
 //            oo.add(v);
-        oo.set(oo.indexOf(v),v);
+        oo.set(oo.indexOf(v), v);
 
-        assertEquals(oo.get(0).getTitle(),"aaaaaa");
+        assertEquals(oo.get(0).getTitle(), "aaaaaa");
 
         System.out.println("S: => " + oo.size());
 
@@ -251,6 +516,41 @@ public class ExampleUnitTest {
 
     }
 
+    private static Comparator<Contact> compareContacts() {
+        return (contact1, contact2) -> {
+
+            if (contact1.isHasUser() && contact2.isHasUser()) {
+
+                if (Util.isNotNullOrEmpty(contact1.getLastName()) &&
+                        Util.isNotNullOrEmpty(contact2.getLastName())) {
+
+                    return contact1.getLastName().compareTo(contact2.getLastName());
+
+                } else if (Util.isNotNullOrEmpty(contact1.getLastName()) ||
+                        Util.isNotNullOrEmpty(contact2.getLastName())) {
+
+                    return (contact2.getLastName() != null ? contact2.getLastName() : "")
+                            .compareTo((contact1.getLastName() != null ? contact1.getLastName() : ""));
+
+                } else if (Util.isNotNullOrEmpty(contact1.getFirstName()) &&
+                        Util.isNotNullOrEmpty(contact2.getFirstName())) {
+
+                    return contact1.getFirstName().compareTo(contact2.getFirstName());
+
+                } else if (Util.isNotNullOrEmpty(contact1.getFirstName()) ||
+                        Util.isNotNullOrEmpty(contact2.getFirstName())) {
+
+                    return (contact2.getFirstName() != null ? contact2.getFirstName() : "")
+                            .compareTo((contact1.getFirstName() != null ? contact1.getFirstName() : ""));
+
+                } else return 1;
+
+            } else return Boolean.compare(contact2.isHasUser(), contact1.isHasUser());
+
+
+        };
+    }
+
     public static Observable<List<Long>> getByIds(List<Integer> ids, List<Long> allThreads) {
 
         try {
@@ -271,7 +571,6 @@ public class ExampleUnitTest {
         return Observable.from(allThreads).toList();
 
     }
-
 
     public Observable<List<Integer>> getList1() {
 
