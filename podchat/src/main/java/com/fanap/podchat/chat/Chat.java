@@ -11581,8 +11581,8 @@ public class Chat extends AsyncAdapter {
 
     private void setChatReady(String state, boolean encrypt) {
 
-        listenerManager.callOnChatState("CHAT_READY");
         chatReady = true;
+        listenerManager.callOnChatState("CHAT_READY");
         chatState = CHAT_READY;
         checkMessageQueue();
         getAllThreads();
@@ -12179,6 +12179,8 @@ public class Chat extends AsyncAdapter {
     private void handleOnGetUserInfo(ChatMessage chatMessage, String messageUniqueId, Callback callback) {
 
         if (callback.isResult()) {
+//            if there is a key its ok if not it will go for the key and then chat ready
+            setChatReady("CHAT_READY", true);
             userInfoResponse = true;
             ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
             UserInfo userInfo = gson.fromJson(chatMessage.getContent(), UserInfo.class);
@@ -12188,13 +12190,11 @@ public class Chat extends AsyncAdapter {
 
             String userInfoJson = reformatUserInfo(chatMessage, chatResponse, userInfo);
             showLog("RECEIVE_USER_INFO", userInfoJson);
+
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
             messageCallbacks.remove(messageUniqueId);
 
-//            if there is a key its ok if not it will go for the key and then chat ready
 
-
-            setChatReady("CHAT_READY", true);
 
 
 //            if (permit) {
