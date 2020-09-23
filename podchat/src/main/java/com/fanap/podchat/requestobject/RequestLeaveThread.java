@@ -5,11 +5,21 @@ import android.support.annotation.NonNull;
 public class RequestLeaveThread extends GeneralRequestObject {
 
     private long threadId;
+    private boolean clearHistory;
 
      RequestLeaveThread(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
+        this.clearHistory = builder.clearHistory;
 
+    }
+
+    public boolean isClearHistory() {
+        return clearHistory;
+    }
+
+    public void setClearHistory(boolean clearHistory) {
+        this.clearHistory = clearHistory;
     }
 
     public long getThreadId() {
@@ -22,9 +32,11 @@ public class RequestLeaveThread extends GeneralRequestObject {
 
     public static class Builder extends GeneralRequestObject.Builder {
         private long threadId;
+        private boolean clearHistory;
 
-        public Builder(long threadId) {
+        public Builder(long threadId,boolean clearHistory) {
             this.threadId = threadId;
+            this.clearHistory = clearHistory;
         }
 
         @NonNull

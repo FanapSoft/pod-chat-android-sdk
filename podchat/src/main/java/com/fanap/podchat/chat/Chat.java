@@ -5128,7 +5128,7 @@ public class Chat extends AsyncAdapter {
     /**
      * It leaves the thread that you are in there
      */
-    public String leaveThread(long threadId, ChatHandler handler) {
+    public String leaveThread(long threadId,boolean clearHistory, ChatHandler handler) {
         String uniqueId = generateUniqueId();
         if (chatReady) {
             RemoveParticipant removeParticipant = new RemoveParticipant();
@@ -5146,6 +5146,12 @@ public class Chat extends AsyncAdapter {
             } else {
                 jsonObject.remove("typeCode");
                 jsonObject.addProperty("typeCode", getTypeCode());
+            }
+
+            if(clearHistory){
+                jsonObject.addProperty("clearHistory", true);
+            }else{
+                jsonObject.addProperty("clearHistory", false);
             }
 
             String asyncContent = jsonObject.toString();
@@ -5170,7 +5176,7 @@ public class Chat extends AsyncAdapter {
      */
     public String leaveThread(RequestLeaveThread request, ChatHandler handler) {
 
-        return leaveThread(request.getThreadId(), handler);
+        return leaveThread(request.getThreadId(),request.isClearHistory(), handler);
     }
 
     /**

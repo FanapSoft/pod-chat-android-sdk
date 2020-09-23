@@ -233,7 +233,7 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 //
-    public static int TEST_THREAD_ID = 5182;
+    public static int TEST_THREAD_ID = 21620;
     private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
@@ -1595,7 +1595,7 @@ public class ChatActivity extends AppCompatActivity
 //                                .order("desc")
 //                                .email("masoudmanson@gmail.com")
                                 .build();
-
+ 
                         presenter.searchContact(requestSearchContact);
                         break;
                     case 10:
@@ -2282,7 +2282,7 @@ public class ChatActivity extends AppCompatActivity
 //        });
     }
 
-
+//21622
     public static final String THREAD_UNIQUE_NAME = "unique_name_4_1584016531111";
 //    public static final String THREAD_UNIQUE_NAME = "unique_name_4_" + new Date().getTime();
 
@@ -2614,7 +2614,7 @@ public class ChatActivity extends AppCompatActivity
 //                    .newMessages()
 //                .partnerCoreContactId(566)
                     .offset(0)
-                    .count(10)
+                    .count(50)
 //                .partnerCoreContactId(21074)
 //                .withNoCache()
                     .build();
