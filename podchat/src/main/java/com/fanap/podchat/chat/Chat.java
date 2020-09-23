@@ -5148,11 +5148,8 @@ public class Chat extends AsyncAdapter {
                 jsonObject.addProperty("typeCode", getTypeCode());
             }
 
-            if(clearHistory){
-                jsonObject.addProperty("clearHistory", true);
-            }else{
-                jsonObject.addProperty("clearHistory", false);
-            }
+            jsonObject.addProperty("clearHistory", clearHistory);
+
 
             String asyncContent = jsonObject.toString();
 
@@ -5176,7 +5173,7 @@ public class Chat extends AsyncAdapter {
      */
     public String leaveThread(RequestLeaveThread request, ChatHandler handler) {
 
-        return leaveThread(request.getThreadId(),request.isClearHistory(), handler);
+        return leaveThread(request.getThreadId(),request.clearHistory(), handler);
     }
 
     /**

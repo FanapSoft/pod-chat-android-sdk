@@ -909,8 +909,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
 
-        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId,true)
+        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
                 .build();
+
         chat.leaveThread(leaveThread, null);
     }
 
