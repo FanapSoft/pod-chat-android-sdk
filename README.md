@@ -17,6 +17,8 @@
 
 - ***Send Message to thread***
 
+- ***Custom Configurations***
+
 - ***FAQ***
 
 
@@ -169,7 +171,7 @@ List<Invitee> invite = new ArrayList<>();
 invite.add(new Invitee("j.doe123", InviteType.Constants.TO_BE_USER_USERNAME));
 
 ```
-Other inviteType:
+Other inviteTypes:
 
     TO_BE_USER_SSO_ID,
     TO_BE_USER_CONTACT_ID,
@@ -235,5 +237,83 @@ chat.sendTextMessage(req, null);
 ```
 onSent(String content, ChatResponse<ResultMessage> chatResponse) //when the message is sent successfully.
  
-onDeliver(String content, ChatResponse<ResultMessage> chatResponse) //when the message is seen by partner.
+onDeliver(String content, ChatResponse<ResultMessage> chatResponse) //when the message is deliver to partner.
+
+onSeen(String content, ChatResponse<ResultMessage> response) //when the message is seen by partner. 
 ```
+
+
+#
+
+### Custom Configurations
+
+
+#### Notification
+
+Set custom config and enable push notification
+
+```
+
+CustomNotificationConfig notificationConfig = new CustomNotificationConfig
+                .Builder(ChatActivity.class.getName()) //this is the activity that launches when a notification clicked
+                .setChannelName("SAMPLE_CHAT_CHANNEL")
+                .setChannelId("PODCHAT")
+                .setChannelDescription("Fanap soft podchat notification channel")
+                .setIcon(R.mipmap.ic_launcher)
+                .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
+                .build();
+
+
+chat.setupNotification(notificationConfig);
+
+```
+
+
+#### Connection
+
+Set NetworkStateConfig to stay stable in network issues
+
+```
+
+NetworkPingSender.NetworkStateConfig npsConfig = new NetworkPingSender.NetworkStateConfig()
+                .setHostName("8.8.4.4") //google or your own host for sending ping
+                .setPort(443) // default ping port
+                .setDisConnectionThreshold(2) //how many time a disconnection detects and skips
+                .setInterval(7000) // interval between pings
+                .setConnectTimeout(10000) //ping timeout
+                .build();
+                
+
+chat.setNetworkStateConfig(npsConfig);
+.
+.
+.
+chat.connect(requestConnect);
+
+
+```
+
+#
+
+#### Timeout
+
+
+Set timeout for download and upload
+
+```
+
+TimeoutConfig timeout = new TimeoutConfig()
+                .newConfigBuilder()
+                .withConnectTimeout(30, TimeUnit.SECONDS)
+                .withWriteTimeout(30, TimeUnit.MINUTES)
+                .withReadTimeout(30, TimeUnit.MINUTES)
+                .build();
+
+
+chat.setUploadTimeoutConfig(timeout);
+
+chat.setDownloadTimeoutConfig(timeout);
+
+```
+
+#
