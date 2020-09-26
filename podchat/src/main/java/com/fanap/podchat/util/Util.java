@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.LinkedUser;
@@ -184,5 +185,22 @@ public class Util {
 
     public static boolean parserBoolean(Boolean aBoolean) {
         return aBoolean == null ? false : aBoolean;
+    }
+
+    public static String logDivider() {
+        return ".::::::::::::::::::::: LOG :::::::::::::::::::::::.";
+    }
+
+
+    public static void logWithDivider(String tag, String info) {
+        Log.i(tag, logDivider());
+        Log.i(tag, info);
+        Log.i(tag, logDivider());
+    }
+
+    public static void logExceptionWithDivider(String tag, String info) {
+        Log.e(tag, logDivider());
+        Log.e(tag, info);
+        Log.e(tag, logDivider());
     }
 }

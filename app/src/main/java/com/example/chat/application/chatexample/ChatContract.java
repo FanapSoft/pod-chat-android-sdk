@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
@@ -500,5 +501,7 @@ public interface ChatContract {
         void requestGroupCall(boolean fifi, boolean zizi, boolean jiji);
 
         void addCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
+
+        void setCallInfo(CallInfo callInfo);
     }
 }

@@ -12,7 +12,7 @@ import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
-import com.fanap.podchat.call.result_model.StartCallResult;
+import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.util.Util;
 
@@ -79,22 +79,25 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
     Manage audio streaming
      */
 
-    public void startCallStream(ChatResponse<StartCallResult> response, ICallState iCallState) {
+    public void startCallStream(ChatResponse<StartedCallModel> response, ICallState iCallState) {
+
         this.callStateCallback = iCallState;
+
+        if(callInfo==null){
+            callInfo = new CallInfo();
+            callInfo.setCallId(response.getSubjectId());
+        }
+
+        if (response.getResult().getCallName() != null) {
+            callInfo.setCallName(response.getResult().getCallName());
+        }
+
+        if (response.getResult().getCallImage() != null) {
+            callInfo.setCallImage(response.getResult().getCallImage());
+        }
+
         startCallService(response.getResult());
         bindService();
-    }
-
-    /**
-     * direct connect to kafka server for connection and audio test
-     *
-     * @param iCallState call callback
-     */
-    public void startStream(ICallState iCallState) {
-        this.callStateCallback = iCallState;
-        startCallService();
-        bindService();
-
     }
 
     /**
@@ -109,10 +112,10 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
     public void testStream(String groupId, String sender, String receiver, ICallState iCallState) {
         this.callStateCallback = iCallState;
         callInfo = new CallInfo();
-        callInfo.setSubjectId(1000001);
+        callInfo.setCallId(1000001);
         callInfo.setPartnerId(15000);
-        callInfo.setPartnerName("تست کافکا");
-        callInfo.setPartnerImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
+        callInfo.setCallName("تست کافکا");
+        callInfo.setCallImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
 
         startCallService(groupId, sender, receiver);
         bindService();
@@ -130,10 +133,10 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
 
 
         callInfo = new CallInfo();
-        callInfo.setSubjectId(1000001);
+        callInfo.setCallId(1000001);
         callInfo.setPartnerId(15000);
-        callInfo.setPartnerName("تست صدا");
-        callInfo.setPartnerImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
+        callInfo.setCallName("تست صدا");
+        callInfo.setCallImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
 
 
         startCallService();
@@ -226,22 +229,29 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
     private void unbindService() {
         try {
             if (bound) {
-                mContext.unbindService(serviceConnection);
                 bound = false;
+                mContext.unbindService(serviceConnection);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        catch (IllegalStateException illegal){
+            callStateCallback.onInfoEvent("Service already unregistered");
+        }
+        catch (Exception e) {
+            callStateCallback.onErrorEvent("Exception in method => unbindService()");
+
         }
     }
 
 
-    private void startCallService(StartCallResult result) {
+    private void startCallService(StartedCallModel result) {
 
         runServiceIntent = new Intent(mContext, PodCallAudioCallService.class);
 
         runServiceIntent.putExtra(KAFKA_CONFIG, result.getClientDTO());
 
         runServiceIntent.putExtra(SSL_CONFIG, result.getCert_file());
+
+        runServiceIntent.putExtra(POD_CALL_INFO, callInfo);
 
         if (callConfig != null && !Util.isNullOrEmpty(callConfig.getTargetActivity()))
             runServiceIntent.putExtra(TARGET_ACTIVITY, callConfig.getTargetActivity());
@@ -317,10 +327,17 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
 
         callInfo = new CallInfo();
 
-        callInfo.setSubjectId(response.getSubjectId());
+        callInfo.setCallId(response.getSubjectId());
+
         callInfo.setPartnerId(response.getResult().getCreatorVO().getId());
-        callInfo.setPartnerName(response.getResult().getCreatorVO().getName());
-        callInfo.setPartnerImage(response.getResult().getCreatorVO().getImage());
+
+        if (response.getResult().isGroup()) {
+            callInfo.setCallName(response.getResult().getConversationVO().getTitle());
+            callInfo.setCallImage(response.getResult().getConversationVO().getImage());
+        } else {
+            callInfo.setCallName(response.getResult().getCreatorVO().getName());
+            callInfo.setCallImage(response.getResult().getCreatorVO().getImage());
+        }
 
 
     }

@@ -48,20 +48,23 @@ public class CallConsumer implements Runnable {
     private String sendKey;
     private String receivingTopic;
 
-    //    private IConsumer consumerCallback;
+    private IConsumer consumerCallback;
+
     private boolean firstBytesReceived;
 
 
     CallConsumer(CallSSLData sslData,
                  String brokerAddress,
                  String sendKey,
-                 String receivingTopic) {
+                 String receivingTopic,
+                 IConsumer consumerCallback) {
 
-        Log.e(TAG, "Initial Consumer for topic: " + receivingTopic + " on thread: " + Thread.currentThread().getName());
+
+        this.consumerCallback = consumerCallback;
+
+        consumerCallback.onConsumerImportantEvent("Initial Consumer for topic: " + receivingTopic + " on thread: " + Thread.currentThread().getName());
 
         callSSLData = sslData;
-
-//        this.consumerCallback = consumerCallback;
 
         this.brokerAddress = brokerAddress;
         this.sendKey = sendKey;
@@ -131,14 +134,11 @@ public class CallConsumer implements Runnable {
 
         short[] outputBuffer = new short[FRAME_SIZE * NUM_CHANNELS];
 
-        Log.e(TAG, "Running Consumer with Topic: " + receivingTopic + " on thread " + Thread.currentThread().getName());
+        consumerCallback.onConsumerImportantEvent("Running Consumer with Topic: " + receivingTopic + " on thread " + Thread.currentThread().getName());
 
         try {
 
             while (playing) {
-
-//                Log.d(TAG, "Running Consumer with Topic: " + receivingTopic + " on thread " + Thread.currentThread().getName());
-
 
                 byte[] consumedBytes = consumer.consumingTopic();
 
@@ -149,8 +149,6 @@ public class CallConsumer implements Runnable {
                 }
 
                 int decoded = decoder.decode(consumedBytes, outputBuffer, FRAME_SIZE);
-
-//                Log.v(TAG, "Decoded back " + decoded * NUM_CHANNELS * 2 + " bytes");
 
                 audioTrack.write(outputBuffer, 0, decoded * NUM_CHANNELS);
 
@@ -163,7 +161,7 @@ public class CallConsumer implements Runnable {
             }
 
         } catch (Exception e) {
-            Log.wtf(TAG, e);
+            consumerCallback.onConsumerException("Play Error: " + e.getMessage());
         }
     }
 
@@ -197,7 +195,7 @@ public class CallConsumer implements Runnable {
                 audioTrack.release();
             }
         } catch (IllegalStateException e) {
-            e.printStackTrace();
+            consumerCallback.onConsumerException("Player Stop Exception: " + e.getMessage());
         }
     }
 
@@ -220,7 +218,7 @@ public class CallConsumer implements Runnable {
 //            if (echoCanceller != null)
 //                echoCanceller.closeEcho();
         } catch (IllegalStateException e) {
-            e.printStackTrace();
+            consumerCallback.onConsumerException("Player Stop And Release Decoder Exception: " + e.getMessage());
         }
     }
 
@@ -252,11 +250,17 @@ public class CallConsumer implements Runnable {
         consumer.connect();
     }
 
+    public IConsumer getConsumerCallback() {
+        return consumerCallback;
+    }
 
     public interface IConsumer {
 
         void onFirstBytesReceived();
 
+        void onConsumerException(String cause);
+
+        void onConsumerImportantEvent(String info);
 
     }
 

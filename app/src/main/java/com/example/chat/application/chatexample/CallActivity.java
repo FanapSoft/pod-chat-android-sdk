@@ -555,7 +555,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         CallInfo callInfo = getIntent().getParcelableExtra(ChatConstant.POD_CALL_INFO);
+
+        Log.e(TAG,"Call info: " + callInfo);
+
         if (callInfo != null) {
+            presenter.setCallInfo(callInfo);
             showInCallView();
         }
     }

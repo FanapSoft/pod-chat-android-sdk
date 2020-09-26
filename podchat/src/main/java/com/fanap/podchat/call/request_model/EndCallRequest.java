@@ -4,30 +4,30 @@ import com.fanap.podchat.requestobject.GeneralRequestObject;
 
 public class EndCallRequest extends GeneralRequestObject {
 
-    private long subjectId;
+    private long callId;
 
     private EndCallRequest(Builder builder) {
-        this.subjectId = builder.subjectId;
+        this.callId = builder.callId;
     }
 
     public EndCallRequest() {
 
     }
 
-    public long getSubjectId() {
-        return subjectId;
+    public long getCallId() {
+        return callId;
     }
 
-    public void setSubjectId(long subjectId) {
-        this.subjectId = subjectId;
+    public void setCallId(long callId) {
+        this.callId = callId;
     }
 
     public static class Builder extends GeneralRequestObject.Builder{
 
-        private long subjectId;
+        private long callId;
 
-        public Builder setSubjectId(long subjectId) {
-            this.subjectId = subjectId;
+        public Builder setCallId(long callId) {
+            this.callId = callId;
             return this;
         }
 

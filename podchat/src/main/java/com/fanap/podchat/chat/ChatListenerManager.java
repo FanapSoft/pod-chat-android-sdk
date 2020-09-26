@@ -4,13 +4,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
-import com.fanap.podchat.call.result_model.StartCallResult;
+import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
@@ -892,7 +893,8 @@ public class ChatListenerManager {
 
     }
 
-    public void callOnCallVoiceCallStarted(ChatResponse<StartCallResult> response) {
+    public void callOnCallVoiceCallStarted(ChatResponse<CallStartResult> response) {
+
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onVoiceCallStarted(response);
@@ -1003,6 +1005,19 @@ public class ChatListenerManager {
         }
 
 
+
+    }
+
+    public void callOnEndCallRequestFromNotification() {
+
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onEndCallRequestFromNotification();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
 
     }
 

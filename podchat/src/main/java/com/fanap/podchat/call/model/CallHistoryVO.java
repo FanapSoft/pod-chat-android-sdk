@@ -9,7 +9,6 @@ import android.arch.persistence.room.PrimaryKey;
 public class CallHistoryVO {
 
     @PrimaryKey
-    @ColumnInfo(name = "call_history_id")
     private long id;
     private long creatorId;
     private int type;

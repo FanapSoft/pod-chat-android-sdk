@@ -35,7 +35,7 @@ public class CacheMessageVO {
     private boolean hasGap = false;
     private boolean mentioned = false;
     private boolean pinned = false;
-    @Embedded
+    @Embedded(prefix = "call_history_")
     private CallHistoryVO callHistoryVO;
 
 

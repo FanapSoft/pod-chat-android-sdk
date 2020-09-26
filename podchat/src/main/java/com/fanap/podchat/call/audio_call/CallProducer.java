@@ -1,23 +1,17 @@
 package com.fanap.podchat.call.audio_call;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
-import android.os.Build;
 import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ProducerClient;
 import com.fanap.podchat.call.codec.opus.OpusEncoder;
 import com.fanap.podchat.call.model.CallSSLData;
-import com.fanap.podchat.model.Content;
+import com.fanap.podchat.util.Util;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -59,7 +53,6 @@ public class CallProducer implements Runnable {
     private String sendingTopic;
     private boolean consuming;
     private boolean isHeadset;
-
 
 
     public CallProducer(IRecordThread callback, CallSSLData sslData,
@@ -123,69 +116,39 @@ public class CallProducer implements Runnable {
 
         byte[] encodeBufferTemp = new byte[1024];
 
-
-        Log.e(TAG, "Producer Start for topic: " + sendingTopic + " on Thread: " + Thread.currentThread().getName());
-
+        callback.onImportantEvent("Producer Start for topic: " + sendingTopic + " on Thread: " + Thread.currentThread().getName());
 
         try {
 
             while (isRecording) {
+
                 int to_read = inBuffer.length;
                 int offset = 0;
                 while (to_read > 0) {
                     int read = recorder.read(inBuffer, offset, to_read);
                     if (read < 0) {
-                        throw new RuntimeException("recorder.read() returned error " + read);
+                        callback.onImportantEvent("Recorder has nothing to read => " + read);
+                        break;
                     }
                     to_read -= read;
                     offset += read;
                 }
 
-//                Log.e(TAG, "Recorded: " + Arrays.toString(inBuffer));
+                if (!isRecording) break;
 
                 int encoded = encoder.encode(inBuffer, FRAME_SIZE, encodeBufferTemp);
-
-//                Log.v(TAG, "Encoded " + (inBuffer.length * 2) + " bytes of audio into " + encoded + " bytes");
 
                 byte[] encodedBuffer = Arrays.copyOf(encodeBufferTemp, encoded);
 
                 producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
-//                Log.e(TAG, "SEND KEY IS : " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
-//
-//                if (!firstByteRecorded) {
-//                    firstByteRecorded = true;
-//
-
-//                    if (callSSLData != null)
-//                        callSSLData.clear();
-//                }
-
-//                if (!firstByteReceived) {
-//                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
-//                    Log.e(TAG, "SEND KEY IS : " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
-//                }
-
-//                if (isConsumingStarted()) {
-//                    producerClient.produceMessege(encodedBuffer, sendKey, sendingTopic);
-//                    Log.e(TAG, "RUNNING STATE - SEND KEY IS: " + sendKey + " SEND TO TOPIC: " + sendingTopic + " bits: " + Arrays.toString(encodedBuffer));
-//                }
-
-//                callback.onRecord(encodedBuffer);
 
             }
         } catch (Exception e) {
             stopRecording();
-            callback.onRecorderError(e.getMessage());
+            callback.onRecorderError("Error in recording: " + e.getMessage());
         }
     }
 
-    private boolean isConsumingStarted() {
-        return consuming;
-    }
-
-    public void setConsumingStarted() {
-        consuming = true;
-    }
 
     void stopRecording() {
         try {
@@ -220,7 +183,7 @@ public class CallProducer implements Runnable {
 //            if (encoder != null)
 //                encoder.close();
         } catch (IllegalStateException e) {
-            e.printStackTrace();
+            callback.onRecorderError("Error in stopRecording: " + e.getMessage());
         }
     }
 
@@ -231,10 +194,10 @@ public class CallProducer implements Runnable {
                 if (agc != null)
                     agc.setEnabled(true);
             } else {
-                Log.w(TAG, "AutomaticGainControl is not available on this device :(");
+                callback.onImportantEvent("AutomaticGainControl is not available on this device :(");
             }
         } catch (Throwable x) {
-            Log.e(TAG, "error creating AutomaticGainControl", x);
+            callback.onImportantEvent("error creating AutomaticGainControl: " + x.getMessage());
         }
 
 
@@ -245,10 +208,10 @@ public class CallProducer implements Runnable {
                     ns.setEnabled(true);
                 }
             } else {
-                Log.w(TAG, "NoiseSuppressor is not available on this device :(");
+                callback.onImportantEvent("NoiseSuppressor is not available on this device :(");
             }
         } catch (Throwable x) {
-            Log.e(TAG, "error creating NoiseSuppressor", x);
+            callback.onImportantEvent("error creating NoiseSuppressor: " + x);
         }
 
         try {
@@ -258,10 +221,10 @@ public class CallProducer implements Runnable {
                     aec.setEnabled(true);
                 }
             } else {
-                Log.w(TAG, "AcousticEchoCanceler is not available on this device");
+                callback.onImportantEvent("AcousticEchoCanceler is not available on this device");
             }
         } catch (Throwable x) {
-            Log.e(TAG, "error creating AcousticEchoCanceler", x);
+            callback.onImportantEvent("error creating AcousticEchoCanceler: " + x);
         }
     }
 
@@ -302,6 +265,8 @@ public class CallProducer implements Runnable {
         void onRecorderSet();
 
         void onRecorderError(String cause);
+
+        void onImportantEvent(String info);
 
     }
 }

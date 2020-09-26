@@ -43,6 +43,7 @@ import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.CallManager;
@@ -55,7 +56,7 @@ import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
-import com.fanap.podchat.call.result_model.StartCallResult;
+import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
@@ -1343,10 +1344,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnCallStarted(ChatMessage chatMessage) {
 
-        ChatResponse<StartCallResult> response
+        ChatResponse<StartedCallModel> info
                 = CallManager.handleOnCallStarted(chatMessage);
-        listenerManager.callOnCallVoiceCallStarted(response);
-        audioCallManager.startCallStream(response, new ICallState() {
+
+        ChatResponse<CallStartResult> response = CallManager.fillResult(info);
+
+        audioCallManager.startCallStream(info, new ICallState() {
             @Override
             public void onInfoEvent(String info) {
                 showLog(info);
@@ -1359,20 +1362,26 @@ public class Chat extends AsyncAdapter {
 
             @Override
             public void onEndCallRequested() {
-                endAudioCall(CallManager.createEndCallRequest(response.getSubjectId()));
+
+                listenerManager.callOnEndCallRequestFromNotification();
+
+                endAudioCall(CallManager.createEndCallRequest(info.getSubjectId()));
             }
         });
+
+        listenerManager.callOnCallVoiceCallStarted(response);
         showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
 
     }
 
     private void handleOnVoiceCallEnded(ChatMessage chatMessage) {
 
+
+        audioCallManager.endStream(true);
+
         ChatResponse<EndCallResult> response = CallManager.handleOnCallEnded(chatMessage);
 
         listenerManager.callOnVoiceCallEnded(response);
-
-        audioCallManager.endStream(true);
 
         showLog("VOICE_CALL_ENDED", gson.toJson(chatMessage));
 
@@ -1698,15 +1707,12 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    public void setupAudioCallConfig(CallConfig callConfig) {
+    public void setAudioCallConfig(CallConfig callConfig) {
         if (audioCallManager != null)
             audioCallManager.setCallConfig(callConfig);
     }
 
-    public String requestCall(CallRequest request, boolean withSSL) {
-
-        if (audioCallManager != null)
-            audioCallManager.setSSL(withSSL);
+    public String requestCall(CallRequest request) {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -1719,10 +1725,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String requestGroupCall(CallRequest request, boolean withSSL) {
-
-        if (audioCallManager != null)
-            audioCallManager.setSSL(withSSL);
+    public String requestGroupCall(CallRequest request) {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -1829,25 +1832,6 @@ public class Chat extends AsyncAdapter {
             listenerManager.callOnGetCallHistory(cacheResponse);
 
             showLog("RECEIVED_CACHED_CALL_HISTORY", cacheResponse.getJson());
-        });
-    }
-
-    public void testCall() {
-        audioCallManager.startStream(new ICallState() {
-            @Override
-            public void onInfoEvent(String info) {
-
-            }
-
-            @Override
-            public void onErrorEvent(String cause) {
-
-            }
-
-            @Override
-            public void onEndCallRequested() {
-
-            }
         });
     }
 

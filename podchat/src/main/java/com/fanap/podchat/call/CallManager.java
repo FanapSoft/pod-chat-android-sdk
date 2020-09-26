@@ -14,17 +14,17 @@ import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
-import com.fanap.podchat.call.result_model.StartCallResult;
+import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.util.Callback;
@@ -248,7 +248,7 @@ public class CallManager {
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.END_CALL_REQUEST);
         message.setToken(CoreConfig.token);
-        message.setSubjectId(request.getSubjectId());
+        message.setSubjectId(request.getCallId());
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setUniqueId(uniqueId);
         message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
@@ -274,7 +274,7 @@ public class CallManager {
 
     public static EndCallRequest createEndCallRequest(long subjectId) {
         return new EndCallRequest.Builder()
-                .setSubjectId(subjectId)
+                .setCallId(subjectId)
                 .build();
     }
 
@@ -348,12 +348,12 @@ public class CallManager {
 
     }
 
-    public static ChatResponse<StartCallResult> handleOnCallStarted(ChatMessage chatMessage) {
+    public static ChatResponse<StartedCallModel> handleOnCallStarted(ChatMessage chatMessage) {
 
-        ChatResponse<StartCallResult> response = new ChatResponse<>();
+        ChatResponse<StartedCallModel> response = new ChatResponse<>();
 
         String content = chatMessage.getContent();
-        StartCallResult result = App.getGson().fromJson(content, StartCallResult.class);
+        StartedCallModel result = App.getGson().fromJson(content, StartedCallModel.class);
         response.setResult(result);
         response.setUniqueId(chatMessage.getUniqueId());
         response.setSubjectId(chatMessage.getSubjectId());
@@ -370,7 +370,7 @@ public class CallManager {
 
         result.setTypeCode(chatMessage.getTypeCode());
 
-        result.setSubjectId(chatMessage.getSubjectId());
+        result.setCallId(chatMessage.getSubjectId());
 
         response.setResult(result);
         response.setSubjectId(chatMessage.getSubjectId());
@@ -514,6 +514,22 @@ public class CallManager {
         } catch (Exception e) {
             Log.wtf(TAG, e);
         }
+
+        return response;
+    }
+
+    public static ChatResponse<CallStartResult> fillResult(ChatResponse<StartedCallModel> callResponse) {
+
+
+        ChatResponse<CallStartResult> response = new ChatResponse<>();
+
+        CallStartResult result = new CallStartResult(callResponse.getResult().getCallName(),
+                callResponse.getResult().getCallImage());
+
+        response.setResult(result);
+        response.setSubjectId(callResponse.getSubjectId());
+        response.setUniqueId(callResponse.getUniqueId());
+
 
         return response;
     }

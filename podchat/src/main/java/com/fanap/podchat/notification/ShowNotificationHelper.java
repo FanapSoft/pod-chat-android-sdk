@@ -520,7 +520,7 @@ public class ShowNotificationHelper {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_in_call_notifiacion);
 
         if (callInfo != null) {
-            remoteViews.setTextViewText(R.id.textViewCallName, callInfo.getPartnerName());
+            remoteViews.setTextViewText(R.id.textViewCallName, callInfo.getCallName());
         }
 
         remoteViews.setOnClickPendingIntent(R.id.buttonEndCall, pendingIntentEnd);

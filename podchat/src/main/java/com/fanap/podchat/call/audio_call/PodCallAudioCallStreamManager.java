@@ -15,7 +15,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallSSLData;
@@ -36,7 +35,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import static android.content.Context.AUDIO_SERVICE;
 import static android.content.Context.SENSOR_SERVICE;
@@ -94,6 +92,8 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
     Semaphore semaphoreCreateConsumer = new Semaphore(1);
 
     boolean isGroupCall;
+
+    ArrayList<CallConsumer.IConsumer> consumerCallbacksList = new ArrayList<>();
 
 
     PodCallAudioCallStreamManager(Context context) {
@@ -205,34 +205,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
         }
 
-//        boolean newState = state == 1;
 
-//        if (newState != isWiredHeadset) {
-//
-//            isWiredHeadset = newState;
-//
-//            if (isWiredHeadset && proximityWakelock != null && proximityWakelock.isHeld()) {
-//                proximityWakelock.release();
-//            }
-//
-//            if (isWiredHeadset) {
-//                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-//                audioManager.startBluetoothSco();
-//                if (audioManager.isWiredHeadsetOn()) {
-//                    audioManager.setWiredHeadsetOn(true);
-//
-//                } else if (BluetoothProfile.STATE_CONNECTED)
-//                    audioManager.setBluetoothScoOn(true);
-//            } else {
-//                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-//                audioManager.stopBluetoothSco();
-//                audioManager.setBluetoothScoOn(false);
-//                audioManager.setSpeakerphoneOn(false);
-//            }
-//
-//
-////            resetRecorder();
-//        }
     }
 
     private void setupProximity() {
@@ -319,7 +292,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
         try {
             this.callSSL = generateFile(sslCert);
         } catch (Exception e) {
-            e.printStackTrace();
+            recordCallback.onAudioRecordError("Generating ssl config file failed! " + e.getMessage());
         }
     }
 
@@ -385,9 +358,14 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
             try {
                 semaphoreCreateConsumer.acquire();
 
-                CallConsumer callConsumer =
-                        new CallConsumer(callSSL, brokerAddress, sendKey, topic);
 
+                CallConsumer.IConsumer callback = getCallbackFor(topic);
+
+                CallConsumer callConsumer =
+                        new CallConsumer(callSSL, brokerAddress, sendKey, topic, callback);
+
+
+                consumerCallbacksList.add(callback);
 
                 semaphoreCreateConsumer.release();
 
@@ -395,11 +373,32 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
                 callConsumer.run();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                playerCallback.onAudioPlayError("creating consumer failed: " + e.getMessage() + " topic: " + topic);
             }
 
 
         });
+    }
+
+    private CallConsumer.IConsumer getCallbackFor(String topic) {
+        return new CallConsumer.IConsumer() {
+            @Override
+            public void onFirstBytesReceived() {
+
+            }
+
+            @Override
+            public void onConsumerException(String cause) {
+
+                playerCallback.onAudioPlayError("Exception in topic player: " + topic + " cause: " + cause);
+
+            }
+
+            @Override
+            public void onConsumerImportantEvent(String info) {
+                playerCallback.onPlayerImportantEvent("Important event in topic player: " + topic + " =>" + info);
+            }
+        };
     }
 
     private boolean createTopicList(String receiving) {
@@ -432,6 +431,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
                 }
             }
             consumerMap.clear();
+            consumerCallbacksList.clear();
         } catch (Exception e) {
             e.printStackTrace();
             playerCallback.onAudioPlayError(e.getMessage());
@@ -484,7 +484,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
             mContext.unregisterReceiver(headsetReceiver);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            recordCallback.onRecorderImportantEvent("Exception when ending stream");
         }
     }
 
@@ -494,7 +494,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
         try {
             callSSL.clear();
         } catch (Exception e) {
-            e.printStackTrace();
+            recordCallback.onRecorderImportantEvent("Exception when clearing call resources");
         }
 
     }
@@ -542,7 +542,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
                     isProximityNear = newIsNear;
 
                     if (isProximityNear) {
-                        proximityWakelock.acquire(2*60*1000);
+                        proximityWakelock.acquire(2 * 60 * 1000);
                     } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             proximityWakelock.release(1);
@@ -583,10 +583,15 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
         recordCallback.onAudioRecordError(cause);
     }
 
+    @Override
+    public void onImportantEvent(String info) {
+        recordCallback.onRecorderImportantEvent(info);
+    }
+
 
     private void runWakeLock() {
         try {
-            cpuWakeLock.acquire(2*60*1000L /*10 minutes*/);
+            cpuWakeLock.acquire(2 * 60 * 1000L /*10 minutes*/);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -603,21 +608,24 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
     public void removeCallParticipant(CallParticipantVO callParticipant) {
 
-        Log.e("TAG", "Participant to remove: " + callParticipant.getParticipantVO().getName());
+        playerCallback.onPlayerImportantEvent("Participant to remove: +" + callParticipant.getParticipantVO().getName());
+
         String topic = callParticipant.getSendTopic();
 
         if (consumerMap.containsKey(topic)) {
             CallConsumer consumer = consumerMap.get(topic);
 
-            if (consumer != null)
+            if (consumer != null) {
                 consumer.stopPlaying();
-
+                if (consumer.getConsumerCallback() != null)
+                    consumerCallbacksList.remove(consumer.getConsumerCallback());
+            }
 
             consumerMap.remove(topic);
 
         }
 
-        Log.e("TAG", "Consumer stopped: " + callParticipant.getSendTopic());
+        playerCallback.onPlayerImportantEvent("Consumer stopped: " + callParticipant.getSendTopic());
 
     }
 
@@ -627,11 +635,12 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
         for (CallParticipantVO participant :
                 joinedParticipants) {
-            Log.e("TAG", "Participant to add: " + participant.getParticipantVO().getName());
+
+            playerCallback.onPlayerImportantEvent("Participant to add: " + participant.getParticipantVO().getName());
 
             createConsumerFor(participant.getSendTopic());
 
-            Log.e("TAG", "Producer added: " + participant.getSendTopic());
+            playerCallback.onPlayerImportantEvent("Producer added: " + participant.getSendTopic());
         }
 
 
@@ -649,6 +658,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
         void onRecordStarted();
 
+        void onRecorderImportantEvent(String info);
     }
 
     public interface IPodAudioPlayerListener {
@@ -658,6 +668,9 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
         void onAudioPlayError(String cause);
 
         void onPlayerReady();
+
+        void onPlayerImportantEvent(String info);
+
 
     }
 

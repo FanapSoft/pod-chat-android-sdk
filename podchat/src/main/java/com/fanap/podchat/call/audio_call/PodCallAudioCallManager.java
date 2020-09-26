@@ -4,16 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.fanap.podchat.call.model.CallParticipantVO;
-import com.fanap.podchat.call.model.CallSSLData;
 import com.fanap.podchat.util.Util;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -82,10 +74,6 @@ public class PodCallAudioCallManager implements PodCallAudioCallStreamManager.IP
     }
 
 
-
-
-
-
     public void endStream() {
         streaming = false;
         audioTestClass.stop();
@@ -101,13 +89,17 @@ public class PodCallAudioCallManager implements PodCallAudioCallStreamManager.IP
 
     @Override
     public void onRecordStopped() {
-        Log.e(TAG, "STOPPED");
+        logError("Record STOPPED");
         streaming = false;
+    }
+
+    private void logError(String s) {
+        Util.logExceptionWithDivider(TAG, s);
     }
 
     @Override
     public void onAudioRecordError(String cause) {
-        Log.e(TAG, "ERROR " + cause);
+        logError("Record error " + cause);
         streaming = false;
     }
 
@@ -122,14 +114,23 @@ public class PodCallAudioCallManager implements PodCallAudioCallStreamManager.IP
     }
 
     @Override
+    public void onRecorderImportantEvent(String info) {
+        logInfo(info);
+    }
+
+    private void logInfo(String info) {
+        Util.logWithDivider(TAG, info);
+    }
+
+    @Override
     public void onPlayStopped() {
-        Log.e(TAG, "PLAYING STOPPED");
+        logError("PLAYING STOPPED");
         streaming = false;
     }
 
     @Override
     public void onAudioPlayError(String cause) {
-        Log.e(TAG, "PLAY ERROR: " + cause);
+        logError("PLAY ERROR: " + cause);
         streaming = false;
     }
 
@@ -139,6 +140,11 @@ public class PodCallAudioCallManager implements PodCallAudioCallStreamManager.IP
         audioStreamManager.recordAudio(this,
                 SENDING_TOPIC);
 
+    }
+
+    @Override
+    public void onPlayerImportantEvent(String info) {
+        logInfo(info);
     }
 
     public void switchAudioSpeakerState(boolean speakerOn) {
@@ -161,14 +167,14 @@ public class PodCallAudioCallManager implements PodCallAudioCallStreamManager.IP
     }
 
     public void addCallParticipant(List<CallParticipantVO> joinedParticipants) {
-        if(audioStreamManager!=null){
+        if (audioStreamManager != null) {
             audioStreamManager.addCallParticipant(joinedParticipants);
         }
     }
 
 
     public void removeCallParticipant(CallParticipantVO callParticipantVO) {
-        if(audioStreamManager!=null){
+        if (audioStreamManager != null) {
             audioStreamManager.removeCallParticipant(callParticipantVO);
         }
     }

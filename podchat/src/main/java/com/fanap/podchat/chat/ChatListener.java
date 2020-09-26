@@ -1,13 +1,13 @@
 package com.fanap.podchat.chat;
 
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
-import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
@@ -281,7 +281,7 @@ public interface ChatListener {
 
     default void onCallRequestRejected(ChatResponse<CallRequestResult> response){}
 
-    default void onVoiceCallStarted(ChatResponse<StartCallResult> response){}
+    default void onVoiceCallStarted(ChatResponse<CallStartResult> response){}
 
     default void onVoiceCallEnded(ChatResponse<EndCallResult> response){}
 
@@ -296,4 +296,6 @@ public interface ChatListener {
     default void onCallParticipantLeft(ChatResponse<LeaveCallResult> response){}
 
     default void onCallParticipantJoined(ChatResponse<JoinCallParticipantResult> response){}
+
+    default void onEndCallRequestFromNotification(){}
 }

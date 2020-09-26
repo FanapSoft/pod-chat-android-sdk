@@ -14,8 +14,10 @@ import android.widget.Toast;
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
@@ -31,7 +33,6 @@ import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
-import com.fanap.podchat.call.result_model.StartCallResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -134,8 +135,6 @@ import java.util.concurrent.TimeUnit;
 import static com.example.chat.application.chatexample.CallActivity.FIFI_CID;
 import static com.example.chat.application.chatexample.CallActivity.FIFI_ID;
 import static com.example.chat.application.chatexample.CallActivity.JIJI_CID;
-import static com.example.chat.application.chatexample.CallActivity.JIJI_ID;
-import static com.example.chat.application.chatexample.CallActivity.ZIZI_ID;
 
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
@@ -180,7 +179,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallConfig callConfig = new CallConfig(CallActivity.class.getName());
 
-        chat.setupAudioCallConfig(callConfig);
+        chat.setAudioCallConfig(callConfig);
 
         chat.isCacheables(true);
 
@@ -491,7 +490,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 100000L,
                 CallType.Constants.VOICE_CALL).build();
 
-        return chat.requestCall(callRequest, checked);
+        return chat.requestCall(callRequest);
     }
 
 
@@ -1545,14 +1544,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onVoiceCallStarted(ChatResponse<StartCallResult> response) {
+    public void onVoiceCallStarted(ChatResponse<CallStartResult> response) {
 
 
         if (callRequestResponse == null) {
             callRequestResponse = new ChatResponse<>();
         }
         callRequestResponse.setSubjectId(response.getSubjectId());
-        view.onVoiceCallStarted(response.getUniqueId(), response.getResult().getClientDTO().getClientId());
+        view.onVoiceCallStarted(response.getUniqueId(), "");
 
 
     }
@@ -1561,7 +1560,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
 
 
-        view.onVoiceCallEnded(response.getUniqueId(), response.getResult().getSubjectId());
+        view.onVoiceCallEnded(response.getUniqueId(), response.getResult().getCallId());
 
     }
 
@@ -1608,10 +1607,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void endRunningCall() {
 
 
+        Log.e(TAG,"REQUEST END CALL FROM CLIENT");
+
+        Log.e(TAG,"REQUEST END CALL FROM CLIENT. Call Response: " + callRequestResponse);
+
         if (callRequestResponse != null) {
 
+            Log.e(TAG,"REQUEST END CALL FROM CLIENT call response not null");
+
             EndCallRequest endCallRequest = new EndCallRequest.Builder()
-                    .setSubjectId(callRequestResponse.getSubjectId())
+                    .setCallId(callRequestResponse.getSubjectId())
                     .build();
 
 
@@ -1700,7 +1705,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .Builder(6952, CallType.Constants.VOICE_CALL)
                 .build();
 
-        chat.requestGroupCall(request, true);
+        chat.requestGroupCall(request);
 
     }
 
@@ -1724,6 +1729,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         chat.addGroupCallParticipant(request);
+
+
+    }
+
+    @Override
+    public void setCallInfo(CallInfo callInfo) {
+
+        if(callRequestResponse==null){
+            callRequestResponse = new ChatResponse<>();
+            callRequestResponse.setSubjectId(callInfo.getCallId());
+        }
 
 
     }
@@ -1764,12 +1780,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onCallParticipantJoined(ChatResponse<JoinCallParticipantResult> response) {
-
-
         for (CallParticipantVO callParticipant :
                 response.getResult().getJoinedParticipants()) {
             view.onCallParticipantJoined(callParticipant.getParticipantVO().getFirstName() + " " + callParticipant.getParticipantVO().getLastName());
         }
+    }
 
+    @Override
+    public void onEndCallRequestFromNotification() {
+        view.onVoiceCallEnded("",0);
     }
 }
