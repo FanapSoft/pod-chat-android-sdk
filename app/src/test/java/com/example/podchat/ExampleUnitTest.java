@@ -6,16 +6,19 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.os.Looper;
 
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.thread.ThreadManager;
+import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.persistance.RoomIntegrityException;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
@@ -30,9 +33,11 @@ import com.google.gson.reflect.TypeToken;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,8 +49,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +77,332 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
+
+    @Test
+    public void featureTest() {
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        Future<String> a = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+        Future<String> b = executor.submit(() -> {
+            Thread.sleep(3000);
+            return "Im executed from " + Thread.currentThread().getName();
+        });
+        Future<String> c = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+        Future<String> d = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+        Future<String> f = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+
+        try {
+            System.out.println(a.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(b.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(c.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(d.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(f.get() + " and printed in Thread " + Thread.currentThread().getName());
+
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    @Test
+    public void executor() {
+
+
+        System.out.println(Thread.currentThread().getName());
+
+        ExecutorService e = Executors.newFixedThreadPool(4);
+        ExecutorService b = Executors.newFixedThreadPool(1);
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+
+    }
+
+    public static class Testi implements Runnable {
+
+        private final List<Long> longs = new ArrayList<>();
+
+        boolean r = false;
+
+
+        public List<Long> getLongs() {
+            return longs;
+        }
+
+        public void addLong(Long l) {
+            try {
+                Thread.currentThread().join(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            synchronized (longs) {
+                longs.add(l);
+            }
+        }
+
+        public void setR(boolean r) {
+            this.r = r;
+        }
+
+        @Override
+        public void run() {
+
+            while (r) {
+                synchronized (longs) {
+                    System.out.println("SIZE IS : " + longs.size());
+                    System.out.println(" IS : " + longs.toString());
+                    System.out.println(" In : " + Thread.currentThread().getName());
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        public void updateLongs() {
+
+
+            synchronized (longs) {
+                for (Long l :
+                        longs) {
+                    longs.set(longs.indexOf(l), l + 10);
+                }
+
+            }
+
+        }
+
+        public void addAll(List<Long> o) {
+            longs.clear();
+            longs.addAll(o);
+        }
+    }
+
+
+    @Test
+    public void testThread() {
+
+
+        long count = 0;
+
+
+        List<Long> o = new ArrayList<>();
+
+        o.add(1L);
+        o.add(1L);
+        o.add(1L);
+        o.add(1L);
+        o.add(1L);
+
+        Testi t = new Testi();
+
+        t.addAll(o);
+
+        t.setR(true);
+
+        Thread a = new Thread(t);
+        a.setName("ABC");
+        a.start();
+
+
+        System.out.println("Started");
+
+        while (true) {
+            try {
+                count++;
+                Thread.sleep(10);
+                if (count % 5 == 0) {
+//                    t.setR(false);
+                    System.out.println("1:" + Thread.currentThread().getName());
+//                    a.join(10);
+                    t.addLong(1L);
+                    t.updateLongs();
+                    System.out.println("2:" + Thread.currentThread().getName());
+
+//                    t.setR(true);
+
+
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
+    @Test
+    public void t() {
+
+        Thread f = new Thread(() -> {
+            System.out.println("Im " + Thread.currentThread().getName());
+        });
+        f.setName("aaa");
+        f.start();
+        Thread e = new Thread(() -> {
+            System.out.println("Im " + Thread.currentThread().getName());
+        });
+        e.setName("aaa");
+        e.start();
+
+    }
+
+//    @Test
+//    public void testFeature(){
+//
+//        ExecutorService e = Executors.newFixedThreadPool(4);
+//
+//        Future<String> fff = e.submit(()->{
+//
+//            String a = "ppp";
+//
+//            String b = "eee";
+//
+//            Thread.sleep(5000);
+//
+//            return a+b;
+//
+//        });
+//        Future<String> eee = e.submit(() -> {
+//
+//            String a = "a";
+//
+//            String b = "b";
+//
+//            Thread.sleep(1000);
+//
+//            return a + b;
+//
+//        });
+//
+//
+//        try {
+//            String result = fff.get();
+//            System.out.println(result);
+//            String re2 = eee.get();
+//            System.out.println(re2);
+//            assertEquals("pppeee",result);
+//            assertEquals("ab",re2);
+//        } catch (ExecutionException ex) {
+//            ex.printStackTrace();
+//        } catch (InterruptedException ex) {
+//            ex.printStackTrace();
+//        }
+//
+//
+//    }
+
+    @Test
+    public void testShortArray() {
+
+//        short[] a = new short[7];
+//
+//        short[] b = new short[]{1,2};
+//        short[] c = new short[]{3,4};
+//        short[] d = new short[]{5,6,7};
+//
+//
+//        System.arraycopy(b,0,a,0,b.length);
+//        System.arraycopy(c,0,a,b.length,c.length);
+//        System.arraycopy(d,0,a,c.length + b.length,d.length);
+//
+//        System.out.println(Arrays.toString(a));
+//        System.out.println(Arrays.toString(b));
+//
+
+
+        short[] e = new short[12];
+        short[] f = new short[]{8, 9};
+
+        int toCopy = e.length;
+
+        while (toCopy > 0) {
+
+            System.out.println("e: " + Arrays.toString(e));
+
+            System.arraycopy(f, 0, e, e.length - toCopy, f.length);
+
+            toCopy -= f.length;
+
+        }
+
+
+    }
+
+    @Test
+    public void concatTest() {
+
+        String ids = "";
+        ArrayList<Long> longs = new ArrayList<>();
+        longs.add(1L);
+        longs.add(3L);
+        longs.add(111L);
+        for (Long callId :
+                longs) {
+
+            ids = ids.concat("" + callId + ", ");
+
+        }
+        ids = ids.substring(0, ids.lastIndexOf(","));
+
+        System.out.println(ids);
+
+    }
+
+    @Test
+    public void testCallParticipant() {
+
+
+        Participant participant = new Participant();
+        participant.setName("John");
+        participant.setLastName("Doe");
+        participant.setImage("mmm");
+
+        CacheCallParticipant callParticipant = new CacheCallParticipant()
+                .fromParticipant(participant, 1000);
+
+        assertEquals(participant.getFirstName(), callParticipant.getFirstName());
+
+
+    }
 
 
     @Test
@@ -156,7 +491,7 @@ public class ExampleUnitTest {
         Observable<String> a = Observable.create(ss -> {
 
             ss.onCompleted();
-            
+
         });
 
 
@@ -650,6 +985,21 @@ public class ExampleUnitTest {
 
 
     @Test
+    public void byteTest() {
+
+
+        String a = "salam";
+
+        byte[] b = a.getBytes();
+
+        String res = new String(b, StandardCharsets.UTF_8);
+
+        assertEquals(res, a);
+
+
+    }
+
+    @Test
     public void testConverters() {
 
 
@@ -843,6 +1193,7 @@ public class ExampleUnitTest {
 
 
     }
+
 
     @Test
     public void addition_isCorrect() {

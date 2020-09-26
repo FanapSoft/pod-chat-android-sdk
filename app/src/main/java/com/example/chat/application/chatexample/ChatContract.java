@@ -3,11 +3,14 @@ package com.example.chat.application.chatexample;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.model.CallInfo;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
@@ -26,12 +29,14 @@ import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
@@ -84,7 +89,7 @@ public interface ChatContract {
 
 //        }
 
-        default void onGetUserInfo() {
+        default void onGetUserInfo(ChatResponse<ResultUserInfo> outPutUserInfo) {
         }
 
         default void onLogEvent(String log) {
@@ -220,6 +225,29 @@ public interface ChatContract {
         default void onBotStarted(String botName){}
 
         default void pingStatusSent(ChatResponse<StatusPingResult> response){}
+
+        default void onVoiceCallRequestReceived(String callerName){}
+
+        default void onVoiceCallRequestRejected(String callerName){}
+
+        default void onVoiceCallEnded(String uniqueId, long subjectId){}
+
+        default void onVoiceCallStarted(String uniqueId, String clientId){}
+
+        default void onGetCallHistory(ChatResponse<GetCallHistoryResult> result){}
+
+        default void onCallReconnect(long callId){}
+
+        default void onCallConnect(long callId){}
+
+        default void onCallDelivered(CallDeliverResult result){}
+
+        default void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants){}
+
+        default void onCallParticipantLeft(ChatResponse<LeaveCallResult> response){}
+
+        default void onCallParticipantJoined(String response){}
+
     }
 
     interface presenter {
@@ -230,6 +258,7 @@ public interface ChatContract {
 
         void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
 
+        String requestCall(int partnerId, boolean checked);
 
         void isDatabaseOpen();
 
@@ -449,6 +478,12 @@ public interface ChatContract {
 
         void getThreadParticipant(RequestThreadParticipant request);
 
+        void acceptIncomingCall();
+
+        void rejectIncomingCall();
+
+        String getNameById(int partnerId);
+
         void shareLogs();
 
         String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile);
@@ -477,5 +512,25 @@ public interface ChatContract {
 
         void stopBot(StartAndStopBotRequest request);
 
+
+        void testCall(String groupId, String sender, String receiver);
+
+        void endStream();
+
+        void testCall();
+
+        void endRunningCall();
+
+        void getCallHistory();
+
+        void switchMute();
+
+        void switchSpeaker();
+
+        void requestGroupCall(boolean fifi, boolean zizi, boolean jiji);
+
+        void addCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
+
+        void setCallInfo(CallInfo callInfo);
     }
 }

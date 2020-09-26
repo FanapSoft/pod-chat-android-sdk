@@ -38,6 +38,25 @@ import com.fanap.podchat.cachemodel.ThreadVo;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.audio_call.ICallState;
+import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
+import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.request_model.AcceptCallRequest;
+import com.fanap.podchat.call.CallManager;
+import com.fanap.podchat.call.request_model.CallRequest;
+import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.result_model.CallReconnectResult;
+import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.bot.BotManager;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
@@ -260,6 +279,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -405,6 +425,10 @@ public class Chat extends AsyncAdapter {
 
     static ChatDataSource dataSource;
 
+
+    private static PodCallAudioCallServiceManager audioCallManager;
+
+
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
@@ -436,6 +460,9 @@ public class Chat extends AsyncAdapter {
 
             async = Async.getInstance(context);
 
+            async.rawLog(BuildConfig.DEBUG);
+            async.isLoggable(BuildConfig.DEBUG);
+
             instance = new Chat();
             gson = new GsonBuilder().setPrettyPrinting().create();
             parser = new JsonParser();
@@ -443,7 +470,7 @@ public class Chat extends AsyncAdapter {
             listenerManager = new ChatListenerManager();
             threadCallbacks = new HashMap<>();
             mSecurePrefs = new SecurePreferences(context, "", "chat_prefs.xml");
-            SecurePreferences.setLoggingEnabled(true);
+//            SecurePreferences.setLoggingEnabled(true);
 
 
             runDatabase(context);
@@ -457,6 +484,7 @@ public class Chat extends AsyncAdapter {
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
+            audioCallManager = new PodCallAudioCallServiceManager(context);
 
 
             Sentry.setExtra("chat-sdk-version-name", BuildConfig.VERSION_NAME);
@@ -938,6 +966,40 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.CALL_REQUEST:
+                handleOnCallRequestReceived(chatMessage);
+                break;
+            case Constants.GROUP_CALL_REQUEST:
+                handleOnGroupCallRequestReceived(chatMessage);
+                break;
+            case Constants.DELIVER_CALL_REQUEST:
+                handleOnCallRequestDelivered(chatMessage);
+                break;
+            case Constants.REJECT_CALL:
+                handleOnCallRequestRejected(chatMessage);
+                break;
+            case Constants.START_CALL:
+                handleOnCallStarted(chatMessage);
+                break;
+            case Constants.END_CALL:
+                handleOnVoiceCallEnded(chatMessage);
+                break;
+            case Constants.LEAVE_CALL:
+                handleOnCallParticipantLeft(chatMessage);
+                break;
+            case Constants.CALL_PARTICIPANT_JOINED:
+                handleOnNewCallParticipantJoined(chatMessage);
+                break;
+            case Constants.GET_CALLS:
+                handleOnGetCallsHistory(chatMessage, callback);
+                break;
+            case Constants.CALL_RECONNECT:
+                handleOnReceivedCallReconnect(chatMessage);
+                break;
+            case Constants.CALL_CONNECT:
+                handleOnReceivedCallConnect(chatMessage);
+                break;
+
 
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
                 handleOnGetUnreadMessagesCount(chatMessage);
@@ -1366,6 +1428,165 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    private void handleOnCallRequestReceived(ChatMessage chatMessage) {
+
+        ChatResponse<CallRequestResult> response
+                = CallManager.handleOnCallRequest(chatMessage);
+        listenerManager.callOnCallRequest(response);
+        showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
+        audioCallManager.addNewCallInfo(response);
+
+        deliverCallRequest(chatMessage);
+
+    }
+
+    private void handleOnGroupCallRequestReceived(ChatMessage chatMessage) {
+
+        ChatResponse<CallRequestResult> response
+                = CallManager.handleOnGroupCallRequest(chatMessage);
+        listenerManager.callOnGroupCallRequest(response);
+        showLog("RECEIVE_GROUP_CALL_REQUEST", gson.toJson(chatMessage));
+        audioCallManager.addNewCallInfo(response);
+
+        deliverCallRequest(chatMessage);
+
+    }
+
+    private void deliverCallRequest(ChatMessage chatMessage) {
+
+        if (chatReady) {
+            String message = CallManager.createDeliverCallRequestMessage(chatMessage);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_DELIVER_CALL_REQUEST");
+        } else {
+            onChatNotReady(chatMessage.getUniqueId());
+        }
+
+    }
+
+
+    //call request delivered
+
+    private void handleOnCallRequestDelivered(ChatMessage chatMessage) {
+
+        ChatResponse<CallDeliverResult> response
+                = CallManager.handleOnCallDelivered(chatMessage);
+        listenerManager.callOnCallRequestDelivered(response);
+        showLog("CALL_REQUEST_DELIVERED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnCallRequestRejected(ChatMessage chatMessage) {
+
+        ChatResponse<CallRequestResult> response
+                = CallManager.handleOnRejectCallRequest(chatMessage);
+        listenerManager.callOnCallRequestRejected(response);
+        showLog("CALL_REQUEST_REJECTED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnCallStarted(ChatMessage chatMessage) {
+
+        ChatResponse<StartedCallModel> info
+                = CallManager.handleOnCallStarted(chatMessage);
+
+        ChatResponse<CallStartResult> response = CallManager.fillResult(info);
+
+        audioCallManager.startCallStream(info, new ICallState() {
+            @Override
+            public void onInfoEvent(String info) {
+                showLog(info);
+            }
+
+            @Override
+            public void onErrorEvent(String cause) {
+                showErrorLog(cause);
+            }
+
+            @Override
+            public void onEndCallRequested() {
+
+                listenerManager.callOnEndCallRequestFromNotification();
+
+                endAudioCall(CallManager.createEndCallRequest(info.getSubjectId()));
+            }
+        });
+
+        listenerManager.callOnCallVoiceCallStarted(response);
+        showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnVoiceCallEnded(ChatMessage chatMessage) {
+
+
+        audioCallManager.endStream(true);
+
+        ChatResponse<EndCallResult> response = CallManager.handleOnCallEnded(chatMessage);
+
+        listenerManager.callOnVoiceCallEnded(response);
+
+        showLog("VOICE_CALL_ENDED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnNewCallParticipantJoined(ChatMessage chatMessage) {
+
+
+        ChatResponse<JoinCallParticipantResult> response = CallManager.handleOnParticipantJoined(chatMessage);
+
+        listenerManager.callOnCallParticipantJoined(response);
+
+        audioCallManager.addCallParticipant(response);
+
+        showLog("RECEIVE_PARTICIPANT_JOINED");
+
+
+    }
+
+    private void handleOnCallParticipantLeft(ChatMessage chatMessage) {
+
+        ChatResponse<LeaveCallResult> response = CallManager.handleOnParticipantLeft(chatMessage);
+
+        listenerManager.callOnCallParticipantLeft(response);
+
+        audioCallManager.removeCallParticipant(response.getResult());
+
+        showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
+
+        ChatResponse<GetCallHistoryResult> response = CallManager.handleOnGetCallHistory(chatMessage, callback);
+
+        listenerManager.callOnGetCallHistory(response);
+
+        showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
+
+        if (cache)
+            messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
+    }
+
+    private void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
+
+        ChatResponse<CallReconnectResult> response = CallManager.handleOnCallReconnectReceived(chatMessage);
+
+        listenerManager.callOnCallReconnectReceived(response);
+
+        showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
+    }
+
+    private void handleOnReceivedCallConnect(ChatMessage chatMessage) {
+
+        ChatResponse<CallReconnectResult> response = CallManager.handleOnCallConnectReceived(chatMessage);
+
+        listenerManager.callOnCallConnectReceived(response);
+
+        showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
+
+
+    }
+
     /**
      * It Connects to the Async .
      * <p>
@@ -1658,6 +1879,199 @@ public class Chat extends AsyncAdapter {
             onChatNotReady(uniqueId);
         }
         return uniqueId;
+    }
+
+
+    public void setAudioCallConfig(CallConfig callConfig) {
+        if (audioCallManager != null)
+            audioCallManager.setCallConfig(callConfig);
+    }
+
+    public String requestCall(CallRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createCallRequestMessage(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String requestGroupCall(CallRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createGroupCallRequestMessage(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_GROUP_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String addGroupCallParticipant(RequestAddParticipants request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createAddCallParticipantMessage(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_ADD_CALL_PARTICIPANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String endAudioCall(EndCallRequest endCallRequest) {
+
+        if (audioCallManager != null)
+            audioCallManager.endStream(false);
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createEndCallRequestMessage(endCallRequest, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_END_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
+    public String rejectVoiceCall(RejectCallRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createRejectCallRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REJECT_VOICE_CALL_REQUEST");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String acceptVoiceCall(AcceptCallRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createAcceptCallRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ACCEPT_VOICE_CALL_REQUEST");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String getCallsHistory(GetCallHistoryRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (cache) {
+            try {
+                getCallHistoryFromCache(request, uniqueId);
+            } catch (RoomIntegrityException e) {
+                resetCache(() -> {
+                    try {
+                        getCallHistoryFromCache(request, uniqueId);
+                    } catch (RoomIntegrityException ignored) {
+                    }
+                });
+            }
+        }
+
+
+        if (chatReady) {
+            String message = CallManager.createGetCallHistoryRequest(request, uniqueId);
+
+            setCallBacks(false, false, false, false, Constants.GET_CALLS, request.getOffset(), uniqueId);
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_GET_CALL_HISTORIES");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    private void getCallHistoryFromCache(GetCallHistoryRequest request, String uniqueId) throws RoomIntegrityException {
+
+        messageDatabaseHelper.getCallHistory(request, (contentCount, callVoList) -> {
+
+            ChatResponse<GetCallHistoryResult> cacheResponse = CallManager.handleOnGetCallHistoryFromCache(uniqueId, new ArrayList<>((Collection<? extends CallVO>) callVoList), (Long) contentCount, request.getOffset());
+
+            listenerManager.callOnGetCallHistory(cacheResponse);
+
+            showLog("RECEIVED_CACHED_CALL_HISTORY", cacheResponse.getJson());
+        });
+    }
+
+    public void endAudioStream() {
+        audioCallManager.endStream(false);
+    }
+
+    /**
+     * It is just for testing kafka server
+     *
+     * @param groupId  test starter id
+     * @param sender   sending topic
+     * @param receiver receiving topic
+     */
+    public void testCall(String groupId, String sender, String receiver) {
+
+        audioCallManager.testStream(groupId, sender, receiver, new ICallState() {
+            @Override
+            public void onInfoEvent(String info) {
+
+            }
+
+            @Override
+            public void onErrorEvent(String cause) {
+
+            }
+
+            @Override
+            public void onEndCallRequested() {
+
+            }
+        });
+    }
+
+    /**
+     * This is to test the quality of the recording and playback.
+     */
+    public void testAudio() {
+        audioCallManager.testAudio(new ICallState() {
+            @Override
+            public void onInfoEvent(String info) {
+
+            }
+
+            @Override
+            public void onErrorEvent(String cause) {
+
+            }
+
+            @Override
+            public void onEndCallRequested() {
+
+            }
+        });
+    }
+
+    public void switchCallSpeakerState(boolean isSpeakerOn) {
+
+        audioCallManager.switchAudioSpeakerState(isSpeakerOn);
+    }
+
+    public void switchCallMuteState(boolean isMute) {
+
+        audioCallManager.switchAudioMuteState(isMute);
+
     }
 
 
@@ -4705,7 +5119,6 @@ public class Chat extends AsyncAdapter {
                 String error = captureError(ChatConstant.ERROR_DOWNLOAD_FILE, ChatConstant.ERROR_CODE_DOWNLOAD_FILE, uniqueId, new PodChatException(cause, uniqueId, token));
                 progressHandler.onError(uniqueId, error, url);
 
-
             }
         };
     }
@@ -4912,6 +5325,20 @@ public class Chat extends AsyncAdapter {
 
         if (signalMessageHandlerThread != null)
             signalMessageHandlerThread.quit();
+
+        if (messageDatabaseHelper != null) {
+            clearCacheDatabase(new IClearMessageCache() {
+                @Override
+                public void onCacheDatabaseCleared() {
+
+                }
+
+                @Override
+                public void onExceptionOccurred(String cause) {
+
+                }
+            });
+        }
 
         async.logOut();
 
@@ -10189,7 +10616,7 @@ public class Chat extends AsyncAdapter {
         this.typeCode = typeCode;
 
         if (Util.isNotNullOrEmpty(typeCode))
-            CoreConfig.typeCode = typeCode;
+            CoreConfig.typeCode = getTypeCode();
     }
 
 
@@ -12173,6 +12600,7 @@ public class Chat extends AsyncAdapter {
                 retrieveThreadInfoFromServer(thread.getId(), true);
             }
         }
+
 
     }
 
@@ -14965,6 +15393,7 @@ public class Chat extends AsyncAdapter {
     private void setUserId(long userId) {
         if (userId == 0) return;
         this.userId = userId;
+        CoreConfig.userId = userId;
     }
 
     private void setPlatformHost(String platformHost) {

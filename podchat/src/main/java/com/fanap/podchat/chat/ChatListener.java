@@ -4,6 +4,14 @@ import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.CallReconnectResult;
+import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
@@ -283,4 +291,28 @@ public interface ChatListener {
     default void onContactsSynced(ChatResponse<ContactSyncedResult> response){}
 
     default void onPingStatusSent(ChatResponse<StatusPingResult> response){}
+
+    default void onReceiveCallRequest(ChatResponse<CallRequestResult> response){}
+
+    default void onReceiveGroupCallRequest(ChatResponse<CallRequestResult> response){}
+
+    default void onCallRequestRejected(ChatResponse<CallRequestResult> response){}
+
+    default void onVoiceCallStarted(ChatResponse<CallStartResult> response){}
+
+    default void onVoiceCallEnded(ChatResponse<EndCallResult> response){}
+
+    default void onGetCallHistory(ChatResponse<GetCallHistoryResult> response){}
+
+    default void onCallReconnect(ChatResponse<CallReconnectResult> response){}
+
+    default void onCallConnect(ChatResponse<CallReconnectResult> response){}
+
+    default void onCallDelivered(ChatResponse<CallDeliverResult> response){}
+
+    default void onCallParticipantLeft(ChatResponse<LeaveCallResult> response){}
+
+    default void onCallParticipantJoined(ChatResponse<JoinCallParticipantResult> response){}
+
+    default void onEndCallRequestFromNotification(){}
 }

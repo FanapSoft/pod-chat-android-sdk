@@ -29,6 +29,10 @@ import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.persist.CacheCall;
+import com.fanap.podchat.call.persist.CacheCallParticipant;
+import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
@@ -1197,7 +1201,6 @@ public class MessageDatabaseHelper {
 
         rawQuery = addMessageTypeIfExist(messageType, rawQuery);
 
-
         long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(rawQuery.replaceFirst("SELECT \\* ", "SELECT COUNT(ID) ")));
 
         rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
@@ -1437,7 +1440,8 @@ public class MessageDatabaseHelper {
                 forwardInfo,
                 false,
                 cacheMessageVO.hasGap(),
-                cacheMessageVO.isPinned()
+                cacheMessageVO.isPinned(),
+                cacheMessageVO.getCallHistoryVO()
         );
     }
 
@@ -1897,7 +1901,7 @@ public class MessageDatabaseHelper {
                     messageDao.updateContactBlockedState(false, contactId);
                 }
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+                Log.wtf(TAG, e);
             }
 
             messageDao.deleteBlockedContactById(id);
@@ -2129,6 +2133,176 @@ public class MessageDatabaseHelper {
     }
 
 
+    public void getCallHistory(GetCallHistoryRequest request, FunctionalListener callback) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        worker(() -> {
+
+            request.setCount(request.getCount() > 0 ? request.getCount() : 50);
+
+            List<CacheCall> cacheCalls = new ArrayList<>();
+            long contentCount = 0;
+
+            if (request.getCreatorCoreUserId() > 0) {
+
+                cacheCalls = messageDao.getCachedCallByUserId(request.getCount(),
+                        request.getOffset(),
+                        request.getCreatorCoreUserId(), request.getType());
+
+                contentCount = messageDao.getCountOfCachedCallByUserId(request.getCreatorCoreUserId(), request.getType());
+
+            } else if (!Util.isNullOrEmpty(request.getCallIds())) {
+
+                if (request.getCallIds().size() > 1) {
+                    String ids = "";
+                    for (Long callId :
+                            request.getCallIds()) {
+
+                        ids = ids.concat("" + callId + ", ");
+                    }
+                    ids = ids.substring(0, ids.lastIndexOf(","));
+
+                    cacheCalls = messageDao.getCachedCallByIds(request.getCount(), request.getOffset(), ids);
+
+                    contentCount = messageDao.getCountOfCachedCallByIds(ids);
+
+                } else {
+
+                    CacheCall cacheCall = messageDao.getCachedCallById(request.getCallIds().get(0));
+
+                    contentCount = 1;
+
+                    cacheCalls.add(cacheCall);
+                }
+
+            } else {
+
+                cacheCalls = messageDao.getCachedCallByType(request.getCount(), request.getOffset(), request.getType());
+
+                contentCount = messageDao.getCountOfCachedCallByType(request.getType());
+            }
+
+            ArrayList<CallVO> callVOList = new ArrayList<>();
+
+            for (CacheCall cacheCall :
+                    cacheCalls) {
+
+                @Nullable
+                CacheCallParticipant callPartnerParticipant = messageDao.getCachedCallParticipant(cacheCall.getPartnerParticipantId());
+
+                if(callPartnerParticipant!=null){
+
+                    Participant partnerParticipant = callPartnerParticipant.toParticipant();
+
+                    ChatProfileVO chatProfileVO = messageDao.getChatProfileVOById(partnerParticipant.getId());
+
+                    partnerParticipant.setChatProfileVO(chatProfileVO);
+
+                    cacheCall.setPartnerParticipantVO(partnerParticipant);
+
+                }
+
+
+                if (cacheCall.isGroup()) {
+
+                    List<CacheCallParticipant> cacheCallParticipants = messageDao.getCachedCallParticipants(cacheCall.getId());
+
+                    if (!Util.isNullOrEmpty(cacheCallParticipants)) {
+
+                        List<Participant> callParticipantsList = new ArrayList<>();
+
+                        for (CacheCallParticipant cacheCll :
+                                cacheCallParticipants) {
+                            Participant callParticipant = cacheCll.toParticipant();
+                            ChatProfileVO profileVO = messageDao.getChatProfileVOById(callParticipant.getId());
+                            callParticipant.setChatProfileVO(profileVO);
+                            callParticipantsList.add(callParticipant);
+                        }
+                        cacheCall.setCallParticipants(callParticipantsList);
+                    }
+                }
+
+                CallVO call = cacheCall.toCallVo();
+
+                callVOList.add(call);
+
+            }
+
+
+            callback.onWorkDone(contentCount, callVOList);
+
+        });
+
+    }
+
+
+    public void saveCallsHistory(ArrayList<CallVO> callsList) {
+
+
+        worker(() -> {
+
+            ArrayList<CacheCall> cacheCalls = new ArrayList<>();
+
+            for (CallVO call :
+                    callsList) {
+
+                CacheCall cacheCall = new CacheCall().fromCall(call);
+
+                cacheCalls.add(cacheCall);
+
+                if (cacheCall.isGroup()) {
+                    for (Participant participant :
+                            cacheCall.getCallParticipants()) {
+
+                        saveCallParticipant(participant, call.getId());
+                    }
+
+                }
+
+                if (cacheCall.getPartnerParticipantVO() != null) {
+                    saveCallParticipant(cacheCall.getPartnerParticipantVO(), call.getId());
+                }
+
+            }
+
+
+            messageDao.insertCacheCalls(cacheCalls);
+
+
+        });
+
+
+    }
+
+    private void saveCallParticipant(Participant participant, long callId) {
+
+        CacheCallParticipant callParticipant = new CacheCallParticipant()
+                .fromParticipant(participant, callId);
+
+        messageDao.insertCallParticipant(callParticipant);
+
+        if (callParticipant.getChatProfileVO() != null) {
+            ChatProfileVO chatProfileVO = callParticipant.getChatProfileVO();
+            chatProfileVO.setId(callParticipant.getId());
+            messageDao.insertChatProfile(chatProfileVO);
+        }
+
+
+//        CacheParticipantRoles cpr = new CacheParticipantRoles();
+//
+//        cpr.setId(participant.getId());
+//
+//        cpr.setThreadId(callId);
+//
+//        cpr.setRoles(participant.getRoles());
+//
+//        messageDao.insertRoles(cpr);
+
+
+    }
+
+
     public interface IRoomIntegrity {
 
         void onDatabaseNeedReset();
@@ -2323,7 +2497,7 @@ public class MessageDatabaseHelper {
                                 }
                             }
 
-                            if (cacheLastMessageVO.getReplyInfoVOId() != null) {
+                            if (cacheLastMessageVO != null && cacheLastMessageVO.getReplyInfoVOId() != null) {
 
                                 cacheReplyInfoVO = messageDao.getReplyInfo(cacheLastMessageVO.getReplyInfoVOId());
                                 if (cacheReplyInfoVO != null)

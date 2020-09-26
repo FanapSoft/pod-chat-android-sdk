@@ -304,6 +304,17 @@ public class TokenHandler {
 
     }
 
+    public void logOut() {
+
+        SharedPreferences.Editor p = getDefaultSharedPreferences().edit();
+
+        p.remove(REFRESH_TOKEN);
+
+        p.apply();
+
+
+    }
+
 
     public interface ITokenHandler {
 

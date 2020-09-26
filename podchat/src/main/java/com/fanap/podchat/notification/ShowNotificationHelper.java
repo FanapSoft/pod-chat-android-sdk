@@ -21,6 +21,8 @@ import android.widget.RemoteViews;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.R;
+import com.fanap.podchat.call.audio_call.EndCallReceiver;
+import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
@@ -30,7 +32,25 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
+import static com.fanap.podchat.call.audio_call.PodCallAudioCallService.REQUEST_CODE_END_CALL;
+import static com.fanap.podchat.call.audio_call.PodCallAudioCallService.REQUEST_CODE_OPEN_APP;
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
+import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
+import static com.fanap.podchat.util.ChatConstant.POD_PUSH_MESSAGE_ID;
+import static com.fanap.podchat.util.ChatConstant.POD_PUSH_SENDER_USER_NAME;
+import static com.fanap.podchat.util.ChatConstant.POD_PUSH_THREAD_ID;
+import static com.fanap.podchat.util.TextMessageType.Constants.FILE;
+import static com.fanap.podchat.util.TextMessageType.Constants.LINK;
+import static com.fanap.podchat.util.TextMessageType.Constants.PICTURE;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_FILE;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_PICTURE;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_SOUND;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_VIDEO;
+import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_VOICE;
+import static com.fanap.podchat.util.TextMessageType.Constants.SOUND;
+import static com.fanap.podchat.util.TextMessageType.Constants.TEXT;
+import static com.fanap.podchat.util.TextMessageType.Constants.VIDEO;
+import static com.fanap.podchat.util.TextMessageType.Constants.VOICE;
 
 public class ShowNotificationHelper {
 
