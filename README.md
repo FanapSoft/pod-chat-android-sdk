@@ -26,24 +26,24 @@
 ## Installation
 
 #### Project build.gradle
-
-    allprojects {
-     repositories {
+```
+allprojects {
+    repositories {
         jcenter()
         google()
         maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
      }
     }
-
+```
 
 #
 
 
 #### App build.gradle ![Build Status](https://img.shields.io/bintray/v/farhad7d7/maven/chat?style=plastic)
 
-
-    implementation("com.fanap.chat:podchat:$chatSdkVersion")
-
+```
+implementation("com.fanap.chat:podchat:$chatSdkVersion")
+```
 
 
 
@@ -60,7 +60,7 @@
 
     chat.isCacheables(true); //use caching
 
-    chat.isLoggable(true); //log request and response
+    chat.isLoggable(true); //log requests and responses
 
     chat.rawLog(true); //log everything
 
@@ -268,6 +268,41 @@ chat.setupNotification(notificationConfig);
 
 ```
 
+Get clicked notification data in 'target' activity
+
+
+```
+ if (getIntent() != null && getIntent().getExtras() != null) {
+
+            Bundle a = getIntent().getExtras();
+
+            String threadId = a.getString("threadId");
+
+            String messageId = a.getString("messageId");
+
+            Log.d("TAG", "Notification Data: ");
+            Log.d("TAG", "Thread Id: " + threadId);
+            Log.d("TAG", "Message Id: " + messageId);
+
+
+        }
+
+```
+
+and clear thread notifications from notificatin bar
+
+```
+if (Util.isNotNullOrEmpty(threadId))
+      chat.deliverNotification(threadId);
+```
+
+Clear all notification from notification bar
+
+```
+chat.clearAllNotifications();
+```
+
+#
 
 #### Connection
 
