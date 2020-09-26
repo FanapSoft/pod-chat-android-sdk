@@ -1595,7 +1595,7 @@ public class ChatActivity extends AppCompatActivity
 //                                .order("desc")
 //                                .email("masoudmanson@gmail.com")
                                 .build();
- 
+
                         presenter.searchContact(requestSearchContact);
                         break;
                     case 10:

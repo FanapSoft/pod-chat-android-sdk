@@ -14,12 +14,8 @@ public class RequestLeaveThread extends GeneralRequestObject {
 
     }
 
-    public boolean isClearHistory() {
+    public boolean clearHistory() {
         return clearHistory;
-    }
-
-    public void setClearHistory(boolean clearHistory) {
-        this.clearHistory = clearHistory;
     }
 
     public long getThreadId() {
@@ -32,11 +28,15 @@ public class RequestLeaveThread extends GeneralRequestObject {
 
     public static class Builder extends GeneralRequestObject.Builder {
         private long threadId;
-        private boolean clearHistory;
+        private boolean clearHistory = true;
 
-        public Builder(long threadId,boolean clearHistory) {
+        public Builder(long threadId) {
             this.threadId = threadId;
-            this.clearHistory = clearHistory;
+        }
+
+        public Builder shouldKeepHistory() {
+            this.clearHistory = false;
+         return  this;
         }
 
         @NonNull
