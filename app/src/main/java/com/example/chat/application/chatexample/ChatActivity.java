@@ -215,32 +215,32 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-//
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
     //sand box / group
 //
-    public static int TEST_THREAD_ID = 21620;
-    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+//    public static int TEST_THREAD_ID = 21620;
+//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 8182;
-//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+    public static int TEST_THREAD_ID = 8182;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -953,7 +953,7 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("J9CF3NNO6YR6JD78")
+        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("GAUPE1ZRK76VOXBS")
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
@@ -1479,12 +1479,12 @@ public class ChatActivity extends AppCompatActivity
                                 getUri(),
                                 TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
                                 .description("test file message")
-                                .systemMetadata(getMetaData())
+//                                .systemMetadata(getMetaData())
                                 .setUserGroupHash(TEST_THREAD_HASH)
-                                .setImageHc("100")
-                                .setImageWc("100")
-                                .setImageXc("1")
-                                .setImageYc("1")
+//                                .setImageHc("100")
+//                                .setImageWc("100")
+//                                .setImageXc("1")
+//                                .setImageYc("1")
                                 .build();
 
                         fileUnique[0] = presenter.sendFileMessage(request,

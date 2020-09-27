@@ -1347,17 +1347,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
-
-
-            RequestMessage req = new RequestMessage.Builder("ttt",5182)
-                    .messageType(TextMessageType.Constants.TEXT)
-                    .build();
-
-            sendTextMessage(req,null);
-
-
-        }
+//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+//
+//
+//            RequestMessage req = new RequestMessage.Builder("ttt",5182)
+//                    .messageType(TextMessageType.Constants.TEXT)
+//                    .build();
+//
+//            sendTextMessage(req,null);
+//
+//
+//        }
 
     }
 
