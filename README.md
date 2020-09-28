@@ -113,6 +113,18 @@ implementation("com.fanap.chat:podchat:$chatSdkVersion")
             @Override
             public void onError(String content, ErrorOutPut error) {
 
+
+                // token expired!
+
+                if(error.getErrorCode() == 21){
+
+                    newToken = getNewToken();
+
+                    chat.setToken(newTOken);
+
+                    returen;
+                }
+
                 Log.d(TAG, "Ops :'( " + content);
                 Log.d(TAG, "Error Code: " + error.getErrorCode());
                 Log.d(TAG, "Cause: " + error.getErrorMessage());
