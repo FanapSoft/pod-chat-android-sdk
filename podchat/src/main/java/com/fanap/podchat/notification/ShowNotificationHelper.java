@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Person;
 import android.app.RemoteInput;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -85,7 +86,65 @@ public class ShowNotificationHelper {
 
     }
 
-    static void setupNotificationChannel(Context context,
+
+    public static void showRunningCallNotification(Service context, String targetActivity,
+                                                   CallInfo callInfo, String CALL_CHANNEL_ID, int notificationId) {
+        Intent closeAction = new Intent(context, EndCallReceiver.class);
+
+        Intent openAppIntent = new Intent(context, context.getClass());
+
+        if (!Util.isNullOrEmpty(targetActivity)) {
+            try {
+                Class<?> targetClass = Class.forName(targetActivity);
+                openAppIntent = new Intent(context, targetClass);
+            } catch (ClassNotFoundException e) {
+                openAppIntent = new Intent(context, context.getClass());
+            }
+        }
+
+        if (callInfo != null)
+            openAppIntent.putExtra(POD_CALL_INFO, callInfo);
+
+        PendingIntent pendingIntentOpenApp = PendingIntent.getActivity(context,
+                REQUEST_CODE_OPEN_APP, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent pendingIntentEnd = PendingIntent.getBroadcast(context,
+                REQUEST_CODE_END_CALL, closeAction, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Action actionStop = new NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
+                "پایان تماس", pendingIntentEnd);
+
+
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_in_call_notifiacion);
+
+        if (callInfo != null) {
+            remoteViews.setTextViewText(R.id.textViewCallName, callInfo.getCallName());
+        }
+
+        remoteViews.setOnClickPendingIntent(R.id.buttonEndCall, pendingIntentEnd);
+
+
+        Notification notification = new NotificationCompat
+                .Builder(context, CALL_CHANNEL_ID)
+                .setCustomContentView(remoteViews)
+                .setSmallIcon(R.drawable.ic_call)
+                .setContentIntent(pendingIntentOpenApp)
+                .setOngoing(true)
+                .build();
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForeground(notificationId, notification);
+        } else {
+            NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
+            managerCompat.notify(notificationId, notification);
+        }
+    }
+
+
+
+
+    public static void setupNotificationChannel(Context context,
                                          String channelId,
                                          String channelName,
                                          String channelDescription,

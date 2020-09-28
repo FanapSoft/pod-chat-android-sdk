@@ -6,7 +6,7 @@ apply plugin: 'com.google.gms.google-services'
 
 ext {
 
-    libraryVersion = '0.9.0.0'
+    libraryVersion = '0.9.0.0.200'
 }
 
 android {
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 132
+        versionCode 134
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -127,11 +127,16 @@ dependencies {
     implementation project(path: ':kafkaclient')
 
 
+
+
 }
 
 group = publishedGroupId
 
 version = libraryVersion
+//
+//configurations.maybeCreate("default")
+//artifacts.add("default", file('kafkaclient.aar'))
 
 
 install {
@@ -173,6 +178,7 @@ install {
         }
     }
 }
+
 
 
 afterEvaluate { project ->
