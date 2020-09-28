@@ -2,11 +2,13 @@ package com.fanap.podchat.call.result_model;
 
 import com.fanap.podchat.call.model.CallParticipantVO;
 
+import java.util.ArrayList;
+
 public class LeaveCallResult {
 
     private long callId;
 
-    private CallParticipantVO callParticipantVO;
+    private ArrayList<CallParticipantVO> callParticipants;
 
 
     public long getCallId() {
@@ -17,12 +19,12 @@ public class LeaveCallResult {
         this.callId = callId;
     }
 
-    public CallParticipantVO getCallParticipantVO() {
-        return callParticipantVO;
+    public ArrayList<CallParticipantVO> getCallParticipants() {
+        return callParticipants;
     }
 
-    public void setCallParticipantVO(CallParticipantVO callParticipantVO) {
-        this.callParticipantVO = callParticipantVO;
+    public void setCallParticipants(ArrayList<CallParticipantVO> callParticipants) {
+        this.callParticipants = callParticipants;
     }
 
 }

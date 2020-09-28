@@ -13,6 +13,7 @@ import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.notification.ShowNotificationHelper;
 import com.fanap.podchat.util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager.KAFKA_CONFIG;
@@ -202,9 +203,9 @@ public class PodCallAudioCallService extends Service {
 
     }
 
-    public void removeCallParticipant(CallParticipantVO callParticipantVO) {
+    public void removeCallParticipant(ArrayList<CallParticipantVO> callParticipantList) {
         if(callManager!=null)
-            callManager.removeCallParticipant(callParticipantVO);
+            callManager.removeCallParticipant(callParticipantList);
     }
 
     public class CallBinder extends Binder {

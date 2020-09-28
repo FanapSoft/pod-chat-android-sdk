@@ -6,6 +6,7 @@ import android.util.Log;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.util.Util;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -173,9 +174,9 @@ public class PodCallAudioCallManager implements PodCallAudioCallStreamManager.IP
     }
 
 
-    public void removeCallParticipant(CallParticipantVO callParticipantVO) {
+    public void removeCallParticipant(ArrayList<CallParticipantVO> callParticipantsList) {
         if (audioStreamManager != null) {
-            audioStreamManager.removeCallParticipant(callParticipantVO);
+            audioStreamManager.removeCallParticipant(callParticipantsList);
         }
     }
 }

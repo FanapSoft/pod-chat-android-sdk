@@ -5555,7 +5555,7 @@ public class Chat extends AsyncAdapter {
     /**
      * It leaves the thread that you are in there
      */
-    public String leaveThread(long threadId,boolean clearHistory, ChatHandler handler) {
+    public String leaveThread(long threadId, boolean clearHistory, ChatHandler handler) {
         String uniqueId = generateUniqueId();
         if (chatReady) {
             RemoveParticipant removeParticipant = new RemoveParticipant();
@@ -5600,7 +5600,7 @@ public class Chat extends AsyncAdapter {
      */
     public String leaveThread(RequestLeaveThread request, ChatHandler handler) {
 
-        return leaveThread(request.getThreadId(),request.clearHistory(), handler);
+        return leaveThread(request.getThreadId(), request.clearHistory(), handler);
     }
 
     /**
@@ -11355,6 +11355,11 @@ public class Chat extends AsyncAdapter {
             if (log) Log.i(TAG, "checkMessageQueue");
             if (cache) {
                 dataSource.getAllSendingQueue()
+                        .doOnError(exception -> {
+                            handleException(exception);
+                            captureError(ChatConstant.ERROR_UNKNOWN_EXCEPTION,ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,"",exception);
+                        })
+                        .onErrorResumeNext(Observable.empty())
                         .subscribe(sendingQueueCaches -> {
                             if (!Util.isNullOrEmpty(sendingQueueCaches)) {
                                 for (SendingQueueCache sendingQueue : sendingQueueCaches) {
@@ -11431,6 +11436,14 @@ public class Chat extends AsyncAdapter {
             showErrorLog(throwable.getMessage());
             onUnknownException("", throwable);
         }
+    }
+
+    private void handleException(Throwable exception) {
+
+
+        if (exception instanceof RoomIntegrityException)
+            resetCache();
+
     }
 
     private void handleSeen(ChatMessage chatMessage, String messageUniqueId, long threadId) {
@@ -12624,8 +12637,6 @@ public class Chat extends AsyncAdapter {
 
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
             messageCallbacks.remove(messageUniqueId);
-
-
 
 
 //            if (permit) {

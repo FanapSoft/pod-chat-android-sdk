@@ -384,11 +384,12 @@ public class CallManager {
 
         ChatResponse<LeaveCallResult> response = new ChatResponse<>();
 
-        CallParticipantVO callParticipant = App.getGson().fromJson(chatMessage.getContent(), CallParticipantVO.class);
+
+        ArrayList<CallParticipantVO> participantsLeft = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CallParticipantVO>>(){}.getType());
 
         LeaveCallResult result = new LeaveCallResult();
         result.setCallId(chatMessage.getSubjectId());
-        result.setCallParticipantVO(callParticipant);
+        result.setCallParticipants(participantsLeft);
 
         response.setResult(result);
         response.setSubjectId(chatMessage.getSubjectId());

@@ -33,7 +33,10 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            consumerProguardFile 'proguard-rules.pro'
+        }
+        debug{
+            consumerProguardFile 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -47,9 +50,6 @@ android {
             path file('src/main/jni/Android.mk')
         }
     }
-
-    sourceSets { main { jniLibs.srcDirs = ['libs'] } }
-
 
 
 }
@@ -76,7 +76,6 @@ ext {
 }
 
 //configurations.embed.transitive = true
-
 
 
 dependencies {
@@ -125,8 +124,6 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
     implementation project(path: ':kafkaclient')
-
-
 
 
 }
@@ -178,7 +175,6 @@ install {
         }
     }
 }
-
 
 
 afterEvaluate { project ->

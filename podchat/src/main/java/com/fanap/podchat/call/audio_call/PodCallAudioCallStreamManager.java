@@ -606,26 +606,34 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
     }
 
 
-    public void removeCallParticipant(CallParticipantVO callParticipant) {
+    public void removeCallParticipant(ArrayList<CallParticipantVO> callParticipants) {
 
-        playerCallback.onPlayerImportantEvent("Participant to remove: +" + callParticipant.getParticipantVO().getName());
 
-        String topic = callParticipant.getSendTopic();
 
-        if (consumerMap.containsKey(topic)) {
-            CallConsumer consumer = consumerMap.get(topic);
+        for (CallParticipantVO callParticipant :
+                callParticipants) {
 
-            if (consumer != null) {
-                consumer.stopPlaying();
-                if (consumer.getConsumerCallback() != null)
-                    consumerCallbacksList.remove(consumer.getConsumerCallback());
+            playerCallback.onPlayerImportantEvent("Participant to remove: +" + callParticipant.getParticipantVO().getName());
+
+            String topic = callParticipant.getSendTopic();
+
+            if (consumerMap.containsKey(topic)) {
+                CallConsumer consumer = consumerMap.get(topic);
+
+                if (consumer != null) {
+                    consumer.stopPlaying();
+                    if (consumer.getConsumerCallback() != null)
+                        consumerCallbacksList.remove(consumer.getConsumerCallback());
+                }
+
+                consumerMap.remove(topic);
+
             }
 
-            consumerMap.remove(topic);
+            playerCallback.onPlayerImportantEvent("Consumer stopped: " + callParticipant.getSendTopic());
 
         }
 
-        playerCallback.onPlayerImportantEvent("Consumer stopped: " + callParticipant.getSendTopic());
 
     }
 

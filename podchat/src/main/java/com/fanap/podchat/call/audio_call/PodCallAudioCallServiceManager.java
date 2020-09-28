@@ -210,7 +210,7 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
     public void removeCallParticipant(LeaveCallResult result) {
 
         if (bound && callService != null) {
-            callService.removeCallParticipant(result.getCallParticipantVO());
+            callService.removeCallParticipant(result.getCallParticipants());
         }
 
     }

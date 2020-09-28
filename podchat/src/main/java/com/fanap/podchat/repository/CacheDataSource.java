@@ -1,6 +1,7 @@
 package com.fanap.podchat.repository;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fanap.podchat.cachemodel.CacheMessageVO;
