@@ -1,16 +1,30 @@
 package com.fanap.podchat.chat.contact;
 
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
+import com.fanap.podchat.localmodel.SetRuleVO;
+import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.UserRoleVO;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultBlockList;
+import com.fanap.podchat.model.ResultNotSeenDuration;
+import com.fanap.podchat.requestobject.RequestRole;
+import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ContactManager {
 
@@ -76,6 +90,222 @@ public class ContactManager {
         };
     }
 
+    public static String prepareGetBlockListRequest(Long count, Long offset, String uniqueId, String typecode, String token) {
+        JsonObject content = new JsonObject();
+
+        if (offset != null) {
+            content.addProperty("offset", offset);
+        }
+        if (count != null) {
+            content.addProperty("count", count);
+        } else {
+            content.addProperty("count", 50);
+
+        }
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content.toString());
+        chatMessage.setType(ChatMessageType.Constants.GET_BLOCKED);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(token);
+        chatMessage.setUniqueId(uniqueId);
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
+
+        if (Util.isNullOrEmpty(typecode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", typecode);
+        }
+
+        String asyncContent = jsonObject.toString();
+        return asyncContent;
+    }
+
+    public static String prepareBlockRequest(Long contactId, Long userId, Long threadId, String uniqueId, String mtypecode, String token) {
+
+        JsonObject contentObject = new JsonObject();
+        if (!Util.isNullOrEmpty(contactId)) {
+            contentObject.addProperty("contactId", contactId);
+        }
+        if (!Util.isNullOrEmpty(userId)) {
+            contentObject.addProperty("userId", userId);
+        }
+        if (!Util.isNullOrEmpty(threadId)) {
+            contentObject.addProperty("threadId", threadId);
+        }
+
+        String json = contentObject.toString();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(json);
+        chatMessage.setToken(token);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setType(ChatMessageType.Constants.BLOCK);
+        chatMessage.setTypeCode(mtypecode);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
+
+        if (Util.isNullOrEmpty(mtypecode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", mtypecode);
+        }
+
+        String asyncContent = jsonObject.toString();
+        return asyncContent;
+
+    }
+
+    public static String prepareUnBlockRequest(Long blockId, Long userId, Long threadId, Long contactId, String uniqueId, String mtypecode, String token) {
+
+        ChatMessage chatMessage = new ChatMessage();
+
+        JsonObject contentObject = new JsonObject();
+        if (!Util.isNullOrEmpty(contactId)) {
+            contentObject.addProperty("contactId", contactId);
+        }
+        if (!Util.isNullOrEmpty(userId)) {
+            contentObject.addProperty("userId", userId);
+        }
+        if (!Util.isNullOrEmpty(threadId)) {
+            contentObject.addProperty("threadId", threadId);
+        }
+
+        String jsonContent = contentObject.toString();
+
+
+        chatMessage.setContent(jsonContent);
+        chatMessage.setToken(token);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setType(ChatMessageType.Constants.UNBLOCK);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
+        jsonObject.remove("contentCount");
+        jsonObject.remove("systemMetadata");
+        jsonObject.remove("metadata");
+        jsonObject.remove("repliedTo");
+
+        if (Util.isNullOrEmpty(blockId)) {
+            jsonObject.remove("subjectId");
+        } else {
+            jsonObject.remove("subjectId");
+            jsonObject.addProperty("subjectId", blockId);
+        }
+
+
+        if (Util.isNullOrEmpty(mtypecode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", mtypecode);
+        }
+
+        String asyncContent = jsonObject.toString();
+        return asyncContent;
+    }
+
+    public static String prepareSetRoleRequest(SetRuleVO request, String uniqueId, String mtypecode, String token, String TOKEN_ISSUER) {
+        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+        for (RequestRole requestRole : request.getRoles()) {
+            UserRoleVO userRoleVO = new UserRoleVO();
+            userRoleVO.setUserId(requestRole.getId());
+            userRoleVO.setRoles(requestRole.getRoleTypes());
+            userRoleVOS.add(userRoleVO);
+        }
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(App.getGson().toJson(userRoleVOS));
+        chatMessage.setSubjectId(request.getThreadId());
+        chatMessage.setToken(token);
+        chatMessage.setType(ChatMessageType.Constants.REMOVE_ROLE_FROM_USER);
+        chatMessage.setTokenIssuer(TOKEN_ISSUER);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTypeCode(mtypecode);
+        String asyncContent = App.getGson().toJson(chatMessage);
+        return asyncContent;
+
+    }
+
+    public static String prepareRemoveRoleRequest(SetRuleVO request, String uniqueId, String mtypecode, String token, String TOKEN_ISSUER) {
+        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+        for (RequestRole requestRole : request.getRoles()) {
+            UserRoleVO userRoleVO = new UserRoleVO();
+            userRoleVO.setUserId(requestRole.getId());
+            userRoleVO.setRoles(requestRole.getRoleTypes());
+            userRoleVOS.add(userRoleVO);
+        }
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(App.getGson().toJson(userRoleVOS));
+        chatMessage.setSubjectId(request.getThreadId());
+        chatMessage.setToken(token);
+        chatMessage.setType(ChatMessageType.Constants.REMOVE_ROLE_FROM_USER);
+        chatMessage.setTokenIssuer(TOKEN_ISSUER);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTypeCode(mtypecode);
+        String asyncContent = App.getGson().toJson(chatMessage);
+        return asyncContent;
+    }
+
+    public static ChatResponse<ResultBlockList> prepareBlockListResponse(ChatMessage chatMessage){
+        ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
+        chatResponse.setErrorCode(0);
+        chatResponse.setHasError(false);
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+        ResultBlockList resultBlockList = new ResultBlockList();
+
+        List<BlockedContact> blockedContacts = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<BlockedContact>>() {
+        }.getType());
+        resultBlockList.setContacts(blockedContacts);
+        chatResponse.setResult(resultBlockList);
+
+        return chatResponse;
+    }
+
+    public static ChatResponse<ResultNotSeenDuration> prepareUpdateLastSeenResponse(ChatMessage message, JsonParser parser) {
+
+
+        ChatResponse<ResultNotSeenDuration> response = new ChatResponse<>();
+
+        JsonObject jsonObject = Util.objectToJson(message.getContent(), parser);
+
+        Map<String, Long> idLastSeen = new HashMap<>();
+
+        for (String key :
+                jsonObject.keySet()) {
+
+            idLastSeen.put(key, jsonObject.get(key).getAsLong());
+
+        }
+
+
+        ResultNotSeenDuration resultNotSeenDuration = new ResultNotSeenDuration();
+
+        resultNotSeenDuration.setIdNotSeenPair(idLastSeen);
+
+        response.setResult(resultNotSeenDuration);
+
+        return response;
+    }
+
+    public static ChatResponse<ResultBlockList> prepareGetBlockList_Cach(String uniqueId, List<BlockedContact> cacheContacts) {
+
+        ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
+        chatResponse.setErrorCode(0);
+        chatResponse.setHasError(false);
+        chatResponse.setUniqueId(uniqueId);
+        chatResponse.setCache(true);
+        ResultBlockList resultBlockList = new ResultBlockList();
+
+        resultBlockList.setContacts(cacheContacts);
+        chatResponse.setResult(resultBlockList);
+
+        return chatResponse;
+    }
+
     public static class ContactResponse {
         private List<Contact> contactsList;
         private long contentCount;
@@ -95,4 +325,6 @@ public class ContactManager {
             return contentCount;
         }
     }
+
+
 }

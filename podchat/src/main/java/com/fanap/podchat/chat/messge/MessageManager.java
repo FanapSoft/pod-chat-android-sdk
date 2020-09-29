@@ -14,8 +14,12 @@ import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.DeleteMessageContent;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultNewMessage;
+import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.JsonObject;
@@ -229,9 +233,7 @@ public class MessageManager {
         return listQueues;
     }
 
-    public static List<Uploading> getUploadingFromUploadCache(List<UploadingQueueCache> uploadingQueueCaches)
-
-    {
+    public static List<Uploading> getUploadingFromUploadCache(List<UploadingQueueCache> uploadingQueueCaches) {
         List<Uploading> uploadingQueues = new ArrayList<>();
         for (UploadingQueueCache queueCache : uploadingQueueCaches) {
             Uploading uploadingQueue = new Uploading();
@@ -282,13 +284,226 @@ public class MessageManager {
     }
 
 
+    public static String prepareSpamRequest(String uniqueId, RequestSpam request, String mtypeCode, String token) {
+        JsonObject jsonObject;
 
+        long threadId = request.getThreadId();
+        String typeCode = request.getTypeCode();
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(ChatMessageType.Constants.SPAM_PV_THREAD);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(CoreConfig.token);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+
+        jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
+        jsonObject.remove("contentCount");
+        jsonObject.remove("systemMetadata");
+        jsonObject.remove("metadata");
+        jsonObject.remove("repliedTo");
+
+        if (Util.isNullOrEmpty(typeCode)) {
+            if (Util.isNullOrEmpty(mtypeCode)) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.addProperty("typeCode", CoreConfig.typeCode);
+            }
+        } else {
+            jsonObject.addProperty("typeCode", request.getTypeCode());
+        }
+
+        return jsonObject.toString();
+    }
+
+    public static ChatResponse<ResultDeleteMessage> prepareDeleteMessageResponse(ChatMessage chatMessage, long messageId) {
+
+        ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+
+        ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
+        DeleteMessageContent deleteMessage = new DeleteMessageContent();
+        deleteMessage.setId(messageId);
+        resultDeleteMessage.setDeletedMessage(deleteMessage);
+        chatResponse.setResult(resultDeleteMessage);
+        chatResponse.setSubjectId(chatMessage.getSubjectId());
+
+        return chatResponse;
+    }
+
+    public static ChatResponse<ResultNewMessage> prepareNewMessageResponse(MessageVO newMessage, long threadId, String uniqueId) {
+        ChatResponse<ResultNewMessage> chatResponse = new ChatResponse<>();
+        ResultNewMessage editMessage = new ResultNewMessage();
+
+        editMessage.setMessageVO(newMessage);
+        editMessage.setThreadId(threadId);
+        chatResponse.setResult(editMessage);
+        chatResponse.setUniqueId(uniqueId);
+        chatResponse.setSubjectId(threadId);
+        return chatResponse;
+    }
+
+
+    public static ChatResponse<ResultNewMessage> preparepublishNewMessagesResponse(MessageVO messageVO, long threadId) {
+
+        ChatResponse<ResultNewMessage> chatResponse = new ChatResponse<>();
+        chatResponse.setUniqueId(messageVO.getUniqueId());
+        chatResponse.setHasError(false);
+        chatResponse.setErrorCode(0);
+        chatResponse.setErrorMessage("");
+        ResultNewMessage resultNewMessage = new ResultNewMessage();
+        resultNewMessage.setMessageVO(messageVO);
+        resultNewMessage.setThreadId(threadId);
+        chatResponse.setResult(resultNewMessage);
+        chatResponse.setSubjectId(threadId);
+
+        return chatResponse;
+    }
+
+    public static String prepareMainHistoryResponse(History history, long threadId, String uniqueId, String typecode, String token) {
+        //        long offsets = history.getOffset();
+
+        long fromTime = history.getFromTime();
+        long fromTimeNanos = history.getFromTimeNanos();
+        long toTime = history.getToTime();
+        long toTimeNanos = history.getToTimeNanos();
+
+        String query = history.getQuery();
+
+        JsonObject content = (JsonObject) App.getGson().toJsonTree(history);
+
+        if (history.getLastMessageId() == 0) {
+            content.remove("lastMessageId");
+        }
+
+        if (history.getFirstMessageId() == 0) {
+            content.remove("firstMessageId");
+        }
+
+        if (history.getId() <= 0) {
+            content.remove("id");
+        }
+
+        if (Util.isNullOrEmpty(query)) {
+            content.remove("query");
+        }
+
+        if (Util.isNullOrEmpty(fromTime)) {
+            content.remove("fromTime");
+        }
+
+        if (Util.isNullOrEmpty(fromTimeNanos)) {
+            content.remove("fromTimeNanos");
+        }
+
+        if (Util.isNullOrEmpty(toTime)) {
+            content.remove("toTime");
+        }
+
+        if (Util.isNullOrEmpty(toTimeNanos)) {
+            content.remove("toTimeNanos");
+        }
+
+        if (history.getUniqueIds() == null) {
+
+            content.remove("uniqueIds");
+
+        }
+
+        if (history.getMessageType() == 0) {
+            content.remove("messageType");
+        }
+
+        AsyncMessage chatMessage = new AsyncMessage();
+        chatMessage.setContent(content.toString());
+        chatMessage.setType(ChatMessageType.Constants.GET_HISTORY);
+        chatMessage.setToken(token);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setTypeCode(typecode);
+
+        return App.getGson().toJsonTree(chatMessage).toString();
+    }
+
+    public static JsonObject prepareSendTextMessageRequest(String textMessage, long threadId, Integer messageType, String jsonSystemMetadata, String uniqueId, String mTypecode, String token) {
+
+        ChatMessage chatMessageQueue = new ChatMessage();
+        chatMessageQueue.setContent(textMessage);
+        chatMessageQueue.setType(ChatMessageType.Constants.MESSAGE);
+        chatMessageQueue.setTokenIssuer("1");
+        chatMessageQueue.setToken(token);
+
+
+        if (jsonSystemMetadata != null) {
+            chatMessageQueue.setSystemMetadata(jsonSystemMetadata);
+        }
+
+        chatMessageQueue.setUniqueId(uniqueId);
+        chatMessageQueue.setTime(1000);
+        chatMessageQueue.setSubjectId(threadId);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessageQueue);
+
+        if (Util.isNullOrEmpty(mTypecode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", mTypecode);
+        }
+        if (!Util.isNullOrEmpty(messageType)) {
+            jsonObject.addProperty("messageType", messageType);
+        } else {
+            jsonObject.remove("messageType");
+        }
+
+        return jsonObject;
+    }
+
+    //for dericated method
+    public static String prepareSpamRequest(String uniqueId, String mtypeCode, long threadId, String token) {
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(ChatMessageType.Constants.SPAM_PV_THREAD);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(token);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
+
+        if (Util.isNullOrEmpty(mtypeCode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", mtypeCode);
+        }
+
+        String asyncContent = jsonObject.toString();
+
+        return asyncContent;
+    }
+
+    public static ChatResponse<ResultDeleteMessage> prepareDeleteMessageResponseForFind(MessageVO msg, String uniqueId , long threadId) {
+
+        ChatResponse<ResultDeleteMessage> chatResponse = new ChatResponse<>();
+        chatResponse.setUniqueId(uniqueId);
+        ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
+        DeleteMessageContent deleteMessage = new DeleteMessageContent();
+        deleteMessage.setId(msg.getId());
+        resultDeleteMessage.setDeletedMessage(deleteMessage);
+        chatResponse.setResult(resultDeleteMessage);
+        chatResponse.setSubjectId(threadId);
+
+        return chatResponse;
+
+    }
 
     public static Boolean hasGap(List<MessageVO> messagesFromCache) {
 
         for (MessageVO msg : messagesFromCache) {
             if (msg.hasGap()) {
-               return true;
+                return true;
             }
         }
         return false;

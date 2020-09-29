@@ -397,12 +397,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         participantIds.add(822L);
 //                        participantIds.add(577L);
 //                        participantIds.add(824L);
-                        presenter.addParticipants(1105, participantIds, new ChatHandler() {
-                            @Override
-                            public void onAddParticipants(String uniqueId) {
-                                super.onAddParticipants(uniqueId);
-                            }
-                        });
+
 //2404
                         break;
                     case 7:

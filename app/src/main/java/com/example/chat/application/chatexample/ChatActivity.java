@@ -49,6 +49,7 @@ import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -233,7 +234,7 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 //
-    public static int TEST_THREAD_ID = 21620;
+    public static int TEST_THREAD_ID = 21811;
     private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
@@ -1600,8 +1601,8 @@ public class ChatActivity extends AppCompatActivity
                         break;
                     case 10:
                         NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria
-                                .Builder("name")
-                                .is("sina")
+                                .Builder("te")
+                                .is("te")
                                 .build();
                         NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(231)
                                 .count(10)
@@ -2283,7 +2284,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
 //21622
-    public static final String THREAD_UNIQUE_NAME = "unique_name_4_1584016531111";
+    public static final String THREAD_UNIQUE_NAME = "unique_name_4_15840165311112";
 //    public static final String THREAD_UNIQUE_NAME = "unique_name_4_" + new Date().getTime();
 
     private void joinPublicThread() {

@@ -353,7 +353,6 @@ public interface ChatContract {
 
         void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler);
 
-        void addParticipants(long threadId, List<Long> contactIds, ChatHandler handler);
 
         void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler);
 

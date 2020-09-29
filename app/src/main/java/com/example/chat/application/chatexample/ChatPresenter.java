@@ -896,10 +896,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.removeParticipants(requestRemoveParticipants, handler);
     }
 
-    @Override
-    public void addParticipants(long threadId, List<Long> contactIds, ChatHandler handler) {
-        chat.addParticipants(threadId, contactIds, handler);
-    }
 
     @Override
     public void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler) {
