@@ -108,7 +108,7 @@ dependencies {
 
     implementation 'com.scottyab:secure-preferences-lib:0.1.7'
 //    api project(path: ':podasync')
-    api 'com.fanap.async:podasync:0.2.9.0'
+    api 'com.fanap.async:podasync:0.2.13.5'
 
     //using for notification layout
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'

@@ -30,6 +30,7 @@ import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.R;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -70,6 +71,7 @@ import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
 import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResult;
+import com.fanap.podchat.chat.map.MapManager;
 import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
@@ -292,8 +294,10 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import io.sentry.android.core.SentryAndroid;
 import io.sentry.core.Breadcrumb;
 import io.sentry.core.Sentry;
+import io.sentry.core.SentryEvent;
 import io.sentry.core.SentryLevel;
 import io.sentry.core.protocol.User;
 import okhttp3.MediaType;
@@ -324,6 +328,7 @@ public class Chat extends AsyncAdapter {
     public static final int READ_CONTACTS_CODE = 1008;
     private static final int PING_INTERVAL = 20000;
     private static final int signalIntervalTime = 3000;
+    public static final String API_NESHAN_ORG = "https://api.neshan.org/";
 
     private long freeSpaceThreshold = 100 * 1024 * 1024;
 
@@ -458,6 +463,8 @@ public class Chat extends AsyncAdapter {
         if (instance == null) {
 
 
+            setupSentry(context);
+
             async = Async.getInstance(context);
 
             async.rawLog(BuildConfig.DEBUG);
@@ -495,6 +502,17 @@ public class Chat extends AsyncAdapter {
         }
 
         return instance;
+    }
+
+    private static void setupSentry(Context context) {
+        SentryAndroid.init(context.getApplicationContext(),
+                options -> {
+                    options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
+                    options.setCacheDirPath(context.getCacheDir().getAbsolutePath());
+                    options.setSentryClientName("PodChat-Android");
+                    options.addInAppInclude("com.fanap.podchat");
+                    options.setEnvironment("PODCHAT");
+                });
     }
 
 
@@ -7933,40 +7951,28 @@ public class Chat extends AsyncAdapter {
     }
 
     public String mapSearch(String searchTerm, Double latitude, Double longitude) {
+
         String uniqueId = generateUniqueId();
 
         if (chatReady) {
-            RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+            MapManager.searchMap(API_KEY_MAP,API_NESHAN_ORG,searchTerm,latitude,longitude)
+                    .doOnError(exception-> captureError(exception.getMessage(),ChatConstant.ERROR_CODE_CALL_NESHAN_API,uniqueId,exception))
+                    .onErrorResumeNext(Observable.empty())
+                    .subscribe(outPutMapNeshan -> {
+                        if(outPutMapNeshan!=null){
+                            String json = gson.toJson(outPutMapNeshan);
+                            listenerManager.callOnMapSearch(json, outPutMapNeshan);
+                            showLog("RECEIVE_MAP_SEARCH", json);
+                        }
+                    });
 
-            MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
-            Observable<Response<MapNeshan>> observable = mapApi.mapSearch("8b77db18704aa646ee5aaea13e7370f4f88b9e8c"
-                    , searchTerm, latitude, longitude);
-            observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(mapNeshanResponse -> {
-                OutPutMapNeshan outPutMapNeshan = new OutPutMapNeshan();
-                if (mapNeshanResponse.isSuccessful()) {
-                    MapNeshan mapNeshan = mapNeshanResponse.body();
-
-                    if (mapNeshan == null) {
-                        captureError(mapNeshanResponse.message(), mapNeshanResponse.code(), uniqueId);
-                        return;
-                    }
-                    outPutMapNeshan = new OutPutMapNeshan();
-                    outPutMapNeshan.setCount(mapNeshan.getCount());
-                    ResultMap resultMap = new ResultMap();
-                    resultMap.setMaps(mapNeshan.getItems());
-                    outPutMapNeshan.setResult(resultMap);
-                    String json = gson.toJson(outPutMapNeshan);
-                    listenerManager.callOnMapSearch(json, outPutMapNeshan);
-                    showLog("RECEIVE_MAP_SEARCH", json);
-                } else {
-                    captureError(mapNeshanResponse.message(), mapNeshanResponse.code(), uniqueId);
-                }
-            }, (Throwable throwable) -> captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable));
         } else {
             captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
         return uniqueId;
     }
+
+
 
     /**
      * String searchTerm ;
@@ -10833,10 +10839,11 @@ public class Chat extends AsyncAdapter {
         }
 
         Breadcrumb c = new Breadcrumb();
-        c.setCategory("LOG");
-        c.setData(i, json);
+        c.setCategory("INFO");
+        c.setData("DATA", json);
         c.setLevel(SentryLevel.INFO);
         c.setMessage(i);
+        c.setType("INFO LOG");
         Sentry.addBreadcrumb(c, "NORMAL_INFO");
     }
 
@@ -10850,10 +10857,12 @@ public class Chat extends AsyncAdapter {
 //            }
         }
         Breadcrumb c = new Breadcrumb();
-        c.setCategory("LOG");
+        c.setCategory("INFO");
+        c.setData("DATA",info);
         c.setLevel(SentryLevel.INFO);
         c.setMessage(info);
-        Sentry.addBreadcrumb(c, "INFO");
+        c.setType("INFO LOG");
+        Sentry.addBreadcrumb(c, "NORMAL_INFO_WITHOUT_DATA");
 
     }
 
@@ -10871,9 +10880,11 @@ public class Chat extends AsyncAdapter {
         }
 
         Breadcrumb c = new Breadcrumb();
-        c.setCategory("LOG");
+        c.setCategory("ERROR");
+        c.setData("CAUSE",message);
         c.setLevel(SentryLevel.ERROR);
         c.setMessage(message);
+        c.setType("ERROR LOG");
         Sentry.addBreadcrumb(c, "ERROR_LOG");
 
 
@@ -11223,9 +11234,8 @@ public class Chat extends AsyncAdapter {
                                 try {
                                     resultMessage.setMessageId(Long.parseLong(chatMessage.getContent()));
                                 } catch (NumberFormatException e) {
-                                    Sentry.captureException(e);
+                                    captureError(new PodChatException(e.getMessage(),messageUniqueId,getToken()));
                                     resultMessage.setMessageId(0);
-
                                 }
                                 chatResponse.setResult(resultMessage);
 
@@ -13384,7 +13394,15 @@ public class Chat extends AsyncAdapter {
         if (errorCode != ChatConstant.ERROR_CODE_CHAT_READY
                 && errorCode != 21) {
 
-            Sentry.captureException(new PodChatException(errorMessage, uniqueId, getToken()));
+
+            SentryEvent event = new SentryEvent(new PodChatException(errorMessage, uniqueId, getToken()));
+            event.setEnvironment("PODCHAT");
+            event.setLevel(SentryLevel.ERROR);
+            event.setTag("FROM_SDK", "PODCHAT");
+            event.setExtra("FROM_SDK", "PODCHAT");
+
+
+            Sentry.captureEvent(event,error);
 
         }
 
@@ -13411,7 +13429,13 @@ public class Chat extends AsyncAdapter {
 
         showErrorLog(jsonError);
 
-        Sentry.captureException(throwable, error);
+
+        SentryEvent event = new SentryEvent(throwable);
+        event.setEnvironment("PODCHAT");
+        event.setLevel(SentryLevel.ERROR);
+        event.setTag("FROM_SDK", "PODCHAT");
+        event.setExtra("FROM_SDK", "PODCHAT");
+        Sentry.captureEvent(event,new PodChatException(errorMessage, uniqueId, getToken()));
 
         if (log) {
             Log.e(TAG, "ErrorMessage: " + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId);
@@ -13429,7 +13453,13 @@ public class Chat extends AsyncAdapter {
 
         showErrorLog(jsonError);
 
-        Sentry.captureException(exception, error);
+
+        SentryEvent event = new SentryEvent(exception);
+        event.setEnvironment("PODCHAT");
+        event.setLevel(SentryLevel.ERROR);
+        event.setTag("FROM_SDK", "PODCHAT");
+        event.setExtra("FROM_SDK", "PODCHAT");
+        Sentry.captureEvent(event, error);
 
         return jsonError;
     }

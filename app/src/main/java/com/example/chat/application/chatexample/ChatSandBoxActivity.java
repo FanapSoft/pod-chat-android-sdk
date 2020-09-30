@@ -30,14 +30,11 @@ import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
-import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -200,7 +197,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                     case 7:
                         RequestSeenMessageList requests = new RequestSeenMessageList.Builder(17374).build();
-                        presenter.seenMessageList(requests);
+                        presenter.getSeenMessageList(requests);
                         break;
                     case 8:
                         RequestDeliveredMessageList requestD = new RequestDeliveredMessageList.Builder(17374).build();

@@ -25,7 +25,6 @@ import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
-import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
@@ -755,7 +754,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         vibrateE();
 
         runOnUiThread(() -> {
-            Toast.makeText(this, "Group Call", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Group Call from " + callerName, Toast.LENGTH_SHORT).show();
             callRequestView.setVisibility(View.VISIBLE);
             viewHistory.setVisibility(View.INVISIBLE);
             buttonCall.setVisibility(View.INVISIBLE);
@@ -768,15 +767,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
     @Override
-    public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
+    public void onCallParticipantLeft(String participant) {
 
         vibrate();
 
-        runOnUiThread(() -> {
-
-            Toast.makeText(this, "Call Participant Left ", Toast.LENGTH_SHORT).show();
-
-        });
+        runOnUiThread(() -> Toast.makeText(this, participant + " Left ", Toast.LENGTH_SHORT).show());
     }
 
 

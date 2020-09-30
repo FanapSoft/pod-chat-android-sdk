@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,7 +24,6 @@ import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
@@ -91,6 +91,7 @@ import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
+import com.fanap.podchat.requestobject.RequestEditMessage;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetImage;
@@ -136,7 +137,7 @@ import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
-import com.fanap.podchat.util.TextMessageType;
+import com.fanap.podchat.util.RequestMapSearch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -197,8 +198,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.isLoggable(true);
         chat.rawLog(true);
 
-        //todo check create directory
-//        chat.setDownloadDirectory(context.getCacheDir());
+        chat.setDownloadDirectory(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS));
 
         TimeoutConfig timeout = new TimeoutConfig()
                 .newConfigBuilder()
@@ -382,7 +382,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
 
-        Log.e(TAG, "isInCache="+chat.isInCache(rePod));
+        Log.e(TAG, "isInCache=" + chat.isInCache(rePod));
 
         return chat.getFile(rePod, iDownloadFile);
     }
@@ -409,7 +409,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
 
-        Log.e(TAG, "isInCache="+chat.isInCache(rePod));
+        Log.e(TAG, "isInCache=" + chat.isInCache(rePod));
 
         return chat.getImage(rePod, iDownloadFile);
 
@@ -575,8 +575,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void isDatabaseOpen() {
-        chat.isDbOpen();
+    public void searchMap(String searchTerm, double lat, double lon) {
+
+
+        RequestMapSearch request = new RequestMapSearch
+                .Builder(searchTerm, lat, lon)
+                .build();
+
+        chat.mapSearch(request);
     }
 
     @Override
@@ -606,7 +612,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void seenMessageList(RequestSeenMessageList requestParams) {
+    public void getSeenMessageList(RequestSeenMessageList requestParams) {
 
         chat.getMessageSeenList(requestParams);
 
@@ -821,8 +827,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void editMessage(int messageId, String messageContent, String metaData, ChatHandler handler) {
-        chat.editMessage(messageId, messageContent, metaData, handler);
+    public void editMessage(int messageId, String messageNewContent, String metaData, ChatHandler handler) {
+
+        RequestEditMessage requestEditMessage = new RequestEditMessage.Builder(messageNewContent,
+                messageId)
+                .metaData(metaData)
+                .build();
+
+        chat.editMessage(requestEditMessage, handler);
     }
 
     @Override
@@ -1728,13 +1740,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void endRunningCall() {
 
 
-        Log.e(TAG,"REQUEST END CALL FROM CLIENT");
+        Log.e(TAG, "REQUEST END CALL FROM CLIENT");
 
-        Log.e(TAG,"REQUEST END CALL FROM CLIENT. Call Response: " + callRequestResponse);
+        Log.e(TAG, "REQUEST END CALL FROM CLIENT. Call Response: " + callRequestResponse);
 
         if (callRequestResponse != null) {
 
-            Log.e(TAG,"REQUEST END CALL FROM CLIENT call response not null");
+            Log.e(TAG, "REQUEST END CALL FROM CLIENT call response not null");
 
             EndCallRequest endCallRequest = new EndCallRequest.Builder()
                     .setCallId(callRequestResponse.getSubjectId())
@@ -1857,7 +1869,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void setCallInfo(CallInfo callInfo) {
 
-        if(callRequestResponse==null){
+        if (callRequestResponse == null) {
             callRequestResponse = new ChatResponse<>();
             callRequestResponse.setSubjectId(callInfo.getCallId());
         }
@@ -1896,7 +1908,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
-        view.onCallParticipantLeft(response);
+
+
+        for (CallParticipantVO c :
+                response.getResult().getCallParticipants()) {
+
+            view.onCallParticipantLeft(c.getParticipantVO().getFirstName() + " " + c.getParticipantVO().getLastName());
+
+
+        }
+
     }
 
     @Override
@@ -1909,6 +1930,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onEndCallRequestFromNotification() {
-        view.onVoiceCallEnded("",0);
+        view.onVoiceCallEnded("", 0);
     }
 }

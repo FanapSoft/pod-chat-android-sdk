@@ -7,7 +7,6 @@ import android.net.Uri;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
-import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
@@ -244,7 +243,7 @@ public interface ChatContract {
 
         default void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants){}
 
-        default void onCallParticipantLeft(ChatResponse<LeaveCallResult> response){}
+        default void onCallParticipantLeft(String response){}
 
         default void onCallParticipantJoined(String response){}
 
@@ -260,7 +259,7 @@ public interface ChatContract {
 
         String requestCall(int partnerId, boolean checked);
 
-        void isDatabaseOpen();
+        void searchMap(String haram, double lat, double lon);
 
         void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler);
 
@@ -272,7 +271,7 @@ public interface ChatContract {
 
         void cancelUpload(String uniqueId);
 
-        void seenMessageList(RequestSeenMessageList requestParam);
+        void getSeenMessageList(RequestSeenMessageList requestParam);
 
         void deliveredMessageList(RequestDeliveredMessageList requestParams);
 

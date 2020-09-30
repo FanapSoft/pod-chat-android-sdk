@@ -27,11 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
@@ -57,7 +54,6 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
-import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
@@ -69,7 +65,6 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
-import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -161,17 +156,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
-
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -189,10 +184,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 //
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -217,31 +212,31 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
     //sand box / group
 //
-//    public static int TEST_THREAD_ID = 21620;
-//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+    public static int TEST_THREAD_ID = 21620;
+    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 
-    public static int TEST_THREAD_ID = 8182;
-    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//    public static int TEST_THREAD_ID = 8182;
+//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -256,7 +251,7 @@ public class ChatActivity extends AppCompatActivity
 
 //    public static int TEST_THREAD_ID = 7488;
 //    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
-//
+
 
     //test server thread
 //    public static int TEST_THREAD_ID = 7608;
@@ -283,14 +278,18 @@ public class ChatActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
 
-        faker = new Faker();
+        init();
 
-        //        Generator.generateFakeContact(5,getApplicationContext());
 
-        Logger.addLogAdapter(new AndroidLogAdapter());
-        setContentView(R.layout.activity_chat);
-        imageMap = findViewById(R.id.imageMap);
+        setListeners();
 
+
+        getNotificationData();
+
+
+    }
+
+    private void setListeners() {
 
         imageMap.setOnLongClickListener((v) -> {
 
@@ -298,57 +297,14 @@ public class ChatActivity extends AppCompatActivity
 
             return true;
         });
-
         imageMap.setOnClickListener(v -> downloadWithGlide());
-
-        textViewState = findViewById(R.id.textViewStateChat);
-        TextView textViewToken = findViewById(R.id.textViewUserId);
-        percentage = findViewById(R.id.percentage);
-        percentageFile = findViewById(R.id.percentageFile);
-        editText = findViewById(R.id.editTextMessage);
-        editTextToken = findViewById(R.id.editTextToken);
-        editTextThread = findViewById(R.id.editTextThread);
-        ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
-        buttonFileChoose = findViewById(R.id.buttonFileChoose);
-        buttonConnect = findViewById(R.id.buttonConnect);
-        buttonToken = findViewById(R.id.buttonToken);
-
-        btnUploadFile = findViewById(R.id.buttonUploadFileProgress);
-
-        btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
-
         buttonFileChoose.setOnClickListener(this);
-
         buttonFileChoose.setOnLongClickListener(v -> {
 
             presenter.shareLogs();
             return true;
         });
-
-        textViewToken.setText(TOKEN + name);
-        Spinner spinner = findViewById(R.id.spinner);
-        Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
-        Spinner spinnerThird = findViewById(R.id.spinnerThird);
         buttonConnect.setOnClickListener(this);
-        ChatContract.view view = new ChatContract.view() {
-
-            @Override
-            public void onMapStaticImage(ChatResponse<ResultStaticMapImage> chatResponse) {
-                imageMap.setImageBitmap(chatResponse.getResult().getBitmap());
-            }
-
-
-        };
-
-        presenter = new ChatPresenter(this, this, this);
-
-        presenter.clearNotifications();
-        getNotificationData();
-
-        setupFirstSpinner(spinner);
-        setupSecondSpinner(spinnerSecond);
-        setupThirdSpinner(spinnerThird);
-
         btnUploadFile.setOnClickListener(this::onUploadFile);
 
         btnUploadFile.setOnLongClickListener(v -> {
@@ -378,6 +334,40 @@ public class ChatActivity extends AppCompatActivity
             return true;
 
         });
+    }
+
+    private void init() {
+
+        faker = new Faker();
+        Logger.addLogAdapter(new AndroidLogAdapter());
+        setContentView(R.layout.activity_chat);
+        imageMap = findViewById(R.id.imageMap);
+        textViewState = findViewById(R.id.textViewStateChat);
+        TextView textViewToken = findViewById(R.id.textViewUserId);
+        percentage = findViewById(R.id.percentage);
+        percentageFile = findViewById(R.id.percentageFile);
+        editText = findViewById(R.id.editTextMessage);
+        editTextToken = findViewById(R.id.editTextToken);
+        editTextThread = findViewById(R.id.editTextThread);
+        ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
+        buttonFileChoose = findViewById(R.id.buttonFileChoose);
+        buttonConnect = findViewById(R.id.buttonConnect);
+        buttonToken = findViewById(R.id.buttonToken);
+        btnUploadFile = findViewById(R.id.buttonUploadFileProgress);
+        btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
+
+        textViewToken.setText(TOKEN + name);
+        Spinner spinner = findViewById(R.id.spinner);
+        Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
+        Spinner spinnerThird = findViewById(R.id.spinnerThird);
+        setupFirstSpinner(spinner);
+        setupSecondSpinner(spinnerSecond);
+        setupThirdSpinner(spinnerThird);
+
+
+        presenter = new ChatPresenter(this, this, this);
+
+        presenter.clearNotifications();
 
     }
 
@@ -400,139 +390,9 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
+    //this is for showing sample notification on current device
     private void showNotification() {
 
-//        for (int i = 0; i < 6; i++) {
-//
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException ignored) { }
-//
-//
-//            Map<String, String> data0 = new HashMap<>();
-//
-//            data0.put("threadName", "رضا احمدی");
-//            data0.put("MessageSenderName", "رضا احمدی");
-//            data0.put("text", "سلام " );
-//            data0.put("isGroup", "false");
-//            data0.put("MessageSenderUserName", "a.ahmadi");
-//            data0.put("messageId", String.valueOf(i));
-//            data0.put("threadId", String.valueOf(notificationThreadId));
-//            data0.put("messageType", "1");
-//
-//            PodNotificationManager.showNotification(data0, this);
-//
-//
-//            Map<String, String> data = new HashMap<>();
-//
-//            data.put("threadName", "رضا احمدی");
-//            data.put("MessageSenderName", "رضا احمدی");
-//            data.put("text", " چه خبر؟ " );
-//            data.put("isGroup", "false");
-//            data.put("MessageSenderUserName", "a.ahmadi");
-//            data.put("messageId", String.valueOf(i*100));
-//            data.put("threadId", String.valueOf(notificationThreadId));
-//            data.put("messageType", "1");
-//
-//            PodNotificationManager.showNotification(data, this);
-//
-//            Map<String, String> data2 = new HashMap<>();
-//
-//            data2.put("threadName", faker.gameOfThrones().house());
-//            data2.put("MessageSenderName", faker.gameOfThrones().character());
-//            data2.put("text", faker.gameOfThrones().quote());
-//            data2.put("isGroup", "true");
-//            data2.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data2.put("messageId", String.valueOf(i*2));
-//            data2.put("threadId", String.valueOf(notificationThreadId*3));
-//            data2.put("messageType", "1");
-//
-//            PodNotificationManager.showNotification(data2, this);
-//
-//
-//            Map<String, String> data3 = new HashMap<>();
-//
-//            data3.put("threadName", faker.gameOfThrones().house());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            data3.put("isGroup", "true");
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("messageId", String.valueOf(i*3));
-//            data3.put("threadId", String.valueOf(notificationThreadId*3));
-//            data3.put("messageType", "1");
-//
-//            PodNotificationManager.showNotification(data3, this);
-//
-//        }
-
-
-//
-//            try {
-//                Thread.sleep(3000);
-//            } catch (InterruptedException ignored) { }
-
-
-//        for (int i = 0; i < 3; i++){
-//
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException ignored) { }
-//
-//
-//            Map<String, String> data3 = new HashMap<>();
-//            data3.put("threadName", faker.gameOfThrones().house());
-//            data3.put("isGroup", "true");
-//            data3.put("threadId", String.valueOf(i));
-//            data3.put("messageType", "1");
-//
-//
-//
-//
-//            data3.put("messageId", String.valueOf(i));
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            PodNotificationManager.showNotification(data3, this);
-//
-//            data3.put("messageId", String.valueOf(i+1));
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            PodNotificationManager.showNotification(data3, this);
-//
-//            data3.put("messageId", String.valueOf(i+2));
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            PodNotificationManager.showNotification(data3, this);
-//
-//            data3.put("messageId", String.valueOf(i+3));
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            PodNotificationManager.showNotification(data3, this);
-//
-//
-//            data3.put("messageId", String.valueOf(i+4));
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            PodNotificationManager.showNotification(data3, this);
-//
-//
-//            data3.put("messageId", String.valueOf(i+5));
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            PodNotificationManager.showNotification(data3, this);
-//
-//            data3.put("messageId", String.valueOf(i+6));
-//            data3.put("MessageSenderUserName",faker.gameOfThrones().character());
-//            data3.put("MessageSenderName", faker.gameOfThrones().character());
-//            data3.put("text", faker.gameOfThrones().quote());
-//            PodNotificationManager.showNotification(data3, this);
-//
-//        }
         Map<String, String> data2 = new HashMap<>();
         data2.put("messageId", "488779");
         data2.put("messageType", "1");
@@ -560,29 +420,9 @@ public class ChatActivity extends AppCompatActivity
         if (notificationThreadId > 2)
             notificationThreadId = 0;
 
-
-//        PodNotificationManager.showNotification(data, this);
-
     }
 
-    /*
-    "Choose Map function"
-            , "Search Map"
-            , "Map Routing"
-            , "Block"
-            , "UnBlock"
-            , "GetBlockList"
-            , "Update the thread info"
-            , "Seen Message List"
-            , "delivered Message List"
-            , "Create thread with new Message"
-            , "Get thread with coreUserId"
-            ,"map static image"
-            ,"map reverse"
-            ,"Send MapLocation Message"
-            ,"Add Admin"
-            ,"Signal Message"
-            */
+    //for log events
 
     @Override
     public void onLogEvent(String log) {
@@ -614,100 +454,39 @@ public class ChatActivity extends AppCompatActivity
                             case 0:
                                 break;
                             case 1:
-//                        presenter.mapSearch("میدان آزادی", 35.7003510, 51.3376472);
-                                presenter.isDatabaseOpen();
+                                searchMap();
                                 break;
                             case 2:
-                                presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
+                                routeMap();
                                 break;
                             case 3:
-                                long bThreadId = TEST_THREAD_ID;
-                                long bUserId = TEST_THREAD_ID;
-                                long bContactId = TEST_THREAD_ID;
-
-                                presenter.block(bContactId, null, null
-                                        , new ChatHandler() {
-                                            @Override
-                                            public void onBlock(String uniqueId) {
-                                                super.onBlock(uniqueId);
-                                            }
-                                        });
+                                blockContact();
                                 break;
-                            case 4: {
-                                Long ubThreadId = null;
-//                                Long ubUserId = 121L;
-                                Long ubUserId = null;
-                                Long ubContactId = null;
-                                Long unblockId = (long) TEST_THREAD_ID;
-                                presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
-                                        , null);
+                            case 4:
+                                unblockContact();
                                 break;
-                            }
                             case 5: {
-                                getBlockList();
-
+                                getBlockedList();
                                 break;
                             }
                             case 6: {
-
-//                                RequestUploadImage requestUploadImage =
-//                                        new RequestUploadImage.Builder(ChatActivity.this, getUri())
-//                                                .sethC(140)
-//                                                .setwC(140)
-//                                                .build();
-
-//                                ThreadInfoVO threadInfoVO = new ThreadInfoVO
-//                                        .Builder()
-//                                        .description("this is test description updated on " + new Date().toString())
-//                                        .title("Test File PodSpace")
-//                                        .build();
-
-                                RequestThreadInfo request =
-                                        new RequestThreadInfo.Builder(TEST_THREAD_ID)
-//                                                .name("Test File PodSpace")
-//                                                .metadata("{}")
-//                                                .image()
-                                                .description("this is test description updated on " + new Date().toString())
-//                                                .setUploadThreadImageRequest(requestUploadImage)
-//                                                .setUserGroupHash(TEST_THREAD_HASH)
-                                                .build();
-
-                                presenter.updateThreadInfo(request);
-//
-//                                presenter.updateThreadInfo(TEST_THREAD_ID,
-//                                        threadInfoVO,
-//                                        new ChatHandler() {
-//                                            @Override
-//                                            public void onUpdateThreadInfo(String uniqueId) {
-//
-//                                                super.onUpdateThreadInfo(uniqueId);
-//                                            }
-//                                        });
-//
-
+                                updateThreadInfo();
                                 break;
                             }
 
                             case 7: {
-                                RequestSeenMessageList requests = new RequestSeenMessageList
-                                        .Builder(TEST_THREAD_ID).build();
-                                presenter.seenMessageList(requests);
+                                seenMessageList();
                                 break;
 
                             }
-                            case 8: {
-                                RequestDeliveredMessageList requestD = new RequestDeliveredMessageList
-                                        .Builder(50532).build();
-                                presenter.deliveredMessageList(requestD);
-                            }
-                            break;
+                            case 8:
+                                getDeliverMessageList();
+                                break;
                             case 9: {
                                 createThreadWithMessage();
-
                                 break;
                             }
                             case 10:
-
                                 getThreadWithCoreUser();
                                 break;
                             case 11:
@@ -726,87 +505,46 @@ public class ChatActivity extends AppCompatActivity
                                 startTyping();
                                 break;
                             case 16: {
-
-                                if (runningSignals.size() > 0) {
-
-                                    String uniqueId = runningSignals.get(runningSignals.size() - 1);
-
-                                    stopTyping(uniqueId);
-
-                                    runningSignals.remove(uniqueId);
-                                }
+                                stopTyping();
                                 break;
                             }
-
-
                             case 17: {
                                 removeAdminRules();
                                 break;
                             }
-
                             case 18: {
-
                                 addAuditor();
-
                                 break;
                             }
-
                             case 19: {
-
                                 removeAuditor();
-
                                 break;
                             }
                             case 20: {
-
                                 createThreadWithFile();
-
                                 break;
                             }
-
                             case 21: {
-
                                 getUserRoles();
-
                                 break;
                             }
-
                             case 22: {
                                 downloadFile();
                                 break;
                             }
-
                             case 23: {
                                 cancelDownloadImage();
                                 break;
                             }
 
                             case 24: {
-
-
                                 presenter.getCacheSize();
-
                                 break;
-
                             }
 
                             case 25: {
 
-                                presenter.clearDatabaseCache(new Chat.IClearMessageCache() {
-
-                                    @Override
-                                    public void onCacheDatabaseCleared() {
-
-                                        Log.e("CACHE", "Cache Cleared Successfully");
-
-                                    }
-
-                                    @Override
-                                    public void onExceptionOccurred(String cause) {
-                                        Log.e("CACHE", "Exception Occurred");
-
-                                    }
-                                });
+                                clearCache();
 
                                 break;
                             }
@@ -819,9 +557,7 @@ public class ChatActivity extends AppCompatActivity
                             }
 
                             case 27: {
-
-//                                presenter.clearStorage();
-
+                                clearStorage();
                                 break;
                             }
 
@@ -829,30 +565,130 @@ public class ChatActivity extends AppCompatActivity
                         }
                     }
 
-                    private void getBlockList() {
-
-                        RequestBlockList request =
-                                new RequestBlockList.Builder()
-                                        .count(50)
-                                        .offset(0)
-//                                        .withNoCache()
-                                        .build();
-
-                        presenter.getBlockList(request);
-
-//                        presenter.getBlockList(10L, 0L, new ChatHandler() {
-//                            @Override
-//                            public void onGetBlockList(String uniqueId) {
-//                                super.onGetBlockList(uniqueId);
-//                            }
-//                        });
-                    }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-
+                        Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void getBlockedList() {
+        RequestBlockList request =
+                new RequestBlockList.Builder()
+                        .count(50)
+                        .offset(0)
+//                                        .withNoCache()
+                        .build();
+
+        presenter.getBlockList(request);
+    }
+
+    private void clearStorage() {
+        presenter.clearPictures();
+        presenter.clearFiles();
+    }
+
+    private void clearCache() {
+        presenter.clearDatabaseCache(new Chat.IClearMessageCache() {
+
+            @Override
+            public void onCacheDatabaseCleared() {
+
+                Log.e("CACHE", "Cache Cleared Successfully");
+
+            }
+
+            @Override
+            public void onExceptionOccurred(String cause) {
+                Log.e("CACHE", "Exception Occurred");
+
+            }
+        });
+    }
+
+    private void stopTyping() {
+        if (runningSignals.size() > 0) {
+
+            String uniqueId = runningSignals.get(runningSignals.size() - 1);
+
+            stopTyping(uniqueId);
+
+            runningSignals.remove(uniqueId);
+        }
+        return;
+    }
+
+    private void getDeliverMessageList() {
+        RequestDeliveredMessageList requestD = new RequestDeliveredMessageList
+                .Builder(50532).build();
+        presenter.deliveredMessageList(requestD);
+    }
+
+
+    private void seenMessageList() {
+
+        RequestSeenMessageList requests = new RequestSeenMessageList
+                .Builder(TEST_THREAD_ID).build();
+        presenter.getSeenMessageList(requests);
+    }
+
+    private void updateThreadInfo() {
+
+
+        RequestUploadImage requestUploadImage =
+                new RequestUploadImage.Builder(ChatActivity.this, getUri())
+                        .sethC(140)
+                        .setwC(140)
+                        .build();
+
+
+        RequestThreadInfo request =
+                new RequestThreadInfo.Builder(TEST_THREAD_ID)
+//                                                .name("Test File PodSpace") // required. if not set, thread name will set to null
+//                                                .metadata("{}") // required. if not set, thread metadata will set to null
+//                                                .image("IMAGE URL") // required. if not set, thread image will set to null
+                        .description("this is test description updated on " + new Date().toString()) // required. if not set, thread name will set to null
+//                                                .setUploadThreadImageRequest(requestUploadImage) // set when you wanna upload thread image
+//                                                .setUserGroupHash(TEST_THREAD_HASH) // set when you wanna upload thread image
+                        .build();
+
+        presenter.updateThreadInfo(request);
+    }
+
+    private void unblockContact() {
+        Long ubThreadId = null;
+//                                Long ubUserId = 121L;
+        Long ubUserId = null;
+        Long ubContactId = null;
+        Long unblockId = (long) TEST_THREAD_ID;
+        presenter.unBlock(unblockId, ubUserId, ubThreadId, ubContactId
+                , null);
+        return;
+    }
+
+    private void blockContact() {
+
+        long bThreadId = TEST_THREAD_ID;
+        long bUserId = TEST_THREAD_ID;
+        long bContactId = TEST_THREAD_ID;
+
+        presenter.block(bContactId, null, null
+                , new ChatHandler() {
+                    @Override
+                    public void onBlock(String uniqueId) {
+                        super.onBlock(uniqueId);
+                    }
+                });
+
+    }
+
+    private void routeMap() {
+        presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
+    }
+
+    private void searchMap() {
+        presenter.searchMap("haram", 36.285671, 59.6034264);
     }
 
     private void createThreadWithMessage() {
@@ -970,7 +806,7 @@ public class ChatActivity extends AppCompatActivity
 
         }
 
-        downloadingId = presenter.downloadFile(rePod, new ProgressHandler.IDownloadFile() {
+        downloadingId = presenter.downloadFile(rePodImage, new ProgressHandler.IDownloadFile() {
 
 
             @Override
@@ -1408,26 +1244,26 @@ public class ChatActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
 
-        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
-
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                String center = "35.7003510,51.3376472";
-
-                RequestLocationMessage requestLocationMessage = new RequestLocationMessage
-                        .Builder()
-                        .center(center)
-                        .message("This is location ")
-                        .activity(ChatActivity.this)
-                        .threadId(TEST_THREAD_ID)
-                        .build();
-
-                presenter.sendLocationMessage(requestLocationMessage);
-
-
-            }
-        }
+//        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
+//
+//            if (grantResults.length > 0
+//                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                String center = "35.7003510,51.3376472";
+//
+//                RequestLocationMessage requestLocationMessage = new RequestLocationMessage
+//                        .Builder()
+//                        .center(center)
+//                        .message("This is location ")
+//                        .activity(ChatActivity.this)
+//                        .threadId(TEST_THREAD_ID)
+//                        .build();
+//
+//                presenter.sendLocationMessage(requestLocationMessage);
+//
+//
+//            }
+//        }
 
 
     }
@@ -1680,6 +1516,7 @@ public class ChatActivity extends AppCompatActivity
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -1905,7 +1742,7 @@ public class ChatActivity extends AppCompatActivity
 
         String meta = getMetaData();
 
-        RequestMessage request = new RequestMessage.Builder("Salam",1000)
+        RequestMessage request = new RequestMessage.Builder("Salam", 1000)
                 .messageType(TextMessageType.Constants.TEXT)
                 .build();
 
@@ -1964,22 +1801,10 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 2:
                 //"rename thread",
-                presenter.renameThread(TEST_THREAD_ID, "*** Rename thread to " + new Date().toString() + " ***", new ChatHandler() {
-                    @Override
-                    public void onRenameThread(String uniqueId) {
-                        super.onRenameThread(uniqueId);
-                    }
-                });
-
+                renameTHread();
                 break;
             case 3:
-                //"get user info",
-                presenter.getUserInfo(new ChatHandler() {
-                    @Override
-                    public void onGetUserInfo(String uniqueId) {
-                        super.onGetUserInfo(uniqueId);
-                    }
-                });
+                getUserInfo();
 
                 break;
             case 4:
@@ -2013,22 +1838,12 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 10:
                 //"mute thread",
-                presenter.muteThread(TEST_THREAD_ID, new ChatHandler() {
-                    @Override
-                    public void onMuteThread(String uniqueId) {
-                        super.onMuteThread(uniqueId);
-                    }
-                });
+                muteThread();
 
                 break;
             case 11:
                 //"un mute thread"
-                presenter.unMuteThread(TEST_THREAD_ID, new ChatHandler() {
-                    @Override
-                    public void onUnMuteThread(String uniqueId) {
-                        super.onUnMuteThread(uniqueId);
-                    }
-                });
+                unMuteThread();
 
                 break;
             case 12:
@@ -2038,92 +1853,15 @@ public class ChatActivity extends AppCompatActivity
                 break;
             case 13:
                 //"edit message"
-                Inviter inviter = new Inviter();
-                inviter.setName("farhad");
-//                String meta = "\"{\\\"actionType\\\":1,\\\"data\\\":\\\"{\\\"amount\\\":1500,\\\"description\\\":\\\"\\\",\\\"id\\\":161,\\\"state\\\":2,\\\"destUserId\\\":1900896}\\\"}\"";
-
-                JsonObject a = new JsonObject();
-//
-                a.addProperty("actionType", 7);
-                a.addProperty("amount", 12);
-                a.addProperty("id", 161);
-                a.addProperty("state", 2);
-                a.addProperty("destUserId", 1900897);
-
-//                a.addProperty("name", "farhad");
-//                a.addProperty("family", "kheirkhah");
-//                a.addProperty("phoneNumber", "989157770684");
-
-
-                String meta = gson.toJson(a);
-
-
-                presenter.editMessage(TEST_THREAD_ID,
-                        "1111", meta, null);
+                editMessage();
 
                 break;
             case 14:
-
-                // add contact
-//                presenter.addContact("",
-//                        "",
-//                        "",
-//                        faker.name().username() + "@gmail.com",
-//                        "");
-//
-//                presenter.addContact("",
-//                        "",
-//                        "",
-//                        "",
-//                        "");
-// 16844 zabix1
-
-
-                List<String> usernames = new ArrayList<>();
-                usernames.add("z.mohammadi");
-                usernames.add("p.khoshghadam");
-                usernames.add("m.hasanpour");
-                usernames.add("z.ershad");
-                usernames.add("Samira.amiri");
-                usernames.add("s.heydarizadeh");
-                usernames.add("p.pahlavani");
-                usernames.add("ma.amjadi");
-
-
-//                for (String user :
-//                        usernames) {
-//
-//
-//                    try {
-//                        RequestAddContact request = new RequestAddContact.Builder()
-//                                .firstName(user + " n ")
-//                                .lastName(user + " i ")
-//                                .username(user)
-//                                .build();
-//
-//                        presenter.addContact(request);
-//
-//                        Thread.sleep(7000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//
-//                }
-                RequestAddContact request = new RequestAddContact.Builder()
-                        .firstName("مسعود")
-                        .lastName("امجدی")
-                        .username("ma.amjadi")
-                        .build();
-
-//                presenter.addContact(request);
-                presenter.addContact("تست", "تست زاده", "", "", "user-15860676455262");
-
-
+                addContact();
                 break;
             case 15:
                 // remove contact
-                presenter.removeContact(TEST_THREAD_ID);
+                removeContact();
                 break;
             case 16:
                 /** UPDATE CONTACTS*/
@@ -2131,11 +1869,7 @@ public class ChatActivity extends AppCompatActivity
             case 17: {
                 /** GET LAST SEEN **/
 
-                ArrayList<Integer> testArray = new ArrayList<>();
-                testArray.add(2);
-                testArray.add(1);
-//                testArray.add(123);
-                getNotSeenDuration(testArray);
+                getNotSeenDur();
 
                 break;
             }
@@ -2144,10 +1878,7 @@ public class ChatActivity extends AppCompatActivity
                  * Pin ConversationVO
                  */
 
-                RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
-                        .build();
-
-                presenter.pinThread(requestPinThread);
+                pinThreadToTop();
 
                 break;
 
@@ -2157,10 +1888,7 @@ public class ChatActivity extends AppCompatActivity
                  * UnPin ConversationVO
                  */
 
-                RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
-                        .build();
-
-                presenter.unPinThread(requestPinThread);
+                unPinThread();
 
                 break;
 
@@ -2168,45 +1896,18 @@ public class ChatActivity extends AppCompatActivity
 
 
             case 20: {
-
-
-                RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
-                        .setMessageId(TEST_THREAD_ID)
-                        .setNotifyAll(true)
-                        .build();
-
-                presenter.pinMessage(requestPinMessage);
-
+                pinMessageToTop();
                 break;
             }
 
             case 21: {
-
-
-                RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
-                        .setMessageId(TEST_THREAD_ID)
-                        .build();
-
-
-                presenter.unPinMessage(requestPinMessage);
-
-
+                unpinMessage();
                 break;
             }
 
             case 22: {
 
-                RequestGetMentionList req = new RequestGetMentionList
-                        .Builder(TEST_THREAD_ID)
-//                        .setAllMentioned(true)
-//                        .setUnreadMentioned(true)
-//                        .unreadMentions()
-                        .offset(0)
-                        .count(25)
-//                        .withNoCache()
-                        .build();
-
-                presenter.getMentionList(req);
+                getMentionList();
 
                 break;
             }
@@ -2233,31 +1934,187 @@ public class ChatActivity extends AppCompatActivity
                 break;
             }
 
-
-//            case 18: {
-//
-//                startTyping();
-//
-//                break;
-//            }
-//            case 19: {
-//
-//
-//                if (runningSignals.size() > 0) {
-//
-//                    String uniqueId = runningSignals.get(runningSignals.size() - 1);
-//
-//                    stopTyping(uniqueId);
-//
-//                    runningSignals.remove(uniqueId);
-//                }
-//
-//
-//                break;
-//            }
-
-
         }
+    }
+
+    private void getMentionList() {
+        RequestGetMentionList req = new RequestGetMentionList
+                .Builder(TEST_THREAD_ID)
+//                        .setAllMentioned(true)
+//                        .setUnreadMentioned(true)
+//                        .unreadMentions()
+                .offset(0)
+                .count(25)
+//                        .withNoCache()
+                .build();
+
+        presenter.getMentionList(req);
+    }
+
+    private void unpinMessage() {
+        RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
+                .setMessageId(TEST_THREAD_ID)
+                .build();
+
+
+        presenter.unPinMessage(requestPinMessage);
+    }
+
+    private void pinMessageToTop() {
+        RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
+                .setMessageId(TEST_THREAD_ID)
+                .setNotifyAll(true)
+                .build();
+
+        presenter.pinMessage(requestPinMessage);
+    }
+
+    private void unPinThread() {
+        RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
+                .build();
+
+        presenter.unPinThread(requestPinThread);
+    }
+
+    private void pinThreadToTop() {
+        RequestPinThread requestPinThread = new RequestPinThread.Builder(TEST_THREAD_ID)
+                .build();
+
+        presenter.pinThread(requestPinThread);
+    }
+
+    private void getNotSeenDur() {
+        ArrayList<Integer> testArray = new ArrayList<>();
+        testArray.add(2);
+        testArray.add(1);
+//                testArray.add(123);
+        getNotSeenDuration(testArray);
+    }
+
+    private void removeContact() {
+        presenter.removeContact(TEST_THREAD_ID);
+    }
+
+    private void addContact() {
+        // add contact
+//                presenter.addContact("",
+//                        "",
+//                        "",
+//                        faker.name().username() + "@gmail.com",
+//                        "");
+//
+//                presenter.addContact("",
+//                        "",
+//                        "",
+//                        "",
+//                        "");
+// 16844 zabix1
+
+
+        List<String> usernames = new ArrayList<>();
+        usernames.add("z.mohammadi");
+        usernames.add("p.khoshghadam");
+        usernames.add("m.hasanpour");
+        usernames.add("z.ershad");
+        usernames.add("Samira.amiri");
+        usernames.add("s.heydarizadeh");
+        usernames.add("p.pahlavani");
+        usernames.add("ma.amjadi");
+
+
+//                for (String user :
+//                        usernames) {
+//
+//
+//                    try {
+//                        RequestAddContact request = new RequestAddContact.Builder()
+//                                .firstName(user + " n ")
+//                                .lastName(user + " i ")
+//                                .username(user)
+//                                .build();
+//
+//                        presenter.addContact(request);
+//
+//                        Thread.sleep(7000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//
+//                }
+        RequestAddContact request = new RequestAddContact.Builder()
+                .firstName("مسعود")
+                .lastName("امجدی")
+                .username("ma.amjadi")
+                // .cellphoneNumber()
+                // .email()
+                .build();
+
+        presenter.addContact(request);
+    }
+
+    private void editMessage() {
+        Inviter inviter = new Inviter();
+        inviter.setName("farhad");
+//                String meta = "\"{\\\"actionType\\\":1,\\\"data\\\":\\\"{\\\"amount\\\":1500,\\\"description\\\":\\\"\\\",\\\"id\\\":161,\\\"state\\\":2,\\\"destUserId\\\":1900896}\\\"}\"";
+
+        JsonObject a = new JsonObject();
+//
+        a.addProperty("actionType", 7);
+        a.addProperty("amount", 12);
+        a.addProperty("id", 161);
+        a.addProperty("state", 2);
+        a.addProperty("destUserId", 1900897);
+
+//                a.addProperty("name", "farhad");
+//                a.addProperty("family", "kheirkhah");
+//                a.addProperty("phoneNumber", "989157770684");
+
+
+        String meta = gson.toJson(a);
+
+
+
+        presenter.editMessage(TEST_THREAD_ID, // message id
+                "1111", // message new content
+                meta, null);
+    }
+
+    private void unMuteThread() {
+        presenter.unMuteThread(TEST_THREAD_ID, new ChatHandler() {
+            @Override
+            public void onUnMuteThread(String uniqueId) {
+                super.onUnMuteThread(uniqueId);
+            }
+        });
+    }
+
+    private void muteThread() {
+        presenter.muteThread(TEST_THREAD_ID, new ChatHandler() {
+            @Override
+            public void onMuteThread(String uniqueId) {
+                super.onMuteThread(uniqueId);
+            }
+        });
+    }
+
+    private void getUserInfo() {
+        //"get user info",
+        presenter.getUserInfo(new ChatHandler() {
+            @Override
+            public void onGetUserInfo(String uniqueId) {
+                super.onGetUserInfo(uniqueId);
+            }
+        });
+    }
+
+    private void renameTHread() {
+        presenter.renameThread(TEST_THREAD_ID, "*** Rename thread to " + new Date().toString() + " ***", new ChatHandler() {
+            @Override
+            public void onRenameThread(String uniqueId) {
+                super.onRenameThread(uniqueId);
+            }
+        });
     }
 
     private void getThreadParticipants() {
@@ -2282,7 +2139,7 @@ public class ChatActivity extends AppCompatActivity
 //        });
     }
 
-//21622
+    //21622
     public static final String THREAD_UNIQUE_NAME = "unique_name_4_1584016531111";
 //    public static final String THREAD_UNIQUE_NAME = "unique_name_4_" + new Date().getTime();
 
@@ -2739,6 +2596,7 @@ public class ChatActivity extends AppCompatActivity
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
+        Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -2864,7 +2722,7 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onFinish(String imageJson, ChatResponse<ResultImageFile> chatResponse) {
 
-                Log.e("UPLAOD",imageJson);
+                Log.e("UPLAOD", imageJson);
                 runOnUiThread(() -> {
                     Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                     percentage.setTextColor(getResources().getColor(R.color.colorAccent));
