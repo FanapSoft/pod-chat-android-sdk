@@ -121,20 +121,20 @@ public class ThreadManager {
         return sorted;
     }
 
-    public static  ChatResponse<ResultLeaveThread> prepareLeaveThreadResponse(ChatMessage chatMessage){
+    public static ChatResponse<ResultLeaveThread> prepareLeaveThreadResponse(ChatMessage chatMessage) {
 
         ChatResponse<ResultLeaveThread> chatResponse = new ChatResponse<>();
 
         ResultLeaveThread leaveThread = App.getGson().fromJson(chatMessage.getContent(), ResultLeaveThread.class);
 
-        leaveThread.setThreadId( chatMessage.getSubjectId());
+        leaveThread.setThreadId(chatMessage.getSubjectId());
         chatResponse.setErrorCode(0);
         chatResponse.setHasError(false);
         chatResponse.setErrorMessage("");
         chatResponse.setUniqueId(chatMessage.getUniqueId());
         chatResponse.setResult(leaveThread);
 
-       return chatResponse;
+        return chatResponse;
 
     }
 
@@ -170,7 +170,7 @@ public class ThreadManager {
                                              String threadTitle,
                                              String description,
                                              String image
-            , String metadata,  String uniqueId, String typecode, String token){
+            , String metadata, String uniqueId, String typecode, String token) {
 
 
         List<Invitee> invitees = new ArrayList<Invitee>(Arrays.asList(invitee));
@@ -208,7 +208,7 @@ public class ThreadManager {
 
         String contentThreadChat = chatThreadObject.toString();
 
-        ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId, typecode,token);
+        ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId, typecode, token);
 
         JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
 
@@ -220,7 +220,7 @@ public class ThreadManager {
         }
 
         String asyncContent = jsonObject.toString();
-        return  asyncContent;
+        return asyncContent;
 
     }
 
@@ -268,33 +268,33 @@ public class ThreadManager {
 
     }
 
-public static String prepareThreadInfoFromServer(long threadId,String uniqueId,String typeCode ,String mtypeCode ,String token){
+    public static String prepareThreadInfoFromServer(long threadId, String uniqueId, String typeCode, String mtypeCode, String token) {
 
-            ChatMessageContent chatMessageContent = new ChatMessageContent();
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
 
-            chatMessageContent.setCount(1);
+        chatMessageContent.setCount(1);
 
-            chatMessageContent.setOffset(0);
+        chatMessageContent.setOffset(0);
 
-            ArrayList<Integer> threadIds = new ArrayList<>();
+        ArrayList<Integer> threadIds = new ArrayList<>();
 
-            threadIds.add((int) threadId);
-            chatMessageContent.setThreadIds(threadIds);
-            JsonObject content = (JsonObject) App.getGson().toJsonTree(chatMessageContent);
+        threadIds.add((int) threadId);
+        chatMessageContent.setThreadIds(threadIds);
+        JsonObject content = (JsonObject) App.getGson().toJsonTree(chatMessageContent);
 
-            AsyncMessage asyncMessage = new AsyncMessage();
-            asyncMessage.setContent(content.toString());
-            asyncMessage.setType(ChatMessageType.Constants.GET_THREADS);
-            asyncMessage.setTokenIssuer("1");
-            asyncMessage.setToken(token);
-            asyncMessage.setUniqueId(uniqueId);
-            asyncMessage.setTypeCode(typeCode != null ? typeCode : mtypeCode);
+        AsyncMessage asyncMessage = new AsyncMessage();
+        asyncMessage.setContent(content.toString());
+        asyncMessage.setType(ChatMessageType.Constants.GET_THREADS);
+        asyncMessage.setTokenIssuer("1");
+        asyncMessage.setToken(token);
+        asyncMessage.setUniqueId(uniqueId);
+        asyncMessage.setTypeCode(typeCode != null ? typeCode : mtypeCode);
 
-            JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(asyncMessage);
-            return jsonObject.toString();
-}
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(asyncMessage);
+        return jsonObject.toString();
+    }
 
-    public static String prepareRenameThreadRequest(long threadId, String title,String uniqueId ,String mTypeCode, String token){
+    public static String prepareRenameThreadRequest(long threadId, String title, String uniqueId, String mTypeCode, String token) {
 
 
         ChatMessage chatMessage = new ChatMessage();
@@ -307,6 +307,60 @@ public static String prepareThreadInfoFromServer(long threadId,String uniqueId,S
         chatMessage.setTypeCode(mTypeCode);
         String asyncContent = App.getGson().toJson(chatMessage);
         return asyncContent;
+    }
+
+    public static String prepareGetThreadRequest(boolean isNew, int finalCount, long finalOffset, String threadName, ArrayList<Integer> threadIds, long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, String uniqueId, String typeCode, String mtypeCode, String token) {
+
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
+
+        chatMessageContent.setNew(isNew);
+
+        chatMessageContent.setCount(finalCount);
+
+        chatMessageContent.setOffset(finalOffset);
+
+        if (threadName != null) {
+            chatMessageContent.setName(threadName);
+        }
+
+        JsonObject content;
+
+        if (!Util.isNullOrEmpty(threadIds)) {
+            chatMessageContent.setThreadIds(threadIds);
+            content = (JsonObject) App.getGson().toJsonTree(chatMessageContent);
+        } else {
+            content = (JsonObject) App.getGson().toJsonTree(chatMessageContent);
+            content.remove("threadIds");
+        }
+
+        if (creatorCoreUserId > 0) {
+            content.addProperty("creatorCoreUserId", creatorCoreUserId);
+        }
+        if (partnerCoreUserId > 0) {
+            content.addProperty("partnerCoreUserId", partnerCoreUserId);
+        }
+        if (partnerCoreContactId > 0) {
+            content.addProperty("partnerCoreContactId", partnerCoreContactId);
+        }
+
+        if (!isNew)
+            content.remove("new");
+
+        content.remove("lastMessageId");
+        content.remove("firstMessageId");
+
+        AsyncMessage chatMessage = new AsyncMessage();
+        chatMessage.setContent(content.toString());
+        chatMessage.setType(ChatMessageType.Constants.GET_THREADS);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(token);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTypeCode(typeCode != null ? typeCode : mtypeCode);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
+        jsonObject.remove("subjectId");
+        return jsonObject.toString();
+
     }
 
     public static class ThreadResponse {

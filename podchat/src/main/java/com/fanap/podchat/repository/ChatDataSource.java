@@ -307,7 +307,6 @@ public class ChatDataSource {
         memoryDataSource.cancelMessage(uniqueId);
     }
 
-
     //Sending Queue
 
     public void moveFromSendingToWaitingQueue(String uniqueId) {

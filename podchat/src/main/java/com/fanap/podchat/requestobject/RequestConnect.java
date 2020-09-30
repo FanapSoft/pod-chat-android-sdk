@@ -48,6 +48,7 @@ public class RequestConnect extends BaseRequestObject {
             this.severName = severName;
             this.token = token;
             this.ssoHost = ssoHost;
+
         }
 
         public Builder(String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer, String podSpaceServer) {
