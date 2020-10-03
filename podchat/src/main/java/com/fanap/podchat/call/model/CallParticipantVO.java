@@ -1,5 +1,6 @@
 package com.fanap.podchat.call.model;
 
+import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.mainmodel.Participant;
 
 import java.io.Serializable;

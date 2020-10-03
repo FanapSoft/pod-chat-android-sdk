@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
@@ -40,7 +41,6 @@ import java.util.List;
 
 
 public class CallActivity extends AppCompatActivity implements ChatContract.view {
-
 
 
     private static final String TAG = "CHAT_SDK_CALL";
@@ -108,7 +108,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private ChatContract.presenter presenter;
 
     Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant,
-            buttonConnectSandBox, buttonStartSandboxCall, buttonShareLog;
+            buttonConnectSandBox, buttonStartSandboxCall, buttonShareLog, buttonRemoveCallParticipant,
+            buttonTerminateCall;
+
     TextView tvStatus, tvCallerName, tvHistory;
 
     RadioGroup groupCaller;
@@ -138,7 +140,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private boolean chatReady;
     private boolean isTestMode = false;
     private boolean isInCall = false;
-
 
 
     @Override
@@ -275,6 +276,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
+        buttonTerminateCall.setOnClickListener(v -> {
+
+            onCallEnded();
+
+
+            presenter.terminateCall();
+
+
+        });
+
 
         buttonGetHistory.setOnClickListener(v -> presenter.getCallHistory());
 
@@ -306,6 +317,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         });
 
         buttonAddCallParticipant.setOnClickListener(v -> presenter.addCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
@@ -498,6 +510,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonCloseHistory = findViewById(R.id.buttonCloseHistory);
 
         buttonAddCallParticipant = findViewById(R.id.btnAddCallParticipant);
+        buttonRemoveCallParticipant = findViewById(R.id.btnRemoveCallParticipant);
 
         groupCaller = findViewById(R.id.radioCaller);
         groupPartner = findViewById(R.id.radioPartner);
@@ -514,6 +527,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
+        buttonTerminateCall = findViewById(R.id.btnTerminateCall);
         buttonGetHistory = findViewById(R.id.buttonGetHistory);
         buttonConnectSandBox = findViewById(R.id.btnConnectToSandbox);
         buttonStartSandboxCall = findViewById(R.id.btnSandboxCall);
@@ -556,7 +570,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         CallInfo callInfo = getIntent().getParcelableExtra(ChatConstant.POD_CALL_INFO);
 
-        Log.e(TAG,"Call info: " + callInfo);
+        Log.e(TAG, "Call info: " + callInfo);
 
         if (callInfo != null) {
             presenter.setCallInfo(callInfo);
@@ -815,7 +829,20 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         vibrate();
 
         runOnUiThread(() -> Toast.makeText(this, participant + " joined!", Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onCallParticipantRemoved(String name) {
+        vibrate();
+
+        runOnUiThread(() -> Toast.makeText(this, name + " removed from call!", Toast.LENGTH_SHORT).show());
+    }
 
 
+    @Override
+    public void onRemovedFromCall() {
+        vibrate();
+
+        runOnUiThread(() -> Toast.makeText(this, "You have been removed from call!", Toast.LENGTH_SHORT).show());
     }
 }

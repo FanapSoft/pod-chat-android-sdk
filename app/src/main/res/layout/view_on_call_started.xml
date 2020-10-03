@@ -8,7 +8,7 @@
     android:background="@color/colorPrimary"
     android:visibility="gone"
     android:keepScreenOn="true"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
 
     <LinearLayout
@@ -47,6 +47,26 @@
         android:id="@+id/btnAddCallParticipant"
         android:background="@color/colorAccent"
         app:layout_constraintTop_toBottomOf="@+id/layoutAddParticipant"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <Button
+        android:id="@+id/btnRemoveCallParticipant"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/grey"
+        android:text="Remove Call Participant"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/btnAddCallParticipant"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <Button
+        android:id="@+id/btnTerminateCall"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/red"
+        android:text="Terminate Call"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/btnRemoveCallParticipant"
         tools:layout_editor_absoluteX="0dp" />
 
     <ImageButton
@@ -92,18 +112,5 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.75" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="End Call"
-        android:textColor="@color/white"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@+id/buttonEndCall"
-        app:layout_constraintStart_toStartOf="@+id/buttonEndCall"
-        app:layout_constraintTop_toBottomOf="@+id/buttonEndCall" />
-
 
 </android.support.constraint.ConstraintLayout>

@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
@@ -621,7 +622,7 @@ public class ChatListenerManager {
     public void callOnLogEvent(String logName, String json) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onLogEvent(logName,json);
+                listener.onLogEvent(logName, json);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -699,7 +700,6 @@ public class ChatListenerManager {
     public void callOnPinThread(ChatResponse<ResultPinThread> response) {
 
 
-
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onPinThread(response);
@@ -711,9 +711,7 @@ public class ChatListenerManager {
     }
 
 
-
     public void callOnUnPinThread(ChatResponse<ResultPinThread> response) {
-
 
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -764,7 +762,6 @@ public class ChatListenerManager {
         }
 
 
-
     }
 
     public void callOnGetMentionList(ChatResponse<ResultHistory> response) {
@@ -776,7 +773,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -791,7 +787,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -833,7 +828,6 @@ public class ChatListenerManager {
     public void callOnUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
 
 
-
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onUniqueNameIsAvailable(response);
@@ -867,7 +861,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -940,7 +933,6 @@ public class ChatListenerManager {
     }
 
     public void callOnPingStatusSent(ChatResponse<StatusPingResult> response) {
-
 
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -1080,6 +1072,29 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnCallParticipantRemoved(ChatResponse<RemoveFromCallResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantRemoved(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnRemovedFromCall(ChatResponse<RemoveFromCallResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRemovedFromCall(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
     public void callOnCallParticipantJoined(ChatResponse<JoinCallParticipantResult> response) {
 
 
@@ -1090,7 +1105,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -1107,6 +1121,7 @@ public class ChatListenerManager {
         }
 
     }
+
 
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {

@@ -247,6 +247,9 @@ public interface ChatContract {
 
         default void onCallParticipantJoined(String response){}
 
+        default void onCallParticipantRemoved(String name){}
+
+        default void onRemovedFromCall(){}
     }
 
     interface presenter {
@@ -527,5 +530,9 @@ public interface ChatContract {
         void addCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
 
         void setCallInfo(CallInfo callInfo);
+
+        void terminateCall();
+
+        void removeCallParticipant(boolean checked, boolean checked1, boolean checked2);
     }
 }
