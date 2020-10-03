@@ -299,6 +299,8 @@ import io.sentry.core.Breadcrumb;
 import io.sentry.core.Sentry;
 import io.sentry.core.SentryEvent;
 import io.sentry.core.SentryLevel;
+import io.sentry.core.SentryOptions;
+import io.sentry.core.protocol.Message;
 import io.sentry.core.protocol.User;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -434,10 +436,19 @@ public class Chat extends AsyncAdapter {
     private static PodCallAudioCallServiceManager audioCallManager;
 
 
+    /**
+     * @param freeSpaceThreshold needed free space for downloading media in bytes.
+     *                           default is 104,857,600 bytes (100mg).
+     */
     public void setFreeSpaceThreshold(long freeSpaceThreshold) {
         this.freeSpaceThreshold = freeSpaceThreshold;
     }
 
+    /**
+     * @param maxMilliseconds Chat retry to connect after disconnect.
+     *                        At each step, the delay time between retrying attempts is
+     *                        doubled until the maxReconnectStepTime reached.
+     */
     public void setMaxReconnectTime(long maxMilliseconds) {
 
         if (maxMilliseconds < 4000) {
@@ -446,6 +457,8 @@ public class Chat extends AsyncAdapter {
             maxReconnectStepTime = 4000;
         } else
             maxReconnectStepTime = maxMilliseconds;
+
+        showLog("Maximum reconnect time is set to " + maxReconnectStepTime);
     }
 
     private Chat() {
@@ -512,6 +525,11 @@ public class Chat extends AsyncAdapter {
                     options.setSentryClientName("PodChat-Android");
                     options.addInAppInclude("com.fanap.podchat");
                     options.setEnvironment("PODCHAT");
+
+                    options.setBeforeSend((event, hint) -> {
+                        options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
+                        return event;
+                    });
                 });
     }
 
@@ -1481,9 +1499,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-
-    //call request delivered
-
     private void handleOnCallRequestDelivered(ChatMessage chatMessage) {
 
         ChatResponse<CallDeliverResult> response
@@ -1721,6 +1736,17 @@ public class Chat extends AsyncAdapter {
         if (isNetworkStateListenerEnable) enableNetworkStateListener();
     }
 
+
+    /**
+     * It's a configuration for checking network stability.
+     *
+     * @param networkStateConfig contains
+     *                           hostName: The socket host to which the connection checked.
+     *                           port: Port for sending ping.
+     *                           connectTimeout: Connect timeout to host.
+     *                           interval: Delay between tries.
+     *                           disConnectionThreshold: Number of times the timeout is ignored.
+     */
 
     public void setNetworkStateConfig(NetworkPingSender.NetworkStateConfig networkStateConfig) {
         this.networkStateConfig = networkStateConfig;
@@ -4557,6 +4583,12 @@ public class Chat extends AsyncAdapter {
         return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
     }
 
+    /**
+     * @param request         desired file hashCode
+     * @param progressHandler callbacks for downloading progress.
+     * @return uniqueId of request.
+     */
+
     public String getFile(RequestGetPodSpaceFile request, ProgressHandler.IDownloadFile progressHandler) {
 
         String uniqueId = generateUniqueId();
@@ -4681,6 +4713,11 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
+    /**
+     * @param request contains desired file hashcode
+     * @return true if file exist in cache
+     */
     public boolean isInCache(RequestGetPodSpaceFile request) {
 
         File destinationFolder;
@@ -4721,6 +4758,11 @@ public class Chat extends AsyncAdapter {
         return false;
     }
 
+    /**
+     * @param request         contains desired image hashCode
+     * @param progressHandler callbacks for downloading progress.
+     * @return uniqueId of request.
+     */
 
     public String getImage(RequestGetPodSpaceImage request, ProgressHandler.IDownloadFile progressHandler) {
 
@@ -4850,6 +4892,11 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * @param request contains desired image hashcode
+     * @return true if image exist in cache
+     */
+
     public boolean isInCache(RequestGetPodSpaceImage request) {
 
         File destinationFolder;
@@ -4900,6 +4947,11 @@ public class Chat extends AsyncAdapter {
         return podSpaceServer;
     }
 
+    /**
+     * @param request         fileId and hashCode of desired file
+     * @param progressHandler callbacks for downloading progress.
+     * @return uniqueId of request.
+     */
     public String getFile(RequestGetFile request, ProgressHandler.IDownloadFile progressHandler) {
 
         String uniqueId = generateUniqueId();
@@ -5007,6 +5059,11 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * @param request         imageId and hashCode of desired image
+     * @param progressHandler callbacks for downloading progress.
+     * @return uniqueId of request.
+     */
     public String getImage(RequestGetImage request, ProgressHandler.IDownloadFile progressHandler) {
 
         String uniqueId = generateUniqueId();
@@ -5141,10 +5198,20 @@ public class Chat extends AsyncAdapter {
         };
     }
 
+
+    /**
+     * @param config contains methods to set upload connectTimeout
+     *               readTimeout and writeTimeout.
+     */
     public void setUploadTimeoutConfig(TimeoutConfig config) {
 
         RetrofitHelperFileServer.setTimeoutConfig(config);
     }
+
+    /**
+     * @param config contains methods to set download connectTimeout
+     *               readTimeout and writeTimeout.
+     */
 
     public void setDownloadTimeoutConfig(TimeoutConfig config) {
 
@@ -5254,33 +5321,66 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    /**
+     * @param listener contains two callback:
+     *                 onCacheDatabaseCleared when cache cleared successfully.
+     *                 onExceptionOccurred when clearing fails with an exception.
+     */
+
     public void clearCacheDatabase(IClearMessageCache listener) {
 
         if (messageDatabaseHelper != null)
             messageDatabaseHelper.clearAllData(listener);
     }
 
+    /**
+     * @return size of downloaded image with getImage in bytes.
+     */
+
     public long getCachedPicturesFolderSize() {
 
         return FileUtils.getStorageSize(FileUtils.PICTURES);
     }
 
+    /**
+     * @return size of downloaded file with getFile in bytes.
+     */
+
     public long getCachedFilesFolderSize() {
         return FileUtils.getStorageSize(FileUtils.FILES);
     }
 
+
+    /**
+     * Clears pictures that downloaded with getImage.
+     *
+     * @return a boolean that show result of clearing pictures
+     */
     public boolean clearCachedPictures() {
         return FileUtils.clearDirectory(FileUtils.PICTURES);
     }
 
+
+    /**
+     * Clear cache database and
+     *
+     * @return a boolean that show result of clearing cache.
+     */
     public boolean clearCachedFiles() {
         return FileUtils.clearDirectory(FileUtils.FILES);
     }
 
+    /**
+     * @return size of cache database in bytes.
+     */
     public long getCacheSize() {
         return FileUtils.getCacheSize(getContext());
     }
 
+    /**
+     * @return size of media that downloaded with
+     * getFile and getImage in bytes.
+     */
     public long getStorageSize() {
         return FileUtils.getStorageSize(FileUtils.Media);
     }
@@ -7955,11 +8055,11 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
         if (chatReady) {
-            MapManager.searchMap(API_KEY_MAP,API_NESHAN_ORG,searchTerm,latitude,longitude)
-                    .doOnError(exception-> captureError(exception.getMessage(),ChatConstant.ERROR_CODE_CALL_NESHAN_API,uniqueId,exception))
+            MapManager.searchMap(API_KEY_MAP, API_NESHAN_ORG, searchTerm, latitude, longitude)
+                    .doOnError(exception -> captureError(exception.getMessage(), ChatConstant.ERROR_CODE_CALL_NESHAN_API, uniqueId, exception))
                     .onErrorResumeNext(Observable.empty())
                     .subscribe(outPutMapNeshan -> {
-                        if(outPutMapNeshan!=null){
+                        if (outPutMapNeshan != null) {
                             String json = gson.toJson(outPutMapNeshan);
                             listenerManager.callOnMapSearch(json, outPutMapNeshan);
                             showLog("RECEIVE_MAP_SEARCH", json);
@@ -7971,7 +8071,6 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-
 
 
     /**
@@ -10858,7 +10957,7 @@ public class Chat extends AsyncAdapter {
         }
         Breadcrumb c = new Breadcrumb();
         c.setCategory("INFO");
-        c.setData("DATA",info);
+        c.setData("DATA", info);
         c.setLevel(SentryLevel.INFO);
         c.setMessage(info);
         c.setType("INFO LOG");
@@ -10881,7 +10980,7 @@ public class Chat extends AsyncAdapter {
 
         Breadcrumb c = new Breadcrumb();
         c.setCategory("ERROR");
-        c.setData("CAUSE",message);
+        c.setData("CAUSE", message);
         c.setLevel(SentryLevel.ERROR);
         c.setMessage(message);
         c.setType("ERROR LOG");
@@ -11234,7 +11333,7 @@ public class Chat extends AsyncAdapter {
                                 try {
                                     resultMessage.setMessageId(Long.parseLong(chatMessage.getContent()));
                                 } catch (NumberFormatException e) {
-                                    captureError(new PodChatException(e.getMessage(),messageUniqueId,getToken()));
+                                    captureError(new PodChatException(e.getMessage(), messageUniqueId, getToken()));
                                     resultMessage.setMessageId(0);
                                 }
                                 chatResponse.setResult(resultMessage);
@@ -11367,7 +11466,7 @@ public class Chat extends AsyncAdapter {
                 dataSource.getAllSendingQueue()
                         .doOnError(exception -> {
                             handleException(exception);
-                            captureError(ChatConstant.ERROR_UNKNOWN_EXCEPTION,ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,"",exception);
+                            captureError(ChatConstant.ERROR_UNKNOWN_EXCEPTION, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "", exception);
                         })
                         .onErrorResumeNext(Observable.empty())
                         .subscribe(sendingQueueCaches -> {
@@ -13402,7 +13501,7 @@ public class Chat extends AsyncAdapter {
             event.setExtra("FROM_SDK", "PODCHAT");
 
 
-            Sentry.captureEvent(event,error);
+            Sentry.captureEvent(event, error);
 
         }
 
@@ -13435,7 +13534,7 @@ public class Chat extends AsyncAdapter {
         event.setLevel(SentryLevel.ERROR);
         event.setTag("FROM_SDK", "PODCHAT");
         event.setExtra("FROM_SDK", "PODCHAT");
-        Sentry.captureEvent(event,new PodChatException(errorMessage, uniqueId, getToken()));
+        Sentry.captureEvent(event, new PodChatException(errorMessage, uniqueId, getToken()));
 
         if (log) {
             Log.e(TAG, "ErrorMessage: " + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId);

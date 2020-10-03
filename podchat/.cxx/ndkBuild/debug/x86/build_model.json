@@ -93,6 +93,7 @@
       "project": {
         "compilerSettingsCacheFolder": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\.cxx",
         "cxxFolder": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\.cxx",
+        "ideBuildTargetAbi": "x86",
         "isBuildOnlyTargetAbiEnabled": true,
         "isCmakeBuildCohabitationEnabled": false,
         "isNativeCompilerSettingsCacheEnabled": false,
@@ -115,10 +116,7 @@
     "objFolder": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\debug\\obj\\local",
     "variantName": "debug",
     "validAbiList": [
-      "ARMEABI_V7A",
-      "ARM64_V8A",
-      "X86",
-      "X86_64"
+      "X86"
     ]
   }
 }

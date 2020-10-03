@@ -407,10 +407,6 @@ public interface ChatContract {
 
         void getAdminList(RequestGetAdmin requestGetAdmin);
 
-//        String startSignalMessage(RequestSignalMsg requestSignalMsg);
-
-//        void stopSignalMessage(String uniqueId);
-
         void getNotSeenDuration(ArrayList<Integer> userIds);
 
         String startTyping(long threadId);

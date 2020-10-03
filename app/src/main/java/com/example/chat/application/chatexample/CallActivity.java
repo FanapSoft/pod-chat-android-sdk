@@ -42,6 +42,7 @@ import java.util.List;
 public class CallActivity extends AppCompatActivity implements ChatContract.view {
 
 
+
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
     private String TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
@@ -93,10 +94,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private static String sandBoxServerName = "chat-server";
 
 
-    private static String sandBoxName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String sandBoxSocketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String sandBoxPlatformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String sandBoxFileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String sandBoxName = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String sandBoxSocketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String sandBoxPlatformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String sandBoxFileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
 
     private boolean permissionToRecordAccepted = false;

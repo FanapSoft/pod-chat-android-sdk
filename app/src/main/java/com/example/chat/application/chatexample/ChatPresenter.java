@@ -59,6 +59,7 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
@@ -734,6 +735,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getUserInfo(ChatHandler handler) {
+
         chat.getUserInfo(handler);
     }
 
@@ -818,6 +820,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void renameThread(long threadId, String title, ChatHandler handler) {
+
+
+
         chat.renameThread(threadId, title, handler);
     }
 
@@ -972,6 +977,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email) {
+
+
+
         chat.updateContact(id, firstName, lastName, cellphoneNumber, email);
     }
 
