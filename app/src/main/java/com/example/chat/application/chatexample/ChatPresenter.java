@@ -59,7 +59,6 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
-import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.OutPutMapNeshan;
@@ -139,8 +138,10 @@ import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 import com.fanap.podchat.util.RequestMapSearch;
+import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -161,6 +162,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private TokenHandler tokenHandler = null;
     private String state = "";
 
+
+    List<String> uniqueIds = new ArrayList<>();
 
     private ChatResponse<CallRequestResult> callRequestResponse;
     private boolean speakerOn = false;
@@ -243,7 +246,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
             @Override
             public void onError(String message) {
-                view.onError();
+                view.onError(message);
             }
         });
 
@@ -349,6 +352,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .build();
 
         String uniqueId = chat.acceptVoiceCall(request);
+        uniqueIds.add(uniqueId);
 
 
     }
@@ -365,6 +369,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .build();
 
         String uniqueId = chat.rejectVoiceCall(request);
+        uniqueIds.add(uniqueId);
 
     }
 
@@ -546,7 +551,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public String requestCall(int partnerId, boolean checked) {
+    public String requestMainOrSandboxCall(int partnerId, boolean checked) {
 
         List<Invitee> invitees = new ArrayList<>();
         Invitee invitee = new Invitee();
@@ -822,7 +827,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void renameThread(long threadId, String title, ChatHandler handler) {
 
 
-
         chat.renameThread(threadId, title, handler);
     }
 
@@ -977,7 +981,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email) {
-
 
 
         chat.updateContact(id, firstName, lastName, cellphoneNumber, email);
@@ -1245,20 +1248,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onError(String content, ErrorOutPut outPutError) {
         super.onError(content, outPutError);
 
-
-        activity.runOnUiThread(() -> Toast.makeText(context, content, Toast.LENGTH_SHORT).show());
-
         if (outPutError.getErrorCode() == 21) {
-
-//            view.onTokenExpired();
 
             if (tokenHandler != null) {
                 tokenHandler.refreshToken();
             } else {
                 Toast.makeText(context, "Token refresh failed!", Toast.LENGTH_LONG).show();
             }
+        }
 
-
+        if (Util.isNotNullOrEmpty(outPutError.getUniqueId()) && uniqueIds.contains(outPutError.getUniqueId())) {
+            view.updateStatus(outPutError.getErrorMessage());
         }
     }
 
@@ -1762,6 +1762,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
             String uniqueId = chat.endAudioCall(endCallRequest);
+            uniqueIds.add(uniqueId);
 
         }
 
@@ -1776,7 +1777,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .count(10)
                 .build();
 
-        chat.getCallsHistory(request);
+        uniqueIds.add(chat.getCallsHistory(request));
 
 
         RequestGetHistory request1 = new RequestGetHistory
@@ -1843,34 +1844,54 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(6952, CallType.Constants.VOICE_CALL)
+                .Builder(8033, CallType.Constants.VOICE_CALL)
                 .build();
 
-        chat.requestGroupCall(request);
+        uniqueIds.add(chat.requestGroupCall(request));
 
     }
 
     @Override
-    public void addCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
+    public void addCallParticipant(String username, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
 
 
-        List<Long> ids = new ArrayList<>();
+        if (Util.isNotNullOrEmpty(username)) {
 
-        if (fifiChecked)
-            ids.add(1557L);
-        if (jijiChecked)
-            ids.add(1556L);
-        if (ziziChecked)
-            ids.add(1555L);
+            if (username.contains(",")) {
+                String[] names = username.split(",");
+                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+                        .threadId(callRequestResponse.getSubjectId())
+                        .withUserNames(names)
+                        .build();
+                uniqueIds.add(chat.addGroupCallParticipant(request));
+            } else {
+                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+                        .threadId(callRequestResponse.getSubjectId())
+                        .withUserNames(username)
+                        .build();
+                uniqueIds.add(chat.addGroupCallParticipant(request));
+            }
 
-        RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                .threadId(callRequestResponse.getSubjectId())
-                .withCoreUserIds(ids)
-                .build();
+        } else {
+            List<Long> ids = new ArrayList<>();
+
+            if (fifiChecked)
+                ids.add(1557L);
+            if (jijiChecked)
+                ids.add(1556L);
+            if (ziziChecked)
+                ids.add(1555L);
+
+            RequestAddParticipants request = RequestAddParticipants.newBuilder()
+                    .threadId(callRequestResponse.getSubjectId())
+                    .withCoreUserIds(ids)
+                    .build();
 
 
-        chat.addGroupCallParticipant(request);
+            uniqueIds.add(chat.addGroupCallParticipant(request));
 
+
+        }
 
     }
 
@@ -1883,6 +1904,100 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
 
+    }
+
+    @Override
+    public void requestMainOrSandboxCall(String query, boolean group) {
+
+        try {
+            if (Util.isNotNullOrEmpty(query)) {
+
+                String uniqueId = "";
+
+
+                if (query.contains("-")) {
+
+                    String[] ids = query.split("-");
+
+                    List<Invitee> invitees = new ArrayList<>();
+                    if (ids.length == 1) {
+                        // P2P Call
+
+                        Invitee invitee = new Invitee();
+                        invitee.setId(ids[0]);
+                        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+                        invitees.add(invitee);
+
+                        //request with invitee list
+                        CallRequest callRequest = new CallRequest.Builder(
+                                invitees,
+                                CallType.Constants.VOICE_CALL).build();
+                        uniqueId = chat.requestCall(callRequest);
+                        view.updateStatus("Request p2p call with: " + ids[0]);
+
+                    } else if (ids.length <= 5) {
+                        //Group Call with invitees
+
+                        for (String id :
+                                ids) {
+
+                            Invitee invitee = new Invitee();
+                            invitee.setId(id);
+                            invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
+                            invitees.add(invitee);
+
+                        }
+
+                        CallRequest callRequest = new CallRequest.Builder(
+                                invitees,
+                                CallType.Constants.VOICE_CALL).build();
+                        uniqueId = chat.requestGroupCall(callRequest);
+
+                        view.updateStatus("Request group call invitees: " + Arrays.toString(ids));
+                    } else {
+                        view.updateStatus("حداکثر اعضای تماس گروهی 5 نفر می باشد");
+                    }
+                } else {
+                    //Group Call with subject id
+
+                    CallRequest callRequest = new CallRequest.Builder(
+                            Long.parseLong(query),
+                            CallType.Constants.VOICE_CALL).build();
+                    if (group) {
+                        uniqueId = chat.requestGroupCall(callRequest);
+                    } else {
+                        uniqueId = chat.requestCall(callRequest);
+                    }
+
+                }
+
+                if (Util.isNotNullOrEmpty(uniqueId))
+                    uniqueIds.add(uniqueId);
+
+            }
+        } catch (NumberFormatException e) {
+            view.updateStatus("Wrong format");
+        }
+
+    }
+
+    @Override
+    public void requestCall(int partnerId, boolean checked) {
+        List<Invitee> invitees = new ArrayList<>();
+        Invitee invitee = new Invitee();
+        invitee.setId(partnerId);
+        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+        invitees.add(invitee);
+
+
+        //request with invitee list
+        CallRequest callRequest = new CallRequest.Builder(
+                invitees,
+                CallType.Constants.VOICE_CALL).build();
+
+
+        String uniqueId = chat.requestCall(callRequest);
+        uniqueIds.add(uniqueId);
     }
 
     @Override

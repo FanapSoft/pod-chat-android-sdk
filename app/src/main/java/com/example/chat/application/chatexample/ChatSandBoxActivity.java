@@ -125,7 +125,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ChatContract.view view = new ChatContract.view() {
 
             @Override
-            public void onError() {
+            public void onError(String message) {
 
             }
 

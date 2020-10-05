@@ -188,7 +188,7 @@ public interface ChatContract {
         default void onMapReverse() {
         }
 
-        default void onError() {
+        default void onError(String message) {
         }
 
         default void onSpam() {
@@ -247,6 +247,7 @@ public interface ChatContract {
 
         default void onCallParticipantJoined(String response){}
 
+        default void updateStatus(String message){}
     }
 
     interface presenter {
@@ -257,7 +258,7 @@ public interface ChatContract {
 
         void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
 
-        String requestCall(int partnerId, boolean checked);
+        String requestMainOrSandboxCall(int partnerId, boolean checked);
 
         void searchMap(String haram, double lat, double lon);
 
@@ -524,8 +525,12 @@ public interface ChatContract {
 
         void requestGroupCall(boolean fifi, boolean zizi, boolean jiji);
 
-        void addCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
+        void addCallParticipant(String username, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
 
         void setCallInfo(CallInfo callInfo);
+
+        void requestMainOrSandboxCall(String query, boolean checked);
+
+        void requestCall(int partnerId, boolean checked);
     }
 }
