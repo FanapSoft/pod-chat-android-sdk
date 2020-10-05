@@ -49,7 +49,6 @@ import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
-import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -234,14 +233,14 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 //
-    public static int TEST_THREAD_ID = 62709;
-    private static final String TEST_THREAD_HASH = "JGLCWTWID8PKVF";
+//    public static int TEST_THREAD_ID = 21620;
+//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
 
 
 //    main server / p2p
 
-//    public static int TEST_THREAD_ID = 8182;
-//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+    public static int TEST_THREAD_ID = 8182;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
     // main server / group
 
@@ -954,7 +953,7 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("J9CF3NNO6YR6JD78")
+        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("GAUPE1ZRK76VOXBS")
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
@@ -1480,12 +1479,12 @@ public class ChatActivity extends AppCompatActivity
                                 getUri(),
                                 TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
                                 .description("test file message")
-                                .systemMetadata(getMetaData())
+//                                .systemMetadata(getMetaData())
                                 .setUserGroupHash(TEST_THREAD_HASH)
-                                .setImageHc("100")
-                                .setImageWc("100")
-                                .setImageXc("1")
-                                .setImageYc("1")
+//                                .setImageHc("100")
+//                                .setImageWc("100")
+//                                .setImageXc("1")
+//                                .setImageYc("1")
                                 .build();
 
                         fileUnique[0] = presenter.sendFileMessage(request,
@@ -1601,8 +1600,8 @@ public class ChatActivity extends AppCompatActivity
                         break;
                     case 10:
                         NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria
-                                .Builder("te")
-                                .is("te")
+                                .Builder("name")
+                                .is("sina")
                                 .build();
                         NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(231)
                                 .count(10)
@@ -1780,16 +1779,14 @@ public class ChatActivity extends AppCompatActivity
         presenter.getAdminList(requestGetAdmin);
     }
 
-
     public void deleteMessage() {
 
 
         ArrayList<Long> msgIds = new ArrayList<>();
 
-//        msgIds.add((long) TEST_THREAD_ID);
-        msgIds.add(696430L);
-        msgIds.add(696429L);
-        msgIds.add(696233L);
+        msgIds.add((long) TEST_THREAD_ID);
+//        msgIds.add(47566L);
+//        msgIds.add(47564L);
 
 
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
@@ -2286,7 +2283,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
 //21622
-    public static final String THREAD_UNIQUE_NAME = "unique_name_4_15840165311112";
+    public static final String THREAD_UNIQUE_NAME = "unique_name_4_1584016531111";
 //    public static final String THREAD_UNIQUE_NAME = "unique_name_4_" + new Date().getTime();
 
     private void joinPublicThread() {
@@ -2910,7 +2907,7 @@ public class ChatActivity extends AppCompatActivity
     private void replyFileMessage() {
         String messageContent = "Hello! just be happy!! : ) ";
         long threadId = TEST_THREAD_ID;
-        long messageId = 682978;
+        long messageId = 114334;
         Uri fileUri = getUri();
         Inviter inviter = new Inviter();
         inviter.setName("Me");

@@ -609,7 +609,6 @@ public class MessageDatabaseHelper {
     }
 
 
-
     public void getWaitQueueAsyncContent(String uniqueId) {
         messageQueueDao.getWaitQueueAsyncContent(uniqueId);
     }
@@ -621,7 +620,8 @@ public class MessageDatabaseHelper {
      *
      * */
     public void insertSendingMessageQueue(SendingQueueCache sendingQueue) {
-        worker(() -> messageQueueDao.insertSendingMessageQueue(sendingQueue));
+        if (canUseDatabase())
+            worker(() -> messageQueueDao.insertSendingMessageQueue(sendingQueue));
     }
 
     public void deleteSendingMessageQueue(String uniqueId) {
@@ -671,7 +671,6 @@ public class MessageDatabaseHelper {
 
         return MessageManager.getSendingFromWaitingMessage(waitQueueCache);
     }
-
 
 
     public List<WaitQueueCache> getWaitQueueMsg(long threadId) {

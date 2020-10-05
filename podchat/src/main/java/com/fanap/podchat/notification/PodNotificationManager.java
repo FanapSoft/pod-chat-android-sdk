@@ -74,6 +74,12 @@ public class PodNotificationManager {
 
     private static void createRegisterUserDeviceRequest(Context context, long userId) {
 
+        if (userId <= 0) {
+            if (listener != null)
+                listener.onNotificationEvent("Try to register device but user id was 0");
+            return;
+        }
+
         String uniqueId = generateUniqueId();
         STATE = NEED_REGISTER_USER_DEVICE;
         Map<String, String> userDeviceTokenMap = new HashMap<>();
