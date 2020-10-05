@@ -14,17 +14,22 @@ import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.model.ChatMessageForward;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.DeleteMessageContent;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultNewMessage;
+import com.fanap.podchat.model.ResultParticipant;
+import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -344,52 +349,54 @@ public class MessageManager {
         chatResponse.setSubjectId(threadId);
         return chatResponse;
     }
- public static String generateForwardMessage(long threadId , String messageIds, String jsonUniqueIds,String typecode ,String token){
-     ChatMessageForward chatMessageForward = new ChatMessageForward();
-            chatMessageForward.setSubjectId(threadId);
+
+    public static String generateForwardMessage(long threadId, String messageIds, String jsonUniqueIds, String typecode, String token) {
+        ChatMessageForward chatMessageForward = new ChatMessageForward();
+        chatMessageForward.setSubjectId(threadId);
 
 
-            chatMessageForward.setUniqueId(jsonUniqueIds);
+        chatMessageForward.setUniqueId(jsonUniqueIds);
 
-            chatMessageForward.setContent(messageIds);
-            chatMessageForward.setToken(token);
-            chatMessageForward.setTokenIssuer("1");
-            chatMessageForward.setType(ChatMessageType.Constants.FORWARD_MESSAGE);
+        chatMessageForward.setContent(messageIds);
+        chatMessageForward.setToken(token);
+        chatMessageForward.setTokenIssuer("1");
+        chatMessageForward.setType(ChatMessageType.Constants.FORWARD_MESSAGE);
 
-            JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessageForward);
-            jsonObject.remove("contentCount");
-            jsonObject.remove("systemMetadata");
-            jsonObject.remove("metadata");
-            jsonObject.remove("repliedTo");
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessageForward);
+        jsonObject.remove("contentCount");
+        jsonObject.remove("systemMetadata");
+        jsonObject.remove("metadata");
+        jsonObject.remove("repliedTo");
 
-            if (Util.isNullOrEmpty(typecode)) {
-                jsonObject.remove("typeCode");
-            } else {
-                jsonObject.remove("typeCode");
-                jsonObject.addProperty("typeCode", typecode);
-            }
-            return jsonObject.toString();
- }
+        if (Util.isNullOrEmpty(typecode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", typecode);
+        }
+        return jsonObject.toString();
+    }
 
- public static AsyncMessage generateDeleteMessageRequest(boolean deleteForAll ,String uniqueId , long messageId , String typecode ,String token ){
-
-
-     AsyncMessage asyncMessage = new AsyncMessage();
-
-     JsonObject contentObj = new JsonObject();
-     contentObj.addProperty("deleteForAll", deleteForAll);
+    public static AsyncMessage generateDeleteMessageRequest(boolean deleteForAll, String uniqueId, long messageId, String typecode, String token) {
 
 
-     asyncMessage.setContent(contentObj.toString());
-     asyncMessage.setToken(token);
-     asyncMessage.setTokenIssuer("1");
-     asyncMessage.setType(ChatMessageType.Constants.DELETE_MESSAGE);
-     asyncMessage.setUniqueId(uniqueId);
-     asyncMessage.setSubjectId(messageId);
-     asyncMessage.setTypeCode(typecode);
-     return asyncMessage;
+        AsyncMessage asyncMessage = new AsyncMessage();
 
- }
+        JsonObject contentObj = new JsonObject();
+        contentObj.addProperty("deleteForAll", deleteForAll);
+
+
+        asyncMessage.setContent(contentObj.toString());
+        asyncMessage.setToken(token);
+        asyncMessage.setTokenIssuer("1");
+        asyncMessage.setType(ChatMessageType.Constants.DELETE_MESSAGE);
+        asyncMessage.setUniqueId(uniqueId);
+        asyncMessage.setSubjectId(messageId);
+        asyncMessage.setTypeCode(typecode);
+        return asyncMessage;
+
+    }
+
     public static Callback generateCallback(String uniqueId) {
         Callback callback = new Callback();
         callback.setDelivery(true);
@@ -398,7 +405,8 @@ public class MessageManager {
         callback.setUniqueId(uniqueId);
         return callback;
     }
-    public static SendingQueueCache generateSendingQueueCache(long threadId,long messageId,String uniqueId, String typecode , String token) {
+
+    public static SendingQueueCache generateSendingQueueCache(long threadId, long messageId, String uniqueId, String typecode, String token) {
         SendingQueueCache sendingQueue = new SendingQueueCache();
         sendingQueue.setUniqueId(uniqueId);
 
@@ -408,9 +416,33 @@ public class MessageManager {
 
         sendingQueue.setThreadId(threadId);
 
-        String queueAsyncContent = CreateAsyncContentForQueue(threadId, messageId, uniqueId,typecode,token);
+        String queueAsyncContent = CreateAsyncContentForQueue(threadId, messageId, uniqueId, typecode, token);
         sendingQueue.setAsyncContent(queueAsyncContent);
         return sendingQueue;
+    }
+
+    public static ChatResponse<ResultParticipant> prepareSeenMessageListResponse(ChatMessage chatMessage, long offset) {
+        ChatResponse<ResultParticipant> chatResponse = new ChatResponse<>();
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+
+        ResultParticipant resultParticipant = new ResultParticipant();
+
+        List<Participant> participants = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Participant>>() {
+        }.getType());
+        resultParticipant.setParticipants(participants);
+        resultParticipant.setContentCount(chatMessage.getContentCount());
+
+        resultParticipant.setNextOffset(offset + participants.size());
+        resultParticipant.setContentCount(chatMessage.getContentCount());
+        if (participants.size() + offset < chatMessage.getContentCount()) {
+            resultParticipant.setHasNext(true);
+        } else {
+            resultParticipant.setHasNext(false);
+        }
+
+        chatResponse.setResult(resultParticipant);
+
+        return chatResponse;
     }
 
     public static ChatResponse<ResultNewMessage> preparepublishNewMessagesResponse(MessageVO messageVO, long threadId) {
@@ -429,8 +461,50 @@ public class MessageManager {
         return chatResponse;
     }
 
+    public static String prepareDeleteMultipleRequest(RequestDeleteMessage request ,List<String> uniqueIds ,String token,String typcode) {
 
-    private static String CreateAsyncContentForQueue(long threadId, long messageId, String uniqueId , String typecode , String token) {
+        List<Long> messageIds = request.getMessageIds();
+
+        boolean deleteForAll = request.isDeleteForAll();
+
+        AsyncMessage asyncMessage = new AsyncMessage();
+
+
+
+        JsonObject contentObj = new JsonObject();
+
+        JsonElement messageIdsElement = App.getGson().toJsonTree(messageIds, new TypeToken<List<Long>>() {
+        }.getType());
+
+        JsonElement uniqueIdsElement =  App.getGson().toJsonTree(uniqueIds, new TypeToken<List<String>>() {
+        }.getType());
+
+        contentObj.add("ids", messageIdsElement.getAsJsonArray());
+        contentObj.add("uniqueIds", uniqueIdsElement.getAsJsonArray());
+        contentObj.addProperty("deleteForAll", deleteForAll);
+
+
+        asyncMessage.setContent(contentObj.toString());
+        asyncMessage.setToken(token);
+        asyncMessage.setTokenIssuer("1");
+        asyncMessage.setType(ChatMessageType.Constants.DELETE_MESSAGE);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(asyncMessage);
+
+        jsonObject.remove("subjectId");
+
+        if (Util.isNullOrEmpty(typcode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", typcode);
+        }
+
+        String asyncContent = jsonObject.toString();
+        return asyncContent;
+    }
+
+    private static String CreateAsyncContentForQueue(long threadId, long messageId, String uniqueId, String typecode, String token) {
 
 
         ChatMessageForward chatMessageForward = new ChatMessageForward();
@@ -449,7 +523,7 @@ public class MessageManager {
         chatMessageForward.setTokenIssuer("1");
         chatMessageForward.setType(ChatMessageType.Constants.FORWARD_MESSAGE);
 
-        JsonObject jsonObject = (JsonObject)  App.getGson().toJsonTree(chatMessageForward);
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessageForward);
         jsonObject.remove("contentCount");
         jsonObject.remove("systemMetadata");
         jsonObject.remove("metadata");

@@ -67,16 +67,16 @@ public class ChatMessage extends AsyncMessage {
     public ChatMessage() {
     }
 
-    public ChatMessage(String uniqueId ,int type, String content , String token) {
-       setType(type);
-       setTokenIssuer("1");
-       setToken(token);
-       setUniqueId(uniqueId);
-       setContent(content);
+    public ChatMessage(String uniqueId, int type, String content, String token) {
+        setType(type);
+        setTokenIssuer("1");
+        setToken(token);
+        setUniqueId(uniqueId);
+        setContent(content);
     }
 
-    public JsonObject getJson(String requestParamstypecode , String typecode){
-        JsonObject jsonObject =(JsonObject) App.getGson().toJsonTree(this);
+    public JsonObject getJson(String requestParamstypecode, String typecode) {
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(this);
 
         if (Util.isNullOrEmpty(requestParamstypecode)) {
             if (Util.isNullOrEmpty(typecode)) {
@@ -87,11 +87,11 @@ public class ChatMessage extends AsyncMessage {
             }
         } else {
             jsonObject.remove("typeCode");
-            jsonObject.addProperty("typeCode",requestParamstypecode);
+            jsonObject.addProperty("typeCode", requestParamstypecode);
         }
 
 
-        return  jsonObject;
+        return jsonObject;
     }
 
 

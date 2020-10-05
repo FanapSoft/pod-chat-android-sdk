@@ -933,11 +933,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         String un = chat.deleteMessage(requestDeleteMessage, handler);
 
+
     }
 
     @Override
     public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
         String un = chat.deleteMessage(deleteMessage, handler);
+        List<String> un2 = chat.deleteMultipleMessage(deleteMessage, handler);
     }
 
     @Override

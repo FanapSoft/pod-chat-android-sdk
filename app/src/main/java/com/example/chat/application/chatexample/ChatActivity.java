@@ -234,8 +234,8 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 //
-    public static int TEST_THREAD_ID = 57299;
-    private static final String TEST_THREAD_HASH = "1PP5OG9WFO61DH";
+    public static int TEST_THREAD_ID = 62709;
+    private static final String TEST_THREAD_HASH = "JGLCWTWID8PKVF";
 
 
 //    main server / p2p
@@ -1780,14 +1780,16 @@ public class ChatActivity extends AppCompatActivity
         presenter.getAdminList(requestGetAdmin);
     }
 
+
     public void deleteMessage() {
 
 
         ArrayList<Long> msgIds = new ArrayList<>();
 
-        msgIds.add((long) TEST_THREAD_ID);
-//        msgIds.add(47566L);
-//        msgIds.add(47564L);
+//        msgIds.add((long) TEST_THREAD_ID);
+        msgIds.add(696430L);
+        msgIds.add(696429L);
+        msgIds.add(696233L);
 
 
         RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage

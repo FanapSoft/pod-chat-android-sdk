@@ -123,7 +123,6 @@ public class ChatDataSource {
     public Observable<ContactManager.ContactResponse> getContactData(Integer count,
                                                                      Long offset) {
 
-
         if (offset == null) {
             offset = 0L;
         }

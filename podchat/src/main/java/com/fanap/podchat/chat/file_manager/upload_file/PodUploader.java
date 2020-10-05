@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.FileImageUpload;
@@ -14,6 +15,7 @@ import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.networking.ProgressRequestBody;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
 import com.fanap.podchat.util.PodChatException;
@@ -873,9 +875,6 @@ public class PodUploader {
         chatResponse.setResult(resultImageFile);
         return chatResponse;
     }
-
-
-
 
 
 }

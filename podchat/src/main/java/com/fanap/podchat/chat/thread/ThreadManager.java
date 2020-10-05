@@ -20,6 +20,7 @@ import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultLeaveThread;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.util.AsyncAckType;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.InviteType;
@@ -363,6 +364,36 @@ public class ThreadManager {
 
     }
 
+    public static String prepareGetHIstoryWithUniqueIdsRequest( long threadId,String uniqueId,String[] uniqueIds, String typeCode, String token){
+        RequestGetHistory request = new RequestGetHistory
+                .Builder(threadId)
+                .offset(0)
+                .count(uniqueIds.length)
+                .uniqueIds(uniqueIds)
+                .build();
+
+        String content = App.getGson().toJson(request);
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content);
+        chatMessage.setType(ChatMessageType.Constants.GET_HISTORY);
+        chatMessage.setToken(token);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(chatMessage);
+
+        if (Util.isNullOrEmpty(typeCode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", typeCode);
+        }
+
+        String asyncContent = jsonObject.toString();
+        return asyncContent;
+    }
     public static class ThreadResponse {
         private List<Thread> threadList;
         private long contentCount;
