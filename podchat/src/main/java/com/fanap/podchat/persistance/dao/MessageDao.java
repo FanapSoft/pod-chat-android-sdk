@@ -1,11 +1,9 @@
 package com.fanap.podchat.persistance.dao;
 
-import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteQuery;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Update;
@@ -20,14 +18,16 @@ import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
+import com.fanap.podchat.call.persist.CacheCall;
+import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.user_roles.model.CacheUserRoles;
 import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ConversationSummery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
@@ -38,7 +38,6 @@ public interface MessageDao {
 
     @RawQuery
     int vacuumDb(SupportSQLiteQuery query);
-
 
 
     //Cache User Roles
@@ -62,8 +61,6 @@ public interface MessageDao {
     CacheUserRoles getUserRoles(long threadId, Integer count, Long offset);
 
 
-
-
     //Cache contact
     @Insert(onConflict = REPLACE)
     void insertContacts(List<CacheContact> t);
@@ -74,8 +71,8 @@ public interface MessageDao {
     @Delete
     void deleteContact(CacheContact cacheContact);
 
-    @Query("DELETE FROM CacheContact WHERE id =:id")
-    void deleteContactById(long id);
+    @Query("DELETE FROM CacheContact WHERE userId =:userId")
+    void deleteContactById(long userId);
 
     @Query("select * from CacheContact order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
@@ -85,7 +82,6 @@ public interface MessageDao {
 
     @RawQuery
     long getRawContactsCount(SupportSQLiteQuery sqLiteQuery);
-
 
 
     @Query("SELECT COUNT(id) FROM CacheContact")
@@ -108,12 +104,6 @@ public interface MessageDao {
 
     @Query("DELETE FROM CacheBlockedContact WHERE blockId =:id")
     void deleteBlockedContactById(long id);
-
-    @Query("DELETE FROM CacheBlockedContact WHERE coreId =:coreUserId")
-    void deleteBlockedContactByCoreUserId(long coreUserId);
-
-    @Query("DELETE FROM CacheBlockedContact WHERE blockId =:blockId")
-    void deleteBlockedContactByBlockId(long blockId);
 
 
     @Query("select * from CacheBlockedContact LIMIT :count OFFSET :offset")
@@ -346,14 +336,11 @@ public interface MessageDao {
     void deleteAllThreadParticipant(long threadId);
 
 
-
     /**
      *
      * cache admins
      *
      */
-
-
 
 
     /**
@@ -460,6 +447,56 @@ public interface MessageDao {
 
     @Query("delete from chatprofilevo where id = :id")
     void deleteChatProfileBtId(long id);
+
+
+    //Call
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheCalls(ArrayList<CacheCall> cacheCalls);
+
+    @Query("SELECT * FROM CACHECALL where type = :type order by createTime desc LIMIT :count OFFSET :offset")
+    List<CacheCall> getCachedCalls(long count, long offset, long type);
+
+    @Query("SELECT * FROM CACHECALL where creatorId = :creatorUserId and type = :type order by createTime desc LIMIT :count OFFSET :offset")
+    List<CacheCall> getCachedCallByUserId(long count, long offset,long creatorUserId, long type);
+
+    @Query("SELECT COUNT(*) FROM CACHECALL where creatorId = :creatorUserId and type = :type")
+    long getCountOfCachedCallByUserId(long creatorUserId, long type);
+
+    @Query("SELECT * FROM CACHECALL where type = :type order by createTime desc LIMIT :count OFFSET :offset")
+    List<CacheCall> getCachedCallByType(long count, long offset, long type);
+
+    @Query("SELECT COUNT(*) FROM CACHECALL where type = :type")
+    long getCountOfCachedCallByType(long type);
+
+
+    @Query("SELECT * FROM CACHECALL where id IN (:callIds) order by createTime desc LIMIT :count OFFSET :offset")
+    List<CacheCall> getCachedCallByIds(long count, long offset, String callIds);
+
+    @Query("SELECT COUNT(*) FROM CACHECALL where id IN (:callIds)")
+    long getCountOfCachedCallByIds(String callIds);
+
+    @Query("SELECT * FROM CACHECALL where id = :callId")
+    CacheCall getCachedCallById(long callId);
+
+
+    @Query("SELECT COUNT(*) FROM CACHECALL")
+    long getCachedCallsCount();
+
+    @Insert(onConflict = REPLACE)
+    void insertCallParticipant(CacheCallParticipant cacheCallParticipant);
+
+    @Insert(onConflict = REPLACE)
+    void insertCallParticipants(ArrayList<CacheCallParticipant> cacheCalls);
+
+    @Query("SELECT * FROM CacheCallParticipant where callId = :callId LIMIT :count OFFSET :offset")
+    List<CacheCallParticipant> getCachedCallParticipants(long count, long offset, long callId);
+
+    @Query("SELECT * FROM CacheCallParticipant where callId = :callId")
+    List<CacheCallParticipant> getCachedCallParticipants(long callId);
+
+    @Query("SELECT * FROM CacheCallParticipant where id = :participantId")
+    CacheCallParticipant getCachedCallParticipant(long participantId);
 
 
 }

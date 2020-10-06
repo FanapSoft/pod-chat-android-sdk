@@ -1,13 +1,24 @@
 package com.example.podchat;
 
+import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.util.Log;
+import android.os.Looper;
 
-import com.example.chat.application.chatexample.TestClass;
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.thread.ThreadManager;
+import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.notification.PodPushMessage;
+import com.fanap.podchat.mainmodel.LinkedUser;
+import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.persistance.RoomIntegrityException;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
@@ -17,35 +28,43 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.DelayQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
+import rx.Single;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -59,6 +78,896 @@ import static org.junit.Assert.assertTrue;
  */
 public class ExampleUnitTest {
 
+
+    @Test
+    public void featureTest() {
+
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        Future<String> a = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+        Future<String> b = executor.submit(() -> {
+            Thread.sleep(3000);
+            return "Im executed from " + Thread.currentThread().getName();
+        });
+        Future<String> c = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+        Future<String> d = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+        Future<String> f = executor.submit(() -> "Im executed from " + Thread.currentThread().getName());
+
+        try {
+            System.out.println(a.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(b.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(c.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(d.get() + " and printed in Thread " + Thread.currentThread().getName());
+            System.out.println(f.get() + " and printed in Thread " + Thread.currentThread().getName());
+
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    @Test
+    public void executor() {
+
+
+        System.out.println(Thread.currentThread().getName());
+
+        ExecutorService e = Executors.newFixedThreadPool(4);
+        ExecutorService b = Executors.newFixedThreadPool(1);
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        e.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+        b.execute(() -> {
+            System.out.println(Thread.currentThread().getName());
+        });
+
+
+    }
+
+    public static class Testi implements Runnable {
+
+        private final List<Long> longs = new ArrayList<>();
+
+        boolean r = false;
+
+
+        public List<Long> getLongs() {
+            return longs;
+        }
+
+        public void addLong(Long l) {
+            try {
+                Thread.currentThread().join(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            synchronized (longs) {
+                longs.add(l);
+            }
+        }
+
+        public void setR(boolean r) {
+            this.r = r;
+        }
+
+        @Override
+        public void run() {
+
+            while (r) {
+                synchronized (longs) {
+                    System.out.println("SIZE IS : " + longs.size());
+                    System.out.println(" IS : " + longs.toString());
+                    System.out.println(" In : " + Thread.currentThread().getName());
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        public void updateLongs() {
+
+
+            synchronized (longs) {
+                for (Long l :
+                        longs) {
+                    longs.set(longs.indexOf(l), l + 10);
+                }
+
+            }
+
+        }
+
+        public void addAll(List<Long> o) {
+            longs.clear();
+            longs.addAll(o);
+        }
+    }
+
+
+    @Test
+    public void testThread() {
+
+
+        long count = 0;
+
+
+        List<Long> o = new ArrayList<>();
+
+        o.add(1L);
+        o.add(1L);
+        o.add(1L);
+        o.add(1L);
+        o.add(1L);
+
+        Testi t = new Testi();
+
+        t.addAll(o);
+
+        t.setR(true);
+
+        Thread a = new Thread(t);
+        a.setName("ABC");
+        a.start();
+
+
+        System.out.println("Started");
+
+        while (true) {
+            try {
+                count++;
+                Thread.sleep(10);
+                if (count % 5 == 0) {
+//                    t.setR(false);
+                    System.out.println("1:" + Thread.currentThread().getName());
+//                    a.join(10);
+                    t.addLong(1L);
+                    t.updateLongs();
+                    System.out.println("2:" + Thread.currentThread().getName());
+
+//                    t.setR(true);
+
+
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
+    @Test
+    public void t() {
+
+        Thread f = new Thread(() -> {
+            System.out.println("Im " + Thread.currentThread().getName());
+        });
+        f.setName("aaa");
+        f.start();
+        Thread e = new Thread(() -> {
+            System.out.println("Im " + Thread.currentThread().getName());
+        });
+        e.setName("aaa");
+        e.start();
+
+    }
+
+//    @Test
+//    public void testFeature(){
+//
+//        ExecutorService e = Executors.newFixedThreadPool(4);
+//
+//        Future<String> fff = e.submit(()->{
+//
+//            String a = "ppp";
+//
+//            String b = "eee";
+//
+//            Thread.sleep(5000);
+//
+//            return a+b;
+//
+//        });
+//        Future<String> eee = e.submit(() -> {
+//
+//            String a = "a";
+//
+//            String b = "b";
+//
+//            Thread.sleep(1000);
+//
+//            return a + b;
+//
+//        });
+//
+//
+//        try {
+//            String result = fff.get();
+//            System.out.println(result);
+//            String re2 = eee.get();
+//            System.out.println(re2);
+//            assertEquals("pppeee",result);
+//            assertEquals("ab",re2);
+//        } catch (ExecutionException ex) {
+//            ex.printStackTrace();
+//        } catch (InterruptedException ex) {
+//            ex.printStackTrace();
+//        }
+//
+//
+//    }
+
+    @Test
+    public void testShortArray() {
+
+//        short[] a = new short[7];
+//
+//        short[] b = new short[]{1,2};
+//        short[] c = new short[]{3,4};
+//        short[] d = new short[]{5,6,7};
+//
+//
+//        System.arraycopy(b,0,a,0,b.length);
+//        System.arraycopy(c,0,a,b.length,c.length);
+//        System.arraycopy(d,0,a,c.length + b.length,d.length);
+//
+//        System.out.println(Arrays.toString(a));
+//        System.out.println(Arrays.toString(b));
+//
+
+
+        short[] e = new short[12];
+        short[] f = new short[]{8, 9};
+
+        int toCopy = e.length;
+
+        while (toCopy > 0) {
+
+            System.out.println("e: " + Arrays.toString(e));
+
+            System.arraycopy(f, 0, e, e.length - toCopy, f.length);
+
+            toCopy -= f.length;
+
+        }
+
+
+    }
+
+    @Test
+    public void concatTest() {
+
+        String ids = "";
+        ArrayList<Long> longs = new ArrayList<>();
+        longs.add(1L);
+        longs.add(3L);
+        longs.add(111L);
+        for (Long callId :
+                longs) {
+
+            ids = ids.concat("" + callId + ", ");
+
+        }
+        ids = ids.substring(0, ids.lastIndexOf(","));
+
+        System.out.println(ids);
+
+    }
+
+    @Test
+    public void testCallParticipant() {
+
+
+        Participant participant = new Participant();
+        participant.setName("John");
+        participant.setLastName("Doe");
+        participant.setImage("mmm");
+
+        CacheCallParticipant callParticipant = new CacheCallParticipant()
+                .fromParticipant(participant, 1000);
+
+        assertEquals(participant.getFirstName(), callParticipant.getFirstName());
+
+
+    }
+
+
+    @Test
+    public void testOnComplete() {
+
+
+        new PodThreadManager()
+                .doWithUI(() -> {
+                    System.out.println("On UI Im on " + Thread.currentThread().getName());
+
+                }, () -> {
+                    System.out.println("Error Im on " + Thread.currentThread().getName());
+
+                }, () -> {
+                    System.out.println("Task Im on " + Thread.currentThread().getName());
+
+                    int a = 10;
+                    int b = 0;
+
+                    int c = a / b;
+
+                });
+//
+//        new PodThreadManager()
+//                .addNewTask(()->{
+//
+//                    System.out.println("aaa " + Thread.currentThread().getName());
+//
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+//
+//                })
+//                .addNewTask(()->{
+//
+//                    System.out.println("bbb " + Thread.currentThread().getName());
+//
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
+//
+//                })
+//        .runTasksASync();
+//
+//        new PodThreadManager()
+//                .doThisSafe(()->{
+//
+//                    System.out.println("aaa " + Thread.currentThread().getName());
+//
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+//
+//                }, new PodThreadManager.IComplete() {
+//                    @Override
+//                    public void onComplete() {
+//                        System.out.println("v " + "aaa " + Thread.currentThread().getName());
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(String error) {
+//                        System.out.println("a " + "aaa " + Thread.currentThread().getName());
+//
+//                    }
+//                });
+
+
+
+
+    }
+
+
+    @Test
+    public void d(){
+
+
+
+    }
+
+    @Test
+    public void testFirstObservable() {
+
+        Observable<String> a = Observable.create(ss -> {
+
+            ss.onCompleted();
+
+        });
+
+
+        Observable<String> b =Observable.create(ss -> {
+            ss.onNext("b");
+        });
+
+
+        Observable<String> c = Observable.create(ss -> {
+            ss.onNext("c");
+        });
+
+
+        Observable.concat(a, b)
+                .doOnError(eee -> {
+                    System.out.println("errr");
+                })
+                .onErrorResumeNext(Observable.empty())
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+
+                .subscribe(d -> {
+
+                    if (d != null)
+                        System.out.println("IS : " + d);
+                    else System.out.println("uuu");
+
+                });
+
+
+    }
+
+    @Test
+    public void runCompleteAfterError() {
+
+
+        Observable<String> a = Observable.create(subscriber -> {
+
+            System.out.println("1");
+            try {
+                Thread.sleep(3000);
+
+                subscriber.onError(new RoomIntegrityException());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("2");
+
+            subscriber.onNext("Hello");
+
+        });
+
+
+        a.subscribeOn(Schedulers.immediate())
+                .onErrorResumeNext(tt -> {
+                    System.out.println("onError res: " + tt);
+                    return Observable.empty();
+                })
+                .observeOn(Schedulers.immediate())
+                .doOnCompleted(() -> System.out.println("Comp"))
+                .subscribe(System.out::println);
+
+
+    }
+
+    @Test
+    public void sortContactsWithFullNameTest() {
+
+
+        ArrayList<Contact> unsorted = new ArrayList<>();
+
+        ArrayList<Contact> expected = new ArrayList<>();
+
+        ArrayList<Contact> sorted;
+
+
+        Contact contact1 = new Contact();
+
+        contact1.setFirstName("Bahar");
+        contact1.setLastName("Bohloli");
+        contact1.setHasUser(true);
+
+        unsorted.add(contact1);
+
+
+        Contact contact2 = new Contact();
+
+        contact2.setFirstName("Ali");
+        contact2.setLastName("Alavi");
+        contact2.setHasUser(true);
+
+
+        unsorted.add(contact2);
+
+
+        expected.add(contact2);
+        expected.add(contact1);
+
+        sorted = new ArrayList<>(unsorted);
+
+        Collections.sort(sorted, compareContacts());
+
+        Assert.assertEquals(expected, sorted);
+
+
+    }
+
+    @Test
+    public void sortContactsWithFirstNameTest() {
+
+
+        ArrayList<Contact> unsorted = new ArrayList<>();
+
+        ArrayList<Contact> expected = new ArrayList<>();
+
+        ArrayList<Contact> sorted;
+
+
+        Contact contact1 = new Contact();
+
+        contact1.setFirstName("Bahar");
+        contact1.setLastName("Bohloli");
+        contact1.setHasUser(true);
+
+        unsorted.add(contact1);
+
+
+        Contact contact2 = new Contact();
+
+        contact2.setFirstName("Ali");
+
+        contact2.setHasUser(true);
+
+
+        unsorted.add(contact2);
+
+
+        Contact contact3 = new Contact();
+        contact3.setFirstName("Bahar");
+        contact3.setLastName("Alavi");
+        contact3.setHasUser(true);
+
+        unsorted.add(contact3);
+
+        Contact contact4 = new Contact();
+        contact4.setFirstName("Ahmad");
+        contact4.setLastName("Ahmadian");
+        contact4.setHasUser(false);
+
+        unsorted.add(contact4);
+
+        expected.add(contact3);
+        expected.add(contact1);
+        expected.add(contact2);
+        expected.add(contact4);
+
+        sorted = new ArrayList<>(unsorted);
+
+        Collections.sort(sorted, compareContacts());
+
+        Assert.assertEquals(expected, sorted);
+
+
+    }
+
+    @Test
+    public void sortThreadsTest() {
+
+
+        com.fanap.podchat.mainmodel.Thread t = new com.fanap.podchat.mainmodel.Thread();
+        t.setId(100);
+        t.setUniqueName("t1");
+        t.setTitle("im pinned");
+        t.setTime(new Date().getTime() + 2);
+        t.setPin(true);
+
+        com.fanap.podchat.mainmodel.Thread v = new com.fanap.podchat.mainmodel.Thread();
+        v.setId(101);
+        v.setUniqueName("t2");
+        v.setTitle("im pinned too");
+        v.setTime(new Date().getTime() + 1);
+        v.setPin(true);
+
+        com.fanap.podchat.mainmodel.Thread c = new com.fanap.podchat.mainmodel.Thread();
+        c.setId(103);
+        c.setUniqueName("t3");
+        c.setTitle("im not pinned");
+        c.setTime(new Date().getTime());
+        c.setPin(false);
+
+        List<com.fanap.podchat.mainmodel.Thread> unsorted = new ArrayList<>();
+        unsorted.add(c);
+        unsorted.add(t);
+        unsorted.add(v);
+
+        System.out.println("unsorted -> " + App.getGson().toJson(unsorted));
+
+        List<com.fanap.podchat.mainmodel.Thread> sorted = ThreadManager.sortThreads(unsorted);
+
+        System.out.println("sorted -> " + App.getGson().toJson(sorted));
+
+        assertNotEquals(sorted, unsorted);
+
+
+    }
+
+    @Test
+    public void equalityTest() {
+
+        com.fanap.podchat.mainmodel.Thread t = new com.fanap.podchat.mainmodel.Thread();
+        t.setId(100);
+        t.setUniqueName("adas");
+        com.fanap.podchat.mainmodel.Thread v = new com.fanap.podchat.mainmodel.Thread();
+        v.setId(100);
+        v.setUniqueName("asdasde");
+        v.setTitle("aaaaaa");
+
+        ArrayList<com.fanap.podchat.mainmodel.Thread> oo = new ArrayList<>();
+
+        oo.add(t);
+        Assert.assertTrue(oo.contains(v));
+//        if(oo.remove(t))
+//            oo.add(v);
+        oo.set(oo.indexOf(v), v);
+
+        assertEquals(oo.get(0).getTitle(), "aaaaaa");
+
+        System.out.println("S: => " + oo.size());
+
+
+//
+//        assertEquals(t,v);
+//        assertEquals(oo.size(),1);
+    }
+
+    @Test
+    public void pagingTest() {
+
+
+        Observable.concat(getList1(), getList2())
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+                .first()
+                .map(data -> page(data, 3, 2))
+                .subscribe(data -> {
+                    ArrayList<Integer> list1 = new ArrayList<>();
+//                    list1.add(0);
+//                    list1.add(1);
+                    list1.add(2);
+                    list1.add(3);
+                    list1.add(4);
+//                    list1.add(5);
+//                    list1.add(6);
+
+                    System.out.println("data -> " + data);
+                    assertEquals(data, list1);
+                });
+
+
+        Observable.concat(getList1(), getList2())
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+                .first()
+                .map(data -> page(data, 10, 2))
+                .subscribe(data -> {
+                    ArrayList<Integer> list1 = new ArrayList<>();
+                    list1.add(2);
+                    list1.add(3);
+                    list1.add(4);
+                    list1.add(5);
+                    list1.add(6);
+
+                    System.out.println("data -> " + data);
+                    assertEquals(data, list1);
+                });
+
+
+        Observable.concat(getList1(), getList2())
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+                .first()
+                .map(data -> page(data, 1, 0))
+                .subscribe(data -> {
+                    ArrayList<Integer> list1 = new ArrayList<>();
+                    list1.add(0);
+
+
+                    System.out.println("data -> " + data);
+                    assertEquals(data, list1);
+                });
+
+
+        Observable.concat(getList1(), getList2())
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+                .first()
+                .map(data -> page(data, 100, 20))
+                .subscribe(data -> {
+                    ArrayList<Integer> list1 = new ArrayList<>();
+
+
+                    System.out.println("data -> " + data);
+                    assertEquals(data, list1);
+                });
+
+
+        Observable.concat(getList1(), getList2())
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+                .first()
+                .map(data -> page(data, 1, 100))
+                .subscribe(data -> {
+                    ArrayList<Integer> list1 = new ArrayList<>();
+
+
+                    System.out.println("data -> " + data);
+                    assertEquals(data, list1);
+                });
+
+
+    }
+
+    @Test
+    public void findByIdTest() {
+
+        List<Long> threads = new ArrayList<>();
+        threads.add(1012310L);
+        threads.add(1012320L);
+        threads.add(1012340L);
+        threads.add(1012380L);
+
+        List<Integer> searchThreads = new ArrayList<>();
+        searchThreads.add(1012341);
+        searchThreads.add(1012381);
+        searchThreads.add(1012311);
+
+
+        List<Long> expected = new ArrayList<>();
+//        expected.add(1012311L);
+//        expected.add(1012341L);
+//        expected.add(1012381L);
+
+
+        getByIds(searchThreads, threads)
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.immediate())
+                .subscribe(founded -> {
+
+                    System.out.println(founded);
+
+                    assertEquals(expected, founded);
+
+
+                });
+
+
+    }
+
+    private static Comparator<Contact> compareContacts() {
+        return (contact1, contact2) -> {
+
+            if (contact1.isHasUser() && contact2.isHasUser()) {
+
+                if (Util.isNotNullOrEmpty(contact1.getLastName()) &&
+                        Util.isNotNullOrEmpty(contact2.getLastName())) {
+
+                    return contact1.getLastName().compareTo(contact2.getLastName());
+
+                } else if (Util.isNotNullOrEmpty(contact1.getLastName()) ||
+                        Util.isNotNullOrEmpty(contact2.getLastName())) {
+
+                    return (contact2.getLastName() != null ? contact2.getLastName() : "")
+                            .compareTo((contact1.getLastName() != null ? contact1.getLastName() : ""));
+
+                } else if (Util.isNotNullOrEmpty(contact1.getFirstName()) &&
+                        Util.isNotNullOrEmpty(contact2.getFirstName())) {
+
+                    return contact1.getFirstName().compareTo(contact2.getFirstName());
+
+                } else if (Util.isNotNullOrEmpty(contact1.getFirstName()) ||
+                        Util.isNotNullOrEmpty(contact2.getFirstName())) {
+
+                    return (contact2.getFirstName() != null ? contact2.getFirstName() : "")
+                            .compareTo((contact1.getFirstName() != null ? contact1.getFirstName() : ""));
+
+                } else return 1;
+
+            } else return Boolean.compare(contact2.isHasUser(), contact1.isHasUser());
+
+
+        };
+    }
+
+    public static Observable<List<Long>> getByIds(List<Integer> ids, List<Long> allThreads) {
+
+        try {
+            if (Util.isNotNullOrEmpty(ids))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    return Observable.from(allThreads)
+                            .filter(t -> ids.contains(Math.toIntExact(t)))
+                            .toList();
+                } else {
+                    return Observable.from(allThreads)
+                            .filter(t -> ids.contains((int) (long) t))
+                            .toList();
+                }
+        } catch (Exception e) {
+            return Observable.from(allThreads).toList();
+        }
+
+        return Observable.from(allThreads).toList();
+
+    }
+
+    public Observable<List<Integer>> getList1() {
+
+        ArrayList<Integer> list1 = new ArrayList<>();
+        list1.add(0);
+        list1.add(1);
+        list1.add(2);
+        list1.add(3);
+        list1.add(4);
+        list1.add(5);
+        list1.add(6);
+
+        return Observable.create(en -> en.onNext(list1));
+
+    }
+
+    public Observable<List<Integer>> getList2() {
+
+        ArrayList<Integer> list2 = new ArrayList<>();
+        list2.add(7);
+        list2.add(8);
+        list2.add(9);
+
+        return Observable.create(en -> en.onNext(list2));
+
+    }
+
+    public Observable<List<Integer>> lim(Integer lim, List<Integer> list) {
+
+        return Observable.from(list)
+                .limit(lim)
+                .toList();
+
+    }
+
+    public <T> List<T> page(List<T> items, int count, int offset) {
+
+        if (items.size() == 0 || count == 0) {
+            return new ArrayList<>();
+        }
+
+        if (count + offset > items.size()) {
+
+            if (offset > items.size())
+                return new ArrayList<>();
+
+            return items.subList(offset, items.size());
+        }
+
+        return items.subList(offset, offset + count);
+
+    }
 
     @Test
     public void contactsEquality() {
@@ -84,10 +993,59 @@ public class ExampleUnitTest {
 
     }
 
-    @Test
-    public void threadTest() {
 
-        TestClass.main(null);
+    @Test
+    public void byteTest() {
+
+
+        String a = "salam";
+
+        byte[] b = a.getBytes();
+
+        String res = new String(b, StandardCharsets.UTF_8);
+
+        assertEquals(res, a);
+
+
+    }
+
+    @Test
+    public void testConverters() {
+
+
+        String p = "";
+
+
+        List<Participant> participants = stringToList(p);
+
+        String a = ListToString(participants);
+
+        List<Participant> p2 = stringToList(a);
+
+        assertEquals(participants, p2);
+
+
+    }
+
+
+    public List<Participant> stringToList(@Nullable String data) {
+
+        Gson gson = new Gson();
+
+        if (data == null) {
+            return Collections.emptyList();
+        }
+
+        Type listType = new TypeToken<List<Participant>>() {
+        }.getType();
+
+        return gson.fromJson(data, listType);
+    }
+
+
+    public String ListToString(List<Participant> t) {
+        Gson gson = new Gson();
+        return gson.toJson(t);
     }
 
 
@@ -245,6 +1203,7 @@ public class ExampleUnitTest {
 
 
     }
+
 
     @Test
     public void addition_isCorrect() {
@@ -536,7 +1495,8 @@ public class ExampleUnitTest {
 
             try {
                 count += notificationsGroup.get(key) != null ? notificationsGroup.get(key).size() : 0;
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+            }
 
         }
 

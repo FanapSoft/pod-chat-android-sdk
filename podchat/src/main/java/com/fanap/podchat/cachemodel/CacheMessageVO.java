@@ -1,13 +1,15 @@
 package com.fanap.podchat.cachemodel;
 
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.call.model.CallHistoryVO;
 import com.fanap.podchat.mainmodel.MessageVO;
 
-@Entity()
+@Entity
 public class CacheMessageVO {
 
     @PrimaryKey
@@ -15,6 +17,7 @@ public class CacheMessageVO {
     private long previousId;
 
     private long timeStamp;
+
 
     private long time;
     private long timeNanos;
@@ -32,6 +35,9 @@ public class CacheMessageVO {
     private boolean hasGap = false;
     private boolean mentioned = false;
     private boolean pinned = false;
+    @Embedded(prefix = "call_history_")
+    private CallHistoryVO callHistoryVO;
+
 
 
     @Ignore
@@ -311,6 +317,9 @@ public class CacheMessageVO {
             if (messageVO.getForwardInfo() != null && messageVO.getForwardInfo().getConversation() != null)
                 this.forwardInfoId = messageVO.getForwardInfo().getConversation().getId();
 
+            if (messageVO.getCallHistoryVO() != null) {
+                this.callHistoryVO = messageVO.getCallHistoryVO();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -325,5 +334,13 @@ public class CacheMessageVO {
 
     public void setPinned(boolean pinned) {
         this.pinned = pinned;
+    }
+
+    public CallHistoryVO getCallHistoryVO() {
+        return callHistoryVO;
+    }
+
+    public void setCallHistoryVO(CallHistoryVO callHistoryVO) {
+        this.callHistoryVO = callHistoryVO;
     }
 }

@@ -22,12 +22,6 @@ public class PodChatPushNotificationService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-//        super.onMessageReceived(remoteMessage);
-        Log.i(TAG, "Notification Received: ");
-//        Log.i(TAG, "Title: " + remoteMessage.getNotification().getTitle());
-//        Log.i(TAG, "Body: " + remoteMessage.getNotification().getBody());
-        Log.i(TAG, "Message Data: " + remoteMessage.getData());
-
         PodNotificationManager.handleMessage(this,remoteMessage);
     }
 

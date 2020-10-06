@@ -2,6 +2,9 @@ package com.fanap.podchat.cachemodel.queue;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
+
+import com.fanap.podchat.mainmodel.Thread;
 
 @Entity
 public class SendingQueueCache {
@@ -108,5 +111,21 @@ public class SendingQueueCache {
 
     public void setUserGroupHash(String userGroupHash) {
         this.userGroupHash = userGroupHash;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+
+        try {
+            if (obj == null) return false;
+
+            if (this == obj)
+                return true;
+
+            return this.id == ((SendingQueueCache) obj).getId();
+        } catch (Exception e) {
+            return super.equals(obj);
+        }
+
     }
 }

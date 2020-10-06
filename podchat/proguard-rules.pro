@@ -27,8 +27,32 @@
 -if interface * { @retrofit2.http.* <methods>; }
 -keep,allowobfuscation interface <1>
 -dontwarn okhttp3.**
--keep class okhttp3.** { *;}
+-keep class okhttp3.* { *;}
 -dontwarn okio.**
+
+-keep class com.fanap.podchat.call.codec.opus.OpusDecoder {
+    *** address;
+}
+
+-keep class com.fanap.podchat.call.codec.opus.OpusEncoder {
+    *** address;
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+-keepclasseswithmembernames class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembernames class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
 
 -keepattributes RuntimeVisibleAnnotations
 -keepattributes AnnotationDefault

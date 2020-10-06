@@ -14,16 +14,16 @@ public class RequestConnect extends BaseRequestObject {
     private String podSpaceServer;
 
 
-     public RequestConnect(@NonNull Builder builder) {
+    public RequestConnect(@NonNull Builder builder) {
         super(builder);
-         this.socketAddress = builder.socketAddress;
-         this.appId = builder.appId;
-         this.fileServer = builder.fileServer;
-         this.platformHost = builder.platformHost;
-         this.severName = builder.severName;
-         this.token = builder.token;
-         this.ssoHost = builder.ssoHost;
-         this.podSpaceServer = builder.podSpaceServer;
+        this.socketAddress = builder.socketAddress;
+        this.appId = builder.appId;
+        this.fileServer = builder.fileServer;
+        this.platformHost = builder.platformHost;
+        this.severName = builder.severName;
+        this.token = builder.token;
+        this.ssoHost = builder.ssoHost;
+        this.podSpaceServer = builder.podSpaceServer;
     }
 
 
@@ -38,8 +38,9 @@ public class RequestConnect extends BaseRequestObject {
         private String fileServer;
 
 
+        @Deprecated
         public Builder(String socketAddress, String appId, String severName, String token,
-                String ssoHost, String platformHost, String fileServer) {
+                       String ssoHost, String platformHost, String fileServer) {
             this.socketAddress = socketAddress;
             this.appId = appId;
             this.fileServer = fileServer;
@@ -49,7 +50,7 @@ public class RequestConnect extends BaseRequestObject {
             this.ssoHost = ssoHost;
         }
 
-        public Builder(String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer,String podSpaceServer) {
+        public Builder(String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer, String podSpaceServer) {
             this.podSpaceServer = podSpaceServer;
             this.socketAddress = socketAddress;
             this.appId = appId;
@@ -61,7 +62,7 @@ public class RequestConnect extends BaseRequestObject {
         }
 
         @NonNull
-        public RequestConnect build(){
+        public RequestConnect build() {
             return new RequestConnect(this);
         }
 

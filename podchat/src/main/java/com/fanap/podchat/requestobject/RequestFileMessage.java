@@ -245,4 +245,21 @@ public class RequestFileMessage {
             return new RequestFileMessage(this);
         }
     }
+
+    @Override
+    public String toString() {
+        return "RequestFileMessage{" +
+                "activity=" + activity +
+                ", threadId=" + threadId +
+                ", fileUri=" + fileUri +
+                ", systemMetadata='" + systemMetadata + '\'' +
+                ", messageType=" + messageType +
+                ", description='" + description + '\'' +
+                ", userGroupHash='" + userGroupHash + '\'' +
+                ", imageXc='" + imageXc + '\'' +
+                ", imageYc='" + imageYc + '\'' +
+                ", imageHc='" + imageHc + '\'' +
+                ", imageWc='" + imageWc + '\'' +
+                '}';
+    }
 }

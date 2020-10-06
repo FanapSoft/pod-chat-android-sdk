@@ -85,7 +85,23 @@ public class ChatMessageType {
             Constants.REGISTER_FCM_USER_DEVICE,
             Constants.UPDATE_FCM_APP_USERS_DEVICE,
             Constants.LAST_MESSAGE_EDITED,
-            Constants.LAST_MESSAGE_DELETED
+            Constants.LAST_MESSAGE_DELETED,
+            Constants.CONTACT_SYNCED,
+            Constants.LOCATION_PING,
+            Constants.CALL_REQUEST,
+            Constants.DELIVER_CALL_REQUEST,
+            Constants.ACCEPT_CALL,
+            Constants.REJECT_CALL,
+            Constants.START_CALL,
+            Constants.GET_CALLS,
+            Constants.END_CALL,
+            Constants.CALL_RECONNECT,
+            Constants.CALL_CONNECT,
+            Constants.GROUP_CALL_REQUEST,
+            Constants.LEAVE_CALL,
+            Constants.ADD_CALL_PARTICIPANT,
+            Constants.CALL_PARTICIPANT_JOINED
+
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -158,6 +174,26 @@ public class ChatMessageType {
         int START_BOT = 64;
         int STOP_BOT = 65;
 
+
+        int CALL_REQUEST = 70;
+        int ACCEPT_CALL = 71;
+        int REJECT_CALL = 72;
+        int DELIVER_CALL_REQUEST = 73;
+        int START_CALL = 74;
+        int END_CALL_REQUEST = 75;
+        int END_CALL = 76;
+        int GET_CALLS = 77;
+        int CALL_RECONNECT = 78;
+        int CALL_CONNECT = 79;
+
+
+        int GROUP_CALL_REQUEST = 91;
+        int LEAVE_CALL = 92;
+        int ADD_CALL_PARTICIPANT = 93;
+        int CALL_PARTICIPANT_JOINED = 94;
+
+
+
         int LAST_MESSAGE_DELETED = 66;
         int LAST_MESSAGE_EDITED = 67;
 
@@ -166,7 +202,14 @@ public class ChatMessageType {
         int REGISTER_FCM_USER_DEVICE = 81;
         int UPDATE_FCM_APP_USERS_DEVICE = 82;
 
+        int CONTACT_SYNCED = 90;
+
+
+        int LOCATION_PING = 101;
+
         int ERROR = 999;
+
+
 
 
     }

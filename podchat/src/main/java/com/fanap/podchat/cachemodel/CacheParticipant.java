@@ -50,8 +50,6 @@ public class CacheParticipant {
     private ChatProfileVO chatProfileVO;
 
 
-
-
     public List<String> getRoles() {
         return roles;
     }

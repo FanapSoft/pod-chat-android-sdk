@@ -30,14 +30,11 @@ import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
-import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
-import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -128,7 +125,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         ChatContract.view view = new ChatContract.view() {
 
             @Override
-            public void onError() {
+            public void onError(String message) {
 
             }
 
@@ -200,7 +197,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         break;
                     case 7:
                         RequestSeenMessageList requests = new RequestSeenMessageList.Builder(17374).build();
-                        presenter.seenMessageList(requests);
+                        presenter.getSeenMessageList(requests);
                         break;
                     case 8:
                         RequestDeliveredMessageList requestD = new RequestDeliveredMessageList.Builder(17374).build();
@@ -614,80 +611,111 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 9:
                 //get thread history
-                History history = new History.Builder().build();
-
-                presenter.getHistory(history, 22, new ChatHandler() {
-                    @Override
-                    public void onGetHistory(String uniqueId) {
-                        super.onGetHistory(uniqueId);
-                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                getHistory();
 
                 break;
             case 10:
                 //"mute thread",
-                presenter.muteThread(543, new ChatHandler() {
-                    @Override
-                    public void onMuteThread(String uniqueId) {
-                        super.onMuteThread(uniqueId);
-                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                muteTHread();
 
                 break;
             case 11:
                 //"un mute thread"
                 //"un mute thread"
-                presenter.unMuteThread(543, new ChatHandler() {
-                    @Override
-                    public void onUnMuteThread(String uniqueId) {
-                        super.onUnMuteThread(uniqueId);
-                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                unmteThread();
 
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(10, null, new ChatHandler() {
-                    @Override
-                    public void onGetContact(String uniqueId) {
-                        super.onGetContact(uniqueId);
-                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                getContacts();
 
                 break;
             case 13:
                 //"edit message"
-                Inviter inviter = new Inviter();
-                inviter.setName("sina");
-                String meta = gson.toJson(inviter);
-                presenter.editMessage(9261,
-                        "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
+                editMessage();
 
                 break;
             case 14:
                 // add contact
-                presenter.addContact("Mehran", "Atash", "", "","");
+                addContact();
                 break;
             case 15:
                 // remove contact
-                presenter.removeContact(1041);
+                removeContact();
                 break;
             case 16:
-                /**UPDATE CONTACTS*/
-                RequestUpdateContact requestUpdateContact = new RequestUpdateContact.Builder(2404)
-                        .cellphoneNumber("09148401824")
-                        .firstName("Black Masoudi")
-                        .lastName("Amjadi")
-                        .build();
+                updateContactInfo();
 
-                presenter.updateContact(requestUpdateContact);
-//                presenter.updateContact(2404, "Asghar masoudi", "Amjadi", "09148401824", ""
-//                );
         }
+    }
+
+    private void getHistory() {
+        History history = new History.Builder().build();
+
+        presenter.getHistory(history, 22, new ChatHandler() {
+            @Override
+            public void onGetHistory(String uniqueId) {
+                super.onGetHistory(uniqueId);
+                Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void muteTHread() {
+        presenter.muteThread(543, new ChatHandler() {
+            @Override
+            public void onMuteThread(String uniqueId) {
+                super.onMuteThread(uniqueId);
+                Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void unmteThread() {
+        presenter.unMuteThread(543, new ChatHandler() {
+            @Override
+            public void onUnMuteThread(String uniqueId) {
+                super.onUnMuteThread(uniqueId);
+                Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getContacts() {
+        presenter.getContact(10, null, new ChatHandler() {
+            @Override
+            public void onGetContact(String uniqueId) {
+                super.onGetContact(uniqueId);
+                Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void editMessage() {
+        Inviter inviter = new Inviter();
+        inviter.setName("sina");
+        String meta = gson.toJson(inviter);
+        presenter.editMessage(9261,
+                "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
+    }
+
+    private void addContact() {
+        presenter.addContact("Mehran", "Atash", "", "","");
+    }
+
+    private void removeContact() {
+        presenter.removeContact(1041);
+    }
+
+    private void updateContactInfo() {
+        /**UPDATE CONTACTS*/
+        RequestUpdateContact requestUpdateContact = new RequestUpdateContact.Builder(2404)
+                .cellphoneNumber("09148401824")
+                .firstName("Black Masoudi")
+                .lastName("Amjadi")
+                .build();
+
+        presenter.updateContact(requestUpdateContact);
     }
 
     private void getThreads() {

@@ -27,7 +27,7 @@ public class NetworkPingSender {
 
     private String hostName = "msg.pod.ir";
 
-    private int port = 80;
+    private int port = 443;
 
     private HandlerThread handlerThread;
 
