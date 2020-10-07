@@ -841,7 +841,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onRemovedFromCall() {
+
         vibrate();
+
+        onCallEnded();
 
         runOnUiThread(() -> Toast.makeText(this, "You have been removed from call!", Toast.LENGTH_SHORT).show());
     }

@@ -149,6 +149,8 @@ import java.util.concurrent.TimeUnit;
 import static com.example.chat.application.chatexample.CallActivity.FIFI_CID;
 import static com.example.chat.application.chatexample.CallActivity.FIFI_ID;
 import static com.example.chat.application.chatexample.CallActivity.JIJI_CID;
+import static com.example.chat.application.chatexample.CallActivity.JIJI_ID;
+import static com.example.chat.application.chatexample.CallActivity.ZIZI_ID;
 
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
@@ -1867,7 +1869,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(6952, CallType.Constants.VOICE_CALL)
+                .Builder(8036, CallType.Constants.VOICE_CALL)
                 .build();
 
         chat.requestGroupCall(request);
@@ -1880,11 +1882,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         List<Long> ids = new ArrayList<>();
 
         if (fifiChecked)
-            ids.add(1557L);
+            ids.add((long) FIFI_ID);
         if (jijiChecked)
-            ids.add(1556L);
+            ids.add((long) JIJI_ID);
         if (ziziChecked)
-            ids.add(1555L);
+            ids.add((long) ZIZI_ID);
 
         RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
                 callRequestResponse.getSubjectId(),

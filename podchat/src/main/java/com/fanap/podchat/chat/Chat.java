@@ -1601,7 +1601,7 @@ public class Chat extends AsyncAdapter {
 
         audioCallManager.removeCallParticipant(response.getResult());
 
-        showLog("RECEIVE_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
+        showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
 
     }
 
