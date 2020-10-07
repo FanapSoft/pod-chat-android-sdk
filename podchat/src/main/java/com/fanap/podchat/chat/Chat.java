@@ -917,6 +917,10 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    public String getChatState() {
+        return chatState;
+    }
+
     private void resetReconnectRetryTime() {
         connectNumberOfRetry = 1000;
     }
@@ -1595,13 +1599,18 @@ public class Chat extends AsyncAdapter {
 
         if (response.getResult().isUserRemoved()) {
             listenerManager.callOnRemovedFromCall(response);
+
+            audioCallManager.endStream(true);
+
+            showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
         } else {
             listenerManager.callOnCallParticipantRemoved(response);
+
+            audioCallManager.removeCallParticipant(response.getResult());
+
+            showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
         }
 
-        audioCallManager.removeCallParticipant(response.getResult());
-
-        showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
 
     }
 
