@@ -19,24 +19,6 @@
   },
   {
     "level": "INFO",
-    "message": "- command changed from previous, will remove stale json folder",
-    "file": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk",
-    "tag": "debug|x86"
-  },
-  {
-    "level": "INFO",
-    "message": "- a dependent build file changed",
-    "file": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk",
-    "tag": "debug|x86"
-  },
-  {
-    "level": "INFO",
-    "message": "  - D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk",
-    "file": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk",
-    "tag": "debug|x86"
-  },
-  {
-    "level": "INFO",
     "message": "removing stale contents from \u0027D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\.cxx\\ndkBuild\\debug\\x86\u0027",
     "file": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk",
     "tag": "debug|x86"
