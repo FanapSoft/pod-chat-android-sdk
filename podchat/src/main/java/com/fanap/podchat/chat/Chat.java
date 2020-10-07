@@ -43,6 +43,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
@@ -57,6 +58,7 @@ import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.bot.BotManager;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
@@ -113,7 +115,6 @@ import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.MapNeshan;
 import com.fanap.podchat.mainmodel.MapReverse;
 import com.fanap.podchat.mainmodel.MapRout;
 import com.fanap.podchat.mainmodel.MessageVO;
@@ -145,7 +146,6 @@ import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
 import com.fanap.podchat.model.MetadataLocationFile;
 import com.fanap.podchat.model.OutPutHistory;
-import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutMapRout;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
 import com.fanap.podchat.model.OutPutParticipant;
@@ -161,7 +161,6 @@ import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
-import com.fanap.podchat.model.ResultMap;
 import com.fanap.podchat.model.ResultMapReverse;
 import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
@@ -299,8 +298,6 @@ import io.sentry.core.Breadcrumb;
 import io.sentry.core.Sentry;
 import io.sentry.core.SentryEvent;
 import io.sentry.core.SentryLevel;
-import io.sentry.core.SentryOptions;
-import io.sentry.core.protocol.Message;
 import io.sentry.core.protocol.User;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -1026,6 +1023,9 @@ public class Chat extends AsyncAdapter {
             case Constants.CALL_PARTICIPANT_JOINED:
                 handleOnNewCallParticipantJoined(chatMessage);
                 break;
+            case Constants.REMOVE_CALL_PARTICIPANT:
+                handleOnCallParticipantRemoved(chatMessage);
+                break;
             case Constants.GET_CALLS:
                 handleOnGetCallsHistory(chatMessage, callback);
                 break;
@@ -1576,6 +1576,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
+
     private void handleOnCallParticipantLeft(ChatMessage chatMessage) {
 
         ChatResponse<LeaveCallResult> response = CallManager.handleOnParticipantLeft(chatMessage);
@@ -1587,6 +1588,23 @@ public class Chat extends AsyncAdapter {
         showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
 
     }
+
+    private void handleOnCallParticipantRemoved(ChatMessage chatMessage) {
+
+        ChatResponse<RemoveFromCallResult> response = CallManager.handleOnParticipantRemoved(chatMessage);
+
+        if (response.getResult().isUserRemoved()) {
+            listenerManager.callOnRemovedFromCall(response);
+        } else {
+            listenerManager.callOnCallParticipantRemoved(response);
+        }
+
+        audioCallManager.removeCallParticipant(response.getResult());
+
+        showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
+
+    }
+
 
     private void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
 
@@ -1970,6 +1988,19 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String removeGroupCallParticipant(RequestRemoveParticipants request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createRemoveCallParticipantMessage(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_REMOVE_CALL_PARTICIPANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
     public String endAudioCall(EndCallRequest endCallRequest) {
 
         if (audioCallManager != null)
@@ -1979,6 +2010,21 @@ public class Chat extends AsyncAdapter {
         if (chatReady) {
             String message = CallManager.createEndCallRequestMessage(endCallRequest, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_END_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
+    public String terminateAudioCall(TerminateCallRequest terminateCallRequest) {
+
+        if (audioCallManager != null)
+            audioCallManager.endStream(false);
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallManager.createTerminateCallMessage(terminateCallRequest, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_TERMINATE_CALL");
         } else {
             onChatNotReady(uniqueId);
         }

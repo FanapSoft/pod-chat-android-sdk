@@ -17,10 +17,12 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
+import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
@@ -148,6 +150,8 @@ import java.util.concurrent.TimeUnit;
 import static com.example.chat.application.chatexample.CallActivity.FIFI_CID;
 import static com.example.chat.application.chatexample.CallActivity.FIFI_ID;
 import static com.example.chat.application.chatexample.CallActivity.JIJI_CID;
+import static com.example.chat.application.chatexample.CallActivity.JIJI_ID;
+import static com.example.chat.application.chatexample.CallActivity.ZIZI_ID;
 
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
@@ -1744,6 +1748,30 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+
+    @Override
+    public void terminateCall() {
+
+        Log.e(TAG, "REQUEST TERMINATE FROM CLIENT");
+
+        Log.e(TAG, "REQUEST TERMINATE FROM CLIENT. Call Response: " + callRequestResponse);
+
+        if (callRequestResponse != null) {
+
+            Log.e(TAG, "REQUEST TERMINATE FROM CLIENT call response not null");
+
+            TerminateCallRequest terminateCallRequest = new TerminateCallRequest.Builder()
+                    .setCallId(callRequestResponse.getSubjectId())
+                    .build();
+
+
+            String uniqueId = chat.terminateAudioCall(terminateCallRequest);
+
+        }
+
+    }
+
+
     @Override
     public void endRunningCall() {
 
@@ -1844,10 +1872,32 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(8033, CallType.Constants.VOICE_CALL)
+                .Builder(8036, CallType.Constants.VOICE_CALL)
                 .build();
 
         uniqueIds.add(chat.requestGroupCall(request));
+
+    }
+
+    @Override
+    public void removeCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
+
+        List<Long> ids = new ArrayList<>();
+
+        if (fifiChecked)
+            ids.add((long) FIFI_ID);
+        if (jijiChecked)
+            ids.add((long) JIJI_ID);
+        if (ziziChecked)
+            ids.add((long) ZIZI_ID);
+
+        RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
+                callRequestResponse.getSubjectId(),
+                ids)
+                .build();
+
+
+        chat.removeGroupCallParticipant(request);
 
     }
 
@@ -2054,5 +2104,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onEndCallRequestFromNotification() {
         view.onVoiceCallEnded("", 0);
+    }
+
+    @Override
+    public void onCallParticipantRemoved(ChatResponse<RemoveFromCallResult> response) {
+
+        for (CallParticipantVO callParticipant :
+                response.getResult().getCallParticipants()) {
+            view.onCallParticipantRemoved(callParticipant.getParticipantVO().getFirstName() + " " + callParticipant.getParticipantVO().getLastName());
+        }
+
+    }
+
+    @Override
+    public void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response) {
+
+        view.onRemovedFromCall();
     }
 }

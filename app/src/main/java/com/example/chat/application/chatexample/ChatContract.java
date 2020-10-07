@@ -247,6 +247,10 @@ public interface ChatContract {
 
         default void onCallParticipantJoined(String response){}
 
+        default void onCallParticipantRemoved(String name){}
+
+        default void onRemovedFromCall(){}
+
         default void updateStatus(String message){}
     }
 
@@ -532,5 +536,9 @@ public interface ChatContract {
         void requestMainOrSandboxCall(String query, boolean checked);
 
         void requestCall(int partnerId, boolean checked);
+
+        void terminateCall();
+
+        void removeCallParticipant(boolean checked, boolean checked1, boolean checked2);
     }
 }
