@@ -88,6 +88,8 @@ import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.chat.ping.PingManager;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.repository.CacheDataSource;
 import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.chat.thread.ThreadManager;
@@ -921,6 +923,10 @@ public class Chat extends AsyncAdapter {
         return chatState;
     }
 
+    public boolean isChatReady() {
+        return chatReady;
+    }
+
     private void resetReconnectRetryTime() {
         connectNumberOfRetry = 1000;
     }
@@ -974,6 +980,10 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.CLOSE_THREAD:{
+                handleOnThreadClosed(chatMessage);
+                break;
+            }
 
             case Constants.CREATE_BOT: {
                 handleOnBotCreated(chatMessage);
@@ -1220,6 +1230,15 @@ public class Chat extends AsyncAdapter {
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleOnThreadClosed(ChatMessage chatMessage) {
+
+        ChatResponse<CloseThreadResult> response = ThreadManager.handleCloseThreadResponse(chatMessage);
+
+        listenerManager.callOnThreadClosed(response);
+
+        showLog("ON_RECEIVED_THREAD_CLOSED",gson.toJson(chatMessage));
     }
 
     private void handleOnContactsSynced(ChatMessage chatMessage) {
@@ -1952,6 +1971,22 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String closeThread(CloseThreadRequest request) {
+
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            try {
+                String message = ThreadManager.createCloseThreadRequest(request, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CLOSE_THREAD");
+            } catch (PodChatException e) {
+                captureError(e);
+            }
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
 
     public void setAudioCallConfig(CallConfig callConfig) {
         if (audioCallManager != null)
@@ -6558,6 +6593,7 @@ public class Chat extends AsyncAdapter {
                     }
 
 
+                    // TODO: 10/7/2020 handle room integrity
                     messageDatabaseHelper.getThreadIdsList(t -> {
 
                         try {

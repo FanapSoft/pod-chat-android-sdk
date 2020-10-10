@@ -1,0 +1,21 @@
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:78:24: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+      _mm_storeu_si128((__m128i*)&iy[j], _mm_setzero_si128());
+                       ^~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:119:27: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+         _mm_storeu_si128((__m128i*)&iy[j], iy4);
+                          ^~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:208:28: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+      y4 = _mm_loadu_si128((__m128i*)&iy[j]);
+                           ^~~~~~~~~~~~~~~~
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/opus/celt/x86/vq_sse2.c:211:24: warning: cast from 'int *' to '__m128i *' increases required alignment from 4 to 16 [-Wcast-align]
+      _mm_storeu_si128((__m128i*)&iy[j], y4);
+                       ^~~~~~~~~~~~~~~~
+4 warnings generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/Java_com_fanap_podchat_Encoder.c:93:42: warning: cast from 'jbyte *' (aka 'signed char *') to 'const opus_int16 *' (aka 'const short *') increases required alignment from 1 to 2 [-Wcast-align]
+    int dataArraySize = opus_encode(enc, (const opus_int16 *) audioSignal, frames,
+                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+C:/Work/pod-chat-android-sdk/podchat/src/main/jni/Java_com_fanap_podchat_Decoder.c:68:31: warning: cast from 'jbyte *' (aka 'signed char *') to 'opus_int16 *' (aka 'short *') increases required alignment from 1 to 2 [-Wcast-align]
+                              (opus_int16 *) decodedData, frames, 0);
+                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.

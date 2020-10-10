@@ -429,6 +429,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.GONE);
             buttonCall.setVisibility(View.VISIBLE);
+            buttonStartSandboxCall.setVisibility(View.VISIBLE);
+            buttonConnectSandBox.setVisibility(View.VISIBLE);
             tvCallerName.setText("");
         });
 

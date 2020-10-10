@@ -30,7 +30,8 @@ public class ConstantSample {
             "Get Mention List",
             "Is Name Available",
             "Create Public Thread or Channel",
-            "Join Public Thread"
+            "Join Public Thread",
+            "Close Thread"
     };
 
     public static final String[] funcSecond = {

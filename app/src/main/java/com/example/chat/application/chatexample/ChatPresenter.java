@@ -51,6 +51,8 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -1902,6 +1904,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void closeThread(int testThreadId) {
+
+        CloseThreadRequest closeThreadRequest = new CloseThreadRequest
+                .Builder(testThreadId)
+                .typeCode("default")
+                .build();
+
+        if(chat.isChatReady()){
+            String uniqueId = chat.closeThread(closeThreadRequest);
+        }
+
+
+    }
+
+    @Override
     public void addCallParticipant(String username, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
 
 
@@ -2120,5 +2137,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response) {
 
         view.onRemovedFromCall();
+    }
+
+    @Override
+    public void onThreadClosed(ChatResponse<CloseThreadResult> response) {
+        view.onThreadClosed(response.getSubjectId());
     }
 }

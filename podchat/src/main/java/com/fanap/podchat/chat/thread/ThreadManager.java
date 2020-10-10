@@ -3,11 +3,17 @@ package com.fanap.podchat.chat.thread;
 import android.os.Build;
 
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.CoreConfig;
+import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.Util;
 import com.google.gson.reflect.TypeToken;
 
@@ -20,6 +26,27 @@ import rx.Observable;
 
 public class ThreadManager {
 
+
+    public static ChatResponse<CloseThreadResult> handleCloseThreadResponse(ChatMessage chatMessage) {
+
+        ChatResponse<CloseThreadResult> response = new ChatResponse<>();
+
+        CloseThreadResult result = new CloseThreadResult();
+
+        result.setThreadId(chatMessage.getSubjectId());
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        response.setCache(false);
+
+        response.setHasError(false);
+
+        return response;
+    }
 
     public interface ILastMessageChanged {
 
@@ -86,6 +113,30 @@ public class ThreadManager {
 
     }
 
+    public static String createCloseThreadRequest(CloseThreadRequest request,String uniqueId) throws PodChatException {
+
+
+        validateThreadId(request,uniqueId);
+
+        AsyncMessage message = new ChatMessage();
+        message.setType(ChatMessageType.Constants.CLOSE_THREAD);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setSubjectId(request.getThreadId());
+        message.setUniqueId(uniqueId);
+
+
+
+        return App.getGson().toJson(message);
+    }
+
+    private static void validateThreadId(CloseThreadRequest request,String uniqueId) throws PodChatException {
+
+        if(request.getThreadId() <= 0)
+            throw new PodChatException("Invalid Thread Id",uniqueId,CoreConfig.token);
+
+    }
 
     public static int compareThreads(Thread thread1, Thread thread2) {
 
