@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/viewCall"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:visibility="gone"
+    android:keepScreenOn="true"
+    tools:visibility="visible">
+
+
+    <LinearLayout
+        android:id="@+id/layoutAddParticipant"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkboxAddZizi"
+            style="@style/radio_button"
+            android:text="ZIZI" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkboxAddJiji"
+            style="@style/radio_button"
+            android:text="JIJI" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkboxAddFifi"
+            style="@style/radio_button"
+            android:text="FIFI" />
+
+    </LinearLayout>
+
+
+    <EditText
+        android:hint="Enter new participant username"
+        android:id="@+id/etNewParticipant"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAddParticipant" />
+
+    <Button
+        android:id="@+id/btnAddCallParticipant"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/colorAccent"
+        android:text="Add Call Participant"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/etNewParticipant"
+        tools:layout_editor_absoluteX="-16dp" />
+
+    <Button
+        android:id="@+id/btnRemoveCallParticipant"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/grey"
+        android:text="Remove Call Participant"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/btnAddCallParticipant"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <Button
+        android:id="@+id/btnTerminateCall"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/red"
+        android:text="Terminate Call"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/btnRemoveCallParticipant"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <ImageButton
+        android:id="@+id/buttonEndCall"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="48dp"
+        android:background="@drawable/circle_red"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.384"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:srcCompat="@drawable/ic_call_end_24dp" />
+
+
+    <ImageButton
+        android:id="@+id/buttonMute"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="48dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:srcCompat="@drawable/ic_mic_off" />
+
+    <ImageButton
+        android:id="@+id/buttonSpeakerOn"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="48dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:alpha="0.6"
+        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:srcCompat="@drawable/ic_speaker_on" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.75" />
+
+</android.support.constraint.ConstraintLayout>

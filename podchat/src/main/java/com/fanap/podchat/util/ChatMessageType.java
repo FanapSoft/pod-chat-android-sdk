@@ -87,7 +87,23 @@ public class ChatMessageType {
             Constants.LAST_MESSAGE_EDITED,
             Constants.LAST_MESSAGE_DELETED,
             Constants.CONTACT_SYNCED,
-            Constants.LOCATION_PING
+            Constants.LOCATION_PING,
+            Constants.CALL_REQUEST,
+            Constants.DELIVER_CALL_REQUEST,
+            Constants.ACCEPT_CALL,
+            Constants.REJECT_CALL,
+            Constants.START_CALL,
+            Constants.GET_CALLS,
+            Constants.END_CALL,
+            Constants.CALL_RECONNECT,
+            Constants.CALL_CONNECT,
+            Constants.GROUP_CALL_REQUEST,
+            Constants.LEAVE_CALL,
+            Constants.ADD_CALL_PARTICIPANT,
+            Constants.CALL_PARTICIPANT_JOINED,
+            Constants.REMOVE_CALL_PARTICIPANT,
+            Constants.TERMINATE_CALL
+
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -159,6 +175,29 @@ public class ChatMessageType {
         int DEFINE_BOT_COMMAND = 63;
         int START_BOT = 64;
         int STOP_BOT = 65;
+
+
+        int CALL_REQUEST = 70;
+        int ACCEPT_CALL = 71;
+        int REJECT_CALL = 72;
+        int DELIVER_CALL_REQUEST = 73;
+        int START_CALL = 74;
+        int END_CALL_REQUEST = 75;
+        int END_CALL = 76;
+        int GET_CALLS = 77;
+        int CALL_RECONNECT = 78;
+        int CALL_CONNECT = 79;
+
+
+        int GROUP_CALL_REQUEST = 91;
+        int LEAVE_CALL = 92;
+        int ADD_CALL_PARTICIPANT = 93;
+        int CALL_PARTICIPANT_JOINED = 94;
+        int REMOVE_CALL_PARTICIPANT = 95;
+        int TERMINATE_CALL = 96;
+
+
+
 
         int LAST_MESSAGE_DELETED = 66;
         int LAST_MESSAGE_EDITED = 67;

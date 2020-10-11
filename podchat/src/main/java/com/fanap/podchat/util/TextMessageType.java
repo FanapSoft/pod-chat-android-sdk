@@ -26,6 +26,7 @@ public class TextMessageType {
             Constants.POD_SPACE_SOUND,
             Constants.POD_SPACE_VIDEO,
             Constants.POD_SPACE_PICTURE,
+            Constants.STICKER
 
     })
 
@@ -44,6 +45,7 @@ public class TextMessageType {
         int POD_SPACE_VOICE = 10;
         int POD_SPACE_FILE = 11;
         int LINK = 12;
+        int STICKER = 15;
 
 
     }

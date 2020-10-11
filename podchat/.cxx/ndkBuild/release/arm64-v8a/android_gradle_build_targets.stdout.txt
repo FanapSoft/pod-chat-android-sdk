@@ -1,0 +1,192 @@
+"##########################################################"
+"###################### LOCAL PATH #########################"
+"##########################################################"
+D:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/src/main/jni
+"##########################################################"
+"##########################################################"
+"##########################################################"
+"##########################################################"
+"######################## Opus ############################"
+"##########################################################"
+"##########################################################"
+"################### Opus Compile Options #################"
+"##########################################################"
+"##########################################################"
+"################# ########################################"
+"############## #### ###### ###############################"
+"############ #######  ##  ## #############################"
+"########### ########## ####### ###########################"
+"########## #################### ##########################"
+"######### ###################### #########################"
+"########## ##################### #########################"
+"############ ################## ##########################"
+"############## ############### ###########################"
+"################ ########### #############################"
+"################## ####### ###############################"
+"#################### ### #################################"
+"######################  ##################################"
+"##########################################################"
+"##########################################################"
+"##########################################################"
+"##################### End Opus Options ###################"
+"##########################################################"
+"##########################################################"
+"######################### Speexdsp #######################"
+"##########################################################"
+"##########################################################"
+"####################### End Speexdsp #####################"
+"##########################################################"
+[arm64-v8a] Compile        : podopus <= CNG.c
+[arm64-v8a] Compile        : podopus <= code_signs.c
+[arm64-v8a] Compile        : podopus <= init_decoder.c
+[arm64-v8a] Compile        : podopus <= decode_core.c
+[arm64-v8a] Compile        : podopus <= decode_frame.c
+[arm64-v8a] Compile        : podopus <= decode_parameters.c
+[arm64-v8a] Compile        : podopus <= decode_indices.c
+[arm64-v8a] Compile        : podopus <= decode_pulses.c
+[arm64-v8a] Compile        : podopus <= decoder_set_fs.c
+[arm64-v8a] Compile        : podopus <= dec_API.c
+[arm64-v8a] Compile        : podopus <= enc_API.c
+[arm64-v8a] Compile        : podopus <= encode_indices.c
+[arm64-v8a] Compile        : podopus <= encode_pulses.c
+[arm64-v8a] Compile        : podopus <= gain_quant.c
+[arm64-v8a] Compile        : podopus <= interpolate.c
+[arm64-v8a] Compile        : podopus <= LP_variable_cutoff.c
+[arm64-v8a] Compile        : podopus <= NLSF_decode.c
+[arm64-v8a] Compile        : podopus <= NSQ.c
+[arm64-v8a] Compile        : podopus <= NSQ_del_dec.c
+[arm64-v8a] Compile        : podopus <= PLC.c
+[arm64-v8a] Compile        : podopus <= shell_coder.c
+[arm64-v8a] Compile        : podopus <= tables_gain.c
+[arm64-v8a] Compile        : podopus <= tables_LTP.c
+[arm64-v8a] Compile        : podopus <= tables_NLSF_CB_NB_MB.c
+[arm64-v8a] Compile        : podopus <= tables_NLSF_CB_WB.c
+[arm64-v8a] Compile        : podopus <= tables_other.c
+[arm64-v8a] Compile        : podopus <= tables_pitch_lag.c
+[arm64-v8a] Compile        : podopus <= tables_pulses_per_block.c
+[arm64-v8a] Compile        : podopus <= VAD.c
+[arm64-v8a] Compile        : podopus <= control_audio_bandwidth.c
+[arm64-v8a] Compile        : podopus <= quant_LTP_gains.c
+[arm64-v8a] Compile        : podopus <= VQ_WMat_EC.c
+[arm64-v8a] Compile        : podopus <= HP_variable_cutoff.c
+[arm64-v8a] Compile        : podopus <= NLSF_encode.c
+[arm64-v8a] Compile        : podopus <= NLSF_VQ.c
+[arm64-v8a] Compile        : podopus <= NLSF_unpack.c
+[arm64-v8a] Compile        : podopus <= NLSF_del_dec_quant.c
+[arm64-v8a] Compile        : podopus <= process_NLSFs.c
+[arm64-v8a] Compile        : podopus <= stereo_LR_to_MS.c
+[arm64-v8a] Compile        : podopus <= stereo_MS_to_LR.c
+[arm64-v8a] Compile        : podopus <= check_control_input.c
+[arm64-v8a] Compile        : podopus <= control_SNR.c
+[arm64-v8a] Compile        : podopus <= init_encoder.c
+[arm64-v8a] Compile        : podopus <= control_codec.c
+[arm64-v8a] Compile        : podopus <= A2NLSF.c
+[arm64-v8a] Compile        : podopus <= ana_filt_bank_1.c
+[arm64-v8a] Compile        : podopus <= biquad_alt.c
+[arm64-v8a] Compile        : podopus <= bwexpander_32.c
+[arm64-v8a] Compile        : podopus <= bwexpander.c
+[arm64-v8a] Compile        : podopus <= debug.c
+[arm64-v8a] Compile        : podopus <= decode_pitch.c
+[arm64-v8a] Compile        : podopus <= inner_prod_aligned.c
+[arm64-v8a] Compile        : podopus <= lin2log.c
+[arm64-v8a] Compile        : podopus <= log2lin.c
+[arm64-v8a] Compile        : podopus <= LPC_analysis_filter.c
+[arm64-v8a] Compile        : podopus <= LPC_inv_pred_gain.c
+[arm64-v8a] Compile        : podopus <= table_LSF_cos.c
+[arm64-v8a] Compile        : podopus <= NLSF2A.c
+[arm64-v8a] Compile        : podopus <= NLSF_stabilize.c
+[arm64-v8a] Compile        : podopus <= NLSF_VQ_weights_laroia.c
+[arm64-v8a] Compile        : podopus <= pitch_est_tables.c
+[arm64-v8a] Compile        : podopus <= resampler.c
+[arm64-v8a] Compile        : podopus <= resampler_down2_3.c
+[arm64-v8a] Compile        : podopus <= resampler_down2.c
+[arm64-v8a] Compile        : podopus <= resampler_private_AR2.c
+[arm64-v8a] Compile        : podopus <= resampler_private_down_FIR.c
+[arm64-v8a] Compile        : podopus <= resampler_private_IIR_FIR.c
+[arm64-v8a] Compile        : podopus <= resampler_private_up2_HQ.c
+[arm64-v8a] Compile        : podopus <= resampler_rom.c
+[arm64-v8a] Compile        : podopus <= sigm_Q15.c
+[arm64-v8a] Compile        : podopus <= sort.c
+[arm64-v8a] Compile        : podopus <= sum_sqr_shift.c
+[arm64-v8a] Compile        : podopus <= stereo_decode_pred.c
+[arm64-v8a] Compile        : podopus <= stereo_encode_pred.c
+[arm64-v8a] Compile        : podopus <= stereo_find_predictor.c
+[arm64-v8a] Compile        : podopus <= stereo_quant_pred.c
+[arm64-v8a] Compile        : podopus <= LPC_fit.c
+[arm64-v8a] Compile        : podopus <= apply_sine_window_FLP.c
+[arm64-v8a] Compile        : podopus <= corrMatrix_FLP.c
+[arm64-v8a] Compile        : podopus <= encode_frame_FLP.c
+[arm64-v8a] Compile        : podopus <= find_LPC_FLP.c
+[arm64-v8a] Compile        : podopus <= find_LTP_FLP.c
+[arm64-v8a] Compile        : podopus <= find_pitch_lags_FLP.c
+[arm64-v8a] Compile        : podopus <= find_pred_coefs_FLP.c
+[arm64-v8a] Compile        : podopus <= LPC_analysis_filter_FLP.c
+[arm64-v8a] Compile        : podopus <= LTP_analysis_filter_FLP.c
+[arm64-v8a] Compile        : podopus <= LTP_scale_ctrl_FLP.c
+[arm64-v8a] Compile        : podopus <= noise_shape_analysis_FLP.c
+[arm64-v8a] Compile        : podopus <= process_gains_FLP.c
+[arm64-v8a] Compile        : podopus <= regularize_correlations_FLP.c
+[arm64-v8a] Compile        : podopus <= residual_energy_FLP.c
+[arm64-v8a] Compile        : podopus <= warped_autocorrelation_FLP.c
+[arm64-v8a] Compile        : podopus <= wrappers_FLP.c
+[arm64-v8a] Compile        : podopus <= autocorrelation_FLP.c
+[arm64-v8a] Compile        : podopus <= burg_modified_FLP.c
+[arm64-v8a] Compile        : podopus <= bwexpander_FLP.c
+[arm64-v8a] Compile        : podopus <= energy_FLP.c
+[arm64-v8a] Compile        : podopus <= inner_product_FLP.c
+[arm64-v8a] Compile        : podopus <= k2a_FLP.c
+[arm64-v8a] Compile        : podopus <= LPC_inv_pred_gain_FLP.c
+[arm64-v8a] Compile        : podopus <= pitch_analysis_core_FLP.c
+[arm64-v8a] Compile        : podopus <= scale_copy_vector_FLP.c
+[arm64-v8a] Compile        : podopus <= scale_vector_FLP.c
+[arm64-v8a] Compile        : podopus <= schur_FLP.c
+[arm64-v8a] Compile        : podopus <= sort_FLP.c
+[arm64-v8a] Compile        : podopus <= bands.c
+[arm64-v8a] Compile        : podopus <= celt.c
+[arm64-v8a] Compile        : podopus <= celt_encoder.c
+[arm64-v8a] Compile        : podopus <= celt_decoder.c
+[arm64-v8a] Compile        : podopus <= cwrs.c
+[arm64-v8a] Compile        : podopus <= entcode.c
+[arm64-v8a] Compile        : podopus <= entdec.c
+[arm64-v8a] Compile        : podopus <= entenc.c
+[arm64-v8a] Compile        : podopus <= kiss_fft.c
+[arm64-v8a] Compile        : podopus <= laplace.c
+[arm64-v8a] Compile        : podopus <= mathops.c
+[arm64-v8a] Compile        : podopus <= mdct.c
+[arm64-v8a] Compile        : podopus <= modes.c
+[arm64-v8a] Compile        : podopus <= pitch.c
+[arm64-v8a] Compile        : podopus <= celt_lpc.c
+[arm64-v8a] Compile        : podopus <= quant_bands.c
+[arm64-v8a] Compile        : podopus <= rate.c
+[arm64-v8a] Compile        : podopus <= vq.c
+[arm64-v8a] Compile        : podopus <= opus.c
+[arm64-v8a] Compile        : podopus <= opus_decoder.c
+[arm64-v8a] Compile        : podopus <= opus_encoder.c
+[arm64-v8a] Compile        : podopus <= opus_multistream.c
+[arm64-v8a] Compile        : podopus <= opus_multistream_encoder.c
+[arm64-v8a] Compile        : podopus <= opus_multistream_decoder.c
+[arm64-v8a] Compile        : podopus <= repacketizer.c
+[arm64-v8a] Compile        : podopus <= opus_projection_encoder.c
+[arm64-v8a] Compile        : podopus <= opus_projection_decoder.c
+[arm64-v8a] Compile        : podopus <= mapping_matrix.c
+[arm64-v8a] Compile        : podopus <= analysis.c
+[arm64-v8a] Compile        : podopus <= mlp.c
+[arm64-v8a] Compile        : podopus <= mlp_data.c
+[arm64-v8a] Compile        : podopus <= Java_com_fanap_podchat_Encoder.c
+[arm64-v8a] Compile        : podopus <= Java_com_fanap_podchat_Decoder.c
+[arm64-v8a] Compile        : cpufeatures <= cpu-features.c
+[arm64-v8a] StaticLibrary  : libcpufeatures.a
+[arm64-v8a] SharedLibrary  : libpodopus.so
+[arm64-v8a] Compile        : podspeexdsp <= buffer.c
+[arm64-v8a] Compile        : podspeexdsp <= fftwrap.c
+[arm64-v8a] Compile        : podspeexdsp <= filterbank.c
+[arm64-v8a] Compile        : podspeexdsp <= jitter.c
+[arm64-v8a] Compile        : podspeexdsp <= kiss_fft.c
+[arm64-v8a] Compile        : podspeexdsp <= kiss_fftr.c
+[arm64-v8a] Compile        : podspeexdsp <= mdf.c
+[arm64-v8a] Compile        : podspeexdsp <= preprocess.c
+[arm64-v8a] Compile        : podspeexdsp <= resample.c
+[arm64-v8a] Compile        : podspeexdsp <= scal.c
+[arm64-v8a] Compile        : podspeexdsp <= smallft.c
+[arm64-v8a] Compile++      : podspeexdsp <= Java_com_fanap_podchat_EchoCanceller.cpp
+[arm64-v8a] SharedLibrary  : libpodspeexdsp.so
