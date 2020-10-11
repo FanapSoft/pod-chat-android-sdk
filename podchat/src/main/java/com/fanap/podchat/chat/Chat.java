@@ -322,6 +322,7 @@ public class Chat extends AsyncAdapter {
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
+    private static HashMap<String, Boolean> leavethreadCallbacks;
     public static final String TAG = "CHAT_SDK";
     private String chatState = "CLOSED";
     private boolean isWebSocketNull = true;
@@ -5152,6 +5153,9 @@ public class Chat extends AsyncAdapter {
 
 
             String asyncContent = jsonObject.toString();
+
+            if (clearHistory)
+                leavethreadCallbacks.put(uniqueId, clearHistory);
 
             setCallBacks(null, null, null, true, Constants.LEAVE_THREAD, null, uniqueId);
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_LEAVE_THREAD");
@@ -12395,7 +12399,10 @@ public class Chat extends AsyncAdapter {
 
 
         if (cache) {
-            messageDatabaseHelper.leaveThread(threadId);
+            if (leavethreadCallbacks.containsKey(messageUniqueId)) {
+                messageDatabaseHelper.leaveThread(chatMessage.getSubjectId());
+                leavethreadCallbacks.remove(messageUniqueId);
+            }
         }
 
     }
