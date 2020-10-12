@@ -856,6 +856,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         runOnUiThread(() -> Toast.makeText(this, "You have been removed from call!", Toast.LENGTH_SHORT).show());
     }
+
+    @Override
+    public void callRequestCanceled(String name) {
+        vibrate();
+        runOnUiThread(() -> Toast.makeText(this, name + " Rejected the call", Toast.LENGTH_SHORT).show());
+
+    }
+
     @Override
     public void updateStatus(String message) {
         runOnUiThread(()->tvStatus.setText(message));

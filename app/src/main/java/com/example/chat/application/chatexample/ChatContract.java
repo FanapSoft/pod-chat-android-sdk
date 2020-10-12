@@ -252,6 +252,8 @@ public interface ChatContract {
         default void onRemovedFromCall(){}
 
         default void updateStatus(String message){}
+
+        default void callRequestCanceled(String name){}
     }
 
     interface presenter {

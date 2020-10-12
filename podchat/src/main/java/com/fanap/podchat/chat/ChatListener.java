@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -320,4 +321,6 @@ public interface ChatListener {
     default void onCallParticipantRemoved(ChatResponse<RemoveFromCallResult> response){}
 
     default void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response){}
+
+    default void onCallRequestCanceled(ChatResponse<CallCancelResult> response){}
 }

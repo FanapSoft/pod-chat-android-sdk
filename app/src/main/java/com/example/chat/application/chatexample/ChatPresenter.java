@@ -18,6 +18,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -2120,5 +2121,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response) {
 
         view.onRemovedFromCall();
+    }
+
+    @Override
+    public void onCallRequestCanceled(ChatResponse<CallCancelResult> response) {
+
+        view.callRequestCanceled(response.getResult().getCallParticipantVO().getParticipantVO().getFirstName() +
+                " " +
+                response.getResult().getCallParticipantVO().getParticipantVO().getLastName());
     }
 }

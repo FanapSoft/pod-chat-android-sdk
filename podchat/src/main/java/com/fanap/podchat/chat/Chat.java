@@ -44,6 +44,7 @@ import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
@@ -1016,6 +1017,9 @@ public class Chat extends AsyncAdapter {
             case Constants.REJECT_CALL:
                 handleOnCallRequestRejected(chatMessage);
                 break;
+            case Constants.CANCEL_GROUP_CALL:
+                handleOnCallRequestCanceled(chatMessage);
+                break;
             case Constants.START_CALL:
                 handleOnCallStarted(chatMessage);
                 break;
@@ -1519,6 +1523,15 @@ public class Chat extends AsyncAdapter {
                 = CallManager.handleOnRejectCallRequest(chatMessage);
         listenerManager.callOnCallRequestRejected(response);
         showLog("CALL_REQUEST_REJECTED", gson.toJson(chatMessage));
+
+    }
+
+    private void handleOnCallRequestCanceled(ChatMessage chatMessage) {
+
+        ChatResponse<CallCancelResult> response
+                = CallManager.handleOnCancelCallRequest(chatMessage);
+        listenerManager.callOnCallRequestCanceled(response);
+        showLog("CALL_REQUEST_CANCELED", gson.toJson(chatMessage));
 
     }
 

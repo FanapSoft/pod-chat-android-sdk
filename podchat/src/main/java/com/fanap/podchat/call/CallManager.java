@@ -12,6 +12,7 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
@@ -621,5 +622,22 @@ public class CallManager {
 
 
         return response;
+    }
+
+    public static ChatResponse<CallCancelResult> handleOnCancelCallRequest(ChatMessage chatMessage) {
+
+        CallParticipantVO participant = App.getGson().fromJson(chatMessage.getContent(), CallParticipantVO.class);
+
+        CallCancelResult result = new CallCancelResult(participant);
+
+        ChatResponse<CallCancelResult> response = new ChatResponse<>();
+
+        response.setResult(result);
+
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        return  response;
     }
 }
