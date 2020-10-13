@@ -335,6 +335,7 @@ public class Chat extends AsyncAdapter {
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
+    private static HashMap<String, Boolean> leavethreadCallbacks;
     public static final String TAG = "CHAT_SDK";
     private String chatState = "CLOSED";
     private boolean isWebSocketNull = true;
@@ -890,6 +891,10 @@ public class Chat extends AsyncAdapter {
                 tokenHandler.removeCallbacksAndMessages(null);
                 break;
         }
+    }
+
+    public String getChatState() {
+        return chatState;
     }
 
     private void resetReconnectRetryTime() {
@@ -1534,13 +1539,18 @@ public class Chat extends AsyncAdapter {
 
         if (response.getResult().isUserRemoved()) {
             listenerManager.callOnRemovedFromCall(response);
+
+            audioCallManager.endStream(true);
+
+            showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
         } else {
             listenerManager.callOnCallParticipantRemoved(response);
+
+            audioCallManager.removeCallParticipant(response.getResult());
+
+            showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
         }
 
-        audioCallManager.removeCallParticipant(response.getResult());
-
-        showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
 
     }
 
@@ -5380,6 +5390,9 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
         if (chatReady) {
             String asyncContent = ThreadManager.prepareleaveThreadRequest(threadId, clearHistory, uniqueId, getTypeCode(), getToken());
+
+            if (clearHistory)
+                leavethreadCallbacks.put(uniqueId, clearHistory);
 
             setCallBacks(null, null, null, true, Constants.LEAVE_THREAD, null, uniqueId);
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_LEAVE_THREAD");
@@ -12011,7 +12024,10 @@ public class Chat extends AsyncAdapter {
         }
 
         if (cache) {
-            messageDatabaseHelper.leaveThread(chatMessage.getSubjectId());
+            if (leavethreadCallbacks.containsKey(messageUniqueId)) {
+                messageDatabaseHelper.leaveThread(chatMessage.getSubjectId());
+                leavethreadCallbacks.remove(messageUniqueId);
+            }
         }
 
     }

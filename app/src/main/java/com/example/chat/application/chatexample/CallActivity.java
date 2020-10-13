@@ -37,6 +37,7 @@ import com.fanap.podchat.util.Util;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -90,14 +91,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     public static int TEST_THREAD_ID = 7090;
 
 
-    private static String sandBoxSSOHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String sandBoxSSOHost = BaseApplication.getInstance().getString(R.string.sandbox_ssoHost);
     private static String sandBoxServerName = "chat-server";
 
 
-    private static String sandBoxName = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String sandBoxSocketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String sandBoxPlatformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String sandBoxFileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String sandBoxName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String sandBoxSocketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String sandBoxPlatformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String sandBoxFileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String podspaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
 
 
     private boolean permissionToRecordAccepted = false;
@@ -117,7 +119,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
     ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
-    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId;
+    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId,etNewParticipantToAdd;
     CheckBox checkBoxSSL,
             checkBoxGroupCall,
             checkboxZiziPartner,
@@ -163,7 +165,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 TOKEN,
                 ssoHost,
                 platformHost,
-                fileServer
+                fileServer,
+                podspaceServer
         ).build();
 
         presenter.connect(request);
@@ -316,7 +319,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
-        buttonAddCallParticipant.setOnClickListener(v -> presenter.addCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
+        buttonAddCallParticipant.setOnClickListener(v ->
+        {
+
+            presenter.addCallParticipant(etNewParticipantToAdd.getText().toString(),
+                    checkboxAddFifi.isChecked(),
+                    checkboxAddJiji.isChecked(),
+                    checkboxAddZizi.isChecked());
+
+        });
         buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
@@ -335,16 +346,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonStartSandboxCall.setOnClickListener(v -> {
             if (chatReady) {
-
-                if (!etSandboxPartnerId.getText().toString().isEmpty()) {
-
-                    int sandBoxPartnerID = Integer.parseInt(etSandboxPartnerId.getText().toString());
-
-                    presenter.requestCall(sandBoxPartnerID, checkBoxSSL.isChecked());
-
-                    tvStatus.setText("Calling: " + sandBoxPartnerID);
-                }
-
+                presenter.requestMainOrSandboxCall(etSandboxPartnerId.getText().toString(),checkBoxGroupCall.isChecked());
             } else {
                 Toast.makeText(this, "Chat is not ready", Toast.LENGTH_SHORT).show();
             }
@@ -541,6 +543,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         etReceiver = findViewById(R.id.etReceiver);
         etNumberOrOtp = findViewById(R.id.etOtpNumber);
         etSandboxPartnerId = findViewById(R.id.etSandBoxPartnerId);
+        etNewParticipantToAdd = findViewById(R.id.etNewParticipant);
 
         checkBoxSSL = findViewById(R.id.checkboxSSL);
         checkBoxGroupCall = findViewById(R.id.checkboxGroupCall);
@@ -592,6 +595,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             runOnUiThread(() -> {
                 buttonConnect.setVisibility(View.INVISIBLE);
                 buttonCall.setVisibility(View.VISIBLE);
+                tvStatus.setText("Chat is Ready :)");
             });
 
         } else {
@@ -600,7 +604,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             runOnUiThread(() -> {
                 buttonConnect.setVisibility(View.VISIBLE);
                 buttonCall.setVisibility(View.INVISIBLE);
+                tvStatus.setText("Connecting...");
             });
+
+
         }
 
 
@@ -693,6 +700,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             buttonConnectSandBox.setVisibility(View.VISIBLE);
             buttonStartSandboxCall.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Call has been ended", Toast.LENGTH_SHORT).show();
+            tvStatus.setText("Call has been ended");
         });
     }
 
@@ -847,5 +855,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         onCallEnded();
 
         runOnUiThread(() -> Toast.makeText(this, "You have been removed from call!", Toast.LENGTH_SHORT).show());
+    }
+    @Override
+    public void updateStatus(String message) {
+        runOnUiThread(()->tvStatus.setText(message));
     }
 }

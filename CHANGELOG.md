@@ -5,6 +5,16 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.1.0] -2020-10-07
+
+[Added] **Audio Call**
+
+[Added] ```getChatState()```
+
+[Added] New Message Type 'STICKER'
+
+
+
 ## Version [0.9.0.0] -2020-9-22
 
 [Improved] Contacts Cache Performance

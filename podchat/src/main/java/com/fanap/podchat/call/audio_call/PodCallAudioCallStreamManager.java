@@ -36,6 +36,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+import io.sentry.core.Sentry;
+
 import static android.content.Context.AUDIO_SERVICE;
 import static android.content.Context.SENSOR_SERVICE;
 
@@ -292,7 +294,10 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
         try {
             this.callSSL = generateFile(sslCert);
         } catch (Exception e) {
-            recordCallback.onAudioRecordError("Generating ssl config file failed! " + e.getMessage());
+            if (recordCallback != null)
+                recordCallback.onAudioRecordError("Generating ssl config file failed! " + e.getMessage());
+            else
+                Sentry.captureException(e);
         }
     }
 
@@ -607,7 +612,6 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
 
     public void removeCallParticipant(ArrayList<CallParticipantVO> callParticipants) {
-
 
 
         for (CallParticipantVO callParticipant :
