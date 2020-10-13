@@ -17,6 +17,7 @@ import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -320,4 +321,6 @@ public interface ChatListener {
     default void onCallParticipantRemoved(ChatResponse<RemoveFromCallResult> response){}
 
     default void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response){}
+
+    default void onThreadClosed(ChatResponse<CloseThreadResult> response){}
 }

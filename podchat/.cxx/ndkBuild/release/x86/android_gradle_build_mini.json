@@ -1,29 +1,29 @@
 {
   "buildFiles": [
-    "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk"
+    "C:\\Work\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk"
   ],
   "cleanCommands": [
-    "D:\\SDK\\ndk\\21.3.6528147\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib clean"
+    "C:\\SDK\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dC:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib clean"
   ],
-  "buildTargetsCommand": "D:\\SDK\\ndk\\21.3.6528147\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib {LIST_OF_TARGETS_TO_BUILD}",
+  "buildTargetsCommand": "C:\\SDK\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dC:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib {LIST_OF_TARGETS_TO_BUILD}",
   "libraries": {
     "podspeexdsp-release-x86": {
       "artifactName": "podspeexdsp",
-      "buildCommand": "D:\\SDK\\ndk\\21.3.6528147\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib D:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj/local/x86/libpodspeexdsp.so",
+      "buildCommand": "C:\\SDK\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dC:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib C:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj/local/x86/libpodspeexdsp.so",
       "abi": "x86",
-      "output": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\obj\\local\\x86\\libpodspeexdsp.so"
+      "output": "C:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\obj\\local\\x86\\libpodspeexdsp.so"
     },
     "podopus-release-x86": {
       "artifactName": "podopus",
-      "buildCommand": "D:\\SDK\\ndk\\21.3.6528147\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib D:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj/local/x86/libpodopus.so",
+      "buildCommand": "C:\\SDK\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dC:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib C:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj/local/x86/libpodopus.so",
       "abi": "x86",
-      "output": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\obj\\local\\x86\\libpodopus.so"
+      "output": "C:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\obj\\local\\x86\\libpodopus.so"
     },
     "cpufeatures-release-x86": {
       "artifactName": "cpufeatures",
-      "buildCommand": "D:\\SDK\\ndk\\21.3.6528147\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dD:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dD:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib D:/Projects/POD_CHAT/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj/local/x86/libcpufeatures.a",
+      "buildCommand": "C:\\SDK\\ndk\\20.0.5594570\\ndk-build.cmd NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\src\\main\\jni\\Android.mk APP_ABI\u003dx86 NDK_ALL_ABIS\u003dx86 NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-17 NDK_OUT\u003dC:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003dC:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\lib C:/Work/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/release/obj/local/x86/libcpufeatures.a",
       "abi": "x86",
-      "output": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\obj\\local\\x86\\libcpufeatures.a"
+      "output": "C:\\Work\\pod-chat-android-sdk\\podchat\\build\\intermediates\\ndkBuild\\release\\obj\\local\\x86\\libcpufeatures.a"
     }
   }
 }

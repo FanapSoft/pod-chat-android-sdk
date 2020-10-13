@@ -252,6 +252,8 @@ public interface ChatContract {
         default void onRemovedFromCall(){}
 
         default void updateStatus(String message){}
+
+        default void onThreadClosed(long subjectId){}
     }
 
     interface presenter {
@@ -539,5 +541,7 @@ public interface ChatContract {
         void terminateCall();
 
         void removeCallParticipant(boolean checked, boolean checked1, boolean checked2);
+
+        void closeThread(int testThreadId);
     }
 }

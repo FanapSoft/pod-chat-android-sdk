@@ -38,18 +38,6 @@ public class RequestConnect extends BaseRequestObject {
         private String fileServer;
 
 
-        @Deprecated
-        public Builder(String socketAddress, String appId, String severName, String token,
-                       String ssoHost, String platformHost, String fileServer) {
-            this.socketAddress = socketAddress;
-            this.appId = appId;
-            this.fileServer = fileServer;
-            this.platformHost = platformHost;
-            this.severName = severName;
-            this.token = token;
-            this.ssoHost = ssoHost;
-
-        }
 
         public Builder(String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer, String podSpaceServer) {
             this.podSpaceServer = podSpaceServer;

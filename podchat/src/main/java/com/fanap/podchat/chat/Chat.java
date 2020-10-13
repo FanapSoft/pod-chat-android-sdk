@@ -90,6 +90,9 @@ import com.fanap.podchat.chat.ping.PingManager;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.search.SearchManager;
+import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.repository.CacheDataSource;
 import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.chat.thread.ThreadManager;
@@ -897,6 +900,10 @@ public class Chat extends AsyncAdapter {
         return chatState;
     }
 
+    public boolean isChatReady() {
+        return chatReady;
+    }
+
     private void resetReconnectRetryTime() {
         connectNumberOfRetry = 1000;
     }
@@ -950,6 +957,10 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.CLOSE_THREAD: {
+                handleOnThreadClosed(chatMessage);
+                break;
+            }
 
             case Constants.CREATE_BOT: {
                 handleOnBotCreated(chatMessage);
@@ -1195,6 +1206,15 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    private void handleOnThreadClosed(ChatMessage chatMessage) {
+
+        ChatResponse<CloseThreadResult> response = ThreadManager.handleCloseThreadResponse(chatMessage);
+
+        listenerManager.callOnThreadClosed(response);
+
+        showLog("ON_RECEIVED_THREAD_CLOSED", gson.toJson(chatMessage));
+    }
+
     private void handleOnContactsSynced(ChatMessage chatMessage) {
 
         ChatResponse<ContactSyncedResult> response = ContactManager.prepareContactSyncedResult(chatMessage);
@@ -1361,6 +1381,11 @@ public class Chat extends AsyncAdapter {
     private void handleOnGetUserRoles(ChatMessage chatMessage) {
 
         ChatResponse<ResultCurrentUserRoles> response = UserRoles.handleOnGetUserRoles(chatMessage);
+
+
+        if (ThreadManager.hasUserRolesSubscriber(response))
+            return;
+
 
         listenerManager.callOnGetUserRoles(response);
 
@@ -1860,6 +1885,23 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String closeThread(CloseThreadRequest request) {
+
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            try {
+                String message = ThreadManager.createCloseThreadRequest(request, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CLOSE_THREAD");
+            } catch (PodChatException e) {
+                captureError(e);
+            }
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
 
     public void setAudioCallConfig(CallConfig callConfig) {
         if (audioCallManager != null)
@@ -2157,6 +2199,36 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    private void setRole(SetRuleVO request, String uniqueId) {
+
+        long threadId = request.getThreadId();
+        ArrayList<RequestRole> roles = request.getRoles();
+
+        if (chatReady) {
+            ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+            for (RequestRole requestRole : roles) {
+                UserRoleVO userRoleVO = new UserRoleVO();
+                userRoleVO.setUserId(requestRole.getId());
+                userRoleVO.setRoles(requestRole.getRoleTypes());
+                userRoleVOS.add(userRoleVO);
+            }
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(gson.toJson(userRoleVOS));
+            chatMessage.setSubjectId(threadId);
+            chatMessage.setToken(getToken());
+            chatMessage.setType(Constants.SET_ROLE_TO_USER);
+            chatMessage.setTokenIssuer(String.valueOf(TOKEN_ISSUER));
+            chatMessage.setUniqueId(uniqueId);
+            chatMessage.setTypeCode(getTypeCode());
+
+            setCallBacks(null, null, null, true, Constants.SET_ROLE_TO_USER, null, uniqueId);
+            String asyncContent = gson.toJson(chatMessage);
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SET_ROLE_TO_USER");
+        }
+
+    }
+
 
     public String updateChatProfile(RequestUpdateProfile request) {
 
@@ -2439,6 +2511,26 @@ public class Chat extends AsyncAdapter {
         }
 
         return uniqueId;
+    }
+
+    private void getCurrentUserRoles(RequestGetUserRoles request, String uniqueId) {
+
+        if (cache && request.useCacheData()) {
+
+            loadUserRolesFromCache(request, uniqueId);
+
+            return;
+        }
+
+        if (chatReady) {
+
+            String message = UserRoles.getUserRoles(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_USER_ROLES");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
     }
 
     private void loadUserRolesFromCache(RequestGetUserRoles request, String uniqueId) {
@@ -5407,6 +5499,40 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    private void leaveThread(long threadId, boolean clearHistory, String uniqueId) {
+
+        if (chatReady) {
+            RemoveParticipant removeParticipant = new RemoveParticipant();
+
+            removeParticipant.setSubjectId(threadId);
+            removeParticipant.setToken(getToken());
+            removeParticipant.setTokenIssuer("1");
+            removeParticipant.setUniqueId(uniqueId);
+            removeParticipant.setType(Constants.LEAVE_THREAD);
+
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(removeParticipant);
+
+            if (Util.isNullOrEmpty(getTypeCode())) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.remove("typeCode");
+                jsonObject.addProperty("typeCode", getTypeCode());
+            }
+
+            jsonObject.addProperty("clearHistory", clearHistory);
+
+
+            String asyncContent = jsonObject.toString();
+
+            setCallBacks(null, null, null, true, Constants.LEAVE_THREAD, null, uniqueId);
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_LEAVE_THREAD");
+
+        } else {
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+        }
+
+    }
+
     /**
      * leaves the thread
      *
@@ -5415,6 +5541,52 @@ public class Chat extends AsyncAdapter {
     public String leaveThread(RequestLeaveThread request, ChatHandler handler) {
 
         return leaveThread(request.getThreadId(), request.clearHistory(), handler);
+    }
+
+
+    public String safeLeaveThread(SafeLeaveRequest request) {
+
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            ThreadManager.safeLeaveThread(request, uniqueId, new ThreadManager.ISafeLeaveCallback() {
+                @Override
+                public void onNormalLeaveThreadNeeded(RequestLeaveThread request, String uniqueId) {
+                    leaveThread(request.getThreadId(), request.clearHistory(), uniqueId);
+                }
+
+                @Override
+                public void onGetUserRolesNeeded(RequestGetUserRoles request, String uniqueId) {
+                    getCurrentUserRoles(request, uniqueId);
+                }
+
+                @Override
+                public void onSetAdminNeeded(RequestSetAdmin request, String uniqueId) {
+                    SetRuleVO setRuleVO = new SetRuleVO();
+                    setRuleVO.setRoles(request.getRoles());
+                    setRuleVO.setThreadId(request.getThreadId());
+                    setRuleVO.setTypeCode(getTypeCode());
+                    setRole(setRuleVO, uniqueId);
+                }
+
+                @Override
+                public void onThreadLeftSafely(ChatResponse<ResultLeaveThread> resultLeaveThreadChatResponse, String uniqueId) {
+
+                    String jsonThread = gson.toJson(resultLeaveThreadChatResponse);
+
+                    showLog("RECEIVE_SAFE_LEAVE_THREAD", jsonThread);
+                    listenerManager.callOnThreadLeaveParticipant(jsonThread, resultLeaveThreadChatResponse);
+
+                    if (cache && request.clearHistory()) {
+                        messageDatabaseHelper.leaveThread(resultLeaveThreadChatResponse.getSubjectId());
+                    }
+                }
+            });
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
     }
 
     /**
@@ -6046,6 +6218,8 @@ public class Chat extends AsyncAdapter {
                         serverResultThreadIds.add((long) rts.getId());
                     }
 
+
+                    // TODO: 10/7/2020 handle room integrity
                     messageDatabaseHelper.getThreadIdsList(t -> {
 
                         try {
@@ -10250,13 +10424,14 @@ public class Chat extends AsyncAdapter {
         String errorMessage = error.getMessage();
         long errorCode = error.getCode();
 
-        boolean isNotif = PodNotificationManager.isNotificationError(
+
+        if (PodNotificationManager.isNotificationError(
                 chatMessage,
                 error,
                 context,
-                getUserId());
+                getUserId())) return;
 
-        if (isNotif) return;
+        ThreadManager.onError(chatMessage);
 
         captureError(errorMessage, errorCode, chatMessage.getUniqueId());
     }
@@ -12014,6 +12189,11 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultLeaveThread> chatResponse = ThreadManager.prepareLeaveThreadResponse(chatMessage);
 
+
+        if (ThreadManager.hasLeaveThreadSubscriber(chatResponse))
+            return;
+
+
         String jsonThread = gson.toJson(chatResponse);
 
         showLog("RECEIVE_LEAVE_THREAD", jsonThread);
@@ -12187,6 +12367,8 @@ public class Chat extends AsyncAdapter {
 
         long threadId = chatMessage.getSubjectId();
 
+        if (ThreadManager.hasSetAdminSubscriber(chatResponse))
+            return;
 
         if (cache) {
 
@@ -14459,34 +14641,22 @@ public class Chat extends AsyncAdapter {
         return signalIntervalTime;
     }
 
-//    public void setSignalIntervalTime(int signalIntervalTime) {
-//        this.signalIntervalTime = signalIntervalTime;
-//    }
-
     @Override
     public void onDisconnected(String textMessage) {
         super.onDisconnected(textMessage);
-        captureError("On Async Disconnected: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
+        captureError("On Async Disconnected: " + textMessage, ChatConstant.ERROR_CODE_ASYNC_DISCONNECTED, "");
     }
 
     @Override
     public void onError(String textMessage) {
         super.onError(textMessage);
-
-        captureError("On Async Error: " + textMessage, ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
-
+        captureError("On Async Error: " + textMessage, ChatConstant.ERROR_CODE_ASYNC_EXCEPTION, "");
     }
 
     @Override
     public void handleCallbackError(Throwable cause) {
         super.handleCallbackError(cause);
-        try {
-
-            captureError("Async Callback Error: " + cause.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, "");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                captureError("Async Callback Error: " + cause.getMessage(), ChatConstant.ERROR_CODE_ASYNC_EXCEPTION, "");
     }
 }
 

@@ -64,6 +64,7 @@ import rx.Observer;
 import rx.Scheduler;
 import rx.Single;
 import rx.functions.Func1;
+import rx.observables.AsyncOnSubscribe;
 import rx.schedulers.Schedulers;
 
 import static org.junit.Assert.assertEquals;
@@ -530,6 +531,31 @@ public class ExampleUnitTest {
                     else System.out.println("uuu");
 
                 });
+
+
+    }
+
+    @Test
+    public void testSeriObservable() {
+
+
+        Observable<String> a = Observable.create(ss -> {
+
+            ss.onNext("a");
+
+        });
+
+
+        Observable<String> b = Observable.create(ss -> {
+            ss.onNext("b");
+        });
+
+        Observable<String> c = Observable.create(ss -> {
+            ss.onNext("c");
+        });
+
+        Observable.merge(b,c,a)
+                .subscribe(o-> System.out.println("IS : " + o));
 
 
     }

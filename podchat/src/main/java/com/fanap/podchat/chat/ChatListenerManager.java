@@ -21,6 +21,7 @@ import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -1122,6 +1123,17 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnThreadClosed(ChatResponse<CloseThreadResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadClosed(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
 
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
