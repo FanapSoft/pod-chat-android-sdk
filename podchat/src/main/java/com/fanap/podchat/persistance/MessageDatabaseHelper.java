@@ -13,6 +13,7 @@ import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
+import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
@@ -2190,7 +2191,7 @@ public class MessageDatabaseHelper {
                 @Nullable
                 CacheCallParticipant callPartnerParticipant = messageDao.getCachedCallParticipant(cacheCall.getPartnerParticipantId());
 
-                if(callPartnerParticipant!=null){
+                if (callPartnerParticipant != null) {
 
                     Participant partnerParticipant = callPartnerParticipant.toParticipant();
 
@@ -3992,5 +3993,36 @@ public class MessageDatabaseHelper {
     public void deleteMessagesOfThread(long subjectId) {
 
         worker(() -> messageDao.deleteAllMessageByThread(subjectId));
+
+    }
+
+
+    public void saveImageInCach(CacheFile cacheFile) {
+
+        worker(() -> messageDao.insertImage(cacheFile));
+
+    }
+
+
+    public void deleteImageFromCach(CacheFile cacheFile) {
+
+        worker(() -> messageDao.deleteImage(cacheFile));
+
+    }
+
+    public List<CacheFile> getAllImagesInCach() {
+
+        List<CacheFile> images = messageDao.getAllImageCaches();
+        return images;
+
+    }
+
+    public CacheFile getImagesByHash(String hashCode, Float quality) {
+
+        List<CacheFile> images = messageDao.getImageCachesByHash(hashCode, quality);
+        if (images.size() > 0)
+            return images.get(0);
+        else return null;
+
     }
 }
