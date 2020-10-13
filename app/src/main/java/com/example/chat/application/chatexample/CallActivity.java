@@ -815,7 +815,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 token,
                 sandBoxSSOHost,
                 sandBoxPlatformHost,
-                sandBoxFileServer
+                sandBoxFileServer,
+                podspaceServer
         ).build();
 
         presenter.connect(request);

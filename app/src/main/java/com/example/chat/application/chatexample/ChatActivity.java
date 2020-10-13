@@ -2678,6 +2678,11 @@ public class ChatActivity extends AppCompatActivity
 
                 }
 
+                @Override
+                public void onError(String jsonError, ErrorOutPut error) {
+                    Log.e("UFP", "Error: " + error.getErrorMessage() + " Code: " + error.getErrorCode());
+
+                }
 
                 @Override
                 public void onFinish(String imageJson, FileUpload fileImageUpload) {
