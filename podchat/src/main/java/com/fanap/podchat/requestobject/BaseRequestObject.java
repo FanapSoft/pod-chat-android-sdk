@@ -26,6 +26,7 @@ public abstract class BaseRequestObject {
     }
 
     public abstract static class Builder<T extends Builder> {
+
         private long count;
         private long offset;
         private String typeCode;

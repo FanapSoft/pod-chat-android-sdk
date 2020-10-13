@@ -1028,10 +1028,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.removeParticipants(requestRemoveParticipants, handler);
     }
 
-    @Override
-    public void addParticipants(long threadId, List<Long> contactIds, ChatHandler handler) {
-        chat.addParticipants(threadId, contactIds, handler);
-    }
 
     @Override
     public void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler) {
@@ -1069,11 +1065,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         String un = chat.deleteMessage(requestDeleteMessage, handler);
 
+
     }
 
     @Override
     public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
         String un = chat.deleteMessage(deleteMessage, handler);
+        List<String> un2 = chat.deleteMultipleMessage(deleteMessage, handler);
     }
 
     @Override

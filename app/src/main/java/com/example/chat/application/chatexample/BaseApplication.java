@@ -2,6 +2,7 @@ package com.example.chat.application.chatexample;
 
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
 
 
 public class BaseApplication extends MultiDexApplication {
