@@ -1,14 +1,7 @@
 package com.fanap.podchat.util;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
-
-import com.fanap.podchat.chat.Chat;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +12,6 @@ public class PodThreadManager {
 
     private ExecutorService executor = Executors.newFixedThreadPool(2);
     private ExecutorService singleExecutor = Executors.newSingleThreadExecutor();
-
 
     private final List<Runnable> tasks = new ArrayList<>();
 
@@ -35,157 +27,56 @@ public class PodThreadManager {
     public synchronized void runTasksSynced() {
 
 
-//        for (Runnable task :
-//                tasks) {
-//            singleExecutor.execute(task);
-//        }
-//        singleExecutor.execute(tasks::clear);
-//
-//
-
-
-        Thread motherThread = new Thread(() -> {
-
-            synchronized (tasks) {
-
-                for (Runnable task :
-                        tasks) {
-
-                    try {
-                        Thread worker = new Thread(task);
-                        worker.setName("worker-thread");
-                        worker.start();
-                        worker.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                tasks.clear();
+        for (Runnable task :
+                tasks) {
+            Future<?> future = singleExecutor.submit(task);
+            try {
+                future.get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
-        });
-
-        motherThread.setName("mother-thread");
-        motherThread.start();
+        }
+        tasks.clear();
 
     }
 
     public synchronized void runTasksASync() {
 
-
-//        for (Runnable task :
-//                tasks) {
-//
-//            executor.execute(task);
-//
-//        }
-//
-//        tasks.clear();
-
-        Thread motherThread = new Thread(() -> {
-
-            synchronized (tasks) {
-
-                for (Runnable task :
-                        tasks) {
-
-                    try {
-                        Thread worker = new Thread(task);
-                        worker.setName("worker-thread");
-                        worker.start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                tasks.clear();
-
-            }
-
-        });
-
-        motherThread.setName("mother-thread");
-        motherThread.start();
+        for (Runnable task :
+                tasks) {
+            executor.execute(task);
+        }
+        tasks.clear();
 
 
     }
 
     public synchronized void doThisSafe(Runnable task) {
-
-        try {
-//            singleExecutor.execute(task);
-
-            Thread oneTaskThread = new Thread(task);
-            oneTaskThread.setName("Pod-One-Task-Thread");
-            oneTaskThread.start();
-            oneTaskThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        singleExecutor.execute(task);
     }
 
     public synchronized void doThisSafe(Runnable task, IComplete callback) {
 
 
-//        Future<?> f = singleExecutor.submit(task);
+        Future<?> f = singleExecutor.submit(task);
 
-//        try {
-//            f.get();
-//            callback.onComplete();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//            callback.onError(e.getMessage());
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//            callback.onError(e.getMessage());
-//        }
-//
-
-        Thread backgroundThread = new Thread(() -> {
-
-            try {
-                Thread oneTaskThread = new Thread(task);
-                oneTaskThread.setName("Pod-Block-Thread");
-                oneTaskThread.start();
-                oneTaskThread.join();
-                callback.onComplete();
-            } catch (InterruptedException e) {
-                callback.onError(e.getMessage());
-            }
-
-
-        });
-        backgroundThread.setName("Pod-Background-Thread");
-        backgroundThread.start();
-
+        try {
+            f.get();
+            callback.onComplete();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            callback.onError(e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            callback.onError(e.getMessage());
+        }
 
     }
 
     public synchronized void doThisAndGo(Runnable task) {
-
-
-//        executor.execute(task);
-
-        Thread backgroundThread = new Thread(() -> {
-
-            try {
-                Thread oneTaskThread = new Thread(task);
-                oneTaskThread.setName("Pod-Block-Thread");
-                oneTaskThread.start();
-                oneTaskThread.join();
-            } catch (InterruptedException e) {
-                Log.e(Chat.TAG, Objects.requireNonNull(e.getMessage()));
-            }
-
-
-        });
-        backgroundThread.setName("Pod-Background-Thread");
-        backgroundThread.start();
-
-
+        executor.execute(task);
     }
 
     public synchronized void doWithUI(Runnable actionOnUI, Runnable actionOnError, Runnable task) {
@@ -202,51 +93,7 @@ public class PodThreadManager {
             e.printStackTrace();
             actionOnError.run();
         }
-
-
-//        new PodAsyncTask(actionOnUI, actionOnError).execute(task);
-
-
     }
-
-
-    static class PodAsyncTask extends AsyncTask<Runnable, Void, Boolean> {
-
-        Runnable taskOnUI;
-        Runnable taskOnError;
-
-        PodAsyncTask(Runnable taskOnUI, Runnable taskOnError) {
-            this.taskOnUI = taskOnUI;
-            this.taskOnError = taskOnError;
-        }
-
-        @Override
-        protected Boolean doInBackground(Runnable... runnables) {
-
-            try {
-                for (Runnable task :
-                        runnables) {
-                    task.run();
-                }
-                return true;
-            } catch (Exception exc) {
-                exc.printStackTrace();
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-
-            if (aBoolean) {
-                taskOnUI.run();
-            } else taskOnError.run();
-
-        }
-
-
-    }
-
 
     public interface IComplete {
 

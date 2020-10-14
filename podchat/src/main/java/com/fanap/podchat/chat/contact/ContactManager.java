@@ -1,13 +1,11 @@
 package com.fanap.podchat.chat.contact;
 
 import com.fanap.podchat.chat.App;
-import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.localmodel.SetRuleVO;
 import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserRoleVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultBlockList;
@@ -118,8 +116,7 @@ public class ContactManager {
             jsonObject.addProperty("typeCode", typecode);
         }
 
-        String asyncContent = jsonObject.toString();
-        return asyncContent;
+        return jsonObject.toString();
     }
 
     public static String prepareBlockRequest(Long contactId, Long userId, Long threadId, String uniqueId, String mtypecode, String token) {
@@ -153,8 +150,7 @@ public class ContactManager {
             jsonObject.addProperty("typeCode", mtypecode);
         }
 
-        String asyncContent = jsonObject.toString();
-        return asyncContent;
+        return jsonObject.toString();
 
     }
 
@@ -203,52 +199,9 @@ public class ContactManager {
             jsonObject.addProperty("typeCode", mtypecode);
         }
 
-        String asyncContent = jsonObject.toString();
-        return asyncContent;
+        return jsonObject.toString();
     }
 
-    public static String prepareSetRoleRequest(SetRuleVO request, String uniqueId, String mtypecode, String token, String TOKEN_ISSUER) {
-        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
-        for (RequestRole requestRole : request.getRoles()) {
-            UserRoleVO userRoleVO = new UserRoleVO();
-            userRoleVO.setUserId(requestRole.getId());
-            userRoleVO.setRoles(requestRole.getRoleTypes());
-            userRoleVOS.add(userRoleVO);
-        }
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(App.getGson().toJson(userRoleVOS));
-        chatMessage.setSubjectId(request.getThreadId());
-        chatMessage.setToken(token);
-        chatMessage.setType(ChatMessageType.Constants.REMOVE_ROLE_FROM_USER);
-        chatMessage.setTokenIssuer(TOKEN_ISSUER);
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setTypeCode(mtypecode);
-        String asyncContent = App.getGson().toJson(chatMessage);
-        return asyncContent;
-
-    }
-
-    public static String prepareRemoveRoleRequest(SetRuleVO request, String uniqueId, String mtypecode, String token, String TOKEN_ISSUER) {
-        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
-        for (RequestRole requestRole : request.getRoles()) {
-            UserRoleVO userRoleVO = new UserRoleVO();
-            userRoleVO.setUserId(requestRole.getId());
-            userRoleVO.setRoles(requestRole.getRoleTypes());
-            userRoleVOS.add(userRoleVO);
-        }
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(App.getGson().toJson(userRoleVOS));
-        chatMessage.setSubjectId(request.getThreadId());
-        chatMessage.setToken(token);
-        chatMessage.setType(ChatMessageType.Constants.REMOVE_ROLE_FROM_USER);
-        chatMessage.setTokenIssuer(TOKEN_ISSUER);
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setTypeCode(mtypecode);
-        String asyncContent = App.getGson().toJson(chatMessage);
-        return asyncContent;
-    }
 
     public static ChatResponse<ResultBlockList> prepareBlockListResponse(ChatMessage chatMessage){
         ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
@@ -291,7 +244,7 @@ public class ContactManager {
         return response;
     }
 
-    public static ChatResponse<ResultBlockList> prepareGetBlockList_Cach(String uniqueId, List<BlockedContact> cacheContacts) {
+    public static ChatResponse<ResultBlockList> prepareGetBlockListFromCache(String uniqueId, List<BlockedContact> cacheContacts) {
 
         ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
         chatResponse.setErrorCode(0);

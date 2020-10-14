@@ -1097,8 +1097,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
-        String un = chat.deleteMessage(deleteMessage, handler);
-        List<String> un2 = chat.deleteMultipleMessage(deleteMessage, handler);
+
+        if (deleteMessage.getMessageIds().size() > 1) {
+            String uniqueId = chat.deleteMessage(deleteMessage, handler);
+        } else {
+            List<String> uniqueIds = chat.deleteMultipleMessage(deleteMessage, handler);
+        }
     }
 
     @Override
@@ -1929,7 +1933,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .typeCode("default")
                 .build();
 
-        if(chat.isChatReady()){
+        if (chat.isChatReady()) {
             String uniqueId = chat.closeThread(closeThreadRequest);
         }
 

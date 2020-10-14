@@ -169,26 +169,8 @@ public class CacheDataSource {
   Messages
    */
     public Observable<MessageManager.HistoryResponse> getMessagesData(History request, long threadId) {
-
-
-        return Observable
-                .create(emitter -> {
-
-                    try {
-                        databaseHelper.getHistories(request, threadId, (OnWorkDone) o -> {
-
-                            ChatResponse<ResultHistory> chatResponse = (ChatResponse<ResultHistory>) o;
-
-                            MessageManager.HistoryResponse response = new MessageManager.HistoryResponse(chatResponse, DISK);
-
-                            emitter.onNext(response);
-
-
-                        });
-                    } catch (Exception e) {
-                        emitter.onError(e);
-                    }
-                });
+        return databaseHelper.getThreadHistory(request,threadId)
+                .map(data-> new MessageManager.HistoryResponse(data, DISK));
     }
 
     public void cacheMessages(List<MessageVO> data, long threadId) {

@@ -410,52 +410,81 @@ public class ExampleUnitTest {
     public void testOnComplete() {
 
 
-        new PodThreadManager()
-                .doWithUI(() -> {
-                    System.out.println("On UI Im on " + Thread.currentThread().getName());
-
-                }, () -> {
-                    System.out.println("Error Im on " + Thread.currentThread().getName());
-
-                }, () -> {
-                    System.out.println("Task Im on " + Thread.currentThread().getName());
-
-                    int a = 10;
-                    int b = 0;
-
-                    int c = a / b;
-
-                });
-//
 //        new PodThreadManager()
-//                .addNewTask(()->{
+//                .doWithUI(() -> {
+//                    System.out.println("On UI Im on " + Thread.currentThread().getName());
 //
-//                    System.out.println("aaa " + Thread.currentThread().getName());
+//                }, () -> {
+//                    System.out.println("Error Im on " + Thread.currentThread().getName());
+//
+//                }, () -> {
+//                    System.out.println("Task Im on " + Thread.currentThread().getName());
+//
+//                    int a = 10;
+//                    int b = 0;
+//
+//                    int c = a / b;
+//
+//                });
+
+
+        new PodThreadManager()
+                .addNewTask(()->{
+
+                    System.out.println("aaa " + Thread.currentThread().getName());
+//
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+
+                })
+                .addNewTask(()->{
+
+                    System.out.println("bbb " + Thread.currentThread().getName());
+
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+
+                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
+
+                })
+                .runTasksSynced();
+        new PodThreadManager()
+                .addNewTask(()->{
+
+                    System.out.println("aaa " + Thread.currentThread().getName());
 //
 //                    try {
 //                        Thread.sleep(2000);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                    }
-//
-//                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
-//
-//                })
-//                .addNewTask(()->{
-//
-//                    System.out.println("bbb " + Thread.currentThread().getName());
-//
-//                    try {
-//                        Thread.sleep(2000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
-//
-//                })
-//        .runTasksASync();
-//
+
+                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+
+                })
+                .addNewTask(()->{
+
+                    System.out.println("bbb " + Thread.currentThread().getName());
+
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
+
+                })
+                .runTasksASync();
+
 //        new PodThreadManager()
 //                .doThisSafe(()->{
 //

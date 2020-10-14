@@ -10,6 +10,7 @@ import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.localmodel.SetRuleVO;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.ChatMessageContent;
@@ -17,6 +18,7 @@ import com.fanap.podchat.mainmodel.ChatThread;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.UserRoleVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultLeaveThread;
 import com.fanap.podchat.model.ResultSetAdmin;
@@ -24,6 +26,7 @@ import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLeaveThread;
+import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.PodChatException;
@@ -460,7 +463,7 @@ public class ThreadManager {
         return chatMessage;
     }
 
-    public static String prepareleaveThreadRequest(long threadId, boolean clearHistory, String uniqueId, String mTypeCode, String token) {
+    public static String prepareLeaveThreadRequest(long threadId, boolean clearHistory, String uniqueId, String mTypeCode, String token) {
         RemoveParticipant removeParticipant = new RemoveParticipant();
 
         removeParticipant.setSubjectId(threadId);
@@ -481,8 +484,7 @@ public class ThreadManager {
         jsonObject.addProperty("clearHistory", clearHistory);
 
 
-        String asyncContent = jsonObject.toString();
-        return asyncContent;
+        return jsonObject.toString();
 
     }
 
@@ -579,6 +581,47 @@ public class ThreadManager {
         jsonObject.remove("subjectId");
         return jsonObject.toString();
 
+    }
+
+    public static String prepareSetRoleRequest(SetRuleVO request, String uniqueId, String mtypecode, String token, String TOKEN_ISSUER) {
+        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+        for (RequestRole requestRole : request.getRoles()) {
+            UserRoleVO userRoleVO = new UserRoleVO();
+            userRoleVO.setUserId(requestRole.getId());
+            userRoleVO.setRoles(requestRole.getRoleTypes());
+            userRoleVOS.add(userRoleVO);
+        }
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(App.getGson().toJson(userRoleVOS));
+        chatMessage.setSubjectId(request.getThreadId());
+        chatMessage.setToken(token);
+        chatMessage.setType(ChatMessageType.Constants.REMOVE_ROLE_FROM_USER);
+        chatMessage.setTokenIssuer(TOKEN_ISSUER);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTypeCode(mtypecode);
+        return App.getGson().toJson(chatMessage);
+
+    }
+
+    public static String prepareRemoveRoleRequest(SetRuleVO request, String uniqueId, String mtypecode, String token, String TOKEN_ISSUER) {
+        ArrayList<UserRoleVO> userRoleVOS = new ArrayList<>();
+        for (RequestRole requestRole : request.getRoles()) {
+            UserRoleVO userRoleVO = new UserRoleVO();
+            userRoleVO.setUserId(requestRole.getId());
+            userRoleVO.setRoles(requestRole.getRoleTypes());
+            userRoleVOS.add(userRoleVO);
+        }
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(App.getGson().toJson(userRoleVOS));
+        chatMessage.setSubjectId(request.getThreadId());
+        chatMessage.setToken(token);
+        chatMessage.setType(ChatMessageType.Constants.REMOVE_ROLE_FROM_USER);
+        chatMessage.setTokenIssuer(TOKEN_ISSUER);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTypeCode(mtypecode);
+        return App.getGson().toJson(chatMessage);
     }
 
     public static String prepareGetHIstoryWithUniqueIdsRequest( long threadId,String uniqueId,String[] uniqueIds, String typeCode, String token){

@@ -222,12 +222,6 @@ public class ChatDataSource {
     public Observable<MessageManager.HistoryResponse> getMessagesData(History request, long threadId) {
 
 
-//        return Observable.concat(
-//                getMessagesFromMemoryDataSource(request,threadId),
-//                getMessagesFromCacheDataSource(request,threadId))
-//                .first()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.io());
 
 
         return getMessagesFromCacheDataSource(request, threadId)
