@@ -1,5 +1,5 @@
 {
-  "ndkFolder": "/home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570",
+  "ndkFolder": "/home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570",
   "messages": [
     {
       "level": "INFO",
@@ -15,7 +15,7 @@
     },
     {
       "level": "INFO",
-      "message": "sdkFolder is /home/fanap_soft_90/Android/Sdk"
+      "message": "sdkFolder is /home/ahmadsajadi/Devlopment/android/android_sdk"
     },
     {
       "level": "INFO",
@@ -23,27 +23,23 @@
     },
     {
       "level": "INFO",
-      "message": "Considering /home/fanap_soft_90/Android/Sdk/ndk-bundle in SDK ndk-bundle folder"
+      "message": "Considering /home/ahmadsajadi/Devlopment/android/android_sdk/ndk-bundle in SDK ndk-bundle folder"
     },
     {
       "level": "INFO",
-      "message": "Considering /home/fanap_soft_90/Android/Sdk/ndk/21.3.6528147 in SDK ndk folder"
+      "message": "Considering /home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570 in SDK ndk folder"
     },
     {
       "level": "INFO",
-      "message": "Considering /home/fanap_soft_90/Android/Sdk/ndk/21.0.6113669 in SDK ndk folder"
+      "message": "Considering /home/ahmadsajadi/Devlopment/android/android_sdk/ndk/21.3.6528147 in SDK ndk folder"
     },
     {
       "level": "INFO",
-      "message": "Considering /home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570 in SDK ndk folder"
+      "message": "Rejected /home/ahmadsajadi/Devlopment/android/android_sdk/ndk-bundle in SDK ndk-bundle folder because that location has no source.properties"
     },
     {
       "level": "INFO",
-      "message": "Rejected /home/fanap_soft_90/Android/Sdk/ndk-bundle in SDK ndk-bundle folder because that location has no source.properties"
-    },
-    {
-      "level": "INFO",
-      "message": "Found requested NDK version 20.0.5594570 at /home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570"
+      "message": "Found requested NDK version 20.0.5594570 at /home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570"
     }
   ]
 }

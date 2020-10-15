@@ -798,7 +798,7 @@ public class ChatActivity extends AppCompatActivity
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
                 .Builder("ZCBAF5WRPWV5FCHV")
 //                .setCrop(true)
-                .setQuality(0.6f)
+                .setQuality(0.4f)
                 .build();
 
 

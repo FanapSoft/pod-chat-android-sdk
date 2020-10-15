@@ -4,14 +4,14 @@
   "buildSettings": {
     "environmentVariables": []
   },
-  "cxxBuildFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/.cxx/ndkBuild/debug/armeabi-v7a",
+  "cxxBuildFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/.cxx/ndkBuild/debug/armeabi-v7a",
   "info": {
     "abi": "ARMEABI_V7A",
     "bitness": 32,
     "deprecated": false,
     "default": true
   },
-  "originalCxxBuildFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/.cxx/ndkBuild/debug/armeabi-v7a",
+  "originalCxxBuildFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/.cxx/ndkBuild/debug/armeabi-v7a",
   "variant": {
     "buildSystemArgumentList": [],
     "buildTargetSet": [],
@@ -21,20 +21,20 @@
     "isDebuggableEnabled": true,
     "module": {
       "buildSystem": "NDK_BUILD",
-      "cmakeToolchainFile": "/home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake",
-      "cxxFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/.cxx",
+      "cmakeToolchainFile": "/home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake",
+      "cxxFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/.cxx",
       "gradleModulePathName": ":podchat",
-      "intermediatesFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/build/intermediates",
-      "makeFile": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
-      "moduleBuildFile": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/build.gradle",
-      "moduleRootFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat",
+      "intermediatesFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/build/intermediates",
+      "makeFile": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
+      "moduleBuildFile": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/build.gradle",
+      "moduleRootFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat",
       "ndkDefaultAbiList": [
         "ARMEABI_V7A",
         "ARM64_V8A",
         "X86",
         "X86_64"
       ],
-      "ndkFolder": "/home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570",
+      "ndkFolder": "/home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570",
       "ndkMetaAbiList": [
         {
           "abi": "ARMEABI_V7A",
@@ -90,29 +90,29 @@
       ],
       "ndkVersion": "20.0.5594570",
       "project": {
-        "compilerSettingsCacheFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/.cxx",
-        "cxxFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/.cxx",
+        "compilerSettingsCacheFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/.cxx",
+        "cxxFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/.cxx",
         "ideBuildTargetAbi": "x86,armeabi-v7a,armeabi",
         "isBuildOnlyTargetAbiEnabled": true,
         "isCmakeBuildCohabitationEnabled": false,
         "isNativeCompilerSettingsCacheEnabled": false,
-        "rootBuildGradleFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk",
-        "sdkFolder": "/home/fanap_soft_90/Android/Sdk"
+        "rootBuildGradleFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk",
+        "sdkFolder": "/home/ahmadsajadi/Devlopment/android/android_sdk"
       },
       "splitsAbiFilterSet": [],
       "stlSharedObjectMap": {
         "LIBCXX_SHARED": {
-          "ARMEABI_V7A": "/home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so",
-          "ARM64_V8A": "/home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
-          "X86": "/home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so",
-          "X86_64": "/home/fanap_soft_90/Android/Sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+          "ARMEABI_V7A": "/home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so",
+          "ARM64_V8A": "/home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+          "X86": "/home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so",
+          "X86_64": "/home/ahmadsajadi/Devlopment/android/android_sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
         },
         "LIBCXX_STATIC": {},
         "NONE": {},
         "SYSTEM": {}
       }
     },
-    "objFolder": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/debug/obj/local",
+    "objFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/debug/obj/local",
     "variantName": "debug",
     "validAbiList": [
       "X86",

@@ -85,6 +85,7 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import io.sentry.core.Sentry;
+import rx.Observable;
 
 
 @SuppressWarnings("unchecked")
@@ -4017,12 +4018,22 @@ public class MessageDatabaseHelper {
 
     }
 
-    public CacheFile getImagesByHash(String hashCode, Float quality) {
 
-        List<CacheFile> images = messageDao.getImageCachesByHash(hashCode, quality);
-        if (images.size() > 0)
-            return images.get(0);
-        else return null;
+    public Observable<CacheFile> getImagesByHash(String hashCode, Float quality){
+        return Observable
+                .create(emitter -> {
+                    try {
+                        CacheFile findItem = null;
+                        List<CacheFile> images = messageDao.getImageCachesByHash(hashCode);
 
+                        if (images.size() > 0)
+                            if (images.get(0) != null && images.get(0).getQuality() >= quality)
+                                findItem = images.get(0);
+
+                        emitter.onNext(findItem);
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                });
     }
 }

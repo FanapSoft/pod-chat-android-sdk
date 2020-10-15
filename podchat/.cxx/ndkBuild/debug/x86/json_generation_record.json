@@ -2,19 +2,19 @@
   {
     "level": "INFO",
     "message": "Start JSON generation. Platform version: 17 min SDK version: x86",
-    "file": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
+    "file": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
     "tag": "debug|x86"
   },
   {
     "level": "INFO",
-    "message": "JSON \u0027/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/.cxx/ndkBuild/debug/x86/android_gradle_build.json\u0027 was up-to-date",
-    "file": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
+    "message": "JSON \u0027/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/.cxx/ndkBuild/debug/x86/android_gradle_build.json\u0027 was up-to-date",
+    "file": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
     "tag": "debug|x86"
   },
   {
     "level": "INFO",
     "message": "JSON generation completed without problems",
-    "file": "/home/fanap_soft_90/Android/Projects/Fanap/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
+    "file": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/src/main/jni/Android.mk",
     "tag": "debug|x86"
   }
 ]

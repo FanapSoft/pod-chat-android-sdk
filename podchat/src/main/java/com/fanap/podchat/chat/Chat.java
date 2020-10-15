@@ -276,7 +276,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -287,6 +286,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -4740,32 +4740,45 @@ public class Chat extends AsyncAdapter {
             return uniqueId;
         }
 
-        CacheFile cachedFileInDb = messageDatabaseHelper.getImagesByHash(request.getHashCode(), request.getQuality());
 
-        if (cachedFileInDb != null) {
+        //  CacheFile cachedFileInDb = messageDatabaseHelper.getImagesByHash(request.getHashCode(), request.getQuality());
+        messageDatabaseHelper.getImagesByHash(
+                request.getHashCode(), request.getQuality())
+                .subscribe(response -> {
+                    if (response != null) {
+                        File cachedFileInLocal = FileUtils.findFileInFolder(destinationFolder, fileName);
 
-            File cachedFileInLocal = FileUtils.findFileInFolder(destinationFolder, fileName);
+                        if (cachedFileInLocal != null && cachedFileInLocal.isFile() && request.canUseCache()) {
 
-            if (cachedFileInLocal != null && cachedFileInLocal.isFile() && request.canUseCache()) {
+                            showLog("File Exist in cache: " + cachedFileInLocal);
 
-                showLog("File Exist in cache: " + cachedFileInLocal);
+                            //file exists
+                            ChatResponse<ResultDownloadFile> responsefile = PodDownloader.generatePodSpaceDownloadResult(request.getHashCode(), cachedFileInLocal);
 
-                //file exists
-                ChatResponse<ResultDownloadFile> response = PodDownloader.generatePodSpaceDownloadResult(request.getHashCode(), cachedFileInLocal);
+                            progressHandler.onFileReady(responsefile);
 
-                progressHandler.onFileReady(response);
+                        } else {
 
-                return uniqueId;
+                            messageDatabaseHelper.deleteImageFromCach(response);
 
-            }else
-            {
+                            downloadFile(request, progressHandler, uniqueId, url, fileName,
+                                    destinationFolder, downloaderErrorInterface);
 
-                messageDatabaseHelper.deleteImageFromCach(cachedFileInDb);
 
-            }
+                        }
+                    } else {
+                        downloadFile(request, progressHandler, uniqueId, url, fileName,
+                                destinationFolder, downloaderErrorInterface);
+                    }
 
-        }
+                });
 
+
+        return uniqueId;
+    }
+
+    private void downloadFile(RequestGetPodSpaceImage request, ProgressHandler.IDownloadFile progressHandler, String uniqueId, String url, String fileName,
+                              File destinationFolder, PodDownloader.IDownloaderError downloaderErrorInterface) {
         //only url should return in callback
         if (!hasFreeSpace) {
 
@@ -4773,14 +4786,9 @@ public class Chat extends AsyncAdapter {
 
             progressHandler.onLowFreeSpace(uniqueId, url);
 
-            return uniqueId;
-        }
-
-
-        if (chatReady) {
+        } else if (chatReady) {
 
             showLog("Download Started");
-
 
             Call call = PodDownloader.downloadImageFromPodSpace(
                     new ProgressHandler.IDownloadFile() {
@@ -4835,8 +4843,6 @@ public class Chat extends AsyncAdapter {
             downloadCallList.put(uniqueId, call);
 
         } else onChatNotReady(uniqueId);
-
-        return uniqueId;
     }
 
     public void addFileToCach(ResultDownloadFile response, Float quality) {

@@ -508,8 +508,8 @@ public interface MessageDao {
     @Query("SELECT * FROM CacheFile")
     List<CacheFile> getAllImageCaches();
 
-    @Query("SELECT * FROM CacheFile where hashCode = :hachCode and quality = :quality")
-    List<CacheFile> getImageCachesByHash(String hachCode, Float quality);
+    @Query("SELECT * FROM CacheFile WHERE hashCode = :hachCode order by quality desc limit 1")
+    List<CacheFile> getImageCachesByHash(String hachCode);
 
     @Delete
     void deleteImage(CacheFile file);
