@@ -10,6 +10,7 @@ import android.arch.persistence.room.Update;
 
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
+import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
@@ -461,7 +462,7 @@ public interface MessageDao {
     List<CacheCall> getCachedCalls(long count, long offset, long type);
 
     @Query("SELECT * FROM CACHECALL where creatorId = :creatorUserId and type = :type order by createTime desc LIMIT :count OFFSET :offset")
-    List<CacheCall> getCachedCallByUserId(long count, long offset,long creatorUserId, long type);
+    List<CacheCall> getCachedCallByUserId(long count, long offset, long creatorUserId, long type);
 
     @Query("SELECT COUNT(*) FROM CACHECALL where creatorId = :creatorUserId and type = :type")
     long getCountOfCachedCallByUserId(long creatorUserId, long type);
@@ -501,5 +502,15 @@ public interface MessageDao {
     @Query("SELECT * FROM CacheCallParticipant where id = :participantId")
     CacheCallParticipant getCachedCallParticipant(long participantId);
 
+    @Insert(onConflict = REPLACE)
+    void insertImage(CacheFile image);
 
+    @Query("SELECT * FROM CacheFile")
+    List<CacheFile> getAllImageCaches();
+
+    @Query("SELECT * FROM CacheFile WHERE hashCode = :hachCode order by quality desc limit 1")
+    List<CacheFile> getImageCachesByHash(String hachCode);
+
+    @Delete
+    void deleteImage(CacheFile file);
 }

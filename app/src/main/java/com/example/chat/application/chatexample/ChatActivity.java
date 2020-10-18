@@ -26,6 +26,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
@@ -158,17 +159,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
 //
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -185,11 +186,11 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Integration server setting:
      */
-//
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+////
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -223,10 +224,10 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
     //sand box / group
@@ -795,9 +796,9 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
-                .Builder("W3OTSAZ6VRLCTHPT")
+                .Builder("ZCBAF5WRPWV5FCHV")
 //                .setCrop(true)
-//                .setQuality(0.5f)
+                .setQuality(0.4f)
                 .build();
 
 

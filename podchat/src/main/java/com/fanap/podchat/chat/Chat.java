@@ -31,6 +31,7 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
+import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -282,6 +283,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -4715,22 +4717,44 @@ public class Chat extends AsyncAdapter {
         }
 
 
-        File cachedFile = FileUtils.findFileInFolder(destinationFolder, fileName);
+        //  CacheFile cachedFileInDb = messageDatabaseHelper.getImagesByHash(request.getHashCode(), request.getQuality());
+        messageDatabaseHelper.getImagesByHash(
+                request.getHashCode(), request.getQuality())
+                .subscribe(response -> {
+                    if (response != null) {
+                        File cachedFileInLocal = FileUtils.findFileInFolder(destinationFolder, fileName);
 
-        if (cachedFile != null && cachedFile.isFile() && request.canUseCache()) {
+                        if (cachedFileInLocal != null && cachedFileInLocal.isFile() && request.canUseCache()) {
 
-            showLog("File Exist in cache: " + cachedFile);
+                            showLog("File Exist in cache: " + cachedFileInLocal);
 
-            //file exists
-            ChatResponse<ResultDownloadFile> response = PodDownloader.generatePodSpaceDownloadResult(request.getHashCode(), cachedFile);
+                            //file exists
+                            ChatResponse<ResultDownloadFile> responsefile = PodDownloader.generatePodSpaceDownloadResult(request.getHashCode(), cachedFileInLocal);
 
-            progressHandler.onFileReady(response);
+                            progressHandler.onFileReady(responsefile);
 
-            return uniqueId;
+                        } else {
 
-        }
+                            messageDatabaseHelper.deleteImageFromCach(response);
+
+                            downloadFile(request, progressHandler, uniqueId, url, fileName,
+                                    destinationFolder, downloaderErrorInterface);
 
 
+                        }
+                    } else {
+                        downloadFile(request, progressHandler, uniqueId, url, fileName,
+                                destinationFolder, downloaderErrorInterface);
+                    }
+
+                });
+
+
+        return uniqueId;
+    }
+
+    private void downloadFile(RequestGetPodSpaceImage request, ProgressHandler.IDownloadFile progressHandler, String uniqueId, String url, String fileName,
+                              File destinationFolder, PodDownloader.IDownloaderError downloaderErrorInterface) {
         //only url should return in callback
         if (!hasFreeSpace) {
 
@@ -4738,14 +4762,9 @@ public class Chat extends AsyncAdapter {
 
             progressHandler.onLowFreeSpace(uniqueId, url);
 
-            return uniqueId;
-        }
-
-
-        if (chatReady) {
+        } else if (chatReady) {
 
             showLog("Download Started");
-
 
             Call call = PodDownloader.downloadImageFromPodSpace(
                     new ProgressHandler.IDownloadFile() {
@@ -4780,6 +4799,7 @@ public class Chat extends AsyncAdapter {
 
                         @Override
                         public void onFileReady(ChatResponse<ResultDownloadFile> response) {
+                            addFileToCach(response.getResult(), request.getQuality());
                             progressHandler.onFileReady(response);
                             showLog("Download is complete!");
 
@@ -4799,8 +4819,14 @@ public class Chat extends AsyncAdapter {
             downloadCallList.put(uniqueId, call);
 
         } else onChatNotReady(uniqueId);
+    }
 
-        return uniqueId;
+    public void addFileToCach(ResultDownloadFile response, Float quality) {
+
+        CacheFile file = new CacheFile(response.getFile().toString(), response.getUri().toString(), response.getHashCode(), quality);
+        messageDatabaseHelper.saveImageInCach(file);
+        messageDatabaseHelper.getAllImagesInCach();
+
     }
 
     /**
@@ -5891,7 +5917,7 @@ public class Chat extends AsyncAdapter {
 
             }
 
-            String asyncContent = MessageManager.prepareDeleteMultipleRequest(request,uniqueIds,getToken(),getTypeCode());
+            String asyncContent = MessageManager.prepareDeleteMultipleRequest(request, uniqueIds, getToken(), getTypeCode());
 
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_DELETE_MULTIPLE_MESSAGE");
 
@@ -11309,7 +11335,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOutPutSeenMessageList(ChatMessage chatMessage, Callback callback) {
         try {
-            ChatResponse<ResultParticipant> chatResponse = MessageManager.prepareSeenMessageListResponse(chatMessage,callback.getOffset());
+            ChatResponse<ResultParticipant> chatResponse = MessageManager.prepareSeenMessageListResponse(chatMessage, callback.getOffset());
 
             String content = gson.toJson(chatResponse);
 
@@ -11489,7 +11515,7 @@ public class Chat extends AsyncAdapter {
 
     private void getHistoryWithUniqueIds(long threadId, String uniqueId, String[] uniqueIds) {
 
-        String asyncContent = ThreadManager. prepareGetHIstoryWithUniqueIdsRequest(  threadId, uniqueId, uniqueIds,  getTypeCode(),  getToken());
+        String asyncContent = ThreadManager.prepareGetHIstoryWithUniqueIdsRequest(threadId, uniqueId, uniqueIds, getTypeCode(), getToken());
 
         sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "CHECK_HISTORY_MESSAGES");
     }
@@ -14542,7 +14568,7 @@ public class Chat extends AsyncAdapter {
     @Override
     public void handleCallbackError(Throwable cause) {
         super.handleCallbackError(cause);
-                captureError("Async Callback Error: " + cause.getMessage(), ChatConstant.ERROR_CODE_ASYNC_EXCEPTION, "");
+        captureError("Async Callback Error: " + cause.getMessage(), ChatConstant.ERROR_CODE_ASYNC_EXCEPTION, "");
     }
 }
 

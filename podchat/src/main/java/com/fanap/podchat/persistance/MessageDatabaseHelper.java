@@ -13,6 +13,7 @@ import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
+import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
@@ -4020,5 +4021,46 @@ public class MessageDatabaseHelper {
     public void deleteMessagesOfThread(long subjectId) {
 
         worker(() -> messageDao.deleteAllMessageByThread(subjectId));
+
+    }
+
+
+    public void saveImageInCach(CacheFile cacheFile) {
+
+        worker(() -> messageDao.insertImage(cacheFile));
+
+    }
+
+
+    public void deleteImageFromCach(CacheFile cacheFile) {
+
+        worker(() -> messageDao.deleteImage(cacheFile));
+
+    }
+
+    public List<CacheFile> getAllImagesInCach() {
+
+        List<CacheFile> images = messageDao.getAllImageCaches();
+        return images;
+
+    }
+
+
+    public Observable<CacheFile> getImagesByHash(String hashCode, Float quality){
+        return Observable
+                .create(emitter -> {
+                    try {
+                        CacheFile findItem = null;
+                        List<CacheFile> images = messageDao.getImageCachesByHash(hashCode);
+
+                        if (images.size() > 0)
+                            if (images.get(0) != null && images.get(0).getQuality() >= quality)
+                                findItem = images.get(0);
+
+                        emitter.onNext(findItem);
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                });
     }
 }
