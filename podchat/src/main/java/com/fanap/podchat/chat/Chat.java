@@ -1002,6 +1002,7 @@ public class Chat extends AsyncAdapter {
             case Constants.REJECT_CALL:
                 handleOnCallRequestRejected(chatMessage);
                 break;
+            //todo: handle multiple device start call
             case Constants.START_CALL:
                 handleOnCallStarted(chatMessage);
                 break;
