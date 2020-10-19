@@ -92,7 +92,7 @@
       "project": {
         "compilerSettingsCacheFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/.cxx",
         "cxxFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/.cxx",
-        "ideBuildTargetAbi": "x86,armeabi-v7a,armeabi",
+        "ideBuildTargetAbi": "arm64-v8a,armeabi-v7a,armeabi",
         "isBuildOnlyTargetAbiEnabled": true,
         "isCmakeBuildCohabitationEnabled": false,
         "isNativeCompilerSettingsCacheEnabled": false,
@@ -115,7 +115,7 @@
     "objFolder": "/home/ahmadsajadi/Devlopment/android/flutter/projects/flutter-test/pod-chat-android-sdk/podchat/build/intermediates/ndkBuild/debug/obj/local",
     "variantName": "debug",
     "validAbiList": [
-      "X86",
+      "ARM64_V8A",
       "ARMEABI_V7A"
     ]
   }
