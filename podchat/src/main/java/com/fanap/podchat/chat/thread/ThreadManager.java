@@ -145,9 +145,14 @@ public class ThreadManager {
         // 3. leaveThread
         //
 
-        if (request.getRequestSetAdmin() == null) {
-            callback.onNormalLeaveThreadNeeded(request, uniqueId);
+        if (request.getSuccessorParticipantId() == 0) {
+
+
+            createAndSendNormalLeave(request, uniqueId, callback);
+
         } else {
+
+
 
             RequestGetUserRoles requestGetUserRoles =
                     new RequestGetUserRoles.Builder()
@@ -155,14 +160,30 @@ public class ThreadManager {
                             .withNoCache()
                             .build();
 
-            callback.onGetUserRolesNeeded(requestGetUserRoles, uniqueId);
 
             userRolesSubscriber = PublishSubject.create();
 
             userRolesSubscription = userRolesSubscriber.subscribe(createOnReceiveUserRolesAction(request, uniqueId, callback));
+
+
+            callback.onGetUserRolesNeeded(requestGetUserRoles, uniqueId);
+
+
         }
 
 
+    }
+
+    private static void createAndSendNormalLeave(SafeLeaveRequest request, String uniqueId, ISafeLeaveCallback callback) {
+        RequestLeaveThread.Builder requestLeaveThreadBuilder = new RequestLeaveThread.Builder(request.getThreadId());
+
+        if(!request.clearHistory())
+            requestLeaveThreadBuilder.shouldKeepHistory();
+
+        requestLeaveThreadBuilder.typeCode(request.getTypeCode());
+
+
+        callback.onNormalLeaveThreadNeeded(requestLeaveThreadBuilder.build(), uniqueId);
     }
 
     private static Action1<ChatResponse<ResultCurrentUserRoles>> createOnReceiveUserRolesAction(SafeLeaveRequest request, String uniqueId, ISafeLeaveCallback callback) {
@@ -176,10 +197,34 @@ public class ThreadManager {
 
                 unsubscribe(userRolesSubscription);
 
-                callback.onSetAdminNeeded(request.getRequestSetAdmin(), uniqueId);
+                ArrayList<String> typeRoles = new ArrayList<>();
+                typeRoles.add(RoleType.Constants.THREAD_ADMIN);
+                typeRoles.add(RoleType.Constants.ADD_ROLE_TO_USER);
+                typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
+                typeRoles.add(RoleType.Constants.EDIT_THREAD);
+                typeRoles.add(RoleType.Constants.ADD_NEW_USER);
+                typeRoles.add(RoleType.Constants.REMOVE_USER);
+                typeRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS);
+                typeRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS);
+                typeRoles.add(RoleType.Constants.CHANGE_THREAD_INFO);
+                RequestRole requestRole = new RequestRole();
+                requestRole.setId(request.getSuccessorParticipantId());
+                requestRole.setRoleTypes(typeRoles);
+
+                ArrayList<RequestRole> requestRoles = new ArrayList<>();
+
+                requestRoles.add(requestRole);
+
+                RequestSetAdmin requestAddAdmin = new RequestSetAdmin
+                        .Builder(request.getThreadId(), requestRoles)
+                        .build();
+
+
+
+                callback.onSetAdminNeeded(requestAddAdmin, uniqueId);
 
             } else {
-                callback.onNormalLeaveThreadNeeded(request, uniqueId);
+                createAndSendNormalLeave(request, uniqueId, callback);
             }
 
 
@@ -200,7 +245,7 @@ public class ThreadManager {
 
             unsubscribe(setAdminSubscription);
 
-            callback.onNormalLeaveThreadNeeded(request, uniqueId);
+            createAndSendNormalLeave(request, uniqueId, callback);
 
 
         };
