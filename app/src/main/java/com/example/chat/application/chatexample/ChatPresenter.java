@@ -393,7 +393,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
 
-        Log.e(TAG, "isInCache=" + chat.isInCache(rePod));
+        Log.e(TAG, "isInCache=" + chat.isAvailableInCache(rePod));
 
         return chat.getFile(rePod, iDownloadFile);
     }
@@ -420,7 +420,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
 
-        Log.e(TAG, "isInCache=" + chat.isInCache(rePod));
+        Log.e(TAG, "isInCache=" + chat.isAvailableInCache(rePod));
 
         return chat.getImage(rePod, iDownloadFile);
 
@@ -1043,30 +1043,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
 
-        ArrayList<String> typeRoles = new ArrayList<>();
-        typeRoles.add(RoleType.Constants.THREAD_ADMIN);
-        typeRoles.add(RoleType.Constants.ADD_ROLE_TO_USER);
-        typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
-        typeRoles.add(RoleType.Constants.EDIT_THREAD);
-        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
-        typeRoles.add(RoleType.Constants.REMOVE_USER);
-        typeRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS);
-        typeRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS);
-        typeRoles.add(RoleType.Constants.CHANGE_THREAD_INFO);
-        RequestRole requestRole = new RequestRole();
-        requestRole.setId(2);
-        requestRole.setRoleTypes(typeRoles);
-
-        ArrayList<RequestRole> requestRoles = new ArrayList<>();
-
-        requestRoles.add(requestRole);
-
-        RequestSetAdmin requestAddAdmin = new RequestSetAdmin
-                .Builder(threadId, requestRoles)
-                .build();
-
-        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId)
-                .setRequestSetAdmin(requestAddAdmin)
+        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId,18477)
                 .build();
 //        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
 //                .build();
