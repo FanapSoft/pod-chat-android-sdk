@@ -1,17 +1,17 @@
 {
-  "abi": "ARMEABI_V7A",
+  "abi": "ARM64_V8A",
   "abiPlatformVersion": 17,
   "buildSettings": {
     "environmentVariables": []
   },
-  "cxxBuildFolder": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\.cxx\\ndkBuild\\debug\\armeabi-v7a",
+  "cxxBuildFolder": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\.cxx\\ndkBuild\\debug\\arm64-v8a",
   "info": {
-    "abi": "ARMEABI_V7A",
-    "bitness": 32,
+    "abi": "ARM64_V8A",
+    "bitness": 64,
     "deprecated": false,
     "default": true
   },
-  "originalCxxBuildFolder": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\.cxx\\ndkBuild\\debug\\armeabi-v7a",
+  "originalCxxBuildFolder": "D:\\Projects\\POD_CHAT\\pod-chat-android-sdk\\podchat\\.cxx\\ndkBuild\\debug\\arm64-v8a",
   "variant": {
     "buildSystemArgumentList": [],
     "buildTargetSet": [],

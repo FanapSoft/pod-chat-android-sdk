@@ -16,6 +16,7 @@ import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.util.Callback;
 
@@ -399,4 +400,8 @@ public class ChatDataSource {
     }
 
 
+    public void updateParticipantRoles(ArrayList<Admin> admins, long threadId) {
+
+        cacheDataSource.updateParticipantRoles(admins,threadId);
+    }
 }

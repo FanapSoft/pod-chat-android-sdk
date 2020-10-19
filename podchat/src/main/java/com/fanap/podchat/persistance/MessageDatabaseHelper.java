@@ -96,6 +96,7 @@ public class MessageDatabaseHelper {
     private MessageQueueDao messageQueueDao;
     private Context context;
     private AppDatabase appDatabase;
+    private PodThreadManager threadManager;
 
 
     @Inject
@@ -116,7 +117,7 @@ public class MessageDatabaseHelper {
 
             Runnable vacuumTask = () -> messageDao.vacuumDb(new SimpleSQLiteQuery("VACUUM"));
 
-            new PodThreadManager()
+            getThreadManager()
                     .addNewTask(clearTablesTask)
                     .addNewTask(vacuumTask)
                     .addNewTask(listener::onCacheDatabaseCleared)
@@ -146,6 +147,15 @@ public class MessageDatabaseHelper {
             e.printStackTrace();
             listener.onExceptionOccurred(e.getMessage());
         }
+
+    }
+
+    private PodThreadManager getThreadManager() {
+
+        if (threadManager == null)
+            threadManager = new PodThreadManager();
+
+        return threadManager;
 
     }
 
@@ -500,7 +510,7 @@ public class MessageDatabaseHelper {
 
         List<String> items = new ArrayList<>();
 
-        new PodThreadManager()
+        getThreadManager()
                 .doThisSafe(() -> items.addAll(messageQueueDao.getAllWaitQueueMsgUniqueId()),
                         new PodThreadManager.IComplete() {
                             @Override
@@ -577,7 +587,7 @@ public class MessageDatabaseHelper {
 
     public void moveFromSendQueueToWaitQueue(String uniqueId) {
 
-        new PodThreadManager().doThisSafe(() -> {
+        getThreadManager().doThisSafe(() -> {
             SendingQueueCache sendingQueue = getSendingQueueCache(uniqueId);
 
             deleteSendingMessageQueue(uniqueId);
@@ -589,7 +599,7 @@ public class MessageDatabaseHelper {
 
     public void moveFromWaitQueueToSendQueue(String uniqueId, OnWorkDone listener) {
 
-        new PodThreadManager().doThisAndGo(() -> {
+        getThreadManager().doThisAndGo(() -> {
             SendingQueueCache sendingQueue = getWaitQueueMsgByUnique(uniqueId);
             deleteWaitQueueMsgs(uniqueId);
             insertSendingMessageQueue(sendingQueue);
@@ -2906,6 +2916,11 @@ public class MessageDatabaseHelper {
 
         worker(() -> {
 
+            if (!canUseDatabase()) {
+                listener.onWorkDone(null);
+                return;
+            }
+
             String rawQuery = "select id from ThreadVo";
 
             SupportSQLiteQuery query = new SimpleSQLiteQuery(rawQuery);
@@ -3789,7 +3804,7 @@ public class MessageDatabaseHelper {
 
     private void worker(Runnable work) {
 
-        new PodThreadManager()
+        getThreadManager()
                 .doThisSafe(work);
 
     }
@@ -4046,7 +4061,7 @@ public class MessageDatabaseHelper {
     }
 
 
-    public Observable<CacheFile> getImagesByHash(String hashCode, Float quality){
+    public Observable<CacheFile> getImagesByHash(String hashCode, Float quality) {
         return Observable
                 .create(emitter -> {
                     try {

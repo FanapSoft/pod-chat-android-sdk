@@ -119,7 +119,6 @@ import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetLastSeens;
-import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -1045,10 +1044,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void leaveThread(long threadId, ChatHandler handler) {
 
         ArrayList<String> typeRoles = new ArrayList<>();
-        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.THREAD_ADMIN);
+        typeRoles.add(RoleType.Constants.ADD_ROLE_TO_USER);
+        typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
         typeRoles.add(RoleType.Constants.EDIT_THREAD);
+        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
+        typeRoles.add(RoleType.Constants.REMOVE_USER);
+        typeRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS);
+        typeRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS);
+        typeRoles.add(RoleType.Constants.CHANGE_THREAD_INFO);
         RequestRole requestRole = new RequestRole();
-        requestRole.setId(15510);
+        requestRole.setId(2);
         requestRole.setRoleTypes(typeRoles);
 
         ArrayList<RequestRole> requestRoles = new ArrayList<>();

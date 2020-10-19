@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
+import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
@@ -169,13 +170,13 @@ public class ThreadManager {
 
             if (userHasOwnershipRolesInThread(resultCurrentUserRolesChatResponse)) {
 
-                callback.onSetAdminNeeded(request.getRequestSetAdmin(), uniqueId);
-
                 setAdminSubscriber = PublishSubject.create();
 
                 setAdminSubscription = setAdminSubscriber.subscribe(createOnAdminSetAction(request, uniqueId, callback));
 
                 unsubscribe(userRolesSubscription);
+
+                callback.onSetAdminNeeded(request.getRequestSetAdmin(), uniqueId);
 
             } else {
                 callback.onNormalLeaveThreadNeeded(request, uniqueId);
@@ -186,14 +187,12 @@ public class ThreadManager {
     }
 
     private static void unsubscribe(Subscription subscription) {
-        if (!subscription.isUnsubscribed())
+        if (subscription != null && !subscription.isUnsubscribed())
             subscription.unsubscribe();
     }
 
     private static Action1<? super ChatResponse<ResultSetAdmin>> createOnAdminSetAction(SafeLeaveRequest request, String uniqueId, ISafeLeaveCallback callback) {
         return resultSetAdminChatResponse -> {
-
-            callback.onNormalLeaveThreadNeeded(request, uniqueId);
 
             leaveThreadSubscriber = PublishSubject.create();
 
@@ -201,17 +200,22 @@ public class ThreadManager {
 
             unsubscribe(setAdminSubscription);
 
+            callback.onNormalLeaveThreadNeeded(request, uniqueId);
+
+
         };
     }
 
     private static Action1<? super ChatResponse<ResultLeaveThread>> createOnLeaveThreadAction(String uniqueId, ISafeLeaveCallback callback) {
         return resultLeaveThreadChatResponse -> {
 
-            callback.onThreadLeftSafely(resultLeaveThreadChatResponse, uniqueId);
 
             unsubscribe(leaveThreadSubscription);
 
             requestUniqueId = "";
+
+            callback.onThreadLeftSafely(resultLeaveThreadChatResponse, uniqueId);
+
         };
     }
 
@@ -256,15 +260,22 @@ public class ThreadManager {
     private static boolean userHasOwnershipRolesInThread(ChatResponse<ResultCurrentUserRoles> resultCurrentUserRolesChatResponse) {
 
 
+        ArrayList<String> ownerRoles = new ArrayList<>();
+        ownerRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER.toUpperCase());
+        ownerRoles.add(RoleType.Constants.READ_THREAD.toUpperCase());
+        ownerRoles.add(RoleType.Constants.THREAD_ADMIN.toUpperCase());
+        ownerRoles.add(RoleType.Constants.REMOVE_USER.toUpperCase());
+        ownerRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS.toUpperCase());
+        ownerRoles.add(RoleType.Constants.EDIT_THREAD.toUpperCase());
+        ownerRoles.add(RoleType.Constants.POST_CHANNEL_MESSAGE.toUpperCase());
+        ownerRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS.toUpperCase());
+        ownerRoles.add(RoleType.Constants.ADD_ROLE_TO_USER.toUpperCase());
+        ownerRoles.add(RoleType.Constants.ADD_NEW_USER.toUpperCase());
+
         if (Util.isNotNullOrEmpty(resultCurrentUserRolesChatResponse.getResult()
                 .getRoles())) {
 
-            return resultCurrentUserRolesChatResponse.getResult().getRoles().contains(
-                   "THREAD_ADMIN"
-            ) &&
-                    resultCurrentUserRolesChatResponse.getResult().getRoles().contains(
-                            "ADD_RULE_TO_USER"
-                    );
+            return resultCurrentUserRolesChatResponse.getResult().getRoles().containsAll(ownerRoles);
         }
 
         return false;
@@ -596,7 +607,7 @@ public class ThreadManager {
         chatMessage.setContent(App.getGson().toJson(userRoleVOS));
         chatMessage.setSubjectId(request.getThreadId());
         chatMessage.setToken(token);
-        chatMessage.setType(ChatMessageType.Constants.REMOVE_ROLE_FROM_USER);
+        chatMessage.setType(ChatMessageType.Constants.SET_ROLE_TO_USER);
         chatMessage.setTokenIssuer(TOKEN_ISSUER);
         chatMessage.setUniqueId(uniqueId);
         chatMessage.setTypeCode(mtypecode);
@@ -624,7 +635,7 @@ public class ThreadManager {
         return App.getGson().toJson(chatMessage);
     }
 
-    public static String prepareGetHIstoryWithUniqueIdsRequest( long threadId,String uniqueId,String[] uniqueIds, String typeCode, String token){
+    public static String prepareGetHIstoryWithUniqueIdsRequest(long threadId, String uniqueId, String[] uniqueIds, String typeCode, String token) {
         RequestGetHistory request = new RequestGetHistory
                 .Builder(threadId)
                 .offset(0)
@@ -654,6 +665,7 @@ public class ThreadManager {
         String asyncContent = jsonObject.toString();
         return asyncContent;
     }
+
     public static class ThreadResponse {
         private List<Thread> threadList;
         private long contentCount;
@@ -671,6 +683,10 @@ public class ThreadManager {
 
         public long getContentCount() {
             return contentCount;
+        }
+
+        public String getSource() {
+            return source;
         }
     }
 

@@ -18,6 +18,7 @@ import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
@@ -315,4 +316,11 @@ public class CacheDataSource {
         return databaseHelper.getUploadingQ(uniqueId);
     }
 
+    public void updateParticipantRoles(ArrayList<Admin> admins, long threadId) {
+
+        for (Admin a :
+                admins) {
+            databaseHelper.updateParticipantRoles(a.getId(), threadId, a.getRoles());
+        }
+    }
 }

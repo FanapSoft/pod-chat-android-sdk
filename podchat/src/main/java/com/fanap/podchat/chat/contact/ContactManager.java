@@ -277,6 +277,10 @@ public class ContactManager {
         public long getContentCount() {
             return contentCount;
         }
+
+        public String getSource() {
+            return source;
+        }
     }
 
 

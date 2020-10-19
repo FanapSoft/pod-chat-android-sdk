@@ -27,7 +27,7 @@ public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage{
         this.file = file;
     }
 
-    public RequestCreateThreadWithFile(RequestCreateThreadWithMessage.Builder<?> builder, RequestUploadFile file) {
+    public RequestCreateThreadWithFile(RequestCreateThreadWithMessage.Builder builder, RequestUploadFile file) {
         super(builder);
         this.file = file;
     }
@@ -42,7 +42,7 @@ public class RequestCreateThreadWithFile extends RequestCreateThreadWithMessage{
     }
 
 
-    public static class Builder extends RequestCreateThreadWithMessage.Builder<Builder> {
+    public static class Builder extends RequestCreateThreadWithMessage.Builder {
         private RequestUploadFile file;
 
         public Builder(int type, List<Invitee> invitees, RequestUploadFile file,int messageType) {

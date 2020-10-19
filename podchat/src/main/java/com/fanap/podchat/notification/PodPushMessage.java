@@ -31,8 +31,10 @@ public class PodPushMessage {
     private static final String MESSAGE_SENDER_USER_NAME = "MessageSenderUserName";
     private static final String MESSAGE_ID = "messageId";
     private static final String THREAD_ID = "threadId";
+    private static final String THREAD_IMAGE = "threadImage";
     private boolean isGroup;
     private String threadName;
+    private String threadImage;
     private String messageSenderUserName;
     private String messageSenderName;
     private String text;
@@ -52,6 +54,7 @@ public class PodPushMessage {
         String messageSenderUserName = notificationData.get(MESSAGE_SENDER_USER_NAME);
         String messageId = notificationData.get(MESSAGE_ID);
         String threadId = notificationData.get(THREAD_ID);
+        String threadImage = notificationData.get(THREAD_IMAGE);
 
 
         this.threadName = threadName;
@@ -59,6 +62,7 @@ public class PodPushMessage {
         this.messageSenderName = senderName;
         this.text = text;
         this.profileImage = profileUrl;
+        this.threadImage = threadImage;
 
         try {
             this.messageId = Long.parseLong(messageId != null ? messageId : "0");
@@ -231,6 +235,6 @@ public class PodPushMessage {
     }
 
     public String getThreadImage() {
-        return profileImage;
+        return threadImage;
     }
 }
