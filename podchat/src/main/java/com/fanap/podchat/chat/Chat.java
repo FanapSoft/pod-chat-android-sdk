@@ -4721,7 +4721,7 @@ public class Chat extends AsyncAdapter {
         PodDownloader.IDownloaderError downloaderErrorInterface =
                 getDownloaderErrorInterface(progressHandler, uniqueId, url);
 
-
+        String json = App.getGson().toJson(request);
         File destinationFolder;
 
         if (cache && request.canUseCache()) {
@@ -4763,7 +4763,7 @@ public class Chat extends AsyncAdapter {
 
                             //file exists
                             ChatResponse<ResultDownloadFile> responsefile = PodDownloader.generatePodSpaceDownloadResult(request.getHashCode(), cachedFileInLocal);
-
+                            responsefile.getResult().setFromCach(true);
                             progressHandler.onFileReady(responsefile);
 
                         } else {
@@ -4788,6 +4788,7 @@ public class Chat extends AsyncAdapter {
 
     private void downloadFile(RequestGetPodSpaceImage request, ProgressHandler.IDownloadFile progressHandler, String uniqueId, String url, String fileName,
                               File destinationFolder, PodDownloader.IDownloaderError downloaderErrorInterface) {
+
         //only url should return in callback
         if (!hasFreeSpace) {
 
@@ -4833,6 +4834,7 @@ public class Chat extends AsyncAdapter {
                         @Override
                         public void onFileReady(ChatResponse<ResultDownloadFile> response) {
                             addFileToCach(response.getResult(), request.getQuality());
+                            response.getResult().setFromCach(false);
                             progressHandler.onFileReady(response);
                             showLog("Download is complete!");
 
@@ -4923,6 +4925,7 @@ public class Chat extends AsyncAdapter {
      * @return uniqueId of request.
      */
     public String getFile(RequestGetFile request, ProgressHandler.IDownloadFile progressHandler) {
+
 
         String uniqueId = generateUniqueId();
 
