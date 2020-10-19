@@ -159,17 +159,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
+//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
 
     //local
 
 //
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -187,10 +187,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 ////
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -214,11 +214,11 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
@@ -243,8 +243,8 @@ public class ChatActivity extends AppCompatActivity
 
     // main server / group
 
-    public static int TEST_THREAD_ID = 47528;
-    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
+//    public static int TEST_THREAD_ID = 47528;
+//    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
 
 
 //    integration /group: fifi,jiji and ...
@@ -252,8 +252,8 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /p2p: fifi, jiji
 
-//    public static int TEST_THREAD_ID = 7488;
-//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+    public static int TEST_THREAD_ID = 7488;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
 
     //test server thread
@@ -796,9 +796,9 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
-                .Builder("ZCBAF5WRPWV5FCHV")
+                .Builder("613Q7WCCEXZ1DGY5")
 //                .setCrop(true)
-                .setQuality(0.4f)
+                .setQuality(0.45f)
                 .build();
 
 
@@ -2301,7 +2301,9 @@ public class ChatActivity extends AppCompatActivity
         // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
-        invite.add(new Invitee("we", InviteType.Constants.TO_BE_USER_USERNAME));
+        invite.add(new Invitee("63270", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
 //                                invite.add(new Invitee(121, 5)); // user zizi

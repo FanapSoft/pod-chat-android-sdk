@@ -2733,7 +2733,8 @@ public class MessageDatabaseHelper {
                 threadVo.isMentioned(),
                 threadVo.getPinMessageVO(),
                 threadVo.getUniqueName(),
-                threadVo.getUserGroupHash());
+                threadVo.getUserGroupHash(),
+                threadVo.isClosed());
 
 
     }
@@ -2779,7 +2780,8 @@ public class MessageDatabaseHelper {
                 thread.isMentioned(),
                 null,
                 thread.getUniqueName(),
-                thread.getUserGroupHash());
+                thread.getUserGroupHash(),
+                thread.isClosed());
     }
 
     @NonNull
@@ -4040,26 +4042,18 @@ public class MessageDatabaseHelper {
     }
 
 
-    public void saveImageInCach(CacheFile cacheFile) {
+    public void saveImageInCache(CacheFile cacheFile) {
 
         worker(() -> messageDao.insertImage(cacheFile));
 
     }
 
 
-    public void deleteImageFromCach(CacheFile cacheFile) {
+    public void deleteImageFromCache(CacheFile cacheFile) {
 
         worker(() -> messageDao.deleteImage(cacheFile));
 
     }
-
-    public List<CacheFile> getAllImagesInCach() {
-
-        List<CacheFile> images = messageDao.getAllImageCaches();
-        return images;
-
-    }
-
 
     public Observable<CacheFile> getImagesByHash(String hashCode, Float quality) {
         return Observable
@@ -4077,5 +4071,10 @@ public class MessageDatabaseHelper {
                         emitter.onError(e);
                     }
                 });
+    }
+
+
+    public List<CacheFile> getImagesByHash(String hashCode) {
+        return messageDao.getImageCachesByHash(hashCode);
     }
 }

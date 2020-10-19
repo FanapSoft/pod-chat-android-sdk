@@ -2,6 +2,7 @@ package com.fanap.podchat.repository;
 
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.queue.Failed;
 import com.fanap.podchat.cachemodel.queue.Sending;
@@ -223,8 +224,6 @@ public class ChatDataSource {
     public Observable<MessageManager.HistoryResponse> getMessagesData(History request, long threadId) {
 
 
-
-
         return getMessagesFromCacheDataSource(request, threadId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io());
@@ -402,6 +401,55 @@ public class ChatDataSource {
 
     public void updateParticipantRoles(ArrayList<Admin> admins, long threadId) {
 
-        cacheDataSource.updateParticipantRoles(admins,threadId);
+        cacheDataSource.updateParticipantRoles(admins, threadId);
+    }
+
+    public void saveImageInCache(String localUri, String uri, String hashCode, Float quality) {
+
+        CacheFile cacheFile = new CacheFile(localUri, uri, hashCode, quality);
+
+        cacheDataSource.cacheImage(cacheFile);
+
+    }
+
+    public Observable<CacheFile> checkInCache(String hashCode, Float quality) {
+
+        return Observable
+                .create(emitter -> {
+                    try {
+                        CacheFile findItem = null;
+
+                        List<CacheFile> images = cacheDataSource.getImageByHash(hashCode);
+
+                        if (images.size() > 0)
+                            if (images.get(0) != null && images.get(0).getQuality() >= quality)
+                                findItem = images.get(0);
+
+                        emitter.onNext(findItem);
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                });
+
+    }
+
+    public boolean checkIsAvailable(String hashCode, Float quality) {
+
+        List<CacheFile> images = cacheDataSource.getImageByHash(hashCode);
+
+        for (CacheFile image :
+                images) {
+
+            if (quality == null) {
+                if (image.getQuality() == 1)
+                    return true;
+            } else {
+                if (image.getQuality().equals(quality))
+                    return true;
+            }
+
+        }
+
+        return false;
     }
 }

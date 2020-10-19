@@ -59,6 +59,7 @@ public class ThreadVo {
     private PinMessageVO pinMessageVO;
     private String uniqueName;
     private String userGroupHash;
+    private boolean closed;
 
     public String getUserGroupHash() {
         return userGroupHash;
@@ -373,6 +374,14 @@ public class ThreadVo {
     }
 
 
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
     public ThreadVo() {
     }
 
@@ -395,7 +404,8 @@ public class ThreadVo {
                     boolean admin, boolean pin, boolean mentioned,
                     PinMessageVO pinMessageVO,
                     String uniqueName,
-                    String userGroupHash) {
+                    String userGroupHash,
+                    boolean closed) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -435,6 +445,7 @@ public class ThreadVo {
         this.pinMessageVO = pinMessageVO;
         this.uniqueName = uniqueName;
         this.userGroupHash = userGroupHash;
+        this.closed = closed;
     }
 
 

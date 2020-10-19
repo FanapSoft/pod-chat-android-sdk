@@ -49,4 +49,11 @@ public class RequestGetPodSpaceFile {
         this.hashCode = hashCode;
     }
 
+    @Override
+    public String toString() {
+        return "RequestGetPodSpaceFile{" +
+                "hashCode='" + hashCode + '\'' +
+                ", useCache=" + useCache +
+                '}';
+    }
 }

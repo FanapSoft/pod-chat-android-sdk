@@ -1,9 +1,9 @@
 package com.fanap.podchat.repository;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.queue.Failed;
 import com.fanap.podchat.cachemodel.queue.Sending;
@@ -19,8 +19,6 @@ import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.Admin;
-import com.fanap.podchat.model.ChatResponse;
-import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
@@ -32,7 +30,6 @@ import com.fanap.podchat.util.OnWorkDone;
 import com.fanap.podchat.util.PodChatException;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -322,5 +319,15 @@ public class CacheDataSource {
                 admins) {
             databaseHelper.updateParticipantRoles(a.getId(), threadId, a.getRoles());
         }
+    }
+
+    public void cacheImage(CacheFile cacheFile) {
+        databaseHelper.saveImageInCache(cacheFile);
+    }
+
+    public List<CacheFile> getImageByHash(String hashCode) {
+
+        return databaseHelper.getImagesByHash(hashCode);
+
     }
 }
