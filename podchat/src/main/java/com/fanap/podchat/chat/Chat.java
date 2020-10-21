@@ -2122,15 +2122,15 @@ public class Chat extends AsyncAdapter {
     /**
      * It is just for testing kafka server
      *
-     * @param broker
-     * @param sendTopic
-     * @param receiveTopic
-     * @param ssl
-     * @param sendKey
-     * @param callState
+     * @param broker kafka broker address
+     * @param sendTopic sending topic
+     * @param receiveTopic receiving topic
+     * @param ssl ssl config
+     * @param sendKey sending key
+     * @param callState callback
      */
 
-    public void testCall(String broker, String sendTopic, String receiveTopic,String ssl,String sendKey,ICallState callState) {
+    public void testCall(@NonNull String broker,@NonNull  String sendTopic,@NonNull  String receiveTopic,@NonNull String ssl,@NonNull String sendKey,@NonNull ICallState callState) {
 
         audioCallManager.testStream(broker, sendTopic, receiveTopic,ssl,sendKey, callState);
     }
