@@ -197,19 +197,24 @@ public class ThreadManager {
 
                 unsubscribe(userRolesSubscription);
 
-                ArrayList<String> typeRoles = new ArrayList<>();
-                typeRoles.add(RoleType.Constants.THREAD_ADMIN);
-                typeRoles.add(RoleType.Constants.ADD_ROLE_TO_USER);
-                typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
-                typeRoles.add(RoleType.Constants.EDIT_THREAD);
-                typeRoles.add(RoleType.Constants.ADD_NEW_USER);
-                typeRoles.add(RoleType.Constants.REMOVE_USER);
-                typeRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS);
-                typeRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS);
-                typeRoles.add(RoleType.Constants.CHANGE_THREAD_INFO);
+                ArrayList<String> ownerRoles = new ArrayList<>();
+                ownerRoles.add(RoleType.Constants.OWNERSHIP.toUpperCase());
+                ownerRoles.add(RoleType.Constants.REMOVE_USER.toUpperCase());
+                ownerRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER.toUpperCase());
+                ownerRoles.add(RoleType.Constants.READ_THREAD.toUpperCase());
+                ownerRoles.add(RoleType.Constants.POST_CHANNEL_MESSAGE.toUpperCase());
+                ownerRoles.add(RoleType.Constants.EDIT_THREAD.toUpperCase());
+                ownerRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS.toUpperCase());
+                ownerRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS.toUpperCase());
+                ownerRoles.add(RoleType.Constants.ADD_ROLE_TO_USER.toUpperCase());
+                ownerRoles.add(RoleType.Constants.THREAD_ADMIN.toUpperCase());
+                ownerRoles.add(RoleType.Constants.ADD_NEW_USER.toUpperCase());
+
+
+
                 RequestRole requestRole = new RequestRole();
                 requestRole.setId(request.getSuccessorParticipantId());
-                requestRole.setRoleTypes(typeRoles);
+                requestRole.setRoleTypes(ownerRoles);
 
                 ArrayList<RequestRole> requestRoles = new ArrayList<>();
 
@@ -304,23 +309,10 @@ public class ThreadManager {
 
     private static boolean userHasOwnershipRolesInThread(ChatResponse<ResultCurrentUserRoles> resultCurrentUserRolesChatResponse) {
 
-
-        ArrayList<String> ownerRoles = new ArrayList<>();
-        ownerRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER.toUpperCase());
-        ownerRoles.add(RoleType.Constants.READ_THREAD.toUpperCase());
-        ownerRoles.add(RoleType.Constants.THREAD_ADMIN.toUpperCase());
-        ownerRoles.add(RoleType.Constants.REMOVE_USER.toUpperCase());
-        ownerRoles.add(RoleType.Constants.EDIT_MESSAGE_OF_OTHERS.toUpperCase());
-        ownerRoles.add(RoleType.Constants.EDIT_THREAD.toUpperCase());
-        ownerRoles.add(RoleType.Constants.POST_CHANNEL_MESSAGE.toUpperCase());
-        ownerRoles.add(RoleType.Constants.DELETE_MESSAGE_OF_OTHERS.toUpperCase());
-        ownerRoles.add(RoleType.Constants.ADD_ROLE_TO_USER.toUpperCase());
-        ownerRoles.add(RoleType.Constants.ADD_NEW_USER.toUpperCase());
-
         if (Util.isNotNullOrEmpty(resultCurrentUserRolesChatResponse.getResult()
                 .getRoles())) {
 
-            return resultCurrentUserRolesChatResponse.getResult().getRoles().containsAll(ownerRoles);
+            return resultCurrentUserRolesChatResponse.getResult().getRoles().contains(RoleType.Constants.OWNERSHIP.toUpperCase());
         }
 
         return false;

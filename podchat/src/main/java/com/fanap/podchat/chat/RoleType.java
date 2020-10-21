@@ -19,10 +19,11 @@ public class RoleType {
             Constants.READ_THREAD,
             Constants.REMOVE_ROLE_FROM_USER,
             Constants.REMOVE_USER,
-            Constants.THREAD_ADMIN})
+            Constants.THREAD_ADMIN,
+            Constants.OWNERSHIP})
 
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Constants{
+    public @interface Constants {
         String CHANGE_THREAD_INFO = "change_thread_info";
         String POST_CHANNEL_MESSAGE = "post_channel_message";
         String EDIT_MESSAGE_OF_OTHERS = "edit_message_of_others";
@@ -34,5 +35,6 @@ public class RoleType {
         String READ_THREAD = "read_thread";
         String EDIT_THREAD = "edit_thread";
         String THREAD_ADMIN = "thread_admin";
+        String OWNERSHIP = "ownership";
     }
 }

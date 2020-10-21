@@ -1505,7 +1505,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void handleOnCallStarted( ChatMessage chatMessage) {
+    private void handleOnCallStarted(ChatMessage chatMessage) {
 
         showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
 
@@ -4598,7 +4598,7 @@ public class Chat extends AsyncAdapter {
 
         if (chatReady) {
 
-            showLog("Download Started",request.toString());
+            showLog("Download Started", request.toString());
 
 
             Call call = PodDownloader.downloadFileFromPodSpace(
@@ -4744,7 +4744,7 @@ public class Chat extends AsyncAdapter {
         }
 
 
-        if(cache){
+        if (cache) {
             dataSource.checkInCache(
                     request.getHashCode(), request.getQuality())
                     .subscribe(cacheFile -> {
@@ -4808,8 +4808,7 @@ public class Chat extends AsyncAdapter {
 //                    });
 
 
-
-        }else {
+        } else {
             downloadFile(request, progressHandler, uniqueId, url, fileName,
                     destinationFolder, downloaderErrorInterface);
         }
@@ -4830,7 +4829,7 @@ public class Chat extends AsyncAdapter {
 
         } else if (chatReady) {
 
-            showLog("Download Started",request.toString());
+            showLog("Download Started", request.toString());
 
             Call call = PodDownloader.downloadImageFromPodSpace(
                     new ProgressHandler.IDownloadFile() {
@@ -4928,7 +4927,7 @@ public class Chat extends AsyncAdapter {
 
         if (cachedFile != null && cachedFile.isFile() && request.canUseCache()) {
 
-            boolean isImageAvailable = dataSource.checkIsAvailable(request.getHashCode(),request.getQuality());
+            boolean isImageAvailable = dataSource.checkIsAvailable(request.getHashCode(), request.getQuality());
 
             showLog("File Exist in cache folder: " + cachedFile);
 
@@ -5993,7 +5992,7 @@ public class Chat extends AsyncAdapter {
                         threadIds,
                         threadName,
                         isNew)
-                        .doOnError(exception->captureError(exception.getMessage(),ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION,uniqueId))
+                        .doOnError(exception -> captureError(exception.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId))
                         .onErrorResumeNext(Observable.empty())
                         .doOnCompleted(getThreadsFromServerJob::run)
                         .subscribe(response -> {
@@ -8973,8 +8972,7 @@ public class Chat extends AsyncAdapter {
      * description;
      * metadata;
      */
-    @Deprecated
-    public String updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler) {
+    private String updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
         try {
@@ -9140,8 +9138,15 @@ public class Chat extends AsyncAdapter {
                 .metadata(request.getMetadata())
                 .build();
 
+
         if (request.getUploadThreadImageRequest() != null) {
-            return updateThreadInfo(request.getThreadId(), threadInfoVO, request.getUserGroupHash(), request.getUploadThreadImageRequest(), handler);
+
+            String userGroupHash = Util.isNotNullOrEmpty(request.getUserGroupHash()) ?
+                    request.getUserGroupHash() : Util.isNotNullOrEmpty(request.getUploadThreadImageRequest()
+                    .getUserGroupHashCode()) ? request.getUploadThreadImageRequest()
+                    .getUserGroupHashCode() : "";
+
+            return updateThreadInfo(request.getThreadId(), threadInfoVO, userGroupHash, request.getUploadThreadImageRequest(), handler);
         }
 
         return updateThreadInfo(request.getThreadId(), threadInfoVO, handler);

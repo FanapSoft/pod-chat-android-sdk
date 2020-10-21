@@ -1055,7 +1055,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler) {
-        chat.updateThreadInfo(threadId, threadInfoVO, handler);
+
+
+//        chat.updateThreadInfo(threadId, threadInfoVO, handler);
     }
 
     @Override

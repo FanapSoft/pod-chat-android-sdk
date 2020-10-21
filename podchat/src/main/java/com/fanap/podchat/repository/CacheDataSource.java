@@ -173,7 +173,7 @@ public class CacheDataSource {
 
     public void cacheMessages(List<MessageVO> data, long threadId) {
 
-        databaseHelper.saveMessageHistory(data, threadId);
+        databaseHelper.saveMessageHistory(data, threadId,getExpireAmount());
     }
 
     public void cacheMessage(MessageVO message, long threadId) {

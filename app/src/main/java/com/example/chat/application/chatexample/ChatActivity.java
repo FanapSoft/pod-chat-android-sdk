@@ -159,17 +159,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
 //
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -187,10 +187,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 ////
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -224,16 +224,16 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
     //sand box / group
 ////
-//    public static int TEST_THREAD_ID = 21620;
-//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+    public static int TEST_THREAD_ID = 9508;
+    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
 //    main server / p2p
@@ -252,9 +252,9 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /p2p: fifi, jiji
 
-    public static int TEST_THREAD_ID = 7488;
-    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
-
+//    public static int TEST_THREAD_ID = 7488;
+//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//
 
     //test server thread
 //    public static int TEST_THREAD_ID = 7608;
@@ -643,18 +643,19 @@ public class ChatActivity extends AppCompatActivity
     private void updateThreadInfo() {
 
 
-        RequestUploadImage requestUploadImage =
-                new RequestUploadImage.Builder(ChatActivity.this, getUri())
-                        .sethC(140)
-                        .setwC(140)
-                        .build();
+//        RequestUploadImage requestUploadImage =
+//                new RequestUploadImage.Builder(ChatActivity.this, getUri())
+//                        .sethC(140)
+//                        .setwC(140)
+//                        .setUserGroupHashCode(TEST_THREAD_HASH)
+//                        .build();
 
 
         RequestThreadInfo request =
                 new RequestThreadInfo.Builder(TEST_THREAD_ID)
-//                                                .name("Test File PodSpace") // required. if not set, thread name will set to null
+                                                .name("Chat sample thread") // required. if not set, thread name will set to null
 //                                                .metadata("{}") // required. if not set, thread metadata will set to null
-//                                                .image("IMAGE URL") // required. if not set, thread image will set to null
+                                                .image("https://podspace.pod.ir/nzh/drive/downloadImage?hash=ELJIHZN9NP37ZIDA") // required. if not set, thread image will set to null
                         .description("this is test description updated on " + new Date().toString()) // required. if not set, thread name will set to null
 //                                                .setUploadThreadImageRequest(requestUploadImage) // set when you wanna upload thread image
 //                                                .setUserGroupHash(TEST_THREAD_HASH) // set when you wanna upload thread image

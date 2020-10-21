@@ -182,7 +182,7 @@ public class MessageDatabaseHelper {
     /**
      * Cache history
      */
-    public void saveMessageHistory(@NonNull List<MessageVO> messageVOS, long threadId) {
+    public void saveMessageHistory(@NonNull List<MessageVO> messageVOS, long threadId, int expireAmount) {
 
 
         worker(() -> {
@@ -201,9 +201,16 @@ public class MessageDatabaseHelper {
                 long timestamp = ((time / 1000) * pow) + timeNanos;
                 cacheMessageVO.setTimeStamp(timestamp);
 
+                if(messageVO.getParticipant()!=null)
+                {
+                    CacheParticipant cacheParticipant = new CacheParticipant(messageVO.getParticipant(),threadId);
+
+                    cacheMessageVO.setParticipant(cacheParticipant);
+                }
+
                 if (cacheMessageVO.getParticipant() != null) {
                     cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
-                    messageDao.insertParticipant(cacheMessageVO.getParticipant());
+                    saveParticipant(cacheMessageVO.getParticipant(),threadId,expireAmount);
                 }
 
                 if (cacheMessageVO.getConversation() != null) {
@@ -235,10 +242,7 @@ public class MessageDatabaseHelper {
 
                 cacheMessageVOList.add(cacheMessageVO);
             }
-
-
             messageDao.insertHistories(cacheMessageVOList);
-
         });
 
 
@@ -377,8 +381,6 @@ public class MessageDatabaseHelper {
         worker(() -> {
 
             CacheMessageVO cacheMessageVO = new CacheMessageVO(message);
-
-            cacheMessageVO.setThreadVoId(threadId);
 
             try {
                 long time = cacheMessageVO.getTime();
@@ -1291,6 +1293,8 @@ public class MessageDatabaseHelper {
             if (cacheMessageVO.getParticipantId() != null) {
                 CacheParticipant cacheParticipant = messageDao.getParticipant(cacheMessageVO.getParticipantId());
                 if (cacheParticipant != null) {
+                    ChatProfileVO profileVO = messageDao.getChatProfileVOById(cacheParticipant.getId());
+                    cacheParticipant.setChatProfileVO(profileVO);
                     participant = cacheToParticipantMapper(cacheParticipant, null, null);
                 } else {
                     if (cacheMessageVO.getConversationId() > 0)
@@ -3321,6 +3325,55 @@ public class MessageDatabaseHelper {
             }
         });
     }
+
+    public void saveParticipant(@NonNull CacheParticipant participant, long threadId, int expireSecond) {
+
+        worker(() -> {
+
+                participant.setThreadId(threadId);
+
+                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+                Calendar c = Calendar.getInstance();
+                c.setTime(new Date());
+                c.add(Calendar.SECOND, expireSecond);
+                String expireDate = format.format(c.getTime());
+
+                messageDao.insertParticipant(participant);
+
+                CacheThreadParticipant ctp = new CacheThreadParticipant();
+                ctp.setExpireDate(expireDate);
+                ctp.setParticipantId(participant.getId());
+                ctp.setThreadId(threadId);
+
+                messageDao.insertThreadParticipant(ctp);
+
+                if (!Util.isNullOrEmpty(participant.getRoles())) {
+
+                    CacheParticipantRoles cpr = new CacheParticipantRoles();
+
+                    cpr.setId(participant.getId());
+
+                    cpr.setThreadId(threadId);
+
+                    cpr.setRoles(participant.getRoles());
+
+                    Log.d("MTAG", "SAVE CPR: " + cpr);
+
+                    messageDao.insertRoles(cpr);
+
+                }
+
+                if (participant.getChatProfileVO() != null) {
+
+                    ChatProfileVO chatProfileVO = participant.getChatProfileVO();
+                    chatProfileVO.setId(participant.getId());
+                    messageDao.insertChatProfile(chatProfileVO);
+
+                }
+            }
+        );
+    }
+
 
     public void deleteParticipant(long threadId, long id) {
         messageDao.deleteParticipant(threadId, id);
