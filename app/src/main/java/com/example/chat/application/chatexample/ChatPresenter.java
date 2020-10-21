@@ -26,7 +26,6 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
@@ -105,7 +104,6 @@ import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -151,11 +149,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.chat.application.chatexample.CallActivity.FIFI_CID;
-import static com.example.chat.application.chatexample.CallActivity.FIFI_ID;
-import static com.example.chat.application.chatexample.CallActivity.JIJI_CID;
-import static com.example.chat.application.chatexample.CallActivity.JIJI_ID;
-import static com.example.chat.application.chatexample.CallActivity.ZIZI_ID;
+import static com.example.chat.application.chatexample.CallActivity.POORIA_CID;
+import static com.example.chat.application.chatexample.CallActivity.Pooria_ID;
+import static com.example.chat.application.chatexample.CallActivity.MASOUD_CID;
+import static com.example.chat.application.chatexample.CallActivity.Masoud_ID;
+import static com.example.chat.application.chatexample.CallActivity.Farhad_ID;
 
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
@@ -1720,10 +1718,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     public String getCallerName(long callerId) {
         String callerName = "";
-        if (callerId == CallActivity.ZIZI_ID) {
+        if (callerId == CallActivity.Farhad_ID) {
 
             callerName = "ZIZI";
-        } else if (callerId == FIFI_ID) {
+        } else if (callerId == Pooria_ID) {
             callerName = "FIFI";
         } else {
             callerName = "JIJI";
@@ -1862,7 +1860,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         if (withFifi) {
             invitee = new Invitee();
-            invitee.setId(FIFI_CID);
+            invitee.setId(POORIA_CID);
             invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
             invitees.add(invitee);
         }
@@ -1874,14 +1872,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //        }
         if (withJiji) {
             invitee = new Invitee();
-            invitee.setId(JIJI_CID);
+            invitee.setId(MASOUD_CID);
             invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
             invitees.add(invitee);
         }
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(8036, CallType.Constants.VOICE_CALL)
+                .Builder(8081, CallType.Constants.VOICE_CALL)
                 .build();
 
         uniqueIds.add(chat.requestGroupCall(request));
@@ -1894,11 +1892,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         List<Long> ids = new ArrayList<>();
 
         if (fifiChecked)
-            ids.add((long) FIFI_ID);
+            ids.add((long) Pooria_ID);
         if (jijiChecked)
-            ids.add((long) JIJI_ID);
+            ids.add((long) Masoud_ID);
         if (ziziChecked)
-            ids.add((long) ZIZI_ID);
+            ids.add((long) Farhad_ID);
 
         RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
                 callRequestResponse.getSubjectId(),

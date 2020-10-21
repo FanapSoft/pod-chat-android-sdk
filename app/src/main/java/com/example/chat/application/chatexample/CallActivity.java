@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallVO;
-import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
@@ -37,7 +36,6 @@ import com.fanap.podchat.util.Util;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -46,19 +44,19 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
-    private final static String ZIZI_TOKEN = BaseApplication.getInstance().getString(R.string.token_zizi);
-    private final static String FIFI_TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
-    private final static String JIJI_TOKEN = BaseApplication.getInstance().getString(R.string.token_jiji);
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Masoud_Amjadi);
 
     //INTEGRATION
 
-    static int FIFI_ID = 15507;
-    static int JIJI_ID = 15501;
-    static int ZIZI_ID = 15510;
+    static int Pooria_ID = 18477;
+    static int Masoud_ID = 18476;
+    static int Farhad_ID = 18478;
 
-    public final static String FIFI_CID = BaseApplication.getInstance().getString(R.string.ZIZI_FIFI_CONTACT_ID);
-    public final static String JIJI_CID = BaseApplication.getInstance().getString(R.string.ZIZI_JIJI_CONTACT_ID);
+    public final static String POORIA_CID = BaseApplication.getInstance().getString(R.string.ZIZI_FIFI_CONTACT_ID);
+    public final static String MASOUD_CID = BaseApplication.getInstance().getString(R.string.ZIZI_JIJI_CONTACT_ID);
 
 
     //NEMATI
@@ -445,21 +443,21 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
                 Log.e(TAG, "Checked -> zizi");
 
-                partnerId = ZIZI_ID;
+                partnerId = Farhad_ID;
 
                 break;
             }
             case R.id.radioFifiPartner: {
 
                 Log.e(TAG, "Checked -> fifi");
-                partnerId = FIFI_ID;
+                partnerId = Pooria_ID;
 
                 break;
             }
             case R.id.radioJijiPartner: {
 
                 Log.e(TAG, "Checked -> jiji");
-                partnerId = JIJI_ID;
+                partnerId = Masoud_ID;
 
                 break;
             }
@@ -478,7 +476,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
                 Log.e(TAG, "Checked -> zizi");
 
-                TOKEN = ZIZI_TOKEN;
+                TOKEN = Farhad_TOKEN;
 
                 break;
             }
@@ -486,7 +484,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
                 Log.e(TAG, "Checked -> fifi");
 
-                TOKEN = FIFI_TOKEN;
+                TOKEN = Pooria_TOKEN;
 
                 break;
             }
@@ -494,7 +492,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
                 Log.e(TAG, "Checked -> jiji");
 
-                TOKEN = JIJI_TOKEN;
+                TOKEN = Masoud_TOKEN;
 
                 break;
             }

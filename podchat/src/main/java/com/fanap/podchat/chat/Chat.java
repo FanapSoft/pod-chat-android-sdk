@@ -2118,6 +2118,23 @@ public class Chat extends AsyncAdapter {
         });
     }
 
+
+    /**
+     * It is just for testing kafka server
+     *
+     * @param broker
+     * @param sendTopic
+     * @param receiveTopic
+     * @param ssl
+     * @param sendKey
+     * @param callState
+     */
+
+    public void testCall(String broker, String sendTopic, String receiveTopic,String ssl,String sendKey,ICallState callState) {
+
+        audioCallManager.testStream(broker, sendTopic, receiveTopic,ssl,sendKey, callState);
+    }
+
     /**
      * This is to test the quality of the recording and playback.
      */
@@ -13517,7 +13534,9 @@ public class Chat extends AsyncAdapter {
         if (cache && permit) {
 
             messageDatabaseHelper.saveUserInfo(userInfo, handleDBError(() -> {
-            }, () -> {
+
+                messageDatabaseHelper.saveUserInfo(userInfo);
+                }, () -> {
             }));
         }
 

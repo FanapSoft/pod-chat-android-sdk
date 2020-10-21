@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter Number OR Code"
-                android:inputType="phone"
+                android:inputType="text"
                 android:textColor="@color/white"
                 android:textColorHint="@color/design_default_color_primary"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -238,17 +238,17 @@
                     android:id="@+id/radioZiziCaller"
                     style="@style/radio_button"
                     android:checked="true"
-                    android:text="ZIZI" />
+                    android:text="Farhad" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radioJijiCaller"
                     style="@style/radio_button"
-                    android:text="JIJI" />
+                    android:text="Pooria" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radioFifiCaller"
                     style="@style/radio_button"
-                    android:text="FIFI" />
+                    android:text="Masoud" />
 
             </RadioGroup>
 
@@ -264,18 +264,18 @@
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radioZiziPartner"
                     style="@style/radio_button"
-                    android:text="ZIZI" />
+                    android:text="FARHAD" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radioJijiPartner"
                     style="@style/radio_button"
                     android:checked="true"
-                    android:text="JIJI" />
+                    android:text="POORIA" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/radioFifiPartner"
                     style="@style/radio_button"
-                    android:text="FIFI" />
+                    android:text="MASOUD" />
 
             </RadioGroup>
 

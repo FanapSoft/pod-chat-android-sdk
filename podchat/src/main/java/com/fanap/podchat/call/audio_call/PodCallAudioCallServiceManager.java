@@ -9,6 +9,7 @@ import android.os.IBinder;
 
 import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.model.CallInfo;
+import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
@@ -104,12 +105,12 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
      * direct connect to kafka server for connection and audio test
      *
      * @param iCallState call callback
-     * @param groupId    client id
+     * @param brokerAddress    brokerAddress
      * @param sender     sending topic
      * @param receiver   receiving topic
      */
 
-    public void testStream(String groupId, String sender, String receiver, ICallState iCallState) {
+    public void testStream(String brokerAddress, String sender, String receiver, ICallState iCallState) {
         this.callStateCallback = iCallState;
         callInfo = new CallInfo();
         callInfo.setCallId(1000001);
@@ -117,10 +118,30 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
         callInfo.setCallName("تست کافکا");
         callInfo.setCallImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
 
-        startCallService(groupId, sender, receiver);
+        startCallService(brokerAddress, sender, receiver);
         bindService();
 
     }
+
+    public void testStream(String broker,
+                           String sendTopic,
+                           String receiveTopic,
+                           String ssl,
+                           String sendKey,
+                           ICallState iCallState) {
+
+        this.callStateCallback = iCallState;
+        callInfo = new CallInfo();
+        callInfo.setCallId(1000001);
+        callInfo.setPartnerId(15000);
+        callInfo.setCallName("تست کافکا");
+        callInfo.setCallImage("https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482");
+
+        startCallService(broker, sendTopic, receiveTopic,ssl,sendKey);
+        bindService();
+
+    }
+
 
 
     /**
@@ -273,8 +294,6 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
 
         if (callConfig != null && !Util.isNullOrEmpty(callConfig.getTargetActivity()))
             runServiceIntent.putExtra(TARGET_ACTIVITY, callConfig.getTargetActivity());
-        if (callInfo != null)
-            runServiceIntent.putExtra(POD_CALL_INFO, callInfo);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mContext.startForegroundService(runServiceIntent);
@@ -282,6 +301,42 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
             mContext.startService(runServiceIntent);
         }
     }
+
+    private void startCallService(String broker,
+                                  String sendTopic,
+                                  String receiveTopic,
+                                  String ssl,
+                                  String sendKey) {
+
+
+
+        ClientDTO client = new ClientDTO();
+        client.setTopicReceive(receiveTopic);
+        client.setTopicSend(sendTopic);
+        client.setSendKey(sendKey);
+        client.setClientId(sendKey);
+        client.setBrokerAddress(broker);
+
+
+        runServiceIntent = new Intent(mContext, PodCallAudioCallService.class);
+
+        runServiceIntent.putExtra(KAFKA_CONFIG, client);
+
+        runServiceIntent.putExtra(SSL_CONFIG, ssl);
+
+        runServiceIntent.putExtra(POD_CALL_INFO, callInfo);
+
+        if (callConfig != null && !Util.isNullOrEmpty(callConfig.getTargetActivity()))
+            runServiceIntent.putExtra(TARGET_ACTIVITY, callConfig.getTargetActivity());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mContext.startForegroundService(runServiceIntent);
+        } else {
+            mContext.startService(runServiceIntent);
+        }
+
+    }
+
 
     private void startCallService() {
 
@@ -346,5 +401,6 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
 
         enableSSL = withSSL;
     }
+
 
 }
