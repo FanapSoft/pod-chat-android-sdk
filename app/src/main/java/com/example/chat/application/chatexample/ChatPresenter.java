@@ -18,6 +18,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -2147,5 +2148,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onThreadClosed(ChatResponse<CloseThreadResult> response) {
         view.onThreadClosed(response.getSubjectId());
+    }
+
+    @Override
+    public void onCallCreated(ChatResponse<CallCreatedResult> response) {
+        view.onCallCreated(response.getResult().getCallId());
     }
 }

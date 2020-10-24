@@ -1,5 +1,7 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.call.result_model.CallCreatedResult;
+import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -323,4 +325,8 @@ public interface ChatListener {
     default void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response){}
 
     default void onThreadClosed(ChatResponse<CloseThreadResult> response){}
+
+    default void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response){}
+
+    default void onCallCreated(ChatResponse<CallCreatedResult> response){}
 }

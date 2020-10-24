@@ -29,6 +29,12 @@ public class PodChatException extends Exception {
         this.code = code;
     }
 
+    public PodChatException(String message, int code, String uniqueId) {
+        super(message);
+        this.code = code;
+        this.uniqueId = uniqueId;
+    }
+
     public String getUniqueId() {
         return uniqueId;
     }

@@ -254,6 +254,8 @@ public interface ChatContract {
         default void updateStatus(String message){}
 
         default void onThreadClosed(long subjectId){}
+
+        default void onCallCreated(long threadId){}
     }
 
     interface presenter {

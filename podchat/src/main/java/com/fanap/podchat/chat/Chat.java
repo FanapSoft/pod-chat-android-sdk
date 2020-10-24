@@ -39,22 +39,25 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.CallManager;
 import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
-import com.fanap.podchat.call.request_model.TerminateCallRequest;
-import com.fanap.podchat.call.result_model.CallDeliverResult;
-import com.fanap.podchat.call.result_model.CallStartResult;
-import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
-import com.fanap.podchat.call.CallManager;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCreatedResult;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
@@ -89,17 +92,15 @@ import com.fanap.podchat.chat.ping.PingManager;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.search.SearchManager;
-import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
-import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
-import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
-import com.fanap.podchat.repository.CacheDataSource;
-import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.PublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
@@ -189,6 +190,8 @@ import com.fanap.podchat.persistance.RoomIntegrityException;
 import com.fanap.podchat.persistance.module.AppDatabaseModule;
 import com.fanap.podchat.persistance.module.AppModule;
 import com.fanap.podchat.persistance.module.DaggerMessageComponent;
+import com.fanap.podchat.repository.CacheDataSource;
+import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.repository.MemoryDataSource;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -942,7 +945,14 @@ public class Chat extends AsyncAdapter {
             case Constants.UN_MUTE_THREAD:
             case Constants.USER_INFO:
             case Constants.LOCATION_PING:
+            case Constants.GET_ACTIVE_CALL_PARTICIPANTS:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
+                break;
+
+
+            case Constants.CALL_CREATED:
+                if (callback != null)
+                    handleOnCallCreated( chatMessage);
                 break;
 
 
@@ -1534,6 +1544,9 @@ public class Chat extends AsyncAdapter {
             }
         });
 
+        getCallParticipants(new GetCallParticipantsRequest.Builder().setCallId(info.getSubjectId()).build());
+
+
         listenerManager.callOnCallVoiceCallStarted(response);
 
     }
@@ -1947,6 +1960,24 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String getCallParticipants(GetCallParticipantsRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            try {
+                String message = CallManager.createGetActiveCallParticipantsMessage(request, uniqueId);
+                setCallBacks(false, false, false, true, Constants.GET_ACTIVE_CALL_PARTICIPANTS, null, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_GET_ACTIVE_CALL_PARTICIPANTS");
+            } catch (PodChatException e) {
+                captureError(e);
+            }
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
     public String requestGroupCall(CallRequest request) {
 
         String uniqueId = generateUniqueId();
@@ -2122,17 +2153,17 @@ public class Chat extends AsyncAdapter {
     /**
      * It is just for testing kafka server
      *
-     * @param broker kafka broker address
-     * @param sendTopic sending topic
+     * @param broker       kafka broker address
+     * @param sendTopic    sending topic
      * @param receiveTopic receiving topic
-     * @param ssl ssl config
-     * @param sendKey sending key
-     * @param callState callback
+     * @param ssl          ssl config
+     * @param sendKey      sending key
+     * @param callState    callback
      */
 
-    public void testCall(@NonNull String broker,@NonNull  String sendTopic,@NonNull  String receiveTopic,@NonNull String ssl,@NonNull String sendKey,@NonNull ICallState callState) {
+    public void testCall(@NonNull String broker, @NonNull String sendTopic, @NonNull String receiveTopic, @NonNull String ssl, @NonNull String sendKey, @NonNull ICallState callState) {
 
-        audioCallManager.testStream(broker, sendTopic, receiveTopic,ssl,sendKey, callState);
+        audioCallManager.testStream(broker, sendTopic, receiveTopic, ssl, sendKey, callState);
     }
 
     /**
@@ -11032,6 +11063,11 @@ public class Chat extends AsyncAdapter {
                             handleGetNotSeenDuration(callback, chatMessage, messageUniqueId);
                             break;
                         }
+                        case Constants.GET_ACTIVE_CALL_PARTICIPANTS: {
+                            handleOnReceiveActiveCallParticipants(callback, chatMessage);
+                            break;
+                        }
+
 
                     }
                 }
@@ -11040,6 +11076,33 @@ public class Chat extends AsyncAdapter {
             showErrorLog(e.getMessage());
             onUnknownException(chatMessage.getUniqueId(), e);
         }
+    }
+
+    private void handleOnCallCreated(ChatMessage chatMessage) {
+
+
+        ChatResponse<CallCreatedResult> response = CallManager.handleOnCallCreated(chatMessage);
+
+        showLog("ON CALL CREATED", gson.toJson(response));
+
+        messageCallbacks.remove(chatMessage.getUniqueId());
+
+        listenerManager.callOnCallCreated(response);
+
+
+    }
+
+    private void handleOnReceiveActiveCallParticipants(Callback callback, ChatMessage chatMessage) {
+
+        showLog("RECEIVE_ACTIVE_CALL_PARTICIPANTS", gson.toJson(chatMessage.getContent()));
+
+        ChatResponse<GetCallParticipantResult> response = CallManager.reformatActiveCallParticipant(chatMessage);
+
+
+        messageCallbacks.remove(callback.getUniqueId());
+
+        listenerManager.callOnReceiveActiveCallParticipants(response);
+
     }
 
     private void removeCallback(String uniqueId) {
@@ -13536,7 +13599,7 @@ public class Chat extends AsyncAdapter {
             messageDatabaseHelper.saveUserInfo(userInfo, handleDBError(() -> {
 
                 messageDatabaseHelper.saveUserInfo(userInfo);
-                }, () -> {
+            }, () -> {
             }));
         }
 

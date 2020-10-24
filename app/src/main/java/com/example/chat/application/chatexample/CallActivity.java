@@ -117,7 +117,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
     ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
-    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId,etNewParticipantToAdd;
+    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId, etNewParticipantToAdd;
     CheckBox checkBoxSSL,
             checkBoxGroupCall,
             checkboxZiziPartner,
@@ -136,7 +136,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     boolean isSpeakerOn = false;
 
 
-    private int partnerId = 122;
+    private int partnerId = Masoud_ID;
     private boolean chatReady;
     private boolean isTestMode = false;
     private boolean isInCall = false;
@@ -344,7 +344,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonStartSandboxCall.setOnClickListener(v -> {
             if (chatReady) {
-                presenter.requestMainOrSandboxCall(etSandboxPartnerId.getText().toString(),checkBoxGroupCall.isChecked());
+                presenter.requestMainOrSandboxCall(etSandboxPartnerId.getText().toString(), checkBoxGroupCall.isChecked());
             } else {
                 Toast.makeText(this, "Chat is not ready", Toast.LENGTH_SHORT).show();
             }
@@ -439,7 +439,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         switch (checkedId) {
 
-            case R.id.radioZiziPartner: {
+            case R.id.radioFarhadPartner: {
 
                 Log.e(TAG, "Checked -> zizi");
 
@@ -447,14 +447,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
                 break;
             }
-            case R.id.radioFifiPartner: {
+            case R.id.radioMasoudPartner: {
 
                 Log.e(TAG, "Checked -> fifi");
                 partnerId = Pooria_ID;
 
                 break;
             }
-            case R.id.radioJijiPartner: {
+            case R.id.radioPooriaPartner: {
 
                 Log.e(TAG, "Checked -> jiji");
                 partnerId = Masoud_ID;
@@ -472,27 +472,27 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         switch (checkedId) {
 
-            case R.id.radioZiziCaller: {
+            case R.id.radioFarhadCaller: {
 
-                Log.e(TAG, "Checked -> zizi");
+                Log.e(TAG, "Checked -> farhad");
 
                 TOKEN = Farhad_TOKEN;
 
                 break;
             }
-            case R.id.radioFifiCaller: {
+            case R.id.radioMasoudCaller: {
 
-                Log.e(TAG, "Checked -> fifi");
+                Log.e(TAG, "Checked -> masoud");
 
-                TOKEN = Pooria_TOKEN;
+                TOKEN = Masoud_TOKEN;
 
                 break;
             }
-            case R.id.radioJijiCaller: {
+            case R.id.radioPooriaCaller: {
 
-                Log.e(TAG, "Checked -> jiji");
+                Log.e(TAG, "Checked -> pooria");
 
-                TOKEN = Masoud_TOKEN;
+                TOKEN = Pooria_TOKEN;
 
                 break;
             }
@@ -857,8 +857,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         runOnUiThread(() -> Toast.makeText(this, "You have been removed from call!", Toast.LENGTH_SHORT).show());
     }
+
+
+    @Override
+    public void onCallCreated(long threadId) {
+        updateStatus("Call with id " + threadId + " was created");
+    }
+
     @Override
     public void updateStatus(String message) {
-        runOnUiThread(()->tvStatus.setText(message));
+        runOnUiThread(() -> tvStatus.setText(message));
     }
 }

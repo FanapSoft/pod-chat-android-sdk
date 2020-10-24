@@ -36,6 +36,8 @@ public class ChatConstant {
 
     public static final int ERROR_CODE_CALL_NESHAN_API = 6600;
 
+    public static final int ERROR_CODE_INVALID_DATA = 6700;
+
 
     public static long ERROR_CODE_NOTIFICATION_ERROR = 6700;
 

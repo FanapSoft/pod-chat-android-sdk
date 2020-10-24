@@ -9,5 +9,6 @@ public class CallRequestResult extends CreateCallVO {
         this.setType(createCallVO.getType());
         this.setCreatorVO(createCallVO.getCreatorVO());
         this.setConversationVO(createCallVO.getConversationVO());
+        this.setThreadId(createCallVO.getThreadId());
     }
 }

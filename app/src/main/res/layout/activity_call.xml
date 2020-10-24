@@ -235,18 +235,18 @@
 
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioZiziCaller"
+                    android:id="@+id/radioFarhadCaller"
                     style="@style/radio_button"
                     android:checked="true"
                     android:text="Farhad" />
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioJijiCaller"
+                    android:id="@+id/radioPooriaCaller"
                     style="@style/radio_button"
                     android:text="Pooria" />
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioFifiCaller"
+                    android:id="@+id/radioMasoudCaller"
                     style="@style/radio_button"
                     android:text="Masoud" />
 
@@ -262,18 +262,18 @@
 
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioZiziPartner"
+                    android:id="@+id/radioFarhadPartner"
                     style="@style/radio_button"
                     android:text="FARHAD" />
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioJijiPartner"
+                    android:id="@+id/radioPooriaPartner"
                     style="@style/radio_button"
                     android:checked="true"
                     android:text="POORIA" />
 
                 <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioFifiPartner"
+                    android:id="@+id/radioMasoudPartner"
                     style="@style/radio_button"
                     android:text="MASOUD" />
 
