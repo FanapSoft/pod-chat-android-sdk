@@ -105,6 +105,7 @@ import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
@@ -1045,12 +1046,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId,18477)
                 .build();
-//        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
-//                .build();
-//
-//        chat.leaveThread(leaveThread, null);
+        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
+                .build();
 
-        chat.safeLeaveThread(request);
+        chat.leaveThread(leaveThread, null);
+
+    //   chat.safeLeaveThread(request);
     }
 
     @Override

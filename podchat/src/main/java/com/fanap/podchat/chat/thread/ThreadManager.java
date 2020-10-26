@@ -514,10 +514,14 @@ public class ThreadManager {
     public static String prepareLeaveThreadRequest(long threadId, boolean clearHistory, String uniqueId, String mTypeCode, String token) {
         RemoveParticipant removeParticipant = new RemoveParticipant();
 
+        JsonObject content = new JsonObject();
+        content.addProperty("clearHistory", clearHistory);
+
         removeParticipant.setSubjectId(threadId);
         removeParticipant.setToken(token);
         removeParticipant.setTokenIssuer("1");
         removeParticipant.setUniqueId(uniqueId);
+        removeParticipant.setContent(content.toString());
         removeParticipant.setType(ChatMessageType.Constants.LEAVE_THREAD);
 
         JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(removeParticipant);
@@ -529,7 +533,7 @@ public class ThreadManager {
             jsonObject.addProperty("typeCode", mTypeCode);
         }
 
-        jsonObject.addProperty("clearHistory", clearHistory);
+
 
 
         return jsonObject.toString();
