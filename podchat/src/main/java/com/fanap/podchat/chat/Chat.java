@@ -48,6 +48,7 @@ import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
+import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
@@ -60,6 +61,7 @@ import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.bot.BotManager;
@@ -949,10 +951,16 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
 
+            case Constants.MUTE_CALL_PARTICIPANT:{
+                handleOnCallParticipantMuted(callback,chatMessage);
+            }
+            case Constants.UN_MUTE_CALL_PARTICIPANT: {
+                handleOnCallParticipantUnMuted(callback, chatMessage);
+            }
 
             case Constants.CALL_CREATED:
                 if (callback != null)
-                    handleOnCallCreated( chatMessage);
+                    handleOnCallCreated(chatMessage);
                 break;
 
 
@@ -1212,6 +1220,78 @@ public class Chat extends AsyncAdapter {
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleOnCallParticipantUnMuted(Callback callback, ChatMessage chatMessage) {
+
+        showLog("RECEIVE_UN_MUTE_CALL_PARTICIPANT",chatMessage.getContent());
+
+        ChatResponse<MuteUnMuteCallParticipantResult> response =
+                CallManager.handleMuteUnMuteCallParticipant(chatMessage);
+
+
+        if(callback!=null){
+
+            //audio call unmuted onAudioCallMuted
+            showLog("RECEIVE_AUDIO_CALL_UN_MUTED");
+            messageCallbacks.remove(callback.getUniqueId());
+            listenerManager.callOnAudioCallUnMuted(response);
+
+        }else {
+
+            if(!response.isHasError()){
+
+                if(CallManager.isUserContains(response.getResult().getCallParticipants())){
+                    //user is unmuted onMutedByAdmin
+                    showLog("RECEIVE_UN_MUTED_BY_ADMIN");
+                    audioCallManager.switchAudioMuteState(false);
+                    listenerManager.callOnUnMutedByAdmin(response);
+
+                }else {
+                    //call participant unmuted onCallParticipantUnMuted
+                    showLog("RECEIVE_CALL_PARTICIPANT_UN_MUTED");
+                    listenerManager.callOnCallParticipantUnMuted(response);
+                }
+            }
+
+        }
+
+    }
+
+    private void handleOnCallParticipantMuted(Callback callback, ChatMessage chatMessage) {
+
+        showLog("RECEIVE_MUTE_CALL_PARTICIPANT",chatMessage.getContent());
+
+        ChatResponse<MuteUnMuteCallParticipantResult> response =
+                CallManager.handleMuteUnMuteCallParticipant(chatMessage);
+
+        if(callback!=null){
+
+            //audio call muted onAudioCallMuted
+            showLog("RECEIVE_AUDIO_CALL_MUTED");
+            messageCallbacks.remove(callback.getUniqueId());
+            listenerManager.callOnAudioCallMuted(response);
+
+        }else {
+
+            if(!response.isHasError()){
+
+                if(CallManager.isUserContains(response.getResult().getCallParticipants())){
+                    //user is muted onMutedByAdmin
+                    showLog("RECEIVE_MUTED_BY_ADMIN");
+                    audioCallManager.switchAudioMuteState(true);
+                    listenerManager.callOnMutedByAdmin(response);
+
+                }else {
+                    //call participant muted onCallParticipantMuted
+                    showLog("RECEIVE_CALL_PARTICIPANT_MUTED");
+                    listenerManager.callOnCallParticipantMuted(response);
+                }
+            }
+
+        }
+
+
     }
 
     private void handleOnCallAcceptedFromAnotherDevice() {
@@ -2188,15 +2268,77 @@ public class Chat extends AsyncAdapter {
         });
     }
 
+
     public void switchCallSpeakerState(boolean isSpeakerOn) {
 
         audioCallManager.switchAudioSpeakerState(isSpeakerOn);
     }
 
+    @Deprecated
     public void switchCallMuteState(boolean isMute) {
 
         audioCallManager.switchAudioMuteState(isMute);
 
+    }
+
+
+    public String switchCallMuteState(boolean isMute, long callId) {
+
+        audioCallManager.switchAudioMuteState(isMute);
+
+        String uniqueId = generateUniqueId();
+
+        try {
+            if (chatReady) {
+                String message = CallManager.createMuteOrUnMuteCallMessage(isMute, callId, uniqueId);
+                setCallBacks(false, false, false, true, isMute ? Constants.MUTE_CALL_PARTICIPANT : Constants.UN_MUTE_CALL_PARTICIPANT, null, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, isMute ? "SEND_MUTE_CALL" : "SEND_UN_MUTE_CALL");
+            } else {
+                onChatNotReady(uniqueId);
+            }
+        } catch (PodChatException e) {
+            captureError(e);
+        }
+
+        return uniqueId;
+    }
+
+    public String requestMuteCallParticipant(MuteUnMuteCallParticipantRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        try {
+            if (chatReady) {
+                String message = CallManager.createMuteCallParticipantMessage(request, uniqueId);
+                setCallBacks(false, false, false, true, Constants.MUTE_CALL_PARTICIPANT, null, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_MUTE_CALL_PARTICIPANT");
+            } else {
+                onChatNotReady(uniqueId);
+            }
+        } catch (PodChatException e) {
+            captureError(e);
+        }
+
+        return uniqueId;
+    }
+
+    public String requestUnMuteCallParticipant(MuteUnMuteCallParticipantRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        try {
+            if (chatReady) {
+                String message = CallManager.createUnMuteCallParticipantMessage(request, uniqueId);
+                setCallBacks(false, false, false, true, Constants.UN_MUTE_CALL_PARTICIPANT, null, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_UN_MUTE_CALL_PARTICIPANT");
+            } else {
+                onChatNotReady(uniqueId);
+            }
+        } catch (PodChatException e) {
+            captureError(e);
+        }
+
+        return uniqueId;
     }
 
 

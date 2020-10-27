@@ -9,6 +9,7 @@ public class AcceptCallRequest extends CallRequest {
     private long callId;
     private long creatorId;
     private List<Invitee> invitees;
+    private boolean mute;
 
 
     AcceptCallRequest(Builder builder) {
@@ -16,6 +17,7 @@ public class AcceptCallRequest extends CallRequest {
         this.callId = builder.callId;
         this.creatorId = builder.creatorId;
         this.invitees = builder.invitees;
+        this.mute = builder.mute;
     }
 
     @Override
@@ -31,12 +33,16 @@ public class AcceptCallRequest extends CallRequest {
         return creatorId;
     }
 
+    public boolean isMute() {
+        return mute;
+    }
 
     public static class Builder extends CallRequest.Builder {
 
         private long callId;
         private long creatorId;
         private List<Invitee> invitees;
+        private boolean mute;
 
 
         public Builder(List<Invitee> invitees, int callType, long callId) {
@@ -64,6 +70,11 @@ public class AcceptCallRequest extends CallRequest {
         @Override
         public Builder setCallType(int callType) {
             super.setCallType(callType);
+            return this;
+        }
+
+        public Builder mute() {
+            this.mute = true;
             return this;
         }
 

@@ -11,18 +11,28 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
-
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.CallType;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
+import com.fanap.podchat.call.request_model.AcceptCallRequest;
+import com.fanap.podchat.call.request_model.CallRequest;
+import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallReconnectResult;
+import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
@@ -33,18 +43,11 @@ import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
-import com.fanap.podchat.call.result_model.GetCallHistoryResult;
-import com.fanap.podchat.call.request_model.AcceptCallRequest;
-import com.fanap.podchat.call.request_model.CallRequest;
-import com.fanap.podchat.call.CallType;
-import com.fanap.podchat.call.request_model.EndCallRequest;
-import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
-import com.fanap.podchat.call.request_model.RejectCallRequest;
-import com.fanap.podchat.call.result_model.CallReconnectResult;
-import com.fanap.podchat.call.result_model.CallRequestResult;
-import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -62,8 +65,8 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -85,7 +88,6 @@ import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultStaticMapImage;
@@ -95,38 +97,36 @@ import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
-import com.fanap.podchat.requestobject.RequestBlockList;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestEditMessage;
-import com.fanap.podchat.requestobject.RequestGetContact;
-import com.fanap.podchat.requestobject.RequestGetFile;
-import com.fanap.podchat.requestobject.RequestGetImage;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
+import com.fanap.podchat.requestobject.RequestEditMessage;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
+import com.fanap.podchat.requestobject.RequestGetContact;
+import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestGetImage;
 import com.fanap.podchat.requestobject.RequestGetLastSeens;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
@@ -150,11 +150,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.example.chat.application.chatexample.CallActivity.POORIA_CID;
-import static com.example.chat.application.chatexample.CallActivity.Pooria_ID;
+import static com.example.chat.application.chatexample.CallActivity.Farhad_ID;
 import static com.example.chat.application.chatexample.CallActivity.MASOUD_CID;
 import static com.example.chat.application.chatexample.CallActivity.Masoud_ID;
-import static com.example.chat.application.chatexample.CallActivity.Farhad_ID;
+import static com.example.chat.application.chatexample.CallActivity.POORIA_CID;
+import static com.example.chat.application.chatexample.CallActivity.Pooria_ID;
 
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
@@ -1042,7 +1042,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
 
-        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId,18477)
+        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId, 18477)
                 .build();
 //        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
 //                .build();
@@ -2154,4 +2154,43 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onCallCreated(ChatResponse<CallCreatedResult> response) {
         view.onCallCreated(response.getResult().getCallId());
     }
+
+
+    @Override
+    public void onAudioCallUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        view.audioCallUnMuted();
+    }
+
+    @Override
+    public void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (CallParticipantVO participant :
+                response.getResult().getCallParticipants()) {
+            view.callParticipantUnMuted(participant);
+        }
+    }
+
+    @Override
+    public void onUnMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        view.audioCallUnMutedByAdmin();
+    }
+
+    @Override
+    public void onAudioCallMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        view.audioCallMuted();
+    }
+
+    @Override
+    public void onMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        view.audioCallMutedByAdmin();
+    }
+
+    @Override
+    public void onCallParticipantMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (CallParticipantVO participant :
+                response.getResult().getCallParticipants()) {
+            view.callParticipantMuted(participant);
+        }
+    }
+
+
 }

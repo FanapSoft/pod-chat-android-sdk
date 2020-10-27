@@ -2,6 +2,7 @@ package com.fanap.podchat.chat;
 
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
+import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -329,4 +330,17 @@ public interface ChatListener {
     default void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response){}
 
     default void onCallCreated(ChatResponse<CallCreatedResult> response){}
+
+    default void onAudioCallMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
+
+    default void onAudioCallUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
+
+    default void onMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response){}
+
+    default void onUnMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response){}
+
+    default void onCallParticipantMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
+
+    default void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
+
 }

@@ -93,4 +93,11 @@ public class ChatConstant {
     public static final String ERROR_INVALID_THREAD_ID = "Invalid thread id";
     public static final String ERROR_ASYNC_EXCEPTION = "Async Error";
 
+
+    /*
+    Call
+     */
+    public static final String MUTE_USER_LIST_IS_EMPTY = "user list for mute/unmute is empty";
+
+
 }

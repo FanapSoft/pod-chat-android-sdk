@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
+import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -1149,7 +1150,6 @@ public class ChatListenerManager {
 
     public void callOnCallCreated(ChatResponse<CallCreatedResult> response) {
 
-
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onCallCreated(response);
@@ -1158,8 +1158,70 @@ public class ChatListenerManager {
             }
         }
 
+    }
+
+    public void callOnAudioCallMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAudioCallMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
 
 
+    }
+
+    public void callOnMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onMutedByAdmin(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCallParticipantMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAudioCallUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAudioCallUnMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callOnUnMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUnMutedByAdmin(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantUnMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
     }
 
 

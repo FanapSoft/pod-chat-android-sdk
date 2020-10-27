@@ -11,6 +11,7 @@ import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
+import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
@@ -19,10 +20,11 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
-import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.App;
@@ -313,6 +315,109 @@ public class CallManager {
 
     }
 
+
+    public static String createMuteOrUnMuteCallMessage(boolean isMute, long callId, String uniqueId) throws PodChatException {
+
+
+        ArrayList<Long> ids = new ArrayList<>();
+        ids.add(CoreConfig.userId);
+
+        MuteUnMuteCallParticipantRequest request = new MuteUnMuteCallParticipantRequest.Builder(callId, ids).build();
+
+        if (isMute)
+            return createMuteCallParticipantMessage(request, uniqueId);
+        else
+            return createUnMuteCallParticipantMessage(request, uniqueId);
+
+
+    }
+
+
+    public static String createMuteCallParticipantMessage(MuteUnMuteCallParticipantRequest request, String uniqueId) throws PodChatException {
+
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID, ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+
+        if (Util.isNullOrEmpty(request.getParticipantsIds()))
+            throw new PodChatException(ChatConstant.MUTE_USER_LIST_IS_EMPTY, ChatConstant.ERROR_CODE_INVALID_DATA);
+
+
+        String content = App.getGson().toJson(request.getParticipantsIds());
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content);
+        message.setType(ChatMessageType.Constants.MUTE_CALL_PARTICIPANT);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+    }
+
+    public static String createUnMuteCallParticipantMessage(MuteUnMuteCallParticipantRequest request, String uniqueId) throws PodChatException {
+
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID, ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+
+        if (Util.isNullOrEmpty(request.getParticipantsIds()))
+            throw new PodChatException(ChatConstant.MUTE_USER_LIST_IS_EMPTY, ChatConstant.ERROR_CODE_INVALID_DATA);
+
+
+        String content = App.getGson().toJson(request.getParticipantsIds());
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content);
+        message.setType(ChatMessageType.Constants.UN_MUTE_CALL_PARTICIPANT);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+    }
+
+
+    public static ChatResponse<MuteUnMuteCallParticipantResult> handleMuteUnMuteCallParticipant(ChatMessage chatMessage) {
+
+
+        ChatResponse<MuteUnMuteCallParticipantResult> response = new ChatResponse<>();
+
+        try {
+            ArrayList<CallParticipantVO> mutedParticipants = App.getGson().fromJson(chatMessage.getContent(),
+                    new TypeToken<ArrayList<CallParticipantVO>>() {
+                    }.getType());
+
+            MuteUnMuteCallParticipantResult result = new MuteUnMuteCallParticipantResult(mutedParticipants);
+            result.setCallId(chatMessage.getSubjectId());
+            response.setResult(result);
+            response.setCache(false);
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setHasError(false);
+            return response;
+
+
+        } catch (Exception e) {
+            response.setCache(false);
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setHasError(true);
+            response.setErrorMessage(e.getMessage());
+            response.setErrorCode(ChatConstant.ERROR_CODE_INVALID_DATA);
+            return response;
+        }
+
+
+    }
+
+
     public static String createEndCallRequestMessage(EndCallRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
@@ -483,7 +588,7 @@ public class CallManager {
         result.setCallParticipants(participantsLeft);
 
         if (Util.isNotNullOrEmpty(participantsLeft))
-            result.setUserRemoved(isUserRemoved(participantsLeft));
+            result.setUserRemoved(isUserContains(participantsLeft));
 
 
         response.setResult(result);
@@ -494,7 +599,7 @@ public class CallManager {
 
     }
 
-    public static boolean isUserRemoved(List<CallParticipantVO> removedParticipants) {
+    public static boolean isUserContains(List<CallParticipantVO> removedParticipants) {
 
         return CoreConfig.userId != null && (CoreConfig.userId > 0 && isUserInRemoveList(removedParticipants));
     }
@@ -698,4 +803,6 @@ public class CallManager {
 
 
     }
+
+
 }

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podchat.call.model.CallInfo;
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
@@ -375,10 +376,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         isMute = !isMute;
 
+        updateMuteButton(isMute);
+    }
+
+    private void updateMuteButton(boolean isMute) {
+
         if (isMute) {
-            v.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_on));
+            buttonMute.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_on));
         } else {
-            v.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_off));
+            buttonMute.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_off));
         }
     }
 
@@ -864,8 +870,52 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         updateStatus("Call with id " + threadId + " was created");
     }
 
+
+    @Override
+    public void audioCallMuted() {
+        updateMuteButton(true);
+    }
+
+    @Override
+    public void audioCallUnMuted() {
+        updateMuteButton(false);
+    }
+
+    @Override
+    public void callParticipantMuted(CallParticipantVO participant) {
+        showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " is muted now!");
+    }
+
+    @Override
+    public void callParticipantUnMuted(CallParticipantVO participant) {
+        showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " Is unmuted now!");
+
+    }
+
+    @Override
+    public void audioCallMutedByAdmin() {
+        vibrate();
+        showToast("Call creator muted you!");
+        updateMuteButton(true);
+    }
+
+    @Override
+    public void audioCallUnMutedByAdmin() {
+        vibrate();
+        showToast("Call creator unmuted you!");
+        updateMuteButton(false);
+    }
+
+
     @Override
     public void updateStatus(String message) {
         runOnUiThread(() -> tvStatus.setText(message));
     }
+
+    private void showToast(String text) {
+        runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG)
+                .show());
+    }
+
+
 }
