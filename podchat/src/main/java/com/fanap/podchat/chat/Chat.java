@@ -42,7 +42,6 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.CallManager;
 import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
-import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
@@ -1021,11 +1020,11 @@ public class Chat extends AsyncAdapter {
                 break;
             //todo: handle multiple device start call
             case Constants.START_CALL:
-                handleOnCallStarted(chatMessage);
+                handleOnCallStarted(callback,chatMessage);
 //                if (callback != null) {
 //                    handleOnCallStarted(callback, chatMessage);
 //                } else
-//                    handleOnCallAcceptedFromAnotherDevice();
+//                    handleOnCallAcceptedFromAnotherDevice(chatMessage);
                 break;
             case Constants.END_CALL:
                 handleOnVoiceCallEnded(chatMessage);
@@ -1308,9 +1307,12 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void handleOnCallAcceptedFromAnotherDevice() {
+    private void handleOnCallAcceptedFromAnotherDevice(ChatMessage chatMessage) {
 
-        //todo
+        showLog("RECEIVE_START_CALL_FROM_ANOTHER_DEVICE",gson.toJson(chatMessage));
+
+        listenerManager.callOnAnotherDeviceAcceptedCall();
+
 
     }
 
@@ -1609,7 +1611,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void handleOnCallStarted(ChatMessage chatMessage) {
+    private void handleOnCallStarted(Callback callback, ChatMessage chatMessage) {
 
         showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
 
@@ -1641,6 +1643,7 @@ public class Chat extends AsyncAdapter {
 
         getCallParticipants(new GetCallParticipantsRequest.Builder().setCallId(info.getSubjectId()).build());
 
+        messageCallbacks.remove(callback.getUniqueId());
 
         listenerManager.callOnCallVoiceCallStarted(response);
 

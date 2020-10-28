@@ -268,15 +268,7 @@ public class CallManager {
 
     public static String createAcceptCallRequest(AcceptCallRequest request, String uniqueId) {
 
-        CreateCallVO createCallVO = new CreateCallVO();
-        createCallVO.setCreatorId(request.getCreatorId());
-        createCallVO.setInvitees(request.getInvitees());
-        createCallVO.setType(request.getCallType());
-
-        JsonObject j = (JsonObject) App.getGson().toJsonTree(createCallVO);
-
         AsyncMessage message = new AsyncMessage();
-        message.setContent(j.toString());
         message.setType(ChatMessageType.Constants.ACCEPT_CALL);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -293,15 +285,7 @@ public class CallManager {
 
     public static String createRejectCallRequest(RejectCallRequest request, String uniqueId) {
 
-        CreateCallVO createCallVO = new CreateCallVO();
-        createCallVO.setCreatorId(request.getCreatorId());
-        createCallVO.setInvitees(request.getInvitees());
-        createCallVO.setType(request.getCallType());
-
-        JsonObject j = (JsonObject) App.getGson().toJsonTree(createCallVO);
-
         AsyncMessage message = new AsyncMessage();
-        message.setContent(j.toString());
         message.setType(ChatMessageType.Constants.REJECT_CALL);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -310,10 +294,7 @@ public class CallManager {
 
         JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
 
-
         return a.toString();
-
-
     }
 
 

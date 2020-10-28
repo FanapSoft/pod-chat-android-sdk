@@ -1236,6 +1236,16 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnAnotherDeviceAcceptedCall() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAnotherDeviceAcceptedCall();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
 //

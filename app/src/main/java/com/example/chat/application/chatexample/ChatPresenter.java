@@ -350,11 +350,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void acceptIncomingCall() {
 
         AcceptCallRequest request = new AcceptCallRequest.Builder(
-                callVO.getInvitees(),
-                callVO.getType(),
                 callVO.getCallId())
-                .setCreatorId(callVO.getCreatorId())
-                .setInvitees(callVO.getInvitees())
 //                .mute()
                 .build();
 
@@ -368,11 +364,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void rejectIncomingCall() {
 
         RejectCallRequest request = new RejectCallRequest.Builder(
-                callVO.getInvitees(),
-                callVO.getType(),
                 callVO.getCallId())
-                .setCreatorId(callVO.getCreatorId())
-                .setInvitees(callVO.getInvitees())
                 .build();
 
         String uniqueId = chat.rejectVoiceCall(request);
@@ -1810,8 +1802,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 Log.e(TAG, "REQUEST Cancel CALL FROM CLIENT call response not null");
 
                 RejectCallRequest endCallRequest = new RejectCallRequest.Builder(
-                        callVO.getInvitees(),
-                        callVO.getType(),
                         callVO.getCallId())
                         .build();
 
@@ -2220,5 +2210,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onCallParticipantCanceledCall(ChatResponse<CallCancelResult> response) {
         view.callParticipantCanceledCall(response.getResult().getCallParticipant().getParticipantVO().getFirstName()
         + " " + response.getResult().getCallParticipant().getParticipantVO().getLastName());
+    }
+
+    @Override
+    public void onAnotherDeviceAcceptedCall() {
+        view.hideCallRequest();
     }
 }

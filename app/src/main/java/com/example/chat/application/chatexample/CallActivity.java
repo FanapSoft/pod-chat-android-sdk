@@ -684,6 +684,20 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         });
     }
 
+    private void hideInCallView() {
+        runOnUiThread(() -> {
+            inCallView.setVisibility(View.GONE);
+            callRequestView.setVisibility(View.INVISIBLE);
+            buttonCall.setVisibility(View.VISIBLE);
+            buttonTestCall.setVisibility(View.INVISIBLE);
+
+            buttonConnectSandBox.setVisibility(View.VISIBLE);
+            buttonStartSandboxCall.setVisibility(View.VISIBLE);
+
+            isInCall = false;
+        });
+    }
+
     private void showRequestCallView() {
         runOnUiThread(() -> {
             inCallView.setVisibility(View.VISIBLE);
@@ -693,6 +707,18 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             buttonConnectSandBox.setVisibility(View.INVISIBLE);
             buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+        });
+    }
+
+    private void hideRequestCallView() {
+        runOnUiThread(() -> {
+            inCallView.setVisibility(View.GONE);
+            callRequestView.setVisibility(View.GONE);
+            buttonCall.setVisibility(View.VISIBLE);
+            buttonTestCall.setVisibility(View.INVISIBLE);
+
+            buttonConnectSandBox.setVisibility(View.VISIBLE);
+            buttonStartSandboxCall.setVisibility(View.VISIBLE);
         });
     }
 
@@ -922,6 +948,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void callParticipantCanceledCall(String name) {
         showToast(name + " " + " canceled the call!");
+    }
+
+    @Override
+    public void hideCallRequest() {
+
+        hideRequestCallView();
+        hideInCallView();
+        updateStatus("You've accepted call with another device");
+
     }
 
     @Override

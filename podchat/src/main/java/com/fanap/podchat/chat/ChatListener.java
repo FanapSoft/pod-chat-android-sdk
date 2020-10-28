@@ -345,4 +345,6 @@ public interface ChatListener {
     default void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
 
     default void onCallParticipantCanceledCall(ChatResponse<CallCancelResult> response){}
+
+    default void onAnotherDeviceAcceptedCall(){}
 }

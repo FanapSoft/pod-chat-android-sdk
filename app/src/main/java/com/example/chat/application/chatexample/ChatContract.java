@@ -270,6 +270,7 @@ public interface ChatContract {
 
         default void callParticipantCanceledCall(String name){}
 
+        default void hideCallRequest(){}
     }
 
     interface presenter {
