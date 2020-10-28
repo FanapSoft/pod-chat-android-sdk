@@ -1085,8 +1085,7 @@ public class Chat extends AsyncAdapter {
             case Constants.UPDATE_THREAD_INFO:
                 handleUpdateThreadInfo(chatMessage, messageUniqueId, callback);
                 break;
-
-
+                
             case Constants.BLOCK:
                 handleOutPutBlock(chatMessage, messageUniqueId);
                 break;
