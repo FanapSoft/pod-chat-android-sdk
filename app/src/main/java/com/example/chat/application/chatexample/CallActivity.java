@@ -182,10 +182,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             if (chatReady) {
                 if (checkBoxGroupCall.isChecked()) {
                     presenter.requestGroupCall(checkboxFifiPartner.isChecked(), checkboxZiziPartner.isChecked(), checkboxJijiPartner.isChecked());
-                    tvStatus.setText("Starting Group Call");
+                    updateStatus("Starting Group Call");
                 } else {
                     presenter.requestCall(partnerId, checkBoxSSL.isChecked());
-                    tvStatus.setText(String.format("Calling %s", presenter.getNameById(partnerId)));
+                    updateStatus(String.format("Calling %s", presenter.getNameById(partnerId)));
                 }
             } else
                 Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
@@ -258,7 +258,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonEndCall.setOnClickListener(v -> {
 
-            onCallEnded();
+
 
             if (isTestMode) {
 
@@ -274,6 +274,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             } else {
                 presenter.endRunningCall(isInCall);
             }
+            onCallEnded();
 
         });
 
@@ -591,8 +592,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         Log.e(TAG, "STATE: " + state);
 
-        runOnUiThread(() -> tvStatus.setText(state));
-
         if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
 
             chatReady = true;
@@ -630,7 +629,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             buttonTestCall.setVisibility(View.INVISIBLE);
             buttonConnectSandBox.setVisibility(View.INVISIBLE);
             buttonStartSandboxCall.setVisibility(View.INVISIBLE);
-            tvCallerName.setText(callerName);
+            tvCallerName.setText(" " + callerName);
         });
 
     }
@@ -846,7 +845,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         long id = outPutUserInfo.getResult().getUser().getId();
 
-        etNumberOrOtp.setText("Your ID is: " + id);
+       runOnUiThread(()-> etNumberOrOtp.setText("Your ID is: " + id));
 
 
     }
@@ -927,7 +926,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void updateStatus(String message) {
-        runOnUiThread(() -> tvStatus.setText(message));
+        runOnUiThread(() -> {
+            try {
+                tvStatus.setText(" " + message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void showToast(String text) {

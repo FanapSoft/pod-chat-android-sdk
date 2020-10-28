@@ -1632,9 +1632,10 @@ public class Chat extends AsyncAdapter {
             @Override
             public void onEndCallRequested() {
 
+                endAudioCall(CallManager.createEndCallRequest(info.getSubjectId()));
+
                 listenerManager.callOnEndCallRequestFromNotification();
 
-                endAudioCall(CallManager.createEndCallRequest(info.getSubjectId()));
             }
         });
 

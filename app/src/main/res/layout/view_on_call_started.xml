@@ -8,7 +8,7 @@
     android:background="@color/colorPrimary"
     android:visibility="gone"
     android:keepScreenOn="true"
-    tools:visibility="invisible">
+    tools:visibility="gone">
 
 
     <LinearLayout

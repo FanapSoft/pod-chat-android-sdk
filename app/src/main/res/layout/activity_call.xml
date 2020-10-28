@@ -22,7 +22,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
 
-            <EditText
+            <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/etOtpNumber"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/etOtpNumber" />
 
 
-            <EditText
+            <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/etSandBoxPartnerId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/radioPartner">
 
 
-                <EditText
+                <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/etGroupId"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -169,7 +169,7 @@
                     android:textColor="@color/white"
                     android:textColorHint="@color/colorPrimary" />
 
-                <EditText
+                <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/etSender"
 
                     android:layout_width="0dp"
@@ -181,7 +181,7 @@
                     android:textColor="@color/white"
                     android:textColorHint="@color/colorPrimary" />
 
-                <EditText
+                <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/etReceiver"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
