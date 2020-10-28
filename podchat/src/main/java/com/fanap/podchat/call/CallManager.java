@@ -14,6 +14,7 @@ import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
@@ -455,12 +456,8 @@ public class CallManager {
 
     public static ChatResponse<CallRequestResult> handleOnCallRequest(ChatMessage chatMessage) {
 
-        Log.d(TAG, "Chat Message: " + chatMessage.getContent());
-
-        CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
-
-        CallRequestResult callRequestResult = new CallRequestResult(createCallVO);
-
+        CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
+        callRequestResult.setThreadId(chatMessage.getSubjectId());
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
@@ -473,12 +470,8 @@ public class CallManager {
 
     public static ChatResponse<CallRequestResult> handleOnGroupCallRequest(ChatMessage chatMessage) {
 
-        Log.d(TAG, "Chat Message: " + chatMessage.getContent());
-
-        CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
-
-        CallRequestResult callRequestResult = new CallRequestResult(createCallVO);
-
+        CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
+        callRequestResult.setThreadId(chatMessage.getSubjectId());
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
@@ -491,10 +484,8 @@ public class CallManager {
 
     public static ChatResponse<CallRequestResult> handleOnRejectCallRequest(ChatMessage chatMessage) {
 
-        CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
-
-        CallRequestResult callRequestResult = new CallRequestResult(createCallVO);
-
+        CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
+        callRequestResult.setThreadId(chatMessage.getSubjectId());
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
@@ -785,6 +776,7 @@ public class CallManager {
 
         try {
             CallCreatedResult callCreatedResult = App.getGson().fromJson(chatMessage.getContent(), CallCreatedResult.class);
+            callCreatedResult.setThreadId(chatMessage.getSubjectId());
             response.setResult(callCreatedResult);
             response.setUniqueId(chatMessage.getUniqueId());
             response.setHasError(false);
@@ -805,4 +797,33 @@ public class CallManager {
     }
 
 
+    public static ChatResponse<CallCancelResult> handleOnCallCanceled(ChatMessage chatMessage) {
+
+        ChatResponse<CallCancelResult> response = new ChatResponse<>();
+
+        try {
+            CallParticipantVO participantVO =
+                    App.getGson().fromJson(chatMessage.getContent(),CallParticipantVO.class);
+
+            CallCancelResult result = new CallCancelResult(participantVO);
+
+            response.setResult(result);
+            response.setHasError(false);
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setCache(false);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setCache(false);
+            response.setHasError(true);
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setErrorCode(ChatConstant.ERROR_CODE_INVALID_DATA);
+            response.setErrorMessage(ChatConstant.ERROR_INVALID_DATA);
+            return response;
+        }
+
+
+    }
 }

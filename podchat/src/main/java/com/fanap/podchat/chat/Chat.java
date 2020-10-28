@@ -42,6 +42,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.CallManager;
 import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
@@ -51,6 +52,7 @@ import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
@@ -1014,6 +1016,9 @@ public class Chat extends AsyncAdapter {
             case Constants.REJECT_CALL:
                 handleOnCallRequestRejected(chatMessage);
                 break;
+            case Constants.CANCEL_GROUP_CALL:
+                handleOnCallParticipantCanceledCall(chatMessage);
+                break;
             //todo: handle multiple device start call
             case Constants.START_CALL:
                 handleOnCallStarted(chatMessage);
@@ -1219,6 +1224,16 @@ public class Chat extends AsyncAdapter {
                 handleSystemMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleOnCallParticipantCanceledCall(ChatMessage chatMessage) {
+
+        showLog("RECEIVE_CANCEL_GROUP_CALL",gson.toJson(chatMessage));
+
+        ChatResponse<CallCancelResult> response = CallManager.handleOnCallCanceled(chatMessage);
+
+        listenerManager.callOnCallCanceled(response);
+
     }
 
     private void handleOnCallParticipantUnMuted(Callback callback, ChatMessage chatMessage) {

@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
@@ -1222,6 +1223,17 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+    }
+
+    public void callOnCallCanceled(ChatResponse<CallCancelResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantCanceledCall(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
     }
 
 

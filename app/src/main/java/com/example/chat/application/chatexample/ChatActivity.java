@@ -2303,8 +2303,9 @@ public class ChatActivity extends AppCompatActivity
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
         invite.add(new Invitee("63270", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
 //                                invite.add(new Invitee(121, 5)); // user zizi

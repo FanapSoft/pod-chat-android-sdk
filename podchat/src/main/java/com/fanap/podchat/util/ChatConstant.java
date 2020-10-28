@@ -65,6 +65,7 @@ public class ChatConstant {
     public static final String ERROR_WRITING_FILE = "Error in writing file to disk";
     public static final String ERROR_INVALID_TOKEN = "Invalid Token!";
     public static final String ERROR_INVALID_URI = "Invalid Uri!";
+    public static final String ERROR_INVALID_DATA = "Invalid Data!";
     public static final String ERROR_INVALID_FILE_URI = "Invalid File Uri!";
     public static final String ERROR_UNKNOWN_EXCEPTION = "Unknown Exception";
     public static final String ERROR_CHECK_URL = "Url must end in /";

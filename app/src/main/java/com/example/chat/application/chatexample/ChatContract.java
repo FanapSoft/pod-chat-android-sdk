@@ -268,7 +268,7 @@ public interface ChatContract {
         default void audioCallUnMutedByAdmin(){}
 
 
-
+        default void callParticipantCanceledCall(String name){}
 
     }
 
@@ -536,7 +536,7 @@ public interface ChatContract {
 
         void testCall();
 
-        void endRunningCall();
+        void endRunningCall(boolean isInCall);
 
         void getCallHistory();
 

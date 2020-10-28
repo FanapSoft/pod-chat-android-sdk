@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
@@ -343,4 +344,5 @@ public interface ChatListener {
 
     default void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
 
+    default void onCallParticipantCanceledCall(ChatResponse<CallCancelResult> response){}
 }

@@ -124,9 +124,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             checkboxZiziPartner,
             checkboxJijiPartner,
             checkboxFifiPartner,
-            checkboxAddZizi,
-            checkboxAddJiji,
-            checkboxAddFifi;
+            checkboxAddFarhad,
+            checkboxAddMasoud,
+            checkboxAddPooria;
 
 //    CheckBox checkBoxViewSandBox, checkBoxViewIntegaration;
 //    Group groupSandBoxViews, groupIntegartionViews;
@@ -187,7 +187,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     presenter.requestCall(partnerId, checkBoxSSL.isChecked());
                     tvStatus.setText(String.format("Calling %s", presenter.getNameById(partnerId)));
                 }
-
             } else
                 Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
 
@@ -273,7 +272,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 isTestMode = false;
 
             } else {
-                presenter.endRunningCall();
+                presenter.endRunningCall(isInCall);
             }
 
         });
@@ -322,12 +321,12 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         {
 
             presenter.addCallParticipant(etNewParticipantToAdd.getText().toString(),
-                    checkboxAddFifi.isChecked(),
-                    checkboxAddJiji.isChecked(),
-                    checkboxAddZizi.isChecked());
+                    checkboxAddPooria.isChecked(),
+                    checkboxAddMasoud.isChecked(),
+                    checkboxAddFarhad.isChecked());
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(checkboxAddFifi.isChecked(), checkboxAddJiji.isChecked(), checkboxAddZizi.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
@@ -558,9 +557,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         checkboxFifiPartner = findViewById(R.id.checkboxFifiPartner);
         checkboxJijiPartner = findViewById(R.id.checkboxJijiPartner);
 
-        checkboxAddZizi = findViewById(R.id.checkboxAddZizi);
-        checkboxAddFifi = findViewById(R.id.checkboxAddFifi);
-        checkboxAddJiji = findViewById(R.id.checkboxAddJiji);
+        checkboxAddFarhad = findViewById(R.id.checkboxAddFarhad);
+        checkboxAddPooria = findViewById(R.id.checkboxAddPooria);
+        checkboxAddMasoud = findViewById(R.id.checkboxAddMasoud);
 
         buttonShareLog = findViewById(R.id.btnShareLogs);
 
@@ -673,15 +672,29 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
     private void showInCallView() {
-        inCallView.setVisibility(View.VISIBLE);
-        callRequestView.setVisibility(View.INVISIBLE);
-        buttonCall.setVisibility(View.INVISIBLE);
-        buttonTestCall.setVisibility(View.INVISIBLE);
+        runOnUiThread(() -> {
+            inCallView.setVisibility(View.VISIBLE);
+            callRequestView.setVisibility(View.INVISIBLE);
+            buttonCall.setVisibility(View.INVISIBLE);
+            buttonTestCall.setVisibility(View.INVISIBLE);
 
-        buttonConnectSandBox.setVisibility(View.INVISIBLE);
-        buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+            buttonConnectSandBox.setVisibility(View.INVISIBLE);
+            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
 
-        isInCall = true;
+            isInCall = true;
+        });
+    }
+
+    private void showRequestCallView() {
+        runOnUiThread(() -> {
+            inCallView.setVisibility(View.VISIBLE);
+            callRequestView.setVisibility(View.INVISIBLE);
+            buttonCall.setVisibility(View.INVISIBLE);
+            buttonTestCall.setVisibility(View.INVISIBLE);
+
+            buttonConnectSandBox.setVisibility(View.INVISIBLE);
+            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+        });
     }
 
     @Override
@@ -868,6 +881,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onCallCreated(long threadId) {
         updateStatus("Call with id " + threadId + " was created");
+        showRequestCallView();
     }
 
 
@@ -906,6 +920,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         updateMuteButton(false);
     }
 
+    @Override
+    public void callParticipantCanceledCall(String name) {
+        showToast(name + " " + " canceled the call!");
+    }
 
     @Override
     public void updateStatus(String message) {

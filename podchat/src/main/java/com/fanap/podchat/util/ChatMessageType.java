@@ -108,6 +108,7 @@ public class ChatMessageType {
             Constants.GET_ACTIVE_CALL_PARTICIPANTS,
             Constants.MUTE_CALL_PARTICIPANT,
             Constants.UN_MUTE_CALL_PARTICIPANT,
+            Constants.CANCEL_GROUP_CALL,
 
 
     })
@@ -203,6 +204,7 @@ public class ChatMessageType {
         int TERMINATE_CALL = 96;
         int MUTE_CALL_PARTICIPANT = 97;
         int UN_MUTE_CALL_PARTICIPANT = 98;
+        int CANCEL_GROUP_CALL = 99;
 
 
         int CALL_CREATED = 111;
