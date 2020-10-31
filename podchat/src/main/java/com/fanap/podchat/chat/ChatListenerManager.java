@@ -1004,7 +1004,7 @@ public class ChatListenerManager {
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onGetCallHistory(response);
+                listener.onReceiveCallHistory(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

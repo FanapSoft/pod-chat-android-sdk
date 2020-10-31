@@ -140,7 +140,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private int partnerId = Masoud_ID;
     private boolean chatReady;
     private boolean isTestMode = false;
-    private boolean isInCall = false;
+//    private boolean isInCall = false;
 
 
     @Override
@@ -272,7 +272,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 isTestMode = false;
 
             } else {
-                presenter.endRunningCall(isInCall);
+                presenter.endRunningCall();
             }
             onCallEnded();
 
@@ -295,15 +295,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonMute.setOnClickListener(v -> {
 
-
             vibrate();
 
             scaleIt(v);
 
-            presenter.switchMute();
-
             toggleMute((ImageButton) v);
-
         });
 
         buttonSpeaker.setOnClickListener(v -> {
@@ -679,8 +675,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             buttonConnectSandBox.setVisibility(View.INVISIBLE);
             buttonStartSandboxCall.setVisibility(View.INVISIBLE);
-
-            isInCall = true;
         });
     }
 
@@ -693,8 +687,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             buttonConnectSandBox.setVisibility(View.VISIBLE);
             buttonStartSandboxCall.setVisibility(View.VISIBLE);
-
-            isInCall = false;
         });
     }
 
@@ -731,8 +723,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
     private void onCallEnded() {
-
-        isInCall = false;
 
         setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 

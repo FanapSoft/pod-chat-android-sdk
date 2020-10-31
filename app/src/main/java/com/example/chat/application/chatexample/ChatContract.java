@@ -537,7 +537,7 @@ public interface ChatContract {
 
         void testCall();
 
-        void endRunningCall(boolean isInCall);
+        void endRunningCall();
 
         void getCallHistory();
 

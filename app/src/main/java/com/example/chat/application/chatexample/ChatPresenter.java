@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
+import com.fanap.podchat.call.CallStatus;
 import com.fanap.podchat.call.CallType;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
@@ -177,6 +178,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private CreateCallVO callVO;
     private boolean speakerOn = false;
     private boolean isMute = false;
+    private boolean isInCall;
 
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
@@ -349,12 +351,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void acceptIncomingCall() {
 
-        AcceptCallRequest request = new AcceptCallRequest.Builder(
-                callVO.getCallId())
-//                .mute()
-                .build();
 
-        String uniqueId = chat.acceptVoiceCall(request);
+        AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
+                callVO.getCallId());
+
+        if(isMute){
+            request.mute();
+        }
+
+        String uniqueId = chat.acceptVoiceCall(request.build());
         uniqueIds.add(uniqueId);
 
 
@@ -1644,7 +1649,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onActivityResumed(Activity activity) {
 
-        chat.unregisterNetworkReceiver();
     }
 
     @Override
@@ -1655,7 +1659,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onActivityStopped(Activity activity) {
 
-        chat.unregisterNetworkReceiver();
+
 
     }
 
@@ -1692,6 +1696,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onVoiceCallStarted(ChatResponse<CallStartResult> response) {
 
+        isInCall = true;
+
         view.onVoiceCallStarted(response.getUniqueId(), "");
 
     }
@@ -1699,6 +1705,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
 
+        isInCall = false;
 
         view.onVoiceCallEnded(response.getUniqueId(), response.getResult().getCallId());
 
@@ -1736,7 +1743,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
+    public void onReceiveCallHistory(ChatResponse<GetCallHistoryResult> response) {
 
 
         view.onGetCallHistory(response);
@@ -1768,7 +1775,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void endRunningCall(boolean isInCall) {
+    public void endRunningCall() {
 
 
         if(isInCall){
@@ -1848,7 +1855,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         Log.d(TAG, "CHANGE MUTE: " + isMute);
 
-        chat.switchCallMuteState(isMute);
+        if(isInCall){
+            chat.switchCallMuteState(isMute,callVO.getCallId());
+        }else {
+            // send mute state in AcceptCallRequest
+        }
 
     }
 
@@ -1983,6 +1994,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void setCallInfo(CallInfo callInfo) {
 
         if (callVO == null) {
+            isInCall = true;
             callVO = new CreateCallVO();
             callVO.setCallId(callInfo.getCallId());
         }

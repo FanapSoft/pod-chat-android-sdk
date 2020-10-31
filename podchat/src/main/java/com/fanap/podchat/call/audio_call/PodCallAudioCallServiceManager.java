@@ -41,6 +41,8 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
 
     private boolean bound = false;
     private boolean enableSSL = true;
+    private boolean requestSwitchMicrophoneState = false;
+    private boolean requestSwitchSpeakerState = false;
 
     public PodCallAudioCallServiceManager(Context context) {
         mContext = context;
@@ -56,6 +58,10 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
             callService.setSSL(enableSSL);
             bound = true;
             callService.registerCallStateCallback(PodCallAudioCallServiceManager.this);
+
+            switchAudioSpeakerState(requestSwitchSpeakerState);
+            switchAudioMuteState(requestSwitchMicrophoneState);
+
         }
 
         @Override
@@ -210,12 +216,18 @@ public class PodCallAudioCallServiceManager implements ICallServiceState {
 
         if (bound && callService != null)
             callService.switchSpeaker(isSpeakerOn);
+        else {
+            requestSwitchSpeakerState = isSpeakerOn;
+        }
     }
 
     public void switchAudioMuteState(boolean isMute) {
 
         if (bound && callService != null)
             callService.switchMic(isMute);
+        else {
+            requestSwitchMicrophoneState = isMute;
+        }
     }
 
     public void addCallParticipant(ChatResponse<JoinCallParticipantResult> response) {

@@ -308,7 +308,7 @@ public interface ChatListener {
 
     default void onVoiceCallEnded(ChatResponse<EndCallResult> response){}
 
-    default void onGetCallHistory(ChatResponse<GetCallHistoryResult> response){}
+    default void onReceiveCallHistory(ChatResponse<GetCallHistoryResult> response){}
 
     default void onCallReconnect(ChatResponse<CallReconnectResult> response){}
 

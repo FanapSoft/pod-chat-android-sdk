@@ -53,7 +53,7 @@ import java.util.List;
 
 import static com.fanap.podchat.chat.Chat.TAG;
 
-public class CallManager {
+public class CallAsyncRequestsManager {
 
     public static String createGetCallHistoryRequest(GetCallHistoryRequest request, String uniqueId) {
 
