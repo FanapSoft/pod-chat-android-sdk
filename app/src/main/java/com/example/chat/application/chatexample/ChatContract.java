@@ -5,6 +5,8 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.contacts.ContactsFragment;
+import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
@@ -271,6 +273,10 @@ public interface ChatContract {
         default void callParticipantCanceledCall(String name){}
 
         default void hideCallRequest(){}
+
+        default void showContactsFragment(ContactsFragment contactsWrappers){}
+
+        default void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers){}
     }
 
     interface presenter {
@@ -560,5 +566,8 @@ public interface ChatContract {
         void removeCallParticipant(boolean checked, boolean checked1, boolean checked2);
 
         void closeThread(int testThreadId);
+
+        void getContact();
+
     }
 }

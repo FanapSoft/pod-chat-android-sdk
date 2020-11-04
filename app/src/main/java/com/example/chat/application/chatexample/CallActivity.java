@@ -8,7 +8,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,11 +18,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podchat.call.contacts.ContactsFragment;
+import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
@@ -37,6 +42,7 @@ import com.fanap.podchat.util.Util;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -127,6 +133,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             checkboxAddFarhad,
             checkboxAddMasoud,
             checkboxAddPooria;
+
+    FrameLayout frameLayout;
+    FloatingActionButton fabContacts;
 
 //    CheckBox checkBoxViewSandBox, checkBoxViewIntegaration;
 //    Group groupSandBoxViews, groupIntegartionViews;
@@ -259,7 +268,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonEndCall.setOnClickListener(v -> {
 
 
-
             if (isTestMode) {
 
                 presenter.endStream();
@@ -298,6 +306,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             vibrate();
 
             scaleIt(v);
+
+            presenter.switchMute();
 
             toggleMute((ImageButton) v);
         });
@@ -350,6 +360,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonShareLog.setOnClickListener(v -> {
             presenter.shareLogs();
         });
+
+        fabContacts.setOnClickListener(v -> presenter.getContact());
 //        checkBoxViewSandBox.setOnCheckedChangeListener((buttonView, isChecked) -> groupSandBoxViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
 //
 //        checkBoxViewIntegaration.setOnCheckedChangeListener((buttonView, isChecked) -> groupIntegartionViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
@@ -567,6 +579,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //        groupIntegartionViews = findViewById(R.id.groupIntegration);
 
 
+        frameLayout = findViewById(R.id.frame_call);
+        fabContacts = findViewById(R.id.fabShowContactsList);
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         Logger.addLogAdapter(new AndroidLogAdapter());
@@ -577,6 +591,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         Log.e(TAG, "Call info: " + callInfo);
 
+//        connect();
         if (callInfo != null) {
             presenter.setCallInfo(callInfo);
             showInCallView();
@@ -861,7 +876,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         long id = outPutUserInfo.getResult().getUser().getId();
 
-       runOnUiThread(()-> etNumberOrOtp.setText("Your ID is: " + id));
+        runOnUiThread(() -> etNumberOrOtp.setText("Your ID is: " + id));
 
 
     }
@@ -966,4 +981,52 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     }
 
 
+    @Override
+    public void showContactsFragment(ContactsFragment fragment) {
+
+
+        runOnUiThread(() -> {
+            fabContacts.hide();
+            if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null)
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.frame_call, fragment, "CFRAG")
+                        .addToBackStack("CFRAG")
+                        .commit();
+        });
+
+    }
+
+    @Override
+    public void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers) {
+
+        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null){
+
+
+            ContactsFragment contactsFragment = (ContactsFragment) getSupportFragmentManager().findFragmentByTag("CFRAG");
+            if (contactsFragment != null) {
+                contactsFragment.updateList(contactsWrappers);
+            }
+
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            fabContacts.show();
+            Fragment f = getSupportFragmentManager().findFragmentByTag("CFRAG");
+
+            if (f != null) {
+                getSupportFragmentManager().
+                        beginTransaction()
+                        .remove(f)
+                        .commit();
+            }
+        } else
+            super.onBackPressed();
+
+    }
 }

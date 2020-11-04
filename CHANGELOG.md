@@ -5,6 +5,30 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+
+## Version [0.9.3.0] -2020-11-02
+
+[Added] ```closeThread```
+
+[Added] ```safeLeaveThread```
+
+[Added] ```shouldKeepHistory``` to ```RequestLeaveThread``` and ```SafeLeaveRequest```
+
+[Added] ChatMessageType, STICKER
+
+[Added] ```addGroupCallParticipant```
+
+[Added] ```removeGroupCallParticipant```
+
+[Added] ```onCallParticipantLeft``` callback
+
+[Changed] ```isInCache``` to ```isAvailableInCache```
+
+[BugFixed] ```deleteMultipleMessage```
+
+
+
+
 ## Version [0.9.1.0] -2020-10-07
 
 [Added] **Audio Call**

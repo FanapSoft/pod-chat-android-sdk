@@ -14,8 +14,9 @@ import android.widget.Toast;
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
-import com.fanap.podchat.call.CallStatus;
 import com.fanap.podchat.call.CallType;
+import com.fanap.podchat.call.contacts.ContactsFragment;
+import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CreateCallVO;
@@ -23,6 +24,7 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -65,6 +67,7 @@ import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
+import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -355,7 +358,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
                 callVO.getCallId());
 
-        if(isMute){
+        if (isMute) {
             request.mute();
         }
 
@@ -1236,7 +1239,29 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
         super.onGetContacts(content, outPutContact);
 
-        view.onGetContacts();
+
+        ArrayList<ContactsWrapper> contactsWrappers = new ArrayList<>();
+
+        for (Contact c :
+                outPutContact.getResult().getContacts()) {
+
+            ContactsWrapper contactsWrapper = new ContactsWrapper(c);
+
+            contactsWrappers.add(contactsWrapper);
+        }
+
+        ContactsFragment fragment = new ContactsFragment();
+//        fragment.setCa
+        Bundle v = new Bundle();
+
+
+        v.putParcelableArrayList("CONTACTS", contactsWrappers);
+        fragment.setArguments(v);
+
+
+        if (!outPutContact.isCache())
+            view.showContactsFragment(fragment);
+        else view.updateContactsFragment(contactsWrappers);
     }
 
     @Override
@@ -1660,7 +1685,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onActivityStopped(Activity activity) {
 
 
-
     }
 
     @Override
@@ -1698,7 +1722,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         isInCall = true;
 
-        view.onVoiceCallStarted(response.getUniqueId(), "");
+        view.onVoiceCallStarted(" " + response.getUniqueId(), "");
 
     }
 
@@ -1778,7 +1802,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void endRunningCall() {
 
 
-        if(isInCall){
+        if (isInCall) {
 
             Log.e(TAG, "REQUEST END CALL FROM CLIENT");
 
@@ -1798,7 +1822,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
             }
 
-        }else {
+        } else {
 
             Log.e(TAG, "REQUEST Cancel CALL FROM CLIENT");
 
@@ -1855,9 +1879,25 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         Log.d(TAG, "CHANGE MUTE: " + isMute);
 
-        if(isInCall){
-            chat.switchCallMuteState(isMute,callVO.getCallId());
-        }else {
+        if (isInCall) {
+
+//            ArrayList<Long> ids = new ArrayList<>();
+//            ids.add((long) Masoud_ID);
+//            ids.add((long) Pooria_ID);
+//
+//            MuteUnMuteCallParticipantRequest request
+//                    = new MuteUnMuteCallParticipantRequest.Builder(callVO.getCallId(), ids)
+//                    .build();
+
+
+//            if (isMute)
+//                chat.requestMuteCallParticipant(request);
+//            else
+//                chat.requestUnMuteCallParticipant(request);
+
+
+            chat.switchCallMuteState(isMute, callVO.getCallId());
+        } else {
             // send mute state in AcceptCallRequest
         }
 
@@ -1943,6 +1983,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
             String uniqueId = chat.closeThread(closeThreadRequest);
         }
 
+
+    }
+
+    @Override
+    public void getContact() {
+
+        RequestGetContact request =
+                new RequestGetContact.Builder()
+                        .count(10)
+                        .offset(0)
+                        .build();
+
+        uniqueIds.add(chat.getContacts(request, null));
 
     }
 
@@ -2221,7 +2274,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onCallParticipantCanceledCall(ChatResponse<CallCancelResult> response) {
         view.callParticipantCanceledCall(response.getResult().getCallParticipant().getParticipantVO().getFirstName()
-        + " " + response.getResult().getCallParticipant().getParticipantVO().getLastName());
+                + " " + response.getResult().getCallParticipant().getParticipantVO().getLastName());
     }
 
     @Override
