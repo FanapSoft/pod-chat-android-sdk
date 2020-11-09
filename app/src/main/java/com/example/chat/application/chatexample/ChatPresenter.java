@@ -206,7 +206,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.setAudioCallConfig(callConfig);
 
         chat.isCacheables(true);
-
+        chat.isSentryLogActive(true);
+        chat.isSentryResponseLogActive(true);
 
         chat.isLoggable(true);
         chat.rawLog(true);
@@ -1044,14 +1045,15 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
 
-        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId,18477)
+        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId,18476)
                 .build();
+
         RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
                 .build();
 
         chat.leaveThread(leaveThread, null);
 
-    //   chat.safeLeaveThread(request);
+       //  chat.safeLeaveThread(request);
     }
 
     @Override

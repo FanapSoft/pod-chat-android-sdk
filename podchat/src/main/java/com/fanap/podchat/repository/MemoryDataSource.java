@@ -505,7 +505,8 @@ public class MemoryDataSource {
                     return items.subList((int) offset, items.size());
                 }
             } catch (Exception e) {
-                Sentry.captureException(e);
+                if (Sentry.isEnabled())
+                    Sentry.captureException(e);
                 return new ArrayList<>();
             }
 
@@ -518,7 +519,8 @@ public class MemoryDataSource {
                 return items.subList((int) offset, (int) (offset + count));
             }
         } catch (Exception e) {
-            Sentry.captureException(e);
+            if (Sentry.isEnabled())
+                Sentry.captureException(e);
             return new ArrayList<>();
         }
 

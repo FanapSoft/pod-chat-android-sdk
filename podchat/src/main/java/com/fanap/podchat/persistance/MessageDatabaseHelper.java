@@ -201,16 +201,15 @@ public class MessageDatabaseHelper {
                 long timestamp = ((time / 1000) * pow) + timeNanos;
                 cacheMessageVO.setTimeStamp(timestamp);
 
-                if(messageVO.getParticipant()!=null)
-                {
-                    CacheParticipant cacheParticipant = new CacheParticipant(messageVO.getParticipant(),threadId);
+                if (messageVO.getParticipant() != null) {
+                    CacheParticipant cacheParticipant = new CacheParticipant(messageVO.getParticipant(), threadId);
 
                     cacheMessageVO.setParticipant(cacheParticipant);
                 }
 
                 if (cacheMessageVO.getParticipant() != null) {
                     cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
-                    saveParticipant(cacheMessageVO.getParticipant(),threadId,expireAmount);
+                    saveParticipant(cacheMessageVO.getParticipant(), threadId, expireAmount);
                 }
 
                 if (cacheMessageVO.getConversation() != null) {
@@ -320,7 +319,8 @@ public class MessageDatabaseHelper {
 
                 cacheMessageVO.setTimeStamp(timestamp);
             } catch (Exception e) {
-                Sentry.captureException(e);
+                if (Sentry.isEnabled())
+                    Sentry.captureException(e);
             }
 
 
@@ -390,7 +390,8 @@ public class MessageDatabaseHelper {
 
                 cacheMessageVO.setTimeStamp(timestamp);
             } catch (Exception e) {
-                Sentry.captureException(e);
+                if (Sentry.isEnabled())
+                    Sentry.captureException(e);
             }
 
 
@@ -3222,7 +3223,8 @@ public class MessageDatabaseHelper {
             messageVO.setConversation(null);
 
         } catch (Exception e) {
-            Sentry.captureException(e);
+            if (Sentry.isEnabled())
+                Sentry.captureException(e);
             return null;
         }
 
@@ -3330,47 +3332,47 @@ public class MessageDatabaseHelper {
 
         worker(() -> {
 
-                participant.setThreadId(threadId);
+                    participant.setThreadId(threadId);
 
-                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
-                Calendar c = Calendar.getInstance();
-                c.setTime(new Date());
-                c.add(Calendar.SECOND, expireSecond);
-                String expireDate = format.format(c.getTime());
+                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+                    Calendar c = Calendar.getInstance();
+                    c.setTime(new Date());
+                    c.add(Calendar.SECOND, expireSecond);
+                    String expireDate = format.format(c.getTime());
 
-                messageDao.insertParticipant(participant);
+                    messageDao.insertParticipant(participant);
 
-                CacheThreadParticipant ctp = new CacheThreadParticipant();
-                ctp.setExpireDate(expireDate);
-                ctp.setParticipantId(participant.getId());
-                ctp.setThreadId(threadId);
+                    CacheThreadParticipant ctp = new CacheThreadParticipant();
+                    ctp.setExpireDate(expireDate);
+                    ctp.setParticipantId(participant.getId());
+                    ctp.setThreadId(threadId);
 
-                messageDao.insertThreadParticipant(ctp);
+                    messageDao.insertThreadParticipant(ctp);
 
-                if (!Util.isNullOrEmpty(participant.getRoles())) {
+                    if (!Util.isNullOrEmpty(participant.getRoles())) {
 
-                    CacheParticipantRoles cpr = new CacheParticipantRoles();
+                        CacheParticipantRoles cpr = new CacheParticipantRoles();
 
-                    cpr.setId(participant.getId());
+                        cpr.setId(participant.getId());
 
-                    cpr.setThreadId(threadId);
+                        cpr.setThreadId(threadId);
 
-                    cpr.setRoles(participant.getRoles());
+                        cpr.setRoles(participant.getRoles());
 
-                    Log.d("MTAG", "SAVE CPR: " + cpr);
+                        Log.d("MTAG", "SAVE CPR: " + cpr);
 
-                    messageDao.insertRoles(cpr);
+                        messageDao.insertRoles(cpr);
 
+                    }
+
+                    if (participant.getChatProfileVO() != null) {
+
+                        ChatProfileVO chatProfileVO = participant.getChatProfileVO();
+                        chatProfileVO.setId(participant.getId());
+                        messageDao.insertChatProfile(chatProfileVO);
+
+                    }
                 }
-
-                if (participant.getChatProfileVO() != null) {
-
-                    ChatProfileVO chatProfileVO = participant.getChatProfileVO();
-                    chatProfileVO.setId(participant.getId());
-                    messageDao.insertChatProfile(chatProfileVO);
-
-                }
-            }
         );
     }
 

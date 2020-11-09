@@ -373,6 +373,8 @@ public class Chat extends AsyncAdapter {
     private boolean asyncReady = false;
 
     private static boolean cache = false;
+    private static boolean sentryLog = true;
+    private static boolean sentryResponseLog = false;
     private static boolean permit = false;
     private static final int TOKEN_ISSUER = 1;
     private long retryStepUserInfo = 1;
@@ -1085,7 +1087,7 @@ public class Chat extends AsyncAdapter {
             case Constants.UPDATE_THREAD_INFO:
                 handleUpdateThreadInfo(chatMessage, messageUniqueId, callback);
                 break;
-                
+
             case Constants.BLOCK:
                 handleOutPutBlock(chatMessage, messageUniqueId);
                 break;
@@ -1213,7 +1215,11 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<CloseThreadResult> response = ThreadManager.handleCloseThreadResponse(chatMessage);
 
-        showLog("ON_RECEIVED_THREAD_CLOSED", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("ON_RECEIVED_THREAD_CLOSED", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_RECEIVED_THREAD_CLOSED");
+        }
 
         listenerManager.callOnThreadClosed(response);
 
@@ -1225,7 +1231,12 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnContactsSynced(response);
 
-        showLog("ON_CONTACTS_SYNCED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("ON_CONTACTS_SYNCED", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_CONTACTS_SYNCED");
+        }
     }
 
     private void handleOnBotStopped(ChatMessage chatMessage) {
@@ -1233,8 +1244,12 @@ public class Chat extends AsyncAdapter {
         ChatResponse<StartStopBotResult> response = BotManager
                 .handleOnBotStartedOrStopped(chatMessage);
 
-        showLog("ON_BOT_STOPPED", gson.toJson(chatMessage));
 
+        if (sentryResponseLog) {
+            showLog("ON_BOT_STOPPED", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_BOT_STOPPED");
+        }
 
         listenerManager.callOnBotStopped(response);
 
@@ -1246,7 +1261,13 @@ public class Chat extends AsyncAdapter {
         ChatResponse<StartStopBotResult> response = BotManager
                 .handleOnBotStartedOrStopped(chatMessage);
 
-        showLog("ON_BOT_STARTED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("ON_BOT_STARTED", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_BOT_STARTED");
+        }
+
 
         listenerManager.callOnBotStarted(response);
 
@@ -1258,7 +1279,13 @@ public class Chat extends AsyncAdapter {
         ChatResponse<DefineBotCommandResult> response =
                 BotManager.handleOnBotCommandDefined(chatMessage);
 
-        showLog("ON_BOT_COMMANDS_DEFINED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("ON_BOT_COMMANDS_DEFINED", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_BOT_COMMANDS_DEFINED");
+        }
+
 
         listenerManager.callOnBotCommandsDefined(response);
 
@@ -1269,7 +1296,12 @@ public class Chat extends AsyncAdapter {
         ChatResponse<CreateBotResult> response =
                 BotManager.handleOnBotCreated(chatMessage);
 
-        showLog("ON_BOT_CREATED", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("ON_BOT_CREATED", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_BOT_CREATED");
+        }
+
 
         listenerManager.callOnBotCreated(response);
 
@@ -1278,7 +1310,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
 
-        showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(chatMessage));
+        } else {
+            showLog("ON GET UNREAD MESSAGES COUNT");
+        }
 
         ChatResponse<ResultUnreadMessagesCount> response =
                 MessageManager.handleUnreadMessagesResponse(chatMessage);
@@ -1290,7 +1327,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnJoinPublicThread(ChatMessage chatMessage) {
 
-        showLog("ON JOIN PUBLIC THREAD", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("ON JOIN PUBLIC THREAD", gson.toJson(chatMessage));
+        } else {
+            showLog("ON JOIN PUBLIC THREAD");
+        }
 
         ChatResponse<ResultJoinPublicThread> response = PublicThread.handleJoinThread(chatMessage);
 
@@ -1305,7 +1347,13 @@ public class Chat extends AsyncAdapter {
 
     private void handleIsNameAvailable(ChatMessage chatMessage) {
 
-        showLog("UNIQUE NAME IS AVAILABLE", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("UNIQUE NAME IS AVAILABLE", gson.toJson(chatMessage));
+        } else {
+            showLog("UNIQUE NAME IS AVAILABLE");
+        }
+
 
         ChatResponse<ResultIsNameAvailable> response = PublicThread.handleIsNameAvailableResponse(chatMessage);
 
@@ -1316,8 +1364,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnChatProfileUpdated(ChatMessage chatMessage) {
 
-        showLog("CHAT PROFILE UPDATED", gson.toJson(chatMessage));
 
+        if (sentryResponseLog) {
+            showLog("CHAT PROFILE UPDATED", gson.toJson(chatMessage));
+        } else {
+            showLog("CHAT PROFILE UPDATED");
+        }
 
         ChatResponse<ResultUpdateProfile> response = UserProfile.handleOutputUpdateProfile(chatMessage);
 
@@ -1333,7 +1385,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleUpdateLastSeen(ChatMessage chatMessage) {
 
-        showLog("LAST SEEN UPDATED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("LAST SEEN UPDATED", gson.toJson(chatMessage));
+        } else {
+            showLog("LAST SEEN UPDATED");
+        }
 
         ChatResponse<ResultNotSeenDuration> response = ContactManager.prepareUpdateLastSeenResponse(chatMessage, parser);
 
@@ -1345,7 +1402,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnGetMentionList(ChatMessage chatMessage) {
 
-        showLog("RECEIVED MENTION LIST", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("RECEIVED MENTION LIST", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVED MENTION LIST");
+        }
 
         ChatResponse<ResultHistory> response = Mention.getMentionListResponse(chatMessage);
 
@@ -1359,7 +1421,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnPinMessage(ChatMessage chatMessage) {
 
-        showLog("MESSAGE_PINNED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("MESSAGE_PINNED", gson.toJson(chatMessage));
+        } else {
+            showLog("MESSAGE_PINNED");
+        }
 
         ChatResponse<ResultPinMessage> response = PinMessage.handleOnMessagePinned(chatMessage);
 
@@ -1373,7 +1440,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnUnPinMessage(ChatMessage chatMessage) {
 
-        showLog("MESSAGE_UNPINNED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("MESSAGE_UNPINNED", gson.toJson(chatMessage));
+        } else {
+            showLog("MESSAGE_UNPINNED");
+        }
 
         ChatResponse<ResultPinMessage> response = PinMessage.handleOnMessageUnPinned(chatMessage);
         if (cache) {
@@ -1385,8 +1457,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnStatusPingSent(ChatMessage chatMessage) {
 
-        showLog("RECEIVE_PING_STATUS_SENT", gson.toJson(chatMessage));
 
+        if (sentryResponseLog) {
+            showLog("RECEIVE_PING_STATUS_SENT", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_PING_STATUS_SENT");
+        }
         ChatResponse<StatusPingResult> response = PingManager.handleOnPingStatusSent(chatMessage);
 
         listenerManager.callOnPingStatusSent(response);
@@ -1400,13 +1476,22 @@ public class Chat extends AsyncAdapter {
         ChatResponse<ResultCurrentUserRoles> response = UserRoles.handleOnGetUserRoles(chatMessage);
 
         if (ThreadManager.hasUserRolesSubscriber(response)) {
-            showLog("RECEIVE_CURRENT_USER_ROLES_FOR_SAFE_LEAVE", gson.toJson(chatMessage));
+
+            if (sentryResponseLog) {
+                showLog("RECEIVE_CURRENT_USER_ROLES_FOR_SAFE_LEAVE", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVE_CURRENT_USER_ROLES_FOR_SAFE_LEAVE");
+            }
 
             return;
         }
 
-        showLog("RECEIVE_CURRENT_USER_ROLES", gson.toJson(chatMessage));
 
+        if (sentryResponseLog) {
+            showLog("RECEIVE_CURRENT_USER_ROLES", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_CURRENT_USER_ROLES");
+        }
         if (cache) {
             messageDatabaseHelper.saveCurrentUserRoles(response);
         }
@@ -1420,7 +1505,12 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultPinThread> response = PinThread.handleOnThreadUnPinned(chatMessage);
 
-        showLog("RECEIVE_UNPIN_THREAD", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_UNPIN_THREAD", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_UNPIN_THREAD");
+        }
 
         if (cache)
             messageDatabaseHelper.setThreadUnPinned(chatMessage);
@@ -1434,7 +1524,12 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<ResultPinThread> response = PinThread.handleOnThreadPinned(chatMessage);
 
-        showLog("RECEIVE_PIN_THREAD", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_PIN_THREAD", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_PIN_THREAD");
+        }
 
         if (cache)
             messageDatabaseHelper.setThreadPinned(chatMessage);
@@ -1446,17 +1541,26 @@ public class Chat extends AsyncAdapter {
 
     private void handleOutPutSpamPVThread(ChatMessage chatMessage, String messageUniqueId) {
 
-
         chatMessage.setUniqueId(messageUniqueId);
 
-        showLog("RECEIVE_SPAM_PV_THREAD", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("RECEIVE_SPAM_PV_THREAD", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_SPAM_PV_THREAD");
+        }
 
     }
 
 
     private void handleOnCallRequestReceived(ChatMessage chatMessage) {
 
-        showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_CALL_REQUEST", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_CALL_REQUEST");
+        }
+
         ChatResponse<CallRequestResult> response
                 = CallManager.handleOnCallRequest(chatMessage);
         audioCallManager.addNewCallInfo(response);
@@ -1467,7 +1571,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnGroupCallRequestReceived(ChatMessage chatMessage) {
 
-        showLog("RECEIVE_GROUP_CALL_REQUEST", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("RECEIVE_GROUP_CALL_REQUEST", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_GROUP_CALL_REQUEST");
+        }
+
         ChatResponse<CallRequestResult> response
                 = CallManager.handleOnGroupCallRequest(chatMessage);
         audioCallManager.addNewCallInfo(response);
@@ -1489,7 +1598,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnCallRequestDelivered(ChatMessage chatMessage) {
 
-        showLog("CALL_REQUEST_DELIVERED", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("CALL_REQUEST_DELIVERED", gson.toJson(chatMessage));
+        } else {
+            showLog("CALL_REQUEST_DELIVERED");
+        }
+
         ChatResponse<CallDeliverResult> response
                 = CallManager.handleOnCallDelivered(chatMessage);
         listenerManager.callOnCallRequestDelivered(response);
@@ -1497,7 +1611,13 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnCallRequestRejected(ChatMessage chatMessage) {
-        showLog("CALL_REQUEST_REJECTED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("CALL_REQUEST_REJECTED", gson.toJson(chatMessage));
+        } else {
+            showLog("CALL_REQUEST_REJECTED");
+        }
+
         ChatResponse<CallRequestResult> response
                 = CallManager.handleOnRejectCallRequest(chatMessage);
         listenerManager.callOnCallRequestRejected(response);
@@ -1506,7 +1626,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnCallStarted(ChatMessage chatMessage) {
 
-        showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
+        } else {
+            showLog("VOICE_CALL_STARTED");
+        }
+
 
         ChatResponse<StartedCallModel> info
                 = CallManager.handleOnCallStarted(chatMessage);
@@ -1539,7 +1664,12 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnVoiceCallEnded(ChatMessage chatMessage) {
 
-        showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_VOICE_CALL_ENDED");
+        }
 
         audioCallManager.endStream(true);
 
@@ -1552,7 +1682,11 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnNewCallParticipantJoined(ChatMessage chatMessage) {
 
-        showLog("RECEIVE_PARTICIPANT_JOINED", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("RECEIVE_PARTICIPANT_JOINED", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_PARTICIPANT_JOINED");
+        }
 
         ChatResponse<JoinCallParticipantResult> response = CallManager.handleOnParticipantJoined(chatMessage);
 
@@ -1566,7 +1700,11 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnCallParticipantLeft(ChatMessage chatMessage) {
 
-        showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_LEAVE_CALL");
+        }
 
         ChatResponse<LeaveCallResult> response = CallManager.handleOnParticipantLeft(chatMessage);
 
@@ -1583,14 +1721,23 @@ public class Chat extends AsyncAdapter {
 
         if (response.getResult().isUserRemoved()) {
 
-            showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
 
+            if (sentryResponseLog) {
+                showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVE_REMOVED_FROM_CALL");
+            }
             audioCallManager.endStream(true);
 
             listenerManager.callOnRemovedFromCall(response);
 
         } else {
-            showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
+
+            if (sentryResponseLog) {
+                showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVE_CALL_PARTICIPANT_REMOVED");
+            }
 
             audioCallManager.removeCallParticipant(response.getResult());
 
@@ -1604,7 +1751,11 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
 
-        showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVED_CALL_HISTORY");
+        }
 
         ChatResponse<GetCallHistoryResult> response = CallManager.handleOnGetCallHistory(chatMessage, callback);
 
@@ -1618,7 +1769,11 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
 
-        showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
+        if (sentryResponseLog) {
+            showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVED_CALL_RECONNECT");
+        }
 
         ChatResponse<CallReconnectResult> response = CallManager.handleOnCallReconnectReceived(chatMessage);
 
@@ -1627,8 +1782,12 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnReceivedCallConnect(ChatMessage chatMessage) {
+        if (sentryResponseLog) {
+            showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVED_CALL_CONNECT");
+        }
 
-        showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
 
         ChatResponse<CallReconnectResult> response = CallManager.handleOnCallConnectReceived(chatMessage);
 
@@ -2082,7 +2241,12 @@ public class Chat extends AsyncAdapter {
 
             listenerManager.callOnGetCallHistory(cacheResponse);
 
-            showLog("RECEIVED_CACHED_CALL_HISTORY", cacheResponse.getJson());
+            if (sentryResponseLog) {
+                showLog("RECEIVED_CACHED_CALL_HISTORY", cacheResponse.getJson());
+            } else {
+                showLog("RECEIVED_CACHED_CALL_HISTORY");
+            }
+
         });
     }
 
@@ -2623,8 +2787,12 @@ public class Chat extends AsyncAdapter {
 
                     if (phoneContacts.size() > 0) {
 
-                        showLog(">>> Synchronizing " + phoneContacts.size() + " with server at " + new Date());
 
+                        if (sentryResponseLog) {
+                            showLog(">>> Synchronizing " + phoneContacts.size() + " with server at " + new Date());
+                        } else {
+                            showLog(">>> Synchronizing");
+                        }
                         handleAddContacts(uniqueId, phoneContacts);
 
                     } else {
@@ -8374,7 +8542,14 @@ public class Chat extends AsyncAdapter {
 
                     ChatResponse<ResultBlockList> chatResponse = ContactManager.prepareGetBlockListFromCache(uniqueId, cacheContacts);
                     listenerManager.callOnGetBlockList(gson.toJson(chatResponse), chatResponse);
-                    showLog("RECEIVE_GET_BLOCK_LIST_FROM_CACHE", gson.toJson(chatResponse));
+
+
+                    if (sentryResponseLog) {
+                        showLog("RECEIVE_GET_BLOCK_LIST_FROM_CACHE", gson.toJson(chatResponse));
+                    } else {
+                        showLog("RECEIVE_GET_BLOCK_LIST_FROM_CACHE");
+                    }
+
                 }
             }
 
@@ -9940,6 +10115,26 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    /*
+     * If you want to disable sentrylogs Set state to false
+     * */
+    public boolean isSentryLogActive(boolean state) {
+        sentryLog = state;
+        if (!sentryLog)
+            Sentry.close();
+        return state;
+    }
+
+    /*
+     * If you want to disable sentryresponselogs Set state to false
+     * */
+    public boolean isSentryResponseLogActive(boolean state) {
+        if (sentryLog)
+            sentryResponseLog = state;
+
+        return state;
+    }
+
     public void setReconnectOnClose(boolean reconnectOnClose) {
 
         if (async != null) {
@@ -10171,13 +10366,17 @@ public class Chat extends AsyncAdapter {
 //            }
         }
 
-        Breadcrumb c = new Breadcrumb();
-        c.setCategory("INFO");
-        c.setData("DATA", json);
-        c.setLevel(SentryLevel.INFO);
-        c.setMessage(i);
-        c.setType("INFO LOG");
-        Sentry.addBreadcrumb(c, "NORMAL_INFO");
+        if (sentryLog) {
+
+            Breadcrumb c = new Breadcrumb();
+            c.setCategory("INFO");
+            c.setData("DATA", json);
+            c.setLevel(SentryLevel.INFO);
+            c.setMessage(i);
+            c.setType("INFO LOG");
+            Sentry.addBreadcrumb(c, "NORMAL_INFO");
+
+        }
     }
 
     private void showLog(String info) {
@@ -10212,13 +10411,17 @@ public class Chat extends AsyncAdapter {
 //            }
         }
 
-        Breadcrumb c = new Breadcrumb();
-        c.setCategory("ERROR");
-        c.setData("CAUSE", message);
-        c.setLevel(SentryLevel.ERROR);
-        c.setMessage(message);
-        c.setType("ERROR LOG");
-        Sentry.addBreadcrumb(c, "ERROR_LOG");
+        if (sentryLog) {
+
+            Breadcrumb c = new Breadcrumb();
+            c.setCategory("ERROR");
+            c.setData("CAUSE", message);
+            c.setLevel(SentryLevel.ERROR);
+            c.setMessage(message);
+            c.setType("ERROR LOG");
+            Sentry.addBreadcrumb(c, "ERROR_LOG");
+
+        }
 
 
     }
@@ -10357,8 +10560,11 @@ public class Chat extends AsyncAdapter {
         ChatResponse<ResultThread> chatResponse = new ChatResponse<>();
         chatResponse.setResult(resultThread);
         chatResponse.setUniqueId(chatMessage.getUniqueId());
-
-        showLog("THREAD_INFO_UPDATED", chatMessage.getContent());
+        if (sentryResponseLog) {
+            showLog("THREAD_INFO_UPDATED", chatMessage.getContent());
+        } else {
+            showLog("THREAD_INFO_UPDATED");
+        }
         if (cache) {
             dataSource.saveThreadResultFromServer(resultThread.getThread());
         }
@@ -10379,8 +10585,11 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnThreadInfoUpdated(chatResponse.getJson(), chatResponse);
 
-        showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
-
+        if (sentryResponseLog) {
+            showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
+        } else {
+            showLog("THREAD_INFO_UPDATED");
+        }
         if (cache) {
 //            messageDatabaseHelper.saveNewThread(resultThread.getThread());
             dataSource.saveThreadResultFromServer(thread);
@@ -10399,7 +10608,12 @@ public class Chat extends AsyncAdapter {
         if (cache) {
             messageDatabaseHelper.deleteThread(chatMessage.getSubjectId());
         }
-        showLog("RECEIVED_REMOVED_FROM_THREAD", content);
+        if (sentryResponseLog) {
+            showLog("RECEIVED_REMOVED_FROM_THREAD", content);
+        } else {
+            showLog("RECEIVED_REMOVED_FROM_THREAD");
+        }
+
 
         listenerManager.callOnRemovedFromThread(content, chatResponse);
 
@@ -10467,7 +10681,12 @@ public class Chat extends AsyncAdapter {
             if (messageVO != null) {
                 ownerId = messageVO.getParticipant().getId();
             }
-            showLog("RECEIVED_NEW_MESSAGE", json);
+            if (sentryResponseLog) {
+                showLog("RECEIVED_NEW_MESSAGE", json);
+            } else {
+                showLog("RECEIVED_NEW_MESSAGE");
+            }
+
             if (ownerId != getUserId()) {
 
                 if (messageVO != null) {
@@ -10581,7 +10800,12 @@ public class Chat extends AsyncAdapter {
 
                                 callbacks.set(callbacks.indexOf(callback), callbackUpdateSent);
                                 threadCallbacks.put(threadId, callbacks);
-                                showLog("RECEIVED_SENT_MESSAGE", json);
+
+                                if (sentryResponseLog) {
+                                    showLog("RECEIVED_SENT_MESSAGE", json);
+                                } else {
+                                    showLog("RECEIVED_SENT_MESSAGE");
+                                }
 
                             }
                             break;
@@ -10623,8 +10847,11 @@ public class Chat extends AsyncAdapter {
                 callbackUpdateSent.setSent(false);
                 callbackUpdateSent.setUniqueId(messageUniqueId);
 
-                showLog("RECEIVED_SENT_MESSAGE", json);
-
+                if (sentryResponseLog) {
+                    showLog("RECEIVED_SENT_MESSAGE", json);
+                } else {
+                    showLog("RECEIVED_SENT_MESSAGE");
+                }
 
             }
 
@@ -10804,7 +11031,13 @@ public class Chat extends AsyncAdapter {
 
                                     callbacks.set(indexUnique, callbackUpdateSent);
                                     threadCallbacks.put(threadId, callbacks);
-                                    showLog("RECEIVED_DELIVERED_MESSAGE", json);
+
+                                    if (sentryResponseLog) {
+                                        showLog("RECEIVED_DELIVERED_MESSAGE", json);
+                                    } else {
+                                        showLog("RECEIVED_DELIVERED_MESSAGE");
+                                    }
+
                                 }
 
                                 ChatResponse<ResultMessage> chatResponse = new ChatResponse<>();
@@ -10819,8 +11052,12 @@ public class Chat extends AsyncAdapter {
                                 listenerManager.callOnSeenMessage(json, chatResponse);
                                 callbacks.remove(indexUnique);
                                 threadCallbacks.put(threadId, callbacks);
-                                showLog("RECEIVED_SEEN_MESSAGE", json);
 
+                                if (sentryResponseLog) {
+                                    showLog("RECEIVED_SEEN_MESSAGE", json);
+                                } else {
+                                    showLog("RECEIVED_SEEN_MESSAGE");
+                                }
                             }
                             indexUnique--;
                         }
@@ -10861,7 +11098,12 @@ public class Chat extends AsyncAdapter {
                                     callbackUpdateSent.setUniqueId(callback.getUniqueId());
                                     callbacks.set(indexUnique, callbackUpdateSent);
                                     threadCallbacks.put(threadId, callbacks);
-                                    showLog("RECEIVED_DELIVERED_MESSAGE", json);
+                                    if (sentryResponseLog) {
+                                        showLog("RECEIVED_DELIVERED_MESSAGE", json);
+                                    } else {
+                                        showLog("RECEIVED_DELIVERED_MESSAGE");
+                                    }
+
                                 }
                                 indexUnique--;
                             }
@@ -10889,8 +11131,12 @@ public class Chat extends AsyncAdapter {
         if (messageVO != null) {
             ownerId = messageVO.getParticipant().getId();
         }
-        showLog("RECEIVED_FORWARD_MESSAGE", json);
 
+        if (sentryResponseLog) {
+            showLog("RECEIVED_FORWARD_MESSAGE", json);
+        } else {
+            showLog("RECEIVED_FORWARD_MESSAGE");
+        }
 
         if (ownerId != getUserId()) {
             ChatMessage message = null;
@@ -10899,6 +11145,7 @@ public class Chat extends AsyncAdapter {
             }
 
             String asyncContent = gson.toJson(message);
+
             showLog("SEND_DELIVERY_MESSAGE", asyncContent);
 
             async.sendMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK);
@@ -10935,7 +11182,12 @@ public class Chat extends AsyncAdapter {
                             if (callback.isResult()) {
                                 ChatResponse<ResultMute> chatResponse = new ChatResponse<>();
                                 String muteThreadJson = reformatMuteThread(chatMessage, chatResponse);
-                                showLog("RECEIVE_MUTE_THREAD", muteThreadJson);
+                                if (sentryResponseLog) {
+                                    showLog("RECEIVE_MUTE_THREAD", muteThreadJson);
+                                } else {
+                                    showLog("RECEIVE_MUTE_THREAD");
+                                }
+
                                 messageCallbacks.remove(messageUniqueId);
                                 listenerManager.callOnMuteThread(muteThreadJson, chatResponse);
                             }
@@ -10945,7 +11197,12 @@ public class Chat extends AsyncAdapter {
                             if (callback.isResult()) {
                                 ChatResponse<ResultMute> chatResponse = new ChatResponse<>();
                                 String unMuteThreadJson = reformatMuteThread(chatMessage, chatResponse);
-                                showLog("RECEIVE_UN_MUTE_THREAD", unMuteThreadJson);
+                                if (sentryResponseLog) {
+                                    showLog("RECEIVE_UN_MUTE_THREAD", unMuteThreadJson);
+                                } else {
+                                    showLog("RECEIVE_UN_MUTE_THREAD");
+                                }
+
                                 messageCallbacks.remove(messageUniqueId);
                                 listenerManager.callOnUnmuteThread(unMuteThreadJson, chatResponse);
 
@@ -11139,7 +11396,11 @@ public class Chat extends AsyncAdapter {
         chatResponse.setResult(resultThread);
         chatResponse.setUniqueId(uniqueId);
         chatResponse.setSubjectId(thread.getId());
-        showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
+        if (sentryResponseLog) {
+            showLog("THREAD_INFO_UPDATED", chatResponse.getJson());
+        } else {
+            showLog("THREAD_INFO_UPDATED");
+        }
         if (cache) {
             dataSource.saveThreadResultFromCache(thread);
         }
@@ -11157,7 +11418,12 @@ public class Chat extends AsyncAdapter {
         if (cache && needCacheUpdate) {
             dataSource.saveThreadResultFromServer(thread);
         }
-        showLog("RECEIVE_UPDATE_THREAD_INFO", chatResponse.getJson());
+        if (sentryResponseLog) {
+            showLog("RECEIVE_UPDATE_THREAD_INFO", chatResponse.getJson());
+        } else {
+            showLog("RECEIVE_UPDATE_THREAD_INFO");
+        }
+
         messageCallbacks.remove(uniqueId);
         listenerManager.callOnUpdateThreadInfo(chatResponse.getJson(), chatResponse);
 
@@ -11175,13 +11441,22 @@ public class Chat extends AsyncAdapter {
             if (chatResponse.getResult().getParticipants().size() > 0)
                 if (!Util.isNullOrEmpty(chatResponse.getResult().getParticipants().get(0).getRoles())) {
 
-                    showLog("RECEIVE_ADMINS", jsonParticipant);
+                    if (sentryResponseLog) {
+                        showLog("RECEIVE_ADMINS", jsonParticipant);
+                    } else {
+                        showLog("RECEIVE_ADMINS");
+                    }
+
                     listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
 
 
                 } else {
 
-                    showLog("RECEIVE_PARTICIPANT", jsonParticipant);
+                    if (sentryResponseLog) {
+                        showLog("RECEIVE_PARTICIPANT", jsonParticipant);
+                    } else {
+                        showLog("RECEIVE_PARTICIPANT");
+                    }
 
                     listenerManager.callOnGetThreadParticipant(jsonParticipant, chatResponse);
 
@@ -11190,7 +11465,13 @@ public class Chat extends AsyncAdapter {
 
                 }
             else {
-                showLog("RECEIVE_ADMINS", jsonParticipant);
+
+                if (sentryResponseLog) {
+                    showLog("RECEIVE_ADMINS", jsonParticipant);
+                } else {
+                    showLog("RECEIVE_ADMINS");
+                }
+
 
                 listenerManager.callOnGetThreadAdmin(jsonParticipant, chatResponse);
 
@@ -11206,8 +11487,11 @@ public class Chat extends AsyncAdapter {
 
     private void handleEditMessage(ChatMessage chatMessage, String messageUniqueId) {
 
-        showLog("RECEIVE_EDIT_MESSAGE", gson.toJson(chatMessage));
-
+        if (sentryResponseLog) {
+            showLog("RECEIVE_EDIT_MESSAGE", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_EDIT_MESSAGE");
+        }
         ChatResponse<ResultNewMessage> chatResponse = new ChatResponse<>();
         ResultNewMessage newMessage = new ResultNewMessage();
         MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
@@ -11237,8 +11521,11 @@ public class Chat extends AsyncAdapter {
 
             String content = gson.toJson(chatResponse);
 
-            showLog("RECEIVE_SEEN_MESSAGE_LIST", content);
-
+            if (sentryResponseLog) {
+                showLog("RECEIVE_SEEN_MESSAGE_LIST", content);
+            } else {
+                showLog("RECEIVE_SEEN_MESSAGE_LIST");
+            }
             listenerManager.callOnSeenMessageList(content, chatResponse);
 
         } catch (Exception e) {
@@ -11468,7 +11755,12 @@ public class Chat extends AsyncAdapter {
 
             chatResponse.setResult(resultParticipant);
             String content = gson.toJson(chatResponse);
-            showLog("RECEIVE_DELIVERED_MESSAGE_LIST", content);
+
+            if (sentryResponseLog) {
+                showLog("RECEIVE_DELIVERED_MESSAGE_LIST", content);
+            } else {
+                showLog("RECEIVE_DELIVERED_MESSAGE_LIST");
+            }
             listenerManager.callOnDeliveredMessageList(content, chatResponse);
 
         } catch (Exception e) {
@@ -11497,7 +11789,14 @@ public class Chat extends AsyncAdapter {
             return;
         }
         messageCallbacks.remove(messageUniqueId);
-        showLog("RECEIVE_GET_CONTACT", contactJson);
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_GET_CONTACT", contactJson);
+        } else {
+            showLog("RECEIVE_GET_CONTACT");
+        }
+
+
         listenerManager.callOnGetContacts(contactJson, chatResponse);
 
 
@@ -11512,7 +11811,13 @@ public class Chat extends AsyncAdapter {
             messageDatabaseHelper.saveNewThread(chatResponse.getResult().getThread());
         }
         messageCallbacks.remove(messageUniqueId);
-        showLog("RECEIVE_CREATE_THREAD", chatResponse.getJson());
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_CREATE_THREAD", chatResponse.getJson());
+        } else {
+            showLog("RECEIVE_CREATE_THREAD");
+        }
+
         listenerManager.callOnCreateThread(chatResponse.getJson(), chatResponse);
 
 
@@ -11540,7 +11845,13 @@ public class Chat extends AsyncAdapter {
             }
         }
 
-        showLog("RECEIVE_GET_THREAD", chatResponse.getJson());
+        if (sentryResponseLog) {
+            showLog("RECEIVE_GET_THREAD", chatResponse.getJson());
+        } else {
+            showLog("RECEIVE_GET_THREAD");
+        }
+
+
         messageCallbacks.remove(messageUniqueId);
         listenerManager.callOnGetThread(chatResponse.getJson(), chatResponse);
 
@@ -11606,7 +11917,12 @@ public class Chat extends AsyncAdapter {
 
         output.setSignalSenderName(sm.getUser());
 
-        showLog("RECEIVE_SIGNAL_MESSAGE", gson.toJson(output));
+        if (sentryResponseLog) {
+            showLog("RECEIVE_SIGNAL_MESSAGE", gson.toJson(output));
+        } else {
+            showLog("RECEIVE_SIGNAL_MESSAGE");
+        }
+
 
         listenerManager.callOnGetSignalMessage(output);
 
@@ -11714,7 +12030,12 @@ public class Chat extends AsyncAdapter {
 
             output.setResultNotSeenDuration(result.getResult());
 
-            showLog("RECEIVE_NOT_SEEN_DURATION", chatMessage.getContent());
+            if (sentryResponseLog) {
+                showLog("RECEIVE_NOT_SEEN_DURATION", chatMessage.getContent());
+            } else {
+                showLog("RECEIVE_NOT_SEEN_DURATION");
+            }
+
 
             listenerManager.callOnGetNotSeenDuration(output);
 
@@ -11806,7 +12127,13 @@ public class Chat extends AsyncAdapter {
             setSentryUser(userInfo);
 
             String userInfoJson = reformatUserInfo(chatMessage, chatResponse, userInfo);
-            showLog("RECEIVE_USER_INFO", userInfoJson);
+
+
+            if (sentryResponseLog) {
+                showLog("RECEIVE_USER_INFO", userInfoJson);
+            } else {
+                showLog("RECEIVE_USER_INFO");
+            }
 
             messageCallbacks.remove(messageUniqueId);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
@@ -11830,23 +12157,26 @@ public class Chat extends AsyncAdapter {
     }
 
     private void setSentryUser(UserInfo userInfo) {
-        User sentryUser = new User();
-        sentryUser.setId(String.valueOf(userInfo.getId()));
-        sentryUser.setEmail(userInfo.getCellphoneNumber());
-        sentryUser.setUsername(userInfo.getName());
-        Map<String, String> sentryInfoMap = new HashMap<>();
-        sentryInfoMap.put("token", getToken());
-        sentryInfoMap.put("tokenIssuer", String.valueOf(TOKEN_ISSUER));
-        sentryInfoMap.put("typeCode", getTypeCode());
-        sentryInfoMap.put("socketAddress", socketAddress);
-        sentryInfoMap.put("appId", appId);
-        sentryInfoMap.put("serverName", serverName);
-        sentryInfoMap.put("platformHost", getPlatformHost());
-        sentryInfoMap.put("ssoHost", getSsoHost());
-        sentryInfoMap.put("fileServer", getFileServer());
-        sentryInfoMap.put("podSpaceServer", getPodSpaceServer());
-        sentryUser.setOthers(sentryInfoMap);
-        Sentry.setUser(sentryUser);
+
+        if (sentryLog) {
+            User sentryUser = new User();
+            sentryUser.setId(String.valueOf(userInfo.getId()));
+            sentryUser.setEmail(userInfo.getCellphoneNumber());
+            sentryUser.setUsername(userInfo.getName());
+            Map<String, String> sentryInfoMap = new HashMap<>();
+            sentryInfoMap.put("token", getToken());
+            sentryInfoMap.put("tokenIssuer", String.valueOf(TOKEN_ISSUER));
+            sentryInfoMap.put("typeCode", getTypeCode());
+            sentryInfoMap.put("socketAddress", socketAddress);
+            sentryInfoMap.put("appId", appId);
+            sentryInfoMap.put("serverName", serverName);
+            sentryInfoMap.put("platformHost", getPlatformHost());
+            sentryInfoMap.put("ssoHost", getSsoHost());
+            sentryInfoMap.put("fileServer", getFileServer());
+            sentryInfoMap.put("podSpaceServer", getPodSpaceServer());
+            sentryUser.setOthers(sentryInfoMap);
+            Sentry.setUser(sentryUser);
+        }
     }
 
     private String mainReplyMessage(String messageContent, long threadId, long messageId, String systemMetaData, Integer messageType, String metaData, String iUniqueId, ChatHandler handler) {
@@ -11992,7 +12322,12 @@ public class Chat extends AsyncAdapter {
 
         String jsonThread = gson.toJson(chatResponse);
 
-        showLog("RECEIVE_LEAVE_THREAD", jsonThread);
+        if (sentryResponseLog) {
+            showLog("RECEIVE_LEAVE_THREAD", jsonThread);
+        } else {
+            showLog("RECEIVE_LEAVE_THREAD");
+        }
+
 
         if (callback != null) {
             messageCallbacks.remove(messageUniqueId);
@@ -12026,7 +12361,12 @@ public class Chat extends AsyncAdapter {
 
         String jsonAddParticipant = gson.toJson(chatResponse);
 
-        showLog("RECEIVE_ADD_PARTICIPANT", jsonAddParticipant);
+        if (sentryResponseLog) {
+            showLog("RECEIVE_ADD_PARTICIPANT", jsonAddParticipant);
+        } else {
+            showLog("RECEIVE_ADD_PARTICIPANT");
+        }
+
 
         messageCallbacks.remove(messageUniqueId);
 
@@ -12038,8 +12378,11 @@ public class Chat extends AsyncAdapter {
 
     private void handleOutPutDeleteMsg(ChatMessage chatMessage) {
 
-        showLog("RECEIVE_DELETE_MESSAGE", gson.toJson(chatMessage));
-
+        if (sentryResponseLog) {
+            showLog("RECEIVE_DELETE_MESSAGE", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_DELETE_MESSAGE");
+        }
         long messageId = App.getGson().fromJson(chatMessage.getContent(), MessageVO.class).getId();
 
         ChatResponse<ResultDeleteMessage> chatResponse = MessageManager.prepareDeleteMessageResponse(chatMessage, messageId);
@@ -12072,7 +12415,14 @@ public class Chat extends AsyncAdapter {
         if (cache) {
             dataSource.saveBlockedContactResultFromServer(contact);
         }
-        showLog("RECEIVE_BLOCK", jsonBlock);
+
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_BLOCK", jsonBlock);
+        } else {
+            showLog("RECEIVE_BLOCK");
+        }
+
         messageCallbacks.remove(messageUniqueId);
         listenerManager.callOnBlock(jsonBlock, chatResponse);
 
@@ -12133,8 +12483,11 @@ public class Chat extends AsyncAdapter {
         chatResponseClrHistory.setSubjectId(chatMessage.getSubjectId());
         String jsonClrHistory = gson.toJson(chatResponseClrHistory);
 
-        showLog("RECEIVE_CLEAR_HISTORY", jsonClrHistory);
-
+        if (sentryResponseLog) {
+            showLog("RECEIVE_CLEAR_HISTORY", jsonClrHistory);
+        } else {
+            showLog("RECEIVE_CLEAR_HISTORY");
+        }
         if (cache) {
             messageDatabaseHelper.deleteMessagesOfThread(chatMessage.getSubjectId());
         }
@@ -12170,7 +12523,11 @@ public class Chat extends AsyncAdapter {
         long threadId = chatMessage.getSubjectId();
 
         if (ThreadManager.hasSetAdminSubscriber(chatResponse)) {
-            showLog("RECEIVE_SET_ROLE_FOR_SAFE_LEAVE", responseJson);
+            if (sentryResponseLog) {
+                showLog("RECEIVE_SET_ROLE_FOR_SAFE_LEAVE", responseJson);
+            } else {
+                showLog("RECEIVE_SET_ROLE_FOR_SAFE_LEAVE");
+            }
 
             return;
         }
@@ -12215,8 +12572,12 @@ public class Chat extends AsyncAdapter {
         if (cache) {
             dataSource.updateParticipantRoles(admins, threadId);
         }
+        if (sentryResponseLog) {
+            showLog("RECEIVE_REMOVE_ROLE", responseJson);
+        } else {
+            showLog("RECEIVE_REMOVE_ROLE");
+        }
 
-        showLog("RECEIVE_REMOVE_ROLE", responseJson);
 
         listenerManager.callOnRemoveRoleFromUser(responseJson, chatResponse);
 
@@ -12234,7 +12595,14 @@ public class Chat extends AsyncAdapter {
         chatResponse.setUniqueId(chatMessage.getUniqueId());
 
         String jsonUnBlock = gson.toJson(chatResponse);
-        showLog("RECEIVE_UN_BLOCK", jsonUnBlock);
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_UN_BLOCK", jsonUnBlock);
+        } else {
+            showLog("RECEIVE_UN_BLOCK");
+        }
+
+
         messageCallbacks.remove(messageUniqueId);
         if (cache) {
             dataSource.deleteBlockedContactById(contact.getBlockId());
@@ -12246,8 +12614,12 @@ public class Chat extends AsyncAdapter {
     private void handleOutPutGetBlockList(ChatMessage chatMessage) {
         ChatResponse<ResultBlockList> chatResponse = ContactManager.prepareBlockListResponse(chatMessage);
         String jsonGetBlock = gson.toJson(chatResponse);
-        showLog("RECEIVE_GET_BLOCK_LIST", jsonGetBlock);
 
+        if (sentryResponseLog) {
+            showLog("RECEIVE_GET_BLOCK_LIST", jsonGetBlock);
+        } else {
+            showLog("RECEIVE_GET_BLOCK_LIST");
+        }
         if (cache) {
             if (chatResponse.getResult().getContacts().size() > 0)
                 dataSource.saveBlockedContactsResultFromServer(chatResponse.getResult().getContacts());
@@ -12262,7 +12634,13 @@ public class Chat extends AsyncAdapter {
 
         String jsonRmParticipant = gson.toJson(chatResponse);
 
-        showLog("RECEIVE_REMOVE_PARTICIPANT", jsonRmParticipant);
+        if (sentryResponseLog) {
+            showLog("RECEIVE_REMOVE_PARTICIPANT", jsonRmParticipant);
+        } else {
+            showLog("RECEIVE_REMOVE_PARTICIPANT");
+        }
+
+
         messageCallbacks.remove(messageUniqueId);
         listenerManager.callOnThreadRemoveParticipant(jsonRmParticipant, chatResponse);
     }
@@ -12340,7 +12718,12 @@ public class Chat extends AsyncAdapter {
         chatResponse.setUniqueId(chatMessage.getUniqueId());
 
         String json = gson.toJson(chatResponse);
-        showLog("RECEIVE_GET_HISTORY", json);
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_GET_HISTORY", json);
+        } else {
+            showLog("RECEIVE_GET_HISTORY");
+        }
         messageCallbacks.remove(chatMessage.getUniqueId());
         listenerManager.callOnGetThreadHistory(json, chatResponse);
 
@@ -12522,15 +12905,16 @@ public class Chat extends AsyncAdapter {
         if (errorCode != ChatConstant.ERROR_CODE_CHAT_READY
                 && errorCode != 21) {
 
+            if (sentryLog) {
+                SentryEvent event = new SentryEvent(new PodChatException(errorMessage, uniqueId, getToken()));
+                event.setEnvironment("PODCHAT");
+                event.setLevel(SentryLevel.ERROR);
+                event.setTag("FROM_SDK", "PODCHAT");
+                event.setExtra("FROM_SDK", "PODCHAT");
 
-            SentryEvent event = new SentryEvent(new PodChatException(errorMessage, uniqueId, getToken()));
-            event.setEnvironment("PODCHAT");
-            event.setLevel(SentryLevel.ERROR);
-            event.setTag("FROM_SDK", "PODCHAT");
-            event.setExtra("FROM_SDK", "PODCHAT");
 
-
-            Sentry.captureEvent(event, error);
+                Sentry.captureEvent(event, error);
+            }
 
         }
 
@@ -12557,13 +12941,14 @@ public class Chat extends AsyncAdapter {
 
         showErrorLog(jsonError);
 
-
-        SentryEvent event = new SentryEvent(throwable);
-        event.setEnvironment("PODCHAT");
-        event.setLevel(SentryLevel.ERROR);
-        event.setTag("FROM_SDK", "PODCHAT");
-        event.setExtra("FROM_SDK", "PODCHAT");
-        Sentry.captureEvent(event, new PodChatException(errorMessage, uniqueId, getToken()));
+        if (sentryLog) {
+            SentryEvent event = new SentryEvent(throwable);
+            event.setEnvironment("PODCHAT");
+            event.setLevel(SentryLevel.ERROR);
+            event.setTag("FROM_SDK", "PODCHAT");
+            event.setExtra("FROM_SDK", "PODCHAT");
+            Sentry.captureEvent(event, new PodChatException(errorMessage, uniqueId, getToken()));
+        }
 
         if (log) {
             Log.e(TAG, "ErrorMessage: " + errorMessage + " *Code* " + errorCode + " *uniqueId* " + uniqueId);
@@ -12581,13 +12966,14 @@ public class Chat extends AsyncAdapter {
 
         showErrorLog(jsonError);
 
-
-        SentryEvent event = new SentryEvent(exception);
-        event.setEnvironment("PODCHAT");
-        event.setLevel(SentryLevel.ERROR);
-        event.setTag("FROM_SDK", "PODCHAT");
-        event.setExtra("FROM_SDK", "PODCHAT");
-        Sentry.captureEvent(event, error);
+        if (sentryLog) {
+            SentryEvent event = new SentryEvent(exception);
+            event.setEnvironment("PODCHAT");
+            event.setLevel(SentryLevel.ERROR);
+            event.setTag("FROM_SDK", "PODCHAT");
+            event.setExtra("FROM_SDK", "PODCHAT");
+            Sentry.captureEvent(event, error);
+        }
 
         return jsonError;
     }

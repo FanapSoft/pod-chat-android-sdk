@@ -4,6 +4,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
@@ -153,7 +154,6 @@ public class ThreadManager {
         } else {
 
 
-
             RequestGetUserRoles requestGetUserRoles =
                     new RequestGetUserRoles.Builder()
                             .setThreadId(request.getThreadId())
@@ -177,7 +177,7 @@ public class ThreadManager {
     private static void createAndSendNormalLeave(SafeLeaveRequest request, String uniqueId, ISafeLeaveCallback callback) {
         RequestLeaveThread.Builder requestLeaveThreadBuilder = new RequestLeaveThread.Builder(request.getThreadId());
 
-        if(!request.clearHistory())
+        if (!request.clearHistory())
             requestLeaveThreadBuilder.shouldKeepHistory();
 
         requestLeaveThreadBuilder.typeCode(request.getTypeCode());
@@ -211,7 +211,6 @@ public class ThreadManager {
                 ownerRoles.add(RoleType.Constants.ADD_NEW_USER.toUpperCase());
 
 
-
                 RequestRole requestRole = new RequestRole();
                 requestRole.setId(request.getSuccessorParticipantId());
                 requestRole.setRoleTypes(ownerRoles);
@@ -223,7 +222,6 @@ public class ThreadManager {
                 RequestSetAdmin requestAddAdmin = new RequestSetAdmin
                         .Builder(request.getThreadId(), requestRoles)
                         .build();
-
 
 
                 callback.onSetAdminNeeded(requestAddAdmin, uniqueId);
@@ -343,7 +341,8 @@ public class ThreadManager {
                             .toList();
                 }
         } catch (Exception e) {
-            Sentry.captureException(e);
+            if (Sentry.isEnabled())
+                Sentry.captureException(e);
             return Observable.from(allThreads).toList();
         }
 
@@ -362,7 +361,8 @@ public class ThreadManager {
                 return Observable.from(allThreads).toList();
             }
         } catch (Exception e) {
-            Sentry.captureException(e);
+            if (Sentry.isEnabled())
+                Sentry.captureException(e);
             return Observable.from(allThreads).toList();
         }
 
@@ -532,8 +532,6 @@ public class ThreadManager {
             jsonObject.remove("typeCode");
             jsonObject.addProperty("typeCode", mTypeCode);
         }
-
-
 
 
         return jsonObject.toString();
