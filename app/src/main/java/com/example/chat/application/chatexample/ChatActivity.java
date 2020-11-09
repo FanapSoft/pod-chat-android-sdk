@@ -143,7 +143,6 @@ public class ChatActivity extends AppCompatActivity
     private Button buttonToken;
     private ImageView imageMap;
     private TextView textViewState;
-    TextView textViewToken;
     private TextView percentage;
     private TextView percentageFile;
     private Gson gson = new GsonBuilder().create();
@@ -160,18 +159,18 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
+//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
 
     //local
 
-
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 //
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+
 
     //test
 
@@ -187,11 +186,11 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Integration server setting:
      */
-//
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+////
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -225,16 +224,16 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 8070;
-    private static final String TEST_THREAD_HASH = "TU1JWM73AI9M56";
+//    public static int TEST_THREAD_ID = 9508;
+//    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
 //    main server / p2p
@@ -253,9 +252,9 @@ public class ChatActivity extends AppCompatActivity
 
     //integration /p2p: fifi, jiji
 
-//    public static int TEST_THREAD_ID = 7488;
-//    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
-//
+    public static int TEST_THREAD_ID = 7488;
+    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+
 
     //test server thread
 //    public static int TEST_THREAD_ID = 7608;
@@ -325,12 +324,6 @@ public class ChatActivity extends AppCompatActivity
 
             presenter.setToken(TOKEN);
 
-            if(TOKEN.equals("9c627a9125d04ebf8455bf57bb33d2a9"))
-                textViewToken.setText("intgration : token_PooriaPahlevani");
-            else if(TOKEN.equals("a47c9016c8354236abc01395093bed5c"))
-                textViewToken.setText("intgration : token_ahmadsajadi");
-            else
-                textViewToken.setText(TOKEN + name);
         });
 
         buttonToken.setOnLongClickListener(v -> {
@@ -353,7 +346,7 @@ public class ChatActivity extends AppCompatActivity
         setContentView(R.layout.activity_chat);
         imageMap = findViewById(R.id.imageMap);
         textViewState = findViewById(R.id.textViewStateChat);
-         textViewToken = findViewById(R.id.textViewUserId);
+        TextView textViewToken = findViewById(R.id.textViewUserId);
         percentage = findViewById(R.id.percentage);
         percentageFile = findViewById(R.id.percentageFile);
         editText = findViewById(R.id.editTextMessage);
@@ -366,11 +359,6 @@ public class ChatActivity extends AppCompatActivity
         btnUploadFile = findViewById(R.id.buttonUploadFileProgress);
         btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
 
-        if(TOKEN.equals("9c627a9125d04ebf8455bf57bb33d2a9"))
-            textViewToken.setText("intgration : token_PooriaPahlevani");
-        else if(TOKEN.equals("a47c9016c8354236abc01395093bed5c"))
-            textViewToken.setText("intgration : token_ahmadsajadi");
-        else
         textViewToken.setText(TOKEN + name);
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
@@ -1723,9 +1711,9 @@ public class ChatActivity extends AppCompatActivity
 //                        "bhamidpour",
 //                        "z.morshedi",
 //                        "m.rashed")
-                .withContactIds(63256L,63265L,63254L)
-//                .withContactId(63265L)
-               // .withUsername("TEST2BOT")
+//                .withContactIds(10001L,1000L)
+//                .withContactId(1000L)
+                .withUsername("TEST2BOT")
                 .build();
 
 
@@ -2314,9 +2302,10 @@ public class ChatActivity extends AppCompatActivity
         // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
-        invite.add(new Invitee("63257", InviteType.Constants.TO_BE_USER_CONTACT_ID));//zhiani
-        invite.add(new Invitee("63254", InviteType.Constants.TO_BE_USER_CONTACT_ID));//sajadi
-        invite.add(new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farhad
+        invite.add(new Invitee("63270", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
 //                                invite.add(new Invitee(121, 5)); // user zizi
@@ -2332,8 +2321,8 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(ThreadType.Constants.OWNER_GROUP, invite)
-                .title("testL" + (new Date().getTime() / 1000))
+                .Builder(ThreadType.Constants.NORMAL, invite)
+                .title("A New Thread " + (new Date().getTime() / 1000))
                 .withDescription("Description created at "
                         + new Date().getTime())
 //                .withImage("URL")

@@ -77,3 +77,4 @@ google-services.json
 /src/main/libs/
 
 /src/main/res/values/firebase_config.xml
+/.cxx/

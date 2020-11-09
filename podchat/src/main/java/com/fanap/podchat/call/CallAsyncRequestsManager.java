@@ -10,16 +10,22 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
+import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.App;
@@ -31,8 +37,10 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.util.Callback;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.InviteType;
+import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.Util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -45,7 +53,7 @@ import java.util.List;
 
 import static com.fanap.podchat.chat.Chat.TAG;
 
-public class CallManager {
+public class CallAsyncRequestsManager {
 
     public static String createGetCallHistoryRequest(GetCallHistoryRequest request, String uniqueId) {
 
@@ -110,6 +118,26 @@ public class CallManager {
 
 
         return messageObj.toString();
+
+
+    }
+
+    public static String createGetActiveCallParticipantsMessage(GetCallParticipantsRequest request, String uniqueId) throws PodChatException {
+
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException("Invalid call id", ChatConstant.ERROR_CODE_INVALID_THREAD_ID, uniqueId);
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.GET_ACTIVE_CALL_PARTICIPANTS);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setSubjectId(request.getCallId());
+        message.setTypeCode(Util.isNotNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+
+
+        return App.getGson().toJson(message);
 
 
     }
@@ -240,15 +268,7 @@ public class CallManager {
 
     public static String createAcceptCallRequest(AcceptCallRequest request, String uniqueId) {
 
-        CreateCallVO createCallVO = new CreateCallVO();
-        createCallVO.setCreatorId(request.getCreatorId());
-        createCallVO.setInvitees(request.getInvitees());
-        createCallVO.setType(request.getCallType());
-
-        JsonObject j = (JsonObject) App.getGson().toJsonTree(createCallVO);
-
         AsyncMessage message = new AsyncMessage();
-        message.setContent(j.toString());
         message.setType(ChatMessageType.Constants.ACCEPT_CALL);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -265,15 +285,7 @@ public class CallManager {
 
     public static String createRejectCallRequest(RejectCallRequest request, String uniqueId) {
 
-        CreateCallVO createCallVO = new CreateCallVO();
-        createCallVO.setCreatorId(request.getCreatorId());
-        createCallVO.setInvitees(request.getInvitees());
-        createCallVO.setType(request.getCallType());
-
-        JsonObject j = (JsonObject) App.getGson().toJsonTree(createCallVO);
-
         AsyncMessage message = new AsyncMessage();
-        message.setContent(j.toString());
         message.setType(ChatMessageType.Constants.REJECT_CALL);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -282,11 +294,111 @@ public class CallManager {
 
         JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
 
-
         return a.toString();
+    }
+
+
+    public static String createMuteOrUnMuteCallMessage(boolean isMute, long callId, String uniqueId) throws PodChatException {
+
+
+        ArrayList<Long> ids = new ArrayList<>();
+        ids.add(CoreConfig.userId);
+
+        MuteUnMuteCallParticipantRequest request = new MuteUnMuteCallParticipantRequest.Builder(callId, ids).build();
+
+        if (isMute)
+            return createMuteCallParticipantMessage(request, uniqueId);
+        else
+            return createUnMuteCallParticipantMessage(request, uniqueId);
 
 
     }
+
+
+    public static String createMuteCallParticipantMessage(MuteUnMuteCallParticipantRequest request, String uniqueId) throws PodChatException {
+
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID, ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+
+        if (Util.isNullOrEmpty(request.getParticipantsIds()))
+            throw new PodChatException(ChatConstant.MUTE_USER_LIST_IS_EMPTY, ChatConstant.ERROR_CODE_INVALID_DATA);
+
+
+        String content = App.getGson().toJson(request.getParticipantsIds());
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content);
+        message.setType(ChatMessageType.Constants.MUTE_CALL_PARTICIPANT);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+    }
+
+    public static String createUnMuteCallParticipantMessage(MuteUnMuteCallParticipantRequest request, String uniqueId) throws PodChatException {
+
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID, ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+
+        if (Util.isNullOrEmpty(request.getParticipantsIds()))
+            throw new PodChatException(ChatConstant.MUTE_USER_LIST_IS_EMPTY, ChatConstant.ERROR_CODE_INVALID_DATA);
+
+
+        String content = App.getGson().toJson(request.getParticipantsIds());
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content);
+        message.setType(ChatMessageType.Constants.UN_MUTE_CALL_PARTICIPANT);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+    }
+
+
+    public static ChatResponse<MuteUnMuteCallParticipantResult> handleMuteUnMuteCallParticipant(ChatMessage chatMessage) {
+
+
+        ChatResponse<MuteUnMuteCallParticipantResult> response = new ChatResponse<>();
+
+        try {
+            ArrayList<CallParticipantVO> mutedParticipants = App.getGson().fromJson(chatMessage.getContent(),
+                    new TypeToken<ArrayList<CallParticipantVO>>() {
+                    }.getType());
+
+            MuteUnMuteCallParticipantResult result = new MuteUnMuteCallParticipantResult(mutedParticipants);
+            result.setCallId(chatMessage.getSubjectId());
+            response.setResult(result);
+            response.setCache(false);
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setHasError(false);
+            return response;
+
+
+        } catch (Exception e) {
+            response.setCache(false);
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setHasError(true);
+            response.setErrorMessage(e.getMessage());
+            response.setErrorCode(ChatConstant.ERROR_CODE_INVALID_DATA);
+            return response;
+        }
+
+
+    }
+
 
     public static String createEndCallRequestMessage(EndCallRequest request, String uniqueId) {
 
@@ -325,12 +437,8 @@ public class CallManager {
 
     public static ChatResponse<CallRequestResult> handleOnCallRequest(ChatMessage chatMessage) {
 
-        Log.d(TAG, "Chat Message: " + chatMessage.getContent());
-
-        CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
-
-        CallRequestResult callRequestResult = new CallRequestResult(createCallVO);
-
+        CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
+        callRequestResult.setThreadId(chatMessage.getSubjectId());
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
@@ -343,12 +451,8 @@ public class CallManager {
 
     public static ChatResponse<CallRequestResult> handleOnGroupCallRequest(ChatMessage chatMessage) {
 
-        Log.d(TAG, "Chat Message: " + chatMessage.getContent());
-
-        CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
-
-        CallRequestResult callRequestResult = new CallRequestResult(createCallVO);
-
+        CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
+        callRequestResult.setThreadId(chatMessage.getSubjectId());
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
@@ -361,10 +465,8 @@ public class CallManager {
 
     public static ChatResponse<CallRequestResult> handleOnRejectCallRequest(ChatMessage chatMessage) {
 
-        CreateCallVO createCallVO = App.getGson().fromJson(chatMessage.getContent(), CreateCallVO.class);
-
-        CallRequestResult callRequestResult = new CallRequestResult(createCallVO);
-
+        CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
+        callRequestResult.setThreadId(chatMessage.getSubjectId());
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
@@ -458,7 +560,7 @@ public class CallManager {
         result.setCallParticipants(participantsLeft);
 
         if (Util.isNotNullOrEmpty(participantsLeft))
-            result.setUserRemoved(isUserRemoved(participantsLeft));
+            result.setUserRemoved(isUserContains(participantsLeft));
 
 
         response.setResult(result);
@@ -469,7 +571,7 @@ public class CallManager {
 
     }
 
-    public static boolean isUserRemoved(List<CallParticipantVO> removedParticipants) {
+    public static boolean isUserContains(List<CallParticipantVO> removedParticipants) {
 
         return CoreConfig.userId != null && (CoreConfig.userId > 0 && isUserInRemoveList(removedParticipants));
     }
@@ -621,5 +723,88 @@ public class CallManager {
 
 
         return response;
+    }
+
+    public static ChatResponse<GetCallParticipantResult> reformatActiveCallParticipant(ChatMessage chatMessage) {
+
+        try {
+            ArrayList<CallParticipantVO> callParticipantVOS = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CallParticipantVO>>() {
+            }.getType());
+            ChatResponse<GetCallParticipantResult> response = new ChatResponse<>();
+            GetCallParticipantResult result = new GetCallParticipantResult(callParticipantVOS);
+            result.setThreadId(chatMessage.getSubjectId());
+            response.setResult(result);
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setCache(false);
+            response.setHasError(false);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            ChatResponse<GetCallParticipantResult> response = new ChatResponse<>();
+            response.setErrorMessage(e.getMessage());
+            response.setErrorCode(ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION);
+            response.setHasError(true);
+            return response;
+        }
+
+
+    }
+
+    public static ChatResponse<CallCreatedResult> handleOnCallCreated(ChatMessage chatMessage) {
+
+        ChatResponse<CallCreatedResult> response = new ChatResponse<>();
+
+        try {
+            CallCreatedResult callCreatedResult = App.getGson().fromJson(chatMessage.getContent(), CallCreatedResult.class);
+            callCreatedResult.setThreadId(chatMessage.getSubjectId());
+            response.setResult(callCreatedResult);
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setHasError(false);
+            response.setSubjectId(chatMessage.getSubjectId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setHasError(true);
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setErrorMessage(e.getMessage());
+            response.setErrorCode(ChatConstant.ERROR_CODE_INVALID_DATA);
+        }
+        response.setCache(false);
+
+        return response;
+
+
+    }
+
+
+    public static ChatResponse<CallCancelResult> handleOnCallCanceled(ChatMessage chatMessage) {
+
+        ChatResponse<CallCancelResult> response = new ChatResponse<>();
+
+        try {
+            CallParticipantVO participantVO =
+                    App.getGson().fromJson(chatMessage.getContent(),CallParticipantVO.class);
+
+            CallCancelResult result = new CallCancelResult(participantVO);
+
+            response.setResult(result);
+            response.setHasError(false);
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setCache(false);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setCache(false);
+            response.setHasError(true);
+            response.setUniqueId(chatMessage.getUniqueId());
+            response.setSubjectId(chatMessage.getSubjectId());
+            response.setErrorCode(ChatConstant.ERROR_CODE_INVALID_DATA);
+            response.setErrorMessage(ChatConstant.ERROR_INVALID_DATA);
+            return response;
+        }
+
+
     }
 }

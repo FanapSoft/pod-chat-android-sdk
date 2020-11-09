@@ -2345,6 +2345,29 @@ public class MessageDatabaseHelper {
 
     }
 
+    public void saveUserInfo(UserInfo userInfo) {
+
+        worker(() -> {
+
+            try {
+                messageDao.insertUserInfo(userInfo);
+
+                //set user id for profile table
+                if (userInfo.getChatProfileVO() != null) {
+
+                    userInfo.getChatProfileVO().setId(userInfo.getId());
+
+                    messageDao.insertChatProfile(userInfo.getChatProfileVO());
+                }
+            } catch (Exception e) {
+                if(Sentry.isEnabled())
+                    Sentry.captureException(e,"2nd try for saving user info");
+            }
+
+
+        });
+    }
+
 
     public interface IRoomIntegrity {
 

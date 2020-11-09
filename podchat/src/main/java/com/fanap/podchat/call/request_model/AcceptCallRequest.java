@@ -1,69 +1,42 @@
 package com.fanap.podchat.call.request_model;
 
-import com.fanap.podchat.mainmodel.Invitee;
-
-import java.util.List;
-
-public class AcceptCallRequest extends CallRequest {
+public class AcceptCallRequest {
 
     private long callId;
-    private long creatorId;
-    private List<Invitee> invitees;
+    private boolean mute;
 
 
     AcceptCallRequest(Builder builder) {
-        super(builder);
         this.callId = builder.callId;
-        this.creatorId = builder.creatorId;
-        this.invitees = builder.invitees;
-    }
-
-    @Override
-    public List<Invitee> getInvitees() {
-        return invitees;
+        this.mute = builder.mute;
     }
 
     public long getCallId() {
         return callId;
     }
 
-    public long getCreatorId() {
-        return creatorId;
+    public boolean isMute() {
+        return mute;
     }
 
-
-    public static class Builder extends CallRequest.Builder {
+    public static class Builder{
 
         private long callId;
-        private long creatorId;
-        private List<Invitee> invitees;
+        private boolean mute;
 
 
-        public Builder(List<Invitee> invitees, int callType, long callId) {
-            super(invitees, callType);
+        public Builder(long callId) {
             this.callId = callId;
-            this.invitees = invitees;
         }
 
-        public Builder setCreatorId(long creatorId) {
-            this.creatorId = creatorId;
-            return this;
-        }
 
         public Builder setCallId(long callId) {
             this.callId = callId;
             return this;
         }
 
-        @Override
-        public Builder setInvitees(List<Invitee> invitees) {
-            super.setInvitees(invitees);
-            return this;
-        }
-
-        @Override
-        public Builder setCallType(int callType) {
-            super.setCallType(callType);
+        public Builder mute() {
+            this.mute = true;
             return this;
         }
 

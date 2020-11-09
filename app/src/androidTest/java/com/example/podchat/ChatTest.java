@@ -358,7 +358,7 @@ public class ChatTest extends ChatAdapter {
         sleep(3000);
         presenter.getContact(50, 0L, null);
         sleep(3000);
-        Mockito.verify(view, Mockito.times(1)).onGetContacts();
+        Mockito.verify(view, Mockito.times(1)).onGetContacts(outPutContact.getResult());
     }
 
     @Test

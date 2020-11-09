@@ -36,6 +36,8 @@ public class ChatConstant {
 
     public static final int ERROR_CODE_CALL_NESHAN_API = 6600;
 
+    public static final int ERROR_CODE_INVALID_DATA = 6700;
+
 
     public static long ERROR_CODE_NOTIFICATION_ERROR = 6700;
 
@@ -63,6 +65,7 @@ public class ChatConstant {
     public static final String ERROR_WRITING_FILE = "Error in writing file to disk";
     public static final String ERROR_INVALID_TOKEN = "Invalid Token!";
     public static final String ERROR_INVALID_URI = "Invalid Uri!";
+    public static final String ERROR_INVALID_DATA = "Invalid Data!";
     public static final String ERROR_INVALID_FILE_URI = "Invalid File Uri!";
     public static final String ERROR_UNKNOWN_EXCEPTION = "Unknown Exception";
     public static final String ERROR_CHECK_URL = "Url must end in /";
@@ -90,5 +93,12 @@ public class ChatConstant {
     public static final String ERROR_INVALID_USER_GROUP_HASH = "Invalid userGroupHash value";
     public static final String ERROR_INVALID_THREAD_ID = "Invalid thread id";
     public static final String ERROR_ASYNC_EXCEPTION = "Async Error";
+
+
+    /*
+    Call
+     */
+    public static final String MUTE_USER_LIST_IS_EMPTY = "user list for mute/unmute is empty";
+
 
 }

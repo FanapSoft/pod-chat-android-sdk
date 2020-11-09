@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="60dp">
+
+
+    <ImageView
+        android:id="@+id/imageContact"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="4dp"
+        android:background="@mipmap/ic_profile"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageDone"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="4dp"
+        app:srcCompat="@drawable/ic_done"
+        android:background="@drawable/circle_white"
+        android:alpha="0.7"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/tvContactName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:textColor="@color/grey"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/imageContact"
+        app:layout_constraintEnd_toStartOf="@+id/imageContact"
+        app:layout_constraintTop_toTopOf="@+id/imageContact"
+        tools:text="نام مخاطب" />
+
+    <ImageButton
+        android:id="@+id/imgBtnCallContact"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="4dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_call_blue" />
+
+
+</android.support.constraint.ConstraintLayout>

@@ -44,8 +44,8 @@ public class RequestCreateThread extends BaseRequestObject {
 
 
     public static class Builder extends BaseRequestObject.Builder<Builder> {
-        private final int type;
-        private final List<Invitee> invitees;
+        private int type;
+        private List<Invitee> invitees;
         private String title;
         private RequestThreadInnerMessage message;
         private RequestUploadImage uploadImageRequest;

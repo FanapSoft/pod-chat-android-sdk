@@ -5,7 +5,10 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.contacts.ContactsFragment;
+import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
@@ -254,6 +257,26 @@ public interface ChatContract {
         default void updateStatus(String message){}
 
         default void onThreadClosed(long subjectId){}
+
+        default void onCallCreated(long threadId){}
+
+        default void audioCallMuted(){}
+        default void audioCallUnMuted(){}
+
+        default void callParticipantMuted(CallParticipantVO participant){}
+        default void callParticipantUnMuted(CallParticipantVO participant){}
+
+        default void audioCallMutedByAdmin(){}
+        default void audioCallUnMutedByAdmin(){}
+
+
+        default void callParticipantCanceledCall(String name){}
+
+        default void hideCallRequest(){}
+
+        default void showContactsFragment(ContactsFragment contactsWrappers){}
+
+        default void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers){}
     }
 
     interface presenter {
@@ -543,5 +566,8 @@ public interface ChatContract {
         void removeCallParticipant(boolean checked, boolean checked1, boolean checked2);
 
         void closeThread(int testThreadId);
+
+        void getContact();
+
     }
 }
