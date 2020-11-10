@@ -277,6 +277,8 @@ public interface ChatContract {
         default void showContactsFragment(ContactsFragment contactsWrappers){}
 
         default void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers){}
+
+        default void onGetSentryLogs(String logs){}
     }
 
     interface presenter {
@@ -298,6 +300,7 @@ public interface ChatContract {
         void cancelMessage(String uniqueId);
 
         void retryUpload(String uniqueId);
+        void getSentryLogs();
 
         void cancelUpload(String uniqueId);
 

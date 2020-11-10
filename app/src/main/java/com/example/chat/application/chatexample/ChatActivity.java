@@ -167,7 +167,7 @@ public class ChatActivity extends AppCompatActivity
     //local
 
 //
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
@@ -372,6 +372,11 @@ public class ChatActivity extends AppCompatActivity
 
         presenter.clearNotifications();
 
+    }
+
+    @Override
+    public void onGetSentryLogs(String logs) {
+        Toast.makeText(this, logs, Toast.LENGTH_SHORT).show();
     }
 
     private void getNotificationData() {
@@ -1937,6 +1942,12 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
+            case 27:{
+
+                getSentryLogs();
+
+                break;
+            }
 
         }
     }
@@ -1944,6 +1955,10 @@ public class ChatActivity extends AppCompatActivity
     private void closeThread() {
 
         presenter.closeThread(TEST_THREAD_ID);
+    }
+    private void getSentryLogs() {
+
+        presenter.getSentryLogs();
     }
 
     private void getMentionList() {

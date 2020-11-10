@@ -215,6 +215,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.isLoggable(true);
         chat.rawLog(true);
+        chat.isSentryLogActive(false);
+        chat.isSentryResponseLogActive(false);
 
         chat.setDownloadDirectory(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS));
 
@@ -267,6 +269,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+    @Override
+    public void getSentryLogs() {
+       view.onGetSentryLogs(chat.getSenrtyLogs());
+    }
 
     @Override
     public void connect(String serverAddress, String appId, String severName,

@@ -274,8 +274,15 @@ import com.securepreferences.SecurePreferences;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -460,11 +467,12 @@ public class Chat extends AsyncAdapter {
      *
      * @param context for Async sdk and other usage
      **/
+    private static Context mcontext;
 
     public synchronized static Chat init(Context context) {
 
         if (instance == null) {
-
+            mcontext = context;
 
             setupSentry(context);
 
@@ -505,6 +513,10 @@ public class Chat extends AsyncAdapter {
         return instance;
     }
 
+    private static String sentryCachDir = "";
+    private static StringBuilder sentrylogs = new StringBuilder();
+    private static StringBuilder sentryCashedlogs = new StringBuilder();
+
     private static void setupSentry(Context context) {
         SentryAndroid.init(context.getApplicationContext(),
                 options -> {
@@ -513,12 +525,77 @@ public class Chat extends AsyncAdapter {
                     options.setSentryClientName("PodChat-Android");
                     options.addInAppInclude("com.fanap.podchat");
                     options.setEnvironment("PODCHAT");
+                    sentryCachDir = options.getCacheDirPath();
 
                     options.setBeforeSend((event, hint) -> {
                         options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
+
+                        String breadCrumbs = App.getGson().toJson(event.getBreadcrumbs());
+                        sentrylogs.append(breadCrumbs + "\n \n");
+                        Log.e("sentryLogs", "send new log");
                         return event;
                     });
                 });
+
+
+    }
+
+
+    public String getSenrtyLogs() {
+        getCacheLogs(sentryCachDir);
+
+        return "from local memmory \n\n ------------------------------------------------------------>" + sentrylogs.toString() + "\n\nfrom cash ------------------------------------------------------------>" + sentryCashedlogs.toString();
+    }
+
+    private static void getCacheLogs(String path) {
+
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File fi = new File(path + "/" + files[i].getName());
+            if (fi.isDirectory()) {
+                getCacheLogs(fi.getPath());
+            } else {
+                Log.e("sentryLogs", "get logs from cache");
+                try {
+                    sentryCashedlogs.append("addNew \n\n\n" + readFromFile(mcontext, fi.toString()));
+                } catch (Exception e) {
+                    sentryCashedlogs.append("addNew \n\n\n can not get logs from cache file ");
+                }
+
+            }
+
+        }
+    }
+
+    private static String readFromFile(Context context, String path) {
+
+        String ret = "";
+
+        try {
+
+            FileInputStream inputStream = new FileInputStream(new File(path));
+
+            if (inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((receiveString = bufferedReader.readLine()) != null) {
+                    stringBuilder.append("\n").append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        }
+
+        return ret;
     }
 
 
@@ -1271,7 +1348,7 @@ public class Chat extends AsyncAdapter {
                     //user is unmuted onMutedByAdmin
                     callOnCurrentUserUnMutedByAdnmin(response);
 
-                    if(response.getResult().getCallParticipants().size()>1){
+                    if (response.getResult().getCallParticipants().size() > 1) {
                         //call participant unmuted onCallParticipantUnMuted
                         callOnOtherCallParticipantsUnMuted(response);
                     }
@@ -1337,7 +1414,7 @@ public class Chat extends AsyncAdapter {
                     if (response.getResult().getCallParticipants().size() > 1) {
                         callOnOtherCallParticipantsMuted(response);
                     }
-                    } else {
+                } else {
                     //call participant muted onCallParticipantMuted
                     callOnOtherCallParticipantsMuted(response);
                 }
@@ -6433,8 +6510,15 @@ public class Chat extends AsyncAdapter {
                         .subscribe(response -> {
                             if (response != null && Util.isNotNullOrEmpty(response.getThreadList())) {
                                 String threadJson = publishThreadsList(uniqueId, finalOffset, response);
-                                showLog("SOURCE: " + response.getSource());
-                                showLog("CACHE_GET_THREAD", threadJson);
+
+
+                                if (sentryResponseLog) {
+                                    showLog("SOURCE: " + response.getSource());
+                                    showLog("CACHE_GET_THREAD", threadJson);
+                                } else {
+                                    showLog("SOURCE");
+                                    showLog("CACHE_GET_THREAD");
+                                }
                             }
                         });
 
@@ -6798,8 +6882,15 @@ public class Chat extends AsyncAdapter {
                         chatResponse.setUniqueId(uniqueId);
                         String json = gson.toJson(chatResponse);
                         listenerManager.callOnGetThreadHistory(json, chatResponse);
-                        showLog("SOURCE: " + historyResponse.getSource());
-                        showLog("CACHE_GET_HISTORY", json);
+
+
+                        if (sentryResponseLog) {
+                            showLog("SOURCE: " + historyResponse.getSource());
+                            showLog("CACHE_GET_HISTORY", json);
+                        } else {
+                            showLog("SOURCE");
+                            showLog("CACHE_GET_HISTORY");
+                        }
                         return chatResponse.getResult().getHistory();
                     } else {
                         return new ArrayList<>();
@@ -10637,7 +10728,7 @@ public class Chat extends AsyncAdapter {
         if (sentryLog) {
 
             Breadcrumb c = new Breadcrumb();
-            c.setCategory("INFO");
+            c.setCategory("INFO" + i);
             c.setData("DATA", json);
             c.setLevel(SentryLevel.INFO);
             c.setMessage(i);
@@ -10657,7 +10748,7 @@ public class Chat extends AsyncAdapter {
 //            }
         }
         Breadcrumb c = new Breadcrumb();
-        c.setCategory("INFO");
+        c.setCategory("INFO " + info);
         c.setData("DATA", info);
         c.setLevel(SentryLevel.INFO);
         c.setMessage(info);
@@ -13183,7 +13274,13 @@ public class Chat extends AsyncAdapter {
         String contactJson = gson.toJson(chatResponse);
 
         listenerManager.callOnGetContacts(contactJson, chatResponse);
-        showLog("CACHE_GET_CONTACT", contactJson);
+
+        if (sentryResponseLog) {
+            showLog("CACHE_GET_CONTACT", contactJson);
+        } else {
+            showLog("CACHE_GET_CONTACT");
+        }
+
     }
 
     @NonNull
@@ -13321,7 +13418,13 @@ public class Chat extends AsyncAdapter {
                     if (!Util.isNullOrEmpty(threads)) {
 
                         String threadJson = publishThreadsList(uniqueId, finalOffset, new ThreadManager.ThreadResponse(threads, contentCount, "DISK"));
-                        showLog("CACHE_GET_THREAD", threadJson);
+
+                        if (sentryResponseLog) {
+                            showLog("CACHE_GET_THREAD", threadJson);
+                        } else {
+                            showLog("CACHE_GET_THREAD");
+                        }
+
                         dataSource.saveThreadResultFromCache(threads);
 
                     }
