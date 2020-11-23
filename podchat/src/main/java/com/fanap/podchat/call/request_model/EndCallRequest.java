@@ -31,6 +31,10 @@ public class EndCallRequest extends GeneralRequestObject {
             return this;
         }
 
+        public long getCallId() {
+            return callId;
+        }
+
         @Override
         public EndCallRequest build() {
 

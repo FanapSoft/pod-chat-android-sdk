@@ -128,4 +128,10 @@ public class SendingQueueCache {
         }
 
     }
+
+
+    public SendingQueueCache() {
+    }
+
+
 }

@@ -64,6 +64,7 @@ import rx.Observer;
 import rx.Scheduler;
 import rx.Single;
 import rx.functions.Func1;
+import rx.observables.AsyncOnSubscribe;
 import rx.schedulers.Schedulers;
 
 import static org.junit.Assert.assertEquals;
@@ -409,52 +410,81 @@ public class ExampleUnitTest {
     public void testOnComplete() {
 
 
-        new PodThreadManager()
-                .doWithUI(() -> {
-                    System.out.println("On UI Im on " + Thread.currentThread().getName());
-
-                }, () -> {
-                    System.out.println("Error Im on " + Thread.currentThread().getName());
-
-                }, () -> {
-                    System.out.println("Task Im on " + Thread.currentThread().getName());
-
-                    int a = 10;
-                    int b = 0;
-
-                    int c = a / b;
-
-                });
-//
 //        new PodThreadManager()
-//                .addNewTask(()->{
+//                .doWithUI(() -> {
+//                    System.out.println("On UI Im on " + Thread.currentThread().getName());
 //
-//                    System.out.println("aaa " + Thread.currentThread().getName());
+//                }, () -> {
+//                    System.out.println("Error Im on " + Thread.currentThread().getName());
+//
+//                }, () -> {
+//                    System.out.println("Task Im on " + Thread.currentThread().getName());
+//
+//                    int a = 10;
+//                    int b = 0;
+//
+//                    int c = a / b;
+//
+//                });
+
+
+        new PodThreadManager()
+                .addNewTask(()->{
+
+                    System.out.println("aaa " + Thread.currentThread().getName());
+//
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+
+                })
+                .addNewTask(()->{
+
+                    System.out.println("bbb " + Thread.currentThread().getName());
+
+//                    try {
+//                        Thread.sleep(2000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+
+                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
+
+                })
+                .runTasksSynced();
+        new PodThreadManager()
+                .addNewTask(()->{
+
+                    System.out.println("aaa " + Thread.currentThread().getName());
 //
 //                    try {
 //                        Thread.sleep(2000);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                    }
-//
-//                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
-//
-//                })
-//                .addNewTask(()->{
-//
-//                    System.out.println("bbb " + Thread.currentThread().getName());
-//
-//                    try {
-//                        Thread.sleep(2000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
-//
-//                })
-//        .runTasksASync();
-//
+
+                    System.out.println("aaa " + "aaa " + Thread.currentThread().getName());
+
+                })
+                .addNewTask(()->{
+
+                    System.out.println("bbb " + Thread.currentThread().getName());
+
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("bbb " + "bbb " + Thread.currentThread().getName());
+
+                })
+                .runTasksASync();
+
 //        new PodThreadManager()
 //                .doThisSafe(()->{
 //
@@ -530,6 +560,31 @@ public class ExampleUnitTest {
                     else System.out.println("uuu");
 
                 });
+
+
+    }
+
+    @Test
+    public void testSeriObservable() {
+
+
+        Observable<String> a = Observable.create(ss -> {
+
+            ss.onNext("a");
+
+        });
+
+
+        Observable<String> b = Observable.create(ss -> {
+            ss.onNext("b");
+        });
+
+        Observable<String> c = Observable.create(ss -> {
+            ss.onNext("c");
+        });
+
+        Observable.merge(b,c,a)
+                .subscribe(o-> System.out.println("IS : " + o));
 
 
     }
@@ -1504,5 +1559,10 @@ public class ExampleUnitTest {
         assertEquals(count, a.size() + b.size());
 
     }
+
+
+
+
+
 
 }

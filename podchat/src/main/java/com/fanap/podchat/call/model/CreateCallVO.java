@@ -15,6 +15,7 @@ public class CreateCallVO implements Serializable {
     private Participant creatorVO;
     private Thread conversationVO;
     private long threadId;
+    private long callId;
     private boolean isGroup;
 
 
@@ -72,5 +73,14 @@ public class CreateCallVO implements Serializable {
 
     public void setGroup(boolean group) {
         isGroup = group;
+    }
+
+    public long getCallId() {
+        return callId;
+    }
+
+    public CreateCallVO setCallId(long callId) {
+        this.callId = callId;
+        return this;
     }
 }

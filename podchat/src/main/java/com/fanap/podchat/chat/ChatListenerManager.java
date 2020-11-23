@@ -3,23 +3,30 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallCreatedResult;
+import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.CallReconnectResult;
+import com.fanap.podchat.call.result_model.CallRequestResult;
+import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.call.result_model.GetCallParticipantResult;
+import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
+import com.fanap.podchat.call.result_model.LeaveCallResult;
+import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
+import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
-import com.fanap.podchat.call.result_model.CallDeliverResult;
-import com.fanap.podchat.call.result_model.CallStartResult;
-import com.fanap.podchat.call.result_model.GetCallHistoryResult;
-import com.fanap.podchat.call.result_model.CallReconnectResult;
-import com.fanap.podchat.call.result_model.CallRequestResult;
-import com.fanap.podchat.call.result_model.EndCallResult;
-import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
-import com.fanap.podchat.call.result_model.LeaveCallResult;
-import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -46,8 +53,6 @@ import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultNotSeenDuration;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
 import com.fanap.podchat.model.ResultSignalMessage;
@@ -133,7 +138,7 @@ public class ChatListenerManager {
             }
 
             mListeners.clear();
-            mSyncNeeded = true;
+            mCopiedListeners.clear();
         }
     }
 
@@ -151,9 +156,7 @@ public class ChatListenerManager {
             // Copy mListeners to copiedListeners.
             List<ChatListener> copiedListeners = new ArrayList<>(mListeners.size());
 
-            for (ChatListener listener : mListeners) {
-                copiedListeners.add(listener);
-            }
+            copiedListeners.addAll(mListeners);
 
             // Synchronize.
             mCopiedListeners = copiedListeners;
@@ -621,7 +624,7 @@ public class ChatListenerManager {
     public void callOnLogEvent(String logName, String json) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onLogEvent(logName,json);
+                listener.onLogEvent(logName, json);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -699,7 +702,6 @@ public class ChatListenerManager {
     public void callOnPinThread(ChatResponse<ResultPinThread> response) {
 
 
-
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onPinThread(response);
@@ -711,9 +713,7 @@ public class ChatListenerManager {
     }
 
 
-
     public void callOnUnPinThread(ChatResponse<ResultPinThread> response) {
-
 
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -764,7 +764,6 @@ public class ChatListenerManager {
         }
 
 
-
     }
 
     public void callOnGetMentionList(ChatResponse<ResultHistory> response) {
@@ -776,7 +775,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -791,7 +789,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -833,7 +830,6 @@ public class ChatListenerManager {
     public void callOnUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
 
 
-
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onUniqueNameIsAvailable(response);
@@ -867,7 +863,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -942,7 +937,6 @@ public class ChatListenerManager {
     public void callOnPingStatusSent(ChatResponse<StatusPingResult> response) {
 
 
-
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onPingStatusSent(response);
@@ -1008,7 +1002,7 @@ public class ChatListenerManager {
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onGetCallHistory(response);
+                listener.onReceiveCallHistory(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -1080,6 +1074,29 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnCallParticipantRemoved(ChatResponse<RemoveFromCallResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantRemoved(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnRemovedFromCall(ChatResponse<RemoveFromCallResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRemovedFromCall(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
     public void callOnCallParticipantJoined(ChatResponse<JoinCallParticipantResult> response) {
 
 
@@ -1090,7 +1107,6 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
-
 
 
     }
@@ -1106,6 +1122,126 @@ public class ChatListenerManager {
             }
         }
 
+    }
+
+    public void callOnThreadClosed(ChatResponse<CloseThreadResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadClosed(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnReceiveActiveCallParticipants(ChatResponse<GetCallParticipantResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onActiveCallParticipantsReceived(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCallCreated(ChatResponse<CallCreatedResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallCreated(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callOnAudioCallMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAudioCallMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onMutedByAdmin(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCallParticipantMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAudioCallUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAudioCallUnMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callOnUnMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUnMutedByAdmin(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantUnMuted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCallCanceled(ChatResponse<CallCancelResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantCanceledCall(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callOnAnotherDeviceAcceptedCall() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAnotherDeviceAcceptedCall();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
     }
 
 

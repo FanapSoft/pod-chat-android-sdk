@@ -5,6 +5,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
+import com.fanap.podchat.mainmodel.Participant;
 
 import java.util.List;
 
@@ -48,6 +49,39 @@ public class CacheParticipant {
 
     @Ignore
     private ChatProfileVO chatProfileVO;
+
+
+    public CacheParticipant() {
+    }
+    
+    public CacheParticipant(Participant participant,long threadId) {
+        this.id = participant.getId();
+        this.threadId = threadId;
+        this.name = participant.getName();
+        this.firstName = participant. getFirstName();
+        this.lastName = participant. getLastName();
+        this.image = participant. getImage();
+        this.notSeenDuration = participant. getNotSeenDuration();
+        this.contactId = participant. getContactId();
+        this.coreUserId = participant. getCoreUserId();
+        this.contactName = participant. getContactName();
+        this.contactFirstName = participant. getContactFirstName();
+        this.contactLastName = participant. getContactLastName();
+        this.sendEnable = participant. getSendEnable();
+        this.receiveEnable = participant. getReceiveEnable();
+        this.cellphoneNumber = participant. getCellphoneNumber();
+        this.email = participant. getEmail();
+        this.myFriend = participant. getMyFriend();
+        this.online = participant. getOnline();
+        this.blocked = participant. getBlocked();
+        this.admin = participant. getAdmin();
+        this.auditor = participant. getAuditor();
+        this.keyId = participant. getKeyId();
+        this.username = participant. getUsername();
+        this.roles = participant. getRoles();
+        this.chatProfileVO = participant. getChatProfileVO();
+        
+    }
 
 
     public List<String> getRoles() {

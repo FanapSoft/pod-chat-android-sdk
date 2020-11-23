@@ -6,13 +6,16 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.networking.ProgressRequestBody;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.FileUtils;
 import com.fanap.podchat.util.PodChatException;
@@ -832,8 +835,15 @@ public class PodUploader {
 
     }
 
-    public static ResultImageFile generateImageUploadResult(UploadToPodSpaceResult response) {
+    public static ChatResponse<ResultFile>  generateImageUploadResultForSendMessage(UploadToPodSpaceResult response, String uniqueId){
+        ResultFile result = PodUploader.generateFileUploadResult(response);
+        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+        chatResponse.setResult(result);
+        chatResponse.setUniqueId(uniqueId);
+        return chatResponse;
 
+    }
+    private static ResultImageFile generateImageUploadResult(UploadToPodSpaceResult response) {
 
         ResultImageFile result = new ResultImageFile();
         result.setId(0);
@@ -843,6 +853,27 @@ public class PodUploader {
         result.setUrl(response.getParentHash());
 
         return result;
+    }
+
+
+    public static ChatResponse<ResultImageFile> generateImageUploadResultForSendMessage(UploadToPodSpaceResult response,String uniqueId ,  int actualWidth, int actualHeight, int width, int height,String url){
+
+        ResultImageFile result = generateImageUploadResult(response);
+
+        ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+        ResultImageFile resultImageFile = new ResultImageFile();
+        chatResponse.setUniqueId(uniqueId);
+        resultImageFile.setId(result.getId());
+        resultImageFile.setHashCode(result.getHashCode());
+        resultImageFile.setName(result.getName());
+        resultImageFile.setHeight(height);
+        resultImageFile.setWidth(width);
+        resultImageFile.setActualHeight(actualHeight);
+        resultImageFile.setActualWidth(actualWidth);
+        resultImageFile.setUrl(url);
+
+        chatResponse.setResult(resultImageFile);
+        return chatResponse;
     }
 
 

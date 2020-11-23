@@ -68,4 +68,13 @@ public class RequestGetPodSpaceImage extends RequestGetPodSpaceFile {
         }
     }
 
+
+    @Override
+    public String toString() {
+        return super.toString() + " >>> " +" RequestGetPodSpaceImage{" +
+                "size='" + size + '\'' +
+                ", quality=" + quality +
+                ", crop=" + crop +
+                '}';
+    }
 }

@@ -5,6 +5,49 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.3.1] -2020-11-22
+
+[Added] ```isSentryLogActive```
+
+[Added] ```isSentryResponseLogActive```
+
+
+
+## Version [0.9.3.0] -2020-11-02
+
+[Added] ```closeThread```
+
+[Added] ```safeLeaveThread```
+
+[Added] ```shouldKeepHistory``` to ```RequestLeaveThread``` and ```SafeLeaveRequest```
+
+[Added] ChatMessageType, STICKER
+
+[Added] ```addGroupCallParticipant```
+
+[Added] ```removeGroupCallParticipant```
+
+[Added] ```onCallParticipantLeft``` callback
+
+[Added] Group image to notification
+
+[Changed] ```isInCache``` to ```isAvailableInCache```
+
+[BugFixed] ```deleteMultipleMessage```
+
+
+
+
+## Version [0.9.1.0] -2020-10-07
+
+[Added] **Audio Call**
+
+[Added] ```getChatState()```
+
+[Added] New Message Type 'STICKER'
+
+
+
 ## Version [0.9.0.0] -2020-9-22
 
 [Improved] Contacts Cache Performance

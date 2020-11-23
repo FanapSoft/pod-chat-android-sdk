@@ -12,4 +12,7 @@ public class MetadataLocationFile extends MetaDataImageFile {
     public void setLocation(MapLocation location) {
         this.location = location;
     }
+
+
+
 }

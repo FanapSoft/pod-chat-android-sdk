@@ -26,6 +26,12 @@ public class RequestGetUserRoles extends GeneralRequestObject {
         }
 
         @Override
+        public Builder withNoCache() {
+             super.withNoCache();
+            return this;
+        }
+
+        @Override
         public RequestGetUserRoles build() {
             return new RequestGetUserRoles(this) ;
         }

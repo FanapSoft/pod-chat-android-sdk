@@ -179,7 +179,7 @@ public class Participant {
     }
 
     public Boolean getSendEnable() {
-        return sendEnable;
+        return sendEnable != null ? sendEnable : false;
     }
 
     public void setSendEnable(Boolean sendEnable) {
@@ -187,7 +187,7 @@ public class Participant {
     }
 
     public Boolean getReceiveEnable() {
-        return receiveEnable;
+        return receiveEnable != null ? receiveEnable : false;
     }
 
     public void setReceiveEnable(Boolean receiveEnable) {
@@ -211,7 +211,7 @@ public class Participant {
     }
 
     public Boolean getMyFriend() {
-        return myFriend;
+        return myFriend != null ? myFriend : false;
     }
 
     public void setMyFriend(Boolean myFriend) {
@@ -219,7 +219,7 @@ public class Participant {
     }
 
     public Boolean getOnline() {
-        return online;
+        return online !=null ? online : false;
     }
 
     public void setOnline(Boolean online) {
@@ -243,7 +243,7 @@ public class Participant {
     }
 
     public Boolean getBlocked() {
-        return blocked;
+        return blocked != null ? blocked : false;
     }
 
     public void setBlocked(Boolean blocked) {
@@ -251,7 +251,7 @@ public class Participant {
     }
 
     public Boolean getAdmin() {
-        return admin;
+        return admin != null ? admin : false;
     }
 
     public void setAdmin(Boolean admin) {
@@ -283,7 +283,7 @@ public class Participant {
     }
 
     public Boolean getAuditor() {
-        return auditor;
+        return auditor != null ? auditor : false;
     }
 
     public void setAuditor(Boolean auditor) {
@@ -304,7 +304,7 @@ public class Participant {
         try {
             if (obj != null) {
                 return this.id == ((Participant) obj).getId();
-            }else return false;
+            } else return false;
         } catch (Exception e) {
             return false;
         }

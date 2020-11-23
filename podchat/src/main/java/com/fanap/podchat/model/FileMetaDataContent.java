@@ -1,5 +1,8 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.chat.App;
+import com.google.gson.JsonObject;
+
 public class FileMetaDataContent {
     private String link;
     private String hashCode;
@@ -55,5 +58,29 @@ public class FileMetaDataContent {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public FileMetaDataContent() {
+    }
+
+    public FileMetaDataContent(long id, String name, String mimeType,long size) {
+        this.id = id;
+        this.name = name;
+        this.mimeType = mimeType;
+        this.size = size;
+    }
+
+    //generate metadata for file
+    public String getMetaData(){
+        MetaDataFile metaDataFile = new MetaDataFile();
+        metaDataFile.setFile(this);
+
+        JsonObject metadata = (JsonObject) App.getGson().toJsonTree(metaDataFile);
+
+        metadata.addProperty("name", name);
+        metadata.addProperty("id", id);
+        metadata.addProperty("fileHash", hashCode);
+
+       return metadata.toString();
     }
 }

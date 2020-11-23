@@ -202,15 +202,6 @@ public class ChatTest extends ChatAdapter {
     }
 
 
-    @Test
-    @MediumTest
-    public void getUserInfo() {
-        sleep(5000);
-        presenter.getUserInfo(null);
-        sleep(5000);
-        Mockito.verify(view, Mockito.times(1)).onGetUserInfo(outPutUserInfo);
-
-    }
 
 
     @Test
@@ -367,7 +358,7 @@ public class ChatTest extends ChatAdapter {
         sleep(3000);
         presenter.getContact(50, 0L, null);
         sleep(3000);
-        Mockito.verify(view, Mockito.times(1)).onGetContacts();
+        Mockito.verify(view, Mockito.times(1)).onGetContacts(outPutContact.getResult());
     }
 
     @Test
@@ -478,7 +469,7 @@ public class ChatTest extends ChatAdapter {
     @MediumTest
     public void renameThread() {
         sleep(3000);
-        presenter.renameThread(632, "5_گروه خودمونی", null);
+        presenter.renameThread(9162, "5 گروه خودمونی ما", null);
         sleep(3000);
         Mockito.verify(view, Mockito.times(1)).onRenameGroupThread();
     }
@@ -578,13 +569,13 @@ public class ChatTest extends ChatAdapter {
     @Test
     @MediumTest
     public void AddParticipant() {
-        sleep(5000);
-        List<Long> participantIds = new ArrayList<>();
-        participantIds.add(824L);
-        participantIds.add(577L);
-        presenter.addParticipants(691, participantIds, null);
-        sleep(5000);
-        Mockito.verify(view, Mockito.times(1)).onAddParticipant();
+//        sleep(5000);
+//        List<Long> participantIds = new ArrayList<>();
+//        participantIds.add(824L);
+//        participantIds.add(577L);
+//
+//        sleep(5000);
+//        Mockito.verify(view, Mockito.times(1)).onAddParticipant();
     }
 
     @Test

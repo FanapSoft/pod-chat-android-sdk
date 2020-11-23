@@ -303,12 +303,15 @@ public class CacheMessageVO {
             this.timeStamp = ((time / 1000) * pow) + timeNanos;
 
 
-            if (messageVO.getParticipant() != null)
-                this.participantId = messageVO.getParticipant().getId();
-
             if (messageVO.getConversation() != null) {
                 this.conversationId = messageVO.getConversation().getId();
                 this.threadVoId = this.conversationId;
+
+                if (messageVO.getParticipant() != null)
+                {
+                    this.participant = new CacheParticipant(messageVO.getParticipant(),threadVoId);
+                    this.participantId = messageVO.getParticipant().getId();
+                }
             }
 
             if (messageVO.getReplyInfoVO() != null)

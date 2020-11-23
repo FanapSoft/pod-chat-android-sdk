@@ -8,6 +8,7 @@
 /build
 /captures
 .externalNativeBuild
+.cxx
 
 # Built application files
 *.apk
@@ -75,3 +76,5 @@ google-services.json
 /src/main/obj/
 /src/main/libs/
 
+/src/main/res/values/firebase_config.xml
+/.cxx/
