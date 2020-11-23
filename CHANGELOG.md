@@ -5,6 +5,13 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.3.1] -2020-11-22
+
+[Added] ```isSentryLogActive```
+
+[Added] ```isSentryResponseLogActive```
+
+
 
 ## Version [0.9.3.0] -2020-11-02
 
@@ -21,6 +28,8 @@ All notable changes to this project will be documented here.
 [Added] ```removeGroupCallParticipant```
 
 [Added] ```onCallParticipantLeft``` callback
+
+[Added] Group image to notification
 
 [Changed] ```isInCache``` to ```isAvailableInCache```
 
