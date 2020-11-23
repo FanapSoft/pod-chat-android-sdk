@@ -18,7 +18,6 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
-import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -27,6 +26,7 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
@@ -52,6 +52,9 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -102,6 +105,7 @@ import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestRole;
 import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
@@ -270,9 +274,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
                 .setHostName("chat-sandbox.pod.ir")
-//                .setHostName("8.8.4.4") //google
-//                .setPort(53)
-//                .setPort(80)
                 .setPort(443)
                 .setDisConnectionThreshold(2)
                 .setInterval(7000)
@@ -1047,10 +1048,30 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
 
-        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
+        ArrayList<String> typeRoles = new ArrayList<>();
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+        RequestRole requestRole = new RequestRole();
+        requestRole.setId(15510);
+        requestRole.setRoleTypes(typeRoles);
+
+        ArrayList<RequestRole> requestRoles = new ArrayList<>();
+
+        requestRoles.add(requestRole);
+
+        RequestSetAdmin requestAddAdmin = new RequestSetAdmin
+                .Builder(threadId, requestRoles)
                 .build();
 
-        chat.leaveThread(leaveThread, null);
+        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId)
+                .setRequestSetAdmin(requestAddAdmin)
+                .build();
+//        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
+//                .build();
+//
+//        chat.leaveThread(leaveThread, null);
+
+        chat.safeLeaveThread(request);
     }
 
     @Override
@@ -1903,6 +1924,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void closeThread(int testThreadId) {
+
+        CloseThreadRequest closeThreadRequest = new CloseThreadRequest
+                .Builder(testThreadId)
+                .typeCode("default")
+                .build();
+
+        if(chat.isChatReady()){
+            String uniqueId = chat.closeThread(closeThreadRequest);
+        }
+
+
+    }
+
+    @Override
     public void addCallParticipant(String username, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
 
 
@@ -2124,10 +2160,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onCallRequestCanceled(ChatResponse<CallCancelResult> response) {
-
-        view.callRequestCanceled(response.getResult().getCallParticipantVO().getParticipantVO().getFirstName() +
-                " " +
-                response.getResult().getCallParticipantVO().getParticipantVO().getLastName());
+    public void onThreadClosed(ChatResponse<CloseThreadResult> response) {
+        view.onThreadClosed(response.getSubjectId());
     }
 }

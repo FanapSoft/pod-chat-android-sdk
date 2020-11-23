@@ -202,15 +202,6 @@ public class ChatTest extends ChatAdapter {
     }
 
 
-    @Test
-    @MediumTest
-    public void getUserInfo() {
-        sleep(5000);
-        presenter.getUserInfo(null);
-        sleep(5000);
-        Mockito.verify(view, Mockito.times(1)).onGetUserInfo(outPutUserInfo);
-
-    }
 
 
     @Test

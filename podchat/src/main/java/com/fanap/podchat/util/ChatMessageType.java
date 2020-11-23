@@ -103,7 +103,7 @@ public class ChatMessageType {
             Constants.CALL_PARTICIPANT_JOINED,
             Constants.REMOVE_CALL_PARTICIPANT,
             Constants.TERMINATE_CALL,
-            Constants.CANCEL_GROUP_CALL
+            Constants.CLOSE_THREAD
 
     })
 
@@ -197,8 +197,6 @@ public class ChatMessageType {
         int REMOVE_CALL_PARTICIPANT = 95;
         int TERMINATE_CALL = 96;
 
-        int CANCEL_GROUP_CALL = 99;
-
 
 
 
@@ -214,6 +212,8 @@ public class ChatMessageType {
 
 
         int LOCATION_PING = 101;
+        int CLOSE_THREAD = 102;
+
 
         int ERROR = 999;
 

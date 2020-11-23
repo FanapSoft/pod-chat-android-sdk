@@ -17,6 +17,8 @@ public class ChatConstant {
     public static final int ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 6007;
     public static final int ERROR_CODE_UNKNOWN_EXCEPTION = 6008;
     public static final int ERROR_CODE_INVALID_URI = 6009;
+    public static final int ERROR_CODE_ASYNC_EXCEPTION = 6010;
+    public static final int ERROR_CODE_ASYNC_DISCONNECTED = 6011;
     public static final int ERROR_CODE_DOWNLOAD_FILE = 6500;
     public static final int ERROR_CODE_WRITING_FILE = 6501;
     public static final int ERROR_CODE_INVALID_FILE_URI = 6502;
@@ -87,4 +89,6 @@ public class ChatConstant {
     public static final String ERROR_CALL_NESHAN_API = "Call neshan api failed";
     public static final String ERROR_INVALID_USER_GROUP_HASH = "Invalid userGroupHash value";
     public static final String ERROR_INVALID_THREAD_ID = "Invalid thread id";
+    public static final String ERROR_ASYNC_EXCEPTION = "Async Error";
+
 }

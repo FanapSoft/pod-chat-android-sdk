@@ -3,7 +3,6 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -22,6 +21,7 @@ import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -1123,15 +1123,15 @@ public class ChatListenerManager {
 
     }
 
-    public void callOnCallRequestCanceled(ChatResponse<CallCancelResult> response) {
-
+    public void callOnThreadClosed(ChatResponse<CloseThreadResult> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onCallRequestCanceled(response);
+                listener.onThreadClosed(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
+
 
     }
 

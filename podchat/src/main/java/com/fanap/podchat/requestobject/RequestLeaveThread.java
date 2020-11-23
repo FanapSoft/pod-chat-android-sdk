@@ -5,9 +5,10 @@ import android.support.annotation.NonNull;
 public class RequestLeaveThread extends GeneralRequestObject {
 
     private long threadId;
+
     private boolean clearHistory;
 
-     RequestLeaveThread(@NonNull Builder builder) {
+     public RequestLeaveThread(@NonNull Builder builder) {
         super(builder);
         this.threadId = builder.threadId;
         this.clearHistory = builder.clearHistory;
