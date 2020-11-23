@@ -23,7 +23,7 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
 
     private int messageType;
 
-    RequestCreateThreadWithMessage(Builder<?> builder) {
+    RequestCreateThreadWithMessage(Builder builder) {
         super(builder);
         this.type = builder.type;
         this.message = builder.message;
@@ -112,7 +112,7 @@ public class RequestCreateThreadWithMessage extends BaseRequestObject {
         this.image = image;
     }
 
-    public static class Builder<T extends Builder<T>> extends BaseRequestObject.Builder<Builder> {
+    public static class Builder extends BaseRequestObject.Builder<Builder> {
         private final int type;
         private final List<Invitee> invitees;
         private String title;

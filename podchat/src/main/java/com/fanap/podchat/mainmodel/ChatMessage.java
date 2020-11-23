@@ -1,5 +1,10 @@
 package com.fanap.podchat.mainmodel;
 
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.Util;
+import com.google.gson.JsonObject;
+
 public class ChatMessage extends AsyncMessage {
 
     private int messageType;
@@ -57,4 +62,37 @@ public class ChatMessage extends AsyncMessage {
     public void setMessageType(Integer messageType) {
         this.messageType = messageType;
     }
+
+
+    public ChatMessage() {
+    }
+
+    public ChatMessage(String uniqueId, int type, String content, String token) {
+        setType(type);
+        setTokenIssuer("1");
+        setToken(token);
+        setUniqueId(uniqueId);
+        setContent(content);
+    }
+
+    public JsonObject getJson(String requestParamstypecode, String typecode) {
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(this);
+
+        if (Util.isNullOrEmpty(requestParamstypecode)) {
+            if (Util.isNullOrEmpty(typecode)) {
+                jsonObject.remove("typeCode");
+            } else {
+                jsonObject.remove("typeCode");
+                jsonObject.addProperty("typeCode", typecode);
+            }
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", requestParamstypecode);
+        }
+
+
+        return jsonObject;
+    }
+
+
 }

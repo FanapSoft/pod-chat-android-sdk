@@ -14,6 +14,15 @@ public class ResultDownloadFile {
 
     private long id;
 
+    private boolean fromCache = false;
+
+    public boolean isFromCache() {
+        return fromCache;
+    }
+
+    public void setFromCache(boolean fromCache) {
+        this.fromCache = fromCache;
+    }
 
     public void setFile(File file) {
         this.file = file;

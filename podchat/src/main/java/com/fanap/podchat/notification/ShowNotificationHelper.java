@@ -829,6 +829,7 @@ public class ShowNotificationHelper {
         PodPushMessage threadMessageData = threadNotification.get(0);
         String threadName = threadMessageData.getThreadName();
         long threadId = threadMessageData.getThreadId();
+        String profileImage = threadMessageData.getProfileImage();
         String threadImage = threadMessageData.getThreadImage();
         boolean isGroup = threadMessageData.isGroup();
         NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(threadName);
@@ -870,11 +871,11 @@ public class ShowNotificationHelper {
 
 
         if (!isGroup) {
-            if (Util.isNotNullOrEmpty(threadImage)) {
+            if (Util.isNotNullOrEmpty(profileImage)) {
                 try {
                     Bitmap bitmap = GlideApp.with(context)
                             .asBitmap()
-                            .load(threadImage)
+                            .load(profileImage)
                             .apply(RequestOptions.circleCropTransform())
                             .submit(512, 512)
                             .get();
@@ -891,8 +892,27 @@ public class ShowNotificationHelper {
                 builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_profile));
             }
         } else {
+            //Thread Image
+            if (Util.isNotNullOrEmpty(threadImage)) {
+                try {
+                    Bitmap bitmap = GlideApp.with(context)
+                            .asBitmap()
+                            .load(threadImage)
+                            .apply(RequestOptions.circleCropTransform())
+                            .submit(512, 512)
+                            .get();
+                    builder.setLargeIcon(bitmap);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+                }
 
-            builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+            } else {
+                builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+            }
 
         }
 
@@ -925,6 +945,7 @@ public class ShowNotificationHelper {
         PodPushMessage threadMessageData = threadNotification.get(0);
         String threadName = threadMessageData.getThreadName();
         long threadId = threadMessageData.getThreadId();
+        String profileImage = threadMessageData.getProfileImage();
         String threadImage = threadMessageData.getThreadImage();
         boolean isGroup = threadMessageData.isGroup();
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
@@ -970,11 +991,11 @@ public class ShowNotificationHelper {
 
 
         if (!isGroup) {
-            if (Util.isNotNullOrEmpty(threadImage)) {
+            if (Util.isNotNullOrEmpty(profileImage)) {
                 try {
                     Bitmap bitmap = GlideApp.with(context)
                             .asBitmap()
-                            .load(threadImage)
+                            .load(profileImage)
                             .apply(RequestOptions.circleCropTransform())
                             .submit(512, 512)
                             .get();
@@ -991,8 +1012,26 @@ public class ShowNotificationHelper {
                 builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_profile));
             }
         } else {
-            //TODO add group image
-            builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+            if (Util.isNotNullOrEmpty(threadImage)) {
+                try {
+                    Bitmap bitmap = GlideApp.with(context)
+                            .asBitmap()
+                            .load(threadImage)
+                            .apply(RequestOptions.circleCropTransform())
+                            .submit(512, 512)
+                            .get();
+                    builder.setLargeIcon(bitmap);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+                }
+
+            } else {
+                builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
+            }
         }
 
 
@@ -1103,34 +1142,28 @@ public class ShowNotificationHelper {
         builder.setSubText(threadName);
 
 
-        // TODO: 7/1/2020 add thread image too
+        if(isGroup){
+            if (Util.isNotNullOrEmpty(threadImage)) {
+                try {
+                    Bitmap bitmap = GlideApp.with(context)
+                            .asBitmap()
+                            .load(threadImage)
+                            .apply(RequestOptions.circleCropTransform())
+                            .submit(512, 512)
+                            .get();
+                    builder.setLargeIcon(bitmap);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_group));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_group));
+                }
 
-        if (isGroup)
-            builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_group));
-
-
-//        if(isGroup){
-//            if (Util.isNotNullOrEmpty(threadImage)) {
-//                try {
-//                    Bitmap bitmap = GlideApp.with(context)
-//                            .asBitmap()
-//                            .load(threadImage)
-//                            .apply(RequestOptions.circleCropTransform())
-//                            .submit(512, 512)
-//                            .get();
-//                    builder.setLargeIcon(bitmap);
-//                } catch (ExecutionException e) {
-//                    e.printStackTrace();
-//                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_profile));
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                    builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_profile));
-//                }
-//
-//            } else {
-//                builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_profile));
-//            }
-//        }
+            } else {
+                builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.ic_group));
+            }
+        }
 
         try {
             PendingIntent pendingIntent = getTargetActivityPendingIntent(context, targetClassName, threadNotification.get(threadNotification.size() - 1).getMessageSenderUserName(), String.valueOf(threadNotification.get(threadNotification.size() - 1).getMessageId()), threadIdAsKey);

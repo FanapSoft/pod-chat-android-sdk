@@ -48,6 +48,7 @@ public class Thread {
     private Boolean canSpam;
     private Boolean admin;
     private String uniqueName;
+    private boolean closed;
 
 
     public Thread(
@@ -86,7 +87,8 @@ public class Thread {
             Boolean mentioned,
             PinMessageVO pinMessageVO,
             String uniqueName,
-            String userGroupHash) {
+            String userGroupHash,
+            boolean closed) {
         this.id = id;
         this.joinDate = joinDate;
         this.inviter = inviter;
@@ -123,6 +125,7 @@ public class Thread {
         this.pinMessageVO = pinMessageVO;
         this.uniqueName = uniqueName;
         this.userGroupHash = userGroupHash;
+        this.closed = closed;
     }
 
 
@@ -415,6 +418,14 @@ public class Thread {
 
     public void setUserGroupHash(String userGroupHash) {
         this.userGroupHash = userGroupHash;
+    }
+
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
     }
 
     @Override

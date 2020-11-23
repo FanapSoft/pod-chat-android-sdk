@@ -26,6 +26,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
@@ -166,7 +167,7 @@ public class ChatActivity extends AppCompatActivity
     //local
 
 //
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_fifi);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
@@ -185,7 +186,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Integration server setting:
      */
-//
+////
     private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
@@ -213,7 +214,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-
+//
 //    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
@@ -230,9 +231,9 @@ public class ChatActivity extends AppCompatActivity
 
 
     //sand box / group
-//
-//    public static int TEST_THREAD_ID = 21620;
-//    private static final String TEST_THREAD_HASH = "X6NO3WJRWTUMN8";
+////
+//    public static int TEST_THREAD_ID = 9508;
+//    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
 //    main server / p2p
@@ -247,11 +248,11 @@ public class ChatActivity extends AppCompatActivity
 
 
 //    integration /group: fifi,jiji and ...
-    public static int TEST_THREAD_ID = 6886;
+//    public static int TEST_THREAD_ID = 6886;
 
     //integration /p2p: fifi, jiji
 
-//    public static int TEST_THREAD_ID = 7488;
+    public static int TEST_THREAD_ID = 7488;
     private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
 
 
@@ -371,6 +372,11 @@ public class ChatActivity extends AppCompatActivity
 
         presenter.clearNotifications();
 
+    }
+
+    @Override
+    public void onGetSentryLogs(String logs) {
+        Toast.makeText(this, logs, Toast.LENGTH_SHORT).show();
     }
 
     private void getNotificationData() {
@@ -642,18 +648,19 @@ public class ChatActivity extends AppCompatActivity
     private void updateThreadInfo() {
 
 
-        RequestUploadImage requestUploadImage =
-                new RequestUploadImage.Builder(ChatActivity.this, getUri())
-                        .sethC(140)
-                        .setwC(140)
-                        .build();
+//        RequestUploadImage requestUploadImage =
+//                new RequestUploadImage.Builder(ChatActivity.this, getUri())
+//                        .sethC(140)
+//                        .setwC(140)
+//                        .setUserGroupHashCode(TEST_THREAD_HASH)
+//                        .build();
 
 
         RequestThreadInfo request =
                 new RequestThreadInfo.Builder(TEST_THREAD_ID)
-//                                                .name("Test File PodSpace") // required. if not set, thread name will set to null
+                                                .name("Chat sample thread") // required. if not set, thread name will set to null
 //                                                .metadata("{}") // required. if not set, thread metadata will set to null
-//                                                .image("IMAGE URL") // required. if not set, thread image will set to null
+                                                .image("https://podspace.pod.ir/nzh/drive/downloadImage?hash=ELJIHZN9NP37ZIDA") // required. if not set, thread image will set to null
                         .description("this is test description updated on " + new Date().toString()) // required. if not set, thread name will set to null
 //                                                .setUploadThreadImageRequest(requestUploadImage) // set when you wanna upload thread image
 //                                                .setUserGroupHash(TEST_THREAD_HASH) // set when you wanna upload thread image
@@ -795,9 +802,9 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
-                .Builder("W3OTSAZ6VRLCTHPT")
+                .Builder("613Q7WCCEXZ1DGY5")
 //                .setCrop(true)
-//                .setQuality(0.5f)
+                .setQuality(0.45f)
                 .build();
 
 
@@ -1935,6 +1942,12 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
+            case 27:{
+
+                getSentryLogs();
+
+                break;
+            }
 
         }
     }
@@ -1942,6 +1955,10 @@ public class ChatActivity extends AppCompatActivity
     private void closeThread() {
 
         presenter.closeThread(TEST_THREAD_ID);
+    }
+    private void getSentryLogs() {
+
+        presenter.getSentryLogs();
     }
 
     private void getMentionList() {
@@ -2300,7 +2317,10 @@ public class ChatActivity extends AppCompatActivity
         // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
-        invite.add(new Invitee("we", InviteType.Constants.TO_BE_USER_USERNAME));
+        invite.add(new Invitee("63270", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
 //                                invite.add(new Invitee(121, 5)); // user zizi

@@ -267,12 +267,14 @@ public class NetworkPingSender {
 
     private void logError(String error) {
         Log.e(TAG, error);
-        Sentry.captureMessage(error);
+        if (Sentry.isEnabled())
+            Sentry.captureMessage(error);
     }
 
     private void logInfo(String info) {
         Log.i(TAG, info);
-        Sentry.addBreadcrumb(info);
+        if (Sentry.isEnabled())
+            Sentry.addBreadcrumb(info);
     }
 
     private boolean hasVPNStateChanged(boolean hasVPN) {

@@ -1,50 +1,43 @@
 package com.fanap.podchat.chat.thread.request;
 
 import com.fanap.podchat.requestobject.GeneralRequestObject;
-import com.fanap.podchat.requestobject.RequestLeaveThread;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
 
-import java.util.List;
+public class SafeLeaveRequest extends GeneralRequestObject{
 
-public class SafeLeaveRequest extends RequestLeaveThread {
+    private long threadId;
+    private long successorParticipantId;
+    private boolean clearHistory;
 
-    private RequestSetAdmin requestSetAdmin;
 
     public SafeLeaveRequest(Builder builder) {
-        super(builder);
-        this.requestSetAdmin = builder.requestSetAdmin;
+       this.threadId = builder.threadId;
+       this.successorParticipantId = builder.successorParticipantId;
+       this.clearHistory = builder.clearHistory;
+
     }
 
-    public RequestSetAdmin getRequestSetAdmin() {
-        return requestSetAdmin;
+    public long getThreadId() {
+        return threadId;
     }
 
+    public long getSuccessorParticipantId() {
+        return successorParticipantId;
+    }
 
-    public static class Builder extends RequestLeaveThread.Builder {
+    public boolean clearHistory() {
+        return clearHistory;
+    }
 
-        private RequestSetAdmin requestSetAdmin;
+    public static class Builder extends GeneralRequestObject.Builder{
+        private long threadId;
+        private long successorParticipantId;
+        private boolean clearHistory = true;
 
-        public Builder(long threadId) {
-            super(threadId);
+        public Builder(long threadId, long successorParticipantId) {
+            this.threadId = threadId;
+            this.successorParticipantId = successorParticipantId;
         }
 
-
-
-        @Override
-        public Builder shouldKeepHistory() {
-            super.shouldKeepHistory();
-            return this;
-        }
-
-        public Builder setRequestSetAdmin(RequestSetAdmin requestSetAdmin) {
-            this.requestSetAdmin = requestSetAdmin;
-            return this;
-        }
-
-        @Override
-        public SafeLeaveRequest build() {
-            return new SafeLeaveRequest(this);
-        }
 
         @Override
         public Builder typeCode(String typeCode) {
@@ -52,9 +45,20 @@ public class SafeLeaveRequest extends RequestLeaveThread {
             return this;
         }
 
+        public Builder shouldKeepHistory() {
+            this.clearHistory = false;
+            return  this;
+        }
+
+
+        public SafeLeaveRequest build() {
+            return new SafeLeaveRequest(this);
+        }
+
         @Override
         protected Builder self() {
             return this;
         }
+
     }
 }

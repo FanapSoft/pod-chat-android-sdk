@@ -6,6 +6,7 @@ import android.arch.persistence.room.TypeConverters;
 
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
+import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
@@ -36,6 +37,7 @@ import com.fanap.podchat.util.DataTypeConverter;
 @Database(entities = {
         ChatProfileVO.class,
         CacheContact.class,
+        CacheFile.class,
         Inviter.class,
         UserInfo.class,
         CacheForwardInfo.class,

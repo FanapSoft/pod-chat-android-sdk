@@ -8,7 +8,7 @@
     android:background="@color/colorPrimary"
     android:visibility="gone"
     android:keepScreenOn="true"
-    tools:visibility="visible">
+    tools:visibility="gone">
 
 
     <LinearLayout
@@ -23,19 +23,19 @@
 
 
         <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/checkboxAddZizi"
+            android:id="@+id/checkboxAddFarhad"
             style="@style/radio_button"
-            android:text="ZIZI" />
+            android:text="Farhad" />
 
         <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/checkboxAddJiji"
+            android:id="@+id/checkboxAddMasoud"
             style="@style/radio_button"
-            android:text="JIJI" />
+            android:text="Masoud" />
 
         <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/checkboxAddFifi"
+            android:id="@+id/checkboxAddPooria"
             style="@style/radio_button"
-            android:text="FIFI" />
+            android:text="Pooria" />
 
     </LinearLayout>
 

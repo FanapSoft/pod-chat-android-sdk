@@ -1,5 +1,9 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.util.Util;
+import com.google.gson.JsonObject;
+
 public class FileImageMetaData {
     private long id;
     private String originalName;
@@ -81,5 +85,64 @@ public class FileImageMetaData {
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    public FileImageMetaData() {
+    }
+
+    public FileImageMetaData(long id, String originalName, String hashCode, String name, int actualHeight, int actualWidth, long size, String mimeType) {
+        this.id = id;
+        this.originalName = originalName;
+        this.hashCode = hashCode;
+        this.name = name;
+        this.actualHeight = actualHeight;
+        this.actualWidth = actualWidth;
+        this.size = size;
+        this.mimeType = mimeType;
+
+        if (originalName.contains(".")) {
+            String editedName = originalName.substring(0, originalName.lastIndexOf('.'));
+            this.name = editedName;
+        }
+    }
+
+
+
+    public String getMetaData(boolean isLocation,  String center){
+        if (isLocation) {
+            MetadataLocationFile locationFile = new MetadataLocationFile();
+            MapLocation mapLocation = new MapLocation();
+
+            if (center.contains(",")) {
+                String latitude = center.substring(0, center.lastIndexOf(','));
+                String longitude = center.substring(center.lastIndexOf(',') + 1, center.length());
+                mapLocation.setLatitude(Double.valueOf(latitude));
+                mapLocation.setLongitude(Double.valueOf(longitude));
+            }
+
+            locationFile.setLocation(mapLocation);
+            locationFile.setFile(this);
+
+            JsonObject metaDataWithName = (JsonObject) App.getGson().toJsonTree(locationFile);
+
+            metaDataWithName.addProperty("name", originalName);
+            metaDataWithName.addProperty("id", id);
+            metaDataWithName.addProperty("fileHash", hashCode);
+
+            return metaDataWithName.toString();
+
+        } else {
+
+            MetaDataImageFile metaData = new MetaDataImageFile();
+            metaData.setFile(this);
+
+            JsonObject metaDataWithName = (JsonObject) App.getGson().toJsonTree(metaData);
+
+            metaDataWithName.addProperty("name", originalName);
+            metaDataWithName.addProperty("id", id);
+            metaDataWithName.addProperty("fileHash", hashCode);
+
+            return metaDataWithName.toString();
+        }
     }
 }

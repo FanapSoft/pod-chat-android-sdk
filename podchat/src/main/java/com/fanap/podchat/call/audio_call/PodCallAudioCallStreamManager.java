@@ -296,7 +296,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
         } catch (Exception e) {
             if (recordCallback != null)
                 recordCallback.onAudioRecordError("Generating ssl config file failed! " + e.getMessage());
-            else
+            else if (Sentry.isEnabled())
                 Sentry.captureException(e);
         }
     }
