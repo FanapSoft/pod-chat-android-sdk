@@ -1,12 +1,9 @@
 package com.example.podchat;
 
 import android.os.Build;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.os.Looper;
 
 import com.fanap.podchat.cachemodel.PhoneContact;
 import com.fanap.podchat.chat.App;
@@ -15,10 +12,8 @@ import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.persistance.RoomIntegrityException;
-import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.requestobject.RequestCreateThread;
 import com.fanap.podchat.util.DataTypeConverter;
 import com.fanap.podchat.util.InviteType;
@@ -43,15 +38,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -60,11 +51,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
-import rx.Single;
-import rx.functions.Func1;
-import rx.observables.AsyncOnSubscribe;
 import rx.schedulers.Schedulers;
 
 import static org.junit.Assert.assertEquals;
@@ -78,6 +64,85 @@ import static org.junit.Assert.assertTrue;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
+
+    @Test
+    public void mapReduce(){
+
+        class Pair{
+            String name;
+            long count;
+
+            public Pair(String name, long count) {
+                this.name = name;
+                this.count = count;
+            }
+
+            @Override
+            public String toString() {
+                return "Pair{" +
+                        "name='" + name + '\'' +
+                        ", count=" + count +
+                        '}';
+            }
+        }
+        class MapReduce{
+
+
+            List<String> values = new ArrayList<>();
+
+            List<Pair> data = new ArrayList<>();
+
+            Map<String,Long> map = new HashMap<>();
+
+            public void add(String name){
+                values.add(name);
+                System.out.println("MapReduce.class.getSimpleName()"+" Added to list: list is: "+data);
+            }
+
+            public void map(){
+                for (String name :
+                        values) {
+                    data.add(new Pair(name,1));
+                }
+            }
+
+
+            public void reduce(){
+                for (Pair pa :
+                        data) {
+                    if(map.containsKey(pa.name))
+                        map.put(pa.name,map.get(pa.name)+1);
+                    else {
+                        map.put(pa.name,1L);
+                    }
+                }
+
+                System.out.println("MapReduce.class.getSimpleName()"+" Data: " + map);
+
+            }
+        }
+
+
+        List<String> pureData = new ArrayList<>();
+
+        pureData.add("Farhad");
+        pureData.add("Mamad");
+        pureData.add("Asghar");
+        pureData.add("Mamad");
+        pureData.add("Farhad");
+
+        MapReduce mapReduce = new MapReduce();
+
+        for (String name :
+                pureData) {
+            mapReduce.add(name);
+        }
+
+        mapReduce.map();
+        mapReduce.reduce();
+
+    }
 
 
     @Test

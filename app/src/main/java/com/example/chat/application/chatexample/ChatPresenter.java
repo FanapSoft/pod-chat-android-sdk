@@ -284,7 +284,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void connect(RequestConnect requestConnect) {
 
         NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-                .setHostName("chat-sandbox.pod.ir")
+                .setHostName("msg.pod.ir")
                 .setPort(443)
                 .setDisConnectionThreshold(2)
                 .setInterval(7000)
@@ -416,11 +416,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 //        chat.shouldShowNotification(true);
 
+//        chat.closeChat();
+
     }
 
     @Override
     public void onResume() {
 
+        chat.resumeChat();
 //        chat.shouldShowNotification(false);
 
     }
@@ -1393,7 +1396,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void closeChat() {
-        chat.closeChat();
+//        chat.closeChat();
     }
 
     @Override
