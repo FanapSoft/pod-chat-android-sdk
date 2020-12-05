@@ -5,6 +5,10 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.4.0] -2020-12-5
+
+[Changed] ```onGetThread```, Match the content of all onGetThread events
+
 
 ## Version [0.9.4.0-beta] -2020-11-25
 

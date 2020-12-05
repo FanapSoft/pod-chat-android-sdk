@@ -12535,10 +12535,11 @@ public class Chat extends AsyncAdapter {
 
         if (callback.isResult()) {
 //            if there is a key its ok if not it will go for the key and then chat ready
-            setChatReady("CHAT_READY", true);
-            userInfoResponse = true;
             ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
             UserInfo userInfo = gson.fromJson(chatMessage.getContent(), UserInfo.class);
+            setUserId(userInfo.getId());
+            setChatReady("CHAT_READY", true);
+            userInfoResponse = true;
 
             //add user info for sentry
             setSentryUser(userInfo);
@@ -13489,9 +13490,8 @@ public class Chat extends AsyncAdapter {
         chatResponse.setResult(resultThreads);
         chatResponse.setUniqueId(uniqueId);
 
-        String threadJson = gson.toJson(chatResponse);
-        listenerManager.callOnGetThread(threadJson, chatResponse);
-        return threadJson;
+        listenerManager.callOnGetThread(chatResponse.getJson(), chatResponse);
+        return chatResponse.getJson();
     }
 
     private int getExpireAmount() {

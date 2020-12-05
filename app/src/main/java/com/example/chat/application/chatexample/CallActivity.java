@@ -333,7 +333,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     checkboxAddFarhad.isChecked());
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(),checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
@@ -1028,5 +1028,17 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         } else
             super.onBackPressed();
 
+    }
+
+    @Override
+    protected void onPause() {
+        presenter.onStop();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        presenter.onResume();
+        super.onResume();
     }
 }

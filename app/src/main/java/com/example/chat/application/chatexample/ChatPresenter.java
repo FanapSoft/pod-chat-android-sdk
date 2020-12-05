@@ -24,7 +24,6 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
-import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -215,8 +214,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.isLoggable(true);
         chat.rawLog(true);
-        chat.isSentryLogActive(false);
-        chat.isSentryResponseLogActive(false);
+        chat.isSentryLogActive(true);
+        chat.isSentryResponseLogActive(true);
 
         chat.setDownloadDirectory(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS));
 
@@ -416,7 +415,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 //        chat.shouldShowNotification(true);
 
-//        chat.closeChat();
+        chat.closeChat();
 
     }
 
@@ -1951,7 +1950,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(8095, CallType.Constants.VOICE_CALL)
+                .Builder(35311, CallType.Constants.VOICE_CALL)
                 .build();
 
         uniqueIds.add(chat.requestGroupCall(request));
@@ -1959,16 +1958,25 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void removeCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
+    public void removeCallParticipant(String etId, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
 
         List<Long> ids = new ArrayList<>();
 
-        if (fifiChecked)
-            ids.add((long) Pooria_ID);
-        if (jijiChecked)
-            ids.add((long) Masoud_ID);
-        if (ziziChecked)
-            ids.add((long) Farhad_ID);
+        if(etId.isEmpty()){
+            if (fifiChecked)
+                ids.add((long) Pooria_ID);
+            if (jijiChecked)
+                ids.add((long) Masoud_ID);
+            if (ziziChecked)
+                ids.add((long) Farhad_ID);
+        }else {
+            try {
+                ids.add(Long.parseLong(etId));
+            } catch (NumberFormatException e) {
+                Toast.makeText(context, "Invalid Id", Toast.LENGTH_SHORT).show();
+            }
+        }
+
 
         RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
                 callVO.getCallId(),

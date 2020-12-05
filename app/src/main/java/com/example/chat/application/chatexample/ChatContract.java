@@ -566,7 +566,7 @@ public interface ChatContract {
 
         void terminateCall();
 
-        void removeCallParticipant(boolean checked, boolean checked1, boolean checked2);
+        void removeCallParticipant(String etId, boolean checked, boolean checked1, boolean checked2);
 
         void closeThread(int testThreadId);
 
