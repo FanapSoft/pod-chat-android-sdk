@@ -529,10 +529,6 @@ public class Chat extends AsyncAdapter {
 
                     options.setBeforeSend((event, hint) -> {
                         options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
-
-                        String breadCrumbs = App.getGson().toJson(event.getBreadcrumbs());
-                        sentrylogs.append(breadCrumbs + "\n \n");
-                        Log.e("sentryLogs", "send new log");
                         return event;
                     });
                 });
@@ -12552,11 +12548,9 @@ public class Chat extends AsyncAdapter {
             } else {
                 showLog("RECEIVE_USER_INFO");
             }
-
+            pingWithDelay();
             messageCallbacks.remove(messageUniqueId);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
-
-
 //            if (permit) {
 //                listenerManager.callOnChatState("CHAT_READY");
 //                chatReady = true;
@@ -12569,8 +12563,6 @@ public class Chat extends AsyncAdapter {
 //            }
 
             //ping start after the response of the get userInfo
-            pingWithDelay();
-
         }
     }
 
@@ -14330,12 +14322,12 @@ public class Chat extends AsyncAdapter {
         ResultUserInfo result = new ResultUserInfo();
 
         if (cache && permit) {
-
-            messageDatabaseHelper.saveUserInfo(userInfo, handleDBError(() -> {
-
-                messageDatabaseHelper.saveUserInfo(userInfo);
-            }, () -> {
-            }));
+            messageDatabaseHelper.saveUserInfo(userInfo);
+//            messageDatabaseHelper.saveUserInfo(userInfo, handleDBError(() -> {
+//
+//                messageDatabaseHelper.saveUserInfo(userInfo);
+//            }, () -> {
+//            }));
         }
 
         setUserId(userInfo.getId());

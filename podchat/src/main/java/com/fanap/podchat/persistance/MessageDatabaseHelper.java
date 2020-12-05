@@ -2400,7 +2400,7 @@ public class MessageDatabaseHelper {
                 }
             } catch (Exception e) {
 
-                handleDatabaseException(listener, e);
+//                handleDatabaseException(listener, e);
             }
 
 
