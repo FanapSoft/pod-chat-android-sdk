@@ -12270,8 +12270,8 @@ public class Chat extends AsyncAdapter {
 
 
         messageCallbacks.remove(messageUniqueId);
-        listenerManager.callOnGetThread(chatResponse.getJson(), chatResponse);
-
+        String result = gson.toJson(chatResponse);
+        listenerManager.callOnGetThread(result, chatResponse);
 
     }
 
@@ -13490,8 +13490,9 @@ public class Chat extends AsyncAdapter {
         chatResponse.setResult(resultThreads);
         chatResponse.setUniqueId(uniqueId);
 
-        listenerManager.callOnGetThread(chatResponse.getJson(), chatResponse);
-        return chatResponse.getJson();
+        String result = gson.toJson(chatResponse);
+        listenerManager.callOnGetThread(result, chatResponse);
+        return result;
     }
 
     private int getExpireAmount() {
