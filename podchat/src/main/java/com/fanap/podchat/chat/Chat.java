@@ -65,6 +65,10 @@ import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
+import com.fanap.podchat.chat.assistant.AssistantManager;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.BotManager;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
@@ -1166,6 +1170,24 @@ public class Chat extends AsyncAdapter {
 
             case Constants.UPDATE_CHAT_PROFILE: {
                 handleOnChatProfileUpdated(chatMessage);
+                break;
+            }
+
+            case Constants.REGISTER_ASSISTANT: {
+                String content =App.getGson().toJson(chatMessage);
+                Log.e(TAG, "onReceivedMessage: " + content);
+                break;
+            }
+
+            case Constants.REACTICVE_ASSISTANT: {
+                String content =App.getGson().toJson(chatMessage);
+                Log.e(TAG, "onReceivedMessage: " + chatMessage);
+                break;
+            }
+
+            case Constants.GET_ASSISTANTS: {
+                String content =App.getGson().toJson(chatMessage);
+                Log.e(TAG, "onReceivedMessage: " + chatMessage);
                 break;
             }
 
@@ -2695,6 +2717,55 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
 
+    }
+
+
+    /**
+     * @param request You can add someone as assistant
+     */
+    public String registerAssistant(RegisterAssistantRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = AssistantManager.createRegisterAssistantRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REGISTER_ASSISTANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * @param request You can deactive a assistant
+     */
+    public String deactiveAssistant(DeActiveAssistantRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = AssistantManager.createDeActiveAssistantRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "DEACTIVE_ASSISTANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * @param request You can get list of assistant
+     */
+    public String getAssistants(GetAssistantRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = AssistantManager.createGetAssistantsRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_ASSISTANTS");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
     }
 
 
