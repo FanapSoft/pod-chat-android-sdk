@@ -26,7 +26,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
@@ -35,6 +34,8 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
@@ -62,7 +63,6 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
@@ -102,7 +102,6 @@ import com.fanap.podchat.requestobject.RequestSpam;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
 import com.fanap.podchat.requestobject.RequestThreadParticipant;
-import com.fanap.podchat.requestobject.RequestUpdateContact;
 import com.fanap.podchat.requestobject.RequestUploadFile;
 import com.fanap.podchat.requestobject.RequestUploadImage;
 import com.fanap.podchat.requestobject.RetryUpload;
@@ -167,7 +166,7 @@ public class ChatActivity extends AppCompatActivity
     //local
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_anvari);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
@@ -1936,15 +1935,35 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
-            case 26:{
+            case 26: {
 
                 closeThread();
 
                 break;
             }
-            case 27:{
+            case 27: {
 
                 getSentryLogs();
+
+                break;
+            }
+            case 28: {
+
+                registerAssistant();
+
+                break;
+            }
+
+            case 29: {
+
+                deactiveAssistant();
+
+                break;
+            }
+
+            case 30: {
+
+                getAssistants();
 
                 break;
             }
@@ -2005,6 +2024,40 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         presenter.pinThread(requestPinThread);
+    }
+
+    private void registerAssistant() {
+        //invite list
+        Invitee invite = new Invitee("5739", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+
+        //roles
+        ArrayList<String> typeRoles = new ArrayList<>();
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+
+
+
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVo.setContactType("0");
+        assistantVo.setRoles(typeRoles);
+
+        assistantVos.add(assistantVo);
+
+        RegisterAssistantRequest request = new RegisterAssistantRequest.Builder(assistantVos).build();
+
+        presenter.registerAssistant(request);
+    }
+
+    private void deactiveAssistant() {
+
+
+    }
+
+    private void getAssistants() {
+
+
     }
 
     private void getNotSeenDur() {
