@@ -41,6 +41,8 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
@@ -2020,6 +2022,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void registerAssistant(RegisterAssistantRequest request) {
         chat.registerAssistant(request);
+    }
+
+    @Override
+    public void getAssistants(GetAssistantRequest request) {
+            chat.getAssistants(request);
+    }
+
+    @Override
+    public void deActiveAssistant(DeActiveAssistantRequest request) {
+              chat.deActiveAssistant(request);
     }
 
     @Override
