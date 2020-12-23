@@ -533,6 +533,10 @@ public class Chat extends AsyncAdapter {
 
                     options.setBeforeSend((event, hint) -> {
                         options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
+
+//                        String breadCrumbs = App.getGson().toJson(event.getBreadcrumbs());
+//                        sentrylogs.append(breadCrumbs + "\n \n");
+//                        Log.e("sentryLogs", "send new log");
                         return event;
                     });
                 });
@@ -6630,119 +6634,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-//    /**
-//     * Get the list of threads or you can just pass the thread id that you want
-//     *
-//     * @param creatorCoreUserId    if it sets to '0' its considered as it was'nt set
-//     * @param partnerCoreUserId    if it sets to '0' its considered as it was'nt set -
-//     *                             it gets threads of p2p not groups
-//     * @param partnerCoreContactId if it sets to '0' its considered as it was'nt set-
-//     *                             it gets threads of p2p not groups
-//     * @param count                Count of the list
-//     * @param offset               Offset of the list
-//     * @param handler              Its not working yet
-//     * @param threadIds            List of thread ids that you want to get
-//     * @param threadName           Name of the thread that you want to get
-//     */
-//    @Deprecated
-//    public String getThreads(Integer count,
-//                             Long offset, ArrayList<Integer> threadIds,
-//                             String threadName,
-//                             long creatorCoreUserId,
-//                             long partnerCoreUserId,
-//                             long partnerCoreContactId,
-//                             ChatHandler handler) {
-//
-//        String uniqueId;
-//        count = count != null ? count : 50;
-//        count = count > 0 ? count : 50;
-//        uniqueId = generateUniqueId();
-//        try {
-//
-//            if (cache) {
-//
-//                loadThreadsFromCache(count, offset, threadIds, threadName, false, uniqueId);
-//
-//            }
-//
-//            if (chatReady) {
-//                ChatMessageContent chatMessageContent = new ChatMessageContent();
-//
-//                Long offsets;
-//                if (offset != null) {
-//                    chatMessageContent.setOffset(offset);
-//                    offsets = offset;
-//                } else {
-//                    chatMessageContent.setOffset(0);
-//                    offsets = 0L;
-//                }
-//
-//                chatMessageContent.setCount(count);
-//                if (threadName != null) {
-//                    chatMessageContent.setName(threadName);
-//                }
-//                JsonObject jObj;
-//
-//                if (threadIds != null && threadIds.size() > 0) {
-//                    chatMessageContent.setThreadIds(threadIds);
-//                    jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
-//
-//                } else {
-//                    jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
-//                    jObj.remove("threadIds");
-//                }
-//
-//
-//                if (creatorCoreUserId > 0) {
-//                    jObj.addProperty("creatorCoreUserId", creatorCoreUserId);
-//                }
-//                if (partnerCoreUserId > 0) {
-//                    jObj.addProperty("partnerCoreUserId", partnerCoreUserId);
-//                }
-//                if (partnerCoreContactId > 0) {
-//                    jObj.addProperty("partnerCoreContactId", partnerCoreContactId);
-//                }
-//
-//                jObj.remove("lastMessageId");
-//                jObj.remove("firstMessageId");
-////                jObj.remove("new");
-//
-//
-////                jObj.addProperty("summary", true);
-//
-//                ChatMessage chatMessage = new ChatMessage();
-//                chatMessage.setContent(jObj.toString());
-//                chatMessage.setType(Constants.GET_THREADS);
-//                chatMessage.setTokenIssuer("1");
-//                chatMessage.setToken(getToken());
-//                chatMessage.setUniqueId(uniqueId);
-//
-//
-//                JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-//
-//                if (Util.isNullOrEmpty(getTypeCode())) {
-//                    jsonObject.remove("typeCode");
-//                } else {
-//                    jsonObject.remove("typeCode");
-//                    jsonObject.addProperty("typeCode", getTypeCode());
-//                }
-//
-//                setCallBacks(null, null, null, true, Constants.GET_THREADS, offsets, uniqueId);
-//
-//
-//                sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_GET_THREADS");
-//                if (handler != null) {
-//                    handler.onGetThread(uniqueId);
-//                }
-//            } else {
-//                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-//            }
-//
-//        } catch (Throwable e) {
-//            Log.e(TAG, e.getMessage());
-//        }
-//        return uniqueId;
-//    }
 
 
     private void getAllThreads() {
@@ -12622,18 +12513,7 @@ public class Chat extends AsyncAdapter {
             pingWithDelay();
             messageCallbacks.remove(messageUniqueId);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
-//            if (permit) {
-//                listenerManager.callOnChatState("CHAT_READY");
-//                chatReady = true;
-//                chatState = CHAT_READY;
-//                checkMessageQueue();
-//                showLog("CHAT_READY", "");
-//            } else {
-//                showLog("GENERATE_KEY", "");
-//                generateEncryptionKey(getSsoHost());
-//            }
 
-            //ping start after the response of the get userInfo
         }
     }
 
@@ -12744,8 +12624,6 @@ public class Chat extends AsyncAdapter {
     }
 
     private String getKey() {
-
-
         return mSecurePrefs.getString("KEY", null);
     }
 
@@ -12753,9 +12631,6 @@ public class Chat extends AsyncAdapter {
         mSecurePrefs.edit().putString("KEY", key).apply();
     }
 
-    private static void setTheKey(String key) {
-        mSecurePrefs.edit().putString("KEY", key).apply();
-    }
 
     private void retryOnGetUserInfo() {
         runOnUIUserInfoThread(new Runnable() {

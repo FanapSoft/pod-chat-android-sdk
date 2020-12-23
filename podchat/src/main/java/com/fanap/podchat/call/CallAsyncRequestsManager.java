@@ -269,6 +269,11 @@ public class CallAsyncRequestsManager {
     public static String createAcceptCallRequest(AcceptCallRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
+        if(request.isMute()){
+            JsonObject content = new JsonObject();
+            content.addProperty("mute",request.isMute());
+            message.setContent(content.toString());
+        }
         message.setType(ChatMessageType.Constants.ACCEPT_CALL);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -276,11 +281,7 @@ public class CallAsyncRequestsManager {
         message.setUniqueId(uniqueId);
 
         JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
-
-
         return a.toString();
-
-
     }
 
     public static String createRejectCallRequest(RejectCallRequest request, String uniqueId) {
