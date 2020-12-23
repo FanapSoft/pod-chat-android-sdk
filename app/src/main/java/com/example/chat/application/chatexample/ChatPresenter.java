@@ -24,6 +24,7 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -126,6 +127,7 @@ import com.fanap.podchat.requestobject.RequestGetLastSeens;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -366,7 +368,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
                 callVO.getCallId());
 
-        if (isMute) {
+        if (true) {
             request.mute();
         }
 
@@ -1895,11 +1897,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //            ArrayList<Long> ids = new ArrayList<>();
 //            ids.add((long) Masoud_ID);
 //            ids.add((long) Pooria_ID);
-//
+
+//            ids.add(1L);
 //            MuteUnMuteCallParticipantRequest request
 //                    = new MuteUnMuteCallParticipantRequest.Builder(callVO.getCallId(), ids)
 //                    .build();
-
 
 //            if (isMute)
 //                chat.requestMuteCallParticipant(request);
