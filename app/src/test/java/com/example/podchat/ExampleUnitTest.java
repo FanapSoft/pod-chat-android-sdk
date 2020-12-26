@@ -66,6 +66,82 @@ import static org.junit.Assert.assertTrue;
 public class ExampleUnitTest {
 
 
+
+    //    @Before
+//    public void createChat() {
+//        Looper.prepare();
+//        appContext = InstrumentationRegistry.getTargetContext();
+//        MockitoAnnotations.initMocks(this);
+//
+//        RequestConnect rc = new RequestConnect.Builder(
+//                socketAddress,
+//                APP_ID,
+//                serverName,
+//                "f29512343de1472fa15d1e497e264c54",
+//                ssoHost,
+//                platformHost,
+//                fileServer,
+//                "podSpaceServer")
+//                .build();
+//
+//        chat = Chat.init(appContext);
+//
+//
+//        chat.addListener(chatListeners);
+//
+//        chat.isCacheables(true);
+//
+//        chat.isLoggable(true);
+//        chat.rawLog(true);
+//        chat.isSentryLogActive(true);
+//        chat.isSentryResponseLogActive(true);
+//
+//        chat.setDownloadDirectory(appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS));
+//
+//        TimeoutConfig timeout = new TimeoutConfig()
+//                .newConfigBuilder()
+//                .withConnectTimeout(30, TimeUnit.SECONDS)
+//                .withWriteTimeout(30, TimeUnit.MINUTES)
+//                .withReadTimeout(30, TimeUnit.MINUTES)
+//                .build();
+//
+//
+//        chat.setUploadTimeoutConfig(timeout);
+//
+//        chat.setDownloadTimeoutConfig(timeout);
+//
+//        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
+//                .setHostName("msg.pod.ir")
+//                .setPort(443)
+//                .setDisConnectionThreshold(2)
+//                .setInterval(7000)
+//                .setConnectTimeout(10000)
+//                .build();
+//
+//
+////        TimeoutConfig uploadConfig = new TimeoutConfig()
+////                .newConfigBuilder()
+////                .withConnectTimeout(120, TimeUnit.MINUTES)
+////                .withWriteTimeout(120, TimeUnit.MINUTES)
+////                .withReadTimeout(120, TimeUnit.MINUTES)
+////                .build();
+//
+//        TimeoutConfig downloadConfig = new TimeoutConfig()
+//                .newConfigBuilder()
+//                .withConnectTimeout(20, TimeUnit.SECONDS)
+//                .withWriteTimeout(0, TimeUnit.SECONDS)
+//                .withReadTimeout(5, TimeUnit.MINUTES)
+//                .build();
+//
+//        chat.setNetworkStateConfig(build);
+////
+////        chat.setUploadConfig(uploadConfig);
+////
+////        chat.setDownloadConfig(downloadConfig);
+//
+//        chat.connect(rc);
+//
+//    }
     @Test
     public void mapReduce(){
 

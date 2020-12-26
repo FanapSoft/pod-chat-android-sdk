@@ -24,7 +24,6 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
-import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -125,7 +124,6 @@ import com.fanap.podchat.requestobject.RequestGetLastSeens;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -273,7 +271,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getSentryLogs() {
-       view.onGetSentryLogs(chat.getSenrtyLogs());
+        view.onGetSentryLogs(chat.getSenrtyLogs());
     }
 
     @Override
@@ -1433,7 +1431,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
         super.onGetHistory(content, history);
-        view.onGetThreadHistory();
+        view.onGetThreadHistory(history);
     }
 
     @Override
@@ -1515,6 +1513,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
 
         Log.d("CHAT_SDK_PRESENTER", "Chat profile updated");
+
+        view.onChatProfileUpdated(response.getResult());
 
     }
 
@@ -1965,14 +1965,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         List<Long> ids = new ArrayList<>();
 
-        if(etId.isEmpty()){
+        if (etId.isEmpty()) {
             if (fifiChecked)
                 ids.add((long) Pooria_ID);
             if (jijiChecked)
                 ids.add((long) Masoud_ID);
             if (ziziChecked)
                 ids.add((long) Farhad_ID);
-        }else {
+        } else {
             try {
                 ids.add(Long.parseLong(etId));
             } catch (NumberFormatException e) {

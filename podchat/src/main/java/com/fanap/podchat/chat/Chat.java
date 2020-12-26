@@ -800,7 +800,7 @@ public class Chat extends AsyncAdapter {
         try {
             if (networkStateReceiver != null)
                 context.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             showErrorLog(e.getMessage());
             showErrorLog("Registering Receiver failed");
         }

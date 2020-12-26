@@ -54,6 +54,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.FileUpload;
@@ -2681,21 +2682,19 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        presenter.onStop();
+//        presenter.onStop();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        presenter.onResume();
-
-
+//        presenter.onResume();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        presenter.onStart();
+//        presenter.onStart();
     }
 
     @Override
@@ -2915,5 +2914,10 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onThreadClosed(long subjectId) {
         showToast("Thread with id: " + subjectId + " has been closed!");
+    }
+
+    @Override
+    public void onChatProfileUpdated(ResultUpdateProfile result) {
+        showToast("Profile Updated: " + result.getBio());
     }
 }
