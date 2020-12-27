@@ -802,7 +802,7 @@ public class Chat extends AsyncAdapter {
         try {
             if (networkStateReceiver != null)
                 context.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             showErrorLog(e.getMessage());
             showErrorLog("Registering Receiver failed");
         }
@@ -10490,6 +10490,10 @@ public class Chat extends AsyncAdapter {
         return this;
     }
 
+    void addInnerListener(ChatListener listener){
+        listenerManager.addInnerListener(listener);
+    }
+
 
     public Chat setListener(ChatListener listener) {
 
@@ -10502,20 +10506,15 @@ public class Chat extends AsyncAdapter {
     }
 
     public void clearListeners() {
-
         listenerManager.clearListeners();
-
-
     }
 
     public void clearAllListeners() {
-
         listenerManager.clearListeners();
         async.clearListeners();
     }
 
     public List<ChatListener> getListeners() {
-
         return listenerManager.getListeners();
     }
 

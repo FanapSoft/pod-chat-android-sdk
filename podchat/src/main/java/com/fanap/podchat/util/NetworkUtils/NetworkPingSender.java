@@ -360,9 +360,7 @@ public class NetworkPingSender {
 
     //todo test it
     public void asyncIsClosedOrClosing() {
-
         connected = false;
-
     }
 
 
@@ -371,14 +369,11 @@ public class NetworkPingSender {
         chat.addListener(new ChatListener() {
             @Override
             public void onChatState(String state) {
-
                 Log.d(TAG, "CHAT STATE CHANGED: " + state);
-
                 switch (state) {
 
                     case ChatStateType.ChatSateConstant.CLOSING:
                     case ChatStateType.ChatSateConstant.CLOSED: {
-
 
                         connected = false;
                         isConnecting = false;
@@ -388,10 +383,7 @@ public class NetworkPingSender {
                 }
 
             }
-
-
         });
-
 
     }
 

@@ -30,6 +30,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -39,6 +40,7 @@ import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
@@ -103,7 +105,7 @@ public interface ChatContract {
         default void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
         }
 
-        default void onGetThreadHistory() {
+        default void onGetThreadHistory(ChatResponse<ResultHistory> history) {
         }
 
         default void onGetContacts() {
@@ -282,6 +284,8 @@ public interface ChatContract {
         default void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers){}
 
         default void onGetSentryLogs(String logs){}
+
+        default void onChatProfileUpdated(ResultUpdateProfile result){}
     }
 
     interface presenter {
@@ -344,7 +348,7 @@ public interface ChatContract {
 
         void getHistory(History history, long threadId, ChatHandler handler);
 
-        void getHistory(RequestGetHistory request, ChatHandler handler);
+        String getHistory(RequestGetHistory request, ChatHandler handler);
 
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
 

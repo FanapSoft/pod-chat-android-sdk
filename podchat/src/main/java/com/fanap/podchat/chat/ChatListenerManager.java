@@ -95,7 +95,6 @@ public class ChatListenerManager {
                 if (listener == null) {
                     continue;
                 }
-
                 mListeners.add(listener);
                 mSyncNeeded = true;
             }
@@ -142,7 +141,6 @@ public class ChatListenerManager {
             mCopiedListeners.clear();
         }
     }
-
 
     public List<ChatListener> getListeners() {
         return mListeners;
@@ -1278,6 +1276,11 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+    }
+
+    //todo
+    public void addInnerListener(ChatListener listener) {
+
     }
 
 
