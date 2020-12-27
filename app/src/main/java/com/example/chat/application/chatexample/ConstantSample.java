@@ -32,7 +32,10 @@ public class ConstantSample {
             "Create Public Thread or Channel",
             "Join Public Thread",
             "Close Thread",
-            "Get Senrty Logs"
+            "Get Senrty Logs",
+            "Register Assistant",
+            "deactive Assistant",
+            "get Assistants"
     };
 
     public static final String[] funcSecond = {

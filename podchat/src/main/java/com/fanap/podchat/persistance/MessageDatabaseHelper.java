@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
+import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
@@ -34,6 +35,8 @@ import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.persist.CacheCall;
 import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
@@ -2360,8 +2363,8 @@ public class MessageDatabaseHelper {
                     messageDao.insertChatProfile(userInfo.getChatProfileVO());
                 }
             } catch (Exception e) {
-                if(Sentry.isEnabled())
-                    Sentry.captureException(e,"2nd try for saving user info");
+                if (Sentry.isEnabled())
+                    Sentry.captureException(e, "2nd try for saving user info");
             }
 
 
@@ -4154,5 +4157,80 @@ public class MessageDatabaseHelper {
 
     public List<CacheFile> getImagesByHash(String hashCode) {
         return messageDao.getImageCachesByHash(hashCode);
+    }
+
+    public void insertCacheAssistantVo(AssistantVo assistantVo) {
+
+        CacheAssistantVo cacheFile = new CacheAssistantVo();
+        cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
+        cacheFile.setRoles(assistantVo.getRoles());
+
+        if (assistantVo.getParticipantVO() != null) {
+            Participant participant = assistantVo.getParticipantVO();
+            String participantJson = App.getGson().toJson(participant);
+            CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
+            messageDao.insertParticipant(cacheParticipant);
+            cacheFile.setParticipantVOId(assistantVo.getParticipantVO().getId());
+        }
+
+        cacheFile.setContactType(assistantVo.getContactType());
+        messageDao.insertCacheAssistantVo(cacheFile);
+
+    }
+
+    public void getCacheAssistantVos(GetAssistantRequest request, FunctionalListener callback) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        worker(() -> {
+
+            List<CacheAssistantVo> list = messageDao.getCacheAssistantVos();
+            List<AssistantVo> cachResponseList = new ArrayList<>();
+            for (CacheAssistantVo item : list) {
+                AssistantVo assistantVo = new AssistantVo();
+                //    assistantVo.setInvitees(messageDao.getInviter(assistantVo.getInvitees());
+                assistantVo.setRoles((ArrayList<String>) item.getRoles());
+                assistantVo.setContactType(item.getContactType());
+                Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
+                assistantVo.setParticipantVO(participant);
+                cachResponseList.add(assistantVo);
+            }
+
+            callback.onWorkDone(list.size(), cachResponseList);
+
+        });
+
+    }
+
+    public void updateCashAssistant(OnWorkDone listener,List<AssistantVo> response) {
+        worker(() -> {
+            List<CacheAssistantVo> cacheAssistantVos = new ArrayList<>();
+            messageDao.deleteAllCacheAssistantVo();
+
+            for (AssistantVo assistantVo:response){
+                CacheAssistantVo cacheFile = new CacheAssistantVo();
+                cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
+                cacheFile.setRoles(assistantVo.getRoles());
+
+                if (assistantVo.getParticipantVO() != null) {
+                    Participant participant = assistantVo.getParticipantVO();
+                    String participantJson = App.getGson().toJson(participant);
+                    CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
+                    messageDao.insertParticipant(cacheParticipant);
+                    cacheFile.setParticipantVOId(assistantVo.getParticipantVO().getId());
+                }
+
+                cacheFile.setContactType(assistantVo.getContactType());
+                cacheAssistantVos.add(cacheFile);
+            }
+
+            messageDao.insertCacheAssistantVos(cacheAssistantVos);
+
+            listener.onWorkDone(true);
+        });
+    }
+
+    public void deleteCacheAssistantVo(long id) {
+        messageDao.deleteCacheAssistantVo(id);
     }
 }

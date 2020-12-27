@@ -16,6 +16,7 @@ import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
@@ -817,7 +818,6 @@ public class ChatListenerManager {
 
     public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
 
-
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onChatProfileUpdated(response);
@@ -825,10 +825,46 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+
+    }
+
+
+    public void callOnRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRegisterAssistant(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+
+    public void callOnDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeActiveAssistant(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnGetAssistants(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetAssistants(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
     }
 
     public void callOnUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
-
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {

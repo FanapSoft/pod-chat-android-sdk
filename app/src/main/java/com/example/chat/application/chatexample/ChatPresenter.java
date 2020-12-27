@@ -42,6 +42,7 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
@@ -275,7 +276,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getSentryLogs() {
-       view.onGetSentryLogs(chat.getSenrtyLogs());
+        view.onGetSentryLogs(chat.getSenrtyLogs());
     }
 
     @Override
@@ -484,6 +485,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onBotCreated(ChatResponse<CreateBotResult> response) {
         view.onBotCreated(response);
+    }
+
+    @Override
+    public void onRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+        Log.e(TAG, "onRegisterAssistant: " + response.getJson());
+    }
+
+    @Override
+    public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+        Log.e(TAG, "onDeActiveAssistant: " + response.getJson() );
+    }
+
+    @Override
+    public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
+        Log.e(TAG, "onGetAssistants: " + response.getJson() );
     }
 
     @Override
@@ -1967,14 +1983,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         List<Long> ids = new ArrayList<>();
 
-        if(etId.isEmpty()){
+        if (etId.isEmpty()) {
             if (fifiChecked)
                 ids.add((long) Pooria_ID);
             if (jijiChecked)
                 ids.add((long) Masoud_ID);
             if (ziziChecked)
                 ids.add((long) Farhad_ID);
-        }else {
+        } else {
             try {
                 ids.add(Long.parseLong(etId));
             } catch (NumberFormatException e) {
@@ -2028,12 +2044,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getAssistants(GetAssistantRequest request) {
-            chat.getAssistants(request);
+        chat.getAssistants(request);
     }
 
     @Override
     public void deActiveAssistant(DeActiveAssistantRequest request) {
-              chat.deActiveAssistant(request);
+        chat.deactiveAssistant(request);
     }
 
     @Override

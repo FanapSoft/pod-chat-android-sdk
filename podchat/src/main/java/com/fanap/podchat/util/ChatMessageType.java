@@ -227,7 +227,7 @@ public class ChatMessageType {
         int CLOSE_THREAD = 102;
         int ERROR = 999;
         int REGISTER_ASSISTANT = 107;
-        int REACTICVE_ASSISTANT = 108;
+        int DEACTICVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
 
     }

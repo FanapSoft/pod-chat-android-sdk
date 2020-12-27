@@ -30,6 +30,7 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
+import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -66,6 +67,7 @@ import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.assistant.AssistantManager;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
@@ -765,7 +767,7 @@ public class Chat extends AsyncAdapter {
                 @Override
                 public void networkAvailable() {
 
-                    if(initState.get()){
+                    if (initState.get()) {
                         initState.set(false);
                         return;
                     }
@@ -779,7 +781,7 @@ public class Chat extends AsyncAdapter {
                 @Override
                 public void networkUnavailable() {
 
-                    if(initState.get()){
+                    if (initState.get()) {
                         initState.set(false);
                         return;
                     }
@@ -847,7 +849,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public void resumeChat() {
-        if(requestToClose){
+        if (requestToClose) {
             requestToClose = false;
             tryToConnectOrReconnect();
             if (pinger != null) {
@@ -1178,36 +1180,28 @@ public class Chat extends AsyncAdapter {
             }
 
             case Constants.REGISTER_ASSISTANT: {
-                String content =App.getGson().toJson(chatMessage);
-                Log.e(TAG, "onReceivedMessage: " + content);
+                handleOnRegisterAssistant(chatMessage);
                 break;
             }
 
-            case Constants.REACTICVE_ASSISTANT: {
-                String content =App.getGson().toJson(chatMessage);
-                Log.e(TAG, "onReceivedMessage: " + chatMessage);
+            case Constants.DEACTICVE_ASSISTANT: {
+                handleOnDeActiveAssistant(chatMessage);
                 break;
             }
 
             case Constants.GET_ASSISTANTS: {
-                String content =App.getGson().toJson(chatMessage);
-                Log.e(TAG, "onReceivedMessage: " + chatMessage);
+                handleOnGetAssistants(chatMessage);
                 break;
             }
 
-
             case Constants.GET_USER_ROLES: {
-
                 handleOnGetUserRoles(chatMessage);
-
                 break;
             }
 
 
             case Constants.UPDATE_LAST_SEEN: {
-
                 handleUpdateLastSeen(chatMessage);
-
                 break;
             }
 
@@ -1597,7 +1591,6 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
 
-
         if (sentryResponseLog) {
             showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(chatMessage));
         } else {
@@ -1608,7 +1601,6 @@ public class Chat extends AsyncAdapter {
                 MessageManager.handleUnreadMessagesResponse(chatMessage);
 
         listenerManager.callOnGetUnreadMessagesCount(response);
-
 
     }
 
@@ -1669,6 +1661,66 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void handleOnRegisterAssistant(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON REGISTER ASSISTANT", gson.toJson(chatMessage));
+        } else {
+            showLog("ON REGISTER ASSISTANT");
+        }
+
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        if (cache) {
+            dataSource.insertAssistantVo(response.getResult().get(0));
+            Log.e(TAG, "handleOnRegisterAssistant: " );
+        }
+        listenerManager.callOnRegisterAssistant(response);
+
+    }
+
+    private void handleOnDeActiveAssistant(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON DEACTIVE ASSISTANT", gson.toJson(chatMessage));
+        } else {
+            showLog("ON DEACTIVE ASSISTANT");
+        }
+
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+
+        if (cache) {
+
+            messageDatabaseHelper.deleteCacheAssistantVo(Long.parseLong(response.getResult().get(0).getInvitees().getId()));
+            Log.e(TAG, "handleOnDeActiveAssistant:");
+        }
+
+        listenerManager.callOnDeActiveAssistant(response);
+
+    }
+
+    private void handleOnGetAssistants(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON GET ASSISTANTS", gson.toJson(chatMessage));
+        } else {
+            showLog("ON GET ASSISTANTS");
+        }
+
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+
+        if (cache) {
+            messageDatabaseHelper.updateCashAssistant(new OnWorkDone() {
+                @Override
+                public void onWorkDone(@Nullable Object o) {
+
+                }
+            }, response.getResult());
+
+        }
+
+        listenerManager.callOnGetAssistants(response);
+
+    }
 
     private void handleUpdateLastSeen(ChatMessage chatMessage) {
 
@@ -2762,6 +2814,19 @@ public class Chat extends AsyncAdapter {
     public String getAssistants(GetAssistantRequest request) {
         String uniqueId = generateUniqueId();
 
+        if(cache){
+            try {
+                getAssistantFromCache(request, uniqueId);
+            } catch (RoomIntegrityException e) {
+                resetCache(() -> {
+                    try {
+                        getAssistantFromCache(request, uniqueId);
+                    } catch (RoomIntegrityException ignored) {
+                    }
+                });
+            }
+        }
+
         if (chatReady) {
             String message = AssistantManager.createGetAssistantsRequest(request, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_ASSISTANTS");
@@ -2772,7 +2837,24 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    private void getAssistantFromCache(GetAssistantRequest request, String uniqueId) throws RoomIntegrityException {
 
+        messageDatabaseHelper.getCacheAssistantVos(request, (count,cachResponseList) -> {
+
+            ChatResponse<List<AssistantVo>>  cacheResponse = new ChatResponse<>();
+            cacheResponse.setResult((List<AssistantVo>) cachResponseList);
+            cacheResponse.setUniqueId(uniqueId);
+            cacheResponse.setCache(true);
+            listenerManager.callOnGetAssistants(cacheResponse);
+
+            if (sentryResponseLog) {
+                showLog("ON_GET_ASSISTANT_CACHE", cacheResponse.getJson());
+            } else {
+                showLog("ON_GET_ASSISTANT_CACHE");
+            }
+
+        });
+    }
     /**
      * @param request You can add or remove someone as admin to some thread set
      *                and roles to them
@@ -6633,7 +6715,6 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
-
 
 
     private void getAllThreads() {

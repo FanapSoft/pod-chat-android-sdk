@@ -5,6 +5,7 @@ import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
@@ -58,6 +59,8 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+
+import java.util.List;
 
 public interface ChatListener {
 
@@ -345,6 +348,9 @@ public interface ChatListener {
     default void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
 
     default void onCallParticipantCanceledCall(ChatResponse<CallCancelResult> response){}
-
     default void onAnotherDeviceAcceptedCall(){}
+
+    default void onRegisterAssistant(ChatResponse<List<AssistantVo>> response){}
+    default void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response){}
+    default void onGetAssistants(ChatResponse<List<AssistantVo>> response){}
 }
