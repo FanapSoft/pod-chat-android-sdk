@@ -346,7 +346,7 @@ public interface ChatContract {
 
         void getHistory(History history, long threadId, ChatHandler handler);
 
-        void getHistory(RequestGetHistory request, ChatHandler handler);
+        String getHistory(RequestGetHistory request, ChatHandler handler);
 
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
 

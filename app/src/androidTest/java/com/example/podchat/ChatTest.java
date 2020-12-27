@@ -26,11 +26,14 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestGetHistory;
@@ -52,6 +55,9 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.example.chat.application.chatexample.ChatActivity.APP_ID;
 import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
@@ -189,22 +195,6 @@ public class ChatTest extends ChatAdapter {
 
     }
 
-    private void resumeProcess() {
-        synchronized (sync) {
-            sync.notify();
-        }
-    }
-
-    private void pauseProcess() {
-        synchronized (sync) {
-            try {
-                sync.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     @Before
     public void setUp() {
 //        Looper.prepare();
@@ -232,13 +222,13 @@ public class ChatTest extends ChatAdapter {
 
 
     @Test
-    public void popThreadsList(){
+    public void populateThreadsListFromServerOrCache() {
+
 
         chatListeners = new ChatListener() {
             @Override
             public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
 
-                Assert.assertEquals(10, thread.getResult().getThreads().size());
                 System.out.println("Received List: " + content);
                 threads.addAll(thread.getResult().getThreads());
                 resumeProcess();
@@ -249,7 +239,7 @@ public class ChatTest extends ChatAdapter {
 
         RequestThread requestThread =
                 new RequestThread.Builder()
-                        .count(10)
+                        .count(25)
                         .build();
 
         presenter.getThreads(requestThread, null);
@@ -259,6 +249,22 @@ public class ChatTest extends ChatAdapter {
 
     }
 
+
+    private void resumeProcess() {
+        synchronized (sync) {
+            sync.notify();
+        }
+    }
+
+    private void pauseProcess() {
+        synchronized (sync) {
+            try {
+                sync.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 //    @After
 //    public void closeChat() {
@@ -271,10 +277,42 @@ public class ChatTest extends ChatAdapter {
 
 
     @Test
+    public void chatListeners() {
+
+        ChatListener listener1 = new ChatListener() {
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+
+            }
+        };
+        chat.addListener(listener1);
+        ChatListener listener2 = new ChatListener() {
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+
+            }
+        };
+        chat.addListener(listener2);
+        ChatListener listener3 = new ChatListener() {
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+
+            }
+        };
+        chat.addListener(listener3);
+
+        chat.removeListener(listener2);
+
+        Assert.assertFalse(chat.getListeners().contains(listener2));
+
+    }
+
+
+    @Test
     @LargeTest
     public void getUserRolesInThread() {
 
-        popThreadsList();
+        populateThreadsListFromServerOrCache();
 
         for (Thread t : threads) {
             if (t.getAdmin()) {
@@ -306,14 +344,19 @@ public class ChatTest extends ChatAdapter {
 
     @Test
     @LargeTest
-    public void getThreadHistoryIns()
-    {
-        popThreadsList();
+    public void getThreadHistoryIns() {
+        populateThreadsListFromServerOrCache();
         System.out.println("** Get history of " + threads.get(0).getId());
-        getThreadHistory(threads.get(0).getId());
+        for (Thread thread :
+                new ArrayList<>(threads)) {
+            getThreadHistory(thread.getId());
+        }
+//        getThreadHistory(threads.get(0).getId());
     }
 
     public void getThreadHistory(long threadId) {
+
+
         RequestGetHistory request = new RequestGetHistory
                 .Builder(threadId)
                 .offset(0)
@@ -324,11 +367,166 @@ public class ChatTest extends ChatAdapter {
 //                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
 //                .withNoCache()
                 .build();
-        presenter.getHistory(request,null);
+        presenter.getHistory(request, null);
         sleep(2000);
         Mockito.verify(view, Mockito.atLeastOnce()).onGetThreadHistory(Mockito.any());
     }
 
+
+    @Test
+    @LargeTest
+    //get 25 message before and after last seen
+    //messages NanoTimes should be lower than last seen in first case
+    //and greater in second case
+    public void getThreadHistoryBeforeAndAfterLastSeenMessage() {
+
+        populateThreadsListFromServerOrCache();
+        System.out.println("** Get history of " + threads.get(0).getTitle());
+
+        Thread thread = threads.get(0);
+
+        final long lastSeen = thread.getLastSeenMessageTime() + thread.getLastSeenMessageNanos();
+
+        AtomicInteger numOfCacheResp = new AtomicInteger(0);
+
+        ChatListener historyListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+                int invokeTimes = 0;
+                if (history.isCache()) {
+                    invokeTimes = numOfCacheResp.getAndIncrement();
+                }
+                checkTimesIsValid(history, invokeTimes, lastSeen);
+                if (invokeTimes >= 2) {
+                    resumeProcess();
+                }
+            }
+        };
+        chat.addListener(historyListeners);
+        RequestGetHistory requestGetHistoryBeforeLastSeenTime = new RequestGetHistory
+                .Builder(thread.getId())
+                .toTimeNanos(lastSeen)
+                .offset(0)
+                .count(25)
+                .order("desc")
+                .build();
+
+        presenter.getHistory(requestGetHistoryBeforeLastSeenTime, null);
+
+        RequestGetHistory requestGetHistoryAfterLastSeenTime = new RequestGetHistory
+                .Builder(thread.getId())
+                .fromTimeNanos(lastSeen)
+                .offset(0)
+                .count(25)
+                .order("asc")
+                .build();
+        presenter.getHistory(requestGetHistoryAfterLastSeenTime, null);
+
+        pauseProcess();
+        sleep(2000);
+        Mockito.verify(view, Mockito.atLeast(2)).onGetThreadHistory(Mockito.any());
+
+    }
+
+
+    @Test
+    @LargeTest
+    //get threads histories one by one
+    //performance should be acceptable
+    public void getAllThreadsHistories() {
+        populateThreadsListFromServerOrCache();
+        long startTime = System.currentTimeMillis();
+        for (Thread thread :
+                new ArrayList<>(threads)) {
+            System.out.println("NEXT: " + thread.getTitle());
+            System.out.println(thread.getId());
+            getThreadFullHistory(thread);
+        }
+//        getThreadFullHistory(threads.get(0));
+        long endTime = System.currentTimeMillis();
+        Assert.assertTrue(true);
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println("TEST IS DONE FOR ");
+        System.out.println(threads.size());
+        System.out.println("THREADS IN");
+        System.out.println(endTime - startTime + " MILLISECONDS");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+
+    }
+
+    private void getThreadFullHistory(Thread thread) {
+
+
+        long startTime = System.currentTimeMillis();
+
+        AtomicBoolean hasNext = new AtomicBoolean(true);
+        int count = 25;
+        int offset = 0;
+        AtomicLong threadMessagesCount = new AtomicLong(-1);
+        AtomicLong threadReceivedHistory = new AtomicLong(0);
+        ChatListener historyListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+                threadMessagesCount.set(history.getResult().getContentCount());
+                long received = threadReceivedHistory.get();
+                threadReceivedHistory.set(received + history.getResult().getHistory().size());
+                hasNext.set(history.getResult().isHasNext());
+                resumeProcess();
+            }
+        };
+        chat.addListener(historyListeners);
+
+        while (hasNext.get()) {
+            RequestGetHistory requestGetHistory = new RequestGetHistory
+                    .Builder(thread.getId())
+                    .offset(offset)
+                    .count(count)
+                    .order("desc")
+                    .build();
+            String uniqueId = presenter.getHistory(requestGetHistory, null);
+            offset = offset + count;
+            pauseProcess();
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println("RUNNING TEST ON THREAD:");
+        System.out.println(thread.getTitle());
+        System.out.println(thread.getId());
+        System.out.println("RECEIVED TOTAL " + threadReceivedHistory + " MESSAGES OF HISTORY IN");
+        System.out.println(endTime - startTime + " MILLISECONDS");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+//        Assert.assertEquals(threadMessagesCount.get(), threadReceivedHistory.get());
+
+
+    }
+
+    private void checkTimesIsValid(ChatResponse<ResultHistory> history, int invokeTimes, long lastSeen) {
+        switch (invokeTimes) {
+            case 1: {
+                for (MessageVO message :
+                        history.getResult().getHistory()) {
+                    Assert.assertTrue(message.getTimeNanos() <= lastSeen);
+                }
+                break;
+            }
+            case 2: {
+                for (MessageVO message :
+                        history.getResult().getHistory()) {
+                    Assert.assertTrue(message.getTimeNanos() >= lastSeen);
+                }
+                break;
+            }
+        }
+    }
 
     //    @Test
 //    @LargeTest
@@ -477,8 +675,6 @@ public class ChatTest extends ChatAdapter {
 
 
     }
-
-
 
 
     @Test

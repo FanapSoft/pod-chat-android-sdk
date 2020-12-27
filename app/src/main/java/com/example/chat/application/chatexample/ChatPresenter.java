@@ -780,8 +780,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(RequestGetHistory request, ChatHandler handler) {
-        chat.getHistory(request, handler);
+    public String getHistory(RequestGetHistory request, ChatHandler handler) {
+
+        String uniqueId = chat.getHistory(request, handler);
 
 
         StatusPingRequest statusRequest = new StatusPingRequest.Builder()
@@ -791,6 +792,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.sendStatusPing(statusRequest);
 
+        return uniqueId;
     }
 
     @Override
