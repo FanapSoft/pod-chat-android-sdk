@@ -49,6 +49,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import rx.Observable;
 import rx.schedulers.Schedulers;
@@ -173,6 +175,41 @@ public class ExampleUnitTest {
         }
 
 
+    }
+
+    @Test
+    public void predictTest(){
+
+        class Apple{
+            String color;
+            long weight;
+
+            public Apple(String color, long weight) {
+                this.color = color;
+                this.weight = weight;
+            }
+
+            public String getColor() {
+                return color;
+            }
+
+            public long getWeight() {
+                return weight;
+            }
+        }
+
+        Predicate<Apple> isGreaterThan100 = apple -> apple.getWeight() > 100;
+
+        List<Apple> apples = Arrays.asList(
+                new Apple("Red",100),
+                new Apple("Green",157),
+                new Apple("Red",200),
+                new Apple("Green",50),
+                new Apple("Green",70)
+        );
+
+
+        apples.stream().filter(isGreaterThan100).forEach(apple -> Assert.assertTrue(apple.getWeight() > 100));
     }
 
     @Test
@@ -1616,10 +1653,4 @@ public class ExampleUnitTest {
         assertEquals(count, a.size() + b.size());
 
     }
-
-
-
-
-
-
 }
