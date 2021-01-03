@@ -61,6 +61,8 @@ public class NetworkPingSender {
 
     private boolean hasPing = false;
 
+    private boolean requestToClose = false;
+
 
     public void setDisConnectionThreshold(int disConnectionThreshold) {
 
@@ -169,20 +171,29 @@ public class NetworkPingSender {
 
         handlerThread.start();
 
+        Handler pingHandler = new Handler(handlerThread.getLooper());
+
 
         Runnable job = new Runnable() {
             @Override
             public void run() {
 
-                ping();
-                new Handler(handlerThread.getLooper()).postDelayed(this, interval);
+                if(!requestToClose){
+                    ping();
+                }
+                pingHandler.postDelayed(this, interval);
 
             }
         };
+        pingHandler.postDelayed(job, interval);
+    }
 
-        new Handler(handlerThread.getLooper()).postDelayed(job, interval);
+    public boolean isRequestToClose() {
+        return requestToClose;
+    }
 
-
+    public void setRequestToClose(boolean requestToClose) {
+        this.requestToClose = requestToClose;
     }
 
     public void stopPing() {
@@ -349,9 +360,7 @@ public class NetworkPingSender {
 
     //todo test it
     public void asyncIsClosedOrClosing() {
-
         connected = false;
-
     }
 
 
@@ -360,14 +369,11 @@ public class NetworkPingSender {
         chat.addListener(new ChatListener() {
             @Override
             public void onChatState(String state) {
-
                 Log.d(TAG, "CHAT STATE CHANGED: " + state);
-
                 switch (state) {
 
                     case ChatStateType.ChatSateConstant.CLOSING:
                     case ChatStateType.ChatSateConstant.CLOSED: {
-
 
                         connected = false;
                         isConnecting = false;
@@ -377,10 +383,7 @@ public class NetworkPingSender {
                 }
 
             }
-
-
         });
-
 
     }
 

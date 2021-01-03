@@ -51,10 +51,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
-    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
-    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
-    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Masoud_Amjadi);
 
     //INTEGRATION
 
@@ -333,7 +333,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     checkboxAddFarhad.isChecked());
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(),checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
@@ -1028,5 +1028,17 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         } else
             super.onBackPressed();
 
+    }
+
+    @Override
+    protected void onPause() {
+        presenter.onStop();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        presenter.onResume();
+        super.onResume();
     }
 }

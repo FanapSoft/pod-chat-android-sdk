@@ -5,12 +5,30 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+
+## Version [0.9.5.0] -2020-12-5
+
+[Added] Accept call in mute state.
+
+[BugFixed] Minor bugs fixed.
+
+## Version [0.9.4.0] -2020-12-5
+
+[Changed] ```onGetThread```, Match the content of all onGetThread events
+
+
+## Version [0.9.4.0-beta] -2020-11-25
+
+[Added] ```closeChat```, close chat socket
+
+[Added] ```resumeChat```, open and connect chat socket
+
+
 ## Version [0.9.3.1] -2020-11-22
 
 [Added] ```isSentryLogActive```
 
 [Added] ```isSentryResponseLogActive```
-
 
 
 ## Version [0.9.3.0] -2020-11-02

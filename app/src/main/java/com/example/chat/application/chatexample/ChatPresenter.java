@@ -24,7 +24,6 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
-import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -42,6 +41,7 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
@@ -215,8 +215,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.isLoggable(true);
         chat.rawLog(true);
-        chat.isSentryLogActive(false);
-        chat.isSentryResponseLogActive(false);
+        chat.isSentryLogActive(true);
+        chat.isSentryResponseLogActive(true);
 
         chat.setDownloadDirectory(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS));
 
@@ -271,7 +271,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getSentryLogs() {
-       view.onGetSentryLogs(chat.getSenrtyLogs());
+        view.onGetSentryLogs(chat.getSenrtyLogs());
     }
 
     @Override
@@ -284,7 +284,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void connect(RequestConnect requestConnect) {
 
         NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-                .setHostName("chat-sandbox.pod.ir")
+                .setHostName("msg.pod.ir")
                 .setPort(443)
                 .setDisConnectionThreshold(2)
                 .setInterval(7000)
@@ -364,7 +364,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
                 callVO.getCallId());
 
-        if (isMute) {
+        if (true) {
             request.mute();
         }
 
@@ -416,11 +416,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 //        chat.shouldShowNotification(true);
 
+        chat.closeChat();
+
     }
 
     @Override
     public void onResume() {
 
+        chat.resumeChat();
 //        chat.shouldShowNotification(false);
 
     }
@@ -777,8 +780,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(RequestGetHistory request, ChatHandler handler) {
-        chat.getHistory(request, handler);
+    public String getHistory(RequestGetHistory request, ChatHandler handler) {
+
+        String uniqueId = chat.getHistory(request, handler);
 
 
         StatusPingRequest statusRequest = new StatusPingRequest.Builder()
@@ -788,6 +792,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.sendStatusPing(statusRequest);
 
+        return uniqueId;
     }
 
     @Override
@@ -1393,7 +1398,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void closeChat() {
-        chat.closeChat();
+//        chat.closeChat();
     }
 
     @Override
@@ -1428,7 +1433,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
         super.onGetHistory(content, history);
-        view.onGetThreadHistory();
+        view.onGetThreadHistory(history);
     }
 
     @Override
@@ -1510,6 +1515,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
 
         Log.d("CHAT_SDK_PRESENTER", "Chat profile updated");
+
+        view.onChatProfileUpdated(response.getResult());
 
     }
 
@@ -1890,11 +1897,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //            ArrayList<Long> ids = new ArrayList<>();
 //            ids.add((long) Masoud_ID);
 //            ids.add((long) Pooria_ID);
-//
+
+//            ids.add(1L);
 //            MuteUnMuteCallParticipantRequest request
 //                    = new MuteUnMuteCallParticipantRequest.Builder(callVO.getCallId(), ids)
 //                    .build();
-
 
 //            if (isMute)
 //                chat.requestMuteCallParticipant(request);
@@ -1948,7 +1955,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(8095, CallType.Constants.VOICE_CALL)
+                .Builder(35311, CallType.Constants.VOICE_CALL)
                 .build();
 
         uniqueIds.add(chat.requestGroupCall(request));
@@ -1956,16 +1963,25 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void removeCallParticipant(boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
+    public void removeCallParticipant(String etId, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked) {
 
         List<Long> ids = new ArrayList<>();
 
-        if (fifiChecked)
-            ids.add((long) Pooria_ID);
-        if (jijiChecked)
-            ids.add((long) Masoud_ID);
-        if (ziziChecked)
-            ids.add((long) Farhad_ID);
+        if (etId.isEmpty()) {
+            if (fifiChecked)
+                ids.add((long) Pooria_ID);
+            if (jijiChecked)
+                ids.add((long) Masoud_ID);
+            if (ziziChecked)
+                ids.add((long) Farhad_ID);
+        } else {
+            try {
+                ids.add(Long.parseLong(etId));
+            } catch (NumberFormatException e) {
+                Toast.makeText(context, "Invalid Id", Toast.LENGTH_SHORT).show();
+            }
+        }
+
 
         RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
                 callVO.getCallId(),
@@ -2003,6 +2019,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         uniqueIds.add(chat.getContacts(request, null));
 
+    }
+
+    @Override
+    public void registerAssistant(RegisterAssistantRequest request) {
+        chat.registerAssistant(request);
     }
 
     @Override

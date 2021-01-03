@@ -10,10 +10,14 @@ import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 public class UserInfo {
     @PrimaryKey
     private long id;
+    private Long coreUserId;
+    private Long lastSeen;
     private boolean sendEnable;
     private boolean receiveEnable;
     private String name;
+    private String username;
     private String cellphoneNumber;
+    private String email;
     private String image;
     private Boolean contactSynced;
 
@@ -83,5 +87,37 @@ public class UserInfo {
 
     public void setContactSynced(Boolean contactSynced) {
         this.contactSynced = contactSynced;
+    }
+
+    public Long getCoreUserId() {
+        return coreUserId;
+    }
+
+    public void setCoreUserId(Long coreUserId) {
+        this.coreUserId = coreUserId;
+    }
+
+    public Long getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Long lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

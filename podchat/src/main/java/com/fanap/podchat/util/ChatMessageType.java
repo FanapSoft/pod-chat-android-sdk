@@ -109,6 +109,8 @@ public class ChatMessageType {
             Constants.MUTE_CALL_PARTICIPANT,
             Constants.UN_MUTE_CALL_PARTICIPANT,
             Constants.CANCEL_GROUP_CALL,
+            Constants.REGISTER_ASSISTANT,
+
 
 
     })
@@ -223,12 +225,10 @@ public class ChatMessageType {
 
         int LOCATION_PING = 101;
         int CLOSE_THREAD = 102;
-
-
         int ERROR = 999;
-
-
-
+        int REGISTER_ASSISTANT = 107;
+        int REACTICVE_ASSISTANT = 108;
+        int GET_ASSISTANTS = 109;
 
     }
 

@@ -50,7 +50,7 @@
 
     </application>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.MODPoIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.USE_SIP" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 

@@ -65,6 +65,10 @@ import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
+import com.fanap.podchat.chat.assistant.AssistantManager;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.BotManager;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
@@ -278,11 +282,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -294,6 +295,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -431,6 +433,7 @@ public class Chat extends AsyncAdapter {
 
 
     private static PodCallAudioCallServiceManager audioCallManager;
+    private boolean requestToClose;
 
 
     /**
@@ -480,6 +483,7 @@ public class Chat extends AsyncAdapter {
 
             async.rawLog(BuildConfig.DEBUG);
             async.isLoggable(BuildConfig.DEBUG);
+            async.setReconnectOnClose(false);
 
             instance = new Chat();
             gson = new GsonBuilder().setPrettyPrinting().create();
@@ -530,9 +534,9 @@ public class Chat extends AsyncAdapter {
                     options.setBeforeSend((event, hint) -> {
                         options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
 
-                        String breadCrumbs = App.getGson().toJson(event.getBreadcrumbs());
-                        sentrylogs.append(breadCrumbs + "\n \n");
-                        Log.e("sentryLogs", "send new log");
+//                        String breadCrumbs = App.getGson().toJson(event.getBreadcrumbs());
+//                        sentrylogs.append(breadCrumbs + "\n \n");
+//                        Log.e("sentryLogs", "send new log");
                         return event;
                     });
                 });
@@ -755,9 +759,16 @@ public class Chat extends AsyncAdapter {
 
             //it listen to turning on and off wifi or mobile data and accessing to internet
 
+            AtomicBoolean initState = new AtomicBoolean(true);
+
             networkStateReceiver.addListener(new NetworkStateListener() {
                 @Override
                 public void networkAvailable() {
+
+                    if(initState.get()){
+                        initState.set(false);
+                        return;
+                    }
 
                     Log.i(TAG, "Network State Changed, Available");
                     tryToConnectOrReconnect();
@@ -767,6 +778,11 @@ public class Chat extends AsyncAdapter {
 
                 @Override
                 public void networkUnavailable() {
+
+                    if(initState.get()){
+                        initState.set(false);
+                        return;
+                    }
 
                     Log.e(TAG, "Network State Changed, Unavailable");
                     closeSocketServer();
@@ -784,7 +800,7 @@ public class Chat extends AsyncAdapter {
         try {
             if (networkStateReceiver != null)
                 context.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             showErrorLog(e.getMessage());
             showErrorLog("Registering Receiver failed");
         }
@@ -810,11 +826,17 @@ public class Chat extends AsyncAdapter {
 
     public void closeChat() {
         try {
+            requestToClose = true;
             stopTyping();
-            context.unregisterReceiver(networkStateReceiver);
-            if (pinger != null) pinger.stopPing();
-            closeSocketServer();
-            PodNotificationManager.unRegisterReceiver(context);
+//            context.unregisterReceiver(networkStateReceiver);
+            if (pinger != null) {
+                pinger.setRequestToClose(requestToClose);
+            }
+
+            if (chatReady || ASYNC_READY.equals(chatState))
+                async.closeSocket();
+//            closeSocketServer();
+//            PodNotificationManager.unRegisterReceiver(context);
         } catch (Exception ex) {
 
             if (log) {
@@ -822,6 +844,17 @@ public class Chat extends AsyncAdapter {
                 Log.w(TAG, "Pinger has been stopped");
             }
         }
+    }
+
+    public void resumeChat() {
+        if(requestToClose){
+            requestToClose = false;
+            tryToConnectOrReconnect();
+            if (pinger != null) {
+                pinger.setRequestToClose(false);
+            }
+        }
+
     }
 
     private synchronized void closeSocketServer() {
@@ -836,7 +869,7 @@ public class Chat extends AsyncAdapter {
 
             chatState = CLOSED;
 
-            scheduleForReconnect();
+//            scheduleForReconnect();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -846,15 +879,11 @@ public class Chat extends AsyncAdapter {
     }
 
     private void tryToConnectOrReconnect() {
-
         if (isAsyncReady()) {
-
             pingAfterSetToken();
-
         } else {
             scheduleForReconnect();
         }
-
     }
 
     private boolean isAsyncReady() {
@@ -870,7 +899,10 @@ public class Chat extends AsyncAdapter {
         connectHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (log) Log.i(TAG, "The Connection Watcher is trying to reconnect...");
+
+
+                if (requestToClose) return;
+
                 if (connectNumberOfRetry < maxReconnectStepTime) {
                     connectNumberOfRetry = connectNumberOfRetry * 2;
                 } else {
@@ -883,9 +915,7 @@ public class Chat extends AsyncAdapter {
                         || shouldReconnectAtOpenState() || shouldReconnectAtConnectingState();
 
                 if (shouldReconnect) {
-
                     async.connect(socketAddress, appId, serverName, token, ssoHost, "");
-
                 } else if (!chatReady) {
                     if (isAsyncReady()) {
                         pingAfterSetToken();
@@ -1144,6 +1174,24 @@ public class Chat extends AsyncAdapter {
 
             case Constants.UPDATE_CHAT_PROFILE: {
                 handleOnChatProfileUpdated(chatMessage);
+                break;
+            }
+
+            case Constants.REGISTER_ASSISTANT: {
+                String content =App.getGson().toJson(chatMessage);
+                Log.e(TAG, "onReceivedMessage: " + content);
+                break;
+            }
+
+            case Constants.REACTICVE_ASSISTANT: {
+                String content =App.getGson().toJson(chatMessage);
+                Log.e(TAG, "onReceivedMessage: " + chatMessage);
+                break;
+            }
+
+            case Constants.GET_ASSISTANTS: {
+                String content =App.getGson().toJson(chatMessage);
+                Log.e(TAG, "onReceivedMessage: " + chatMessage);
                 break;
             }
 
@@ -2673,6 +2721,55 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
 
+    }
+
+
+    /**
+     * @param request You can add someone as assistant
+     */
+    public String registerAssistant(RegisterAssistantRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = AssistantManager.createRegisterAssistantRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REGISTER_ASSISTANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * @param request You can deactive a assistant
+     */
+    public String deactiveAssistant(DeActiveAssistantRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = AssistantManager.createDeActiveAssistantRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "DEACTIVE_ASSISTANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * @param request You can get list of assistant
+     */
+    public String getAssistants(GetAssistantRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = AssistantManager.createGetAssistantsRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_ASSISTANTS");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
     }
 
 
@@ -6537,119 +6634,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-//    /**
-//     * Get the list of threads or you can just pass the thread id that you want
-//     *
-//     * @param creatorCoreUserId    if it sets to '0' its considered as it was'nt set
-//     * @param partnerCoreUserId    if it sets to '0' its considered as it was'nt set -
-//     *                             it gets threads of p2p not groups
-//     * @param partnerCoreContactId if it sets to '0' its considered as it was'nt set-
-//     *                             it gets threads of p2p not groups
-//     * @param count                Count of the list
-//     * @param offset               Offset of the list
-//     * @param handler              Its not working yet
-//     * @param threadIds            List of thread ids that you want to get
-//     * @param threadName           Name of the thread that you want to get
-//     */
-//    @Deprecated
-//    public String getThreads(Integer count,
-//                             Long offset, ArrayList<Integer> threadIds,
-//                             String threadName,
-//                             long creatorCoreUserId,
-//                             long partnerCoreUserId,
-//                             long partnerCoreContactId,
-//                             ChatHandler handler) {
-//
-//        String uniqueId;
-//        count = count != null ? count : 50;
-//        count = count > 0 ? count : 50;
-//        uniqueId = generateUniqueId();
-//        try {
-//
-//            if (cache) {
-//
-//                loadThreadsFromCache(count, offset, threadIds, threadName, false, uniqueId);
-//
-//            }
-//
-//            if (chatReady) {
-//                ChatMessageContent chatMessageContent = new ChatMessageContent();
-//
-//                Long offsets;
-//                if (offset != null) {
-//                    chatMessageContent.setOffset(offset);
-//                    offsets = offset;
-//                } else {
-//                    chatMessageContent.setOffset(0);
-//                    offsets = 0L;
-//                }
-//
-//                chatMessageContent.setCount(count);
-//                if (threadName != null) {
-//                    chatMessageContent.setName(threadName);
-//                }
-//                JsonObject jObj;
-//
-//                if (threadIds != null && threadIds.size() > 0) {
-//                    chatMessageContent.setThreadIds(threadIds);
-//                    jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
-//
-//                } else {
-//                    jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
-//                    jObj.remove("threadIds");
-//                }
-//
-//
-//                if (creatorCoreUserId > 0) {
-//                    jObj.addProperty("creatorCoreUserId", creatorCoreUserId);
-//                }
-//                if (partnerCoreUserId > 0) {
-//                    jObj.addProperty("partnerCoreUserId", partnerCoreUserId);
-//                }
-//                if (partnerCoreContactId > 0) {
-//                    jObj.addProperty("partnerCoreContactId", partnerCoreContactId);
-//                }
-//
-//                jObj.remove("lastMessageId");
-//                jObj.remove("firstMessageId");
-////                jObj.remove("new");
-//
-//
-////                jObj.addProperty("summary", true);
-//
-//                ChatMessage chatMessage = new ChatMessage();
-//                chatMessage.setContent(jObj.toString());
-//                chatMessage.setType(Constants.GET_THREADS);
-//                chatMessage.setTokenIssuer("1");
-//                chatMessage.setToken(getToken());
-//                chatMessage.setUniqueId(uniqueId);
-//
-//
-//                JsonObject jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-//
-//                if (Util.isNullOrEmpty(getTypeCode())) {
-//                    jsonObject.remove("typeCode");
-//                } else {
-//                    jsonObject.remove("typeCode");
-//                    jsonObject.addProperty("typeCode", getTypeCode());
-//                }
-//
-//                setCallBacks(null, null, null, true, Constants.GET_THREADS, offsets, uniqueId);
-//
-//
-//                sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_GET_THREADS");
-//                if (handler != null) {
-//                    handler.onGetThread(uniqueId);
-//                }
-//            } else {
-//                getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-//            }
-//
-//        } catch (Throwable e) {
-//            Log.e(TAG, e.getMessage());
-//        }
-//        return uniqueId;
-//    }
 
 
     private void getAllThreads() {
@@ -10425,6 +10409,10 @@ public class Chat extends AsyncAdapter {
         return this;
     }
 
+    void addInnerListener(ChatListener listener){
+        listenerManager.addInnerListener(listener);
+    }
+
 
     public Chat setListener(ChatListener listener) {
 
@@ -10437,20 +10425,15 @@ public class Chat extends AsyncAdapter {
     }
 
     public void clearListeners() {
-
         listenerManager.clearListeners();
-
-
     }
 
     public void clearAllListeners() {
-
         listenerManager.clearListeners();
         async.clearListeners();
     }
 
     public List<ChatListener> getListeners() {
-
         return listenerManager.getListeners();
     }
 
@@ -12244,8 +12227,8 @@ public class Chat extends AsyncAdapter {
 
 
         messageCallbacks.remove(messageUniqueId);
-        listenerManager.callOnGetThread(chatResponse.getJson(), chatResponse);
-
+        String result = gson.toJson(chatResponse);
+        listenerManager.callOnGetThread(result, chatResponse);
 
     }
 
@@ -12509,10 +12492,11 @@ public class Chat extends AsyncAdapter {
 
         if (callback.isResult()) {
 //            if there is a key its ok if not it will go for the key and then chat ready
-            setChatReady("CHAT_READY", true);
-            userInfoResponse = true;
             ChatResponse<ResultUserInfo> chatResponse = new ChatResponse<>();
             UserInfo userInfo = gson.fromJson(chatMessage.getContent(), UserInfo.class);
+            setUserId(userInfo.getId());
+            setChatReady("CHAT_READY", true);
+            userInfoResponse = true;
 
             //add user info for sentry
             setSentryUser(userInfo);
@@ -12525,24 +12509,9 @@ public class Chat extends AsyncAdapter {
             } else {
                 showLog("RECEIVE_USER_INFO");
             }
-
+            pingWithDelay();
             messageCallbacks.remove(messageUniqueId);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
-
-
-//            if (permit) {
-//                listenerManager.callOnChatState("CHAT_READY");
-//                chatReady = true;
-//                chatState = CHAT_READY;
-//                checkMessageQueue();
-//                showLog("CHAT_READY", "");
-//            } else {
-//                showLog("GENERATE_KEY", "");
-//                generateEncryptionKey(getSsoHost());
-//            }
-
-            //ping start after the response of the get userInfo
-            pingWithDelay();
 
         }
     }
@@ -12654,8 +12623,6 @@ public class Chat extends AsyncAdapter {
     }
 
     private String getKey() {
-
-
         return mSecurePrefs.getString("KEY", null);
     }
 
@@ -12663,9 +12630,6 @@ public class Chat extends AsyncAdapter {
         mSecurePrefs.edit().putString("KEY", key).apply();
     }
 
-    private static void setTheKey(String key) {
-        mSecurePrefs.edit().putString("KEY", key).apply();
-    }
 
     private void retryOnGetUserInfo() {
         runOnUIUserInfoThread(new Runnable() {
@@ -13463,9 +13427,9 @@ public class Chat extends AsyncAdapter {
         chatResponse.setResult(resultThreads);
         chatResponse.setUniqueId(uniqueId);
 
-        String threadJson = gson.toJson(chatResponse);
-        listenerManager.callOnGetThread(threadJson, chatResponse);
-        return threadJson;
+        String result = gson.toJson(chatResponse);
+        listenerManager.callOnGetThread(result, chatResponse);
+        return result;
     }
 
     private int getExpireAmount() {
@@ -14303,12 +14267,12 @@ public class Chat extends AsyncAdapter {
         ResultUserInfo result = new ResultUserInfo();
 
         if (cache && permit) {
-
-            messageDatabaseHelper.saveUserInfo(userInfo, handleDBError(() -> {
-
-                messageDatabaseHelper.saveUserInfo(userInfo);
-            }, () -> {
-            }));
+            messageDatabaseHelper.saveUserInfo(userInfo);
+//            messageDatabaseHelper.saveUserInfo(userInfo, handleDBError(() -> {
+//
+//                messageDatabaseHelper.saveUserInfo(userInfo);
+//            }, () -> {
+//            }));
         }
 
         setUserId(userInfo.getId());

@@ -91,6 +91,6 @@ public class LocalChatTest {
             e.printStackTrace();
         }
 
-        Mockito.verify(view, Mockito.times(1)).onGetThreadHistory();
+        Mockito.verify(view, Mockito.times(1)).onGetThreadHistory(Mockito.any());
     }
 }
