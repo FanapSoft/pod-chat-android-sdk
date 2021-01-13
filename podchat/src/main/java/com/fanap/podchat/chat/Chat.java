@@ -231,7 +231,7 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
@@ -2443,7 +2443,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String removeGroupCallParticipant(RequestRemoveParticipants request) {
+    public String removeGroupCallParticipant(RemoveParticipantRequest request) {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -6026,6 +6026,7 @@ public class Chat extends AsyncAdapter {
      * @param threadId       Id of the thread that we wants to remove their participant
      */
 
+    @Deprecated
     public String removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -6050,7 +6051,7 @@ public class Chat extends AsyncAdapter {
      * threadId       Id of the thread that we wants to remove their participant
      *
      */
-    public String removeParticipants(RequestRemoveParticipants request, ChatHandler handler) {
+    public String removeParticipants(RemoveParticipantRequest request, ChatHandler handler) {
 
         String uniqueId;
         uniqueId = generateUniqueId();
