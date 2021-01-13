@@ -12,7 +12,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.example.chat.application.chatexample.BaseApplication;
-import com.example.chat.application.chatexample.ChatActivity;
+import com.example.chat.application.chatexample.IntegrationServerActivity;
 import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.example.chat.application.chatexample.ChatActivity.APP_ID;
+import static com.example.chat.application.chatexample.IntegrationServerActivity.APP_ID;
 import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
 
 
@@ -88,7 +88,7 @@ public class ChatTest extends ChatAdapter {
     @Mock
     ChatListener chatListeners;
 
-    private ChatActivity chatActivity;
+    private IntegrationServerActivity integrationServerActivity;
 
 
     static Chat chat;
@@ -96,7 +96,7 @@ public class ChatTest extends ChatAdapter {
     static final Object sync = new Object();
 
     @Rule
-    public ActivityTestRule<ChatActivity> chatActivityRule = new ActivityTestRule<>(ChatActivity.class);
+    public ActivityTestRule<IntegrationServerActivity> chatActivityRule = new ActivityTestRule<>(IntegrationServerActivity.class);
 
 
     @BeforeClass
@@ -200,8 +200,8 @@ public class ChatTest extends ChatAdapter {
 //        Looper.prepare();
 //        appContext = InstrumentationRegistry.getTargetContext();
 //        MockitoAnnotations.initMocks(this);
-        chatActivity = chatActivityRule.getActivity();
-        presenter = new ChatPresenter(appContext, view, chatActivity);
+        integrationServerActivity = chatActivityRule.getActivity();
+        presenter = new ChatPresenter(appContext, view, integrationServerActivity);
 
 //        RequestConnect rc = new RequestConnect.Builder(
 //                socketAddress,

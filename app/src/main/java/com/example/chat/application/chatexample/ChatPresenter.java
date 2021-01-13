@@ -195,7 +195,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(ChatActivity.class.getName())
+                .Builder(IntegrationServerActivity.class.getName())
                 .setChannelName("POD_CHAT_CHANNEL")
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")
