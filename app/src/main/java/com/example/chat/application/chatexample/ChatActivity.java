@@ -254,6 +254,10 @@ public class ChatActivity extends AppCompatActivity
 
 //    public static int TEST_THREAD_ID = 7488;
 //    private static final String TEST_THREAD_HASH = "7691JPIS2VG4XM";
+//
+            //integaration group: farhad kheirkhah, pooria pahlevani, nadia anvari, leila nemati
+//    public static int TEST_THREAD_ID = 8530;
+//    private static final String TEST_THREAD_HASH = "GC4LNYXXBBNR4P";
 
 
     //test server thread
@@ -2092,45 +2096,46 @@ public class ChatActivity extends AppCompatActivity
 
 
         List<String> usernames = new ArrayList<>();
-//        usernames.add("z.mohammadi");
+//        usernames.add("leila.nemati");
+        usernames.add("pooria.pahlevani");
+//        usernames.add("nadia.anvari");
 //        usernames.add("p.khoshghadam");
 //        usernames.add("m.hasanpour");
 //        usernames.add("z.ershad");
 //        usernames.add("Samira.amiri");
 //        usernames.add("s.heydarizadeh");
 //        usernames.add("p.pahlavani");
-        usernames.add("ma.amjadi");
 
 
-//                for (String user :
-//                        usernames) {
-//
-//
-//                    try {
-//                        RequestAddContact request = new RequestAddContact.Builder()
-//                                .firstName(user + " n ")
-//                                .lastName(user + " i ")
-//                                .username(user)
-//                                .build();
-//
-//                        presenter.addContact(request);
-//
-//                        Thread.sleep(7000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//
-//
-//                }
-        RequestAddContact request = new RequestAddContact.Builder()
-                .firstName("masoud")
-                .lastName("amjadi")
-                .cellphoneNumber("09148401824") //80617 //80618
-                // .cellphoneNumber()
-                // .email()
-                .build();
+                for (String user :
+                        usernames) {
 
-        presenter.addContact(request);
+
+                    try {
+                        RequestAddContact request = new RequestAddContact.Builder()
+                                .firstName(user.split("\\.")[0])
+                                .lastName(user.split("\\.")[1])
+                                .username(user)
+                                .build();
+
+                        presenter.addContact(request);
+
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+//        RequestAddContact request = new RequestAddContact.Builder()
+//                .firstName("pooria")
+//                .lastName("pahlavani")
+//                .cellphoneNumber("pooria.pahlavani") //80617 //80618
+//                // .cellphoneNumber()
+//                // .email()
+//                .build();
+//
+//        presenter.addContact(request);
     }
 
     private void editMessage() {
@@ -2373,12 +2378,12 @@ public class ChatActivity extends AppCompatActivity
         // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
-//        invite.add(new Invitee("63270", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63272", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //anvari integ
+        invite.add(new Invitee("120856", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //nemati integ
+        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //pahlevani integ
 //        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //        invite.add(new Invitee("80617", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-        invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
+//        invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
@@ -2395,12 +2400,12 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(ThreadType.Constants.NORMAL, invite)
-//                .title("A New Thread " + (new Date().getTime() / 1000))
+                .Builder(ThreadType.Constants.OWNER_GROUP, invite)
+                .title("Test Typing thread")
 //                .withDescription("Description created at "
 //                        + new Date().getTime())
 //                .withImage("URL")
-                .withMetadata(metac)
+//                .withMetadata(metac)
 //                .typeCode("podspace")
 //                .setUploadThreadImageRequest(requestUploadImage)
                 .build();
@@ -2919,5 +2924,10 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onChatProfileUpdated(ResultUpdateProfile result) {
         showToast("Profile Updated: " + result.getBio());
+    }
+
+    @Override
+    public void onSentMessage() {
+        showToast("Message Sent ");
     }
 }
