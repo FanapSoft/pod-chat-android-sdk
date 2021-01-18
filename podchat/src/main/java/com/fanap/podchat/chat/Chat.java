@@ -13173,7 +13173,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOutPutRemoveParticipant(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
 
-        ChatResponse<ResultParticipant> chatResponse = reformatThreadParticipants(callback, chatMessage);
+        ChatResponse<ResultParticipant> chatResponse = reformatThreadParticipantsForRemove(callback, chatMessage);
 
         String jsonRmParticipant = gson.toJson(chatResponse);
 
@@ -13725,6 +13725,73 @@ public class Chat extends AsyncAdapter {
 
             if (!cacheParticipants.isEmpty())
                 messageDatabaseHelper.saveParticipants(cacheParticipants, chatMessage.getSubjectId(), getExpireAmount());
+        }
+
+        ChatResponse<ResultParticipant> outPutParticipant = new ChatResponse<>();
+        outPutParticipant.setErrorCode(0);
+        outPutParticipant.setErrorMessage("");
+        outPutParticipant.setHasError(false);
+        outPutParticipant.setUniqueId(chatMessage.getUniqueId());
+        outPutParticipant.setSubjectId(chatMessage.getSubjectId());
+
+        ResultParticipant resultParticipant = new ResultParticipant();
+
+        resultParticipant.setContentCount(chatMessage.getContentCount());
+
+        resultParticipant.setThreadId(chatMessage.getSubjectId());
+
+
+        if (callback != null) {
+            if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
+                resultParticipant.setHasNext(true);
+            } else {
+                resultParticipant.setHasNext(false);
+            }
+            resultParticipant.setNextOffset(callback.getOffset() + participants.size());
+        }
+
+        resultParticipant.setParticipants(participants);
+
+        outPutParticipant.setResult(resultParticipant);
+
+
+        return outPutParticipant;
+    }
+
+    private ChatResponse<ResultParticipant> reformatThreadParticipantsForRemove(Callback callback, ChatMessage chatMessage) {
+
+        ArrayList<Participant> participants = new ArrayList<>();
+
+        if (!Util.isNullOrEmpty(chatMessage.getContent())) {
+
+            try {
+                participants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Participant>>() {
+                }.getType());
+            } catch (Exception e) {
+                showErrorLog(e.getMessage());
+                onUnknownException(chatMessage.getUniqueId(), e);
+            }
+
+        }
+
+        if (cache) {
+            List<CacheParticipant> cacheParticipants = new ArrayList<>();
+
+            if (!Util.isNullOrEmpty(chatMessage.getContent())) {
+
+                try {
+                    cacheParticipants = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheParticipant>>() {
+                    }.getType());
+                } catch (JsonSyntaxException e) {
+                    showErrorLog(e.getMessage());
+                    onUnknownException(chatMessage.getUniqueId(), e);
+                }
+            }
+
+            if (!cacheParticipants.isEmpty()) {
+                messageDatabaseHelper.deleteParticipant(chatMessage.getSubjectId(), cacheParticipants.get(0).getId());
+
+            }
         }
 
         ChatResponse<ResultParticipant> outPutParticipant = new ChatResponse<>();
