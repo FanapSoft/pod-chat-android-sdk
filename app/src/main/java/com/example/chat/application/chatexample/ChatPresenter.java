@@ -132,7 +132,7 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -1067,8 +1067,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler) {
-        chat.removeParticipants(requestRemoveParticipants, handler);
+    public void removeParticipants(RemoveParticipantRequest removeParticipantRequest, ChatHandler handler) {
+        chat.removeParticipants(removeParticipantRequest, handler);
     }
 
 
@@ -2007,7 +2007,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
 
-        RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
+        RemoveParticipantRequest request = new RemoveParticipantRequest.Builder(
                 callVO.getCallId(),
                 ids)
                 .build();

@@ -235,7 +235,7 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
@@ -2521,7 +2521,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String removeGroupCallParticipant(RequestRemoveParticipants request) {
+    public String removeGroupCallParticipant(RemoveParticipantRequest request) {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -6181,6 +6181,8 @@ public class Chat extends AsyncAdapter {
      * @param participantIds List of PARTICIPANT IDs that gets from {@link #getThreadParticipants}
      * @param threadId       Id of the thread that we wants to remove their participant
      */
+
+    @Deprecated
     public String removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -6201,16 +6203,28 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * participantIds List of PARTICIPANT IDs from Thread's Participants object
+     * participantIds List of PARTICIPANT IDs or Invitee from Thread's Participants object
      * threadId       Id of the thread that we wants to remove their participant
+     *
      */
-    public String removeParticipants(RequestRemoveParticipants request, ChatHandler handler) {
+    public String removeParticipants(RemoveParticipantRequest request, ChatHandler handler) {
 
-        List<Long> participantIds = request.getParticipantIds();
-        long threadId = request.getThreadId();
+        String uniqueId;
+        uniqueId = generateUniqueId();
+        if (chatReady) {
 
+            String asyncContent = ParticipantsManager.prepareRemoveParticipantsRequestWithInvitee(request, uniqueId, getTypeCode(), getToken());
 
-        return removeParticipants(threadId, participantIds, handler);
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_REMOVE_PARTICIPANT");
+            setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
+            if (handler != null) {
+                handler.onRemoveParticipants(uniqueId);
+            }
+
+        } else {
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+        }
+        return uniqueId;
     }
 
     /**

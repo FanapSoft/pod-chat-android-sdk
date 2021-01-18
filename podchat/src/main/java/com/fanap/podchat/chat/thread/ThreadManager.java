@@ -4,7 +4,6 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.chat.App;
-import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
@@ -86,12 +85,21 @@ public class ThreadManager {
 
     public static void onError(ChatMessage chatMessage) {
 
-        if (chatMessage.getUniqueId().equals(requestUniqueId)) {
-            requestUniqueId = "";
-            unsubscribe(userRolesSubscription);
-            unsubscribe(setAdminSubscription);
-            unsubscribe(leaveThreadSubscription);
+        try {
+            if (isUniqueIdIsValid(chatMessage))
+                if (chatMessage.getUniqueId().equals(requestUniqueId)) {
+                    requestUniqueId = "";
+                    unsubscribe(userRolesSubscription);
+                    unsubscribe(setAdminSubscription);
+                    unsubscribe(leaveThreadSubscription);
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    private static boolean isUniqueIdIsValid(ChatMessage chatMessage) {
+        return chatMessage != null && chatMessage.getUniqueId() != null && !chatMessage.getUniqueId().isEmpty();
     }
 
     public interface ILastMessageChanged {

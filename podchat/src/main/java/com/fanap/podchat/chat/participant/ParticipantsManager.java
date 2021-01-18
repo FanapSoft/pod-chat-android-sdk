@@ -9,6 +9,7 @@ import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultAddParticipant;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.Util;
@@ -119,5 +120,44 @@ public class ParticipantsManager {
         chatResponse.setUniqueId(chatMessage.getUniqueId());
 
         return chatResponse;
+    }
+
+    public static String prepareRemoveParticipantsRequestWithInvitee(RemoveParticipantRequest request, String uniqueId, String token, String mTypeCode) {
+        RemoveParticipant removeParticipant = new RemoveParticipant();
+        removeParticipant.setTokenIssuer("1");
+        removeParticipant.setType(ChatMessageType.Constants.REMOVE_PARTICIPANT);
+        removeParticipant.setSubjectId(request.getThreadId());
+        removeParticipant.setToken(token);
+        removeParticipant.setUniqueId(uniqueId);
+        String content = "";
+
+        if (request.getInvitees() != null && request.getInvitees().size() > 0) {
+            content = App.getGson().toJson(request.getInvitees());
+        } else {
+            JsonArray contacts = new JsonArray();
+            for (Long p : request.getParticipantIds()) {
+                contacts.add(p);
+            }
+            content = contacts.toString();
+        }
+
+        removeParticipant.setContent(content);
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(removeParticipant);
+        jsonObject.remove("contentCount");
+        jsonObject.remove("systemMetadata");
+        jsonObject.remove("metadata");
+        jsonObject.remove("repliedTo");
+
+        if (Util.isNullOrEmpty(mTypeCode)) {
+            jsonObject.remove("typeCode");
+        } else {
+            jsonObject.remove("typeCode");
+            jsonObject.addProperty("typeCode", mTypeCode);
+        }
+
+        String asyncContent = jsonObject.toString();
+        return asyncContent;
+
     }
 }

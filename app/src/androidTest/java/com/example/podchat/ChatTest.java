@@ -442,7 +442,6 @@ public class ChatTest extends ChatAdapter {
             System.out.println(thread.getId());
             getThreadFullHistory(thread);
         }
-//        getThreadFullHistory(threads.get(0));
         long endTime = System.currentTimeMillis();
         Assert.assertTrue(true);
         System.out.println(">>> >>> >>>");
@@ -465,18 +464,28 @@ public class ChatTest extends ChatAdapter {
 
         AtomicBoolean hasNext = new AtomicBoolean(true);
         int count = 25;
-        int offset = 0;
+        AtomicLong offset = new AtomicLong(0);
         AtomicLong threadMessagesCount = new AtomicLong(-1);
         AtomicLong threadReceivedHistory = new AtomicLong(0);
         ChatListener historyListeners = new ChatListener() {
             @Override
             public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
 
-                threadMessagesCount.set(history.getResult().getContentCount());
-                long received = threadReceivedHistory.get();
-                threadReceivedHistory.set(received + history.getResult().getHistory().size());
-                hasNext.set(history.getResult().isHasNext());
-                resumeProcess();
+
+                   threadMessagesCount.set(history.getResult().getContentCount());
+                   long received = threadReceivedHistory.get();
+                   threadReceivedHistory.set(received + history.getResult().getHistory().size());
+                   hasNext.set(history.getResult().isHasNext());
+                   if(hasNext.get()){
+                       offset.set(offset.get() + history.getResult().getHistory().size());
+                   }
+                   resumeProcess();
+
+            }
+
+            @Override
+            public void onError(String content, ErrorOutPut error) {
+                Assert.fail(content);
             }
         };
         chat.addListener(historyListeners);
@@ -484,12 +493,12 @@ public class ChatTest extends ChatAdapter {
         while (hasNext.get()) {
             RequestGetHistory requestGetHistory = new RequestGetHistory
                     .Builder(thread.getId())
-                    .offset(offset)
+                    .offset(offset.get())
+                    .withNoCache()
                     .count(count)
                     .order("desc")
                     .build();
             String uniqueId = presenter.getHistory(requestGetHistory, null);
-            offset = offset + count;
             pauseProcess();
         }
         long endTime = System.currentTimeMillis();
@@ -504,7 +513,7 @@ public class ChatTest extends ChatAdapter {
         System.out.println(">>> >>> >>>");
         System.out.println(">>> >>> >>>");
         System.out.println(">>> >>> >>>");
-//        Assert.assertEquals(threadMessagesCount.get(), threadReceivedHistory.get());
+        Assert.assertEquals(threadMessagesCount.get(), threadReceivedHistory.get());
 
 
     }
