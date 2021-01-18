@@ -19,7 +19,7 @@ public class Callback {
     private long fromTimeNanos;
     private long toTime;
     private long toTimeNanos;
-
+    private String hashTag;
     private long messageId;
 
     public Callback(String order, long count, long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
@@ -31,6 +31,14 @@ public class Callback {
         this.result = result;
         this.count = count;
         this.order = order;
+    }
+
+    public String getHashTag() {
+        return hashTag;
+    }
+
+    public void setHashTag(String hashTag) {
+        hashTag = hashTag;
     }
 
     public Callback(String order, long count, long offset, int requestType, long firstMessageId, long lastMessageId, boolean result) {

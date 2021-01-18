@@ -92,7 +92,7 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
@@ -1710,7 +1710,7 @@ public class ChatActivity extends AppCompatActivity
 
 
         long threadId = TEST_THREAD_ID;
-        RequestRemoveParticipants request = new RequestRemoveParticipants
+        RemoveParticipantRequest request = new RemoveParticipantRequest
                 .Builder(threadId, participantIds)
                 //.setInvitees(inviteeList)
                 .build();

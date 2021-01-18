@@ -1,6 +1,7 @@
 package com.fanap.podchat.chat.assistant.model;
 
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -15,6 +16,8 @@ public class AssistantVo {
     @SerializedName("contactType")
     String contactType;
 
+    @SerializedName("participantVO")
+    Participant participantVO;
     public Invitee getInvitees() {
         return invitees;
     }
@@ -37,5 +40,14 @@ public class AssistantVo {
 
     public void setContactType(String contactType) {
         this.contactType = contactType;
+    }
+
+    public AssistantVo setParticipantVO(Participant participantVO) {
+        this.participantVO = participantVO;
+        return this;
+    }
+
+    public Participant getParticipantVO() {
+        return participantVO;
     }
 }

@@ -35,7 +35,7 @@ import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
@@ -225,7 +225,7 @@ public class CallAsyncRequestsManager {
         return messageObj.toString();
     }
 
-    public static String createRemoveCallParticipantMessage(RequestRemoveParticipants request, String uniqueId) {
+    public static String createRemoveCallParticipantMessage(RemoveParticipantRequest request, String uniqueId) {
 
         JsonArray participantsJsonArray = new JsonArray();
 

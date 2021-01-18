@@ -41,6 +41,9 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
@@ -48,6 +51,7 @@ import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
@@ -128,7 +132,7 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -483,6 +487,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+        Log.e(TAG, "onRegisterAssistant: " + response.getJson());
+    }
+
+    @Override
+    public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+        Log.e(TAG, "onDeActiveAssistant: " + response.getJson() );
+    }
+
+    @Override
+    public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
+        Log.e(TAG, "onGetAssistants: " + response.getJson() );
+    }
+
+    @Override
     public void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response) {
         view.onBotCommandsDefined(response);
     }
@@ -796,6 +815,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public String getHashTagLIst(RequestGetHashTagList request, ChatHandler handler) {
+        return chat.getHashTagList(request);
+    }
+
+    @Override
     public void searchHistory(NosqlListMessageCriteriaVO builderListMessage, ChatHandler handler) {
         chat.searchHistory(builderListMessage, handler);
     }
@@ -1043,8 +1067,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler) {
-        chat.removeParticipants(requestRemoveParticipants, handler);
+    public void removeParticipants(RemoveParticipantRequest removeParticipantRequest, ChatHandler handler) {
+        chat.removeParticipants(removeParticipantRequest, handler);
     }
 
 
@@ -1983,7 +2007,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
 
-        RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
+        RemoveParticipantRequest request = new RemoveParticipantRequest.Builder(
                 callVO.getCallId(),
                 ids)
                 .build();
@@ -2024,6 +2048,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void registerAssistant(RegisterAssistantRequest request) {
         chat.registerAssistant(request);
+    }
+
+    @Override
+    public void getAssistants(GetAssistantRequest request) {
+        chat.getAssistants(request);
+    }
+
+    @Override
+    public void deActiveAssistant(DeActiveAssistantRequest request) {
+        chat.deactiveAssistant(request);
     }
 
     @Override

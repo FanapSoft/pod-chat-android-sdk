@@ -6,11 +6,11 @@ import com.fanap.podchat.mainmodel.Invitee;
 
 import java.util.List;
 
-public class RequestRemoveParticipants extends GeneralRequestObject {
+public class RemoveParticipantRequest extends GeneralRequestObject {
     private long threadId;
     private List<Long> participantIds;
     private List<Invitee> invitees;
-    RequestRemoveParticipants(@NonNull Builder builder) {
+    RemoveParticipantRequest(@NonNull Builder builder) {
         super(builder);
         this.participantIds = builder.participantIds;
         this.threadId = builder.threadId;
@@ -60,8 +60,8 @@ public class RequestRemoveParticipants extends GeneralRequestObject {
         }
 
         @NonNull
-        public RequestRemoveParticipants build() {
-            return new RequestRemoveParticipants(this);
+        public RemoveParticipantRequest build() {
+            return new RemoveParticipantRequest(this);
         }
     }
 

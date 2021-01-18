@@ -30,6 +30,7 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
+import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -66,6 +67,7 @@ import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.assistant.AssistantManager;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
@@ -82,6 +84,8 @@ import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
 import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResult;
+import com.fanap.podchat.chat.hashtag.HashTagManager;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.map.MapManager;
 import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
@@ -231,7 +235,7 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
@@ -378,6 +382,7 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, SendingQueueCache> sendingQList;
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
+    private static HashMap<String, String> hashTagCallBacks;
     private HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
 
     private ProgressHandler.cancelUpload cancelUpload;
@@ -500,6 +505,7 @@ public class Chat extends AsyncAdapter {
             sendingQList = new HashMap();
             uploadingQList = new HashMap();
             waitQList = new HashMap<>();
+            hashTagCallBacks = new HashMap<>();
 
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
@@ -765,7 +771,7 @@ public class Chat extends AsyncAdapter {
                 @Override
                 public void networkAvailable() {
 
-                    if(initState.get()){
+                    if (initState.get()) {
                         initState.set(false);
                         return;
                     }
@@ -779,7 +785,7 @@ public class Chat extends AsyncAdapter {
                 @Override
                 public void networkUnavailable() {
 
-                    if(initState.get()){
+                    if (initState.get()) {
                         initState.set(false);
                         return;
                     }
@@ -847,7 +853,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public void resumeChat() {
-        if(requestToClose){
+        if (requestToClose) {
             requestToClose = false;
             tryToConnectOrReconnect();
             if (pinger != null) {
@@ -1178,36 +1184,28 @@ public class Chat extends AsyncAdapter {
             }
 
             case Constants.REGISTER_ASSISTANT: {
-                String content =App.getGson().toJson(chatMessage);
-                Log.e(TAG, "onReceivedMessage: " + content);
+                handleOnRegisterAssistant(chatMessage);
                 break;
             }
 
-            case Constants.REACTICVE_ASSISTANT: {
-                String content =App.getGson().toJson(chatMessage);
-                Log.e(TAG, "onReceivedMessage: " + chatMessage);
+            case Constants.DEACTICVE_ASSISTANT: {
+                handleOnDeActiveAssistant(chatMessage);
                 break;
             }
 
             case Constants.GET_ASSISTANTS: {
-                String content =App.getGson().toJson(chatMessage);
-                Log.e(TAG, "onReceivedMessage: " + chatMessage);
+                handleOnGetAssistants(chatMessage);
                 break;
             }
 
-
             case Constants.GET_USER_ROLES: {
-
                 handleOnGetUserRoles(chatMessage);
-
                 break;
             }
 
 
             case Constants.UPDATE_LAST_SEEN: {
-
                 handleUpdateLastSeen(chatMessage);
-
                 break;
             }
 
@@ -1263,11 +1261,13 @@ public class Chat extends AsyncAdapter {
             case Constants.GET_HISTORY:
                 /*Remove uniqueIds from waitQueue /***/
                 if (callback == null) {
-                    if (handlerSend.get(messageUniqueId) != null)
+                    if (hashTagCallBacks.get(messageUniqueId) != null) {
+                        handleOnGetHashTagList(chatMessage);
+                        hashTagCallBacks.remove(chatMessage.getUniqueId());
+                    } else if (handlerSend.get(messageUniqueId) != null)
                         handleRemoveFromWaitQueue(chatMessage);
                     else
                         handleOnGetMentionList(chatMessage);
-
                 } else {
                     handleOnGetThreadHistory(callback, chatMessage);
                 }
@@ -1597,7 +1597,6 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnGetUnreadMessagesCount(ChatMessage chatMessage) {
 
-
         if (sentryResponseLog) {
             showLog("ON GET UNREAD MESSAGES COUNT", gson.toJson(chatMessage));
         } else {
@@ -1608,7 +1607,6 @@ public class Chat extends AsyncAdapter {
                 MessageManager.handleUnreadMessagesResponse(chatMessage);
 
         listenerManager.callOnGetUnreadMessagesCount(response);
-
 
     }
 
@@ -1669,6 +1667,66 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void handleOnRegisterAssistant(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON REGISTER ASSISTANT", gson.toJson(chatMessage));
+        } else {
+            showLog("ON REGISTER ASSISTANT");
+        }
+
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        if (cache) {
+            dataSource.insertAssistantVo(response.getResult().get(0));
+            Log.e(TAG, "handleOnRegisterAssistant: ");
+        }
+        listenerManager.callOnRegisterAssistant(response);
+
+    }
+
+    private void handleOnDeActiveAssistant(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON DEACTIVE ASSISTANT", gson.toJson(chatMessage));
+        } else {
+            showLog("ON DEACTIVE ASSISTANT");
+        }
+
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+
+        if (cache) {
+
+            messageDatabaseHelper.deleteCacheAssistantVo(Long.parseLong(response.getResult().get(0).getInvitees().getId()));
+            Log.e(TAG, "handleOnDeActiveAssistant:");
+        }
+
+        listenerManager.callOnDeActiveAssistant(response);
+
+    }
+
+    private void handleOnGetAssistants(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON GET ASSISTANTS", gson.toJson(chatMessage));
+        } else {
+            showLog("ON GET ASSISTANTS");
+        }
+
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+
+        if (cache) {
+            messageDatabaseHelper.updateCashAssistant(new OnWorkDone() {
+                @Override
+                public void onWorkDone(@Nullable Object o) {
+
+                }
+            }, response.getResult());
+
+        }
+
+        listenerManager.callOnGetAssistants(response);
+
+    }
 
     private void handleUpdateLastSeen(ChatMessage chatMessage) {
 
@@ -1684,6 +1742,26 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnContactsLastSeenUpdated(response);
 
         listenerManager.callOnContactsLastSeenUpdated(chatMessage.getContent());
+
+    }
+
+
+    private void handleOnGetHashTagList(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECEIVED HASHTAG LIST", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVED HASHTAG LIST");
+        }
+
+        ChatResponse<ResultHistory> response = Mention.getMentionListResponse(chatMessage);
+
+
+        if (cache) {
+           dataSource.saveMessageResultFromServer(response.getResult().getHistory(), chatMessage.getSubjectId());
+        }
+
+        listenerManager.callOnGetMentionList(response);
 
     }
 
@@ -2443,7 +2521,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String removeGroupCallParticipant(RequestRemoveParticipants request) {
+    public String removeGroupCallParticipant(RemoveParticipantRequest request) {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -2762,6 +2840,19 @@ public class Chat extends AsyncAdapter {
     public String getAssistants(GetAssistantRequest request) {
         String uniqueId = generateUniqueId();
 
+        if (cache) {
+            try {
+                getAssistantFromCache(request, uniqueId);
+            } catch (RoomIntegrityException e) {
+                resetCache(() -> {
+                    try {
+                        getAssistantFromCache(request, uniqueId);
+                    } catch (RoomIntegrityException ignored) {
+                    }
+                });
+            }
+        }
+
         if (chatReady) {
             String message = AssistantManager.createGetAssistantsRequest(request, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_ASSISTANTS");
@@ -2772,6 +2863,24 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    private void getAssistantFromCache(GetAssistantRequest request, String uniqueId) throws RoomIntegrityException {
+
+        messageDatabaseHelper.getCacheAssistantVos(request, (count, cachResponseList) -> {
+
+            ChatResponse<List<AssistantVo>> cacheResponse = new ChatResponse<>();
+            cacheResponse.setResult((List<AssistantVo>) cachResponseList);
+            cacheResponse.setUniqueId(uniqueId);
+            cacheResponse.setCache(true);
+            listenerManager.callOnGetAssistants(cacheResponse);
+
+            if (sentryResponseLog) {
+                showLog("ON_GET_ASSISTANT_CACHE", cacheResponse.getJson());
+            } else {
+                showLog("ON_GET_ASSISTANT_CACHE");
+            }
+
+        });
+    }
 
     /**
      * @param request You can add or remove someone as admin to some thread set
@@ -3009,6 +3118,33 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * @param request request to get hashtaglist message of user
+     */
+
+
+    public String getHashTagList(RequestGetHashTagList request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (cache && request.useCacheData()) {
+
+            loadHashTagsFromCache(request, uniqueId);
+
+        }
+
+        if (chatReady) {
+
+            String message = HashTagManager.getHashTagList(request, uniqueId);
+            hashTagCallBacks.put(uniqueId, request.getHashtag());
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_HASHTAG_LIST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
     @SuppressWarnings("unchecked")
     private void loadMentionsFromCache(RequestGetMentionList request, String uniqueId) {
 
@@ -3029,6 +3165,26 @@ public class Chat extends AsyncAdapter {
         });
     }
 
+
+    @SuppressWarnings("unchecked")
+    private void loadHashTagsFromCache(RequestGetHashTagList request, String uniqueId) {
+
+        messageDatabaseHelper.getHashTagList(request, (messages, contentCount) -> {
+
+            ChatResponse<ResultHistory> cacheResponse = Mention
+                    .getHashTagListCacheResponse(
+                            request,
+                            (List<MessageVO>) messages,
+                            uniqueId,
+                            (Long) contentCount);
+
+            listenerManager.callOnGetMentionList(cacheResponse);
+
+            showLog("CACHE HASHTAG LIST", gson.toJson(cacheResponse));
+
+
+        });
+    }
 
     /**
      * @param request request that contains name to check if is available to create a public thread or channel
@@ -6026,6 +6182,7 @@ public class Chat extends AsyncAdapter {
      * @param threadId       Id of the thread that we wants to remove their participant
      */
 
+    @Deprecated
     public String removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -6050,13 +6207,13 @@ public class Chat extends AsyncAdapter {
      * threadId       Id of the thread that we wants to remove their participant
      *
      */
-    public String removeParticipants(RequestRemoveParticipants request, ChatHandler handler) {
+    public String removeParticipants(RemoveParticipantRequest request, ChatHandler handler) {
 
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
 
-            String asyncContent = ParticipantsManager.prepareRemoveParticipantsRequestWithInvitee(request, uniqueId, getTypeCode(), getToken());
+            String asyncContent = ParticipantsManager.prepareRemoveParticipantsRequestWithInvitee(request, uniqueId, getToken(), getTypeCode());
 
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_REMOVE_PARTICIPANT");
             setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
@@ -6648,7 +6805,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
     private void getAllThreads() {
 
         if (cache) {
@@ -7024,6 +7180,7 @@ public class Chat extends AsyncAdapter {
                 .toTimeNanos(request.getToTimeNanos())
                 .uniqueIds(request.getUniqueIds())
                 .id(request.getId())
+                .hashtag(request.getHashtag())
                 .setMessageType(request.getMessageType())
                 .order(request.getOrder() != null ? request.getOrder() : "desc").build();
     }
@@ -10422,7 +10579,7 @@ public class Chat extends AsyncAdapter {
         return this;
     }
 
-    void addInnerListener(ChatListener listener){
+    void addInnerListener(ChatListener listener) {
         listenerManager.addInnerListener(listener);
     }
 
@@ -11016,7 +11173,20 @@ public class Chat extends AsyncAdapter {
 
         try {
             MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
+            if (messageVO.getMessage().startsWith("#")) {
+                Log.e(TAG, "hashtag: " + "hello");
+                String hashtag = messageVO.getMessage();
+                try {
+                    hashtag = messageVO.getMessage().substring(0, messageVO.getMessage().indexOf(' '));
+                } catch (Exception e) {
 
+                }
+
+                Log.e(TAG, "hashtag: " + hashtag);
+                messageVO.setHashtags(hashtag);
+            } else {
+
+            }
             if (cache) {
                 dataSource.saveMessageResultFromServer(messageVO, chatMessage.getSubjectId());
             }
@@ -11883,6 +12053,11 @@ public class Chat extends AsyncAdapter {
         ResultNewMessage newMessage = new ResultNewMessage();
         MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
 
+        if (messageVO.getMessage().startsWith("#")) {
+            Log.e(TAG, "hashtag: " + "hello");
+            String hashtag = messageVO.getMessage().substring(0, messageVO.getMessage().indexOf(' '));
+            Log.e(TAG, "hashtag: " + hashtag);
+        }
         if (cache) {
             dataSource.updateMessageResultFromServer(messageVO, chatMessage.getSubjectId());
         }
