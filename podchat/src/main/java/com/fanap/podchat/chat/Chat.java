@@ -6213,7 +6213,7 @@ public class Chat extends AsyncAdapter {
         uniqueId = generateUniqueId();
         if (chatReady) {
 
-            String asyncContent = ParticipantsManager.prepareRemoveParticipantsRequestWithInvitee(request, uniqueId, getTypeCode(), getToken());
+            String asyncContent = ParticipantsManager.prepareRemoveParticipantsRequestWithInvitee(request, uniqueId, getToken(), getTypeCode());
 
             sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_REMOVE_PARTICIPANT");
             setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
