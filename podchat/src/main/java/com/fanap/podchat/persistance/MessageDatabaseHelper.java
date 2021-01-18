@@ -3444,6 +3444,7 @@ public class MessageDatabaseHelper {
 
     public void deleteParticipant(long threadId, long id) {
         messageDao.deleteParticipant(threadId, id);
+        messageDao.deleteCacheThreadParticipant(id);
     }
 
     /**
