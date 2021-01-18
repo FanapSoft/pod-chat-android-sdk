@@ -35,6 +35,7 @@ public class CacheMessageVO {
     private boolean hasGap = false;
     private boolean mentioned = false;
     private boolean pinned = false;
+    private String hashtags;
     @Embedded(prefix = "call_history_")
     private CallHistoryVO callHistoryVO;
 
@@ -294,6 +295,7 @@ public class CacheMessageVO {
         this.hasGap = messageVO.hasGap();
         this.mentioned = messageVO.isMentioned();
         this.pinned = messageVO.isPinned();
+        this.hashtags = messageVO.getHashtags();
         try {
 
 
@@ -323,6 +325,9 @@ public class CacheMessageVO {
             if (messageVO.getCallHistoryVO() != null) {
                 this.callHistoryVO = messageVO.getCallHistoryVO();
             }
+            if (messageVO.getHashtags() != null) {
+                this.hashtags = messageVO.getHashtags();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -345,5 +350,14 @@ public class CacheMessageVO {
 
     public void setCallHistoryVO(CallHistoryVO callHistoryVO) {
         this.callHistoryVO = callHistoryVO;
+    }
+
+    public String getHashtags() {
+        return hashtags;
+    }
+
+    public void setHashtags(String hashtags) {
+        this.hashtags = hashtags;
+
     }
 }

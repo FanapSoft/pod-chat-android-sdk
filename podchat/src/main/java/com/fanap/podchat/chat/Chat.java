@@ -84,6 +84,8 @@ import com.fanap.podchat.chat.file_manager.download_file.PodDownloader;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.chat.file_manager.upload_file.PodUploader;
 import com.fanap.podchat.chat.file_manager.upload_file.UploadToPodSpaceResult;
+import com.fanap.podchat.chat.hashtag.HashTagManager;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.map.MapManager;
 import com.fanap.podchat.chat.mention.Mention;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
@@ -380,6 +382,7 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, SendingQueueCache> sendingQList;
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
+    private static HashMap<String, String> hashTagCallBacks;
     private HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
 
     private ProgressHandler.cancelUpload cancelUpload;
@@ -502,6 +505,7 @@ public class Chat extends AsyncAdapter {
             sendingQList = new HashMap();
             uploadingQList = new HashMap();
             waitQList = new HashMap<>();
+            hashTagCallBacks = new HashMap<>();
 
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
@@ -1257,11 +1261,13 @@ public class Chat extends AsyncAdapter {
             case Constants.GET_HISTORY:
                 /*Remove uniqueIds from waitQueue /***/
                 if (callback == null) {
-                    if (handlerSend.get(messageUniqueId) != null)
+                    if (hashTagCallBacks.get(messageUniqueId) != null) {
+                        handleOnGetHashTagList(chatMessage);
+                        hashTagCallBacks.remove(chatMessage.getUniqueId());
+                    } else if (handlerSend.get(messageUniqueId) != null)
                         handleRemoveFromWaitQueue(chatMessage);
                     else
                         handleOnGetMentionList(chatMessage);
-
                 } else {
                     handleOnGetThreadHistory(callback, chatMessage);
                 }
@@ -1672,7 +1678,7 @@ public class Chat extends AsyncAdapter {
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
         if (cache) {
             dataSource.insertAssistantVo(response.getResult().get(0));
-            Log.e(TAG, "handleOnRegisterAssistant: " );
+            Log.e(TAG, "handleOnRegisterAssistant: ");
         }
         listenerManager.callOnRegisterAssistant(response);
 
@@ -1736,6 +1742,26 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnContactsLastSeenUpdated(response);
 
         listenerManager.callOnContactsLastSeenUpdated(chatMessage.getContent());
+
+    }
+
+
+    private void handleOnGetHashTagList(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECEIVED HASHTAG LIST", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVED HASHTAG LIST");
+        }
+
+        ChatResponse<ResultHistory> response = Mention.getMentionListResponse(chatMessage);
+
+
+        if (cache) {
+           dataSource.saveMessageResultFromServer(response.getResult().getHistory(), chatMessage.getSubjectId());
+        }
+
+        listenerManager.callOnGetMentionList(response);
 
     }
 
@@ -2814,7 +2840,7 @@ public class Chat extends AsyncAdapter {
     public String getAssistants(GetAssistantRequest request) {
         String uniqueId = generateUniqueId();
 
-        if(cache){
+        if (cache) {
             try {
                 getAssistantFromCache(request, uniqueId);
             } catch (RoomIntegrityException e) {
@@ -2839,9 +2865,9 @@ public class Chat extends AsyncAdapter {
 
     private void getAssistantFromCache(GetAssistantRequest request, String uniqueId) throws RoomIntegrityException {
 
-        messageDatabaseHelper.getCacheAssistantVos(request, (count,cachResponseList) -> {
+        messageDatabaseHelper.getCacheAssistantVos(request, (count, cachResponseList) -> {
 
-            ChatResponse<List<AssistantVo>>  cacheResponse = new ChatResponse<>();
+            ChatResponse<List<AssistantVo>> cacheResponse = new ChatResponse<>();
             cacheResponse.setResult((List<AssistantVo>) cachResponseList);
             cacheResponse.setUniqueId(uniqueId);
             cacheResponse.setCache(true);
@@ -2855,6 +2881,7 @@ public class Chat extends AsyncAdapter {
 
         });
     }
+
     /**
      * @param request You can add or remove someone as admin to some thread set
      *                and roles to them
@@ -3091,6 +3118,33 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    /**
+     * @param request request to get hashtaglist message of user
+     */
+
+
+    public String getHashTagList(RequestGetHashTagList request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (cache && request.useCacheData()) {
+
+            loadHashTagsFromCache(request, uniqueId);
+
+        }
+
+        if (chatReady) {
+
+            String message = HashTagManager.getHashTagList(request, uniqueId);
+            hashTagCallBacks.put(uniqueId, request.getHashtag());
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_HASHTAG_LIST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
     @SuppressWarnings("unchecked")
     private void loadMentionsFromCache(RequestGetMentionList request, String uniqueId) {
 
@@ -3111,6 +3165,26 @@ public class Chat extends AsyncAdapter {
         });
     }
 
+
+    @SuppressWarnings("unchecked")
+    private void loadHashTagsFromCache(RequestGetHashTagList request, String uniqueId) {
+
+        messageDatabaseHelper.getHashTagList(request, (messages, contentCount) -> {
+
+            ChatResponse<ResultHistory> cacheResponse = Mention
+                    .getHashTagListCacheResponse(
+                            request,
+                            (List<MessageVO>) messages,
+                            uniqueId,
+                            (Long) contentCount);
+
+            listenerManager.callOnGetMentionList(cacheResponse);
+
+            showLog("CACHE HASHTAG LIST", gson.toJson(cacheResponse));
+
+
+        });
+    }
 
     /**
      * @param request request that contains name to check if is available to create a public thread or channel
@@ -7092,6 +7166,7 @@ public class Chat extends AsyncAdapter {
                 .toTimeNanos(request.getToTimeNanos())
                 .uniqueIds(request.getUniqueIds())
                 .id(request.getId())
+                .hashtag(request.getHashtag())
                 .setMessageType(request.getMessageType())
                 .order(request.getOrder() != null ? request.getOrder() : "desc").build();
     }
@@ -10490,7 +10565,7 @@ public class Chat extends AsyncAdapter {
         return this;
     }
 
-    void addInnerListener(ChatListener listener){
+    void addInnerListener(ChatListener listener) {
         listenerManager.addInnerListener(listener);
     }
 
@@ -11084,7 +11159,20 @@ public class Chat extends AsyncAdapter {
 
         try {
             MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
+            if (messageVO.getMessage().startsWith("#")) {
+                Log.e(TAG, "hashtag: " + "hello");
+                String hashtag = messageVO.getMessage();
+                try {
+                    hashtag = messageVO.getMessage().substring(0, messageVO.getMessage().indexOf(' '));
+                } catch (Exception e) {
 
+                }
+
+                Log.e(TAG, "hashtag: " + hashtag);
+                messageVO.setHashtags(hashtag);
+            } else {
+
+            }
             if (cache) {
                 dataSource.saveMessageResultFromServer(messageVO, chatMessage.getSubjectId());
             }
@@ -11951,6 +12039,11 @@ public class Chat extends AsyncAdapter {
         ResultNewMessage newMessage = new ResultNewMessage();
         MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
 
+        if (messageVO.getMessage().startsWith("#")) {
+            Log.e(TAG, "hashtag: " + "hello");
+            String hashtag = messageVO.getMessage().substring(0, messageVO.getMessage().indexOf(' '));
+            Log.e(TAG, "hashtag: " + hashtag);
+        }
         if (cache) {
             dataSource.updateMessageResultFromServer(messageVO, chatMessage.getSubjectId());
         }

@@ -44,6 +44,7 @@ import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
@@ -160,7 +161,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     //main and sandbox
-//
+
 //    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
 //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
 //    private static String serverName = "chat-server";
@@ -189,11 +190,11 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Integration server setting:
      */
-////
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -208,10 +209,10 @@ public class ChatActivity extends AppCompatActivity
      * Test server setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.test_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.test_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.test_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.test_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.test_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.test_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_fileServer);
 
 
     /**
@@ -226,7 +227,7 @@ public class ChatActivity extends AppCompatActivity
     /**
      * Sandbox setting:
      */
-
+//
 //    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
@@ -235,7 +236,7 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 35311; //amjadi, //sharifi //kheirkhah
+    public static int TEST_THREAD_ID = 8085; //amjadi, //sharifi //kheirkhah
     private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
@@ -1667,7 +1668,18 @@ public class ChatActivity extends AppCompatActivity
         ArrayList<Long> msgIds = new ArrayList<>();
 
         msgIds.add((long) TEST_THREAD_ID);
-//        msgIds.add(47566L);
+//        msgIds.add(482371L);
+//        msgIds.add(482372L);
+//        msgIds.add(482373L);
+//        msgIds.add(482374L);
+//        msgIds.add(482375L);
+//        msgIds.add(482376L);
+//        msgIds.add(482377L);
+//        msgIds.add(525373L);
+//        msgIds.add(543502L);
+//        msgIds.add(551306L);
+//        msgIds.add(551307L);
+//        msgIds.add(551308L);
 //        msgIds.add(47564L);
 
 
@@ -1693,9 +1705,9 @@ public class ChatActivity extends AppCompatActivity
     private void removeParticipants() {
 
         List<Long> participantIds = new ArrayList<>();
-        participantIds.add(11925L);
-        participantIds.add(5581L);
-        participantIds.add(1261L);
+        participantIds.add(18476L);
+        participantIds.add(18478L);
+        participantIds.add(18481L);
         long threadId = TEST_THREAD_ID;
         RequestRemoveParticipants request = new RequestRemoveParticipants
                 .Builder(threadId, participantIds)
@@ -1839,7 +1851,7 @@ public class ChatActivity extends AppCompatActivity
             case 9:
                 //get thread history
                 getThreadHistory();
-
+//                getHashTagList();
                 break;
             case 10:
                 //"mute thread",
@@ -1938,13 +1950,13 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
-            case 26:{
+            case 26: {
 
                 closeThread();
 
                 break;
             }
-            case 27:{
+            case 27: {
 
                 getSentryLogs();
 
@@ -2076,7 +2088,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void getAssistants() {
-        GetAssistantRequest request = new GetAssistantRequest.Builder().typeCode("default").build();
+        GetAssistantRequest request = new GetAssistantRequest.Builder().typeCode("default").setOffset(0).setCount(2).build();
 
         presenter.getAssistants(request);
 
@@ -2395,10 +2407,10 @@ public class ChatActivity extends AppCompatActivity
 //        invite.add(new Invitee("121", 1)); // user zizi
 //        invite.add(new Invitee("63270", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("80617", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-        invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
+        invite.add(new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63255", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //   invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
@@ -2415,12 +2427,12 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(ThreadType.Constants.NORMAL, invite)
-//                .title("A New Thread " + (new Date().getTime() / 1000))
+                .Builder(ThreadType.Constants.OWNER_GROUP, invite)
+                .title("A New Thread " + (new Date().getTime() / 1000))
 //                .withDescription("Description created at "
 //                        + new Date().getTime())
 //                .withImage("URL")
-                .withMetadata(metac)
+                //      .withMetadata(metac)
 //                .typeCode("podspace")
 //                .setUploadThreadImageRequest(requestUploadImage)
                 .build();
@@ -2432,15 +2444,13 @@ public class ChatActivity extends AppCompatActivity
 
     private void updateContact() {
 
-        presenter.updateContact(2951, "Farhad Amjadi",
-                "Amjadi", "--------", "zi@gmail.com"
+        presenter.updateContact(52979, "agha masoud",
+                "amjadi ", "---", "gizi@gmail.com"
         );
     }
 
 
     public void getThreadHistory() {
-
-
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
@@ -2453,8 +2463,17 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         presenter.getHistory(request, null);
+    }
 
+    public void getHashTagList() {
+        RequestGetHashTagList request = new RequestGetHashTagList
+                .Builder(TEST_THREAD_ID)
+                .offset(0)
+                .count(25)
+                .setHashtag("ahmad")
+                .build();
 
+        presenter.getHashTagLIst(request, null);
     }
 
     public void getThreads() {

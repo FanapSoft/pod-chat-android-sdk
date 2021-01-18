@@ -24,8 +24,8 @@ import java.util.List;
 public class AssistantManager {
 
     public static String createRegisterAssistantRequest(RegisterAssistantRequest request,
-                                                String uniqueId) {
-        String content =App.getGson().toJson(request.getAssistantVos());
+                                                        String uniqueId) {
+        String content = App.getGson().toJson(request.getAssistantVos());
 
         AsyncMessage message = new ChatMessage();
 
@@ -44,7 +44,7 @@ public class AssistantManager {
 
                                                         String uniqueId) {
 
-        String content =App.getGson().toJson(request.getAssistantVos());
+        String content = App.getGson().toJson(request.getAssistantVos());
 
         AsyncMessage message = new ChatMessage();
 
@@ -60,36 +60,43 @@ public class AssistantManager {
     }
 
     public static String createGetAssistantsRequest(GetAssistantRequest request,
-                                                String uniqueId) {
+                                                    String uniqueId) {
+        JsonObject content = new JsonObject();
+        content.addProperty("contactType", request.getTypeCode());
+        if ((Long)request.getOffset() != null) {
+            content.addProperty("offset", request.getOffset());
+        }
+        if ((Long)request.getCount() != null) {
+            content.addProperty("count", request.getCount());
+        } else {
+            content.addProperty("count", 50);
 
-        AssistantVo assistantVo = new AssistantVo();
-        assistantVo.setContactType(request.getTypeCode());
-
+        }
         AsyncMessage message = new ChatMessage();
 
         message.setType(ChatMessageType.Constants.GET_ASSISTANTS);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
-        message.setContent(App.getGson().toJson(assistantVo));
+        message.setContent(App.getGson().toJson(content));
         message.setUniqueId(uniqueId);
 
         return App.getGson().toJson(message);
     }
 
-        public static ChatResponse<List<AssistantVo>> handleAssitantResponse(ChatMessage chatMessage){
+    public static ChatResponse<List<AssistantVo>> handleAssitantResponse(ChatMessage chatMessage) {
 
-            ChatResponse<List<AssistantVo>> response = new ChatResponse<>();
-            List<AssistantVo> result = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<AssistantVo>>() {
-            }.getType());
+        ChatResponse<List<AssistantVo>> response = new ChatResponse<>();
+        List<AssistantVo> result = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<AssistantVo>>() {
+        }.getType());
 
-            response.setResult(result);
+        response.setResult(result);
 
-            response.setUniqueId(chatMessage.getUniqueId());
+        response.setUniqueId(chatMessage.getUniqueId());
 
-            response.setCache(false);
+        response.setCache(false);
 
-            return response;
+        return response;
     }
 
 }

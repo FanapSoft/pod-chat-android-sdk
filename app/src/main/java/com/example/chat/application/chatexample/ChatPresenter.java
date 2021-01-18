@@ -51,6 +51,7 @@ import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
@@ -811,6 +812,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.sendStatusPing(statusRequest);
 
         return uniqueId;
+    }
+
+    @Override
+    public String getHashTagLIst(RequestGetHashTagList request, ChatHandler handler) {
+        return chat.getHashTagList(request);
     }
 
     @Override

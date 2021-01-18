@@ -21,6 +21,7 @@ import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
@@ -349,6 +350,7 @@ public interface ChatContract {
         void getHistory(History history, long threadId, ChatHandler handler);
 
         String getHistory(RequestGetHistory request, ChatHandler handler);
+        String getHashTagLIst(RequestGetHashTagList request, ChatHandler handler);
 
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
 

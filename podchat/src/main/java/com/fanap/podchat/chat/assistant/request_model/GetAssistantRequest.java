@@ -9,18 +9,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GetAssistantRequest extends GeneralRequestObject {
+    private long count;
+    private long offset;
 
     GetAssistantRequest(GetAssistantRequest.Builder builder) {
         super(builder);
 
-
+        this.count = builder.count;
+        this.offset = builder.offset;
     }
 
+    public long getCount() {
+        return count;
+    }
 
+    public long getOffset() {
+        return offset;
+    }
 
     public static class Builder extends GeneralRequestObject.Builder<GetAssistantRequest.Builder> {
+        private long count;
+        private long offset;
 
-        public Builder(){
+        public Builder() {
 
         }
 
@@ -31,6 +42,16 @@ public class GetAssistantRequest extends GeneralRequestObject {
         @Override
         public Builder typeCode(String typeCode) {
             return super.typeCode(typeCode);
+        }
+
+        public Builder setCount(long count) {
+            this.count = count;
+            return this;
+        }
+
+        public Builder setOffset(long offset) {
+            this.offset = offset;
+            return this;
         }
 
         @Override

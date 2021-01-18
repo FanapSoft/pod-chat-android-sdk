@@ -37,6 +37,7 @@ import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
@@ -1482,6 +1483,7 @@ public class MessageDatabaseHelper {
                 false,
                 cacheMessageVO.hasGap(),
                 cacheMessageVO.isPinned(),
+                cacheMessageVO.getHashtags(),
                 cacheMessageVO.getCallHistoryVO()
         );
     }
@@ -1568,6 +1570,43 @@ public class MessageDatabaseHelper {
 
             String contentCountQuery = "SELECT count(*) FROM CacheMessageVO WHERE threadVoId = " + request.getThreadId() +
                     " and mentioned = true" + condition;
+
+            long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(contentCountQuery));
+
+            prepareMessageVOs(messageVOS, cacheMessageVOS);
+
+            if (messageVOS.size() > 0)
+                listener.onWorkDone(messageVOS, contentCount);
+
+        });
+
+
+    }
+
+    public void getHashTagList(RequestGetHashTagList request, FunctionalListener listener) {
+
+
+        worker(() -> {
+
+            List<MessageVO> messageVOS = new ArrayList<>();
+
+
+            List<CacheMessageVO> cacheMessageVOS = new ArrayList<>();
+
+            String condition;
+
+            condition = " and hashtags=#ahmad ";
+
+
+            String rawQuery = "SELECT * FROM CacheMessageVO WHERE threadVoId = " + request.getThreadId();
+
+            SupportSQLiteQuery sqLiteQuery = new SimpleSQLiteQuery(rawQuery);
+
+            cacheMessageVOS = messageDao.getRawHistory(sqLiteQuery);
+
+
+            String contentCountQuery = "SELECT count(*) FROM CacheMessageVO WHERE threadVoId = " + request.getThreadId();
+            ;
 
             long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(contentCountQuery));
 
@@ -4162,7 +4201,7 @@ public class MessageDatabaseHelper {
     public void insertCacheAssistantVo(AssistantVo assistantVo) {
 
         CacheAssistantVo cacheFile = new CacheAssistantVo();
-        cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
+        //   cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
         cacheFile.setRoles(assistantVo.getRoles());
 
         if (assistantVo.getParticipantVO() != null) {
@@ -4170,7 +4209,7 @@ public class MessageDatabaseHelper {
             String participantJson = App.getGson().toJson(participant);
             CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
             messageDao.insertParticipant(cacheParticipant);
-            cacheFile.setParticipantVOId(assistantVo.getParticipantVO().getId());
+            cacheFile.setParticipantVOId(cacheParticipant.getId());
         }
 
         cacheFile.setContactType(assistantVo.getContactType());
@@ -4202,14 +4241,14 @@ public class MessageDatabaseHelper {
 
     }
 
-    public void updateCashAssistant(OnWorkDone listener,List<AssistantVo> response) {
+    public void updateCashAssistant(OnWorkDone listener, List<AssistantVo> response) {
         worker(() -> {
             List<CacheAssistantVo> cacheAssistantVos = new ArrayList<>();
             messageDao.deleteAllCacheAssistantVo();
 
-            for (AssistantVo assistantVo:response){
+            for (AssistantVo assistantVo : response) {
                 CacheAssistantVo cacheFile = new CacheAssistantVo();
-                cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
+                //  cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
                 cacheFile.setRoles(assistantVo.getRoles());
 
                 if (assistantVo.getParticipantVO() != null) {
