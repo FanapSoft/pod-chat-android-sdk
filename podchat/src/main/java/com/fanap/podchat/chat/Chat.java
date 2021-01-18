@@ -6025,6 +6025,7 @@ public class Chat extends AsyncAdapter {
      * @param participantIds List of PARTICIPANT IDs that gets from {@link #getThreadParticipants}
      * @param threadId       Id of the thread that we wants to remove their participant
      */
+
     public String removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -6045,16 +6046,28 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * participantIds List of PARTICIPANT IDs from Thread's Participants object
+     * participantIds List of PARTICIPANT IDs or Invitee from Thread's Participants object
      * threadId       Id of the thread that we wants to remove their participant
+     *
      */
     public String removeParticipants(RequestRemoveParticipants request, ChatHandler handler) {
 
-        List<Long> participantIds = request.getParticipantIds();
-        long threadId = request.getThreadId();
+        String uniqueId;
+        uniqueId = generateUniqueId();
+        if (chatReady) {
 
+            String asyncContent = ParticipantsManager.prepareRemoveParticipantsRequestWithInvitee(request, uniqueId, getTypeCode(), getToken());
 
-        return removeParticipants(threadId, participantIds, handler);
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND_REMOVE_PARTICIPANT");
+            setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
+            if (handler != null) {
+                handler.onRemoveParticipants(uniqueId);
+            }
+
+        } else {
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+        }
+        return uniqueId;
     }
 
     /**

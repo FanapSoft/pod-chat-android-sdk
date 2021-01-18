@@ -159,17 +159,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
+//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
 
     //local
 
 //
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.token_ahmadsajadi);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -187,10 +187,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 ////
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -224,15 +224,15 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 35311; //amjadi, //sharifi //kheirkhah
+    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
     private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
@@ -1693,14 +1693,26 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void removeParticipants() {
+        List<Invitee> inviteeList = new ArrayList<>();
 
         List<Long> participantIds = new ArrayList<>();
         participantIds.add(11925L);
         participantIds.add(5581L);
         participantIds.add(1261L);
+
+
+        //SET INVITEE LIST
+        Invitee invite = new Invitee("5739", InviteType.Constants.TO_BE_CORE_USER_ID);
+        Invitee invite2 = new Invitee("5736", InviteType.Constants.TO_BE_CORE_USER_ID);
+        inviteeList.add(invite);
+        inviteeList.add(invite2);
+
+
+
         long threadId = TEST_THREAD_ID;
         RequestRemoveParticipants request = new RequestRemoveParticipants
                 .Builder(threadId, participantIds)
+                //.setInvitees(inviteeList)
                 .build();
         presenter.removeParticipants(request, null);
 
