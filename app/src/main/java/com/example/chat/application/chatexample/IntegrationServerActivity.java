@@ -126,7 +126,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public abstract class IntegrationServerActivity extends AppCompatActivity
+public class IntegrationServerActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "appid";

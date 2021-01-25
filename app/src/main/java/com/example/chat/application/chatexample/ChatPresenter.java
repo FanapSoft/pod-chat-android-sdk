@@ -156,6 +156,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import leakcanary.AppWatcher;
+import leakcanary.internal.AppWatcherInstaller;
+
 import static com.example.chat.application.chatexample.CallActivity.Farhad_ID;
 import static com.example.chat.application.chatexample.CallActivity.MASOUD_CID;
 import static com.example.chat.application.chatexample.CallActivity.Masoud_ID;
@@ -239,6 +242,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         this.activity = activity;
         this.context = context;
         this.view = view;
+
+        AppWatcher.INSTANCE.getObjectWatcher().watch(chat,"Chat Watcher initial");
 
         activity.getApplication().registerActivityLifecycleCallbacks(this);
 
