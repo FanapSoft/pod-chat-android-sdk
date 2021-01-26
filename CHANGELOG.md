@@ -5,6 +5,25 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.6.0] -2020-1-26
+
+[Deprecated] removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler)
+
+[Added] Invitee to RemoveParticipantRequest 
+
+[Added] ability to removeParticipants with Invitee (userId and coreUserId)
+
+[Added] ```registerAssistant```
+
+[Added] ```deactiveAssistant```
+
+[Added] ```getAssistants```
+
+        
+        
+
+ 
+
 
 ## Version [0.9.5.0] -2020-12-5
 
