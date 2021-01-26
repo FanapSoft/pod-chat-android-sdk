@@ -7,8 +7,9 @@ import java.util.List;
 @Entity
 public class CacheAssistantVo {
 
+    //TODO
+    //inviteeId == participantVOId --- One of these can be deleted from db
     @PrimaryKey()
-
     private long inviteeId;
 
     private List<String> roles;
