@@ -368,6 +368,8 @@
 
     </ScrollView>
 
+
+
     <include
         layout="@layout/call_request_receive_layout"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -383,6 +385,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
+
     <android.support.design.widget.FloatingActionButton
         android:visibility="gone"
         android:layout_width="wrap_content"
@@ -394,5 +398,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/frame_call"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_call" />
+
+    <include layout="@layout/video_call" />
 
 </android.support.constraint.ConstraintLayout>

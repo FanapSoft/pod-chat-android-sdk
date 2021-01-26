@@ -3,9 +3,9 @@ package com.fanap.podchat.call.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
-
 public class ClientDTO implements Parcelable {
+    public static final String VOICE_TOPIC_SUFFIX = "VO";
+    public static final String VIDEO_TOPIC_SUFFIX = "VI";
     private String clientId;
     private String topicReceive;
     private String topicSend;
@@ -35,6 +35,46 @@ public class ClientDTO implements Parcelable {
 
     public void setTopicSend(String topicSend) {
         this.topicSend = topicSend;
+    }
+
+    public String getTopicSendVideo() {
+        if (topicSend != null && topicSend.endsWith(VIDEO_TOPIC_SUFFIX))
+            return topicSend;
+        if (topicSend != null && topicSend.endsWith(VOICE_TOPIC_SUFFIX))
+            return topicSend.replace(VOICE_TOPIC_SUFFIX,VIDEO_TOPIC_SUFFIX);
+        if (topicSend != null)
+            return topicSend + VIDEO_TOPIC_SUFFIX;
+        return null;
+    }
+
+    public String getTopicSendAudio() {
+        if (topicSend != null && topicSend.endsWith(VOICE_TOPIC_SUFFIX))
+            return topicSend;
+        if (topicSend != null && topicSend.endsWith(VIDEO_TOPIC_SUFFIX))
+            return topicSend.replace(VIDEO_TOPIC_SUFFIX,VOICE_TOPIC_SUFFIX);
+        if (topicSend != null)
+            return topicSend + VOICE_TOPIC_SUFFIX;
+        return null;
+    }
+
+    public String getTopicReceiveVideo() {
+        if (topicReceive != null && topicReceive.endsWith(VIDEO_TOPIC_SUFFIX))
+            return topicReceive;
+        if (topicReceive != null && topicReceive.endsWith(VOICE_TOPIC_SUFFIX))
+            return topicReceive.replace(VOICE_TOPIC_SUFFIX, VIDEO_TOPIC_SUFFIX);
+        if (topicReceive != null)
+            return topicReceive + VIDEO_TOPIC_SUFFIX;
+        return null;
+    }
+
+    public String getTopicReceiveAudio() {
+        if (topicReceive != null && topicReceive.endsWith(VOICE_TOPIC_SUFFIX))
+            return topicReceive;
+        if (topicReceive != null && topicReceive.endsWith(VIDEO_TOPIC_SUFFIX))
+            return topicReceive.replace(VIDEO_TOPIC_SUFFIX, VOICE_TOPIC_SUFFIX);
+        if (topicReceive != null)
+            return topicReceive + VOICE_TOPIC_SUFFIX;
+        return null;
     }
 
     public String getBrokerAddress() {

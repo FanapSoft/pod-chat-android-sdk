@@ -110,9 +110,8 @@ public class ChatMessageType {
             Constants.UN_MUTE_CALL_PARTICIPANT,
             Constants.CANCEL_GROUP_CALL,
             Constants.REGISTER_ASSISTANT,
-
-
-
+            Constants.TURN_ON_VIDEO_CALL,
+            Constants.TURN_OFF_VIDEO_CALL
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -229,6 +228,11 @@ public class ChatMessageType {
         int REGISTER_ASSISTANT = 107;
         int DEACTICVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
+
+        int TURN_ON_VIDEO_CALL = 113;
+        int TURN_OFF_VIDEO_CALL = 114;
+
+
 
     }
 

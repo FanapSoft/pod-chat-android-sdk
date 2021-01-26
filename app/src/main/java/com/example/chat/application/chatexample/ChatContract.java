@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
@@ -584,6 +585,8 @@ public interface ChatContract {
         void registerAssistant(RegisterAssistantRequest request);
         void getAssistants(GetAssistantRequest request);
         void deActiveAssistant(DeActiveAssistantRequest request);
+
+        void setupVideoCallParam(CallPartnerView localCallPartner, List<CallPartnerView> views);
 
     }
 }

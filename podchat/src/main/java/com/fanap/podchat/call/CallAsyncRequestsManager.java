@@ -269,11 +269,15 @@ public class CallAsyncRequestsManager {
     public static String createAcceptCallRequest(AcceptCallRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
+        JsonObject content = new JsonObject();
+
         if(request.isMute()){
-            JsonObject content = new JsonObject();
-            content.addProperty("mute",request.isMute());
-            message.setContent(content.toString());
+            content.addProperty("mute",true);
         }
+        if(request.isVideoCall()){
+            content.addProperty("videoCall",true);
+        }
+        message.setContent(content.toString());
         message.setType(ChatMessageType.Constants.ACCEPT_CALL);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);

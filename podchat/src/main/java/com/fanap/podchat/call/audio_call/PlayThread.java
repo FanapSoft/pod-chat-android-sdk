@@ -7,8 +7,8 @@ import android.media.AudioTrack;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.util.Log;
 
-import com.fanap.podchat.call.codec.opus.OpusDecoder;
-import com.fanap.podchat.call.codec.speexdsp.EchoCanceller;
+import ir.farhad7d7.theopuscodec.opus.OpusDecoder;
+
 
 public class PlayThread extends Thread {
 
@@ -24,7 +24,7 @@ public class PlayThread extends Thread {
 
     private byte[] encodedBuffer = new byte[]{};
     private boolean playing = false;
-    private EchoCanceller echoCanceller;
+//    private EchoCanceller echoCanceller;
     private AudioTrack audioTrack;
 
     private boolean hasBuiltInAEC;
@@ -49,12 +49,12 @@ public class PlayThread extends Thread {
         // init opus decoder
         OpusDecoder decoder = initDecoder();
 
-        if (!hasBuiltInAEC) {
-            if (echoCanceller == null) {
-                echoCanceller = new EchoCanceller();
-                echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
-            }
-        }
+//        if (!hasBuiltInAEC) {
+//            if (echoCanceller == null) {
+//                echoCanceller = new EchoCanceller();
+//                echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
+//            }
+//        }
 
 
         playAudio(decoder);
@@ -128,9 +128,9 @@ public class PlayThread extends Thread {
     }
 
     private void playWithSpeexAEC(short[] outputBuffer, int decoded) {
-        audioTrack.write(echoCanceller.capture(outputBuffer), 0, decoded);
-
-        echoCanceller.playback(outputBuffer);
+//        audioTrack.write(echoCanceller.capture(outputBuffer), 0, decoded);
+//
+//        echoCanceller.playback(outputBuffer);
     }
 
     void stopPlaying() {

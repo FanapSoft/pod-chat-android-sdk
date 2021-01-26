@@ -8,9 +8,10 @@ import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
 import android.util.Log;
 
-import com.fanap.podchat.call.codec.opus.OpusEncoder;
 
 import java.util.Arrays;
+
+import ir.farhad7d7.theopuscodec.opus.OpusEncoder;
 
 public class RecordThread extends Thread {
 

@@ -48,11 +48,11 @@ android {
     }
 
     buildToolsVersion '28.0.3'
-    externalNativeBuild {
-        ndkBuild {
-            path file('src/main/jni/Android.mk')
-        }
-    }
+//    externalNativeBuild {
+//        ndkBuild {
+//            path file('src/main/jni/Android.mk')
+//        }
+//    }
 }
 
 ext {
@@ -98,6 +98,7 @@ dependencies {
 
     //room
     implementation 'android.arch.persistence.room:runtime:1.1.1'
+    api project(path: ':podcall')
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
 
     //rx for room
@@ -132,11 +133,11 @@ dependencies {
 
     for (String item : runTasks) {
         println(item)
-        if (item.contains("assembleDebug")) {
-            implementation project(path: ':kafkaclient')
-        } else {
-            embed project(path: ':kafkaclient')
-        }
+//        if (item.contains("assembleDebug")) {
+//            implementation project(path: ':kafkaclient')
+//        } else {
+//            embed project(path: ':kafkaclient')
+//        }
     }
 
 }

@@ -8,8 +8,6 @@ import android.media.audiofx.AcousticEchoCanceler;
 import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ConsumerClient;
-import com.fanap.podchat.call.codec.opus.OpusDecoder;
-import com.fanap.podchat.call.codec.speexdsp.EchoCanceller;
 import com.fanap.podchat.call.model.CallSSLData;
 import com.fanap.podchat.chat.CoreConfig;
 
@@ -19,6 +17,8 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import ir.farhad7d7.theopuscodec.opus.OpusDecoder;
 
 public class GroupCallConsumer extends CallConsumer implements Runnable {
 
@@ -34,7 +34,7 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
     private static final String TAG = "AUDIO_RECORDER";
 
     private AtomicBoolean playing = new AtomicBoolean(false);
-    private EchoCanceller echoCanceller;
+//    private EchoCanceller echoCanceller;
     private AudioTrack audioTrack;
 
     private boolean hasBuiltInAEC;
@@ -90,10 +90,10 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
         decoder = initDecoder();
 
         if (!hasBuiltInAEC) {
-            if (echoCanceller == null) {
-                echoCanceller = new EchoCanceller();
-                echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
-            }
+//            if (echoCanceller == null) {
+//                echoCanceller = new EchoCanceller();
+//                echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
+//            }
         }
 
 
@@ -144,7 +144,7 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
                         byte[] consumedBytes;
 
                         try {
-                            consumedBytes = consumer.consumingTopic();
+                            consumedBytes = consumer.consumingTopic(100);
                         } catch (Exception e) {
                             e.printStackTrace();
                             continue;
@@ -174,10 +174,10 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
 
         Log.v(TAG, "Decoded back " + decoded * NUM_CHANNELS * 2 + " bytes");
 
-        if (hasBuiltInAEC)
+//        if (hasBuiltInAEC)
             audioTrack.write(outputBuffer, 0, decoded * NUM_CHANNELS);
-        else
-            playWithSpeexAEC(outputBuffer, decoded);
+//        else
+//            playWithSpeexAEC(outputBuffer, decoded);
 
     }
 
@@ -188,9 +188,9 @@ public class GroupCallConsumer extends CallConsumer implements Runnable {
 
 
     private void playWithSpeexAEC(short[] outputBuffer, int decoded) {
-        audioTrack.write(echoCanceller.capture(outputBuffer), 0, decoded * NUM_CHANNELS);
-
-        echoCanceller.playback(outputBuffer);
+//        audioTrack.write(echoCanceller.capture(outputBuffer), 0, decoded * NUM_CHANNELS);
+//
+//        echoCanceller.playback(outputBuffer);
     }
 
     void stopPlaying() {

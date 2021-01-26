@@ -24,6 +24,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podcall.util.CallPermissionHandler;
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
@@ -107,7 +109,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
     private boolean permissionToRecordAccepted = false;
-    private String[] permissions = {Manifest.permission.RECORD_AUDIO};
+    private String[] permissions = {Manifest.permission.RECORD_AUDIO,Manifest.permission.CAMERA};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
 
 
@@ -149,6 +151,12 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private boolean chatReady;
     private boolean isTestMode = false;
 //    private boolean isInCall = false;
+
+    CallPartnerView localCallPartner,
+            remoteCallPartner1,
+            remoteCallPartner2,
+            remoteCallPartner3,
+            remoteCallPartner4;
 
 
     @Override
@@ -332,7 +340,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     checkboxAddFarhad.isChecked());
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(),checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(), checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
@@ -583,6 +591,26 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         Logger.addLogAdapter(new AndroidLogAdapter());
+
+        localCallPartner = findViewById(R.id.localPartnerCameraView);
+        remoteCallPartner1 = findViewById(R.id.remotePartnerView1);
+        remoteCallPartner2 = findViewById(R.id.remotePartnerView2);
+        remoteCallPartner3 = findViewById(R.id.remotePartnerView3);
+        remoteCallPartner4 = findViewById(R.id.remotePartnerView4);
+
+
+        List<CallPartnerView> views = new ArrayList<>();
+
+        views.add(remoteCallPartner1);
+        views.add(remoteCallPartner2);
+        views.add(remoteCallPartner3);
+        views.add(remoteCallPartner4);
+
+
+        if(!CallPermissionHandler.needCameraAndRecordPermission(this))
+        {
+            presenter.setupVideoCallParam(localCallPartner,views);
+        }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -999,7 +1027,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers) {
 
-        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null){
+        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null) {
 
 
             ContactsFragment contactsFragment = (ContactsFragment) getSupportFragmentManager().findFragmentByTag("CFRAG");
