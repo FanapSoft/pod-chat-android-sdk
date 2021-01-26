@@ -4202,7 +4202,6 @@ public class MessageDatabaseHelper {
     public void insertCacheAssistantVo(AssistantVo assistantVo) {
 
         CacheAssistantVo cacheFile = new CacheAssistantVo();
-        //   cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
         cacheFile.setRoles(assistantVo.getRoles());
 
         if (assistantVo.getParticipantVO() != null) {
@@ -4211,11 +4210,11 @@ public class MessageDatabaseHelper {
             CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
             messageDao.insertParticipant(cacheParticipant);
             cacheFile.setParticipantVOId(cacheParticipant.getId());
+            cacheFile.setInviteeId(cacheParticipant.getId());
         }
 
         cacheFile.setContactType(assistantVo.getContactType());
         messageDao.insertCacheAssistantVo(cacheFile);
-
     }
 
     public void getCacheAssistantVos(GetAssistantRequest request, FunctionalListener callback) throws RoomIntegrityException {
@@ -4228,7 +4227,6 @@ public class MessageDatabaseHelper {
             List<AssistantVo> cachResponseList = new ArrayList<>();
             for (CacheAssistantVo item : list) {
                 AssistantVo assistantVo = new AssistantVo();
-                //    assistantVo.setInvitees(messageDao.getInviter(assistantVo.getInvitees());
                 assistantVo.setRoles((ArrayList<String>) item.getRoles());
                 assistantVo.setContactType(item.getContactType());
                 Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
@@ -4246,11 +4244,9 @@ public class MessageDatabaseHelper {
         worker(() -> {
             List<CacheAssistantVo> cacheAssistantVos = new ArrayList<>();
             messageDao.deleteAllCacheAssistantVo();
-
             for (AssistantVo assistantVo : response) {
                 CacheAssistantVo cacheFile = new CacheAssistantVo();
-                //  cacheFile.setInviteeId(Long.parseLong(assistantVo.getInvitees().getId()));
-                cacheFile.setRoles(assistantVo.getRoles());
+                   cacheFile.setRoles(assistantVo.getRoles());
 
                 if (assistantVo.getParticipantVO() != null) {
                     Participant participant = assistantVo.getParticipantVO();
@@ -4258,16 +4254,19 @@ public class MessageDatabaseHelper {
                     CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
                     messageDao.insertParticipant(cacheParticipant);
                     cacheFile.setParticipantVOId(assistantVo.getParticipantVO().getId());
+                    cacheFile.setInviteeId(assistantVo.getParticipantVO().getId());
                 }
 
                 cacheFile.setContactType(assistantVo.getContactType());
+
                 cacheAssistantVos.add(cacheFile);
             }
 
             messageDao.insertCacheAssistantVos(cacheAssistantVos);
-
             listener.onWorkDone(true);
         });
+
+
     }
 
     public void deleteCacheAssistantVo(long id) {
