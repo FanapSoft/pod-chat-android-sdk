@@ -13,11 +13,17 @@ All notable changes to this project will be documented here.
 
 [Added] ability to removeParticipants with Invitee (userId and coreUserId)
 
-[Added] ```registerAssistant```
+[Added] ```registerAssistant``` method
 
-[Added] ```deactiveAssistant```
+[Added] ```onRegisterAssistant``` callback
 
-[Added] ```getAssistants```
+[Added] ```deactiveAssistant``` method
+
+[Added] ```onDeActiveAssistant``` callback
+
+[Added] ```getAssistants``` method
+
+[Added] ```onGetAssistants``` callback
 
         
         
