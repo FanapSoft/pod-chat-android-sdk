@@ -1694,9 +1694,9 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
 
-        if (cache) {
+        if (cache && response.getResult().size() > 0) {
 
-            messageDatabaseHelper.deleteCacheAssistantVo(Long.parseLong(response.getResult().get(0).getInvitees().getId()));
+            messageDatabaseHelper.deleteCacheAssistantVo(response.getResult().get(0).getParticipantVO().getId());
             Log.e(TAG, "handleOnDeActiveAssistant:");
         }
 
@@ -1758,7 +1758,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (cache) {
-           dataSource.saveMessageResultFromServer(response.getResult().getHistory(), chatMessage.getSubjectId());
+            dataSource.saveMessageResultFromServer(response.getResult().getHistory(), chatMessage.getSubjectId());
         }
 
         listenerManager.callOnGetMentionList(response);
@@ -6205,7 +6205,6 @@ public class Chat extends AsyncAdapter {
     /**
      * participantIds List of PARTICIPANT IDs or Invitee from Thread's Participants object
      * threadId       Id of the thread that we wants to remove their participant
-     *
      */
     public String removeParticipants(RemoveParticipantRequest request, ChatHandler handler) {
 
