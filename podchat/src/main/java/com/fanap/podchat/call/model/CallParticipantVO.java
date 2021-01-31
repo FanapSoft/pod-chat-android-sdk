@@ -18,6 +18,8 @@ public class CallParticipantVO implements Serializable {
     private String receiveTopic;
     private Boolean active;
     private int callStatus;
+    private boolean mute;
+    private boolean video;
     private Participant participantVO;
 
 
@@ -111,5 +113,21 @@ public class CallParticipantVO implements Serializable {
 
     public void setParticipantVO(Participant participantVO) {
         this.participantVO = participantVO;
+    }
+
+    public boolean isMute() {
+        return mute;
+    }
+
+    public void setMute(boolean mute) {
+        this.mute = mute;
+    }
+
+    public boolean hasVideo() {
+        return video;
+    }
+
+    public void setVideo(boolean video) {
+        this.video = video;
     }
 }

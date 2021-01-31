@@ -53,10 +53,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Nadia_Anvari);
     //INTEGRATION
 
     static int Pooria_ID = 18477;
@@ -109,7 +109,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
     private boolean permissionToRecordAccepted = false;
-    private String[] permissions = {Manifest.permission.RECORD_AUDIO,Manifest.permission.CAMERA};
+    private String[] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
 
 
@@ -157,6 +157,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             remoteCallPartner2,
             remoteCallPartner3,
             remoteCallPartner4;
+    private boolean isVideoPaused = false;
 
 
     @Override
@@ -196,6 +197,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonCall.setOnClickListener(v -> {
 
             if (chatReady) {
+                showRequestCallView();
                 if (checkBoxGroupCall.isChecked()) {
                     presenter.requestGroupCall(checkboxFifiPartner.isChecked(), checkboxZiziPartner.isChecked(), checkboxJijiPartner.isChecked());
                     updateStatus("Starting Group Call");
@@ -373,6 +375,23 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //
 //        checkBoxViewIntegaration.setOnCheckedChangeListener((buttonView, isChecked) -> groupIntegartionViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
 
+        localCallPartner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.switchCamera();
+            }
+        });
+        localCallPartner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isVideoPaused)
+                    presenter.resumeVideo();
+                else
+                    presenter.pauseVideo();
+
+                isVideoPaused = !isVideoPaused;
+            }
+        });
     }
 
     private void toggleSpeaker(ImageButton v) {
@@ -607,9 +626,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         views.add(remoteCallPartner4);
 
 
-        if(!CallPermissionHandler.needCameraAndRecordPermission(this))
-        {
-            presenter.setupVideoCallParam(localCallPartner,views);
+        if (!CallPermissionHandler.needCameraAndRecordPermission(this)) {
+            presenter.setupVideoCallParam(localCallPartner, views);
         }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);

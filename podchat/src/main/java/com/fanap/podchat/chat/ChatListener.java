@@ -353,4 +353,10 @@ public interface ChatListener {
     default void onRegisterAssistant(ChatResponse<List<AssistantVo>> response){}
     default void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response){}
     default void onGetAssistants(ChatResponse<List<AssistantVo>> response){}
+
+    default void onNoViewToAddNewParticipant(){}
+
+    default void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response){}
+
+    default void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response){}
 }

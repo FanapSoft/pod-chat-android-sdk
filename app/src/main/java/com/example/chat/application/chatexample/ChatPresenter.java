@@ -308,6 +308,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+    @Override
+    public void switchCamera() {
+        chat.switchCamera();
+    }
+
+    @Override
+    public void pauseVideo() {
+        chat.pauseVideo();
+    }
+
+    @Override
+    public void resumeVideo() {
+        chat.resumeVideo();
+    }
+
 
     @Override
     public void connect(RequestConnect requestConnect) {
@@ -394,7 +409,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 callVO.getCallId());
 
         if (true) {
-            request.mute();
+//            request.mute();
             request.withVideo();
         }
 
@@ -610,30 +625,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.sendLocationMessage(requestLocationMessage, handler);
     }
-
-    @Override
-    public String requestMainOrSandboxCall(int partnerId, boolean checked) {
-
-        List<Invitee> invitees = new ArrayList<>();
-        Invitee invitee = new Invitee();
-        invitee.setId(partnerId);
-        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
-        invitees.add(invitee);
-
-
-        //request with invitee list
-        CallRequest callRequest = new CallRequest.Builder(
-                invitees,
-                CallType.Constants.VIDEO_CALL).build();
-
-        //request with subject id
-        CallRequest callRequestt = new CallRequest.Builder(
-                100000L,
-                CallType.Constants.VOICE_CALL).build();
-
-        return chat.requestCall(callRequest);
-    }
-
 
     @Override
     public void onLogEvent(String log) {
@@ -1577,17 +1568,55 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+        if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
+
+
+//            List<String> usernames = new ArrayList<>();
+//        usernames.add("leila.nemati");
+//            usernames.add("pooria.pahlevani");
+//        usernames.add("nadia.anvari");
+//        usernames.add("p.khoshghadam");
+//        usernames.add("m.hasanpour");
+//        usernames.add("z.ershad");
+//        usernames.add("Samira.amiri");
+//        usernames.add("s.heydarizadeh");
+//        usernames.add("p.pahlavani");
+//            usernames.add("09379520706");
+//            usernames.add("09124704905");
+
+            chat.getContacts(new RequestGetContact.Builder()
+                    .count(10).offset(0).build(), null);
+//            for (int i = 0; i < usernames.size(); i++) {
 //
 //
-//            RequestMessage req = new RequestMessage.Builder("ttt",5182)
-//                    .messageType(TextMessageType.Constants.TEXT)
-//                    .build();
+//                try {
+//                    String name;
+//                    String family;
+//                    if (i == 0) {
+//                        name = "Masoud";
+//                        family = "Alavi";
+//                    } else {
+//                        name = "Ms";
+//                        family = "HeidariZadeh";
+//                    }
+//                    RequestAddContact request = new RequestAddContact.Builder()
+//                            .firstName(name)
+//                            .lastName(family)
+//                            .cellphoneNumber(usernames.get(i))
+//                            .build();
 //
-//            sendTextMessage(req,null);
+//                    chat.addContact(request);
+//
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
 //
 //
-//        }
+//            }
+
+
+        }
 //        if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
 //
 //
@@ -1816,33 +1845,40 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     private void showVideoViews() {
-        try {
-            if (callLocalView != null) {
-                callLocalView.setVisibility(View.VISIBLE);
-            }
-            if (videoCallViews != null)
-                for (CallPartnerView partnerView :
-                        videoCallViews) {
-                    partnerView.setVisibility(View.VISIBLE);
+        activity.runOnUiThread(() -> {
+            try {
+                if (callLocalView != null) {
+                    callLocalView.setVisibility(View.VISIBLE);
                 }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//                if (videoCallViews != null)
+//                    for (CallPartnerView partnerView :
+//                            videoCallViews) {
+//                        partnerView.setVisibility(View.VISIBLE);
+//                    }
+                chat.setPartnerViews(videoCallViews);
+                chat.openCamera();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void hideVideoViews() {
-        try {
-            if (callLocalView != null) {
-                callLocalView.setVisibility(View.INVISIBLE);
-            }
-            if (videoCallViews != null)
-                for (CallPartnerView partnerView :
-                        videoCallViews) {
-                    partnerView.setVisibility(View.INVISIBLE);
+        activity.runOnUiThread(() -> {
+            try {
+                if (callLocalView != null) {
+                    callLocalView.setVisibility(View.INVISIBLE);
                 }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                if (videoCallViews != null)
+                    for (CallPartnerView partnerView :
+                            videoCallViews) {
+                        partnerView.setVisibility(View.INVISIBLE);
+                    }
+                chat.closeCamera();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
 
@@ -2305,6 +2341,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 invitees,
                 CallType.Constants.VIDEO_CALL).build();
 
+        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
+            showVideoViews();
+        }
 
         String uniqueId = chat.requestCall(callRequest);
         uniqueIds.add(uniqueId);

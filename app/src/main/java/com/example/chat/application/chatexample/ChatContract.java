@@ -298,8 +298,6 @@ public interface ChatContract {
 
         void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
 
-        String requestMainOrSandboxCall(int partnerId, boolean checked);
-
         void searchMap(String haram, double lat, double lon);
 
         void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler);
@@ -588,5 +586,10 @@ public interface ChatContract {
 
         void setupVideoCallParam(CallPartnerView localCallPartner, List<CallPartnerView> views);
 
+        void switchCamera();
+
+        void pauseVideo();
+
+        void resumeVideo();
     }
 }

@@ -4,8 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class ClientDTO implements Parcelable {
-    public static final String VOICE_TOPIC_SUFFIX = "VO";
-    public static final String VIDEO_TOPIC_SUFFIX = "VI";
+    public static final String VOICE_TOPIC_SUFFIX = "Vo-";
+    public static final String VIDEO_TOPIC_SUFFIX = "Vi-";
     private String clientId;
     private String topicReceive;
     private String topicSend;

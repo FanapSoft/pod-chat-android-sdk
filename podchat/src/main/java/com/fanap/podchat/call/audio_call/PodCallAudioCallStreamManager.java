@@ -619,7 +619,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
             playerCallback.onPlayerImportantEvent("Participant to remove: +" + callParticipant.getParticipantVO().getName());
 
-            String topic = callParticipant.getSendTopic();
+            String topic = callParticipant.getSendTopicAudio();
 
             if (consumerMap.containsKey(topic)) {
                 CallConsumer consumer = consumerMap.get(topic);
@@ -634,7 +634,7 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
             }
 
-            playerCallback.onPlayerImportantEvent("Consumer stopped: " + callParticipant.getSendTopic());
+            playerCallback.onPlayerImportantEvent("Consumer stopped: " + callParticipant.getSendTopicAudio());
 
         }
 
@@ -650,9 +650,9 @@ public class PodCallAudioCallStreamManager implements SensorEventListener, Audio
 
             playerCallback.onPlayerImportantEvent("Participant to add: " + participant.getParticipantVO().getName());
 
-            createConsumerFor(participant.getSendTopic());
+            createConsumerFor(participant.getSendTopicAudio());
 
-            playerCallback.onPlayerImportantEvent("Producer added: " + participant.getSendTopic());
+            playerCallback.onPlayerImportantEvent("Participant added: " + participant.getSendTopicAudio());
         }
 
 

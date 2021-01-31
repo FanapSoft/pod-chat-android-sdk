@@ -1283,6 +1283,38 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnNoViewToAddNewPartnerError() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onNoViewToAddNewParticipant();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantStoppedVideo(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callOnCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantStartedVideo(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
 //

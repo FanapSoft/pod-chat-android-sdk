@@ -134,8 +134,8 @@ public class PodCallAudioCallService extends Service {
         ClientDTO client = intent.getParcelableExtra(KAFKA_CONFIG);
 
         if (client != null) {
-            sendingTopic = client.getTopicSend();
-            receivingTopic = client.getTopicReceive();
+            sendingTopic = client.getTopicSendAudio();
+            receivingTopic = client.getTopicReceiveAudio();
             sendKey = client.getSendKey();
             brokerAddress = client.getBrokerAddress();
         }
