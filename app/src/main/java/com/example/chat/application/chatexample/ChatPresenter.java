@@ -204,6 +204,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")
                 .setIcon(R.mipmap.ic_launcher)
+
                 .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
                 .build();
 
@@ -493,12 +494,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
-        Log.e(TAG, "onDeActiveAssistant: " + response.getJson() );
+        Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
     }
 
     @Override
     public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
-        Log.e(TAG, "onGetAssistants: " + response.getJson() );
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
     }
 
     @Override
@@ -1314,6 +1316,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onSent(content, chatResponse);
         view.onSentMessage();
+        Log.e("testmsg", "id : " + chatResponse.getResult().getMessageId());
     }
 
     @Override
