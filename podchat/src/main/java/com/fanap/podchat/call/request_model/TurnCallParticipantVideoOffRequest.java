@@ -4,13 +4,13 @@ import com.fanap.podchat.requestobject.GeneralRequestObject;
 
 import java.util.ArrayList;
 
-public class PauseVideoCallRequest extends GeneralRequestObject {
+public class TurnCallParticipantVideoOffRequest extends GeneralRequestObject {
 
     private long callId;
 
     private ArrayList<Long> participantsIds;
 
-    public PauseVideoCallRequest(Builder builder) {
+    public TurnCallParticipantVideoOffRequest(Builder builder) {
         this.callId = builder.callId;
         this.participantsIds = builder.participantsIds;
     }
@@ -23,7 +23,7 @@ public class PauseVideoCallRequest extends GeneralRequestObject {
         return participantsIds;
     }
 
-    public static class Builder extends GeneralRequestObject.Builder<PauseVideoCallRequest.Builder>{
+    public static class Builder extends GeneralRequestObject.Builder<TurnCallParticipantVideoOffRequest.Builder>{
 
         private long callId;
         private ArrayList<Long> participantsIds;
@@ -45,8 +45,8 @@ public class PauseVideoCallRequest extends GeneralRequestObject {
         }
 
         @Override
-        public PauseVideoCallRequest build() {
-            return new PauseVideoCallRequest(this);
+        public TurnCallParticipantVideoOffRequest build() {
+            return new TurnCallParticipantVideoOffRequest(this);
         }
 
         @Override

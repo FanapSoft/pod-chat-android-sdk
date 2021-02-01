@@ -12,7 +12,7 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
-import com.fanap.podchat.call.request_model.PauseVideoCallRequest;
+import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -272,11 +272,11 @@ public class CallAsyncRequestsManager {
         AsyncMessage message = new AsyncMessage();
         JsonObject content = new JsonObject();
 
-        if(request.isMute()){
-            content.addProperty("mute",true);
+        if (request.isMute()) {
+            content.addProperty("mute", true);
         }
-        if(request.isVideoCall()){
-            content.addProperty("videoCall",true);
+        if (request.isVideoCall()) {
+            content.addProperty("videoCall", true);
         }
         message.setContent(content.toString());
         message.setType(ChatMessageType.Constants.ACCEPT_CALL);
@@ -324,7 +324,7 @@ public class CallAsyncRequestsManager {
 
         ArrayList<Long> ids = new ArrayList<>();
         ids.add(CoreConfig.userId);
-        PauseVideoCallRequest request = new PauseVideoCallRequest.Builder(callId, ids).build();
+        TurnCallParticipantVideoOffRequest request = new TurnCallParticipantVideoOffRequest.Builder(callId, ids).build();
 
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.TURN_OFF_VIDEO_CALL);
@@ -336,13 +336,37 @@ public class CallAsyncRequestsManager {
         JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
         return a.toString();
     }
+
     public static String createTurnOnVideoMessage(long callId, String uniqueId) {
 
         ArrayList<Long> ids = new ArrayList<>();
         ids.add(CoreConfig.userId);
-        PauseVideoCallRequest request = new PauseVideoCallRequest.Builder(callId, ids).build();
+        TurnCallParticipantVideoOffRequest request = new TurnCallParticipantVideoOffRequest.Builder(callId, ids).build();
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.TURN_ON_VIDEO_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+    }
+
+    public static String createTurnOffVideoMessage(TurnCallParticipantVideoOffRequest request, String uniqueId) throws PodChatException {
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID, ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+
+        if (Util.isNullOrEmpty(request.getParticipantsIds()))
+            throw new PodChatException(ChatConstant.MUTE_USER_LIST_IS_EMPTY, ChatConstant.ERROR_CODE_INVALID_DATA);
+
+        String content = App.getGson().toJson(request.getParticipantsIds());
+
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content);
+        message.setType(ChatMessageType.Constants.TURN_OFF_VIDEO_CALL);
         message.setToken(CoreConfig.token);
         message.setSubjectId(request.getCallId());
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -822,7 +846,7 @@ public class CallAsyncRequestsManager {
 
         try {
             CallParticipantVO participantVO =
-                    App.getGson().fromJson(chatMessage.getContent(),CallParticipantVO.class);
+                    App.getGson().fromJson(chatMessage.getContent(), CallParticipantVO.class);
 
             CallCancelResult result = new CallCancelResult(participantVO);
 

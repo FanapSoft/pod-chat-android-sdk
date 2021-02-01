@@ -49,7 +49,6 @@ import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.call.CallAsyncRequestsManager;
 import com.fanap.podchat.call.CallConfig;
-import com.fanap.podchat.call.CallType;
 import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallParticipantVO;
@@ -60,6 +59,7 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
+import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -2177,6 +2177,25 @@ public class Chat extends AsyncAdapter {
 
         return uniqueId;
 
+    }
+
+    public String turnCallParticipantVideoOff(TurnCallParticipantVideoOffRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            try {
+                String message = CallAsyncRequestsManager.createTurnOffVideoMessage(request, uniqueId);
+                setCallBacks(false, false, false, true, Constants.TURN_OFF_VIDEO_CALL, null, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_OFF_VIDEO_CALL");
+            } catch (PodChatException e) {
+               captureError(e);
+            }
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
     }
 
     public String turnOnVideo(long callId) {
