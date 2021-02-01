@@ -1944,7 +1944,6 @@ public class Chat extends AsyncAdapter {
         ChatResponse<CallRequestResult> response
                 = CallAsyncRequestsManager.handleOnCallRequest(chatMessage);
         audioCallManager.addNewCallInfo(response);
-        initialVideoCall(response);
         deliverCallRequest(chatMessage);
         listenerManager.callOnCallRequest(response);
 
@@ -1962,20 +1961,9 @@ public class Chat extends AsyncAdapter {
         ChatResponse<CallRequestResult> response
                 = CallAsyncRequestsManager.handleOnGroupCallRequest(chatMessage);
         audioCallManager.addNewCallInfo(response);
-        initialVideoCall(response);
         deliverCallRequest(chatMessage);
         listenerManager.callOnGroupCallRequest(response);
 
-    }
-
-    private void initialVideoCall(ChatResponse<CallRequestResult> response) {
-        try {
-            if (response.getResult().getType() == CallType.Constants.VIDEO_CALL) {
-                initialVideoCall();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void deliverCallRequest(ChatMessage chatMessage) {
@@ -2082,31 +2070,33 @@ public class Chat extends AsyncAdapter {
             String receiveVideoTopic = info.getResult().getClientDTO().getTopicReceiveVideo();
 
 
-            visibleView(localPartnerView);
+            if (Util.isNotNullOrEmpty(sendVideoTopic)) {
+                visibleView(localPartnerView);
 
-            CallPartner lPartner = new CallPartner.Builder()
-                    .setPartnerType(PartnerType.LOCAL)
-                    .setName(info.getResult().getClientDTO().getSendKey() + "" + sendVideoTopic)
-                    .setVideoTopic(sendVideoTopic)
-                    .setVideoView(localPartnerView)
-                    .build();
-
-            podVideoCall.addPartner(lPartner);
-
-
-            if (hasRemotePartnerView()) {
-
-                visibleView(videoCallPartnerViews.get(0));
-
-                CallPartner rPartner = new CallPartner.Builder()
-                        .setPartnerType(PartnerType.REMOTE)
-                        .setName(info.getResult().getClientDTO().getSendKey() + "" + receiveVideoTopic)
-                        .setVideoTopic(receiveVideoTopic)
-                        .setVideoView(videoCallPartnerViews.remove(0))
+                CallPartner lPartner = new CallPartner.Builder()
+                        .setPartnerType(PartnerType.LOCAL)
+                        .setName(info.getResult().getClientDTO().getSendKey() + "" + sendVideoTopic)
+                        .setVideoTopic(sendVideoTopic)
+                        .setVideoView(localPartnerView)
                         .build();
 
-                podVideoCall.addPartner(rPartner);
+                podVideoCall.addPartner(lPartner);
+            }
 
+            if (Util.isNotNullOrEmpty(receiveVideoTopic)) {
+                if (hasRemotePartnerView()) {
+
+                    visibleView(videoCallPartnerViews.get(0));
+
+                    CallPartner rPartner = new CallPartner.Builder()
+                            .setPartnerType(PartnerType.REMOTE)
+                            .setName(info.getResult().getClientDTO().getSendKey() + "" + receiveVideoTopic)
+                            .setVideoTopic(receiveVideoTopic)
+                            .setVideoView(videoCallPartnerViews.remove(0))
+                            .build();
+
+                    podVideoCall.addPartner(rPartner);
+                }
             }
 
 //            if (hasRemotePartnerView()) {
@@ -2171,14 +2161,42 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    public void pauseVideo() {
+    public String turnOffVideo(long callId) {
         if (podVideoCall != null)
             podVideoCall.pauseVideo();
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createTurnOffVideoMessage(callId, uniqueId);
+            setCallBacks(false, false, false, true, Constants.TURN_OFF_VIDEO_CALL, null, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_OFF_VIDEO_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+
     }
 
-    public void resumeVideo() {
+    public String turnOnVideo(long callId) {
         if (podVideoCall != null)
+        {
+
             podVideoCall.resumeVideo();
+        }
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createTurnOnVideoMessage(callId, uniqueId);
+            setCallBacks(false, false, false, true, Constants.TURN_ON_VIDEO_CALL, null, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_ON_VIDEO_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
     }
 
     // TODO: 1/31/2021 Create new view and send with call back
@@ -2224,7 +2242,7 @@ public class Chat extends AsyncAdapter {
         audioCallManager.addCallParticipant(response);
 
         if (podVideoCall != null)
-            addVideoCallPartner(response,false);
+            addVideoCallPartner(response, false);
 
         listenerManager.callOnCallParticipantJoined(response);
 
@@ -2258,7 +2276,7 @@ public class Chat extends AsyncAdapter {
         ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
 
         if (podVideoCall != null)
-            addVideoCallPartner(response,true);
+            addVideoCallPartner(response, true);
 
         listenerManager.callOnCallParticipantStartedVideo(response);
 
@@ -2725,9 +2743,6 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
-            if (request.getCallType() == CallType.Constants.VIDEO_CALL) {
-                initialVideoCall();
-            }
             String message = CallAsyncRequestsManager.createCallRequestMessage(request, uniqueId);
             setCallBacks(false, false, false, true, Constants.CALL_REQUEST, null, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_CALL");
@@ -2765,9 +2780,6 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
-            if (request.getCallType() == CallType.Constants.VIDEO_CALL) {
-                initialVideoCall();
-            }
             String message = CallAsyncRequestsManager.createGroupCallRequestMessage(request, uniqueId);
             setCallBacks(false, false, false, true, Constants.GROUP_CALL_REQUEST, null, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_GROUP_CALL");

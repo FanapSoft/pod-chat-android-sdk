@@ -9,6 +9,7 @@ public class StartedCallModel {
 	private String callImage;
 	private String callName;
 	private Boolean video;
+	private Boolean mute;
 
 	public ClientDTO getClientDTO() {
 		return clientDTO;
@@ -51,5 +52,14 @@ public class StartedCallModel {
 
 	public void setVideo(Boolean video) {
 		this.video = video;
+	}
+
+	public Boolean getMute() {
+		return mute;
+	}
+
+	public StartedCallModel setMute(Boolean mute) {
+		this.mute = mute;
+		return this;
 	}
 }

@@ -315,12 +315,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void pauseVideo() {
-        chat.pauseVideo();
+        chat.turnOffVideo(callVO!=null?callVO.getCallId():0);
     }
 
     @Override
     public void resumeVideo() {
-        chat.resumeVideo();
+        chat.turnOnVideo();
     }
 
 

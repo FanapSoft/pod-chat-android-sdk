@@ -12,6 +12,7 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
+import com.fanap.podchat.call.request_model.PauseVideoCallRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -317,6 +318,38 @@ public class CallAsyncRequestsManager {
             return createUnMuteCallParticipantMessage(request, uniqueId);
 
 
+    }
+
+    public static String createTurnOffVideoMessage(long callId, String uniqueId) {
+
+        ArrayList<Long> ids = new ArrayList<>();
+        ids.add(CoreConfig.userId);
+        PauseVideoCallRequest request = new PauseVideoCallRequest.Builder(callId, ids).build();
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.TURN_OFF_VIDEO_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+    }
+    public static String createTurnOnVideoMessage(long callId, String uniqueId) {
+
+        ArrayList<Long> ids = new ArrayList<>();
+        ids.add(CoreConfig.userId);
+        PauseVideoCallRequest request = new PauseVideoCallRequest.Builder(callId, ids).build();
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.TURN_ON_VIDEO_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
     }
 
 
@@ -812,4 +845,6 @@ public class CallAsyncRequestsManager {
 
 
     }
+
+
 }
