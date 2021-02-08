@@ -41,8 +41,10 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
@@ -107,6 +109,7 @@ import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlockList;
@@ -132,7 +135,6 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -499,6 +501,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
+    }
+
+    @Override
+    public void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response) {
         String json = response.getJson();
         Log.e(TAG, "onGetAssistants: " + response.getJson());
     }
@@ -2061,6 +2069,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void deActiveAssistant(DeActiveAssistantRequest request) {
         chat.deactiveAssistant(request);
+    }
+
+    @Override
+    public void getAssistantHistory(GetAssistantHistoryRequest request) {
+        chat.getAssistantHistory(request);
     }
 
     @Override

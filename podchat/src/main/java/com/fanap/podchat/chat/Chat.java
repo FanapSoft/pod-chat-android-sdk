@@ -30,7 +30,6 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
-import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -67,8 +66,10 @@ import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.assistant.AssistantManager;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.BotManager;
@@ -204,6 +205,7 @@ import com.fanap.podchat.persistance.module.DaggerMessageComponent;
 import com.fanap.podchat.repository.CacheDataSource;
 import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.repository.MemoryDataSource;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -235,7 +237,6 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
@@ -1198,6 +1199,11 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.GET_ASSISTANT_HISTORY: {
+                handleOnGetAssistantHistory(chatMessage);
+                break;
+            }
+
             case Constants.GET_USER_ROLES: {
                 handleOnGetUserRoles(chatMessage);
                 break;
@@ -1725,6 +1731,31 @@ public class Chat extends AsyncAdapter {
         }
 
         listenerManager.callOnGetAssistants(response);
+
+    }
+
+    private void handleOnGetAssistantHistory(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON GET ASSISTANT HISTORY", gson.toJson(chatMessage));
+        } else {
+            showLog("ON GET ASSISTANT HISTORY");
+        }
+
+        ChatResponse<List<AssistantHistoryVo>> response = AssistantManager.handleAssitantHistoryResponse(chatMessage);
+
+
+        if (cache) {
+            messageDatabaseHelper.updateCashAssistantHistory(new OnWorkDone() {
+                @Override
+                public void onWorkDone(@Nullable Object o) {
+
+                }
+            }, response.getResult());
+
+        }
+
+        listenerManager.callOnGetAssistantHistory(response);
 
     }
 
@@ -2835,6 +2866,36 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
+     * @param request You can get list of assistant history
+     */
+    public String getAssistantHistory(GetAssistantHistoryRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (cache) {
+            try {
+                getAssistantHistoryFromCache(request, uniqueId);
+            } catch (RoomIntegrityException e) {
+                resetCache(() -> {
+                    try {
+                        getAssistantHistoryFromCache(request, uniqueId);
+                    } catch (RoomIntegrityException ignored) {
+                    }
+                });
+            }
+        }
+
+        if (chatReady) {
+            String message = AssistantManager.createGetAssistantHistoryRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_ASSISTANT_HISTORY");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+
+    /**
      * @param request You can get list of assistant
      */
     public String getAssistants(GetAssistantRequest request) {
@@ -2877,6 +2938,25 @@ public class Chat extends AsyncAdapter {
                 showLog("ON_GET_ASSISTANT_CACHE", cacheResponse.getJson());
             } else {
                 showLog("ON_GET_ASSISTANT_CACHE");
+            }
+
+        });
+    }
+
+    private void getAssistantHistoryFromCache(GetAssistantHistoryRequest request, String uniqueId) throws RoomIntegrityException {
+
+        messageDatabaseHelper.getCacheAssistantHistoryVos(request, (count, cachResponseList) -> {
+
+            ChatResponse<List<AssistantHistoryVo>> cacheResponse = new ChatResponse<>();
+            cacheResponse.setResult((List<AssistantHistoryVo>) cachResponseList);
+            cacheResponse.setUniqueId(uniqueId);
+            cacheResponse.setCache(true);
+            listenerManager.callOnGetAssistantHistory(cacheResponse);
+
+            if (sentryResponseLog) {
+                showLog("ON_GET_ASSISTANT_HISTORY_CACHE", cacheResponse.getJson());
+            } else {
+                showLog("ON_GET_ASSISTANT_HISTORY_CACHE");
             }
 
         });

@@ -5,6 +5,7 @@ import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -353,4 +354,5 @@ public interface ChatListener {
     default void onRegisterAssistant(ChatResponse<List<AssistantVo>> response){}
     default void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response){}
     default void onGetAssistants(ChatResponse<List<AssistantVo>> response){}
+    default void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response){}
 }

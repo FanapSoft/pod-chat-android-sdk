@@ -8,6 +8,7 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Update;
 
+import com.fanap.podchat.cachemodel.CacheAssistantHistoryVo;
 import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
@@ -524,6 +525,7 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertCacheAssistantVos(List<CacheAssistantVo> assistantVo);
 
+
     @Query("SELECT * FROM CacheAssistantVo")
     List<CacheAssistantVo> getCacheAssistantVos();
 
@@ -532,5 +534,15 @@ public interface MessageDao {
 
     @Query("DELETE FROM CacheAssistantVo")
     void deleteAllCacheAssistantVo();
+
+
+    @Query("SELECT * FROM CacheAssistantHistoryVo")
+    List<CacheAssistantHistoryVo> getCacheAssistantHistory();
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheAssistantHistoryVo(List<CacheAssistantHistoryVo> assistantVo);
+
+    @Query("DELETE FROM CacheAssistantHistoryVo")
+    void deleteAllCacheAssistantHistoryVo();
 
 }

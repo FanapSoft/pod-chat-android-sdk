@@ -36,6 +36,7 @@ import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
@@ -162,7 +163,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 //
-//    private static String TOKEN = "f4ee274feee945328d9688ff4a4947d6";
+//    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
 //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
 //    private static String serverName = "chat-server";
 
@@ -235,7 +236,7 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
+    public static int TEST_THREAD_ID = 36636; //amjadi, //sharifi //kheirkhah
     private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
@@ -1763,10 +1764,9 @@ public class ChatActivity extends AppCompatActivity
                 .messageType(TextMessageType.Constants.TEXT)
                 .build();
 
-for(int i = 0;i<20;i++){
+
     presenter.sendTextMessage(editText.getText().toString() , TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
-    Log.e("testsend", "sendMessage: "+i+"----  "+System.currentTimeMillis() );
-}
+
 
         editText.setText("");
 
@@ -1985,6 +1985,14 @@ for(int i = 0;i<20;i++){
                 break;
             }
 
+
+            case 31: {
+
+                getAssistantHistory();
+
+                break;
+            }
+
         }
     }
 
@@ -2055,7 +2063,7 @@ for(int i = 0;i<20;i++){
 
         //103187 nemati sandbox
 //        52987 sajadi 9063 sandbox
-       Invitee invite = new Invitee("63255", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+       Invitee invite = new Invitee("63265", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
         //roles
         ArrayList<String> typeRoles = new ArrayList<>();
@@ -2081,7 +2089,7 @@ for(int i = 0;i<20;i++){
 
         //invite
 //        Invitee invite = new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID);
-        Invitee invite = new Invitee("103187", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        Invitee invite = new Invitee("63265", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
 
         List<AssistantVo> assistantVos = new ArrayList<>();
@@ -2101,6 +2109,10 @@ for(int i = 0;i<20;i++){
 
     }
 
+    private void getAssistantHistory(){
+        GetAssistantHistoryRequest request = new GetAssistantHistoryRequest.Builder().build();
+        presenter.getAssistantHistory(request);
+    }
     private void getNotSeenDur() {
         ArrayList<Integer> testArray = new ArrayList<>();
         testArray.add(2);
@@ -2259,7 +2271,7 @@ for(int i = 0;i<20;i++){
     }
 
     //21622
-    public static final String THREAD_UNIQUE_NAME = "unique_name_4_1584016531111";
+    public static final String THREAD_UNIQUE_NAME = "KidzyGameGroupChat6876";
 //    public static final String THREAD_UNIQUE_NAME = "unique_name_4_" + new Date().getTime();
 
     private void joinPublicThread() {
@@ -2471,7 +2483,7 @@ for(int i = 0;i<20;i++){
         RequestGetHistory request = new RequestGetHistory
                 .Builder(TEST_THREAD_ID)
                 .offset(0)
-                .count(25)
+                .count(50)
                 .order("desc") //.order("asc")
 //                .fromTime(new Date().getTime())
                 //   .toTime(new Date().getTime())

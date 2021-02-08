@@ -35,7 +35,8 @@ public class ConstantSample {
             "Get Senrty Logs",
             "Register Assistant",
             "deactive Assistant",
-            "get Assistants"
+            "get Assistants",
+            "get Assistants History"
     };
 
     public static final String[] funcSecond = {
