@@ -64,6 +64,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -107,6 +108,7 @@ import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlockList;
@@ -132,7 +134,6 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -815,7 +816,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public String getHashTagLIst(RequestGetHashTagList request, ChatHandler handler) {
+    public String getHashTagList(RequestGetHashTagList request, ChatHandler handler) {
         return chat.getHashTagList(request);
     }
 
@@ -1473,6 +1474,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onGetMentionList(ChatResponse<ResultHistory> response) {
+        super.onGetMentionList(response);
+    }
+
+    @Override
+    public void onGetHashTagList(ChatResponse<ResultHistory> response) {
+        super.onGetHashTagList(response);
+    }
+
+    @Override
     public void onRenameThread(String content, OutPutThread outPutThread) {
         super.onRenameThread(content, outPutThread);
         view.onRenameGroupThread();
@@ -2058,6 +2069,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void deActiveAssistant(DeActiveAssistantRequest request) {
         chat.deactiveAssistant(request);
+    }
+
+    @Override
+    public void changeThreadType(ChangeThreadTypeRequest request) {
+        chat.changeThreadType(request);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -136,6 +137,26 @@ public class ThreadManager {
         message.setType(ChatMessageType.Constants.CLOSE_THREAD);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setSubjectId(request.getThreadId());
+        message.setUniqueId(uniqueId);
+
+
+        return App.getGson().toJson(message);
+    }
+
+    public static String createChangeThreadTypeRequest(ChangeThreadTypeRequest request, String uniqueId) throws PodChatException {
+
+        JsonObject content = new JsonObject();
+        content.addProperty("type", request.getType());
+        if (request.getUniqname() != null)
+            content.addProperty("uniqueName", request.getUniqname());
+
+        AsyncMessage message = new ChatMessage();
+        message.setType(ChatMessageType.Constants.CHANGE_THREAD_TYPE);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setContent(content.toString());
         message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setSubjectId(request.getThreadId());
         message.setUniqueId(uniqueId);

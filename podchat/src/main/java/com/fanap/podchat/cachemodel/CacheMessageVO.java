@@ -9,6 +9,8 @@ import android.support.annotation.Nullable;
 import com.fanap.podchat.call.model.CallHistoryVO;
 import com.fanap.podchat.mainmodel.MessageVO;
 
+import java.util.List;
+
 @Entity
 public class CacheMessageVO {
 
@@ -35,7 +37,8 @@ public class CacheMessageVO {
     private boolean hasGap = false;
     private boolean mentioned = false;
     private boolean pinned = false;
-    private String hashtags;
+
+    private List<String> hashtags;
     @Embedded(prefix = "call_history_")
     private CallHistoryVO callHistoryVO;
 
@@ -295,7 +298,7 @@ public class CacheMessageVO {
         this.hasGap = messageVO.hasGap();
         this.mentioned = messageVO.isMentioned();
         this.pinned = messageVO.isPinned();
-        this.hashtags = messageVO.getHashtags();
+
         try {
 
 
@@ -325,9 +328,8 @@ public class CacheMessageVO {
             if (messageVO.getCallHistoryVO() != null) {
                 this.callHistoryVO = messageVO.getCallHistoryVO();
             }
-            if (messageVO.getHashtags() != null) {
-                this.hashtags = messageVO.getHashtags();
-            }
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -352,11 +354,11 @@ public class CacheMessageVO {
         this.callHistoryVO = callHistoryVO;
     }
 
-    public String getHashtags() {
+    public List<String> getHashtags() {
         return hashtags;
     }
 
-    public void setHashtags(String hashtags) {
+    public void setHashtags(List<String> hashtags) {
         this.hashtags = hashtags;
 
     }

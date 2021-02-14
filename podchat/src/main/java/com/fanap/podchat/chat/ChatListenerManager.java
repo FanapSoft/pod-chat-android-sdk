@@ -777,6 +777,18 @@ public class ChatListenerManager {
 
 
     }
+    public void callOnGetHashTagList(ChatResponse<ResultHistory> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetHashTagList(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
 
     public void callOnSignalMessageTimeout(long threadId) {
 
@@ -1162,6 +1174,18 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onThreadClosed(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnThreadChangeType(ChatResponse<CloseThreadResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadChangeType(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

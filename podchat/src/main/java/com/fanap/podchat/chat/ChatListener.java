@@ -272,6 +272,7 @@ public interface ChatListener {
     default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
 
     default void onGetMentionList(ChatResponse<ResultHistory> response){}
+    default void onGetHashTagList(ChatResponse<ResultHistory> response){}
 
     default void onTypingSignalTimeout(long threadId){}
 
@@ -330,6 +331,7 @@ public interface ChatListener {
     default void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response){}
 
     default void onThreadClosed(ChatResponse<CloseThreadResult> response){}
+    default void onThreadChangeType(ChatResponse<CloseThreadResult> response){}
 
     default void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response){}
 

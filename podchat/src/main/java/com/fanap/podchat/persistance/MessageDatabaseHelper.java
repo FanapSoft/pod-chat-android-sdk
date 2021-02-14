@@ -29,18 +29,19 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
-import com.fanap.podchat.chat.App;
-import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.persist.CacheCall;
 import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.messge.RequestGetUnreadMessagesCount;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -61,7 +62,6 @@ import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.persistance.dao.MessageDao;
@@ -83,8 +83,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -243,12 +247,31 @@ public class MessageDatabaseHelper {
                     messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
                 }
 
+                List<String> hashtags = getHashtags(cacheMessageVO.getMessage());
+
+                if (hashtags != null && hashtags.size() > 0)
+                    cacheMessageVO.setHashtags(hashtags);
+
                 cacheMessageVOList.add(cacheMessageVO);
             }
             messageDao.insertHistories(cacheMessageVOList);
         });
 
 
+    }
+
+    public static List<String> getHashtags(String text) {
+        String HASHTAG_PATTERN = "#[^\\s]*(\\w+)";
+        if (text != null && !text.equals("") && !text.equals(" ")) {
+            Set<String> hashtagSet = new HashSet<>();
+            Pattern pattern = Pattern.compile(HASHTAG_PATTERN);
+            Matcher matcher = pattern.matcher(text);
+            while (matcher.find()) {
+                hashtagSet.add(matcher.group());
+            }
+            return new ArrayList<>(hashtagSet);
+        }
+        return Collections.emptyList();
     }
 
     private void saveHistory(@NonNull List<CacheMessageVO> messageVOS, long threadId) {
@@ -297,6 +320,7 @@ public class MessageDatabaseHelper {
 
                     messageDao.insertReplyInfoVO(cacheReplyInfoVO);
                 }
+
 
             }
 
@@ -366,6 +390,10 @@ public class MessageDatabaseHelper {
                 }
             }
 
+            List<String> hashtags = getHashtags(cacheMessageVO.getMessage());
+
+            if (hashtags != null && hashtags.size() > 0)
+                cacheMessageVO.setHashtags(hashtags);
 
             messageDao.insertMessage(cacheMessageVO);
 
@@ -437,6 +465,10 @@ public class MessageDatabaseHelper {
                 }
             }
 
+            List<String> hashtags = getHashtags(cacheMessageVO.getMessage());
+
+            if (hashtags != null && hashtags.size() > 0)
+                cacheMessageVO.setHashtags(hashtags);
 
             messageDao.insertMessage(cacheMessageVO);
 
@@ -482,6 +514,11 @@ public class MessageDatabaseHelper {
                 }
                 messageDao.insertReplyInfoVO(cacheMessageVO.getReplyInfoVO());
             }
+
+            List<String> hashtags = getHashtags(cacheMessageVO.getMessage());
+
+            if (hashtags != null && hashtags.size() > 0)
+                cacheMessageVO.setHashtags(hashtags);
 
             messageDao.updateMessage(cacheMessageVO);
 
@@ -680,6 +717,9 @@ public class MessageDatabaseHelper {
      * MessageVo Cache
      * */
 
+    public void changeThreadAfterChangeType(long threadId) {
+        ThreadVo threadVo = messageDao.getThreadById(threadId);
+    }
 
     public void deleteMessage(long id, long subjectId) {
 
@@ -1483,7 +1523,6 @@ public class MessageDatabaseHelper {
                 false,
                 cacheMessageVO.hasGap(),
                 cacheMessageVO.isPinned(),
-                cacheMessageVO.getHashtags(),
                 cacheMessageVO.getCallHistoryVO()
         );
     }
@@ -1593,20 +1632,17 @@ public class MessageDatabaseHelper {
 
             List<CacheMessageVO> cacheMessageVOS = new ArrayList<>();
 
-            String condition;
 
-            condition = " and hashtags=#ahmad ";
+            String condistion = "'%" + request.getHashtag() + "%'";
 
-
-            String rawQuery = "SELECT * FROM CacheMessageVO WHERE threadVoId = " + request.getThreadId();
+            String rawQuery = "SELECT * FROM CacheMessageVO WHERE threadVoId = " + request.getThreadId() + " And hashtags LIKE " + condistion;
 
             SupportSQLiteQuery sqLiteQuery = new SimpleSQLiteQuery(rawQuery);
 
             cacheMessageVOS = messageDao.getRawHistory(sqLiteQuery);
 
 
-            String contentCountQuery = "SELECT count(*) FROM CacheMessageVO WHERE threadVoId = " + request.getThreadId();
-            ;
+            String contentCountQuery = "SELECT count(*) FROM CacheMessageVO WHERE threadVoId = " + request.getThreadId() + " And hashtags LIKE " + condistion;
 
             long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(contentCountQuery));
 

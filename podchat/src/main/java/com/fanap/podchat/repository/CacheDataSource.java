@@ -3,7 +3,6 @@ package com.fanap.podchat.repository;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.queue.Failed;
@@ -194,6 +193,10 @@ public class CacheDataSource {
     public void deleteMessage(long id, long threadId) {
 
         databaseHelper.deleteMessage(id, threadId);
+    }
+
+    public void updateThreadAfterChangeType(long threadId) {
+        databaseHelper.changeThreadAfterChangeType(threadId);
     }
 
     public void cancelMessage(String uniqueId) {

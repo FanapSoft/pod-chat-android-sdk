@@ -225,6 +225,7 @@ public class ChatMessageType {
 
         int LOCATION_PING = 101;
         int CLOSE_THREAD = 102;
+        int CHANGE_THREAD_TYPE = 53;
         int ERROR = 999;
         int REGISTER_ASSISTANT = 107;
         int DEACTICVE_ASSISTANT = 108;

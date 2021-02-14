@@ -30,7 +30,6 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
-import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -109,6 +108,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -204,6 +204,7 @@ import com.fanap.podchat.persistance.module.DaggerMessageComponent;
 import com.fanap.podchat.repository.CacheDataSource;
 import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.repository.MemoryDataSource;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -235,7 +236,6 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
@@ -1092,6 +1092,11 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.CHANGE_THREAD_TYPE: {
+                handleOnChangeThreadType(chatMessage);
+                break;
+            }
+
             case Constants.CREATE_BOT: {
                 handleOnBotCreated(chatMessage);
                 break;
@@ -1512,6 +1517,22 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void handleOnChangeThreadType(ChatMessage chatMessage) {
+
+        // ChatResponse<CloseThreadResult> response = ThreadManager.handleCloseThreadResponse(chatMessage);
+        Thread thread = gson.fromJson(chatMessage.getContent(), new TypeToken<Thread>() {
+        }.getType());
+
+        if (sentryResponseLog) {
+            showLog("ON_CHANGE_THREAD_TYPE_SUCSEES", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_CHANGE_THREAD_TYPE_SUCSEES");
+        }
+
+        listenerManager.callOnThreadChangeType(null);
+
+    }
+
     private void handleOnContactsSynced(ChatMessage chatMessage) {
 
         ChatResponse<ContactSyncedResult> response = ContactManager.prepareContactSyncedResult(chatMessage);
@@ -1761,7 +1782,7 @@ public class Chat extends AsyncAdapter {
             dataSource.saveMessageResultFromServer(response.getResult().getHistory(), chatMessage.getSubjectId());
         }
 
-        listenerManager.callOnGetMentionList(response);
+        listenerManager.callOnGetHashTagList(response);
 
     }
 
@@ -2456,6 +2477,20 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String changeThreadType(ChangeThreadTypeRequest request) {
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            try {
+                String message = ThreadManager.createChangeThreadTypeRequest(request, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CHANGE_THREAD_TYPE");
+            } catch (PodChatException e) {
+                captureError(e);
+            }
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
 
     public void setAudioCallConfig(CallConfig callConfig) {
         if (audioCallManager != null)
@@ -3178,7 +3213,7 @@ public class Chat extends AsyncAdapter {
                             uniqueId,
                             (Long) contentCount);
 
-            listenerManager.callOnGetMentionList(cacheResponse);
+            listenerManager.callOnGetHashTagList(cacheResponse);
 
             showLog("CACHE HASHTAG LIST", gson.toJson(cacheResponse));
 
@@ -11172,20 +11207,7 @@ public class Chat extends AsyncAdapter {
 
         try {
             MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
-            if (messageVO.getMessage().startsWith("#")) {
-                Log.e(TAG, "hashtag: " + "hello");
-                String hashtag = messageVO.getMessage();
-                try {
-                    hashtag = messageVO.getMessage().substring(0, messageVO.getMessage().indexOf(' '));
-                } catch (Exception e) {
 
-                }
-
-                Log.e(TAG, "hashtag: " + hashtag);
-                messageVO.setHashtags(hashtag);
-            } else {
-
-            }
             if (cache) {
                 dataSource.saveMessageResultFromServer(messageVO, chatMessage.getSubjectId());
             }
