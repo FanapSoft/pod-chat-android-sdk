@@ -376,7 +376,7 @@ public class ChatTestIntegration extends ChatAdapter {
                 .offset(0)
                 .count(25)
                 .build();
-        presenter.getHashTagLIst(request, new ChatHandler() {
+        presenter.getHashTagList(request, new ChatHandler() {
             @Override
             public void onGetHistory(String uniqueId) {
                 super.onGetHistory(uniqueId);
