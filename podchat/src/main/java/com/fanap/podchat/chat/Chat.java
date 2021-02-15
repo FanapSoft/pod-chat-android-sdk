@@ -30,7 +30,6 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
-import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -204,6 +203,7 @@ import com.fanap.podchat.persistance.module.DaggerMessageComponent;
 import com.fanap.podchat.repository.CacheDataSource;
 import com.fanap.podchat.repository.ChatDataSource;
 import com.fanap.podchat.repository.MemoryDataSource;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlock;
@@ -235,7 +235,6 @@ import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestMuteThread;
 import com.fanap.podchat.requestobject.RequestRemoveContact;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessage;
@@ -535,6 +534,7 @@ public class Chat extends AsyncAdapter {
                     options.setSentryClientName("PodChat-Android");
                     options.addInAppInclude("com.fanap.podchat");
                     options.setEnvironment("PODCHAT");
+//                    options.setEnableNdk(false);
                     sentryCachDir = options.getCacheDirPath();
 
                     options.setBeforeSend((event, hint) -> {
@@ -13354,40 +13354,26 @@ public class Chat extends AsyncAdapter {
                 captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         };
-
-        Runnable cacheTask = () -> {
-
-            if (cache && useCache) {
-
-                loadContactsFromCache(uniqueId, offset, mCount);
-
-            }
-        };
-
-
-//        new PodThreadManager()
-//                .addNewTask(cacheTask)
-//                .addNewTask(serverRequestTask)
-//                .runTasksSynced();
-
-
-        dataSource.getContactData(count, offset)
-                .doOnCompleted(serverRequestTask::run)
-                .doOnError(exception -> {
-                    if (exception instanceof RoomIntegrityException) {
-                        resetCache();
-                    } else {
-                        captureError(exception.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
-                    }
-                })
-                .onErrorResumeNext(Observable.empty())
-                .subscribe(response -> {
-                    if (response != null && Util.isNotNullOrEmpty(response.getContactsList())) {
-                        showLog("SOURCE: " + response.getSource());
-                        publishContactResult(uniqueId, offset, new ArrayList<>(response.getContactsList()), (int) response.getContentCount());
-                    }
-                });
-
+        if (cache && useCache) {
+            dataSource.getContactData(count, offset)
+                    .doOnCompleted(serverRequestTask::run)
+                    .doOnError(exception -> {
+                        if (exception instanceof RoomIntegrityException) {
+                            resetCache();
+                        } else {
+                            captureError(exception.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                        }
+                    })
+                    .onErrorResumeNext(Observable.empty())
+                    .subscribe(response -> {
+                        if (response != null && Util.isNotNullOrEmpty(response.getContactsList())) {
+                            showLog("SOURCE: " + response.getSource());
+                            publishContactResult(uniqueId, offset, new ArrayList<>(response.getContactsList()), (int) response.getContentCount());
+                        }
+                    });
+        } else {
+            serverRequestTask.run();
+        }
         return uniqueId;
 
     }
