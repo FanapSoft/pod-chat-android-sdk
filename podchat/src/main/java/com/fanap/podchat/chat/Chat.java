@@ -1519,9 +1519,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnChangeThreadType(ChatMessage chatMessage) {
 
-        // ChatResponse<CloseThreadResult> response = ThreadManager.handleCloseThreadResponse(chatMessage);
-        Thread thread = gson.fromJson(chatMessage.getContent(), new TypeToken<Thread>() {
-        }.getType());
+        ChatResponse<Thread> response = ThreadManager.handleChangeThreadType(chatMessage);
 
         if (sentryResponseLog) {
             showLog("ON_CHANGE_THREAD_TYPE_SUCSEES", gson.toJson(chatMessage));
@@ -1529,7 +1527,7 @@ public class Chat extends AsyncAdapter {
             showLog("ON_CHANGE_THREAD_TYPE_SUCSEES");
         }
 
-        listenerManager.callOnThreadChangeType(null);
+        listenerManager.callOnThreadChangeType(response);
 
     }
 

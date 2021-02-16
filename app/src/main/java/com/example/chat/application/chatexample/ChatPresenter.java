@@ -78,6 +78,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -1481,6 +1482,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetHashTagList(ChatResponse<ResultHistory> response) {
         super.onGetHashTagList(response);
+        Log.e(TAG, "onGetHashTagList: "+response.getJson() );
+
     }
 
     @Override
@@ -2118,6 +2121,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         }
 
+    }
+
+    @Override
+    public void onThreadChangeType(ChatResponse<Thread> response) {
+        super.onThreadChangeType(response);
+        Log.e(TAG, "onThreadChangeType: " + response.getJson());
     }
 
     @Override

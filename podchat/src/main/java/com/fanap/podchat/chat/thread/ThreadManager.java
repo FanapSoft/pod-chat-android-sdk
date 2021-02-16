@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
@@ -34,6 +35,7 @@ import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.Util;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -701,6 +703,20 @@ public class ThreadManager {
         chatMessage.setUniqueId(uniqueId);
         chatMessage.setTypeCode(mtypecode);
         return App.getGson().toJson(chatMessage);
+    }
+
+    public static ChatResponse<Thread> handleChangeThreadType(ChatMessage chatMessage) {
+
+        ChatResponse<Thread> response = new ChatResponse<>();
+        Thread thread = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<Thread>() {
+        }.getType());
+        response.setResult(thread);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setCache(false);
+
+        return response;
     }
 
     public static String prepareGetHIstoryWithUniqueIdsRequest(long threadId, String uniqueId, String[] uniqueIds, String typeCode, String token) {
