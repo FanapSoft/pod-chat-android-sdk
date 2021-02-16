@@ -57,6 +57,7 @@ import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
+import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -130,6 +131,7 @@ import com.fanap.podchat.requestobject.RequestGetLastSeens;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
 import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.RequestLeaveThread;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
@@ -1081,10 +1083,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void leaveThread(long threadId, ChatHandler handler) {
 
-        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId, 18477)
+        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId, 14771).shouldKeepHistory()
                 .build();
-//        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
-//                .build();
+        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
+                .build();
 //
 //        chat.leaveThread(leaveThread, null);
 
@@ -1672,6 +1674,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     }
+
 
     @Override
     public void onPinMessage(ChatResponse<ResultPinMessage> response) {

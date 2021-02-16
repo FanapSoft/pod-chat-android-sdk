@@ -161,17 +161,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "58ee344c55094c3e827a0c1f04619a71";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
     //
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -189,10 +189,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 ////
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -226,16 +226,16 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 //
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 8093; //amjadi, //sharifi //kheirkhah
-    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
+    public static int TEST_THREAD_ID = 37003; //amjadi, //sharifi //kheirkhah
+    private static final String TEST_THREAD_HASH = "7BZNY96PET783D";
 
 
 //    main server / p2p
@@ -666,7 +666,7 @@ public class ChatActivity extends AppCompatActivity
                 new RequestThreadInfo.Builder(TEST_THREAD_ID)
                                                 .name("Chat sample thread") // required. if not set, thread name will set to null
 //                                                .metadata("{}") // required. if not set, thread metadata will set to null
-                                                .image("https://podspace.pod.ir/nzh/drive/downloadImage?hash=ELJIHZN9NP37ZIDA") // required. if not set, thread image will set to null
+                                                .image("http://sandbox.pod.ir:8443/nzh/drive/downloadImage?hash=WNRI5BHLR4SJCQIE") // required. if not set, thread image will set to null
                         .description("this is test description updated on " + new Date().toString()) // required. if not set, thread name will set to null
 //                                                .setUploadThreadImageRequest(requestUploadImage) // set when you wanna upload thread image
 //                                                .setUserGroupHash(TEST_THREAD_HASH) // set when you wanna upload thread image
@@ -753,7 +753,6 @@ public class ChatActivity extends AppCompatActivity
     private void downloadWithGlide() {
 
         try {
-            String url = "https://podspace.pod.ir/nzh/drive/downloadImage?hash=V61H4MEOY488X7KJ";
 
             RequestOptions requestOptions = new RequestOptions();
 
@@ -779,11 +778,9 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-
+    String url= "https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482";;
+    String imageHashCode = "16feadc7bf1-0.5248624596970302";
     private void downloadFile() {
-
-
-        String url = "https://core.pod.ir/nzh/image?imageId=222808&hashCode=16c3cd2b93f-0.527719303638482";
 
         //image
 //        long imageId = 404143;
@@ -793,7 +790,7 @@ public class ChatActivity extends AppCompatActivity
 
 
 //        String imageHashCode = "17024463974-0.5588549950419339";
-        String imageHashCode = "16feadc7bf1-0.5248624596970302";
+
 
         String fileHashCode = "17077360d4b-0.2366487166443898";
 
@@ -804,11 +801,11 @@ public class ChatActivity extends AppCompatActivity
         RequestGetFile requestGetFile = new RequestGetFile.Builder(fileId, fileHashCode, true).build();
 
 
-        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("GAUPE1ZRK76VOXBS")
+        RequestGetPodSpaceFile rePod = new RequestGetPodSpaceFile.Builder("SN9HYXS4OO9UL4TB")
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
-                .Builder("613Q7WCCEXZ1DGY5")
+                .Builder(imageHashCode)
 //                .setCrop(true)
                 .setQuality(0.45f)
                 .build();
@@ -1495,12 +1492,11 @@ public class ChatActivity extends AppCompatActivity
                 getUri(),
                 TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
                 .description("test file message")
-//                                .systemMetadata(getMetaData())
                 .setUserGroupHash(TEST_THREAD_HASH)
-//                                .setImageHc("100")
-//                                .setImageWc("100")
-//                                .setImageXc("1")
-//                                .setImageYc("1")
+                                .setImageHc("100")
+                                .setImageWc("100")
+                                .setImageXc("1")
+                                .setImageYc("1")
                 .build();
 
         fileUnique[0] = presenter.sendFileMessage(request,
@@ -1515,13 +1511,15 @@ public class ChatActivity extends AppCompatActivity
                     public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
 
                         Log.e("SFM", "onFinishImage");
-
+                        url= chatResponse.getResult().getUrl();
+                        imageHashCode= chatResponse.getResult().getHashCode();
                     }
 
                     @Override
                     public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
 
                         Log.e("SFM", "onFinishFile");
+                        url= chatResponse.getResult().getUrl();
 
                     }
 
@@ -2293,8 +2291,8 @@ public class ChatActivity extends AppCompatActivity
 
 
         Invitee[] invite = new Invitee[]{
-                new Invitee("5739", InviteType.Constants.TO_BE_USER_CONTACT_ID),
-                new Invitee("5740", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("103187", InviteType.Constants.TO_BE_USER_CONTACT_ID),
+                new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID),
         };
 
         String metac = getMetaData();
@@ -2427,9 +2425,9 @@ public class ChatActivity extends AppCompatActivity
         // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
-        invite.add(new Invitee("63272", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //anvari integ
-        invite.add(new Invitee("120856", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //nemati integ
-        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //pahlevani integ
+        invite.add(new Invitee("52979", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //anvari integ
+//        invite.add(new Invitee("120856", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //nemati integ
+//        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //pahlevani integ
 //        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //        invite.add(new Invitee("80617", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //        invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
@@ -2449,8 +2447,7 @@ public class ChatActivity extends AppCompatActivity
 
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(ThreadType.Constants.OWNER_GROUP, invite)
-                .title("Test Typing thread")
+                .Builder(ThreadType.Constants.NORMAL, invite)
 //                .withDescription("Description created at "
 //                        + new Date().getTime())
 //                .withImage("URL")
@@ -2737,6 +2734,8 @@ public class ChatActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                     percentage.setTextColor(getResources().getColor(R.color.colorAccent));
                     percentage.setText("100");
+                    url=chatResponse.getResult().getUrl();
+                    imageHashCode= chatResponse.getResult().getHashCode();
                 });
 
             }
