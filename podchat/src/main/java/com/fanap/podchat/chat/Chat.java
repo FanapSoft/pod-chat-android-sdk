@@ -1527,6 +1527,10 @@ public class Chat extends AsyncAdapter {
             showLog("ON_CHANGE_THREAD_TYPE_SUCSEES");
         }
 
+        if (cache) {
+            dataSource.saveThreadResultFromServer(response.getResult());
+        }
+
         listenerManager.callOnThreadChangeType(response);
 
     }
