@@ -5,11 +5,28 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.7.0] -2020-2-8
+
+[Added] ```getAssistantHistory``` method
+
+[Added] ```onGetAssistantHistory``` callback
+
+[Added] ```changeThreadType``` method
+
+[Added] ```onThreadChangeType``` callback
+
+[Added] ```getHashTagList``` method
+
+[Added] ```onGetHashTagList``` callback
+
+
+
+
 ## Version [0.9.6.0] -2020-1-26
 
 [Deprecated] removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler)
 
-[Added] Invitee to RemoveParticipantRequest 
+[Added] Invitee to RemoveParticipantRequest
 
 [Added] ability to removeParticipants with Invitee (userId and coreUserId)
 
@@ -25,10 +42,8 @@ All notable changes to this project will be documented here.
 
 [Added] ```onGetAssistants``` callback
 
-        
-        
 
- 
+
 
 
 ## Version [0.9.5.0] -2020-12-5
