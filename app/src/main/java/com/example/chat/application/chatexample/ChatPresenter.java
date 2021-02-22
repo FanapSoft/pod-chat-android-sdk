@@ -2124,8 +2124,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onThreadChangeType(ChatResponse<Thread> response) {
-        super.onThreadChangeType(response);
+    public void onThreadTypeChanged(ChatResponse<Thread> response) {
+        super.onThreadTypeChanged(response);
         Log.e(TAG, "onThreadChangeType: " + response.getJson());
     }
 

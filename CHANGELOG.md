@@ -13,7 +13,7 @@ All notable changes to this project will be documented here.
 
 [Added] ```changeThreadType``` method
 
-[Added] ```onThreadChangeType``` callback
+[Added] ```onThreadTypeChanged``` callback
 
 [Added] ```getHashTagList``` method
 

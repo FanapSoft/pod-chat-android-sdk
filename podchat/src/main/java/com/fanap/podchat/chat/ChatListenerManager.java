@@ -1186,7 +1186,7 @@ public class ChatListenerManager {
     public void callOnThreadChangeType(ChatResponse<Thread> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadChangeType(response);
+                listener.onThreadTypeChanged(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

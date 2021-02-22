@@ -332,7 +332,7 @@ public interface ChatListener {
     default void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response){}
 
     default void onThreadClosed(ChatResponse<CloseThreadResult> response){}
-    default void onThreadChangeType(ChatResponse<Thread> response){}
+    default void onThreadTypeChanged(ChatResponse<Thread> response){}
 
     default void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response){}
 
