@@ -5,7 +5,7 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## Version [0.9.7.0] -2020-2-8
+## Version [0.9.7.0] -2020-2-24
 
 [Added] ```getAssistantHistory``` method
 
@@ -19,6 +19,9 @@ All notable changes to this project will be documented here.
 
 [Added] ```onGetHashTagList``` callback
 
+[Fixed] Sentry NativeLib Exeption
+
+[Fixed] Minor bugs fixed
 
 
 

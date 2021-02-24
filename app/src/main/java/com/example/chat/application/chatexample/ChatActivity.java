@@ -1995,20 +1995,20 @@ public class ChatActivity extends AppCompatActivity
             }
 
 
-            case 31: {
+            case 32: {
 
                 changePublicThreadToPrivate();
 
                 break;
             }
 
-            case 32: {
+            case 33: {
 
                 changePrivateThreadToPublic();
 
                 break;
             }
-            case 33: {
+            case 34: {
 
                 getHashTagHistory();
 
@@ -2530,16 +2530,16 @@ public class ChatActivity extends AppCompatActivity
         presenter.getHistory(request, null);
     }
 
-    public void getHashTagList() {
-        RequestGetHashTagList request = new RequestGetHashTagList
-                .Builder(TEST_THREAD_ID)
-                .offset(0)
-                .count(25)
-                .setHashtag("ahmad")
-                .build();
-
-        presenter.getHashTagLIst(request, null);
-    }
+//    public void getHashTagList() {
+//        RequestGetHashTagList request = new RequestGetHashTagList
+//                .Builder(TEST_THREAD_ID)
+//                .offset(0)
+//                .count(25)
+//                .setHashtag("ahmad")
+//                .build();
+//
+//        presenter.getHashTagLIst(request, null);
+//    }
 
     public void getHashTagHistory() {
         RequestGetHashTagList request = new RequestGetHashTagList

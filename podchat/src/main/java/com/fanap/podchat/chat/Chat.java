@@ -7059,7 +7059,7 @@ public class Chat extends AsyncAdapter {
         history.setCount(history.getCount() > 0 ? history.getCount() : 50);
 
         //updating waitQ ( list or db )
-
+// TODO: 2/22/2021 Check offline get history
         updateWaitingQ(threadId, mainUniqueId, new ChatHandler() {
             @Override
             public void onGetHistory(String uniqueId) {
