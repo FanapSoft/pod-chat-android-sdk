@@ -110,6 +110,9 @@ public class ChatMessageType {
             Constants.UN_MUTE_CALL_PARTICIPANT,
             Constants.CANCEL_GROUP_CALL,
             Constants.REGISTER_ASSISTANT,
+            Constants.DEACTICVE_ASSISTANT,
+            Constants.GET_ASSISTANTS,
+            Constants.GET_ASSISTANT_HISTORY,
 
 
 
@@ -229,6 +232,7 @@ public class ChatMessageType {
         int REGISTER_ASSISTANT = 107;
         int DEACTICVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
+        int GET_ASSISTANT_HISTORY = 115;
 
     }
 

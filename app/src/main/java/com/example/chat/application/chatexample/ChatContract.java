@@ -14,6 +14,7 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
@@ -584,6 +585,7 @@ public interface ChatContract {
         void registerAssistant(RegisterAssistantRequest request);
         void getAssistants(GetAssistantRequest request);
         void deActiveAssistant(DeActiveAssistantRequest request);
+        void getAssistantHistory(GetAssistantHistoryRequest o);
 
     }
 }

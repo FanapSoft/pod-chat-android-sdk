@@ -5,6 +5,15 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.7.0] -2020-2-8
+
+[Added] ```getAssistantHistory``` method
+
+[Added] ```onGetAssistantHistory``` callback
+
+
+
+
 ## Version [0.9.6.0] -2020-1-26
 
 [Deprecated] removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler)
@@ -25,10 +34,8 @@ All notable changes to this project will be documented here.
 
 [Added] ```onGetAssistants``` callback
 
-        
-        
 
- 
+
 
 
 ## Version [0.9.5.0] -2020-12-5
