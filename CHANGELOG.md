@@ -19,7 +19,7 @@ All notable changes to this project will be documented here.
 
 [Added] ```onGetHashTagList``` callback
 
-[Fixed] Sentry NativeLib Exeption
+[Fixed] Sentry NativeLib Exception
 
 [Fixed] Minor bugs fixed
 
