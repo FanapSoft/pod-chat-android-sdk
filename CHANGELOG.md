@@ -11,6 +11,14 @@ All notable changes to this project will be documented here.
 
 [Added] ```onGetAssistantHistory``` callback
 
+[Added] ```changeThreadType``` method
+
+[Added] ```onThreadTypeChanged``` callback
+
+[Added] ```getHashTagList``` method
+
+[Added] ```onGetHashTagList``` callback
+
 
 
 
@@ -34,8 +42,10 @@ All notable changes to this project will be documented here.
 
 [Added] ```onGetAssistants``` callback
 
+        
+        
 
-
+ 
 
 
 ## Version [0.9.5.0] -2020-12-5

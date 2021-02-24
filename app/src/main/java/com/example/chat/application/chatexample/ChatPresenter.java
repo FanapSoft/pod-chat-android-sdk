@@ -66,6 +66,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -79,6 +80,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -825,7 +827,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public String getHashTagLIst(RequestGetHashTagList request, ChatHandler handler) {
+    public String getHashTagList(RequestGetHashTagList request, ChatHandler handler) {
         return chat.getHashTagList(request);
     }
 
@@ -1484,6 +1486,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onGetMentionList(ChatResponse<ResultHistory> response) {
+        super.onGetMentionList(response);
+    }
+
+    @Override
+    public void onGetHashTagList(ChatResponse<ResultHistory> response) {
+        super.onGetHashTagList(response);
+        Log.e(TAG, "onGetHashTagList: "+response.getJson() );
+
+    }
+
+    @Override
     public void onRenameThread(String content, OutPutThread outPutThread) {
         super.onRenameThread(content, outPutThread);
         view.onRenameGroupThread();
@@ -2077,6 +2091,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void changeThreadType(ChangeThreadTypeRequest request) {
+        chat.changeThreadType(request);
+    }
+
+    @Override
     public void addCallParticipant(String username, boolean pooriaChecked, boolean masoudChecked, boolean farhadChecked) {
 
 
@@ -2118,6 +2137,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         }
 
+    }
+
+    @Override
+    public void onThreadTypeChanged(ChatResponse<Thread> response) {
+        super.onThreadTypeChanged(response);
+        Log.e(TAG, "onThreadChangeType: " + response.getJson());
     }
 
     @Override

@@ -110,6 +110,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -1094,6 +1095,11 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.CHANGE_THREAD_TYPE: {
+                handleOnChangeThreadType(chatMessage);
+                break;
+            }
+
             case Constants.CREATE_BOT: {
                 handleOnBotCreated(chatMessage);
                 break;
@@ -1519,6 +1525,24 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void handleOnChangeThreadType(ChatMessage chatMessage) {
+
+        ChatResponse<Thread> response = ThreadManager.handleChangeThreadType(chatMessage);
+
+        if (sentryResponseLog) {
+            showLog("ON_CHANGE_THREAD_TYPE_SUCSEES", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_CHANGE_THREAD_TYPE_SUCSEES");
+        }
+
+        if (cache) {
+            dataSource.saveThreadResultFromServer(response.getResult());
+        }
+
+        listenerManager.callOnThreadChangeType(response);
+
+    }
+
     private void handleOnContactsSynced(ChatMessage chatMessage) {
 
         ChatResponse<ContactSyncedResult> response = ContactManager.prepareContactSyncedResult(chatMessage);
@@ -1793,7 +1817,7 @@ public class Chat extends AsyncAdapter {
             dataSource.saveMessageResultFromServer(response.getResult().getHistory(), chatMessage.getSubjectId());
         }
 
-        listenerManager.callOnGetMentionList(response);
+        listenerManager.callOnGetHashTagList(response);
 
     }
 
@@ -2488,6 +2512,20 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    public String changeThreadType(ChangeThreadTypeRequest request) {
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            try {
+                String message = ThreadManager.createChangeThreadTypeRequest(request, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_CHANGE_THREAD_TYPE");
+            } catch (PodChatException e) {
+                captureError(e);
+            }
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
 
     public void setAudioCallConfig(CallConfig callConfig) {
         if (audioCallManager != null)
@@ -3259,7 +3297,7 @@ public class Chat extends AsyncAdapter {
                             uniqueId,
                             (Long) contentCount);
 
-            listenerManager.callOnGetMentionList(cacheResponse);
+            listenerManager.callOnGetHashTagList(cacheResponse);
 
             showLog("CACHE HASHTAG LIST", gson.toJson(cacheResponse));
 
@@ -11253,20 +11291,7 @@ public class Chat extends AsyncAdapter {
 
         try {
             MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
-            if (messageVO.getMessage().startsWith("#")) {
-                Log.e(TAG, "hashtag: " + "hello");
-                String hashtag = messageVO.getMessage();
-                try {
-                    hashtag = messageVO.getMessage().substring(0, messageVO.getMessage().indexOf(' '));
-                } catch (Exception e) {
 
-                }
-
-                Log.e(TAG, "hashtag: " + hashtag);
-                messageVO.setHashtags(hashtag);
-            } else {
-
-            }
             if (cache) {
                 dataSource.saveMessageResultFromServer(messageVO, chatMessage.getSubjectId());
             }

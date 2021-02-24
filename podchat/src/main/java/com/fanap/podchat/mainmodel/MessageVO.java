@@ -27,7 +27,6 @@ public class MessageVO {
     private boolean hasGap = false;
     private boolean mentioned = false;
     private boolean pinned = false;
-    private String hashtags;
     private CallHistoryVO callHistoryVO;
 
     public MessageVO() {
@@ -56,7 +55,6 @@ public class MessageVO {
             boolean mentioned,
             boolean hasGap,
             boolean pinned,
-            String hashtags,
             CallHistoryVO callHistoryVO
     ) {
         this.id = id;
@@ -80,7 +78,6 @@ public class MessageVO {
         this.mentioned = mentioned;
         this.hasGap = hasGap;
         this.pinned = pinned;
-        this.hashtags = hashtags;
         this.callHistoryVO = callHistoryVO;
     }
 
@@ -113,14 +110,6 @@ public class MessageVO {
 //
 //    }
 
-    public String getHashtags() {
-        return hashtags;
-    }
-
-    public MessageVO setHashtags(String hashtags) {
-        this.hashtags = hashtags;
-        return this;
-    }
 
     public boolean hasGap() {
         return hasGap;

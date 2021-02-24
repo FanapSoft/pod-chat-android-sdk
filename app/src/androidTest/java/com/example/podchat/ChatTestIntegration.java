@@ -19,12 +19,14 @@ import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -367,21 +369,20 @@ public class ChatTestIntegration extends ChatAdapter {
 
 
     public void getThreadHistory(long threadId) {
-
-
-        RequestGetHistory request = new RequestGetHistory
+        threadId = 8093;
+        RequestGetHashTagList request = new RequestGetHashTagList
                 .Builder(threadId)
+                .setHashtag("test")
                 .offset(0)
                 .count(25)
-                .order("desc") //.order("asc")
-//                .fromTime(new Date().getTime())
-                //   .toTime(new Date().getTime())
-//                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
-//                .withNoCache()
                 .build();
-        presenter.getHistory(request, null);
-        sleep(2000);
-        Mockito.verify(view, Mockito.atLeastOnce()).onGetThreadHistory(Mockito.any());
+        presenter.getHashTagList(request, new ChatHandler() {
+            @Override
+            public void onGetHistory(String uniqueId) {
+                super.onGetHistory(uniqueId);
+            }
+        });
+
     }
 
 

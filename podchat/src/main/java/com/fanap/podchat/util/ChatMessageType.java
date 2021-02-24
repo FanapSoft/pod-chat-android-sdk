@@ -70,7 +70,7 @@ public class ChatMessageType {
             Constants.JOIN_THREAD,
             Constants.INTERACT_MESSAGE,
             Constants.UPDATE_USER_PROFILE,
-            Constants.CHANGE_THREAD_PRIVACY,
+            Constants.CHANGE_THREAD_TYPE,
             Constants.GET_THING_INFO,
             Constants.GET_REPORT_REASONS,
             Constants.REPORT_THREAD,
@@ -173,7 +173,7 @@ public class ChatMessageType {
         int PIN_MESSAGE = 50;
         int UNPIN_MESSAGE = 51;
         int UPDATE_CHAT_PROFILE = 52;
-        int CHANGE_THREAD_PRIVACY = 53;
+        int CHANGE_THREAD_TYPE = 53;
         int GET_USER_ROLES = 54;
         int GET_THING_INFO = 55;
         int GET_REPORT_REASONS = 56;

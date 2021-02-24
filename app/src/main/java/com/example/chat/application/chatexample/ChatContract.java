@@ -31,6 +31,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -351,7 +352,7 @@ public interface ChatContract {
         void getHistory(History history, long threadId, ChatHandler handler);
 
         String getHistory(RequestGetHistory request, ChatHandler handler);
-        String getHashTagLIst(RequestGetHashTagList request, ChatHandler handler);
+        String getHashTagList(RequestGetHashTagList request, ChatHandler handler);
 
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
 
@@ -586,6 +587,8 @@ public interface ChatContract {
         void getAssistants(GetAssistantRequest request);
         void deActiveAssistant(DeActiveAssistantRequest request);
         void getAssistantHistory(GetAssistantHistoryRequest o);
+
+        void changeThreadType(ChangeThreadTypeRequest request);
 
     }
 }

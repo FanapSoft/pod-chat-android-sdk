@@ -57,6 +57,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -73,6 +74,7 @@ import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.notification.PodNotificationManager;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlockList;
@@ -96,7 +98,6 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
@@ -171,7 +172,7 @@ public class ChatActivity extends AppCompatActivity
     //local
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
@@ -236,7 +237,7 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 36636; //amjadi, //sharifi //kheirkhah
+    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
     private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
@@ -1952,13 +1953,13 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
-            case 26: {
+            case 26:{
 
                 closeThread();
 
                 break;
             }
-            case 27: {
+            case 27:{
 
                 getSentryLogs();
 
@@ -1989,6 +1990,27 @@ public class ChatActivity extends AppCompatActivity
             case 31: {
 
                 getAssistantHistory();
+
+                break;
+            }
+
+
+            case 31: {
+
+                changePublicThreadToPrivate();
+
+                break;
+            }
+
+            case 32: {
+
+                changePrivateThreadToPublic();
+
+                break;
+            }
+            case 33: {
+
+                getHashTagHistory();
 
                 break;
             }
@@ -2113,6 +2135,20 @@ public class ChatActivity extends AppCompatActivity
         GetAssistantHistoryRequest request = new GetAssistantHistoryRequest.Builder().build();
         presenter.getAssistantHistory(request);
     }
+
+
+    private void changePublicThreadToPrivate() {
+        ChangeThreadTypeRequest request = new ChangeThreadTypeRequest.Builder(8093, 1).build();
+        presenter.changeThreadType(request);
+
+    }
+
+    private void changePrivateThreadToPublic() {
+        String UniqName = "PrivatethreadConverted_" + System.currentTimeMillis() / 1000;
+        ChangeThreadTypeRequest request = new ChangeThreadTypeRequest.Builder(8093, 2).setUniqname(UniqName).build();
+        presenter.changeThreadType(request);
+    }
+
     private void getNotSeenDur() {
         ArrayList<Integer> testArray = new ArrayList<>();
         testArray.add(2);
@@ -2271,7 +2307,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     //21622
-    public static final String THREAD_UNIQUE_NAME = "KidzyGameGroupChat6876";
+    public static final String THREAD_UNIQUE_NAME = "unique_name_4_1584016531111";
 //    public static final String THREAD_UNIQUE_NAME = "unique_name_4_" + new Date().getTime();
 
     private void joinPublicThread() {
@@ -2303,7 +2339,7 @@ public class ChatActivity extends AppCompatActivity
                         Arrays.asList(invite),
                         THREAD_UNIQUE_NAME)
                         .withDescription("desc at " + new Date())
-                        .title("My Public Group")
+                        .title("My Public Group 22")
                         .withImage("http://google.com")
                         .withMetadata(metac)
                         .build();
@@ -2505,6 +2541,15 @@ public class ChatActivity extends AppCompatActivity
         presenter.getHashTagLIst(request, null);
     }
 
+    public void getHashTagHistory() {
+        RequestGetHashTagList request = new RequestGetHashTagList
+                .Builder(TEST_THREAD_ID)
+                .setHashtag("test2")
+                .offset(0)
+                .count(25)
+                .build();
+        presenter.getHashTagList(request, null);
+    }
     public void getThreads() {
 
         ArrayList<Integer> threadIds = new ArrayList<>();

@@ -27,6 +27,7 @@ import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -273,6 +274,7 @@ public interface ChatListener {
     default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
 
     default void onGetMentionList(ChatResponse<ResultHistory> response){}
+    default void onGetHashTagList(ChatResponse<ResultHistory> response){}
 
     default void onTypingSignalTimeout(long threadId){}
 
@@ -331,6 +333,7 @@ public interface ChatListener {
     default void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response){}
 
     default void onThreadClosed(ChatResponse<CloseThreadResult> response){}
+    default void onThreadTypeChanged(ChatResponse<Thread> response){}
 
     default void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response){}
 
