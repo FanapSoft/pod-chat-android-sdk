@@ -41,6 +41,7 @@ import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -1400,6 +1401,10 @@ public class ChatActivity extends AppCompatActivity
                         stopBot();
                         break;
                     }
+                    case 23: {
+                        getUserBots();
+                        break;
+                    }
                 }
             }
 
@@ -1583,6 +1588,14 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    private void getUserBots() {
+
+        GetUserBotsRequest request = new GetUserBotsRequest.Builder().build();
+
+        presenter.getUserBots(request);
+
+    }
+
 
     private void startBot() {
 
@@ -1609,7 +1622,7 @@ public class ChatActivity extends AppCompatActivity
 
     private void createBot() {
 
-        CreateBotRequest request = new CreateBotRequest.Builder("TEST2BOT")
+        CreateBotRequest request = new CreateBotRequest.Builder("TEST123BOT")
                 .build();
 
         presenter.createBot(request);

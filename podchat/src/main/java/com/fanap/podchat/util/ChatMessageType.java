@@ -187,6 +187,7 @@ public class ChatMessageType {
         int DEFINE_BOT_COMMAND = 63;
         int START_BOT = 64;
         int STOP_BOT = 65;
+        int GET_USER_BOTS = 120;
 
 
         int CALL_REQUEST = 70;

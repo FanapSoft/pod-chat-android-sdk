@@ -66,7 +66,8 @@ public class ConstantSample {
             "Create Bot",
             "Define Bot Command",
             "Start Bot",
-            "Start Bot"
+            "Start Bot",
+            "Get User Bots"
     };
 
     public static final String[] funcThird = {

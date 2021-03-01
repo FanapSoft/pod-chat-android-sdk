@@ -19,6 +19,7 @@ import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -549,6 +550,7 @@ public interface ChatContract {
         void startBot(StartAndStopBotRequest request);
 
         void stopBot(StartAndStopBotRequest request);
+        void getUserBots(GetUserBotsRequest request);
 
 
         void testCall(String groupId, String sender, String receiver);

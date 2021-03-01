@@ -75,9 +75,11 @@ import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.BotManager;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.GetUserBotsResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.ContactManager;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
@@ -1112,11 +1114,16 @@ public class Chat extends AsyncAdapter {
                 handleOnBotStarted(chatMessage);
                 break;
             }
+
+            case Constants.GET_USER_BOTS: {
+                handleOnUserBots(chatMessage);
+                break;
+            }
+
             case Constants.STOP_BOT: {
                 handleOnBotStopped(chatMessage);
                 break;
             }
-
 
             case Constants.REGISTER_FCM_USER_DEVICE: {
                 PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
@@ -1588,6 +1595,22 @@ public class Chat extends AsyncAdapter {
 
 
         listenerManager.callOnBotStarted(response);
+
+
+    }
+
+    private void handleOnUserBots(ChatMessage chatMessage) {
+
+        ChatResponse<GetUserBotsResult> response = BotManager
+                .handleOnUserBots(chatMessage);
+
+        if (sentryResponseLog) {
+            showLog("ON_USER_BOTS", gson.toJson(chatMessage));
+        } else {
+            showLog("ON_USER_BOTS");
+        }
+
+        listenerManager.callOnUserBots(response);
 
 
     }
@@ -3180,6 +3203,40 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    /**
+     * @param request request to get bot list of user
+     *
+     *
+     *            */
+
+    public String getUserBots(GetUserBotsRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = null;
+            try {
+                message = BotManager.createGetUserBotsRequest(request, uniqueId);
+            } catch (PodChatException e) {
+                new PodThreadManager().doThisAndGo(() -> {
+                    e.setUniqueId(uniqueId);
+                    e.setToken(getToken());
+                    captureError(e);
+                });
+                return uniqueId;
+            }
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_STOP_BOT_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+
+    }
+
+
     public String stopBot(StartAndStopBotRequest request) {
 
         String uniqueId = generateUniqueId();
@@ -3206,8 +3263,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
 
     }
-
-
     /**
      * @param request request to get mentioned message of user
      *                -unreadMentioned

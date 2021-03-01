@@ -49,6 +49,7 @@ import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -484,6 +485,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void stopBot(StartAndStopBotRequest request) {
         String uniqueId = chat.stopBot(request);
+    }
+
+    @Override
+    public void getUserBots(GetUserBotsRequest request) {
+       chat.getUserBots(request);
     }
 
     @Override

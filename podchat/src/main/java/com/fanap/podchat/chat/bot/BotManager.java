@@ -4,9 +4,11 @@ import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.GetUserBotsResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -118,6 +120,21 @@ public class BotManager {
 
     }
 
+
+    public static String createGetUserBotsRequest(GetUserBotsRequest request, String uniqueId) throws PodChatException {
+
+        AsyncMessage message = new AsyncMessage();
+        message.setToken(CoreConfig.token);
+        message.setType(ChatMessageType.Constants.GET_USER_BOTS);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+
+        return App.getGson().toJson(message);
+
+
+    }
+
     private static void validateBotName(String botName) throws PodChatException {
 
         if (!botName.endsWith("BOT") || Util.isNullOrEmpty(botName))
@@ -187,6 +204,21 @@ public class BotManager {
         ChatResponse<StartStopBotResult> response = new ChatResponse<>();
 
         StartStopBotResult result = new StartStopBotResult(chatMessage.getContent());
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        return response;
+
+    }
+    public static ChatResponse<GetUserBotsResult> handleOnUserBots(ChatMessage chatMessage) {
+
+        ChatResponse<GetUserBotsResult> response = new ChatResponse<>();
+
+        GetUserBotsResult result = new GetUserBotsResult();
 
         response.setResult(result);
 
