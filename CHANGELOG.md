@@ -5,6 +5,12 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.8.0] -
+
+[Added] ```getUserBots``` method
+
+[Added] ```onUserBots``` callback
+
 ## Version [0.9.7.0] -2020-2-24
 
 [Added] ```getAssistantHistory``` method

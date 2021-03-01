@@ -4,7 +4,6 @@ import com.fanap.podchat.requestobject.GeneralRequestObject;
 
 public class GetUserBotsRequest extends GeneralRequestObject {
 
-
     GetUserBotsRequest(Builder builder) {
         super(builder);
     }
