@@ -234,7 +234,7 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 37003; //amjadi, //sharifi //kheirkhah
+    public static int TEST_THREAD_ID = 8964; //amjadi, //sharifi //kheirkhah
     private static final String TEST_THREAD_HASH = "7BZNY96PET783D";
 
 
