@@ -10,7 +10,6 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import com.example.chat.application.chatexample.BaseApplication;
 import com.example.chat.application.chatexample.ChatActivity;
@@ -19,14 +18,12 @@ import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
-import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
-import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -75,7 +72,7 @@ import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
 
 
 @RunWith(AndroidJUnit4.class)
-public class ChatTestIntegration extends ChatAdapter {
+public class ChatTestSandbox extends ChatAdapter {
 
     private static ChatContract.presenter presenter;
     @Mock
@@ -88,15 +85,14 @@ public class ChatTestIntegration extends ChatAdapter {
 
     private static String appId = "POD-Chat";
 
+    private static String NAME = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 
-    private static String NAME = BaseApplication.getInstance().getString(R.string.test_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.test_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.test_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.test_fileServer);
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
-
+    private static String TOKEN = "8eb3f9d848ff47358e0a0756034678d5";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
     @Mock
     ChatListener chatListeners;
@@ -369,20 +365,21 @@ public class ChatTestIntegration extends ChatAdapter {
 
 
     public void getThreadHistory(long threadId) {
-        threadId = 8093;
-        RequestGetHashTagList request = new RequestGetHashTagList
+
+
+        RequestGetHistory request = new RequestGetHistory
                 .Builder(threadId)
-                .setHashtag("test")
                 .offset(0)
                 .count(25)
+                .order("desc") //.order("asc")
+//                .fromTime(new Date().getTime())
+                //   .toTime(new Date().getTime())
+//                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
+//                .withNoCache()
                 .build();
-        presenter.getHashTagList(request, new ChatHandler() {
-            @Override
-            public void onGetHistory(String uniqueId) {
-                super.onGetHistory(uniqueId);
-            }
-        });
-
+        presenter.getHistory(request, null);
+        sleep(2000);
+        Mockito.verify(view, Mockito.atLeastOnce()).onGetThreadHistory(Mockito.any());
     }
 
 
@@ -545,13 +542,21 @@ public class ChatTestIntegration extends ChatAdapter {
 
                 System.out.println("onRegisterAssistant: " + response.getJson());
                 Assert.assertTrue(true);
-                resumeProcess();
+
+
+
             }
         };
 
         chat.addListener(historyListeners);
 
         registerAssistant();
+
+    }
+
+    @Test
+    @LargeTest
+   public void checkInsert(){
 
     }
 
@@ -565,7 +570,7 @@ public class ChatTestIntegration extends ChatAdapter {
             public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
                 System.out.println("onGetAssistants: " + response);
                 Assert.assertTrue(true);
-                resumeProcess();
+
             }
         };
 
@@ -586,7 +591,7 @@ public class ChatTestIntegration extends ChatAdapter {
             public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
                 System.out.println("onDeActiveAssistant: " + response);
                 Assert.assertTrue(true);
-                resumeProcess();
+
             }
         };
 
@@ -607,7 +612,7 @@ public class ChatTestIntegration extends ChatAdapter {
 //        52987   khodam
 //        103187  nemati
         //invite
-        Invitee invite = new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        Invitee invite = new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
 
         List<AssistantVo> assistantVos = new ArrayList<>();
@@ -631,7 +636,7 @@ public class ChatTestIntegration extends ChatAdapter {
 
 //        52987   khodam
 //        103187  nemati
-        Invitee invite = new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        Invitee invite = new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
         //roles
         ArrayList<String> typeRoles = new ArrayList<>();

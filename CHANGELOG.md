@@ -5,6 +5,26 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.7.0] -2020-2-24
+
+[Added] ```getAssistantHistory``` method
+
+[Added] ```onGetAssistantHistory``` callback
+
+[Added] ```changeThreadType``` method
+
+[Added] ```onThreadTypeChanged``` callback
+
+[Added] ```getHashTagList``` method
+
+[Added] ```onGetHashTagList``` callback
+
+[Fixed] Sentry NativeLib Exeption
+
+[Fixed] Minor bugs fixed
+
+
+
 ## Version [0.9.6.0] -2020-1-26
 
 [Deprecated] removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler)

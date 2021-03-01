@@ -41,8 +41,10 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
@@ -79,6 +81,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -207,6 +210,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")
                 .setIcon(R.mipmap.ic_launcher)
+
                 .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
                 .build();
 
@@ -496,12 +500,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
-        Log.e(TAG, "onDeActiveAssistant: " + response.getJson() );
+        Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
     }
 
     @Override
     public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
-        Log.e(TAG, "onGetAssistants: " + response.getJson() );
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
+    }
+
+    @Override
+    public void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
     }
 
     @Override
@@ -1317,6 +1328,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onSent(content, chatResponse);
         view.onSentMessage();
+        Log.e("testmsg", "id : " + chatResponse.getResult().getMessageId());
     }
 
     @Override
@@ -1483,6 +1495,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetHashTagList(ChatResponse<ResultHistory> response) {
         super.onGetHashTagList(response);
+        Log.e(TAG, "onGetHashTagList: "+response.getJson() );
+
     }
 
     @Override
@@ -2075,6 +2089,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void getAssistantHistory(GetAssistantHistoryRequest request) {
+        chat.getAssistantHistory(request);
+    }
+
+    @Override
     public void changeThreadType(ChangeThreadTypeRequest request) {
         chat.changeThreadType(request);
     }
@@ -2121,6 +2140,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         }
 
+    }
+
+    @Override
+    public void onThreadTypeChanged(ChatResponse<Thread> response) {
+        super.onThreadTypeChanged(response);
+        Log.e(TAG, "onThreadChangeType: " + response.getJson());
     }
 
     @Override

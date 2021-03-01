@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.commonsware.cwac.saferoom.SQLCipherUtils;
 import com.commonsware.cwac.saferoom.SafeHelperFactory;
+import com.fanap.podchat.cachemodel.CacheAssistantHistoryVo;
 import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
@@ -33,9 +34,11 @@ import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.persist.CacheCall;
 import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
@@ -4276,6 +4279,30 @@ public class MessageDatabaseHelper {
 
     }
 
+    public void getCacheAssistantHistoryVos(GetAssistantHistoryRequest request, FunctionalListener callback) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        worker(() -> {
+
+            List<CacheAssistantHistoryVo> list = messageDao.getCacheAssistantHistory();
+            List<AssistantHistoryVo> cachResponseList = new ArrayList<>();
+            for (CacheAssistantHistoryVo item : list) {
+                AssistantHistoryVo assistantHistoryVo = new AssistantHistoryVo();
+                assistantHistoryVo.setActionName(item.getActionName());
+                assistantHistoryVo.setActionTime((int)item.getActionTime());
+                assistantHistoryVo.setActionType(item.getActionType());
+                Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
+                assistantHistoryVo.setParticipantVO(participant);
+                cachResponseList.add(assistantHistoryVo);
+            }
+
+            callback.onWorkDone(list.size(), cachResponseList);
+
+        });
+
+    }
+
     public void updateCashAssistant(OnWorkDone listener, List<AssistantVo> response) {
         worker(() -> {
             List<CacheAssistantVo> cacheAssistantVos = new ArrayList<>();
@@ -4299,6 +4326,33 @@ public class MessageDatabaseHelper {
             }
 
             messageDao.insertCacheAssistantVos(cacheAssistantVos);
+            listener.onWorkDone(true);
+        });
+
+
+    }
+
+    public void updateCashAssistantHistory(OnWorkDone listener, List<AssistantHistoryVo> response) {
+        worker(() -> {
+            List<CacheAssistantHistoryVo> cashAssitantHistory = new ArrayList<>();
+            messageDao.deleteAllCacheAssistantHistoryVo();
+            for (AssistantHistoryVo assistantVo : response) {
+                CacheAssistantHistoryVo cashAsisstantHistory = new CacheAssistantHistoryVo();
+                if (assistantVo.getParticipantVO() != null) {
+                    Participant participant = assistantVo.getParticipantVO();
+                    String participantJson = App.getGson().toJson(participant);
+                    CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
+                    messageDao.insertParticipant(cacheParticipant);
+                    cashAsisstantHistory.setParticipantVOId(assistantVo.getParticipantVO().getId());
+                }
+
+                cashAsisstantHistory.setActionTime(assistantVo.getActionTime());
+                cashAsisstantHistory.setActionType(assistantVo.getActionType());
+                cashAsisstantHistory.setActionName(assistantVo.getActionName());
+
+                cashAssitantHistory.add(cashAsisstantHistory);
+            }
+            messageDao.insertCacheAssistantHistoryVo(cashAssitantHistory);
             listener.onWorkDone(true);
         });
 

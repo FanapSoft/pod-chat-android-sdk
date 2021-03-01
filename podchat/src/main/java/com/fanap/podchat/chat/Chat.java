@@ -66,8 +66,10 @@ import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.call.result_model.StartedCallModel;
 import com.fanap.podchat.chat.assistant.AssistantManager;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.BotManager;
@@ -535,6 +537,7 @@ public class Chat extends AsyncAdapter {
                     options.setSentryClientName("PodChat-Android");
                     options.addInAppInclude("com.fanap.podchat");
                     options.setEnvironment("PODCHAT");
+//                    options.setEnableNdk(false);
                     sentryCachDir = options.getCacheDirPath();
 
                     options.setBeforeSend((event, hint) -> {
@@ -568,7 +571,7 @@ public class Chat extends AsyncAdapter {
             } else {
                 Log.e("sentryLogs", "get logs from cache");
                 try {
-                    sentryCashedlogs.append("addNew \n\n\n" + readFromFile(mcontext, fi.toString()));
+                    sentryCashedlogs.append("addNew \n\n\n").append(readFromFile(mcontext, fi.toString()));
                 } catch (Exception e) {
                     sentryCashedlogs.append("addNew \n\n\n can not get logs from cache file ");
                 }
@@ -1203,6 +1206,11 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.GET_ASSISTANT_HISTORY: {
+                handleOnGetAssistantHistory(chatMessage);
+                break;
+            }
+
             case Constants.GET_USER_ROLES: {
                 handleOnGetUserRoles(chatMessage);
                 break;
@@ -1519,9 +1527,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnChangeThreadType(ChatMessage chatMessage) {
 
-        // ChatResponse<CloseThreadResult> response = ThreadManager.handleCloseThreadResponse(chatMessage);
-        Thread thread = gson.fromJson(chatMessage.getContent(), new TypeToken<Thread>() {
-        }.getType());
+        ChatResponse<Thread> response = ThreadManager.handleChangeThreadType(chatMessage);
 
         if (sentryResponseLog) {
             showLog("ON_CHANGE_THREAD_TYPE_SUCSEES", gson.toJson(chatMessage));
@@ -1529,7 +1535,11 @@ public class Chat extends AsyncAdapter {
             showLog("ON_CHANGE_THREAD_TYPE_SUCSEES");
         }
 
-        listenerManager.callOnThreadChangeType(null);
+        if (cache) {
+            dataSource.saveThreadResultFromServer(response.getResult());
+        }
+
+        listenerManager.callOnThreadChangeType(response);
 
     }
 
@@ -1746,6 +1756,31 @@ public class Chat extends AsyncAdapter {
         }
 
         listenerManager.callOnGetAssistants(response);
+
+    }
+
+    private void handleOnGetAssistantHistory(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON GET ASSISTANT HISTORY", gson.toJson(chatMessage));
+        } else {
+            showLog("ON GET ASSISTANT HISTORY");
+        }
+
+        ChatResponse<List<AssistantHistoryVo>> response = AssistantManager.handleAssitantHistoryResponse(chatMessage);
+
+
+        if (cache) {
+            messageDatabaseHelper.updateCashAssistantHistory(new OnWorkDone() {
+                @Override
+                public void onWorkDone(@Nullable Object o) {
+
+                }
+            }, response.getResult());
+
+        }
+
+        listenerManager.callOnGetAssistantHistory(response);
 
     }
 
@@ -2870,6 +2905,36 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
+     * @param request You can get list of assistant history
+     */
+    public String getAssistantHistory(GetAssistantHistoryRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (cache) {
+            try {
+                getAssistantHistoryFromCache(request, uniqueId);
+            } catch (RoomIntegrityException e) {
+                resetCache(() -> {
+                    try {
+                        getAssistantHistoryFromCache(request, uniqueId);
+                    } catch (RoomIntegrityException ignored) {
+                    }
+                });
+            }
+        }
+
+        if (chatReady) {
+            String message = AssistantManager.createGetAssistantHistoryRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_ASSISTANT_HISTORY");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+
+    /**
      * @param request You can get list of assistant
      */
     public String getAssistants(GetAssistantRequest request) {
@@ -2912,6 +2977,25 @@ public class Chat extends AsyncAdapter {
                 showLog("ON_GET_ASSISTANT_CACHE", cacheResponse.getJson());
             } else {
                 showLog("ON_GET_ASSISTANT_CACHE");
+            }
+
+        });
+    }
+
+    private void getAssistantHistoryFromCache(GetAssistantHistoryRequest request, String uniqueId) throws RoomIntegrityException {
+
+        messageDatabaseHelper.getCacheAssistantHistoryVos(request, (count, cachResponseList) -> {
+
+            ChatResponse<List<AssistantHistoryVo>> cacheResponse = new ChatResponse<>();
+            cacheResponse.setResult((List<AssistantHistoryVo>) cachResponseList);
+            cacheResponse.setUniqueId(uniqueId);
+            cacheResponse.setCache(true);
+            listenerManager.callOnGetAssistantHistory(cacheResponse);
+
+            if (sentryResponseLog) {
+                showLog("ON_GET_ASSISTANT_HISTORY_CACHE", cacheResponse.getJson());
+            } else {
+                showLog("ON_GET_ASSISTANT_HISTORY_CACHE");
             }
 
         });
@@ -6975,7 +7059,7 @@ public class Chat extends AsyncAdapter {
         history.setCount(history.getCount() > 0 ? history.getCount() : 50);
 
         //updating waitQ ( list or db )
-
+// TODO: 2/22/2021 Check offline get history
         updateWaitingQ(threadId, mainUniqueId, new ChatHandler() {
             @Override
             public void onGetHistory(String uniqueId) {
@@ -13376,40 +13460,26 @@ public class Chat extends AsyncAdapter {
                 captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
             }
         };
-
-        Runnable cacheTask = () -> {
-
-            if (cache && useCache) {
-
-                loadContactsFromCache(uniqueId, offset, mCount);
-
-            }
-        };
-
-
-//        new PodThreadManager()
-//                .addNewTask(cacheTask)
-//                .addNewTask(serverRequestTask)
-//                .runTasksSynced();
-
-
-        dataSource.getContactData(count, offset)
-                .doOnCompleted(serverRequestTask::run)
-                .doOnError(exception -> {
-                    if (exception instanceof RoomIntegrityException) {
-                        resetCache();
-                    } else {
-                        captureError(exception.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
-                    }
-                })
-                .onErrorResumeNext(Observable.empty())
-                .subscribe(response -> {
-                    if (response != null && Util.isNotNullOrEmpty(response.getContactsList())) {
-                        showLog("SOURCE: " + response.getSource());
-                        publishContactResult(uniqueId, offset, new ArrayList<>(response.getContactsList()), (int) response.getContentCount());
-                    }
-                });
-
+        if (cache && useCache) {
+            dataSource.getContactData(count, offset)
+                    .doOnCompleted(serverRequestTask::run)
+                    .doOnError(exception -> {
+                        if (exception instanceof RoomIntegrityException) {
+                            resetCache();
+                        } else {
+                            captureError(exception.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+                        }
+                    })
+                    .onErrorResumeNext(Observable.empty())
+                    .subscribe(response -> {
+                        if (response != null && Util.isNotNullOrEmpty(response.getContactsList())) {
+                            showLog("SOURCE: " + response.getSource());
+                            publishContactResult(uniqueId, offset, new ArrayList<>(response.getContactsList()), (int) response.getContentCount());
+                        }
+                    });
+        } else {
+            serverRequestTask.run();
+        }
         return uniqueId;
 
     }
