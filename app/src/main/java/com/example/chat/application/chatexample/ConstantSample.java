@@ -37,7 +37,6 @@ public class ConstantSample {
             "deactive Assistant",
             "get Assistants",
             "get Assistants History",
-            "get Assistants",
             "Convert Public Thread To Private",
             "Convert Private Thread To Public",
             "Get Hash Tag List",
