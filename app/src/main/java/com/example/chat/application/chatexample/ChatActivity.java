@@ -161,7 +161,7 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 
-    private static String TOKEN =  BaseApplication.getInstance().getString(R.string.token_main_sandbox);
+    private static String TOKEN = "58ee344c55094c3e827a0c1f04619a71";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -2425,7 +2425,7 @@ public class ChatActivity extends AppCompatActivity
         // add by user SSO_ID
 //                                invite.add(new Invitee(122, 1));  //user jiji
 //        invite.add(new Invitee("121", 1)); // user zizi
-        invite.add(new Invitee("103187", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //anvari integ
+        invite.add(new Invitee("52979", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //anvari integ
 //        invite.add(new Invitee("120856", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //nemati integ
 //        invite.add(new Invitee("63269", InviteType.Constants.TO_BE_USER_CONTACT_ID)); //pahlevani integ
 //        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
