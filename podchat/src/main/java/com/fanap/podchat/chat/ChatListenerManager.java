@@ -841,6 +841,39 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnAssistantBlocked(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantBlocked(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAssistantUnBlocked(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantUnBlocked(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAssistantBlocks(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantBlocks(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
     public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
 
         for (ChatListener listener : getSynchronizedListeners()) {

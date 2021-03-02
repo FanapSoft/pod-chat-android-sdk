@@ -233,6 +233,9 @@ public class ChatMessageType {
         int REGISTER_ASSISTANT = 107;
         int DEACTICVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
+        int BLOCK_ASSISTANT = 116;
+        int UNBLOCK_ASSISTANT = 117;
+        int GET_BLOCKED_ASSISTANTS = 118;
         int GET_ASSISTANT_HISTORY = 115;
 
     }

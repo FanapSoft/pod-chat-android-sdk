@@ -18,6 +18,8 @@ public class CacheAssistantVo {
 
     private long participantVOId;
 
+    private boolean block;
+
     public long getInviteeId() {
         return inviteeId;
     }
@@ -48,5 +50,13 @@ public class CacheAssistantVo {
 
     public void setParticipantVOId(long participantVOId) {
         this.participantVOId = participantVOId;
+    }
+
+    public boolean isBlock() {
+        return block;
+    }
+
+    public void setBlock(boolean block) {
+        this.block = block;
     }
 }

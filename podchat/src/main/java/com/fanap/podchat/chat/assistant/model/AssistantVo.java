@@ -15,6 +15,8 @@ public class AssistantVo {
     private ArrayList<String> roles;
     @SerializedName("contactType")
     String contactType;
+    @SerializedName("block")
+    boolean block;
 
     @SerializedName("participantVO")
     Participant participantVO;
@@ -45,6 +47,14 @@ public class AssistantVo {
     public AssistantVo setParticipantVO(Participant participantVO) {
         this.participantVO = participantVO;
         return this;
+    }
+
+    public boolean getBlock() {
+        return block;
+    }
+
+    public void setBlock(boolean block) {
+        this.block = block;
     }
 
     public Participant getParticipantVO() {

@@ -360,4 +360,7 @@ public interface ChatListener {
     default void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response){}
     default void onGetAssistants(ChatResponse<List<AssistantVo>> response){}
     default void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response){}
+    default void onAssistantBlocked(ChatResponse<List<AssistantVo>> response){}
+    default void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response){}
+    default void onAssistantBlocks(ChatResponse<List<AssistantVo>> response){}
 }

@@ -457,9 +457,5 @@ public class ChatDataSource {
         return false;
     }
 
-    public void insertAssistantVo(AssistantVo assistantVo) {
-        cacheDataSource.insertCacheAssistantVo(assistantVo);
-
-    }
 
 }
