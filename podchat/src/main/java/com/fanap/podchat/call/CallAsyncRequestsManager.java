@@ -2,10 +2,13 @@ package com.fanap.podchat.call;
 
 import android.util.Log;
 
+import com.fanap.podchat.call.constants.CallType;
+import com.fanap.podchat.call.constants.ClientType;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.model.CreateCallVO;
+import com.fanap.podchat.call.model.SendClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
@@ -97,7 +100,14 @@ public class CallAsyncRequestsManager {
 
         createCallVO.setType(request.getCallType());
 
+        SendClientDTO sendClientDTO = new SendClientDTO();
+        sendClientDTO.setVideo(request.getCallType() == CallType.Constants.VIDEO_CALL);
+        sendClientDTO.setMute(false);
+        sendClientDTO.setClientType(ClientType.Constants.ANDROID);
+
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
+        JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
+        contentObj.add("creatorClientDto",clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -157,7 +167,14 @@ public class CallAsyncRequestsManager {
 
         createCallVO.setType(request.getCallType());
 
+        SendClientDTO sendClientDTO = new SendClientDTO();
+        sendClientDTO.setVideo(request.getCallType() == CallType.Constants.VIDEO_CALL);
+        sendClientDTO.setMute(false);
+        sendClientDTO.setClientType(ClientType.Constants.ANDROID);
+
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
+        JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
+        contentObj.add("creatorClientDto",clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -285,7 +302,17 @@ public class CallAsyncRequestsManager {
         message.setSubjectId(request.getCallId());
         message.setUniqueId(uniqueId);
 
+
+        SendClientDTO sendClientDTO = new SendClientDTO();
+        sendClientDTO.setVideo(request.isVideoCall());
+        sendClientDTO.setMute(request.isMute());
+        sendClientDTO.setClientType(ClientType.Constants.ANDROID);
+        JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
+
         JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+
+        a.add("creatorClientDto",clientDtoObj);
+
         return a.toString();
     }
 

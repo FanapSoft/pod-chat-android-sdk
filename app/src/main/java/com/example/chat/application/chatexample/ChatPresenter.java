@@ -18,7 +18,7 @@ import com.fanap.podcall.model.VideoCallParam;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
-import com.fanap.podchat.call.CallType;
+import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
@@ -320,7 +320,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void resumeVideo() {
-        chat.turnOnVideo();
+        chat.turnOnVideo(callVO.getCallId());
     }
 
 
@@ -584,7 +584,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         if (entry.startsWith("09")) {
             tokenHandler.handshake(entry);
-        } else {
+        } else if(entry.trim().startsWith("*")) {
+            view.onGetToken(entry.replace("*",""));
+        }else {
             tokenHandler.verifyNumber(entry);
         }
 
