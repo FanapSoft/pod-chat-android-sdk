@@ -379,6 +379,14 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    public void startRecording() {
+
+    }
+
+    public void stopRecordingAndSend() {
+
+    }
+
     @Override
     public void onGetSentryLogs(String logs) {
         Toast.makeText(this, logs, Toast.LENGTH_SHORT).show();
