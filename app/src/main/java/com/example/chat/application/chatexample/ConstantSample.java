@@ -37,10 +37,12 @@ public class ConstantSample {
             "deactive Assistant",
             "get Assistants",
             "get Assistants History",
-            "get Assistants",
             "Convert Public Thread To Private",
             "Convert Private Thread To Public",
             "Get Hash Tag List",
+            "Block Assistant",
+            "UnBlock Assistant",
+            "Get Blocks Assistant"
     };
 
     public static final String[] funcSecond = {
@@ -66,7 +68,8 @@ public class ConstantSample {
             "Create Bot",
             "Define Bot Command",
             "Start Bot",
-            "Start Bot"
+            "Start Bot",
+            "Get User Bots"
     };
 
     public static final String[] funcThird = {

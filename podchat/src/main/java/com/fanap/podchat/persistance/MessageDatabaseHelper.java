@@ -4238,10 +4238,11 @@ public class MessageDatabaseHelper {
         return messageDao.getImageCachesByHash(hashCode);
     }
 
-    public void insertCacheAssistantVo(AssistantVo assistantVo) {
+    private void insertCacheAssistantVo(AssistantVo assistantVo) {
 
         CacheAssistantVo cacheFile = new CacheAssistantVo();
         cacheFile.setRoles(assistantVo.getRoles());
+        cacheFile.setBlock(assistantVo.getBlock());
 
         if (assistantVo.getParticipantVO() != null) {
             Participant participant = assistantVo.getParticipantVO();
@@ -4256,6 +4257,24 @@ public class MessageDatabaseHelper {
         messageDao.insertCacheAssistantVo(cacheFile);
     }
 
+    public void insertAssistantVo(List<AssistantVo> assistantVos) {
+        worker(() -> {
+            for (AssistantVo item : assistantVos) {
+                insertCacheAssistantVo(item);
+            }
+        });
+
+    }
+
+    public void deleteCacheAssistantVos(List<AssistantVo> assistantVos) {
+        worker(() -> {
+            for (AssistantVo item :  assistantVos) {
+                messageDao.deleteCacheAssistantVo(item.getParticipantVO().getId());
+            }
+        });
+
+    }
+
     public void getCacheAssistantVos(GetAssistantRequest request, FunctionalListener callback) throws RoomIntegrityException {
 
         if (!canUseDatabase()) throw new RoomIntegrityException();
@@ -4267,6 +4286,7 @@ public class MessageDatabaseHelper {
             for (CacheAssistantVo item : list) {
                 AssistantVo assistantVo = new AssistantVo();
                 assistantVo.setRoles((ArrayList<String>) item.getRoles());
+                assistantVo.setBlock(item.isBlock());
                 assistantVo.setContactType(item.getContactType());
                 Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
                 assistantVo.setParticipantVO(participant);
@@ -4310,7 +4330,7 @@ public class MessageDatabaseHelper {
             for (AssistantVo assistantVo : response) {
                 CacheAssistantVo cacheFile = new CacheAssistantVo();
                    cacheFile.setRoles(assistantVo.getRoles());
-
+                    cacheFile.setBlock(assistantVo.getBlock());
                 if (assistantVo.getParticipantVO() != null) {
                     Participant participant = assistantVo.getParticipantVO();
                     String participantJson = App.getGson().toJson(participant);
@@ -4331,6 +4351,7 @@ public class MessageDatabaseHelper {
 
 
     }
+
 
     public void updateCashAssistantHistory(OnWorkDone listener, List<AssistantHistoryVo> response) {
         worker(() -> {
@@ -4359,7 +4380,5 @@ public class MessageDatabaseHelper {
 
     }
 
-    public void deleteCacheAssistantVo(long id) {
-        messageDao.deleteCacheAssistantVo(id);
-    }
+
 }

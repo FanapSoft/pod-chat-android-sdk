@@ -35,12 +35,15 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -1400,6 +1403,10 @@ public class ChatActivity extends AppCompatActivity
                         stopBot();
                         break;
                     }
+                    case 23: {
+                        getUserBots();
+                        break;
+                    }
                 }
             }
 
@@ -1583,6 +1590,14 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    private void getUserBots() {
+
+        GetUserBotsRequest request = new GetUserBotsRequest.Builder().build();
+
+        presenter.getUserBots(request);
+
+    }
+
 
     private void startBot() {
 
@@ -1609,7 +1624,7 @@ public class ChatActivity extends AppCompatActivity
 
     private void createBot() {
 
-        CreateBotRequest request = new CreateBotRequest.Builder("TEST2BOT")
+        CreateBotRequest request = new CreateBotRequest.Builder("TEST123BOT")
                 .build();
 
         presenter.createBot(request);
@@ -1996,22 +2011,31 @@ public class ChatActivity extends AppCompatActivity
 
 
             case 32: {
-
                 changePublicThreadToPrivate();
-
                 break;
             }
 
             case 33: {
-
                 changePrivateThreadToPublic();
-
                 break;
             }
             case 34: {
-
                 getHashTagHistory();
+                break;
+            }
 
+            case 35: {
+                blockAssistant();
+                break;
+            }
+
+            case 36: {
+                unBlockAssistant();
+                break;
+            }
+
+            case 37: {
+                getBlocksAssistant();
                 break;
             }
 
@@ -2085,7 +2109,7 @@ public class ChatActivity extends AppCompatActivity
 
         //103187 nemati sandbox
 //        52987 sajadi 9063 sandbox
-       Invitee invite = new Invitee("63265", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+       Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
         //roles
         ArrayList<String> typeRoles = new ArrayList<>();
@@ -2111,7 +2135,7 @@ public class ChatActivity extends AppCompatActivity
 
         //invite
 //        Invitee invite = new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID);
-        Invitee invite = new Invitee("63265", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
 
         List<AssistantVo> assistantVos = new ArrayList<>();
@@ -2550,6 +2574,34 @@ public class ChatActivity extends AppCompatActivity
                 .build();
         presenter.getHashTagList(request, null);
     }
+
+    public void blockAssistant() {
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVos.add(assistantVo);
+
+        BlockUnblockAssistantRequest request = new BlockUnblockAssistantRequest.Builder(assistantVos, false).build();
+        presenter.blockAssistant(request);
+    }
+
+    public void unBlockAssistant() {
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVos.add(assistantVo);
+
+        BlockUnblockAssistantRequest request = new BlockUnblockAssistantRequest.Builder(assistantVos, true).build();
+        presenter.unBlockAssistant(request);
+    }
+
+    public void getBlocksAssistant() {
+        GetBlockedAssistantsRequest request = new GetBlockedAssistantsRequest.Builder().build();
+        presenter.getBlocksAssistant(request);
+    }
+
     public void getThreads() {
 
         ArrayList<Integer> threadIds = new ArrayList<>();

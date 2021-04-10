@@ -187,6 +187,7 @@ public class ChatMessageType {
         int DEFINE_BOT_COMMAND = 63;
         int START_BOT = 64;
         int STOP_BOT = 65;
+        int GET_USER_BOTS = 120;
 
 
         int CALL_REQUEST = 70;
@@ -232,6 +233,9 @@ public class ChatMessageType {
         int REGISTER_ASSISTANT = 107;
         int DEACTICVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
+        int BLOCK_ASSISTANT = 116;
+        int UNBLOCK_ASSISTANT = 117;
+        int GET_BLOCKED_ASSISTANTS = 118;
         int GET_ASSISTANT_HISTORY = 115;
 
     }

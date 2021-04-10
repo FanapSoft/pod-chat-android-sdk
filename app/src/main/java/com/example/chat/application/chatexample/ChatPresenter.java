@@ -43,12 +43,15 @@ import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -487,17 +490,24 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void getUserBots(GetUserBotsRequest request) {
+       chat.getUserBots(request);
+    }
+
+    @Override
     public void onBotCreated(ChatResponse<CreateBotResult> response) {
         view.onBotCreated(response);
     }
 
     @Override
     public void onRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
         Log.e(TAG, "onRegisterAssistant: " + response.getJson());
     }
 
     @Override
     public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
         Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
     }
 
@@ -511,6 +521,24 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response) {
         String json = response.getJson();
         Log.e(TAG, "onGetAssistants: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantBlocked(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantBlocked: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantUnBlocked: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantBlocks(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantBlocks: " + response.getJson());
     }
 
     @Override
@@ -2088,6 +2116,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getAssistantHistory(GetAssistantHistoryRequest request) {
         chat.getAssistantHistory(request);
+    }
+
+    @Override
+    public void blockAssistant(BlockUnblockAssistantRequest o) {
+        chat.blockAssistant(o);
+    }
+
+    @Override
+    public void unBlockAssistant(BlockUnblockAssistantRequest o) {
+        chat.unBlockAssistant(o);
+    }
+
+    @Override
+    public void getBlocksAssistant(GetBlockedAssistantsRequest o) {
+        chat.getBlocksAssistant(o);
     }
 
     @Override

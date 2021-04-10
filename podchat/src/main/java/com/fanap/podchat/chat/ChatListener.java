@@ -9,6 +9,7 @@ import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.GetUserBotsResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
@@ -299,6 +300,7 @@ public interface ChatListener {
     default void onBotStopped(ChatResponse<StartStopBotResult> response){}
 
     default void onBotStarted(ChatResponse<StartStopBotResult> response){}
+    default void onUserBots(ChatResponse<GetUserBotsResult> response){}
 
     default void onContactsSynced(ChatResponse<ContactSyncedResult> response){}
 
@@ -358,4 +360,7 @@ public interface ChatListener {
     default void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response){}
     default void onGetAssistants(ChatResponse<List<AssistantVo>> response){}
     default void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response){}
+    default void onAssistantBlocked(ChatResponse<List<AssistantVo>> response){}
+    default void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response){}
+    default void onAssistantBlocks(ChatResponse<List<AssistantVo>> response){}
 }

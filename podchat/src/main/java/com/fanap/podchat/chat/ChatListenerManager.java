@@ -20,6 +20,7 @@ import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.GetUserBotsResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
@@ -840,6 +841,39 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnAssistantBlocked(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantBlocked(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAssistantUnBlocked(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantUnBlocked(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAssistantBlocks(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantBlocks(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
     public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
 
         for (ChatListener listener : getSynchronizedListeners()) {
@@ -972,6 +1006,18 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onBotStarted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+    public void callOnUserBots(ChatResponse<GetUserBotsResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUserBots(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

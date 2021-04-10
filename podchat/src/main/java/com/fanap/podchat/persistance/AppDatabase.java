@@ -63,7 +63,7 @@ import com.fanap.podchat.util.DataTypeConverter;
         CallHistoryVO.class,
         CacheAssistantVo.class,
         CacheAssistantHistoryVo.class,
-}, version = 4, exportSchema = false)
+}, version = 5, exportSchema = false)
 @TypeConverters({DataTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 

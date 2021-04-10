@@ -4,9 +4,11 @@ import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -83,7 +85,64 @@ public class AssistantManager {
 
         return App.getGson().toJson(message);
     }
+    public static String createUnBlockAssistantRequest(BlockUnblockAssistantRequest request,
+                                                       String uniqueId) {
+        String content = App.getGson().toJson(request.getAssistantVos());
 
+        AsyncMessage message = new ChatMessage();
+
+
+        message.setType(ChatMessageType.Constants.UNBLOCK_ASSISTANT);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setContent(content);
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+    }
+
+    public static String createBlockAssistantsRequest(BlockUnblockAssistantRequest request,
+                                                      String uniqueId) {
+        String content = App.getGson().toJson(request.getAssistantVos());
+
+        AsyncMessage message = new ChatMessage();
+
+
+        message.setType(ChatMessageType.Constants.BLOCK_ASSISTANT);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setContent(content);
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+    }
+
+    public static String createGetBlockedAssistantsRequest(GetBlockedAssistantsRequest request,
+                                                           String uniqueId) {
+        JsonObject content = new JsonObject();
+        content.addProperty("contactType", request.getTypeCode());
+        if ((Long)request.getOffset() != null) {
+            content.addProperty("offset", request.getOffset());
+        }
+        if ((Long)request.getCount() != null) {
+            content.addProperty("count", request.getCount());
+        } else {
+            content.addProperty("count", 50);
+
+        }
+        AsyncMessage message = new ChatMessage();
+
+        message.setType(ChatMessageType.Constants.GET_BLOCKED_ASSISTANTS);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setContent(App.getGson().toJson(content));
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+    }
     public static String createGetAssistantHistoryRequest(GetAssistantHistoryRequest request,
                                                           String uniqueId) {
         JsonObject content = new JsonObject();

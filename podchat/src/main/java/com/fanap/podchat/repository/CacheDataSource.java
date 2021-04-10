@@ -336,8 +336,4 @@ public class CacheDataSource {
 
     }
 
-    public void insertCacheAssistantVo(AssistantVo assistantVo){
-        databaseHelper.insertCacheAssistantVo(assistantVo);
-    }
-
 }

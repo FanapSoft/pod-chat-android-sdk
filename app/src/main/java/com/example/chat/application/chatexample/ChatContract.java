@@ -13,12 +13,15 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
@@ -549,6 +552,7 @@ public interface ChatContract {
         void startBot(StartAndStopBotRequest request);
 
         void stopBot(StartAndStopBotRequest request);
+        void getUserBots(GetUserBotsRequest request);
 
 
         void testCall(String groupId, String sender, String receiver);
@@ -586,7 +590,10 @@ public interface ChatContract {
         void registerAssistant(RegisterAssistantRequest request);
         void getAssistants(GetAssistantRequest request);
         void deActiveAssistant(DeActiveAssistantRequest request);
-        void getAssistantHistory(GetAssistantHistoryRequest o);
+        void getAssistantHistory(GetAssistantHistoryRequest request);
+        void blockAssistant(BlockUnblockAssistantRequest request);
+        void unBlockAssistant(BlockUnblockAssistantRequest request);
+        void getBlocksAssistant(GetBlockedAssistantsRequest request);
 
         void changeThreadType(ChangeThreadTypeRequest request);
 
