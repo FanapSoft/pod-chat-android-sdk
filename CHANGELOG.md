@@ -5,7 +5,7 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## Version [0.9.8.0] -
+## Version [0.9.8.0] - -2020-4-10
 
 [Added] ```getUserBots``` method
 
@@ -22,6 +22,7 @@ All notable changes to this project will be documented here.
 [Added] ```getBlocksAssistant``` method
 
 [Added] ```onAssistantBlocks``` callback
+
 
 ## Version [0.9.7.0] -2020-2-24
 
