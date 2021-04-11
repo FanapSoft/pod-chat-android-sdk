@@ -25,6 +25,7 @@ import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
@@ -81,6 +82,7 @@ import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
@@ -546,6 +548,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onBotCommandsDefined(response);
     }
 
+    @Override
+    public void onCallRecordEnded(ChatResponse<Participant> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onCallRecordEnded: " + response.getJson());
+    }
+
+    @Override
+    public void onCallRecordStarted(ChatResponse<Participant> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onCallRecordEnded: " + response.getJson());
+    }
 
     @Override
     public void onBotStopped(ChatResponse<StartStopBotResult> response) {
@@ -1664,6 +1677,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+
     @Override
     public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
         super.onSearchContact(content, chatResponse);
@@ -2136,6 +2150,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void changeThreadType(ChangeThreadTypeRequest request) {
         chat.changeThreadType(request);
+    }
+
+    @Override
+    public void startCallRecord(StartOrEndCallRecordRequest request) {
+        chat.startCallRecord(request);
+    }
+
+    @Override
+    public void stopCallRecord(StartOrEndCallRecordRequest request) {
+        chat.endCallRecord(request);
     }
 
     @Override

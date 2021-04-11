@@ -9,6 +9,7 @@ import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
@@ -596,6 +597,8 @@ public interface ChatContract {
         void getBlocksAssistant(GetBlockedAssistantsRequest request);
 
         void changeThreadType(ChangeThreadTypeRequest request);
+        void startCallRecord(StartOrEndCallRecordRequest request);
+        void stopCallRecord(StartOrEndCallRecordRequest request);
 
     }
 }

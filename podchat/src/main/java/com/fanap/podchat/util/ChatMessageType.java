@@ -200,6 +200,8 @@ public class ChatMessageType {
         int GET_CALLS = 77;
         int CALL_RECONNECT = 78;
         int CALL_CONNECT = 79;
+        int START_RECORDE_CALL = 121;
+        int END_RECORDE_CALL = 122;
 
 
         int GROUP_CALL_REQUEST = 91;

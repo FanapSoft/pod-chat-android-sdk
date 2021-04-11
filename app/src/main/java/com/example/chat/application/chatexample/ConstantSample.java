@@ -42,7 +42,9 @@ public class ConstantSample {
             "Get Hash Tag List",
             "Block Assistant",
             "UnBlock Assistant",
-            "Get Blocks Assistant"
+            "Get Blocks Assistant",
+            "Start Call Recording",
+            "Stop Call Recording"
     };
 
     public static final String[] funcSecond = {

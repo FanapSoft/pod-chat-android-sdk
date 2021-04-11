@@ -31,6 +31,7 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
@@ -2038,6 +2039,14 @@ public class ChatActivity extends AppCompatActivity
                 getBlocksAssistant();
                 break;
             }
+            case 38: {
+                startCallRecording();
+                break;
+            }
+            case 39: {
+                stopCallRecording();
+                break;
+            }
 
         }
     }
@@ -2164,6 +2173,18 @@ public class ChatActivity extends AppCompatActivity
     private void changePublicThreadToPrivate() {
         ChangeThreadTypeRequest request = new ChangeThreadTypeRequest.Builder(8093, 1).build();
         presenter.changeThreadType(request);
+
+    }
+
+    private void startCallRecording() {
+        StartOrEndCallRecordRequest request = new StartOrEndCallRecordRequest.Builder(8093).build();
+        presenter.startCallRecord(request);
+
+    }
+
+    private void stopCallRecording() {
+        StartOrEndCallRecordRequest request = new StartOrEndCallRecordRequest.Builder(8093).build();
+        presenter.stopCallRecord(request);
 
     }
 

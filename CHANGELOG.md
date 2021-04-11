@@ -5,6 +5,16 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.8.1] - -2020-4-؟؟؟
+
+[Added] ```startCallRecord``` method
+
+[Added] ```onCallRecordStarted``` callback
+
+[Added] ```endCallRecord``` method
+
+[Added] ```onCallRecordEnded``` callback
+
 ## Version [0.9.8.0] - -2020-4-10
 
 [Added] ```getUserBots``` method
