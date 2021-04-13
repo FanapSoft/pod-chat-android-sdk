@@ -5,7 +5,7 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## Version [0.9.8.0] - -2020-4-10
+## Version [0.9.8.0] -2021-4-10
 
 [Added] ```getUserBots``` method
 
@@ -24,7 +24,7 @@ All notable changes to this project will be documented here.
 [Added] ```onAssistantBlocks``` callback
 
 
-## Version [0.9.7.0] -2020-2-24
+## Version [0.9.7.0] -2021-2-24
 
 [Added] ```getAssistantHistory``` method
 
@@ -44,7 +44,7 @@ All notable changes to this project will be documented here.
 
 
 
-## Version [0.9.6.0] -2020-1-26
+## Version [0.9.6.0] -2021-1-26
 
 [Deprecated] removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler)
 

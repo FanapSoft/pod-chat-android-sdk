@@ -2847,13 +2847,13 @@ public class ChatActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-//        presenter.onStop();
+        presenter.onStop();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        presenter.onResume();
+        presenter.onResume();
     }
 
     @Override
@@ -3085,4 +3085,5 @@ public class ChatActivity extends AppCompatActivity
     public void onChatProfileUpdated(ResultUpdateProfile result) {
         showToast("Profile Updated: " + result.getBio());
     }
+
 }

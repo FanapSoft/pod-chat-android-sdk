@@ -6,7 +6,7 @@ apply plugin: 'com.google.gms.google-services'
 
 ext {
 
-    libraryVersion = '0.9.8.0-beta'
+    libraryVersion = '0.9.7.1'
 }
 
 android {
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 157
+        versionCode 158
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -61,7 +61,7 @@ ext {
 
     libraryName = 'Fanap PodChat Android SDK'
 
-    publishedGroupId = 'com.fanap.chat'
+    publishedGroupId = 'com.github.FanapSoft'
     artifact = 'podchat'
 
     libraryDescription = 'Fanaps POD Chat service (DIRANA)'
