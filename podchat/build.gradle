@@ -3,6 +3,7 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
+group = 'com.github.FanapSoft'
 
 ext {
 
@@ -47,7 +48,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    buildToolsVersion '28.0.3'
     externalNativeBuild {
         ndkBuild {
             path file('src/main/jni/Android.mk')
@@ -55,26 +55,7 @@ android {
     }
 }
 
-ext {
-    bintrayRepo = "maven"
-    bintrayName = "chat"
 
-    libraryName = 'Fanap PodChat Android SDK'
-
-    publishedGroupId = 'com.github.FanapSoft'
-    artifact = 'podchat'
-
-    libraryDescription = 'Fanaps POD Chat service (DIRANA)'
-    gitUrl = 'https://github.com/Farhad7d7/Pod-Chat-Android-SDK.git'
-    siteUrl = 'https://github.com/Farhad7d7/Pod-Chat-Android-SDK'
-    developerId = 'farhad7d7'
-    developerName = 'Farhad Kheirkhah'
-    developerEmail = 'farhadkheirkhah7@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
 
 //configurations.embed.transitive = true
 
@@ -141,178 +122,6 @@ dependencies {
 
 }
 
-group = publishedGroupId
-
-version = libraryVersion
-//
-//configurations.maybeCreate("default")
-//artifacts.add("default", file('kafkaclient.aar'))
 
 
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            packaging 'aar'
-            groupId publishedGroupId
-            artifactId artifact
 
-            name libraryName
-            description libraryDescription
-            url siteUrl
-
-            licenses {
-                license {
-                    name licenseName
-                    url licenseUrl
-                }
-            }
-            developers {
-                developer {
-                    id developerId
-                    name developerName
-                    email developerEmail
-                }
-            }
-            scm {
-                connection gitUrl
-                developerConnection gitUrl
-                url siteUrl
-            }
-
-            println("end of setting")
-
-        }
-        pom.whenConfigured { pom ->
-            println("######### when config $pom")
-
-        }
-    }
-}
-
-
-afterEvaluate { project ->
-    println(">>>after eval $project")
-
-    uploadArchives {
-        println(">>>upload archives")
-
-        repositories {
-            println(">>>repo")
-
-            mavenDeployer {
-
-                repository(url: "file://${buildDir}/outputs/maven")
-
-
-                println(">>>maven deployer")
-
-
-                pom.groupId = group
-                pom.artifactId = artifact
-                pom.version = libraryVersion
-                pom.project {
-
-                    println(">>>pom project")
-
-                    packaging 'aar'
-                    groupId publishedGroupId
-                    artifactId artifact
-
-                    name libraryName
-                    description libraryDescription
-                    url siteUrl
-
-                    licenses {
-                        license {
-                            name licenseName
-                            url licenseUrl
-                        }
-                    }
-                    developers {
-                        developer {
-                            id developerId
-                            name developerName
-                            email developerEmail
-                        }
-                    }
-                    scm {
-                        connection gitUrl
-                        developerConnection gitUrl
-                        url siteUrl
-                    }
-                }
-
-                println(">>>>end of pom")
-
-
-                pom.whenConfigured { pom ->
-                    println(">>>>when configuered")
-                }
-            }
-        }
-    }
-
-
-    task publishIt {
-
-        doFirst {
-            println 'start publishing'
-        }
-        doLast {
-            println 'Published successfully!'
-        }
-        dependsOn 'clean'
-        dependsOn 'install'
-        dependsOn 'bintrayUpload'
-        tasks.findByName('install').mustRunAfter('clean')
-        tasks.findByName('bintrayUpload').mustRunAfter('install')
-
-
-    }
-
-
-    task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.srcDirs
-    }
-
-    task javadoc(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    }
-
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    artifacts {
-        archives javadocJar
-        archives sourcesJar
-    }
-
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-    bintray {
-        user = properties.getProperty("bintray.user")
-        key = properties.getProperty("bintray.apikey")
-
-        configurations = ['archives']
-        pkg {
-            repo = bintrayRepo
-            name = bintrayName
-            desc = libraryDescription
-            websiteUrl = siteUrl
-            vcsUrl = gitUrl
-            licenses = allLicenses
-            dryRun = false
-            publish = true
-            override = true
-            publicDownloadNumbers = true
-            version {
-                desc = libraryDescription
-            }
-        }
-    }
-}
