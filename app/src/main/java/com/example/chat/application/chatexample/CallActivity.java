@@ -900,6 +900,12 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onGetToken(String token) {
 
+        connectToSandbox(token);
+
+    }
+
+    private void connectToSandbox(String token) {
+
         RequestConnect request = new RequestConnect.Builder(
                 sandBoxSocketAddress,
                 appId,
@@ -912,7 +918,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         ).build();
 
         presenter.connect(request);
-
     }
 
 

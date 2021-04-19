@@ -1,4 +1,4 @@
-package com.fanap.podchat.call;
+package com.fanap.podchat.call.constants;
 
 import android.support.annotation.IntDef;
 
