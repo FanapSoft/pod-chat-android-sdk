@@ -13,8 +13,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.chat.application.chatexample.token.TokenHandler;
-import com.fanap.podcall.codec.video.VideoCodecType;
 import com.fanap.podcall.model.VideoCallParam;
+import com.fanap.podcall.video.codec.VideoCodecType;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
