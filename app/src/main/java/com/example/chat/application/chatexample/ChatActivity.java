@@ -167,17 +167,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 //
-//    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -195,10 +195,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 ////
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -232,10 +232,10 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 //
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 //
 
     //sand box / group
