@@ -315,12 +315,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void pauseVideo() {
-        chat.turnOffVideo(callVO!=null?callVO.getCallId():0);
+        chat.turnOffVideo(callVO != null ? callVO.getCallId() : 0);
     }
 
     @Override
     public void resumeVideo() {
-        chat.turnOnVideo(callVO.getCallId());
+        chat.turnOnVideo(callVO != null ? callVO.getCallId() : 0);
     }
 
 
@@ -584,9 +584,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         if (entry.startsWith("09")) {
             tokenHandler.handshake(entry);
-        } else if(entry.trim().startsWith("*")) {
-            view.onGetToken(entry.replace("*",""));
-        }else {
+        } else if (entry.trim().startsWith("*")) {
+            view.onGetToken(entry.replace("*", ""));
+        } else {
             tokenHandler.verifyNumber(entry);
         }
 
@@ -1587,7 +1587,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //            usernames.add("09124704905");
 
             chat.getContacts(new RequestGetContact.Builder()
-                    .count(10).offset(0).build(), null);
+                    .count(50).offset(0).build(), null);
 //            for (int i = 0; i < usernames.size(); i++) {
 //
 //
