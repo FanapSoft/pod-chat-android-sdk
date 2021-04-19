@@ -3,7 +3,6 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
-group = 'com.github.FanapSoft'
 
 ext {
 
@@ -124,4 +123,4 @@ dependencies {
 
 
 
-
+apply from: file('publish.gradle')
