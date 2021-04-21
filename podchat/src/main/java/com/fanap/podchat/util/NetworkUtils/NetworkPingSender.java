@@ -391,19 +391,23 @@ public class NetworkPingSender {
     public static class NetworkStateConfig {
 
 
-        private String hostName;
+        private String hostName = "msg.pod.ir";
 
-        private Integer port;
+        private Integer port = 443;
 
-        private Integer interval;
+        private Integer interval = 7000;
 
-        private Integer disConnectionThreshold;
+        private Integer disConnectionThreshold = 2;
 
-        private Integer connectTimeout;
+        private Integer connectTimeout = 10000;
 
 
         public NetworkStateConfig() {
 
+        }
+
+        public static NetworkStateConfig getDefault() {
+            return new NetworkStateConfig();
         }
 
         public NetworkStateConfig setHostName(String hostName) {

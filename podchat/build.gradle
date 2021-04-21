@@ -4,18 +4,16 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
-ext {
-
-    libraryVersion = '0.9.7.1'
+ext{
+    libraryVersion = '0.9.7.5-BETA'
 }
-
 android {
 
     compileSdkVersion 29
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 158
+        versionCode 161
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -53,7 +51,6 @@ android {
         }
     }
 }
-
 
 
 //configurations.embed.transitive = true
@@ -99,6 +96,7 @@ dependencies {
 
     //Sentry, Store logs
     implementation 'io.sentry:sentry-android:2.0.3'
+//    implementation 'io.sentry:sentry-android:4.3.0'
 //    implementation 'org.slf4j:slf4j-nop:1.7.25'
     //notification
     implementation 'com.google.firebase:firebase-analytics:16.0.0'
@@ -122,5 +120,5 @@ dependencies {
 }
 
 
-
 apply from: file('publish.gradle')
+apply from: file('jcenter_publish.gradle')

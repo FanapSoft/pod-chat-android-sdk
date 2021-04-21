@@ -445,6 +445,7 @@ public class Chat extends AsyncAdapter {
 
     private static PodCallAudioCallServiceManager audioCallManager;
     private boolean requestToClose;
+    private Handler connectHandler;
 
 
     /**
@@ -553,8 +554,6 @@ public class Chat extends AsyncAdapter {
                         return event;
                     });
                 });
-
-
     }
 
 
@@ -643,6 +642,9 @@ public class Chat extends AsyncAdapter {
                 if (chatReady) {
                     showLog(info, message);
                     async.sendMessage(message, AsyncAckType.Constants.WITHOUT_ACK);
+                    if (Sentry.isEnabled()) {
+                        Sentry.captureMessage("FCM : " + info + " ********* " + message);
+                    }
                 }
 
             }
@@ -759,6 +761,10 @@ public class Chat extends AsyncAdapter {
 
                 }
             });
+
+            if (networkStateConfig == null) {
+                networkStateConfig = NetworkPingSender.NetworkStateConfig.getDefault();
+            }
 
             networkStateReceiver.setHostName(networkStateConfig.getHostName());
 
@@ -905,9 +911,11 @@ public class Chat extends AsyncAdapter {
 
     private void scheduleForReconnect() {
 
+        resetConnectHandler();
+
         resetReconnectRetryTime();
 
-        Handler connectHandler = new Handler(Looper.getMainLooper());
+        connectHandler = new Handler(Looper.getMainLooper());
 
         connectHandler.postDelayed(new Runnable() {
             @Override
@@ -915,6 +923,7 @@ public class Chat extends AsyncAdapter {
 
 
                 if (requestToClose) return;
+                if(isChatReady()) return;
 
                 if (connectNumberOfRetry < maxReconnectStepTime) {
                     connectNumberOfRetry = connectNumberOfRetry * 2;
@@ -1747,7 +1756,7 @@ public class Chat extends AsyncAdapter {
         }
 
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
-        if (cache&&!response.getResult().isEmpty()) {
+        if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
             Log.e(TAG, "handleOnRegisterAssistant: ");
         }
@@ -1765,7 +1774,7 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
 
-        if (cache&&!response.getResult().isEmpty()) {
+        if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.deleteCacheAssistantVos(response.getResult());
             Log.e(TAG, "handleOnDeActiveAssistant:");
         }
@@ -1784,7 +1793,7 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
 
-        if (cache&&!response.getResult().isEmpty()) {
+        if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.updateCashAssistant(new OnWorkDone() {
                 @Override
                 public void onWorkDone(@Nullable Object o) {
@@ -1809,7 +1818,7 @@ public class Chat extends AsyncAdapter {
         ChatResponse<List<AssistantHistoryVo>> response = AssistantManager.handleAssitantHistoryResponse(chatMessage);
 
 
-        if (cache&&!response.getResult().isEmpty()) {
+        if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.updateCashAssistantHistory(new OnWorkDone() {
                 @Override
                 public void onWorkDone(@Nullable Object o) {
@@ -1832,7 +1841,7 @@ public class Chat extends AsyncAdapter {
         }
 
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
-        if (cache&&!response.getResult().isEmpty()) {
+        if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
             Log.e(TAG, "handleOnAssistantBlocked: ");
         }
@@ -1849,7 +1858,7 @@ public class Chat extends AsyncAdapter {
         }
 
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
-        if (cache&&!response.getResult().isEmpty()) {
+        if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
             Log.e(TAG, "handleOnAssistantUnBlocked: ");
         }
@@ -1867,7 +1876,7 @@ public class Chat extends AsyncAdapter {
         }
 
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
-        if (cache&&!response.getResult().isEmpty()) {
+        if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
             Log.e(TAG, "handleOnAssistantsBlocks: ");
         }
@@ -2412,9 +2421,7 @@ public class Chat extends AsyncAdapter {
 
             }
         } catch (Throwable throwable) {
-            if (log) {
-                showLog("CONNECTION_ERROR", throwable.getMessage());
-            }
+            captureError(new PodChatException("Connect method error: " + throwable.getMessage(), ChatConstant.ERROR_CODE_INVALID_PARAMETER));
         }
     }
 
@@ -3038,7 +3045,7 @@ public class Chat extends AsyncAdapter {
                     try {
                         getAssistantFromCache(request, uniqueId);
                     } catch (RoomIntegrityException ignored) {
-                        Log.e(TAG, "getAssistants: " );
+                        Log.e(TAG, "getAssistants: ");
                     }
                 });
             }
@@ -3325,9 +3332,7 @@ public class Chat extends AsyncAdapter {
 
     /**
      * @param request request to get bot list of user
-     *
-     *
-     *            */
+     */
 
     public String getUserBots(GetUserBotsRequest request) {
 
@@ -3383,6 +3388,7 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
 
     }
+
     /**
      * @param request request to get mentioned message of user
      *                -unreadMentioned
@@ -11444,6 +11450,7 @@ public class Chat extends AsyncAdapter {
 
             showLog("** CLIENT_AUTHENTICATED_NOW", "");
             pingWithDelay();
+            resetConnectHandler();
             listenerManager.callOnChatState(CHAT_READY);
         }
 
@@ -11456,6 +11463,13 @@ public class Chat extends AsyncAdapter {
                 pinger.onPong(chatMessage);
             }
 
+        }
+    }
+
+    private void resetConnectHandler() {
+        if (connectHandler != null){
+            connectHandler.removeCallbacksAndMessages(null);
+            connectHandler = null;
         }
     }
 
@@ -12456,7 +12470,6 @@ public class Chat extends AsyncAdapter {
     private void setChatReady(String state, boolean encrypt) {
 
         chatReady = true;
-        listenerManager.callOnChatState("CHAT_READY");
         chatState = CHAT_READY;
         checkMessageQueue();
         getAllThreads();
@@ -12464,6 +12477,8 @@ public class Chat extends AsyncAdapter {
         permit = true;
         checkFreeSpace();
         PodNotificationManager.onChatIsReady(context, userId);
+        resetConnectHandler();
+        listenerManager.callOnChatState("CHAT_READY");
 
 
     }
@@ -14552,11 +14567,6 @@ public class Chat extends AsyncAdapter {
                                 chatResponse.setResult(contacts);
                                 chatResponse.setUniqueId(uniqueId);
 
-                                String contactsJson = gson.toJson(chatResponse);
-
-                                listenerManager.callOnSyncContact(contactsJson, chatResponse);
-                                showLog("SYNC_CONTACT_COMPLETED", contactsJson);
-
                                 Runnable updatePhoneContactsDBTask = () -> {
                                     try {
                                         boolean result = phoneContactDbHelper.addPhoneContacts(phoneContacts);
@@ -14585,6 +14595,10 @@ public class Chat extends AsyncAdapter {
                                         .addNewTask(updatePhoneContactsDBTask)
                                         .addNewTask(updateCachedContactsTask)
                                         .runTasksSynced();
+
+                                String contactsJson = gson.toJson(chatResponse);
+                                listenerManager.callOnSyncContact(contactsJson, chatResponse);
+                                showLog("SYNC_CONTACT_COMPLETED", contactsJson);
                             }
                         } else {
 
@@ -14681,7 +14695,7 @@ public class Chat extends AsyncAdapter {
 
                                 showLog("Error add Contacts: " + contactsResponse.body().getMessage());
 
-                                subject.onError(new Throwable());
+                                subject.onError(new Throwable(contactsResponse.body().getMessage()));
 
                             } else {
 
@@ -14730,7 +14744,7 @@ public class Chat extends AsyncAdapter {
 
                             showLog("Error add Contacts: " + contactsResponse.raw());
 
-                            subject.onError(new Throwable());
+                            subject.onError(new Throwable(contactsResponse.message()));
                         }
 
                     }, throwable ->

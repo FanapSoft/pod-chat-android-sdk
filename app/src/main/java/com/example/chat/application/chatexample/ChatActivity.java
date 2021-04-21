@@ -1781,7 +1781,7 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
 
-    presenter.sendTextMessage(editText.getText().toString() , TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
+        presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
 
 
         editText.setText("");
@@ -1968,13 +1968,13 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
-            case 26:{
+            case 26: {
 
                 closeThread();
 
                 break;
             }
-            case 27:{
+            case 27: {
 
                 getSentryLogs();
 
@@ -2109,13 +2109,11 @@ public class ChatActivity extends AppCompatActivity
 
         //103187 nemati sandbox
 //        52987 sajadi 9063 sandbox
-       Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
         //roles
         ArrayList<String> typeRoles = new ArrayList<>();
         typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
-
-
 
 
         List<AssistantVo> assistantVos = new ArrayList<>();
@@ -2155,7 +2153,7 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-    private void getAssistantHistory(){
+    private void getAssistantHistory() {
         GetAssistantHistoryRequest request = new GetAssistantHistoryRequest.Builder().build();
         presenter.getAssistantHistory(request);
     }
@@ -2494,9 +2492,9 @@ public class ChatActivity extends AppCompatActivity
 //        52620 farhad
 //        52979 masoud
 //        52987 khodam
-      //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         invite.add(new Invitee("63254", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-     //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         //   invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
@@ -2663,45 +2661,49 @@ public class ChatActivity extends AppCompatActivity
 
     private void getContacts() {
 
-
-        new Thread(() -> {
-
-
-            RequestGetContact request = new RequestGetContact.Builder()
+        presenter.syncContact(ChatActivity.this);
+        for (int i = 0; i < 5; i++) {
+            RequestGetContact request2 = new RequestGetContact.Builder()
                     .count(50)
                     .offset(0)
-//                .withNoCache()
                     .build();
-
-//        presenter.getContact(0, 0L, null);
-
+            presenter.getContact(request2);
+            RequestGetContact request = new RequestGetContact.Builder()
+                    .count(50)
+                    .offset(50)
+                    .build();
             presenter.getContact(request);
-
-        }).start();
-
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            RequestThread request1 = new RequestThread.Builder()
+                    .count(50)
+                    .offset(0)
+                    .build();
+            presenter.getThreads(request1, null);
         }
 
 
-        new Thread(() -> {
-
-            RequestGetContact request2 = new RequestGetContact.Builder()
-                    .count(10)
-                    .offset(0)
-//                .withNoCache()
-                    .build();
-
-//        presenter.getContact(0, 0L, null);
-
-            presenter.getContact(request2);
-
-//        offset = offset + 50;
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
 
-        }).start();
+//        new Thread(() -> {
+//
+//            RequestGetContact request2 = new RequestGetContact.Builder()
+//                    .count(10)
+//                    .offset(0)
+////                .withNoCache()
+//                    .build();
+//
+////        presenter.getContact(0, 0L, null);
+//
+//            presenter.getContact(request2);
+//
+////        offset = offset + 50;
+//
+//
+//        }).start();
     }
 
     @Override
