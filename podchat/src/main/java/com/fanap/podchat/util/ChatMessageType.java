@@ -237,6 +237,7 @@ public class ChatMessageType {
         int UNBLOCK_ASSISTANT = 117;
         int GET_BLOCKED_ASSISTANTS = 118;
         int GET_ASSISTANT_HISTORY = 115;
+        int MUTAL_GROUPS = 130;
 
     }
 

@@ -1,13 +1,14 @@
-package com.fanap.podchat.requestobject;
+package com.fanap.podchat.chat.thread.request;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.requestobject.BaseRequestObject;
 
-public class RequestGetContact extends BaseRequestObject {
+public class GetMutualGroupRequest extends BaseRequestObject {
     Invitee user;
-    RequestGetContact(@NonNull Builder builder) {
+    GetMutualGroupRequest(@NonNull Builder builder) {
         super(builder);
         if (builder.user != null)
             this.user = builder.user;
@@ -20,14 +21,13 @@ public class RequestGetContact extends BaseRequestObject {
     public static class Builder extends BaseRequestObject.Builder<Builder> {
         Invitee user = null;
 
-        @NonNull
-        public RequestGetContact build() {
-            return new RequestGetContact(this);
+        public Builder(Invitee user) {
+            this.user = user;
         }
 
-        public Builder setUserName(Invitee user) {
-            this.user = user;
-            return this;
+        @NonNull
+        public GetMutualGroupRequest build() {
+            return new GetMutualGroupRequest(this);
         }
 
         @Nullable

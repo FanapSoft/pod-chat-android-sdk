@@ -116,6 +116,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
@@ -2962,6 +2963,21 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    /**
+     * @param request You can get MutualGroup list
+     */
+    public String getMutualGroup(GetMutualGroupRequest request) {
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = ThreadManager.createMutaulGroupRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_MUTUAL_GROUPS");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
     /**
      * @param request You can add someone as assistant
      */
@@ -7946,7 +7962,8 @@ public class Chat extends AsyncAdapter {
         long count = request.getCount();
         boolean useCache = request.useCacheData();
         String typeCode = request.getTypeCode();
-        return getContactMain((int) count, offset, false, typeCode, useCache, handler);
+        Invitee user = request.getUser();
+        return getContactMain((int) count, offset, user, false, typeCode, useCache, handler);
     }
 
 
@@ -7955,7 +7972,7 @@ public class Chat extends AsyncAdapter {
      */
     @Deprecated
     public String getContacts(Integer count, Long offset, ChatHandler handler) {
-        return getContactMain(count, offset, false, typeCode, true, handler);
+        return getContactMain(count, offset,null, false, typeCode, true, handler);
     }
 
 
@@ -13590,7 +13607,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private String getContactMain(int count, long offset, boolean syncContact, String typeCode, boolean useCache, ChatHandler handler) {
+    private String getContactMain(int count, long offset, Invitee username, boolean syncContact, String typeCode, boolean useCache, ChatHandler handler) {
         String uniqueId = generateUniqueId();
 
         int mCount = count > 0 ? count : 50;
@@ -13601,6 +13618,8 @@ public class Chat extends AsyncAdapter {
                 ChatMessageContent chatMessageContent = new ChatMessageContent();
 
                 chatMessageContent.setOffset(offset);
+                if (username != null)
+                    chatMessageContent.setUsername(username);
 
                 JsonObject jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
                 jObj.remove("lastMessageId");

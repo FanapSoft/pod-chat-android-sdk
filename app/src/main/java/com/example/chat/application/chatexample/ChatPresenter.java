@@ -71,6 +71,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
@@ -2136,6 +2137,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void changeThreadType(ChangeThreadTypeRequest request) {
         chat.changeThreadType(request);
+    }
+
+    @Override
+    public void getMutualGroups(GetMutualGroupRequest request) {
+       chat.getMutualGroup(request);
     }
 
     @Override

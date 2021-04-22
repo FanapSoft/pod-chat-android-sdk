@@ -61,6 +61,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -2039,6 +2040,11 @@ public class ChatActivity extends AppCompatActivity
                 break;
             }
 
+            case 38: {
+                getMutualGroup();
+                break;
+            }
+
         }
     }
 
@@ -2164,6 +2170,13 @@ public class ChatActivity extends AppCompatActivity
     private void changePublicThreadToPrivate() {
         ChangeThreadTypeRequest request = new ChangeThreadTypeRequest.Builder(8093, 1).build();
         presenter.changeThreadType(request);
+
+    }
+
+    private void getMutualGroup() {
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        GetMutualGroupRequest request = new GetMutualGroupRequest.Builder(invite).build();
+        presenter.getMutualGroups(request);
 
     }
 
@@ -2670,6 +2683,7 @@ public class ChatActivity extends AppCompatActivity
             RequestGetContact request = new RequestGetContact.Builder()
                     .count(50)
                     .offset(0)
+                    .setUserName(new Invitee("pooria.pahlevani1", InviteType.Constants.TO_BE_USER_USERNAME))
 //                .withNoCache()
                     .build();
 

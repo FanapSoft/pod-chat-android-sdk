@@ -10,6 +10,7 @@ import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -161,6 +162,21 @@ public class ThreadManager {
         message.setContent(content.toString());
         message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setSubjectId(request.getThreadId());
+        message.setUniqueId(uniqueId);
+
+
+        return App.getGson().toJson(message);
+    }
+
+    public static String createMutaulGroupRequest(GetMutualGroupRequest request, String uniqueId) {
+
+
+        AsyncMessage message = new ChatMessage();
+        message.setType(ChatMessageType.Constants.MUTAL_GROUPS);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setContent(App.getGson().toJson(request));
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setUniqueId(uniqueId);
 
 
