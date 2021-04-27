@@ -27,6 +27,8 @@ All notable changes to this project will be documented here.
 
 [Improvement] Prevented from additional reconnect requests at the same time. 
 
+[Improvement] If the ```NetworkStateConfig``` is not set, the default mode uses.
+
 
 ## Version [0.9.7.0] -2021-2-24
 
