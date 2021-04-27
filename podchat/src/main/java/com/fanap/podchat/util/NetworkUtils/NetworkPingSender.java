@@ -20,6 +20,8 @@ import io.sentry.core.Sentry;
 
 public class NetworkPingSender {
 
+    private boolean isStarted = false;
+
     private static final int VPN_CHECK_DELAY_MILLIS = 2000;
     private Context context;
 
@@ -97,10 +99,12 @@ public class NetworkPingSender {
         return config;
     }
 
-    public void setConfig(NetworkStateConfig config) {
+    public void setConfig(NetworkStateConfig networkStateConfig) {
 
 
-        if (config != null) {
+        if (networkStateConfig != null) {
+
+            this.config = networkStateConfig;
 
             this.disConnectionThreshold = config.disConnectionThreshold != null ? config.disConnectionThreshold : disConnectionThreshold;
 
@@ -160,6 +164,12 @@ public class NetworkPingSender {
     public synchronized void startPing() {
 
 
+        if (!isStarted) {
+            isStarted = true;
+        } else {
+            return;
+        }
+
         if (handlerThread != null) {
 
             handlerThread.quit();
@@ -167,18 +177,18 @@ public class NetworkPingSender {
             handlerThread = null;
         }
 
+
         handlerThread = new HandlerThread("Network-Ping-Thread");
 
         handlerThread.start();
 
         Handler pingHandler = new Handler(handlerThread.getLooper());
 
-
         Runnable job = new Runnable() {
             @Override
             public void run() {
 
-                if(!requestToClose){
+                if (!requestToClose) {
                     ping();
                 }
                 pingHandler.postDelayed(this, interval);
@@ -201,6 +211,7 @@ public class NetworkPingSender {
         if (handlerThread != null) {
             try {
                 handlerThread.quit();
+                isStarted = false;
             } catch (Exception e) {
                 e.printStackTrace();
             }

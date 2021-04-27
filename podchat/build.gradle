@@ -4,8 +4,8 @@ apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
-ext{
-    libraryVersion = '0.9.7.5-BETA'
+ext {
+    libraryVersion = '0.9.7.8-BETA'
 }
 android {
 
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 161
+        versionCode 164
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

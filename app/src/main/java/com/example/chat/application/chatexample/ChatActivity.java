@@ -223,25 +223,26 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 ////
-//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
      */
 //
-    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 //
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
-    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
+//    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
+//    public static int TEST_THREAD_ID = 5182; //amjadi, //sharifi //kheirkhah
+//    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
 //    main server / p2p
@@ -251,8 +252,9 @@ public class ChatActivity extends AppCompatActivity
 
     // main server / group
 
-//    public static int TEST_THREAD_ID = 47528;
-//    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
+//    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
+    public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
+    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
 
 
 //    integration /group: fifi,jiji and ...
@@ -2308,16 +2310,18 @@ public class ChatActivity extends AppCompatActivity
 
     private void getThreadParticipants() {
 
-        RequestThreadParticipant request =
-                new RequestThreadParticipant.Builder()
-                        .count(20)
-                        .offset(0)
-                        .threadId(TEST_THREAD_ID)
+        new Thread(()->{
+            for(int i=0;i<100;i++){
+                RequestThreadParticipant request =
+                        new RequestThreadParticipant.Builder()
+                                .count(50)
+                                .offset(i)
+                                .threadId(TEST_THREAD_ID)
 //                        .withNoCache()
-                        .build();
-
-
-        presenter.getThreadParticipant(request);
+                                .build();
+                presenter.getThreadParticipant(request);
+            }
+        }).start();
 
 
 //        presenter.getThreadParticipant(20, null, TEST_THREAD_ID, new ChatHandler() {
@@ -2661,24 +2665,32 @@ public class ChatActivity extends AppCompatActivity
 
     private void getContacts() {
 
-        presenter.syncContact(ChatActivity.this);
-        for (int i = 0; i < 5; i++) {
-            RequestGetContact request2 = new RequestGetContact.Builder()
-                    .count(50)
-                    .offset(0)
-                    .build();
-            presenter.getContact(request2);
-            RequestGetContact request = new RequestGetContact.Builder()
-                    .count(50)
-                    .offset(50)
-                    .build();
-            presenter.getContact(request);
-            RequestThread request1 = new RequestThread.Builder()
-                    .count(50)
-                    .offset(0)
-                    .build();
-            presenter.getThreads(request1, null);
-        }
+
+
+        RequestGetContact request = new RequestGetContact.Builder()
+                .count(50)
+                .offset(0)
+                .build();
+        presenter.getContact(request);
+
+//        presenter.syncContact(ChatActivity.this);
+//        for (int i = 0; i < 5; i++) {
+//            RequestGetContact request2 = new RequestGetContact.Builder()
+//                    .count(50)
+//                    .offset(0)
+//                    .build();
+//            presenter.getContact(request2);
+//            RequestGetContact request = new RequestGetContact.Builder()
+//                    .count(50)
+//                    .offset(50)
+//                    .build();
+//            presenter.getContact(request);
+//            RequestThread request1 = new RequestThread.Builder()
+//                    .count(50)
+//                    .offset(0)
+//                    .build();
+//            presenter.getThreads(request1, null);
+//        }
 
 
 //        try {

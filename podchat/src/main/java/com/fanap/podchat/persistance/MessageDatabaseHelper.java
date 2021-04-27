@@ -3181,8 +3181,17 @@ public class MessageDatabaseHelper {
         worker(() -> {
 
             for (Thread thread : threads) {
-                if (thread.getId() > 0)
-                    prepareThreadVOAndSaveIt(thread);
+                try {
+                    if (thread.getId() > 0)
+                        prepareThreadVOAndSaveIt(thread);
+                } catch (Exception e) {
+                    if(Sentry.isEnabled())
+                    {
+                        Sentry.captureException(e);
+                        e.printStackTrace();
+                        break;
+                    }
+                }
             }
 
         });

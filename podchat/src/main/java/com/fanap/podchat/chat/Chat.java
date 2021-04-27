@@ -150,7 +150,6 @@ import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
-import com.fanap.podchat.model.EncResponse;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageMetaData;
@@ -440,7 +439,7 @@ public class Chat extends AsyncAdapter {
     private String serverName;
     private boolean hasFreeSpace = true;
 
-    static ChatDataSource dataSource;
+    private static ChatDataSource dataSource;
 
 
     private static PodCallAudioCallServiceManager audioCallManager;
@@ -524,7 +523,8 @@ public class Chat extends AsyncAdapter {
             Sentry.setExtra("chat-sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
             Sentry.setExtra("chat-sdk-build-type", BuildConfig.BUILD_TYPE);
 
-            dataSource = new ChatDataSource(new MemoryDataSource(), new CacheDataSource(context, instance.getKey()));
+            dataSource = new ChatDataSource(new MemoryDataSource(), new CacheDataSource(instance.messageDatabaseHelper));
+
         }
 
         return instance;
@@ -784,11 +784,6 @@ public class Chat extends AsyncAdapter {
                 @Override
                 public void networkAvailable() {
 
-                    if (initState.get()) {
-                        initState.set(false);
-                        return;
-                    }
-
                     Log.i(TAG, "Network State Changed, Available");
                     tryToConnectOrReconnect();
                     pinger.startPing();
@@ -923,7 +918,7 @@ public class Chat extends AsyncAdapter {
 
 
                 if (requestToClose) return;
-                if(isChatReady()) return;
+                if (isChatReady()) return;
 
                 if (connectNumberOfRetry < maxReconnectStepTime) {
                     connectNumberOfRetry = connectNumberOfRetry * 2;
@@ -1758,7 +1753,6 @@ public class Chat extends AsyncAdapter {
         ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
         if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
-            Log.e(TAG, "handleOnRegisterAssistant: ");
         }
         listenerManager.callOnRegisterAssistant(response);
 
@@ -2394,6 +2388,7 @@ public class Chat extends AsyncAdapter {
             Sentry.setExtra("ssoHost", ssoHost);
             Sentry.setExtra("fileServer", fileServer);
             Sentry.setExtra("podSpaceServer", podSpaceServer);
+            Sentry.setExtra("CACHE ENABLED", "" + cache);
 
             if (platformHost.endsWith("/")) {
 
@@ -2769,7 +2764,7 @@ public class Chat extends AsyncAdapter {
             try {
                 getCallHistoryFromCache(request, uniqueId);
             } catch (RoomIntegrityException e) {
-                resetCache(() -> {
+                disableCache(() -> {
                     try {
                         getCallHistoryFromCache(request, uniqueId);
                     } catch (RoomIntegrityException ignored) {
@@ -3011,7 +3006,7 @@ public class Chat extends AsyncAdapter {
             try {
                 getAssistantHistoryFromCache(request, uniqueId);
             } catch (RoomIntegrityException e) {
-                resetCache(() -> {
+                disableCache(() -> {
                     try {
                         getAssistantHistoryFromCache(request, uniqueId);
                     } catch (RoomIntegrityException ignored) {
@@ -3041,7 +3036,7 @@ public class Chat extends AsyncAdapter {
             try {
                 getAssistantFromCache(request, uniqueId);
             } catch (RoomIntegrityException e) {
-                resetCache(() -> {
+                disableCache(() -> {
                     try {
                         getAssistantFromCache(request, uniqueId);
                     } catch (RoomIntegrityException ignored) {
@@ -7050,19 +7045,8 @@ public class Chat extends AsyncAdapter {
 
             };
 
-            Runnable getThreadsFromCacheJob = () -> loadThreadsFromCache(finalCount,
-                    finalOffset,
-                    threadIds,
-                    threadName,
-                    isNew,
-                    uniqueId);
 
             if (cache && useCache) {
-
-//                new PodThreadManager()
-//                        .addNewTask(getThreadsFromCacheJob)
-//                        .addNewTask(getThreadsFromServerJob)
-//                        .runTasksSynced();
 
                 dataSource.getThreadData(
                         finalCount,
@@ -7090,9 +7074,7 @@ public class Chat extends AsyncAdapter {
 
 
             } else {
-
                 getThreadsFromServerJob.run();
-
             }
 
 
@@ -7361,7 +7343,7 @@ public class Chat extends AsyncAdapter {
             dataSource.getWaitQueueUniqueIdList()
                     .doOnError(exception -> {
                         if (exception instanceof RoomIntegrityException) {
-                            resetCache();
+                            disableCache();
                         } else {
                             showErrorLog(exception.getMessage());
                         }
@@ -7399,41 +7381,24 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    //If some tables had changed, using room cause an IntegrityException
-    //so we can write a migration every time something changes or "resetCache()"
-    //to make it useful again. this is the resetCache:
 
-    private void resetCache() {
+    /**
+     * If the database was unusable due exceptions, we set
+     * the cache to false to prevent from application crashes.
+     *
+     */
 
-        //If something bad happened during resetting DB,
-        //we will stop using cache.
-
+    private void disableCache() {
         cache = false;
-        showLog("Reset database");
-        boolean result = messageDatabaseHelper.resetDatabase();
-        if (result) {
-            initDatabaseWithKey(getKey());
-            showLog("Database reset successfully");
-            cache = true;
-        } else {
-            showErrorLog("Database Reset Failed");
-            showLog("Please clear app data");
-        }
+        showErrorLog("Cache has been disabled due exception");
     }
 
-    private void resetCache(Runnable onDone) {
+
+
+    private void disableCache(Runnable onDone) {
         cache = false;
-        showLog("Reset database");
-        boolean result = messageDatabaseHelper.resetDatabase();
-        if (result) {
-            initDatabaseWithKey(getKey());
-            showLog("Database reset successfully");
-            cache = true;
-            onDone.run();
-        } else {
-            showErrorLog("Database Reset Failed");
-            showLog("Please clear app data");
-        }
+        showErrorLog("Cache has been disabled due exception");
+        onDone.run();
     }
 
     /**
@@ -9519,7 +9484,7 @@ public class Chat extends AsyncAdapter {
             });
         } catch (RoomIntegrityException e) {
 
-            resetCache();
+            disableCache();
         }
     }
 
@@ -10251,7 +10216,7 @@ public class Chat extends AsyncAdapter {
 
             });
         } catch (RoomIntegrityException e) {
-            resetCache();
+            disableCache();
         }
     }
 
@@ -10364,7 +10329,7 @@ public class Chat extends AsyncAdapter {
 
             });
         } catch (RoomIntegrityException e) {
-            resetCache();
+            disableCache();
         }
     }
 
@@ -11467,7 +11432,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void resetConnectHandler() {
-        if (connectHandler != null){
+        if (connectHandler != null) {
             connectHandler.removeCallbacksAndMessages(null);
             connectHandler = null;
         }
@@ -11813,7 +11778,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (exception instanceof RoomIntegrityException)
-            resetCache();
+            disableCache();
 
     }
 
@@ -12390,82 +12355,6 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    /**
-     * After getting the key ChatState is 'CHAT_READY' and cache is working
-     */
-
-    private void generateEncryptionKey(String ssoHost) {
-
-        String algorithm = "AES";
-        int keySize = 256;
-        long validity = 31536000;
-        RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
-        SSOApi api = retrofitHelperSsoHost.getService(SSOApi.class);
-
-
-        String bToken = "Bearer " + getToken();
-
-
-        Call<EncResponse> responseCallback = api.generateEncryptionKey(bToken,
-                algorithm, keySize, false, validity);
-
-
-        responseCallback.enqueue(new retrofit2.Callback<EncResponse>() {
-            @Override
-            public void onResponse(Call<EncResponse> call, Response<EncResponse> response) {
-
-                if (response.body() != null) {
-
-                    if (response.isSuccessful()) {
-
-
-                        if (response.body().getSecretKey() != null) {
-
-                            initDatabaseWithKey(response.body().getSecretKey());
-
-                            setKey(response.body().getSecretKey());
-
-                        } else {
-
-                            initDatabase();
-                        }
-
-                        setChatReady("CHAT_READY", true);
-
-
-                    } else {
-
-                        if (log) if (response.errorBody() != null) {
-                            Log.e(TAG, response.errorBody().toString());
-                        }
-
-                        initDatabase();
-
-                        setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_US", false);
-
-                    }
-
-                } else {
-
-                    if (log) if (response.errorBody() != null) {
-                        Log.e(TAG, response.errorBody().toString());
-                    }
-                    initDatabase();
-                    setChatReady("CHAT_READY_WITHOUT_ENCRYPTION_NS", false);
-
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<EncResponse> call, Throwable t) {
-
-                Log.e(TAG, "Failure On: " + t.getMessage());
-
-            }
-        });
-
-    }
 
     private void setChatReady(String state, boolean encrypt) {
 
@@ -12483,29 +12372,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void initDatabase() {
-
-        DaggerMessageComponent.builder()
-                .appDatabaseModule(new AppDatabaseModule(getContext()))
-                .appModule(new AppModule(context))
-                .build()
-                .inject(instance);
-
-    }
-
-    private void initDatabaseWithKey(String secretKey) {
-
-
-        DaggerMessageComponent.builder()
-                .appDatabaseModule(new AppDatabaseModule(getContext(), secretKey))
-                .appModule(new AppModule(context))
-                .build()
-                .inject(instance);
-
-
-    }
-
-
     // we have handleRemoveFromWaitQueue and checkMessageValidation
     //if callBacks in 'onReceivedMessage' equal null it means we are removing messages from waitQ
 
@@ -12522,7 +12388,7 @@ public class Chat extends AsyncAdapter {
         getUniqueIdsInWaitQ()
                 .doOnError(exception -> {
                     if (exception instanceof RoomIntegrityException) {
-                        resetCache();
+                        disableCache();
                     } else {
                         showErrorLog(exception.getMessage());
                     }
@@ -13007,6 +12873,7 @@ public class Chat extends AsyncAdapter {
             sentryUser.setEmail(userInfo.getCellphoneNumber());
             sentryUser.setUsername(userInfo.getName());
             Map<String, String> sentryInfoMap = new HashMap<>();
+            sentryInfoMap.put("id", String.valueOf(userInfo.getId()));
             sentryInfoMap.put("token", getToken());
             sentryInfoMap.put("tokenIssuer", String.valueOf(TOKEN_ISSUER));
             sentryInfoMap.put("typeCode", getTypeCode());
@@ -13655,7 +13522,7 @@ public class Chat extends AsyncAdapter {
                     .doOnCompleted(serverRequestTask::run)
                     .doOnError(exception -> {
                         if (exception instanceof RoomIntegrityException) {
-                            resetCache();
+                            disableCache();
                         } else {
                             captureError(exception.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
                         }
@@ -13684,7 +13551,7 @@ public class Chat extends AsyncAdapter {
             publishContactResult(uniqueId, offset, cacheContactsList, contentCount);
 
         } catch (RoomIntegrityException e) {
-            resetCache();
+            disableCache();
         }
 
     }
@@ -13740,10 +13607,9 @@ public class Chat extends AsyncAdapter {
                 event.setEnvironment("PODCHAT");
                 event.setLevel(SentryLevel.ERROR);
                 event.setTag("FROM_SDK", "PODCHAT");
-                event.setExtra("FROM_SDK", "PODCHAT");
-
-
+                event.setExtra("CACHE ENABLED", " >>> " + cache);
                 Sentry.captureEvent(event, error);
+
             }
 
         }
@@ -13776,7 +13642,7 @@ public class Chat extends AsyncAdapter {
             event.setEnvironment("PODCHAT");
             event.setLevel(SentryLevel.ERROR);
             event.setTag("FROM_SDK", "PODCHAT");
-            event.setExtra("FROM_SDK", "PODCHAT");
+            event.setExtra("CACHE ENABLED", " >>> " + cache);
             Sentry.captureEvent(event, new PodChatException(errorMessage, uniqueId, getToken()));
         }
 
@@ -13801,7 +13667,7 @@ public class Chat extends AsyncAdapter {
             event.setEnvironment("PODCHAT");
             event.setLevel(SentryLevel.ERROR);
             event.setTag("FROM_SDK", "PODCHAT");
-            event.setExtra("FROM_SDK", "PODCHAT");
+            event.setExtra("CACHE ENABLED", " >>> " + cache);
             Sentry.captureEvent(event, error);
         }
 
@@ -13815,61 +13681,6 @@ public class Chat extends AsyncAdapter {
         return typeCode;
     }
 
-    private void loadThreadsFromCache(Integer count,
-                                      Long offset,
-                                      ArrayList<Integer> threadIds,
-                                      String threadName,
-                                      boolean isNew,
-                                      String uniqueId) {
-
-
-        if (offset == null) {
-            offset = 0L;
-        }
-
-        if (count == null || count == 0)
-            count = 50;
-
-
-        Long finalOffset = offset;
-
-        try {
-
-            messageDatabaseHelper.getThreadRaw(count, offset, threadIds, threadName, isNew, new OnWorkDone() {
-                @Override
-                public void onWorkDone(@Nullable Object o) {
-
-                }
-
-                @Override
-                public void onWorkDone(@Nullable Object o, List cachedThreads) {
-
-                    List<Thread> threads = (List<Thread>) cachedThreads;
-
-                    long contentCount = (long) o;
-
-                    if (!Util.isNullOrEmpty(threads)) {
-
-                        String threadJson = publishThreadsList(uniqueId, finalOffset, new ThreadManager.ThreadResponse(threads, contentCount, "DISK"));
-
-                        if (sentryResponseLog) {
-                            showLog("CACHE_GET_THREAD", threadJson);
-                        } else {
-                            showLog("CACHE_GET_THREAD");
-                        }
-
-                        dataSource.saveThreadResultFromCache(threads);
-
-                    }
-                }
-            });
-
-        } catch (RoomIntegrityException e) {
-            resetCache();
-        }
-
-
-    }
 
     private String publishThreadsList(String uniqueId, Long finalOffset, ThreadManager.ThreadResponse cacheThreadResponse) {
 
@@ -14571,7 +14382,7 @@ public class Chat extends AsyncAdapter {
                                     try {
                                         boolean result = phoneContactDbHelper.addPhoneContacts(phoneContacts);
                                         if (!result) {
-                                            resetCache(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                            disableCache(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
@@ -14710,7 +14521,7 @@ public class Chat extends AsyncAdapter {
                                     try {
                                         boolean result = phoneContactDbHelper.addPhoneContacts(phoneContacts);
                                         if (!result) {
-                                            resetCache(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
+                                            disableCache(() -> phoneContactDbHelper.addPhoneContacts(phoneContacts));
                                         }
                                     } catch (Exception e) {
                                         showErrorLog("Updating Contacts cache failed: " + e.getMessage());
@@ -14821,46 +14632,6 @@ public class Chat extends AsyncAdapter {
         return gson.toJson(outPutUserInfo);
     }
 
-    private MessageDatabaseHelper.IRoomIntegrity handleDBError(Runnable onSuccessAction, Runnable onErrorAction) {
-
-        return new MessageDatabaseHelper.IRoomIntegrity() {
-            @Override
-            public void onDatabaseNeedReset() {
-
-                showLog("Reset database");
-                initDatabaseWithKey(getKey());
-                showLog("Database reset successfully");
-                cache = true;
-                onSuccessAction.run();
-
-            }
-
-            @Override
-            public void onResetFailed() {
-
-                showErrorLog("DB reset failed...!");
-                showErrorLog("Cache is disable...");
-                cache = false;
-                onErrorAction.run();
-            }
-
-            @Override
-            public void onRoomIntegrityError() {
-
-                showErrorLog("Room integrity error");
-                cache = false;
-
-            }
-
-            @Override
-            public void onDatabaseDown() {
-
-                showErrorLog("Database down");
-                cache = false;
-
-            }
-        };
-    }
 
     private String reformatMuteThread(ChatMessage chatMessage, ChatResponse<ResultMute> outPut) {
         ResultMute resultMute = new ResultMute();

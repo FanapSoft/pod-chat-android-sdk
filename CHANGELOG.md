@@ -5,7 +5,7 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## Version [0.9.8.0] -2021-4-10
+## Version [0.9.8.0] -2021-4-27
 
 [Added] ```getUserBots``` method
 
@@ -22,6 +22,10 @@ All notable changes to this project will be documented here.
 [Added] ```getBlocksAssistant``` method
 
 [Added] ```onAssistantBlocks``` callback
+
+[BugFixed] Database lock exception.
+
+[Improvement] Prevented from additional reconnect requests at the same time. 
 
 
 ## Version [0.9.7.0] -2021-2-24
