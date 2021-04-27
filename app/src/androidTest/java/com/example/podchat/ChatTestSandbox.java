@@ -19,6 +19,11 @@ import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatListener;
+import com.fanap.podchat.chat.RoleType;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -42,7 +47,8 @@ import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.ChatMessageType;
-import com.fanap.podchat.util.TextMessageType;
+import com.fanap.podchat.util.InviteType;
+import com.orhanobut.logger.Logger;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -66,7 +72,7 @@ import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
 
 
 @RunWith(AndroidJUnit4.class)
-public class ChatTest extends ChatAdapter {
+public class ChatTestSandbox extends ChatAdapter {
 
     private static ChatContract.presenter presenter;
     @Mock
@@ -77,15 +83,16 @@ public class ChatTest extends ChatAdapter {
     private Activity activity;
     private static Context appContext;
 
-    private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+
     private static String NAME = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "cf06e0e5cc3f41fba837f4d05b9a4138";
 
+    private static String TOKEN = "8eb3f9d848ff47358e0a0756034678d5";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
     @Mock
     ChatListener chatListeners;
@@ -223,7 +230,6 @@ public class ChatTest extends ChatAdapter {
     final ArrayList<Thread> threads = new ArrayList<>();
 
 
-    //requests for list of threads
     @Test
     public void populateThreadsListFromServerOrCache() {
 
@@ -252,69 +258,6 @@ public class ChatTest extends ChatAdapter {
 
     }
 
-    //requests for list of threads from server
-    @Test
-    public void populateThreadsListFromServerOnly() {
-
-
-        chatListeners = new ChatListener() {
-            @Override
-            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
-
-                if(!thread.isCache()){
-                    System.out.println("Received List: " + content);
-                    threads.addAll(thread.getResult().getThreads());
-                    resumeProcess();
-                }
-
-            }
-        };
-
-        chat.addListener(chatListeners);
-
-        RequestThread requestThread =
-                new RequestThread.Builder()
-                        .count(25)
-                        .build();
-
-        presenter.getThreads(requestThread, null);
-
-        pauseProcess();
-        System.out.println("Received List: " + threads.size());
-
-    }
-
-    //requests for list of threads from cache
-    @Test
-    public void populateThreadsListFromCacheOnly() {
-
-
-        chatListeners = new ChatListener() {
-            @Override
-            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
-
-                if(thread.isCache()){
-                    System.out.println("Received List: " + content);
-                    threads.addAll(thread.getResult().getThreads());
-                    resumeProcess();
-                }
-
-            }
-        };
-
-        chat.addListener(chatListeners);
-
-        RequestThread requestThread =
-                new RequestThread.Builder()
-                        .count(25)
-                        .build();
-
-        presenter.getThreads(requestThread, null);
-
-        pauseProcess();
-        System.out.println("Received List: " + threads.size());
-
-    }
 
     private void resumeProcess() {
         synchronized (sync) {
@@ -420,6 +363,7 @@ public class ChatTest extends ChatAdapter {
 //        getThreadHistory(threads.get(0).getId());
     }
 
+
     public void getThreadHistory(long threadId) {
 
 
@@ -441,7 +385,7 @@ public class ChatTest extends ChatAdapter {
 
     @Test
     @LargeTest
-    //get 25 message before and after last seen message time
+    //get 25 message before and after last seen
     //messages NanoTimes should be lower than last seen in first case
     //and greater in second case
     public void getThreadHistoryBeforeAndAfterLastSeenMessage() {
@@ -497,72 +441,10 @@ public class ChatTest extends ChatAdapter {
 
     @Test
     @LargeTest
-    public void sendMessageToThreadMessage() {
-
-        populateThreadsListFromServerOrCache();
-
-        long threadID = 0;
-        for (Thread thread : new ArrayList<>(threads)) {
-            if (!thread.isClosed()
-                    && thread.isGroup() && thread.getAdmin()) {
-                threadID = thread.getId();
-            }
-        }
-        if (threadID > 0)
-            sendTestMessageOnSeen(threadID);
-
-
-    }
-
-    public void sendTestMessageOnSeen(long threadId) {
-        presenter.sendTextMessage("This is test " + new Date().getTime(), threadId, null, "From android instrumental test at " + new Date().getTime(), null);
-        sleep(2000);
-        Mockito.verify(view, Mockito.times(1)).onSentMessage();
-    }
-
-    @Test
-    @LargeTest
-    public void sendALotOfMessageToThread() {
-
-        populateThreadsListFromServerOnly();
-
-        long threadID = threads.get(0).getId();
-        for (Thread thread : new ArrayList<>(threads)) {
-            if (!thread.isClosed() &&
-            thread.getParticipantCount() > 1) {
-                threadID = thread.getId();
-            }
-        }
-
-        if (threadID > 0) {
-            int counter = 0;
-            int count = 5;
-            while (counter < count) {
-                RequestMessage requestMessage = new RequestMessage.Builder("This is test " + new Date().getTime(), threadID)
-                        .messageType(TextMessageType.Constants.TEXT)
-                        .jsonMetaData("From android instrumental test at " + new Date().getTime())
-                        .build();
-                presenter.sendTextMessage(requestMessage,null);
-                counter++;
-            }
-            sleep(7000);
-            Mockito.verify(view, Mockito.atLeastOnce()).onSentMessage();
-        }else {
-            Assert.fail("no suitable thread found");
-        }
-
-
-    }
-
-
-    @Test
-    @LargeTest
     //get threads histories one by one
     //performance should be acceptable
     public void getAllThreadsHistories() {
-        //get 25 thread from server
         populateThreadsListFromServerOrCache();
-
         long startTime = System.currentTimeMillis();
         for (Thread thread :
                 new ArrayList<>(threads)) {
@@ -570,6 +452,7 @@ public class ChatTest extends ChatAdapter {
             System.out.println(thread.getId());
             getThreadFullHistory(thread);
         }
+//        getThreadFullHistory(threads.get(0));
         long endTime = System.currentTimeMillis();
         Assert.assertTrue(true);
         System.out.println(">>> >>> >>>");
@@ -585,6 +468,197 @@ public class ChatTest extends ChatAdapter {
 
     }
 
+
+    @Test
+    @LargeTest
+    public void setHashTagTest() {
+
+        ChatListener historyListeners = new ChatListener() {
+
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+                System.out.println("onGetHistory: ");
+                Logger.json(history.getJson());
+                Assert.assertTrue(true);
+                resumeProcess();
+            }
+
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+                System.out.println("onSent: ");
+                Logger.json(response.getJson());
+                Assert.assertTrue(true);
+                resumeProcess();
+            }
+        };
+
+        chat.addListener(historyListeners);
+
+        RequestMessage requestMessage = new RequestMessage
+                .Builder("#android fragment", 8085)
+
+                .build();
+        presenter.sendTextMessage(requestMessage, null);
+        pauseProcess();
+    }
+
+    @Test
+    @LargeTest
+    public void getHistoryHashtagTest() {
+        long startTime = System.currentTimeMillis();
+
+        ChatListener historyListeners = new ChatListener() {
+
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+                System.out.println("onGetHistory: ");
+                Logger.json(history.getJson());
+                Assert.assertTrue(true);
+                resumeProcess();
+            }
+
+
+        };
+        chat.setListener(historyListeners);
+        RequestGetHistory request = new RequestGetHistory
+                .Builder(8085)
+                .offset(0)
+                .count(25)
+                .order("desc")
+                .build();
+
+        presenter.getHistory(request, null);
+        pauseProcess();
+
+    }
+
+    @Test
+    @LargeTest
+    public void registerAssistantsTest() {
+
+        ChatListener historyListeners = new ChatListener() {
+            @Override
+            public void onRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+
+                System.out.println("onRegisterAssistant: " + response.getJson());
+                Assert.assertTrue(true);
+
+
+
+            }
+        };
+
+        chat.addListener(historyListeners);
+
+        registerAssistant();
+
+    }
+
+    @Test
+    @LargeTest
+   public void checkInsert(){
+
+    }
+
+    @Test
+    @LargeTest
+    public void getAssistantTest() {
+        long startTime = System.currentTimeMillis();
+
+        ChatListener historyListeners = new ChatListener() {
+            @Override
+            public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
+                System.out.println("onGetAssistants: " + response);
+                Assert.assertTrue(true);
+
+            }
+        };
+
+        chat.addListener(historyListeners);
+
+        getAssistants();
+
+
+    }
+
+    @Test
+    @LargeTest
+    public void deActiveAssistantTest() {
+        long startTime = System.currentTimeMillis();
+
+        ChatListener historyListeners = new ChatListener() {
+            @Override
+            public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+                System.out.println("onDeActiveAssistant: " + response);
+                Assert.assertTrue(true);
+
+            }
+        };
+
+        chat.addListener(historyListeners);
+
+        deActiveAssistant();
+
+    }
+
+    private void getAssistants() {
+        GetAssistantRequest request = new GetAssistantRequest.Builder().typeCode("default").build();
+
+        presenter.getAssistants(request);
+        pauseProcess();
+    }
+
+    private void deActiveAssistant() {
+//        52987   khodam
+//        103187  nemati
+        //invite
+        Invitee invite = new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+
+
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVos.add(assistantVo);
+
+
+        DeActiveAssistantRequest request = new DeActiveAssistantRequest.Builder(assistantVos).build();
+        presenter.deActiveAssistant(request);
+        pauseProcess();
+    }
+
+    private void registerAssistant() {
+        //63253 kheirkhah
+        //63254 sajadi
+        ////63255 anvari
+        //63256 amjadi
+        //63257 zhiani
+        //invite list
+
+//        52987   khodam
+//        103187  nemati
+        Invitee invite = new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+
+        //roles
+        ArrayList<String> typeRoles = new ArrayList<>();
+        typeRoles.add(RoleType.Constants.READ_THREAD);
+        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+        typeRoles.add(RoleType.Constants.ADD_ROLE_TO_USER);
+
+
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVo.setContactType("default");
+        assistantVo.setRoles(typeRoles);
+
+        assistantVos.add(assistantVo);
+
+        RegisterAssistantRequest request = new RegisterAssistantRequest.Builder(assistantVos).build();
+
+        presenter.registerAssistant(request);
+        pauseProcess();
+    }
+
     private void getThreadFullHistory(Thread thread) {
 
 
@@ -592,28 +666,18 @@ public class ChatTest extends ChatAdapter {
 
         AtomicBoolean hasNext = new AtomicBoolean(true);
         int count = 25;
-        AtomicLong offset = new AtomicLong(0);
+        int offset = 0;
         AtomicLong threadMessagesCount = new AtomicLong(-1);
         AtomicLong threadReceivedHistory = new AtomicLong(0);
         ChatListener historyListeners = new ChatListener() {
             @Override
             public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
 
-
                 threadMessagesCount.set(history.getResult().getContentCount());
                 long received = threadReceivedHistory.get();
                 threadReceivedHistory.set(received + history.getResult().getHistory().size());
                 hasNext.set(history.getResult().isHasNext());
-                if (hasNext.get()) {
-                    offset.set(offset.get() + history.getResult().getHistory().size());
-                }
                 resumeProcess();
-
-            }
-
-            @Override
-            public void onError(String content, ErrorOutPut error) {
-                Assert.fail(content);
             }
         };
         chat.addListener(historyListeners);
@@ -621,12 +685,12 @@ public class ChatTest extends ChatAdapter {
         while (hasNext.get()) {
             RequestGetHistory requestGetHistory = new RequestGetHistory
                     .Builder(thread.getId())
-                    .offset(offset.get())
-                    .withNoCache()
+                    .offset(offset)
                     .count(count)
                     .order("desc")
                     .build();
             String uniqueId = presenter.getHistory(requestGetHistory, null);
+            offset = offset + count;
             pauseProcess();
         }
         long endTime = System.currentTimeMillis();
@@ -641,7 +705,7 @@ public class ChatTest extends ChatAdapter {
         System.out.println(">>> >>> >>>");
         System.out.println(">>> >>> >>>");
         System.out.println(">>> >>> >>>");
-        Assert.assertEquals(threadMessagesCount.get(), threadReceivedHistory.get());
+//        Assert.assertEquals(threadMessagesCount.get(), threadReceivedHistory.get());
 
 
     }

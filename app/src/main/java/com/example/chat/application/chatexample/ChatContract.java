@@ -13,12 +13,19 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
@@ -27,6 +34,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -68,7 +76,7 @@ import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -347,6 +355,7 @@ public interface ChatContract {
         void getHistory(History history, long threadId, ChatHandler handler);
 
         String getHistory(RequestGetHistory request, ChatHandler handler);
+        String getHashTagList(RequestGetHashTagList request, ChatHandler handler);
 
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
 
@@ -417,7 +426,7 @@ public interface ChatContract {
 
         void removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler);
 
-        void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler);
+        void removeParticipants(RemoveParticipantRequest removeParticipantRequest, ChatHandler handler);
 
 
         void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler);
@@ -543,6 +552,7 @@ public interface ChatContract {
         void startBot(StartAndStopBotRequest request);
 
         void stopBot(StartAndStopBotRequest request);
+        void getUserBots(GetUserBotsRequest request);
 
 
         void testCall(String groupId, String sender, String receiver);
@@ -578,6 +588,14 @@ public interface ChatContract {
         void getContact();
 
         void registerAssistant(RegisterAssistantRequest request);
- 
+        void getAssistants(GetAssistantRequest request);
+        void deActiveAssistant(DeActiveAssistantRequest request);
+        void getAssistantHistory(GetAssistantHistoryRequest request);
+        void blockAssistant(BlockUnblockAssistantRequest request);
+        void unBlockAssistant(BlockUnblockAssistantRequest request);
+        void getBlocksAssistant(GetBlockedAssistantsRequest request);
+
+        void changeThreadType(ChangeThreadTypeRequest request);
+
     }
 }

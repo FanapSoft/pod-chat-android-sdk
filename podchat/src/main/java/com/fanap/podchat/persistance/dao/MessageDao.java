@@ -8,6 +8,8 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Update;
 
+import com.fanap.podchat.cachemodel.CacheAssistantHistoryVo;
+import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
@@ -513,4 +515,34 @@ public interface MessageDao {
 
     @Delete
     void deleteImage(CacheFile file);
+
+
+
+    //cache assistant
+    @Insert(onConflict = REPLACE)
+    void insertCacheAssistantVo(CacheAssistantVo assistantVo);
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheAssistantVos(List<CacheAssistantVo> assistantVo);
+
+
+    @Query("SELECT * FROM CacheAssistantVo")
+    List<CacheAssistantVo> getCacheAssistantVos();
+
+    @Query("delete from CacheAssistantVo where inviteeId = :inviteeId")
+    void deleteCacheAssistantVo(long inviteeId);
+
+    @Query("DELETE FROM CacheAssistantVo")
+    void deleteAllCacheAssistantVo();
+
+
+    @Query("SELECT * FROM CacheAssistantHistoryVo")
+    List<CacheAssistantHistoryVo> getCacheAssistantHistory();
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheAssistantHistoryVo(List<CacheAssistantHistoryVo> assistantVo);
+
+    @Query("DELETE FROM CacheAssistantHistoryVo")
+    void deleteAllCacheAssistantHistoryVo();
+
 }

@@ -1,4 +1,4 @@
-package com.fanap.podchat.chat.mention;
+package com.fanap.podchat.chat.hashtag;
 
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
@@ -16,26 +16,22 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Mention {
+public class HashTagManager {
 
 
-    public static String getMentionList(RequestGetMentionList request, String uniqueId) {
+    public static String getHashTagList(RequestGetHashTagList request, String uniqueId) {
 
 
         long threadId = request.getThreadId();
 
         JsonObject criteriaVO = new JsonObject();
 
-        if (request.getAllMentioned() != null && request.getAllMentioned())
-            criteriaVO.addProperty("allMentioned", true);
-        if (request.getUnreadMentioned() != null && request.getUnreadMentioned())
-            criteriaVO.addProperty("unreadMentioned", true);
-
         long count = request.getCount() > 0 ? request.getCount() : 50;
 
         criteriaVO.addProperty("count", count);
 
         criteriaVO.addProperty("offset", request.getOffset());
+        criteriaVO.addProperty("hashtag", request.getHashtag());
 
 
         AsyncMessage message = new AsyncMessage();
@@ -70,25 +66,6 @@ public class Mention {
     }
 
     public static ChatResponse<ResultHistory> getMentionListCacheResponse(RequestGetMentionList request,
-                                                                          List<MessageVO> messageVOS,
-                                                                          String uniqueId,
-                                                                          long contentCount) {
-
-        ResultHistory resultHistory = new ResultHistory();
-        resultHistory.setContentCount(contentCount);
-        resultHistory.setHistory(messageVOS);
-
-
-        ChatResponse<ResultHistory> finalResponse = new ChatResponse<>();
-        finalResponse.setResult(resultHistory);
-        finalResponse.setUniqueId(uniqueId);
-        finalResponse.setSubjectId(request.getThreadId());
-        finalResponse.setCache(true);
-
-        return finalResponse;
-    }
-
-    public static ChatResponse<ResultHistory> getHashTagListCacheResponse(RequestGetHashTagList request,
                                                                           List<MessageVO> messageVOS,
                                                                           String uniqueId,
                                                                           long contentCount) {

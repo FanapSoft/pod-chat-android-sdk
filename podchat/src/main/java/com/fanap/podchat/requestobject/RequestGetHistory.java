@@ -10,6 +10,7 @@ public class RequestGetHistory extends BaseRequestObject {
     private long userId;
     private long id;
     private String query;
+    private String hashtag;
     private long fromTime;
     private long fromTimeNanos;
     private long toTime;
@@ -259,6 +260,10 @@ public class RequestGetHistory extends BaseRequestObject {
 
     public String[] getUniqueIds() {
         return uniqueIds;
+    }
+
+    public String getHashtag() {
+        return hashtag;
     }
 
     public void setUniqueIds(String[] uniqueIds) {

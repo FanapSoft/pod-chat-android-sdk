@@ -41,13 +41,22 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
@@ -60,6 +69,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -73,6 +83,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -103,6 +114,7 @@ import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlockList;
@@ -128,7 +140,6 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -200,6 +211,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")
                 .setIcon(R.mipmap.ic_launcher)
+
                 .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
                 .build();
 
@@ -478,8 +490,55 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void getUserBots(GetUserBotsRequest request) {
+       chat.getUserBots(request);
+    }
+
+    @Override
     public void onBotCreated(ChatResponse<CreateBotResult> response) {
         view.onBotCreated(response);
+    }
+
+    @Override
+    public void onRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onRegisterAssistant: " + response.getJson());
+    }
+
+    @Override
+    public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
+    }
+
+    @Override
+    public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
+    }
+
+    @Override
+    public void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantBlocked(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantBlocked: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantUnBlocked: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantBlocks(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantBlocks: " + response.getJson());
     }
 
     @Override
@@ -796,6 +855,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public String getHashTagList(RequestGetHashTagList request, ChatHandler handler) {
+        return chat.getHashTagList(request);
+    }
+
+    @Override
     public void searchHistory(NosqlListMessageCriteriaVO builderListMessage, ChatHandler handler) {
         chat.searchHistory(builderListMessage, handler);
     }
@@ -1043,8 +1107,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler) {
-        chat.removeParticipants(requestRemoveParticipants, handler);
+    public void removeParticipants(RemoveParticipantRequest removeParticipantRequest, ChatHandler handler) {
+        chat.removeParticipants(removeParticipantRequest, handler);
     }
 
 
@@ -1290,6 +1354,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onSent(content, chatResponse);
         view.onSentMessage();
+        Log.e("testmsg", "id : " + chatResponse.getResult().getMessageId());
     }
 
     @Override
@@ -1446,6 +1511,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onUnmuteThread(String content, ChatResponse<ResultMute> outPutMute) {
         super.onUnmuteThread(content, outPutMute);
         view.onUnMuteThread();
+    }
+
+    @Override
+    public void onGetMentionList(ChatResponse<ResultHistory> response) {
+        super.onGetMentionList(response);
+    }
+
+    @Override
+    public void onGetHashTagList(ChatResponse<ResultHistory> response) {
+        super.onGetHashTagList(response);
+        Log.e(TAG, "onGetHashTagList: "+response.getJson() );
+
     }
 
     @Override
@@ -1983,7 +2060,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
 
-        RequestRemoveParticipants request = new RequestRemoveParticipants.Builder(
+        RemoveParticipantRequest request = new RemoveParticipantRequest.Builder(
                 callVO.getCallId(),
                 ids)
                 .build();
@@ -2024,6 +2101,41 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void registerAssistant(RegisterAssistantRequest request) {
         chat.registerAssistant(request);
+    }
+
+    @Override
+    public void getAssistants(GetAssistantRequest request) {
+        chat.getAssistants(request);
+    }
+
+    @Override
+    public void deActiveAssistant(DeActiveAssistantRequest request) {
+        chat.deactiveAssistant(request);
+    }
+
+    @Override
+    public void getAssistantHistory(GetAssistantHistoryRequest request) {
+        chat.getAssistantHistory(request);
+    }
+
+    @Override
+    public void blockAssistant(BlockUnblockAssistantRequest o) {
+        chat.blockAssistant(o);
+    }
+
+    @Override
+    public void unBlockAssistant(BlockUnblockAssistantRequest o) {
+        chat.unBlockAssistant(o);
+    }
+
+    @Override
+    public void getBlocksAssistant(GetBlockedAssistantsRequest o) {
+        chat.getBlocksAssistant(o);
+    }
+
+    @Override
+    public void changeThreadType(ChangeThreadTypeRequest request) {
+        chat.changeThreadType(request);
     }
 
     @Override
@@ -2068,6 +2180,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         }
 
+    }
+
+    @Override
+    public void onThreadTypeChanged(ChatResponse<Thread> response) {
+        super.onThreadTypeChanged(response);
+        Log.e(TAG, "onThreadChangeType: " + response.getJson());
     }
 
     @Override

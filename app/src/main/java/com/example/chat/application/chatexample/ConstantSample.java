@@ -32,7 +32,17 @@ public class ConstantSample {
             "Create Public Thread or Channel",
             "Join Public Thread",
             "Close Thread",
-            "Get Senrty Logs"
+            "Get Senrty Logs",
+            "Register Assistant",
+            "deactive Assistant",
+            "get Assistants",
+            "get Assistants History",
+            "Convert Public Thread To Private",
+            "Convert Private Thread To Public",
+            "Get Hash Tag List",
+            "Block Assistant",
+            "UnBlock Assistant",
+            "Get Blocks Assistant"
     };
 
     public static final String[] funcSecond = {
@@ -58,7 +68,8 @@ public class ConstantSample {
             "Create Bot",
             "Define Bot Command",
             "Start Bot",
-            "Start Bot"
+            "Start Bot",
+            "Get User Bots"
     };
 
     public static final String[] funcThird = {

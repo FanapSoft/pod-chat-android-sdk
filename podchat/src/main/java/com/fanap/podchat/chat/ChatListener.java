@@ -5,8 +5,11 @@ import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.GetUserBotsResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
@@ -25,6 +28,7 @@ import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -58,6 +62,8 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+
+import java.util.List;
 
 public interface ChatListener {
 
@@ -269,6 +275,7 @@ public interface ChatListener {
     default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
 
     default void onGetMentionList(ChatResponse<ResultHistory> response){}
+    default void onGetHashTagList(ChatResponse<ResultHistory> response){}
 
     default void onTypingSignalTimeout(long threadId){}
 
@@ -293,6 +300,7 @@ public interface ChatListener {
     default void onBotStopped(ChatResponse<StartStopBotResult> response){}
 
     default void onBotStarted(ChatResponse<StartStopBotResult> response){}
+    default void onUserBots(ChatResponse<GetUserBotsResult> response){}
 
     default void onContactsSynced(ChatResponse<ContactSyncedResult> response){}
 
@@ -327,6 +335,7 @@ public interface ChatListener {
     default void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response){}
 
     default void onThreadClosed(ChatResponse<CloseThreadResult> response){}
+    default void onThreadTypeChanged(ChatResponse<Thread> response){}
 
     default void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response){}
 
@@ -345,6 +354,13 @@ public interface ChatListener {
     default void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response){}
 
     default void onCallParticipantCanceledCall(ChatResponse<CallCancelResult> response){}
-
     default void onAnotherDeviceAcceptedCall(){}
+
+    default void onRegisterAssistant(ChatResponse<List<AssistantVo>> response){}
+    default void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response){}
+    default void onGetAssistants(ChatResponse<List<AssistantVo>> response){}
+    default void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response){}
+    default void onAssistantBlocked(ChatResponse<List<AssistantVo>> response){}
+    default void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response){}
+    default void onAssistantBlocks(ChatResponse<List<AssistantVo>> response){}
 }

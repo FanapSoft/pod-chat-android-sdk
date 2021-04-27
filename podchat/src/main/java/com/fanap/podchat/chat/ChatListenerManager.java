@@ -16,8 +16,11 @@ import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.bot.result_model.GetUserBotsResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
@@ -30,6 +33,7 @@ import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -776,6 +780,18 @@ public class ChatListenerManager {
 
 
     }
+    public void callOnGetHashTagList(ChatResponse<ResultHistory> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetHashTagList(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
 
     public void callOnSignalMessageTimeout(long threadId) {
 
@@ -813,8 +829,52 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
 
+    public void callOnGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetAssistantHistory(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAssistantBlocked(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantBlocked(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAssistantUnBlocked(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantUnBlocked(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnAssistantBlocks(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onAssistantBlocks(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnChatProfileUpdated(ChatResponse<ResultUpdateProfile> response) {
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
@@ -823,10 +883,46 @@ public class ChatListenerManager {
                 callHandleCallbackError(listener, t);
             }
         }
+
+    }
+
+
+    public void callOnRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRegisterAssistant(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+
+    public void callOnDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeActiveAssistant(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnGetAssistants(ChatResponse<List<AssistantVo>> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetAssistants(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
     }
 
     public void callOnUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
-
 
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
@@ -910,6 +1006,18 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onBotStarted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+    public void callOnUserBots(ChatResponse<GetUserBotsResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUserBots(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -1126,6 +1234,18 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onThreadClosed(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnThreadChangeType(ChatResponse<Thread> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadTypeChanged(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
