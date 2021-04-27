@@ -417,6 +417,11 @@ public class NetworkPingSender {
 
         }
 
+        /**
+         *
+         * @return default config for connection check.
+         */
+
         public static NetworkStateConfig getDefault() {
             return new NetworkStateConfig();
         }

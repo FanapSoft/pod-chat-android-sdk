@@ -762,6 +762,7 @@ public class Chat extends AsyncAdapter {
                 }
             });
 
+            //get default config for connection check if it wasn't set.
             if (networkStateConfig == null) {
                 networkStateConfig = NetworkPingSender.NetworkStateConfig.getDefault();
             }
