@@ -363,4 +363,5 @@ public interface ChatListener {
     default void onAssistantBlocked(ChatResponse<List<AssistantVo>> response){}
     default void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response){}
     default void onAssistantBlocks(ChatResponse<List<AssistantVo>> response){}
+    default void onGetMutualGroups(String content, ChatResponse<ResultThreads> thread){}
 }

@@ -15,6 +15,7 @@ import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.cachemodel.CacheMutualGroupVo;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
@@ -542,7 +543,17 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertCacheAssistantHistoryVo(List<CacheAssistantHistoryVo> assistantVo);
 
+
+
     @Query("DELETE FROM CacheAssistantHistoryVo")
     void deleteAllCacheAssistantHistoryVo();
 
+    @Insert(onConflict = REPLACE)
+    void insertCacheMutualVo(CacheMutualGroupVo assistantVo);
+
+    @Query("SELECT * FROM CacheMutualGroupVo WHERE contactId = :contactId")
+    List<CacheMutualGroupVo> getMutualGroup(String contactId);
+
+    @Query("DELETE FROM CacheMutualGroupVo")
+    void deleteAllCacheMutualGroupVo();
 }

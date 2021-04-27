@@ -1308,6 +1308,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onGetMutualGroups(String content, ChatResponse<ResultThreads> thread) {
+        super.onGetMutualGroups(content, thread);
+        Log.e(TAG, "onGetMutualGroups: " + content);
+
+    }
+
+    @Override
     public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
     }
 

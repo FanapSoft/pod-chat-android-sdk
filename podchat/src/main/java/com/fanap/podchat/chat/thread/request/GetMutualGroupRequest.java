@@ -7,22 +7,22 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.requestobject.BaseRequestObject;
 
 public class GetMutualGroupRequest extends BaseRequestObject {
-    Invitee user;
+    Invitee toBeUserVO;
     GetMutualGroupRequest(@NonNull Builder builder) {
         super(builder);
-        if (builder.user != null)
-            this.user = builder.user;
+        if (builder.toBeUserVO != null)
+            this.toBeUserVO = builder.toBeUserVO;
     }
 
     public Invitee getUser() {
-        return user;
+        return toBeUserVO;
     }
 
     public static class Builder extends BaseRequestObject.Builder<Builder> {
-        Invitee user = null;
+        Invitee toBeUserVO = null;
 
         public Builder(Invitee user) {
-            this.user = user;
+            this.toBeUserVO = user;
         }
 
         @NonNull

@@ -46,11 +46,16 @@ public class ChatDataSource {
     THREADS
      */
 
-    public Observable<ThreadManager.ThreadResponse> getThreadsFromMemoryDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) {
+    private Observable<ThreadManager.ThreadResponse> getThreadsFromMemoryDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) {
         return memoryDataSource.getThreadsData(count, offset, threadIds, threadName, isNew);
     }
 
-    public Observable<ThreadManager.ThreadResponse> getThreadsFromCacheDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) throws RoomIntegrityException {
+    private Observable<ThreadManager.ThreadResponse> getMutualThreadsFromCacheDataSource(Integer count, Long offset, Long userId) throws RoomIntegrityException {
+        //get from disk cache and put in memory cache
+        return cacheDataSource.getMutualThreadsData(count, offset, userId).doOnNext(threadResponse -> saveThreadResultFromCache(threadResponse.getThreadList()));
+    }
+
+    private Observable<ThreadManager.ThreadResponse> getThreadsFromCacheDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) throws RoomIntegrityException {
         //get from disk cache and put in memory cache
         return cacheDataSource.getThreadsData(count, offset, threadIds, threadName, isNew).doOnNext(threadResponse -> saveThreadResultFromCache(threadResponse.getThreadList()));
     }
@@ -83,12 +88,35 @@ public class ChatDataSource {
 
 
     }
+    public Observable<ThreadManager.ThreadResponse> getMutualThreadData(Integer count,
+                                                                  Long offset,
+                                                                        long  userId
+                                                                  ) throws RoomIntegrityException {
+
+
+        if (offset == null) {
+            offset = 0L;
+        }
+
+        if (count == null || count == 0)
+            count = 50;
+
+        return getMutualThreadsFromCacheDataSource(count, offset, userId);
+
+
+    }
 
 
     public void saveThreadResultFromServer(List<Thread> server) {
 
         memoryDataSource.cacheThreads(server);
         cacheDataSource.cacheThreads(server);
+
+    }
+
+    public void saveMutualThreadResultFromServer(List<Thread> server,long userId) {
+
+        cacheDataSource.cacheMutualThreads(server,userId);
 
     }
 

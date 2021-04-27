@@ -390,6 +390,7 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
     private static HashMap<String, String> hashTagCallBacks;
+
     private HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
 
     private ProgressHandler.cancelUpload cancelUpload;
@@ -995,7 +996,7 @@ public class Chat extends AsyncAdapter {
         @ChatStateType.ChatSateConstant String currentChatState = state;
 
         chatState = currentChatState;
-
+        Log.e("chatstate", "onStateChanged: "+ chatState);
         switch (currentChatState) {
             case OPEN:
                 retrySetToken = 1;
@@ -1218,6 +1219,11 @@ public class Chat extends AsyncAdapter {
 
             case Constants.GET_ASSISTANT_HISTORY: {
                 handleOnGetAssistantHistory(chatMessage);
+                break;
+            }
+
+            case Constants.MUTAL_GROUPS: {
+                handleOnGetMutualGroups(chatMessage);
                 break;
             }
 
@@ -1821,6 +1827,42 @@ public class Chat extends AsyncAdapter {
         }
 
         listenerManager.callOnGetAssistantHistory(response);
+
+    }
+
+    private void handleOnGetMutualGroups(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON GET MUTUAL GROUPS", gson.toJson(chatMessage));
+        } else {
+            showLog("ON GET MUTUAL GROUPS");
+        }
+        long UserId=0;
+        if (hashTagCallBacks.get(chatMessage.getUniqueId()) != null) {
+            UserId =Long.parseLong(hashTagCallBacks.get(chatMessage.getUniqueId()));
+            hashTagCallBacks.remove(chatMessage.getUniqueId());
+        }
+        ChatResponse<ResultThreads> chatResponse = reformatGetThreadsResponseForMutual(chatMessage, UserId);
+
+        if (cache) {
+            //if true, it is a getThreadSummary request
+            if (handlerSend.containsKey(chatMessage.getUniqueId())) {
+                Objects.requireNonNull(handlerSend.get(chatMessage.getUniqueId()))
+                        .onGetThread(chatMessage.getContent());
+                return;
+            }
+        }
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_GET_MUTUAL_THREAD", chatResponse.getJson());
+        } else {
+            showLog("RECEIVE_GET_MUTUAL_THREAD");
+        }
+
+
+        String result = gson.toJson(chatResponse);
+
+        listenerManager.callOnGetMutualGroup(result, chatResponse);
 
     }
 
@@ -2962,20 +3004,91 @@ public class Chat extends AsyncAdapter {
 
     }
 
+//
+//    /**
+//     * @param request You can get MutualGroup list
+//     */
+//    public String getMutualGroup(GetMutualGroupRequest request) {
+//        String uniqueId = generateUniqueId();
+//
+//        if (chatReady) {
+//            String message = ThreadManager.createMutaulGroupRequest(request, uniqueId);
+//            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_MUTUAL_GROUPS");
+//        } else {
+//            onChatNotReady(uniqueId);
+//        }
+//
+//        return uniqueId;
+//    }
 
     /**
      * @param request You can get MutualGroup list
      */
     public String getMutualGroup(GetMutualGroupRequest request) {
+
         String uniqueId = generateUniqueId();
+        Long offset =(long) request.getOffset();
+        String ContactId = request.getUser().getId();
+        Integer count = (int)request.getCount();
+        boolean useCache = request.useCacheData();
+        count = count != null && count > 0 ? count : 50;
 
-        if (chatReady) {
-            String message = ThreadManager.createMutaulGroupRequest(request, uniqueId);
-            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_MUTUAL_GROUPS");
-        } else {
-            onChatNotReady(uniqueId);
+        offset = offset != null ? offset : 0;
+
+        try {
+
+            Integer finalCount = count;
+            Long finalOffset = offset;
+
+
+            Runnable getMutualThreadsFromServerJob = () -> {
+
+                if (chatReady) {
+                    hashTagCallBacks.put(uniqueId, request.getUser().getId());
+                    String message = ThreadManager.createMutaulGroupRequest(request, uniqueId);
+                    sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_MUTUAL_GROUPS");
+                } else {
+                    captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+                }
+
+            };
+
+
+            if (cache && useCache) {
+
+                dataSource.getMutualThreadData(
+                        finalCount,
+                        finalOffset,
+                        Long.parseLong(ContactId))
+                        .doOnError(exception -> captureError(exception.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId))
+                        .onErrorResumeNext(Observable.empty())
+                        .subscribe(response -> {
+                            getMutualThreadsFromServerJob.run();
+                            if (response != null && Util.isNotNullOrEmpty(response.getThreadList())) {
+
+                                String threadJson = publishMutualThreadsList(uniqueId, finalOffset, response);
+                                if (sentryResponseLog) {
+                                    showLog("SOURCE: " + response.getSource());
+                                    showLog("CACHE_GET_MUTUAL_THREAD", threadJson);
+                                } else {
+                                    showLog("SOURCE");
+                                    showLog("CACHE_GET_MUTUAL_THREAD");
+                                }
+                            }
+                        });
+
+
+            } else {
+
+                getMutualThreadsFromServerJob.run();
+
+            }
+
+
+        } catch (Throwable e) {
+            showErrorLog(e.getMessage());
+            onUnknownException(uniqueId, e);
         }
-
         return uniqueId;
     }
     /**
@@ -3107,10 +3220,6 @@ public class Chat extends AsyncAdapter {
      */
     public String getBlocksAssistant(GetBlockedAssistantsRequest request) {
         String uniqueId = generateUniqueId();
-
-        if (cache) {
-
-        }
 
         if (chatReady) {
             String message = AssistantManager.createGetBlockedAssistantsRequest(request, uniqueId);
@@ -13904,7 +14013,35 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnGetThread(result, chatResponse);
         return result;
     }
+    private String publishMutualThreadsList(String uniqueId, Long finalOffset, ThreadManager.ThreadResponse cacheThreadResponse) {
 
+        ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
+
+        List<Thread> threadList = cacheThreadResponse.getThreadList();
+
+        chatResponse.setCache(true);
+
+        long contentCount = cacheThreadResponse.getContentCount();
+
+        ResultThreads resultThreads = new ResultThreads();
+        resultThreads.setThreads(threadList);
+        resultThreads.setContentCount(contentCount);
+        chatResponse.setCache(true);
+
+
+        if (threadList.size() + finalOffset < contentCount) {
+            resultThreads.setHasNext(true);
+        } else {
+            resultThreads.setHasNext(false);
+        }
+        resultThreads.setNextOffset(finalOffset + threadList.size());
+        chatResponse.setResult(resultThreads);
+        chatResponse.setUniqueId(uniqueId);
+
+        String result = gson.toJson(chatResponse);
+        listenerManager.callOnGetMutualGroup(result, chatResponse);
+        return result;
+    }
     private int getExpireAmount() {
         if (Util.isNullOrEmpty(expireAmount)) {
             expireAmount = 2 * 24 * 60 * 60;
@@ -15579,6 +15716,35 @@ public class Chat extends AsyncAdapter {
 
             resultThreads.setNextOffset(callback.getOffset() + threads.size());
         }
+
+        outPutThreads.setResult(resultThreads);
+        return outPutThreads;
+    }
+   /**
+     * Reformat the get thread response
+     */
+    private ChatResponse<ResultThreads> reformatGetThreadsResponseForMutual(ChatMessage chatMessage, long userId) {
+        ChatResponse<ResultThreads> outPutThreads = new ChatResponse<>();
+        ArrayList<Thread> threads = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<Thread>>() {
+        }.getType());
+
+        if (cache) {
+            // get threads summary shouldn't update cache
+            if (!handlerSend.containsKey(chatMessage.getUniqueId())) {
+//                messageDatabaseHelper.saveThreads(threads);
+                dataSource.saveThreadResultFromServer(threads);
+                dataSource.saveMutualThreadResultFromServer(threads,userId);
+            }
+        }
+
+        ResultThreads resultThreads = new ResultThreads();
+        resultThreads.setThreads(threads);
+        resultThreads.setContentCount(chatMessage.getContentCount());
+        outPutThreads.setErrorCode(0);
+        outPutThreads.setErrorMessage("");
+        outPutThreads.setHasError(false);
+        outPutThreads.setUniqueId(chatMessage.getUniqueId());
+
 
         outPutThreads.setResult(resultThreads);
         return outPutThreads;

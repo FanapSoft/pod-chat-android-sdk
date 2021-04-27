@@ -169,13 +169,14 @@ public class ThreadManager {
     }
 
     public static String createMutaulGroupRequest(GetMutualGroupRequest request, String uniqueId) {
-
+        JsonObject content = (JsonObject) App.getGson().toJsonTree(request);
+        content.remove("useCache");
 
         AsyncMessage message = new ChatMessage();
         message.setType(ChatMessageType.Constants.MUTAL_GROUPS);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
-        message.setContent(App.getGson().toJson(request));
+        message.setContent(content.toString());
         message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setUniqueId(uniqueId);
 
@@ -397,6 +398,7 @@ public class ThreadManager {
 
     }
 
+
     public static Observable<List<Thread>> getByName(String name, List<Thread> allThreads) {
 
         try {
@@ -436,6 +438,12 @@ public class ThreadManager {
         Collections.sort(sorted, ThreadManager::compareThreads);
         return sorted;
     }
+
+//    public static List<Thread> sortThreads(List<Thread> unsorted) {
+//        List<Thread> sorted = new ArrayList<>(unsorted);
+//        Collections.sort(sorted, ThreadManager::compareThreads);
+//        return sorted;
+//    }
 
     public static ChatResponse<ResultLeaveThread> prepareLeaveThreadResponse(ChatMessage chatMessage) {
 
