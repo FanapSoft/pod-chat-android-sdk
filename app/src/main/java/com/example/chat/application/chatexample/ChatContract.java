@@ -288,6 +288,8 @@ public interface ChatContract {
         default void onGetSentryLogs(String logs){}
 
         default void onChatProfileUpdated(ResultUpdateProfile result){}
+
+        default void onLoginNeeded(){}
     }
 
     interface presenter {
@@ -568,7 +570,7 @@ public interface ChatContract {
 
         void setCallInfo(CallInfo callInfo);
 
-        void requestMainOrSandboxCall(String query, boolean checked);
+        void requestMainOrSandboxCall(String query, boolean isGroupCall);
 
         void requestCall(int partnerId, boolean checked);
 

@@ -97,6 +97,9 @@ public class CallAsyncRequestsManager {
 
         if (request.getSubjectId() <= 0)
             createCallVO.setInvitees(request.getInvitees());
+        else
+            createCallVO.setThreadId(request.getSubjectId());
+
 
         createCallVO.setType(request.getCallType());
 
@@ -107,7 +110,7 @@ public class CallAsyncRequestsManager {
 
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
-        contentObj.add("creatorClientDto",clientDtoObj);
+        contentObj.add("creatorClientDto", clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -174,7 +177,7 @@ public class CallAsyncRequestsManager {
 
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
-        contentObj.add("creatorClientDto",clientDtoObj);
+        contentObj.add("creatorClientDto", clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -287,21 +290,6 @@ public class CallAsyncRequestsManager {
     public static String createAcceptCallRequest(AcceptCallRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
-        JsonObject content = new JsonObject();
-
-        if (request.isMute()) {
-            content.addProperty("mute", true);
-        }
-        if (request.isVideoCall()) {
-            content.addProperty("videoCall", true);
-        }
-        message.setContent(content.toString());
-        message.setType(ChatMessageType.Constants.ACCEPT_CALL);
-        message.setToken(CoreConfig.token);
-        message.setTokenIssuer(CoreConfig.tokenIssuer);
-        message.setSubjectId(request.getCallId());
-        message.setUniqueId(uniqueId);
-
 
         SendClientDTO sendClientDTO = new SendClientDTO();
         sendClientDTO.setVideo(request.isVideoCall());
@@ -309,11 +297,16 @@ public class CallAsyncRequestsManager {
         sendClientDTO.setClientType(ClientType.Constants.ANDROID);
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
 
-        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        message.setContent(clientDtoObj.toString());
+        message.setType(ChatMessageType.Constants.ACCEPT_CALL);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setSubjectId(request.getCallId());
+        message.setUniqueId(uniqueId);
 
-        a.add("creatorClientDto",clientDtoObj);
+        JsonObject messageObj = (JsonObject) App.getGson().toJsonTree(message);
 
-        return a.toString();
+        return messageObj.toString();
     }
 
     public static String createRejectCallRequest(RejectCallRequest request, String uniqueId) {

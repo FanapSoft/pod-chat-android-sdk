@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.chat.application.chatexample.token.TokenHandler;
+import com.fanap.podcall.audio.AudioCallParam;
 import com.fanap.podcall.model.VideoCallParam;
 import com.fanap.podcall.video.codec.VideoCodecType;
 import com.fanap.podcall.view.CallPartnerView;
@@ -270,6 +271,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
             }
 
             @Override
+            public void onLoginNeeded() {
+
+                view.onLoginNeeded();
+            }
+
+            @Override
             public void onError(String message) {
                 view.onError(message);
             }
@@ -299,12 +306,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 new VideoCallParam.Builder(localVideo)
                         .setCamWidth(176)
                         .setCamHeight(144)
-                        .setCamFPS(15)
+                        .setCamFPS(30)
                         .setVideoCodecType(VideoCodecType.VIDEO_CODEC_VP8)
                         .setBitrate(90_000)
                         .build();
 
-        chat.setupVideoCall(callParam, remoteViews);
+        AudioCallParam audioCallParam = new AudioCallParam.Builder()
+                .setBitrate(8000)
+                .setFrameSize(960)
+                .setNumberOfChannels(1)
+                .build();
+
+        chat.setupCall(callParam, audioCallParam,remoteViews);
 
     }
 
@@ -2173,7 +2186,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         RequestGetContact request =
                 new RequestGetContact.Builder()
-                        .count(10)
+                        .count(50)
                         .offset(0)
                         .build();
 
@@ -2253,7 +2266,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void requestMainOrSandboxCall(String query, boolean group) {
+    public void requestMainOrSandboxCall(String query, boolean isGroupCall) {
 
         try {
             if (Util.isNotNullOrEmpty(query)) {
@@ -2311,7 +2324,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                     CallRequest callRequest = new CallRequest.Builder(
                             Long.parseLong(query),
                             CallType.Constants.VIDEO_CALL).build();
-                    if (group) {
+                    if (isGroupCall) {
                         uniqueId = chat.requestGroupCall(callRequest);
                     } else {
                         uniqueId = chat.requestCall(callRequest);
@@ -2471,4 +2484,5 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onAnotherDeviceAcceptedCall() {
         view.hideCallRequest();
     }
+
 }

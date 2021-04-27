@@ -8,367 +8,17 @@
     tools:context="com.example.chat.application.chatexample.CallActivity">
 
 
-    <ScrollView
-        android:visibility="visible"
-        android:id="@+id/scrollView2"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvStatus"
+        style="@style/text_style"
+        android:textSize="14sp"
+        android:textColor="@color/colorPrimary"
+        android:layout_marginStart="8dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent">
-
-
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-
-            <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/etOtpNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter Number OR Code"
-                android:textColor="@color/white"
-                android:textColorHint="@color/design_default_color_primary"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/checkboxGroupCall" />
-
-
-            <Button
-                android:id="@+id/btnConnectToSandbox"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@color/design_default_color_primary"
-                android:text="OK"
-                android:textColor="@color/white"
-                app:layout_constraintTop_toBottomOf="@+id/etOtpNumber" />
-
-
-            <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/etSandBoxPartnerId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Partner or subject Id"
-                android:inputType="phone"
-                android:textColor="@color/white"
-                android:textColorHint="@color/design_default_color_primary"
-                app:layout_constraintTop_toBottomOf="@+id/btnConnectToSandbox" />
-
-            <Button
-                android:id="@+id/btnSandboxCall"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@color/design_default_color_primary"
-                android:text="Call"
-                android:textColor="@color/white"
-                app:layout_constraintTop_toBottomOf="@+id/etSandBoxPartnerId" />
-
-
-            <Button
-                android:id="@+id/btnCallTest"
-                android:layout_width="240dp"
-                android:layout_height="60dp"
-                android:layout_marginBottom="16dp"
-                android:background="@color/colorPrimary"
-                android:text="TestCall"
-                android:textColor="#ffffff"
-                android:visibility="gone"
-                app:layout_constraintBottom_toTopOf="@+id/btnCallRequest"
-                app:layout_constraintStart_toStartOf="@+id/btnCallRequest"
-                tools:visibility="visible" />
-
-
-            <Button
-                android:id="@+id/btnCallRequest"
-
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_margin="16dp"
-                android:background="@color/colorPrimaryDark"
-                android:text="Call"
-                android:textColor="#ffffff"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:visibility="visible" />
-
-
-            <Button
-                android:id="@+id/btnConnect"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_margin="16dp"
-                android:background="@color/colorAccent"
-                android:text="Connect"
-                android:textColor="#ffffff"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:visibility="visible" />
-
-
-            <CheckBox
-                android:id="@+id/checkboxSSL"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                android:checked="true"
-                android:text="SSL"
-                android:textColor="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/guideline4" />
-
-            <CheckBox
-                android:id="@+id/checkboxGroupCall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                android:checked="false"
-                android:text="Group Call"
-                android:textColor="@color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/guideline4" />
-
-
-            <ImageButton
-                android:id="@+id/buttonGetHistory"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:background="@drawable/circle_green"
-                app:layout_constraintBottom_toBottomOf="@+id/btnCallTest"
-                app:layout_constraintEnd_toEndOf="@+id/btnCallRequest"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toEndOf="@+id/btnCallTest"
-                app:layout_constraintTop_toTopOf="@+id/btnCallTest"
-                app:layout_constraintVertical_bias="1.0"
-                app:srcCompat="@drawable/ic_history" />
-
-
-            <LinearLayout
-                android:id="@+id/layoutTestParam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radioPartner">
-
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/etGroupId"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Group id"
-                    android:inputType="text"
-                    android:textColor="@color/white"
-                    android:textColorHint="@color/colorPrimary" />
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/etSender"
-
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight="1"
-                    android:hint="Sender"
-                    android:inputType="text"
-                    android:textColor="@color/white"
-                    android:textColorHint="@color/colorPrimary" />
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/etReceiver"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-
-                    android:layout_weight="1"
-                    android:hint="Receiver"
-                    android:inputType="text"
-                    android:textColor="@color/white"
-                    android:textColorHint="@color/colorPrimary" />
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/linearCallParticipants"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toTopOf="@+id/guideline4"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layoutTestParam">
-
-
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/checkboxZiziPartner"
-                    style="@style/radio_button"
-                    android:text="ZIZI" />
-
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/checkboxJijiPartner"
-                    style="@style/radio_button"
-                    android:text="JIJI" />
-
-                <android.support.v7.widget.AppCompatCheckBox
-                    android:id="@+id/checkboxFifiPartner"
-                    style="@style/radio_button"
-                    android:text="FIFI" />
-
-            </LinearLayout>
-
-            <RadioGroup
-                android:id="@+id/radioCaller"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@+id/textView3">
-
-
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioFarhadCaller"
-                    style="@style/radio_button"
-                    android:checked="true"
-                    android:text="Farhad" />
-
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioPooriaCaller"
-                    style="@style/radio_button"
-                    android:text="Pooria" />
-
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioMasoudCaller"
-                    style="@style/radio_button"
-                    android:text="Masoud" />
-
-            </RadioGroup>
-
-            <RadioGroup
-                android:id="@+id/radioPartner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@+id/textView4">
-
-
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioFarhadPartner"
-                    style="@style/radio_button"
-                    android:text="FARHAD" />
-
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioPooriaPartner"
-                    style="@style/radio_button"
-                    android:checked="true"
-                    android:text="POORIA" />
-
-                <android.support.v7.widget.AppCompatRadioButton
-                    android:id="@+id/radioMasoudPartner"
-                    style="@style/radio_button"
-                    android:text="MASOUD" />
-
-            </RadioGroup>
-
-            <Button
-                android:id="@+id/btnShareLogs"
-                android:layout_width="65dp"
-                android:layout_height="65dp"
-                android:layout_margin="4dp"
-                android:background="@drawable/circle_red"
-                android:padding="4dp"
-                android:text="ُShare Log"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@+id/radioCaller"
-                app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-            <TextView
-                android:id="@+id/textView3"
-                style="@style/text_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Creator:"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-
-            <TextView
-                android:id="@+id/textView4"
-                style="@style/text_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Partner:"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radioCaller" />
-
-            <TextView
-                android:id="@+id/tvStatus"
-                style="@style/text_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnSandboxCall"
-                tools:text="Connecting..." />
-
-
-            <TextView
-                android:id="@+id/textView2"
-                style="@style/text_style"
-                android:text="Call"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <!--    <CheckBox-->
-            <!--        android:id="@+id/checkBoxSandBox"-->
-            <!--        android:layout_width="wrap_content"-->
-            <!--        android:layout_height="wrap_content"-->
-            <!--        android:checked="true"-->
-            <!--        android:text="SandBox"-->
-            <!--        android:textColor="@color/white"-->
-            <!--        app:layout_constraintStart_toStartOf="@+id/textView3"-->
-            <!--        app:layout_constraintTop_toBottomOf="@+id/textView2" />-->
-
-            <!--    <CheckBox-->
-            <!--        android:id="@+id/checkboxIntegration"-->
-            <!--        android:layout_width="wrap_content"-->
-            <!--        android:layout_height="wrap_content"-->
-            <!--        android:checked="true"-->
-            <!--        android:text="Integration"-->
-            <!--        android:textColor="@color/white"-->
-            <!--        app:layout_constraintBottom_toBottomOf="@+id/checkBoxSandBox"-->
-            <!--        app:layout_constraintEnd_toEndOf="@+id/radioCaller"-->
-            <!--        app:layout_constraintTop_toBottomOf="@+id/textView2" />-->
-
-            <android.support.constraint.Guideline
-                android:id="@+id/guideline4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.45964432" />
-
-        </android.support.constraint.ConstraintLayout>
-
-    </ScrollView>
-
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Connecting..." />
 
     <include
         layout="@layout/call_request_receive_layout"
@@ -380,25 +30,66 @@
     <include layout="@layout/layout_history" />
 
     <FrameLayout
-        android:visibility="gone"
         android:id="@+id/frame_call"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 
     <android.support.design.widget.FloatingActionButton
-        android:visibility="gone"
+        android:id="@+id/fabShowContactsList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:fabSize="normal"
-        android:id="@+id/fabShowContactsList"
+        android:visibility="visible"
         app:backgroundTint="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="@+id/frame_call"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_call" />
+        app:srcCompat="@drawable/ic_new_call" />
 
-    <include layout="@layout/video_call" />
+    <LinearLayout
+        android:layout_margin="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/tvStatus">
+
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/etSandBoxPartnerId"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:paddingStart="8dp"
+            android:layout_weight="0.3"
+            android:layout_marginEnd="8dp"
+            android:hint="Partner or subject Id"
+            android:inputType="phone"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:background="@drawable/rounded_button_transparent"
+            android:textColorHint="@color/colorPrimaryDark"
+            app:layout_constraintTop_toBottomOf="@+id/tvStatus"
+            tools:ignore="RtlSymmetry" />
+
+        <Button
+            android:id="@+id/btnSandboxCall"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="0.3"
+            android:background="@drawable/rounded_button_prim_dark"
+            android:text="Call"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etSandBoxPartnerId" />
+
+    </LinearLayout>
+
+    <include
+        layout="@layout/video_call"
+        tools:layout_editor_absoluteX="54dp"
+        tools:layout_editor_absoluteY="178dp" />
+
 
 </android.support.constraint.ConstraintLayout>

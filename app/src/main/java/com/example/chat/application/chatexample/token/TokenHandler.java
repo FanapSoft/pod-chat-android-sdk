@@ -51,6 +51,8 @@ public class TokenHandler {
             refreshToken = refKey;
 
             refreshToken();
+        }else {
+            listener.onLoginNeeded();
         }
 
 
@@ -352,5 +354,7 @@ public class TokenHandler {
         void onTokenRefreshed(String token);
 
         void onError(String message);
+
+        default void onLoginNeeded(){}
     }
 }
