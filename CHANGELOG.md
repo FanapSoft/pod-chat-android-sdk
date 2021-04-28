@@ -5,6 +5,12 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+
+## Version [0.9.8.1] -2021-4-28
+
+[BugFixed] NullPointerException on reconnect
+
+
 ## Version [0.9.8.0] -2021-4-27
 
 [Added] ```getUserBots``` method
