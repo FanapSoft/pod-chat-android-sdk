@@ -5,6 +5,15 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## Version [0.9.8.1]
+
+[Added] ```getMutualGroup``` method
+
+[Added] ```onGetMutualGroups``` callback
+
+[UPDATE] ```getContacts``` => add username to RequestGetContact
+
+
 ## Version [0.9.8.0] -2021-4-27
 
 [Added] ```getUserBots``` method
