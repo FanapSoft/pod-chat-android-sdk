@@ -941,7 +941,9 @@ public class Chat extends AsyncAdapter {
                         pingAfterSetToken();
                     }
                 }
-                connectHandler.postDelayed(this, connectNumberOfRetry);
+                if(connectHandler!=null){
+                    connectHandler.postDelayed(this, connectNumberOfRetry);
+                }
             }
         }, connectNumberOfRetry);
 

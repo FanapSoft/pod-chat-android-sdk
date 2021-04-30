@@ -11,7 +11,7 @@ All notable changes to this project will be documented here.
 
 [Added] ```onGetMutualGroups``` callback
 
-[UPDATE] ```getContacts``` => add username to RequestGetContact
+[UPDATE] ```getContacts``` => add username to
 
 
 ## Version [0.9.8.0] -2021-4-27
