@@ -6,6 +6,7 @@ import com.fanap.podchat.localmodel.SetRuleVO;
 import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserRoleVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultBlockList;
@@ -23,6 +24,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.sentry.core.Sentry;
+import rx.Observable;
 
 public class ContactManager {
 
@@ -284,4 +288,22 @@ public class ContactManager {
     }
 
 
+    public static Observable<List<Contact>> getByUsername(String username, List<Contact> allContacts) {
+
+        try {
+            if (Util.isNotNullOrEmpty(username)) {
+                return Observable.from(allContacts)
+                        .filter(t -> t.getLinkedUser()!=null)
+                        .filter(t -> t.getLinkedUser().getUsername().contains(username))
+                        .toList();
+            } else {
+                return Observable.from(allContacts).toList();
+            }
+        } catch (Exception e) {
+            if (Sentry.isEnabled())
+                Sentry.captureException(e);
+            return Observable.from(allContacts).toList();
+        }
+
+    }
 }

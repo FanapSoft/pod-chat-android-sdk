@@ -2683,7 +2683,7 @@ public class ChatActivity extends AppCompatActivity
             RequestGetContact request = new RequestGetContact.Builder()
                     .count(50)
                     .offset(0)
-                    .setUserName(new Invitee("pooria.pahlevani1", InviteType.Constants.TO_BE_USER_USERNAME))
+                    .setUserName("mahyar.zhiani")
 //                .withNoCache()
                     .build();
 
@@ -2694,7 +2694,7 @@ public class ChatActivity extends AppCompatActivity
         }).start();
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

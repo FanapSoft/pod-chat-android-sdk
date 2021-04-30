@@ -1720,6 +1720,61 @@ public class MessageDatabaseHelper {
         return contacts;
     }
 
+
+    @NonNull
+    public List<Contact> getContacts(Integer count, Long offset, String username) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        List<Contact> contacts = new ArrayList<>();
+
+        List<CacheContact> cacheContacts = null;
+        if (username != null) {
+            cacheContacts = messageDao.getRawContacts(count, offset,username);
+        }
+        else {
+            cacheContacts = messageDao.getContacts(count, offset);
+        }
+
+        if (cacheContacts != null && cacheContacts.size() > 0) {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            Date nowDate = c.getTime();
+
+            for (CacheContact cacheContact : cacheContacts) {
+                try {
+                    Date expireDate = format.parse(cacheContact.getExpireDate());
+                    if (expireDate != null && expireDate.compareTo(nowDate) < 0) {
+                        deleteContact(cacheContact);
+                    } else {
+                        Contact contact = new Contact(
+                                cacheContact.getId(),
+                                cacheContact.getFirstName(),
+                                cacheContact.getUserId(),
+                                cacheContact.getLastName(),
+                                cacheContact.getBlocked(),
+                                cacheContact.getCreationDate(),
+                                cacheContact.getLinkedUser(),
+                                cacheContact.getCellphoneNumber(),
+                                cacheContact.getEmail(),
+                                cacheContact.getUniqueId(),
+                                cacheContact.getNotSeenDuration(),
+                                cacheContact.isHasUser()
+                        );
+
+                        contact.setCache(true);
+
+                        contacts.add(contact);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return contacts;
+    }
+
     public int getContactCount() {
         return messageDao.getContactCount();
     }

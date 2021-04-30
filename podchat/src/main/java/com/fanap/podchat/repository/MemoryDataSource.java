@@ -170,12 +170,14 @@ public class MemoryDataSource {
 
     public Observable<ContactManager.ContactResponse> getContactsData(
             Integer count,
-            Long offset
+            Long offset,
+            String username
     ) {
 
 
         return Observable.from(new ArrayList<>(contactsList))
                 .toList()
+                .flatMap(data -> ContactManager.getByUsername(username, data))
                 .map(this::updateContactsContentCount)
                 .map(ContactManager::sortContacts)
                 .map(data -> page(data, count, offset))

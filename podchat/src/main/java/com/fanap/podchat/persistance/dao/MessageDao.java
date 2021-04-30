@@ -81,6 +81,9 @@ public interface MessageDao {
     @Query("select * from CacheContact order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
 
+    @Query("select * from CacheContact WHERE linkedUser_username=:username order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
+    List<CacheContact> getRawContacts(Integer count, Long offset,String username);
+
     @RawQuery
     List<CacheContact> getRawContacts(SupportSQLiteQuery sqLiteQuery);
 

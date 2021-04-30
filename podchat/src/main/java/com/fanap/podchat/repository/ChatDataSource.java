@@ -143,17 +143,20 @@ public class ChatDataSource {
     CONTACTS
      */
 
-    public Observable<ContactManager.ContactResponse> getContactsFromMemoryDataSource(Integer count, Long offset) {
-        return memoryDataSource.getContactsData(count, offset);
+    public Observable<ContactManager.ContactResponse> getContactsFromMemoryDataSource(Integer count, Long offset,
+                                                                                      String username) {
+        return memoryDataSource.getContactsData(count, offset,username);
     }
 
-    public Observable<ContactManager.ContactResponse> getContactsFromCacheDataSource(Integer count, Long offset) {
+    public Observable<ContactManager.ContactResponse> getContactsFromCacheDataSource(Integer count, Long offset,
+                                                                                     String username) {
         //get from disk cache and put in memory cache
-        return cacheDataSource.getContactsData(count, offset).doOnNext(cacheContact -> saveContactsResultFromCache(cacheContact.getContactsList()));
+        return cacheDataSource.getContactsData(count, offset,username).doOnNext(cacheContact -> saveContactsResultFromCache(cacheContact.getContactsList()));
     }
 
     public Observable<ContactManager.ContactResponse> getContactData(Integer count,
-                                                                     Long offset) {
+                                                                     Long offset,
+                                                                     String username) {
 
         if (offset == null) {
             offset = 0L;
@@ -164,8 +167,8 @@ public class ChatDataSource {
 
 
         return Observable.concat(
-                getContactsFromMemoryDataSource(count, offset),
-                getContactsFromCacheDataSource(count, offset))
+                getContactsFromMemoryDataSource(count, offset,username),
+                getContactsFromCacheDataSource(count, offset,username))
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io());

@@ -1844,15 +1844,6 @@ public class Chat extends AsyncAdapter {
         }
         ChatResponse<ResultThreads> chatResponse = reformatGetThreadsResponseForMutual(chatMessage, UserId);
 
-        if (cache) {
-            //if true, it is a getThreadSummary request
-            if (handlerSend.containsKey(chatMessage.getUniqueId())) {
-                Objects.requireNonNull(handlerSend.get(chatMessage.getUniqueId()))
-                        .onGetThread(chatMessage.getContent());
-                return;
-            }
-        }
-
         if (sentryResponseLog) {
             showLog("RECEIVE_GET_MUTUAL_THREAD", chatResponse.getJson());
         } else {
@@ -3004,23 +2995,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-//
-//    /**
-//     * @param request You can get MutualGroup list
-//     */
-//    public String getMutualGroup(GetMutualGroupRequest request) {
-//        String uniqueId = generateUniqueId();
-//
-//        if (chatReady) {
-//            String message = ThreadManager.createMutaulGroupRequest(request, uniqueId);
-//            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_MUTUAL_GROUPS");
-//        } else {
-//            onChatNotReady(uniqueId);
-//        }
-//
-//        return uniqueId;
-//    }
-
     /**
      * @param request You can get MutualGroup list
      */
@@ -3065,7 +3039,6 @@ public class Chat extends AsyncAdapter {
                         .subscribe(response -> {
                             getMutualThreadsFromServerJob.run();
                             if (response != null && Util.isNotNullOrEmpty(response.getThreadList())) {
-
                                 String threadJson = publishMutualThreadsList(uniqueId, finalOffset, response);
                                 if (sentryResponseLog) {
                                     showLog("SOURCE: " + response.getSource());
@@ -8070,9 +8043,10 @@ public class Chat extends AsyncAdapter {
         long offset = request.getOffset();
         long count = request.getCount();
         boolean useCache = request.useCacheData();
+        String username = request.getUsername();
         String typeCode = request.getTypeCode();
-        Invitee user = request.getUser();
-        return getContactMain((int) count, offset, user, false, typeCode, useCache, handler);
+
+        return getContactMain((int) count, offset, username, false, typeCode, useCache, handler);
     }
 
 
@@ -13716,7 +13690,7 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private String getContactMain(int count, long offset, Invitee username, boolean syncContact, String typeCode, boolean useCache, ChatHandler handler) {
+    private String getContactMain(int count, long offset, String username, boolean syncContact, String typeCode, boolean useCache, ChatHandler handler) {
         String uniqueId = generateUniqueId();
 
         int mCount = count > 0 ? count : 50;
@@ -13727,8 +13701,6 @@ public class Chat extends AsyncAdapter {
                 ChatMessageContent chatMessageContent = new ChatMessageContent();
 
                 chatMessageContent.setOffset(offset);
-                if (username != null)
-                    chatMessageContent.setUsername(username);
 
                 JsonObject jObj = (JsonObject) gson.toJsonTree(chatMessageContent);
                 jObj.remove("lastMessageId");
@@ -13736,7 +13708,8 @@ public class Chat extends AsyncAdapter {
 
                 jObj.remove("count");
                 jObj.addProperty("size", mCount);
-
+                if (username != null)
+                    jObj.addProperty("username", username);
                 AsyncMessage chatMessage = new AsyncMessage();
                 chatMessage.setContent(jObj.toString());
                 chatMessage.setType(Constants.GET_CONTACTS);
@@ -13764,7 +13737,7 @@ public class Chat extends AsyncAdapter {
             }
         };
         if (cache && useCache) {
-            dataSource.getContactData(count, offset)
+            dataSource.getContactData(count, offset, username)
                     .doOnCompleted(serverRequestTask::run)
                     .doOnError(exception -> {
                         if (exception instanceof RoomIntegrityException) {
@@ -14013,6 +13986,7 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnGetThread(result, chatResponse);
         return result;
     }
+
     private String publishMutualThreadsList(String uniqueId, Long finalOffset, ThreadManager.ThreadResponse cacheThreadResponse) {
 
         ChatResponse<ResultThreads> chatResponse = new ChatResponse<>();
@@ -14042,6 +14016,7 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnGetMutualGroup(result, chatResponse);
         return result;
     }
+
     private int getExpireAmount() {
         if (Util.isNullOrEmpty(expireAmount)) {
             expireAmount = 2 * 24 * 60 * 60;

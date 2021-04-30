@@ -13,18 +13,9 @@ public class ChatMessageContent {
     private boolean isNew;
     private int firstMessageId;
     private int lastMessageId;
-    private Invitee user;
     private long offset;
     private String order;
     private List<Integer> threadIds;
-
-    public Invitee getUsername() {
-        return user;
-    }
-
-    public void setUsername(Invitee user) {
-        this.user = user;
-    }
 
     public long getCount() {
         return count;

@@ -137,7 +137,7 @@ public class CacheDataSource {
     Contacts
      */
 
-    public Observable<ContactManager.ContactResponse> getContactsData(Integer count, Long offset) {
+    public Observable<ContactManager.ContactResponse> getContactsData(Integer count, Long offset,String username) {
 
 
         return Observable.create(emitter -> {
@@ -145,7 +145,7 @@ public class CacheDataSource {
 
             try {
 
-                List<Contact> contactList = databaseHelper.getContacts(count, offset);
+                List<Contact> contactList = databaseHelper.getContacts(count, offset,username);
 
                 long contentCount = databaseHelper.getContactCount();
 
