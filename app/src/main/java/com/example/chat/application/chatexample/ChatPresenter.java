@@ -64,6 +64,12 @@ import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
+import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
+import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
+import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -279,6 +285,22 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         });
 
 
+    }
+
+    @Override
+    public void onTagCreated(String content, ChatResponse<TagResult> response) {
+          Log.e(TAG, content);
+          view.onTagCreated(response.getResult());
+    }
+
+    @Override
+    public void onTagEdited(String content, ChatResponse<TagResult> response) {
+        Log.e(TAG, content);
+    }
+
+    @Override
+    public void onTagDeleted(String content, ChatResponse<TagResult> response) {
+        Log.e(TAG, content);
     }
 
     @Override
@@ -2136,6 +2158,31 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void changeThreadType(ChangeThreadTypeRequest request) {
         chat.changeThreadType(request);
+    }
+
+    @Override
+    public void createTag(CreateTagRequest request) {
+        chat.createTag(request);
+    }
+
+    @Override
+    public void editTag(EditTagRequest request) {
+        chat.editTag(request);
+    }
+
+    @Override
+    public void deleteTag(DeleteTagRequest request) {
+        chat.deleteTag(request);
+    }
+
+    @Override
+    public void addTagParticipant(AddTagParticipantRequest request) {
+        chat.addTagParticipant(request);
+    }
+
+    @Override
+    public void removeTagParticipant(RemoveTagParticipantRequest request) {
+        chat.removeTagParticipant(request);
     }
 
     @Override

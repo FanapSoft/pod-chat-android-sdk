@@ -108,6 +108,13 @@ import com.fanap.podchat.chat.ping.PingManager;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
 import com.fanap.podchat.chat.search.SearchManager;
+import com.fanap.podchat.chat.tag.TagManager;
+import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
+import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
+import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
+import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.chat.thread.public_thread.PublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -1287,6 +1294,28 @@ public class Chat extends AsyncAdapter {
             case Constants.RELATION_INFO:
             case Constants.GET_STATUS:
                 break;
+
+            case Constants.CREATE_TAG:
+                handleOutPutAddTag(chatMessage,messageUniqueId);
+                break;
+
+            case Constants.EDIT_TAG:
+                handleOutPutEditTag(chatMessage,messageUniqueId);
+                break;
+
+            case Constants.DELETE_TAG:
+                handleOutPutDeleteTag(chatMessage,messageUniqueId);
+                break;
+
+            case Constants.ADD_TAG_PARTICIPANT:
+                handleOutPutAddParticipantTag(chatMessage,messageUniqueId);
+                break;
+
+            case Constants.REMOVE_TAG_PARTICIPANT:
+                handleOutPutRemoveParticipantTag(chatMessage,messageUniqueId);
+                break;
+
+
             case Constants.SENT:
                 handleSent(chatMessage, messageUniqueId, threadId);
                 break;
@@ -7912,6 +7941,92 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
+     * Create user tag
+     */
+    public String createTag(CreateTagRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = TagManager.createAddTagRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "CREATE_TAG");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * Edit user tag
+     */
+    public String editTag(EditTagRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = TagManager.createEditTagRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "EDIT_TAG");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * Delete user tag
+     */
+    public String deleteTag(DeleteTagRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = TagManager.createDeleteTagRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "DELETE_TAG");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * Add user tags participant
+     */
+    public String addTagParticipant(AddTagParticipantRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = TagManager.createAddTagParticipantRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_TAG_PARTICIPANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    /**
+     * Remove user tags participant
+     */
+    public String removeTagParticipant(RemoveTagParticipantRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = TagManager.createRemoveTagParticipantRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REMOVE_TAG_PARTICIPANT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+
+    /**
      * Get all of the contacts of the user
      */
     public String getContacts(RequestGetContact request, ChatHandler handler) {
@@ -11524,7 +11639,93 @@ public class Chat extends AsyncAdapter {
 
 
     }
+    private void handleOutPutAddTag(ChatMessage chatMessage, String messageUniqueId) {
 
+        if (sentryResponseLog) {
+            showLog("TAG CREATED", gson.toJson(chatMessage));
+        } else {
+            showLog("TAG CREATED");
+        }
+
+        ChatResponse<TagResult> response = TagManager.prepareTagResponse(chatMessage);
+
+
+        if (cache) {
+
+        }
+
+        listenerManager.callOnTagCreated(chatMessage.getContent(),response);
+    }
+    private void handleOutPutEditTag(ChatMessage chatMessage, String messageUniqueId) {
+
+        if (sentryResponseLog) {
+            showLog("TAG EDITED", gson.toJson(chatMessage));
+        } else {
+            showLog("TAG EDITED");
+        }
+
+
+        ChatResponse<TagResult> response = TagManager.prepareTagResponse(chatMessage);
+
+
+        if (cache) {
+
+        }
+
+        listenerManager.callOnTagEdited(chatMessage.getContent(),response);
+
+    }
+
+    private void handleOutPutDeleteTag(ChatMessage chatMessage, String messageUniqueId) {
+
+        if (sentryResponseLog) {
+            showLog("TAG DELETED", gson.toJson(chatMessage));
+        } else {
+            showLog("TAG DELETED");
+        }
+
+        ChatResponse<TagResult> response = TagManager.prepareTagResponse(chatMessage);
+
+        if (cache) {
+
+        }
+
+        listenerManager.callOnTagDeleted(chatMessage.getContent(),response);
+
+    }
+    private void handleOutPutAddParticipantTag(ChatMessage chatMessage, String messageUniqueId) {
+
+        if (sentryResponseLog) {
+            showLog("TAG PARTICIPANT ADDED", gson.toJson(chatMessage));
+        } else {
+            showLog("TAG PARTICIPANT ADDED");
+        }
+
+        ChatResponse<TagResult> response = TagManager.prepareTagResponse(chatMessage);
+
+        if (cache) {
+
+        }
+
+        listenerManager.callOnTagParticipantAdded(chatMessage.getContent(),response);
+    }
+
+    private void handleOutPutRemoveParticipantTag(ChatMessage chatMessage, String messageUniqueId) {
+
+        if (sentryResponseLog) {
+            showLog("TAG PARTICIPANT REMOVED", gson.toJson(chatMessage));
+        } else {
+            showLog("TAG PARTICIPANT REMOVED");
+        }
+
+        ChatResponse<TagResult> response = TagManager.prepareTagResponse(chatMessage);
+
+        if (cache) {
+
+        }
+
+        listenerManager.callOnTagParticipantRemoved(chatMessage.getContent(),response);
+    }
 
     private void handleSent(ChatMessage chatMessage, String messageUniqueId, long threadId) {
 

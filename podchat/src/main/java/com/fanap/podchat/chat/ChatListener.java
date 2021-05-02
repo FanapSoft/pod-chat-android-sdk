@@ -22,6 +22,7 @@ import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -363,4 +364,9 @@ public interface ChatListener {
     default void onAssistantBlocked(ChatResponse<List<AssistantVo>> response){}
     default void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response){}
     default void onAssistantBlocks(ChatResponse<List<AssistantVo>> response){}
+    default void onTagCreated(String content, ChatResponse<TagResult> response){}
+    default void onTagEdited(String content, ChatResponse<TagResult> response){}
+    default void onTagDeleted(String content, ChatResponse<TagResult> response){}
+    default void OnTagParticipantAdded(String content, ChatResponse<TagResult> response){}
+    default void OnTagParticipantRemoved(String content, ChatResponse<TagResult> response){}
 }

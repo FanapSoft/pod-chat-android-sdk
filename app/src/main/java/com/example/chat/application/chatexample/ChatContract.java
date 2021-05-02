@@ -10,9 +10,9 @@ import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
@@ -28,7 +28,16 @@ import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
+import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
+import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
+import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -45,41 +54,38 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
-import com.fanap.podchat.requestobject.RequestBlockList;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestGetContact;
-import com.fanap.podchat.requestobject.RequestGetFile;
-import com.fanap.podchat.requestobject.RequestGetImage;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
+import com.fanap.podchat.requestobject.RequestGetContact;
+import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
@@ -292,6 +298,7 @@ public interface ChatContract {
         default void onGetSentryLogs(String logs){}
 
         default void onChatProfileUpdated(ResultUpdateProfile result){}
+        default void onTagCreated(TagResult result){}
     }
 
     interface presenter {
@@ -588,14 +595,31 @@ public interface ChatContract {
         void getContact();
 
         void registerAssistant(RegisterAssistantRequest request);
+
         void getAssistants(GetAssistantRequest request);
+
         void deActiveAssistant(DeActiveAssistantRequest request);
+
         void getAssistantHistory(GetAssistantHistoryRequest request);
+
         void blockAssistant(BlockUnblockAssistantRequest request);
+
         void unBlockAssistant(BlockUnblockAssistantRequest request);
+
         void getBlocksAssistant(GetBlockedAssistantsRequest request);
 
         void changeThreadType(ChangeThreadTypeRequest request);
+
+
+        void createTag(CreateTagRequest request);
+
+        void editTag(EditTagRequest request);
+
+        void deleteTag(DeleteTagRequest request);
+
+        void addTagParticipant(AddTagParticipantRequest request);
+
+        void removeTagParticipant(RemoveTagParticipantRequest request);
 
     }
 }

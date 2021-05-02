@@ -27,6 +27,7 @@ import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -203,6 +204,56 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onSent(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnTagCreated(String content, ChatResponse<TagResult> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onTagCreated(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnTagEdited(String content, ChatResponse<TagResult> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onTagEdited(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnTagParticipantAdded(String content, ChatResponse<TagResult> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnTagParticipantAdded(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnTagParticipantRemoved(String content, ChatResponse<TagResult> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnTagParticipantRemoved(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnTagDeleted(String content, ChatResponse<TagResult> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onTagDeleted(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

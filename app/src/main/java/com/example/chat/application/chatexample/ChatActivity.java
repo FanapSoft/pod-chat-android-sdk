@@ -55,6 +55,12 @@ import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
+import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
+import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
+import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
@@ -167,17 +173,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 //
-    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-    private static String serverName = "chat-server";
+//    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+//    private static String serverName = "chat-server";
 
 
     //local
 
 
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -195,10 +201,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 ////
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -223,10 +229,10 @@ public class ChatActivity extends AppCompatActivity
      * Main Server Setting:
      */
 ////
-    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+//    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     /**
      * Sandbox setting:
@@ -255,7 +261,7 @@ public class ChatActivity extends AppCompatActivity
 //    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
     public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
     private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
-
+    private long tagId=4;
 
 //    integration /group: fifi,jiji and ...
 //    public static int TEST_THREAD_ID = 6886;
@@ -1409,6 +1415,26 @@ public class ChatActivity extends AppCompatActivity
                         getUserBots();
                         break;
                     }
+                    case 24: {
+                        createTag();
+                        break;
+                    }
+                    case 25: {
+                        editTag();
+                        break;
+                    }
+                    case 26: {
+                        deleteTag();
+                        break;
+                    }
+                    case 27: {
+                        addTagParticipant();
+                        break;
+                    }
+                    case 28: {
+                        removeTagParticipant();
+                        break;
+                    }
                 }
             }
 
@@ -1600,6 +1626,47 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    public void createTag() {
+        CreateTagRequest request = new CreateTagRequest.Builder("Tag_"+System.currentTimeMillis() / 1000).build();
+        presenter.createTag(request);
+    }
+
+
+    public void editTag() {
+        EditTagRequest request= new EditTagRequest.Builder(tagId,"PrivateThreads"+System.currentTimeMillis()).build();
+        presenter.editTag(request);
+    }
+
+
+    public void deleteTag() {
+        DeleteTagRequest request= new DeleteTagRequest.Builder(tagId).build();;
+        presenter.deleteTag(request);
+    }
+
+
+    public void addTagParticipant() {
+        List<Long> threadIds=new ArrayList<>();
+        threadIds.add(8688l);
+        threadIds.add(8730l);
+        threadIds.add(8729l);
+        AddTagParticipantRequest request= new AddTagParticipantRequest.Builder(tagId,threadIds).build();;
+        presenter.addTagParticipant(request);
+    }
+
+
+    public void removeTagParticipant() {
+        List<Long> threadIds=new ArrayList<>();
+        threadIds.add(8688l);
+        threadIds.add(8730l);
+        threadIds.add(8729l);
+        RemoveTagParticipantRequest request= new RemoveTagParticipantRequest.Builder(tagId,threadIds).build();;
+        presenter.removeTagParticipant(request);
+    }
+
+    @Override
+    public void onTagCreated(TagResult result) {
+        tagId=result.getTagId();
+    }
 
     private void startBot() {
 

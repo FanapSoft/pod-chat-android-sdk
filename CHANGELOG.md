@@ -6,6 +6,21 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.9.8.2]
+
+[Added] ```createTag``` method
+[Added] ```onTagCreated``` callback
+[Added] ```editTag``` method
+[Added] ```onTagEdited``` callback
+[Added] ```deleteTag``` method
+[Added] ```onTagDeleted``` callback
+[Added] ```addTagParticipant``` method
+[Added] ```OnTagParticipantAdded``` callback
+[Added] ```removeTagParticipant``` method
+[Added] ```OnTagParticipantRemoved``` callback
+
+
+
 ## Version [0.9.8.1] -2021-4-28
 
 [BugFixed] NullPointerException on reconnect

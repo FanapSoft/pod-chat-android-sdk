@@ -113,6 +113,11 @@ public class ChatMessageType {
             Constants.DEACTICVE_ASSISTANT,
             Constants.GET_ASSISTANTS,
             Constants.GET_ASSISTANT_HISTORY,
+            Constants.CREATE_TAG,
+            Constants.EDIT_TAG,
+            Constants.DELETE_TAG,
+            Constants.ADD_TAG_PARTICIPANT,
+            Constants.REMOVE_TAG_PARTICIPANT,
 
 
 
@@ -237,6 +242,11 @@ public class ChatMessageType {
         int UNBLOCK_ASSISTANT = 117;
         int GET_BLOCKED_ASSISTANTS = 118;
         int GET_ASSISTANT_HISTORY = 115;
+        int CREATE_TAG = 140;
+        int EDIT_TAG = 141;
+        int DELETE_TAG = 142;
+        int ADD_TAG_PARTICIPANT = 143;
+        int REMOVE_TAG_PARTICIPANT = 144;
 
     }
 
