@@ -21,6 +21,8 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
+import com.fanap.podchat.cachemodel.CacheTagParticipantVO;
+import com.fanap.podchat.cachemodel.CacheTagVo;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -34,9 +36,9 @@ import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.persist.CacheCall;
 import com.fanap.podchat.call.persist.CacheCallParticipant;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
-import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
@@ -67,6 +69,8 @@ import com.fanap.podchat.model.ConversationSummery;
 import com.fanap.podchat.model.ReplyInfoVO;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.TagParticipantVO;
+import com.fanap.podchat.model.TagVo;
 import com.fanap.podchat.persistance.dao.MessageDao;
 import com.fanap.podchat.persistance.dao.MessageQueueDao;
 import com.fanap.podchat.requestobject.RequestGetHistory;
@@ -2804,6 +2808,21 @@ public class MessageDatabaseHelper {
 //
 //    }
 
+    private TagParticipantVO cacheTagParticipantVOToTagParticipantVOMapper(CacheTagParticipantVO cacheTagParticipantVO) {
+        return new TagParticipantVO(cacheTagParticipantVO.getId(),
+                cacheTagParticipantVO.isActive(),
+                cacheTagParticipantVO.getThreadId()
+        );
+
+    }
+
+    private TagVo CacheTagVoToTagVoMapper(CacheTagVo tagVo) {
+        return new TagVo(tagVo.getTagId(),
+                tagVo.getName(),
+                tagVo.isActive()
+        );
+    }
+
     private Thread threadVoToThreadMapper(ThreadVo threadVo, MessageVO lastMessageVO) {
 
         return new Thread(
@@ -4242,6 +4261,72 @@ public class MessageDatabaseHelper {
                 });
     }
 
+    public void updateCacheTagParticipantVos(List<TagParticipantVO> tagParticipantVOS, long tagId) {
+        worker(() -> {
+            List<CacheTagParticipantVO> tagVos = new ArrayList<>();
+            for (TagParticipantVO item : tagParticipantVOS) {
+                CacheTagParticipantVO cache = new CacheTagParticipantVO();
+                cache.setThreadId(item.getThreadId());
+                cache.setActive(item.isActive());
+                cache.setTagId(tagId);
+                cache.setId(item.getId());
+                tagVos.add(cache);
+            }
+            messageDao.insertCacheTagParticipantVos(tagVos);
+
+        });
+
+    }
+
+
+    public void updateCacheTagVo(TagVo tag) {
+
+        CacheTagVo cacheFile = new CacheTagVo();
+        cacheFile.setTagId(tag.getTagId());
+        cacheFile.setActive(tag.isActive());
+        cacheFile.setName(tag.getTagName());
+        messageDao.insertCacheTagVo(cacheFile);
+    }
+
+
+    public Observable<List<TagVo>> getTagVos() {
+        return Observable
+                .create(emitter -> {
+                    try {
+                        List<CacheTagVo> tags = messageDao.getCacheTagVos();
+                        List<TagVo> tagVos = new ArrayList<>();
+                        for (CacheTagVo item : tags) {
+                            tagVos.add(CacheTagVoToTagVoMapper(item));
+                        }
+                        emitter.onNext(tagVos);
+                        emitter.onCompleted();
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                });
+    }
+
+    public Observable<List<TagParticipantVO>> getTagParticipantsVos(long tagId) {
+        return Observable
+                .create(emitter -> {
+                    try {
+                        List<CacheTagParticipantVO> tagParticipants = messageDao.getCacheTagParticipantVosByTagId(tagId);
+                        List<TagParticipantVO> tagVos = new ArrayList<>();
+                        for (CacheTagParticipantVO item : tagParticipants) {
+                            TagParticipantVO cache = cacheTagParticipantVOToTagParticipantVOMapper(item);
+                            if (messageDao.getThreadById(item.getThreadId()) != null) {
+                                Thread thread = threadVoToThreadMapper(messageDao.getThreadById(item.getThreadId()), null);
+                                cache.setConversationVO(thread);
+                            }
+                            tagVos.add(cache);
+                        }
+                        emitter.onNext(tagVos);
+                        emitter.onCompleted();
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                });
+    }
 
     public List<CacheFile> getImagesByHash(String hashCode) {
         return messageDao.getImageCachesByHash(hashCode);
@@ -4385,8 +4470,6 @@ public class MessageDatabaseHelper {
             messageDao.insertCacheAssistantHistoryVo(cashAssitantHistory);
             listener.onWorkDone(true);
         });
-
-
     }
 
 

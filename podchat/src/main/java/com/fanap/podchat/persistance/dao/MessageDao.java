@@ -18,6 +18,8 @@ import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
+import com.fanap.podchat.cachemodel.CacheTagParticipantVO;
+import com.fanap.podchat.cachemodel.CacheTagVo;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -544,5 +546,30 @@ public interface MessageDao {
 
     @Query("DELETE FROM CacheAssistantHistoryVo")
     void deleteAllCacheAssistantHistoryVo();
+
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheTagVo(CacheTagVo tagVo);
+
+    @Query("SELECT * FROM CacheTagVo")
+    List<CacheTagVo> getCacheTagVos();
+
+    @Query("DELETE FROM CacheTagVo")
+    void deleteAllCacheTagVo();
+
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheTagParticipantVos(List<CacheTagParticipantVO> tagVos);
+
+    @Query("SELECT * FROM CacheTagVo")
+    List<CacheTagParticipantVO> getAllCacheTagParticipantVOs();
+
+    @Query("SELECT * FROM CacheTagParticipantVO WHERE tagId=:tagId")
+    List<CacheTagParticipantVO> getCacheTagParticipantVosByTagId(long tagId);
+
+    @Query("DELETE FROM CacheTagParticipantVO")
+    void deleteAllCacheTagParticipantVO();
+
+
 
 }

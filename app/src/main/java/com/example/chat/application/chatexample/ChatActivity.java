@@ -261,7 +261,7 @@ public class ChatActivity extends AppCompatActivity
 //    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
     public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
     private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
-    private long tagId=4;
+    private long tagId=23;
 
 //    integration /group: fifi,jiji and ...
 //    public static int TEST_THREAD_ID = 6886;
@@ -1665,7 +1665,7 @@ public class ChatActivity extends AppCompatActivity
 
     @Override
     public void onTagCreated(TagResult result) {
-        tagId=result.getTagId();
+        tagId=result.getTag().getTagId();
     }
 
     private void startBot() {
