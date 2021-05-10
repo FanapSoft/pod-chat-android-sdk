@@ -78,10 +78,12 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.notification.PodNotificationManager;
 import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
@@ -259,7 +261,8 @@ public class ChatActivity extends AppCompatActivity
     // main server / group
 
 //    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
-    public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
+    public static int TEST_THREAD_ID = 47528; // Test Posspace file
+//    public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
     private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
     private long tagId=23;
 
@@ -290,6 +293,7 @@ public class ChatActivity extends AppCompatActivity
     long notificationMessageId = 0;
 
     int offset = 0;
+    private long TEST_THREAD_LAST_SEEN_MESSAGE_TIME;
 
 
     @Override
@@ -376,6 +380,7 @@ public class ChatActivity extends AppCompatActivity
         btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
 
         textViewToken.setText(TOKEN + name);
+        editTextThread.setText(String.valueOf(TEST_THREAD_ID));
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
         Spinner spinnerThird = findViewById(R.id.spinnerThird);
@@ -2377,8 +2382,8 @@ public class ChatActivity extends AppCompatActivity
 
     private void getThreadParticipants() {
 
-        new Thread(()->{
-            for(int i=0;i<100;i++){
+        new java.lang.Thread(() -> {
+            for (int i = 0; i < 100; i++) {
                 RequestThreadParticipant request =
                         new RequestThreadParticipant.Builder()
                                 .count(50)
@@ -2609,18 +2614,46 @@ public class ChatActivity extends AppCompatActivity
     public void getThreadHistory() {
 
 
-        RequestGetHistory request = new RequestGetHistory
-                .Builder(TEST_THREAD_ID)
-                .offset(0)
-                .count(50)
-                .order("desc") //.order("asc")
-//                .fromTime(new Date().getTime())
-                //   .toTime(new Date().getTime())
-//                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
-//                .withNoCache()
-                .build();
+//        RequestGetHistory request = new RequestGetHistory
+//                .Builder(TEST_THREAD_ID)
+//                .offset(0)
+//                .count(50)
+//                .order("desc") //.order("asc")
+////                .fromTime(new Date().getTime())
+//                //   .toTime(new Date().getTime())
+////                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
+////                .withNoCache()
+//                .build();
+//
+//        presenter.getHistory(request, null);
 
-        presenter.getHistory(request, null);
+
+        if (TEST_THREAD_LAST_SEEN_MESSAGE_TIME > 0) {
+            showToast("Get History to time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+            RequestGetHistory request = new RequestGetHistory
+                    .Builder(TEST_THREAD_ID)
+                    .offset(0)
+                    .count(50)
+                    .order("desc") //.order("asc")
+                    .toTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+                    .build();
+
+            presenter.getHistory(request, null);
+
+            showToast("Get History from time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+
+            request = new RequestGetHistory
+                    .Builder(TEST_THREAD_ID)
+                    .offset(0)
+                    .count(50)
+                    .order("asc") //.order("asc")
+                    .fromTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+                    .build();
+
+            presenter.getHistory(request, null);
+
+        }
+
     }
 
 //    public void getHashTagList() {
@@ -2731,7 +2764,6 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void getContacts() {
-
 
 
         RequestGetContact request = new RequestGetContact.Builder()
@@ -3167,4 +3199,19 @@ public class ChatActivity extends AppCompatActivity
         showToast("Profile Updated: " + result.getBio());
     }
 
+    @Override
+    public void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
+
+
+        for (Thread th :
+                thread.getResult().getThreads()) {
+
+            if (th.getId() == TEST_THREAD_ID) {
+                TEST_THREAD_LAST_SEEN_MESSAGE_TIME = th.getLastSeenMessageTime();
+                Log.i(ChatActivity.class.getSimpleName(), "Thread last seen message time: " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME + " Cache " + thread.isCache());
+            }
+
+        }
+
+    }
 }

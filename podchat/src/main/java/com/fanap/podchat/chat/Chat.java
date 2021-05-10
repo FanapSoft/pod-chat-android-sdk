@@ -7350,13 +7350,10 @@ public class Chat extends AsyncAdapter {
                         chatResponse.setUniqueId(uniqueId);
                         String json = gson.toJson(chatResponse);
                         listenerManager.callOnGetThreadHistory(json, chatResponse);
-
-
+                        showLog("SOURCE: " + historyResponse.getSource());
                         if (sentryResponseLog) {
-                            showLog("SOURCE: " + historyResponse.getSource());
                             showLog("CACHE_GET_HISTORY", json);
                         } else {
-                            showLog("SOURCE");
                             showLog("CACHE_GET_HISTORY");
                         }
                         return chatResponse.getResult().getHistory();
