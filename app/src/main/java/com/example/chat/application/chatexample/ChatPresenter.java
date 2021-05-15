@@ -206,7 +206,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(ChatActivity.class.getName())
+                .Builder(ChatIntegrationActivity.class.getName())
                 .setChannelName("POD_CHAT_CHANNEL")
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")
@@ -319,11 +319,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .build();
 
         chat.setNetworkStateConfig(build);
+//        chat.setTypeCode("KidzyGameChat");
 //
 //        chat.setUploadConfig(uploadConfig);
 //
 //        chat.setDownloadConfig(downloadConfig);
-
+        chat.clearchiz();
         chat.connect(requestConnect);
 
     }

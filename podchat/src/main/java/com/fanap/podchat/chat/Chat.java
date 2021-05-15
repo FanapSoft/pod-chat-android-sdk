@@ -1042,6 +1042,7 @@ public class Chat extends AsyncAdapter {
      * the callback for it.
      * Here its showed the raw log.
      */
+    int counter = 0;
     @Override
     public void onReceivedMessage(String textMessage) throws IOException {
         super.onReceivedMessage(textMessage);
@@ -1340,6 +1341,8 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.MESSAGE: {
                 handleNewMessage(chatMessage);
+                counter++;
+                Log.e("counter", "counter : " + counter);
                 break;
 
             }
@@ -11497,6 +11500,10 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    public void clearchiz() {
+        counter = 0;
+    }
+
     private void handleOnNewMessageAdded(Thread thread, String uniqueId) {
 
         if (thread != null && thread.getId() > 0) {
@@ -13201,6 +13208,9 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    /**
+     * hello how are you
+     */
     private void handleSetRole(ChatMessage chatMessage) {
 
         ChatResponse<ResultSetAdmin> chatResponse = new ChatResponse<>();

@@ -895,4 +895,5 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         super.onStop();
     }
 
+
 }

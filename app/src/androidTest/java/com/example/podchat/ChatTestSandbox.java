@@ -12,7 +12,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.example.chat.application.chatexample.BaseApplication;
-import com.example.chat.application.chatexample.ChatActivity;
+import com.example.chat.application.chatexample.ChatIntegrationActivity;
 import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
@@ -67,7 +67,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.example.chat.application.chatexample.ChatActivity.APP_ID;
+import static com.example.chat.application.chatexample.ChatIntegrationActivity.APP_ID;
 import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
 
 
@@ -97,7 +97,7 @@ public class ChatTestSandbox extends ChatAdapter {
     @Mock
     ChatListener chatListeners;
 
-    private ChatActivity chatActivity;
+    private ChatIntegrationActivity chatActivity;
 
 
     static Chat chat;
@@ -105,7 +105,7 @@ public class ChatTestSandbox extends ChatAdapter {
     static final Object sync = new Object();
 
     @Rule
-    public ActivityTestRule<ChatActivity> chatActivityRule = new ActivityTestRule<>(ChatActivity.class);
+    public ActivityTestRule<ChatIntegrationActivity> chatActivityRule = new ActivityTestRule<>(ChatIntegrationActivity.class);
 
 
     @BeforeClass
