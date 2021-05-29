@@ -51,7 +51,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+    private String TOKEN = "93f95d63db0a41f9ab72db3a27fe57ce";
+//    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
     private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
     private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
     private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
@@ -70,17 +71,18 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //    static int JIJI_ID = 122;
 //    static int ZIZI_ID = 121;
 
-    private static String appId = BaseApplication.getInstance().getString(R.string.integration_appId);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-
-
-    //integration
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String appId = BaseApplication.getInstance().getString(R.string.sandbox_appId);
+//    private static String appIdappId = BaseApplication.getInstance().getString(R.string.integration_appId);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
 //
+//
+//    //integration
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+////
 
 
     //nemati
@@ -165,17 +167,26 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private void connect() {
 
+//        RequestConnect request = new RequestConnect.Builder(
+//                socketAddress,
+//                appId,
+//                serverName,
+//                TOKEN,
+//                ssoHost,
+//                platformHost,
+//                fileServer,
+//                podspaceServer
+//        ).build();
         RequestConnect request = new RequestConnect.Builder(
-                socketAddress,
+                sandBoxSocketAddress,
                 appId,
-                serverName,
+                sandBoxServerName,
                 TOKEN,
-                ssoHost,
-                platformHost,
-                fileServer,
+                sandBoxSSOHost,
+                sandBoxPlatformHost,
+                sandBoxFileServer,
                 podspaceServer
         ).build();
-
         presenter.connect(request);
 
     }

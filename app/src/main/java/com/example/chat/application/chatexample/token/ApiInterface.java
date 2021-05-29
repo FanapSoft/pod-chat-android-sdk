@@ -29,9 +29,8 @@ public interface ApiInterface {
 
 
     @POST("otp/authorize")
-    @FormUrlEncoded
     Call<LoginRes> login(
-            @Field("identity") String identity,
+            @Query("identity") String identity,
             @Header("keyId") String keyId
     );
 
@@ -46,10 +45,9 @@ public interface ApiInterface {
 //    );
 
     @POST("otp/verify")
-    @FormUrlEncoded
     Call<SSoTokenRes> verifyNumber(@Header("keyId") String keyId
-            , @Field("identity") String number
-            , @Field("otp") String verifyCode
+            , @Query("identity") String number
+            , @Query("otp") String verifyCode
     );
 
     @POST("accessToken/")
