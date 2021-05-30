@@ -31,6 +31,7 @@ import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
@@ -56,7 +57,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
     private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
     private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Nadia_Anvari);
+//    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Nadia_Anvari);
     //INTEGRATION
 
     static int Pooria_ID = 18477;
@@ -115,7 +116,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private ChatContract.presenter presenter;
 
-    Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant,
+    Button buttonCall, buttonConnect,buttonTestCall, buttonCloseHistory, buttonAddCallParticipant,
             buttonConnectSandBox, buttonStartSandboxCall, buttonShareLog, buttonRemoveCallParticipant,
             buttonTerminateCall;
 
@@ -124,7 +125,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
+    ImageButton buttonRejectCall, buttonAcceptCall,  btn_startrecord,
+    btn_stoprecord, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
     EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId, etNewParticipantToAdd;
     CheckBox checkBoxSSL,
             checkBoxGroupCall,
@@ -295,6 +297,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
+        btn_startrecord.setOnClickListener(v -> {
+            startCallRecording();
+        });
+
+        btn_stoprecord.setOnClickListener(v -> {
+            stopCallRecording();
+        });
+
         buttonTerminateCall.setOnClickListener(v -> {
 
             onCallEnded();
@@ -320,6 +330,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             toggleMute((ImageButton) v);
         });
+
 
         buttonSpeaker.setOnClickListener(v -> {
 
@@ -392,6 +403,20 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 isVideoPaused = !isVideoPaused;
             }
         });
+    }
+
+    private void startCallRecording() {
+        Log.e(TAG, "startCallRecording: " + calId);
+        StartOrEndCallRecordRequest request = new StartOrEndCallRecordRequest.Builder(calId).build();
+        presenter.startCallRecord(request);
+
+
+    }
+
+    private void stopCallRecording() {
+        StartOrEndCallRecordRequest request = new StartOrEndCallRecordRequest.Builder(calId).build();
+        presenter.stopCallRecord(request);
+
     }
 
     private void toggleSpeaker(ImageButton v) {
@@ -524,7 +549,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
                 Log.e(TAG, "Checked -> masoud");
 
-                TOKEN = Masoud_TOKEN;
+//                TOKEN = Masoud_TOKEN;
 
                 break;
             }
@@ -569,6 +594,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
+        btn_startrecord = findViewById(R.id.btn_record);
+        btn_stoprecord = findViewById(R.id.btn_stoprecord);
         buttonTerminateCall = findViewById(R.id.btnTerminateCall);
         buttonGetHistory = findViewById(R.id.buttonGetHistory);
         buttonConnectSandBox = findViewById(R.id.btnConnectToSandbox);
@@ -962,8 +989,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     public void onCallCreated(long threadId) {
         updateStatus("Call with id " + threadId + " was created");
         showRequestCallView();
+        calId = threadId;
     }
 
+    Long calId = 0l;
 
     @Override
     public void audioCallMuted() {
@@ -1034,16 +1063,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void showContactsFragment(ContactsFragment fragment) {
 
-
-        runOnUiThread(() -> {
-            fabContacts.hide();
-            if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null)
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.frame_call, fragment, "CFRAG")
-                        .addToBackStack("CFRAG")
-                        .commit();
-        });
+//
+//        runOnUiThread(() -> {
+//            fabContacts.hide();
+//            if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null)
+//                getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.frame_call, fragment, "CFRAG")
+//                        .addToBackStack("CFRAG")
+//                        .commit();
+//        });
 
     }
 

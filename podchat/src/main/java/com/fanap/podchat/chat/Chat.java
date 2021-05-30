@@ -586,7 +586,7 @@ public class Chat extends AsyncAdapter {
             } else {
                 Log.e("sentryLogs", "get logs from cache");
                 try {
-                    sentryCashedlogs.append("addNew \n\n\n").append(readFromFile(mcontext, fi.toString()));
+                    sentryCashedlogs.append("addNew \n\n\n").append(readFromFile(mContext, fi.toString()));
                 } catch (Exception e) {
                     sentryCashedlogs.append("addNew \n\n\n can not get logs from cache file ");
                 }

@@ -5,14 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey"
-    tools:context="com.example.chat.application.chatexample.CallActivity">
+    android:visibility="visible"
+    tools:context="com.example.chat.application.chatexample.CallActivity"
+    tools:visibility="visible">
 
 
     <ScrollView
-        android:visibility="visible"
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent">
 
 
@@ -369,7 +371,6 @@
     </ScrollView>
 
 
-
     <include
         layout="@layout/call_request_receive_layout"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -380,21 +381,20 @@
     <include layout="@layout/layout_history" />
 
     <FrameLayout
-        android:visibility="gone"
         android:id="@+id/frame_call"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 
     <android.support.design.widget.FloatingActionButton
-        android:visibility="gone"
+        android:id="@+id/fabShowContactsList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:fabSize="normal"
-        android:id="@+id/fabShowContactsList"
+        android:visibility="gone"
         app:backgroundTint="@color/colorPrimary"
+        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="@+id/frame_call"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_call" />

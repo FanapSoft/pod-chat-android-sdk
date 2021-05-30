@@ -105,12 +105,12 @@ public class CallAsyncRequestsManager {
 
         SendClientDTO sendClientDTO = new SendClientDTO();
         sendClientDTO.setVideo(request.getCallType() == CallType.Constants.VIDEO_CALL);
-        sendClientDTO.setMute(false);
+        sendClientDTO.setMute(true);
         sendClientDTO.setClientType(ClientType.Constants.ANDROID);
 
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
-        contentObj.add("creatorClientDto",clientDtoObj);
+        contentObj.add("creatorClientDto", clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -177,7 +177,7 @@ public class CallAsyncRequestsManager {
 
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
-        contentObj.add("creatorClientDto",clientDtoObj);
+        contentObj.add("creatorClientDto", clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -295,26 +295,30 @@ public class CallAsyncRequestsManager {
         if (request.isMute()) {
             content.addProperty("mute", true);
         }
-        if (request.isVideoCall()) {
-            content.addProperty("videoCall", true);
-        }
-        message.setContent(content.toString());
-        message.setType(ChatMessageType.Constants.ACCEPT_CALL);
-        message.setToken(CoreConfig.token);
-        message.setTokenIssuer(CoreConfig.tokenIssuer);
-        message.setSubjectId(request.getCallId());
-        message.setUniqueId(uniqueId);
-
+//        if (request.isVideoCall()) {
+//            content.addProperty("videoCall", true);
+//        }
 
         SendClientDTO sendClientDTO = new SendClientDTO();
         sendClientDTO.setVideo(request.isVideoCall());
         sendClientDTO.setMute(request.isMute());
         sendClientDTO.setClientType(ClientType.Constants.ANDROID);
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
+        if (request.isVideoCall()) {
+            clientDtoObj.getAsJsonObject().addProperty("videoCall", true);
+        }
 
+
+
+        message.setContent(clientDtoObj.toString());
+        message.setType(ChatMessageType.Constants.ACCEPT_CALL);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setSubjectId(request.getCallId());
+        message.setUniqueId(uniqueId);
         JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
 
-        a.add("creatorClientDto",clientDtoObj);
+//        a.add("creatorClientDto",clientDtoObj);
 
         return a.toString();
     }
@@ -507,7 +511,7 @@ public class CallAsyncRequestsManager {
 
     }
 
-    public static String createStartRecordCall(StartOrEndCallRecordRequest request, String uniqueId)  throws PodChatException {
+    public static String createStartRecordCall(StartOrEndCallRecordRequest request, String uniqueId) throws PodChatException {
 
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.START_RECORDE_CALL);
@@ -537,7 +541,7 @@ public class CallAsyncRequestsManager {
         return response;
     }
 
-    public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId) throws PodChatException  {
+    public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId) throws PodChatException {
 
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.END_RECORDE_CALL);

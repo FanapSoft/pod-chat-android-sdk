@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    android:visibility="gone"
     android:keepScreenOn="true"
-    tools:visibility="gone">
+    android:visibility="visible"
+    tools:visibility="visible">
 
 
     <LinearLayout
@@ -41,10 +41,10 @@
 
 
     <EditText
-        android:hint="Enter new participant username"
         android:id="@+id/etNewParticipant"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Enter new participant username"
         android:inputType="text"
         android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/layoutAddParticipant" />
@@ -109,10 +109,10 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginEnd="48dp"
+        android:alpha="0.6"
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
-        android:alpha="0.6"
         app:layout_constraintTop_toTopOf="@+id/guideline3"
         app:srcCompat="@drawable/ic_speaker_on" />
 
@@ -122,5 +122,23 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.75" />
+
+    <ImageButton
+        android:id="@+id/btn_stoprecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@+id/btn_record"
+        app:layout_constraintTop_toTopOf="@+id/btn_record"
+        app:srcCompat="@drawable/ic_baseline_stop_24" />
+
+    <ImageButton
+        android:id="@+id/btn_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="@+id/buttonMute"
+        app:layout_constraintTop_toBottomOf="@+id/buttonMute"
+        app:srcCompat="@drawable/ic_baseline_fiber_manual_record_24" />
 
 </android.support.constraint.ConstraintLayout>

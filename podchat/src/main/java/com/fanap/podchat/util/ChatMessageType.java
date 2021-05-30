@@ -110,6 +110,9 @@ public class ChatMessageType {
             Constants.UN_MUTE_CALL_PARTICIPANT,
             Constants.CANCEL_GROUP_CALL,
             Constants.REGISTER_ASSISTANT,
+            Constants.DEACTICVE_ASSISTANT,
+            Constants.GET_ASSISTANTS,
+            Constants.GET_ASSISTANT_HISTORY,
 
 
 
@@ -197,6 +200,8 @@ public class ChatMessageType {
         int GET_CALLS = 77;
         int CALL_RECONNECT = 78;
         int CALL_CONNECT = 79;
+        int START_RECORDE_CALL = 121;
+        int END_RECORDE_CALL = 122;
 
 
         int GROUP_CALL_REQUEST = 91;
