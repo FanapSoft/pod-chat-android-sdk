@@ -4,11 +4,13 @@ public class AcceptCallRequest {
 
     private long callId;
     private boolean mute;
+    private boolean videoCall;
 
 
     AcceptCallRequest(Builder builder) {
         this.callId = builder.callId;
         this.mute = builder.mute;
+        this.videoCall = builder.videoCall;
     }
 
     public long getCallId() {
@@ -19,10 +21,16 @@ public class AcceptCallRequest {
         return mute;
     }
 
+    public boolean isVideoCall() {
+        return videoCall;
+    }
+
     public static class Builder{
 
         private long callId;
         private boolean mute;
+        private boolean videoCall;
+
 
 
         public Builder(long callId) {
@@ -32,6 +40,11 @@ public class AcceptCallRequest {
 
         public Builder setCallId(long callId) {
             this.callId = callId;
+            return this;
+        }
+
+        public Builder withVideo() {
+            this.videoCall = true;
             return this;
         }
 

@@ -1,2 +1,3 @@
-include ':app', ':kafkaclient'
+include ':podcall'
+include ':app'
 include ':podchat'

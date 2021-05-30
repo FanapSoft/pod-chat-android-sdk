@@ -24,6 +24,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fanap.podcall.util.CallPermissionHandler;
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
@@ -51,11 +53,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
-    private String TOKEN = "93f95d63db0a41f9ab72db3a27fe57ce";
-//    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Nadia_Anvari);
     //INTEGRATION
 
     static int Pooria_ID = 18477;
@@ -71,18 +72,17 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //    static int JIJI_ID = 122;
 //    static int ZIZI_ID = 121;
 
-    private static String appId = BaseApplication.getInstance().getString(R.string.sandbox_appId);
-//    private static String appIdappId = BaseApplication.getInstance().getString(R.string.integration_appId);
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String appId = BaseApplication.getInstance().getString(R.string.integration_appId);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+
+
+    //integration
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 //
-//
-//    //integration
-//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-////
 
 
     //nemati
@@ -109,7 +109,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
     private boolean permissionToRecordAccepted = false;
-    private String[] permissions = {Manifest.permission.RECORD_AUDIO};
+    private String[] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
 
 
@@ -152,6 +152,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private boolean isTestMode = false;
 //    private boolean isInCall = false;
 
+    CallPartnerView localCallPartner,
+            remoteCallPartner1,
+            remoteCallPartner2,
+            remoteCallPartner3,
+            remoteCallPartner4;
+    private boolean isVideoPaused = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,26 +174,17 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private void connect() {
 
-//        RequestConnect request = new RequestConnect.Builder(
-//                socketAddress,
-//                appId,
-//                serverName,
-//                TOKEN,
-//                ssoHost,
-//                platformHost,
-//                fileServer,
-//                podspaceServer
-//        ).build();
         RequestConnect request = new RequestConnect.Builder(
-                sandBoxSocketAddress,
+                socketAddress,
                 appId,
-                sandBoxServerName,
+                serverName,
                 TOKEN,
-                sandBoxSSOHost,
-                sandBoxPlatformHost,
-                sandBoxFileServer,
+                ssoHost,
+                platformHost,
+                fileServer,
                 podspaceServer
         ).build();
+
         presenter.connect(request);
 
     }
@@ -199,6 +197,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonCall.setOnClickListener(v -> {
 
             if (chatReady) {
+                showRequestCallView();
                 if (checkBoxGroupCall.isChecked()) {
                     presenter.requestGroupCall(checkboxFifiPartner.isChecked(), checkboxZiziPartner.isChecked(), checkboxJijiPartner.isChecked());
                     updateStatus("Starting Group Call");
@@ -343,7 +342,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     checkboxAddFarhad.isChecked());
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(),checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(), checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
@@ -376,6 +375,23 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //
 //        checkBoxViewIntegaration.setOnCheckedChangeListener((buttonView, isChecked) -> groupIntegartionViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
 
+        localCallPartner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.switchCamera();
+            }
+        });
+        localCallPartner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isVideoPaused)
+                    presenter.resumeVideo();
+                else
+                    presenter.pauseVideo();
+
+                isVideoPaused = !isVideoPaused;
+            }
+        });
     }
 
     private void toggleSpeaker(ImageButton v) {
@@ -594,6 +610,25 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         Logger.addLogAdapter(new AndroidLogAdapter());
+
+        localCallPartner = findViewById(R.id.localPartnerCameraView);
+        remoteCallPartner1 = findViewById(R.id.remotePartnerView1);
+        remoteCallPartner2 = findViewById(R.id.remotePartnerView2);
+        remoteCallPartner3 = findViewById(R.id.remotePartnerView3);
+        remoteCallPartner4 = findViewById(R.id.remotePartnerView4);
+
+
+        List<CallPartnerView> views = new ArrayList<>();
+
+        views.add(remoteCallPartner1);
+        views.add(remoteCallPartner2);
+        views.add(remoteCallPartner3);
+        views.add(remoteCallPartner4);
+
+
+        if (!CallPermissionHandler.needCameraAndRecordPermission(this)) {
+            presenter.setupVideoCallParam(localCallPartner, views);
+        }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -865,6 +900,12 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onGetToken(String token) {
 
+        connectToSandbox(token);
+
+    }
+
+    private void connectToSandbox(String token) {
+
         RequestConnect request = new RequestConnect.Builder(
                 sandBoxSocketAddress,
                 appId,
@@ -877,7 +918,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         ).build();
 
         presenter.connect(request);
-
     }
 
 
@@ -1010,7 +1050,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers) {
 
-        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null){
+        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null) {
 
 
             ContactsFragment contactsFragment = (ContactsFragment) getSupportFragmentManager().findFragmentByTag("CFRAG");

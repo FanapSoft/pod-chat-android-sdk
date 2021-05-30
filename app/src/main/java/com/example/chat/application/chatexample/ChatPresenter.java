@@ -9,12 +9,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.chat.application.chatexample.token.TokenHandler;
+import com.fanap.podcall.model.VideoCallParam;
+import com.fanap.podcall.video.codec.VideoCodecType;
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
-import com.fanap.podchat.call.CallType;
+import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
@@ -195,7 +199,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private boolean speakerOn = false;
     private boolean isMute = false;
     private boolean isInCall;
-
+    private List<CallPartnerView> videoCallViews;
+    private CallPartnerView callLocalView;
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
@@ -294,6 +299,41 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
+    public void setupVideoCallParam(CallPartnerView localVideo, List<CallPartnerView> remoteViews) {
+
+
+        callLocalView = localVideo;
+        this.videoCallViews = remoteViews;
+
+        VideoCallParam callParam =
+                new VideoCallParam.Builder(localVideo)
+                        .setCamWidth(176)
+                        .setCamHeight(144)
+                        .setCamFPS(15)
+                        .setVideoCodecType(VideoCodecType.VIDEO_CODEC_VP8)
+                        .setBitrate(90_000)
+                        .build();
+
+        chat.setupVideoCall(callParam, remoteViews);
+
+    }
+
+    @Override
+    public void switchCamera() {
+        chat.switchCamera();
+    }
+
+    @Override
+    public void pauseVideo() {
+        chat.turnOffVideo(callVO!=null?callVO.getCallId():0);
+    }
+
+    @Override
+    public void resumeVideo() {
+        chat.turnOnVideo(callVO.getCallId());
+    }
+
+
     @Override
     public void connect(RequestConnect requestConnect) {
 
@@ -379,7 +419,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 callVO.getCallId());
 
         if (true) {
-            request.mute();
+//            request.mute();
+            request.withVideo();
         }
 
         String uniqueId = chat.acceptVoiceCall(request.build());
@@ -511,6 +552,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
         String json = response.getJson();
         Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
+        Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
     }
 
     @Override
@@ -522,6 +564,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response) {
         String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
         Log.e(TAG, "onGetAssistants: " + response.getJson());
     }
 
@@ -596,7 +639,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         if (entry.startsWith("09")) {
             tokenHandler.handshake(entry);
-        } else {
+        } else if(entry.trim().startsWith("*")) {
+            view.onGetToken(entry.replace("*",""));
+        }else {
             tokenHandler.verifyNumber(entry);
         }
 
@@ -637,30 +682,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         chat.sendLocationMessage(requestLocationMessage, handler);
     }
-
-    @Override
-    public String requestMainOrSandboxCall(int partnerId, boolean checked) {
-
-        List<Invitee> invitees = new ArrayList<>();
-        Invitee invitee = new Invitee();
-        invitee.setId(partnerId);
-        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
-        invitees.add(invitee);
-
-
-        //request with invitee list
-        CallRequest callRequest = new CallRequest.Builder(
-                invitees,
-                CallType.Constants.VOICE_CALL).build();
-
-        //request with subject id
-        CallRequest callRequestt = new CallRequest.Builder(
-                100000L,
-                CallType.Constants.VOICE_CALL).build();
-
-        return chat.requestCall(callRequest);
-    }
-
 
     @Override
     public void onLogEvent(String log) {
@@ -1617,17 +1638,55 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         this.state = state;
 
-//        if(state.equals(ChatStateType.ChatSateConstant.CHAT_READY)){
+        if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
+
+
+//            List<String> usernames = new ArrayList<>();
+//        usernames.add("leila.nemati");
+//            usernames.add("pooria.pahlevani");
+//        usernames.add("nadia.anvari");
+//        usernames.add("p.khoshghadam");
+//        usernames.add("m.hasanpour");
+//        usernames.add("z.ershad");
+//        usernames.add("Samira.amiri");
+//        usernames.add("s.heydarizadeh");
+//        usernames.add("p.pahlavani");
+//            usernames.add("09379520706");
+//            usernames.add("09124704905");
+
+            chat.getContacts(new RequestGetContact.Builder()
+                    .count(10).offset(0).build(), null);
+//            for (int i = 0; i < usernames.size(); i++) {
 //
 //
-//            RequestMessage req = new RequestMessage.Builder("ttt",5182)
-//                    .messageType(TextMessageType.Constants.TEXT)
-//                    .build();
+//                try {
+//                    String name;
+//                    String family;
+//                    if (i == 0) {
+//                        name = "Masoud";
+//                        family = "Alavi";
+//                    } else {
+//                        name = "Ms";
+//                        family = "HeidariZadeh";
+//                    }
+//                    RequestAddContact request = new RequestAddContact.Builder()
+//                            .firstName(name)
+//                            .lastName(family)
+//                            .cellphoneNumber(usernames.get(i))
+//                            .build();
 //
-//            sendTextMessage(req,null);
+//                    chat.addContact(request);
+//
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
 //
 //
-//        }
+//            }
+
+
+        }
 //        if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
 //
 //
@@ -1817,9 +1876,82 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
             view.onVoiceCallRequestReceived(callerName);
 
+        } else if (response.getResult().getType() == CallType.Constants.VIDEO_CALL) {
+
+            showVideoViews();
+
+            callVO = response.getResult();
+
+            String callerName = response.getResult().getCreatorVO().getName();
+
+            view.onVoiceCallRequestReceived(callerName);
+
         }
 
     }
+
+
+    @Override
+    public void onReceiveGroupCallRequest(ChatResponse<CallRequestResult> response) {
+
+        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
+
+            callVO = response.getResult();
+
+            String callerName = response.getResult().getCreatorVO().getName();
+
+            view.onGroupVoiceCallRequestReceived(callerName, response.getResult().getConversationVO().getTitle(), response.getResult().getConversationVO().getParticipants());
+
+        } else if (response.getResult().getType() == CallType.Constants.VIDEO_CALL) {
+
+            showVideoViews();
+
+            callVO = response.getResult();
+
+            String callerName = response.getResult().getCreatorVO().getName();
+
+            view.onGroupVoiceCallRequestReceived(callerName, response.getResult().getConversationVO().getTitle(), response.getResult().getConversationVO().getParticipants());
+
+        }
+    }
+
+    private void showVideoViews() {
+        activity.runOnUiThread(() -> {
+            try {
+                if (callLocalView != null) {
+                    callLocalView.setVisibility(View.VISIBLE);
+                }
+//                if (videoCallViews != null)
+//                    for (CallPartnerView partnerView :
+//                            videoCallViews) {
+//                        partnerView.setVisibility(View.VISIBLE);
+//                    }
+                chat.setPartnerViews(videoCallViews);
+                chat.openCamera();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void hideVideoViews() {
+        activity.runOnUiThread(() -> {
+            try {
+                if (callLocalView != null) {
+                    callLocalView.setVisibility(View.INVISIBLE);
+                }
+                if (videoCallViews != null)
+                    for (CallPartnerView partnerView :
+                            videoCallViews) {
+                        partnerView.setVisibility(View.INVISIBLE);
+                    }
+                chat.closeCamera();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 
     @Override
     public void onVoiceCallStarted(ChatResponse<CallStartResult> response) {
@@ -1834,6 +1966,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
 
         isInCall = false;
+
+        hideVideoViews();
 
         view.onVoiceCallEnded(response.getUniqueId(), response.getResult().getCallId());
 
@@ -1856,17 +1990,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onCallRequestRejected(ChatResponse<CallRequestResult> response) {
 
-        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
+//        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
 
-            callVO = response.getResult();
+        callVO = response.getResult();
 
-            long callerId = response.getResult().getCreatorId();
+        long callerId = response.getResult().getCreatorId();
 
-            String callerName = getCallerName(callerId);
+        String callerName = getCallerName(callerId);
 
-            view.onVoiceCallRequestRejected(callerName);
+        hideVideoViews();
 
-        }
+        view.onVoiceCallRequestRejected(callerName);
+
+//        }
 
     }
 
@@ -1894,6 +2030,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                     .setCallId(callVO.getCallId())
                     .build();
 
+            hideVideoViews();
 
             String uniqueId = chat.terminateAudioCall(terminateCallRequest);
 
@@ -1945,9 +2082,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 uniqueIds.add(uniqueId);
 
             }
-
         }
-
+        hideVideoViews();
     }
 
     @Override
@@ -2046,8 +2182,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(35311, CallType.Constants.VOICE_CALL)
+                .Builder(35311, CallType.Constants.VIDEO_CALL)
                 .build();
+
+        showVideoViews();
 
         uniqueIds.add(chat.requestGroupCall(request));
 
@@ -2230,6 +2368,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         try {
             if (Util.isNotNullOrEmpty(query)) {
 
+                showVideoViews();
+
                 String uniqueId = "";
 
 
@@ -2249,7 +2389,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                         //request with invitee list
                         CallRequest callRequest = new CallRequest.Builder(
                                 invitees,
-                                CallType.Constants.VOICE_CALL).build();
+                                CallType.Constants.VIDEO_CALL).build();
                         uniqueId = chat.requestCall(callRequest);
                         view.updateStatus("Request p2p call with: " + ids[0]);
 
@@ -2268,7 +2408,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
                         CallRequest callRequest = new CallRequest.Builder(
                                 invitees,
-                                CallType.Constants.VOICE_CALL).build();
+                                CallType.Constants.VIDEO_CALL).build();
                         uniqueId = chat.requestGroupCall(callRequest);
 
                         view.updateStatus("Request group call invitees: " + Arrays.toString(ids));
@@ -2280,7 +2420,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
                     CallRequest callRequest = new CallRequest.Builder(
                             Long.parseLong(query),
-                            CallType.Constants.VOICE_CALL).build();
+                            CallType.Constants.VIDEO_CALL).build();
                     if (group) {
                         uniqueId = chat.requestGroupCall(callRequest);
                     } else {
@@ -2311,8 +2451,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         //request with invitee list
         CallRequest callRequest = new CallRequest.Builder(
                 invitees,
-                CallType.Constants.VOICE_CALL).build();
+                CallType.Constants.VIDEO_CALL).build();
 
+        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
+            showVideoViews();
+        }
 
         String uniqueId = chat.requestCall(callRequest);
         uniqueIds.add(uniqueId);
@@ -2333,19 +2476,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onCallDelivered(response.getResult());
     }
 
-    @Override
-    public void onReceiveGroupCallRequest(ChatResponse<CallRequestResult> response) {
-
-        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
-
-            callVO = response.getResult();
-
-            String callerName = response.getResult().getCreatorVO().getName();
-
-            view.onGroupVoiceCallRequestReceived(callerName, response.getResult().getConversationVO().getTitle(), response.getResult().getConversationVO().getParticipants());
-
-        }
-    }
 
     @Override
     public void onCallParticipantLeft(ChatResponse<LeaveCallResult> response) {
@@ -2387,6 +2517,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onRemovedFromCall(ChatResponse<RemoveFromCallResult> response) {
 
+        hideVideoViews();
         view.onRemovedFromCall();
     }
 

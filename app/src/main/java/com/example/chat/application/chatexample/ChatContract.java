@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
@@ -303,8 +304,6 @@ public interface ChatContract {
 
         void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
 
-        String requestMainOrSandboxCall(int partnerId, boolean checked);
-
         void searchMap(String haram, double lat, double lon);
 
         void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler);
@@ -600,5 +599,12 @@ public interface ChatContract {
         void startCallRecord(StartOrEndCallRecordRequest request);
         void stopCallRecord(StartOrEndCallRecordRequest request);
 
+        void setupVideoCallParam(CallPartnerView localCallPartner, List<CallPartnerView> views);
+
+        void switchCamera();
+
+        void pauseVideo();
+
+        void resumeVideo();
     }
 }

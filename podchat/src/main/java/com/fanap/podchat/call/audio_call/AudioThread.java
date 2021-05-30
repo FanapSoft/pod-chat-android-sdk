@@ -8,12 +8,13 @@ import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.util.Log;
 
-import com.fanap.podchat.call.codec.opus.OpusDecoder;
-import com.fanap.podchat.call.codec.opus.OpusEncoder;
-import com.fanap.podchat.call.codec.speexdsp.EchoCanceller;
+
 
 import java.util.Arrays;
 
+
+import ir.farhad7d7.theopuscodec.opus.OpusDecoder;
+import ir.farhad7d7.theopuscodec.opus.OpusEncoder;
 
 import static android.content.Context.AUDIO_SERVICE;
 
@@ -87,9 +88,9 @@ public class AudioThread extends Thread {
         short[] outBuf = new short[FRAME_SIZE * NUM_CHANNELS];
 
 
-        EchoCanceller echoCanceller = new EchoCanceller();
-
-        echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
+//        EchoCanceller echoCanceller = new EchoCanceller();
+//
+//        echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
 
 
         try {
@@ -150,9 +151,9 @@ public class AudioThread extends Thread {
 
                 Log.v(TAG, "Decoded back " + decoded * NUM_CHANNELS * 2 + " bytes");
 
-                track.write(echoCanceller.capture(outBuf), 0, decoded * NUM_CHANNELS);
+                track.write(outBuf, 0, decoded * NUM_CHANNELS);
 
-                echoCanceller.playback(outBuf);
+//                echoCanceller.playback(outBuf);
 
             }
         } finally {
@@ -160,7 +161,7 @@ public class AudioThread extends Thread {
             recorder.release();
             track.stop();
             track.release();
-            echoCanceller.closeEcho();
+//            echoCanceller.closeEcho();
         }
 
 

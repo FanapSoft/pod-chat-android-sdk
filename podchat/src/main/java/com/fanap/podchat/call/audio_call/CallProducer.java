@@ -9,12 +9,13 @@ import android.media.audiofx.NoiseSuppressor;
 import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ProducerClient;
-import com.fanap.podchat.call.codec.opus.OpusEncoder;
 import com.fanap.podchat.call.model.CallSSLData;
 import com.fanap.podchat.util.Util;
 
 import java.util.Arrays;
 import java.util.Properties;
+
+import ir.farhad7d7.theopuscodec.opus.OpusEncoder;
 
 public class CallProducer implements Runnable {
 

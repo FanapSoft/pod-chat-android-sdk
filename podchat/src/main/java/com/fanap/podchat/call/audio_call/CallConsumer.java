@@ -5,16 +5,14 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.audiofx.AcousticEchoCanceler;
-import android.util.Log;
 
 import com.example.kafkassl.kafkaclient.ConsumerClient;
-import com.fanap.podchat.call.codec.opus.OpusDecoder;
-import com.fanap.podchat.call.codec.speexdsp.EchoCanceller;
 import com.fanap.podchat.call.model.CallSSLData;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
+
+import ir.farhad7d7.theopuscodec.opus.OpusDecoder;
 
 public class CallConsumer implements Runnable {
 
@@ -30,7 +28,7 @@ public class CallConsumer implements Runnable {
     private static final String TAG = "AUDIO_RECORDER";
 
     private boolean playing = false;
-    private EchoCanceller echoCanceller;
+//    private EchoCanceller echoCanceller;
     private AudioTrack audioTrack;
 
     private boolean hasBuiltInAEC;
@@ -88,12 +86,12 @@ public class CallConsumer implements Runnable {
         // init opus decoder
         OpusDecoder decoder = initDecoder();
 
-        if (!hasBuiltInAEC) {
-            if (echoCanceller == null) {
-                echoCanceller = new EchoCanceller();
-                echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
-            }
-        }
+//        if (!hasBuiltInAEC) {
+//            if (echoCanceller == null) {
+//                echoCanceller = new EchoCanceller();
+//                echoCanceller.openEcho(SAMPLE_RATE, minBufSize, 1024);
+//            }
+//        }
 
 
         playAudio(decoder);
@@ -140,7 +138,7 @@ public class CallConsumer implements Runnable {
 
             while (playing) {
 
-                byte[] consumedBytes = consumer.consumingTopic();
+                byte[] consumedBytes = consumer.consumingTopic(100);
 
                 if (consumedBytes == null || consumedBytes.length == 0) continue;
 
@@ -172,11 +170,11 @@ public class CallConsumer implements Runnable {
 
     private void playWithSpeexAEC(short[] outputBuffer, int decoded) {
 
-        short[] echoCancelled = echoCanceller.capture(outputBuffer);
-
-        audioTrack.write(echoCancelled, 0, decoded * NUM_CHANNELS);
-
-        echoCanceller.playback(outputBuffer);
+//        short[] echoCancelled = echoCanceller.capture(outputBuffer);
+//
+//        audioTrack.write(echoCancelled, 0, decoded * NUM_CHANNELS);
+//
+//        echoCanceller.playback(outputBuffer);
 
     }
 
