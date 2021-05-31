@@ -36,6 +36,7 @@ import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
 import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
 import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
 import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
 import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
 import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -620,6 +621,8 @@ public interface ChatContract {
         void addTagParticipant(AddTagParticipantRequest request);
 
         void removeTagParticipant(RemoveTagParticipantRequest request);
+
+       void getTagList(GetTagListRequest request);
 
     }
 }

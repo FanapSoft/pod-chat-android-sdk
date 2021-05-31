@@ -251,6 +251,16 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnTagList(String content, ChatResponse<TagParticipantResult> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnTagList(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
     public void callOnTagDeleted(String content, ChatResponse<TagResult> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {

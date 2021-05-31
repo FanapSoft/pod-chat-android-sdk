@@ -7,13 +7,12 @@ import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
 import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
 import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
 import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
 import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
 import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
 import com.fanap.podchat.chat.tag.result_model.TagResult;
-import com.fanap.podchat.chat.thread.ThreadManager;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
-import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.TagParticipantVO;
 import com.fanap.podchat.model.TagVo;
@@ -107,6 +106,21 @@ public class TagManager {
 
     }
 
+    public static String createTagListRequest(GetTagListRequest request,
+                                              String uniqueId) {
+
+        AsyncMessage message = new ChatMessage();
+
+        message.setType(ChatMessageType.Constants.GET_TAG_LIST);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+
+    }
+
     public static String createRemoveTagParticipantRequest(RemoveTagParticipantRequest request,
                                                            String uniqueId) {
         JsonArray participants = new JsonArray();
@@ -144,6 +158,18 @@ public class TagManager {
         return finalResponse;
     }
 
+    public static ChatResponse<TagParticipantResult> prepareTagListResponse(ChatMessage chatMessage) {
+
+        TagParticipantResult tagParticipantResult = new TagParticipantResult();
+        tagParticipantResult.setTagParticipans(App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<TagParticipantVO>>() {
+        }.getType()));
+        ChatResponse<TagParticipantResult> finalResponse = new ChatResponse<>();
+        finalResponse.setResult(tagParticipantResult);
+        finalResponse.setUniqueId(chatMessage.getUniqueId());
+        finalResponse.setSubjectId(chatMessage.getSubjectId());
+
+        return finalResponse;
+    }
     public static ChatResponse<TagParticipantResult> prepareTagParticipantResponse(ChatMessage chatMessage) {
 
         TagParticipantResult tagParticipantResult = new TagParticipantResult();

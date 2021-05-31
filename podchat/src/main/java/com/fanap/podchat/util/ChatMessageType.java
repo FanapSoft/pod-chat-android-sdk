@@ -118,6 +118,7 @@ public class ChatMessageType {
             Constants.DELETE_TAG,
             Constants.ADD_TAG_PARTICIPANT,
             Constants.REMOVE_TAG_PARTICIPANT,
+            Constants.GET_TAG_LIST,
 
 
 
@@ -247,6 +248,7 @@ public class ChatMessageType {
         int DELETE_TAG = 142;
         int ADD_TAG_PARTICIPANT = 143;
         int REMOVE_TAG_PARTICIPANT = 144;
+        int GET_TAG_LIST = 145;
 
     }
 

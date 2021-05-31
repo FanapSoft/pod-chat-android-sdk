@@ -68,6 +68,7 @@ import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
 import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
 import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
 import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
 import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
 import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
 import com.fanap.podchat.chat.tag.result_model.TagResult;
@@ -290,8 +291,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onTagCreated(String content, ChatResponse<TagResult> response) {
-          Log.e(TAG, content);
-          view.onTagCreated(response.getResult());
+        Log.e(TAG, content);
+        view.onTagCreated(response.getResult());
     }
 
     @Override
@@ -306,12 +307,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void OnTagParticipantAdded(String content, ChatResponse<TagParticipantResult> response) {
-            Log.e(TAG, content);
+        Log.e(TAG, content);
     }
 
     @Override
     public void OnTagParticipantRemoved(String content, ChatResponse<TagParticipantResult> response) {
-            Log.e(TAG, content);
+        Log.e(TAG, content);
     }
 
     @Override
@@ -524,7 +525,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getUserBots(GetUserBotsRequest request) {
-       chat.getUserBots(request);
+        chat.getUserBots(request);
     }
 
     @Override
@@ -1554,7 +1555,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetHashTagList(ChatResponse<ResultHistory> response) {
         super.onGetHashTagList(response);
-        Log.e(TAG, "onGetHashTagList: "+response.getJson() );
+        Log.e(TAG, "onGetHashTagList: " + response.getJson());
 
     }
 
@@ -2194,6 +2195,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void removeTagParticipant(RemoveTagParticipantRequest request) {
         chat.removeTagParticipant(request);
+    }
+
+    @Override
+    public void getTagList(GetTagListRequest request) {
+        chat.getTagList(request);
     }
 
     @Override

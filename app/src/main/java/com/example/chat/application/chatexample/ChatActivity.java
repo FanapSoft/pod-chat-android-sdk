@@ -59,6 +59,7 @@ import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
 import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
 import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
 import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
 import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
 import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -262,9 +263,9 @@ public class ChatActivity extends AppCompatActivity
 
 //    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
     public static int TEST_THREAD_ID = 47528; // Test Posspace file
-//    public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
+    //    public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
     private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
-    private long tagId=23;
+    private long tagId = 23;
 
 //    integration /group: fifi,jiji and ...
 //    public static int TEST_THREAD_ID = 6886;
@@ -1440,6 +1441,10 @@ public class ChatActivity extends AppCompatActivity
                         removeTagParticipant();
                         break;
                     }
+                    case 29: {
+                        getTagList();
+                        break;
+                    }
                 }
             }
 
@@ -1632,45 +1637,54 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void createTag() {
-        CreateTagRequest request = new CreateTagRequest.Builder("Tag_"+System.currentTimeMillis() / 1000).build();
+        CreateTagRequest request = new CreateTagRequest.Builder("Tag_" + System.currentTimeMillis() / 1000).build();
         presenter.createTag(request);
     }
 
 
     public void editTag() {
-        EditTagRequest request= new EditTagRequest.Builder(tagId,"PrivateThreads"+System.currentTimeMillis()).build();
+        EditTagRequest request = new EditTagRequest.Builder(tagId, "PrivateThreads" + System.currentTimeMillis()).build();
         presenter.editTag(request);
     }
 
 
     public void deleteTag() {
-        DeleteTagRequest request= new DeleteTagRequest.Builder(tagId).build();;
+        DeleteTagRequest request = new DeleteTagRequest.Builder(tagId).build();
+        ;
         presenter.deleteTag(request);
     }
 
 
     public void addTagParticipant() {
-        List<Long> threadIds=new ArrayList<>();
+        List<Long> threadIds = new ArrayList<>();
         threadIds.add(8688l);
         threadIds.add(8730l);
         threadIds.add(8729l);
-        AddTagParticipantRequest request= new AddTagParticipantRequest.Builder(tagId,threadIds).build();;
+        AddTagParticipantRequest request = new AddTagParticipantRequest.Builder(tagId, threadIds).build();
+        ;
         presenter.addTagParticipant(request);
+    }
+
+    public void getTagList() {
+        GetTagListRequest request = new GetTagListRequest.Builder().build();
+        ;
+        presenter.getTagList(request);
     }
 
 
     public void removeTagParticipant() {
-        List<Long> threadIds=new ArrayList<>();
+        List<Long> threadIds = new ArrayList<>();
         threadIds.add(8688l);
         threadIds.add(8730l);
         threadIds.add(8729l);
-        RemoveTagParticipantRequest request= new RemoveTagParticipantRequest.Builder(tagId,threadIds).build();;
+        RemoveTagParticipantRequest request = new RemoveTagParticipantRequest.Builder(tagId, threadIds).build();
+        ;
         presenter.removeTagParticipant(request);
     }
 
     @Override
     public void onTagCreated(TagResult result) {
-        tagId=result.getTag().getTagId();
+        tagId = result.getTag().getTagId();
     }
 
     private void startBot() {

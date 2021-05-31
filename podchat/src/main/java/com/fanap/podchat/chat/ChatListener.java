@@ -370,4 +370,5 @@ public interface ChatListener {
     default void onTagDeleted(String content, ChatResponse<TagResult> response){}
     default void OnTagParticipantAdded(String content, ChatResponse<TagParticipantResult> response){}
     default void OnTagParticipantRemoved(String content, ChatResponse<TagParticipantResult> response){}
+    default void OnTagList(String content, ChatResponse<TagParticipantResult> response){}
 }
