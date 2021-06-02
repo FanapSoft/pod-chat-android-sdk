@@ -5,84 +5,24 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="8dp"
     tools:layout_editor_absoluteY="81dp">
 
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/textViewStateChat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="State" />
-
-        <EditText
-            android:id="@+id/editTextToken"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="new token"
-            android:inputType="textPersonName" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonConnect"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="@string/connect" />
-
-            <Button
-                android:id="@+id/buttonToken"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="setToken" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/textViewUserId"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="User Id"
-            android:textSize="20sp" />
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_videorecorder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="uploadVideo"
-        tools:layout_editor_absoluteX="72dp"
-        tools:layout_editor_absoluteY="598dp" />
 
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:background="@color/bg1"
         android:orientation="vertical"
+        android:padding="8dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone">
 
         <TextView
             android:id="@+id/textView5"
@@ -122,28 +62,32 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/bg1"
         android:orientation="vertical"
+        android:padding="8dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
-
-        <Button
-            android:id="@+id/buttonFileChoose"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="ChooseImage" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        tools:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="4dp"
             android:orientation="horizontal">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:onClick="SetThreadId"
+                android:text="Set Thread ID"
+                android:textSize="12sp" />
 
             <EditText
                 android:id="@+id/editTextThread"
@@ -154,19 +98,22 @@
                 android:hint="Thread id"
                 android:inputType="textPersonName" />
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:onClick="SetThreadId"
-                android:text="Set Thread ID" />
-
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonSendMessage"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:onClick="sendMessage"
+                android:text="Send message!"
+                android:textSize="12sp" />
 
             <EditText
                 android:id="@+id/editTextMessage"
@@ -177,84 +124,205 @@
                 android:hint="Enter your message here"
                 android:inputType="textPersonName" />
 
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@color/bg1"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        tools:layout_editor_absoluteX="8dp"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:text="Select file " />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
             <Button
-                android:id="@+id/buttonSendMessage"
+                android:id="@+id/btn_videorecorder"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.33"
+                android:text="Camera Video"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/buttonChooseFile"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.33"
+                android:onClick="ChooseFile"
+                android:text="ChooseFile"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/buttonFileChoose"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.33"
+                android:text="ChooseImage"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonUploadImageProgress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="0.5"
-                android:onClick="sendMessage"
-                android:text="Send message!" />
+                android:text="Upload image Progress"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/percentage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="this is 100" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonUploadFileProgress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="Upload file Progress"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/percentageFile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="this is 0" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/imageMap"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="@color/colorLightGrey"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="354dp"
-        tools:layout_editor_absoluteY="605dp" />
-
-
-    <Button
-        android:id="@+id/buttonChooseFile"
-        android:layout_width="114dp"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="ChooseFile"
-        android:text="ChooseFile"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="307dp" />
+        android:layout_marginTop="16dp"
+        android:background="@color/bg1"
+        android:orientation="vertical"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
+
+        <TextView
+            android:id="@+id/textViewStateChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="State" />
+
+        <EditText
+            android:id="@+id/editTextToken"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="new token"
+            android:inputType="textPersonName" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonConnect"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/connect"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/buttonToken"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="setToken"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewUserId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="User Id"
+            android:textSize="20sp" />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressbar"
         style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="411dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        tools:layout_editor_absoluteY="733dp" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.92" />
 
-    <TextView
-        android:id="@+id/percentage"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="this is 100"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="202dp"
-        tools:layout_editor_absoluteY="451dp" />
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        tools:layout_editor_absoluteX="8dp">
 
+        <TextView
+            android:id="@+id/txt_messasges"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
-    <Button
-        android:id="@+id/buttonUploadImageProgress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Upload image Progress"
-        android:textSize="12sp"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="20dp"
-        tools:layout_editor_absoluteY="437dp" />
+        <ImageView
+            android:id="@+id/imageMap"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@color/colorLightGrey" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/buttonUploadFileProgress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Upload file Progress"
-        android:textSize="12sp"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="24dp"
-        tools:layout_editor_absoluteY="553dp" />
-
-    <TextView
-        android:id="@+id/percentageFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="this is 0"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="193dp"
-        tools:layout_editor_absoluteY="568dp" />
 
 </android.support.constraint.ConstraintLayout>

@@ -10,4 +10,6 @@
     <color name="tabLayout_unselected_text_color">#616161</color>
     <color name="tabLayout_selected_text_color">#3F51B5</color>
     <color name="white">#ffffff</color>
+    <color name="bg1">#E4F5D0</color>
+    <color name="bg2">#CDCDF2</color>
 </resources>

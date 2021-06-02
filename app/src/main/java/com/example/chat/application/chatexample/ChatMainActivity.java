@@ -153,7 +153,7 @@ public class ChatMainActivity extends AppCompatActivity
     private ImageView imageMap;
     private TextView textViewState;
     private TextView percentage;
-    private TextView percentageFile;
+    private TextView percentageFile,txt_messasges;
     private Gson gson = new GsonBuilder().create();
 
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
@@ -167,7 +167,7 @@ public class ChatMainActivity extends AppCompatActivity
 
 
 
-    private static String TOKEN = "a59e9e60f9a0485baa788c805a3cb4dc";
+    private static String TOKEN = "52d2692579b84d6dae98c5a339361655";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -287,6 +287,7 @@ public class ChatMainActivity extends AppCompatActivity
         TextView textViewToken = findViewById(R.id.textViewUserId);
         percentage = findViewById(R.id.percentage);
         percentageFile = findViewById(R.id.percentageFile);
+        txt_messasges = findViewById(R.id.txt_messasges);
         editText = findViewById(R.id.editTextMessage);
         editTextToken = findViewById(R.id.editTextToken);
         editTextThread = findViewById(R.id.editTextThread);
@@ -2804,7 +2805,7 @@ public class ChatMainActivity extends AppCompatActivity
                 @Override
                 public void onError(String jsonError, ErrorOutPut error) {
                     Log.e("UFP", "Error: " + error.getErrorMessage() + " Code: " + error.getErrorCode());
-
+                    txt_messasges.setText(" Upload Failed: \n"+jsonError);
                 }
 
                 @Override
@@ -2815,6 +2816,7 @@ public class ChatMainActivity extends AppCompatActivity
                         Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                         percentageFile.setText("100");
                         percentageFile.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        txt_messasges.setText("Finish Upload : \n"+imageJson);
                     });
 
                 }
