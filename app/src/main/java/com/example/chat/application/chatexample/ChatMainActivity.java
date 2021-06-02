@@ -153,7 +153,7 @@ public class ChatMainActivity extends AppCompatActivity
     private ImageView imageMap;
     private TextView textViewState;
     private TextView percentage;
-    private TextView percentageFile,txt_messasges;
+    private TextView percentageFile, txt_messasges;
     private Gson gson = new GsonBuilder().create();
 
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
@@ -163,19 +163,16 @@ public class ChatMainActivity extends AppCompatActivity
 
     private Button btnUploadFile;
 
-    private Button btnUploadImage,btn_videorecorder;
+    private Button btnUploadImage, btn_videorecorder;
 
 
-
-    private static String TOKEN = "52d2692579b84d6dae98c5a339361655";
+    private static String TOKEN = "96ea4a388edf4816b0c7ba2b301cfe06";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
 
     private static String appId = "POD-Chat";
     private static String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
-
-
 
 
     private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
@@ -2345,9 +2342,8 @@ public class ChatMainActivity extends AppCompatActivity
         inviterw.setName("this is sample metadata");
 
 
-
         List<Invitee> invite = new ArrayList<>();
-        invite.add(new Invitee("32991571", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farzad
+        invite.add(new Invitee("21835578", InviteType.Constants.TO_BE_USER_ID));//farzad
 //        invite.add(new Invitee("29668088", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farzad
 //        invite.add(new Invitee("29668089", InviteType.Constants.TO_BE_USER_CONTACT_ID));//ahmad nekooi
 //        invite.add(new Invitee("6371218", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farhad kheirkhah
@@ -2357,7 +2353,8 @@ public class ChatMainActivity extends AppCompatActivity
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
                 .Builder(ThreadType.Constants.NORMAL, invite)
-                .title("Test Kidzy type code")
+                .title("Test Kidzy type code 2")
+//                .typeCode("KidzyGameChat")
 //                .withDescription("Test Thread Kidzy in KidzyGameChat typecode")
                 .build();
 
@@ -2624,7 +2621,8 @@ public class ChatMainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        txt_messasges.setText("\n");
+        txt_messasges.append("onActivityResult :\n");
         if (resultCode == Activity.RESULT_OK) {
             if (data != null) {
                 if (requestCode == PICK_IMAGE_FILE_REQUEST) {
@@ -2637,9 +2635,12 @@ public class ChatMainActivity extends AppCompatActivity
                     String path = FilePick.getSmartFilePath(this, fileUri);
                     setFileUri(path);
                     setUri(fileUri);
-                }else if (requestCode == REQUEST_VIDEO_CAPTURE) {
+                } else if (requestCode == REQUEST_VIDEO_CAPTURE) {
+
                     Uri fileUri = data.getData();
+                    txt_messasges.append("1"+fileUri.getPath() + "\n");
                     String path = FilePick.getSmartFilePath(this, fileUri);
+                    txt_messasges.append("2"+path+ "\n");
                     setFileUri(path);
                     setUri(fileUri);
                 }
@@ -2783,6 +2784,7 @@ public class ChatMainActivity extends AppCompatActivity
 
     public void onUploadFile(View view) {
 
+        txt_messasges.append("start to upload file : \n" + getUri());
         if (getUri() != null) {
 
             presenter.uploadFileProgress(ChatMainActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
@@ -2797,15 +2799,21 @@ public class ChatMainActivity extends AppCompatActivity
 
                     Log.e("UFP", "op" + progress + " sent" + totalBytesSent + " toSend" + totalBytesToSend);
 
-                    runOnUiThread(() -> percentageFile.setText(progress + "%"));
-
-
+                    runOnUiThread(() -> {
+                        txt_messasges.append("in progress :" + progress + "\n");
+                        percentageFile.setText(progress + "%");
+                    });
                 }
 
                 @Override
                 public void onError(String jsonError, ErrorOutPut error) {
+
                     Log.e("UFP", "Error: " + error.getErrorMessage() + " Code: " + error.getErrorCode());
-                    txt_messasges.setText(" Upload Failed: \n"+jsonError);
+                    runOnUiThread(() -> {
+
+                        txt_messasges.append(" Upload Failed: \n" + jsonError);
+
+                    });
                 }
 
                 @Override
@@ -2813,10 +2821,11 @@ public class ChatMainActivity extends AppCompatActivity
                     Log.e("UFP", imageJson);
 
                     runOnUiThread(() -> {
+                        txt_messasges.setText("");
                         Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                         percentageFile.setText("100");
                         percentageFile.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
-                        txt_messasges.setText("Finish Upload : \n"+imageJson);
+                        txt_messasges.setText("Finish Upload : \n" + imageJson);
                     });
 
                 }
