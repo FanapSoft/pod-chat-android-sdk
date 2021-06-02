@@ -8,257 +8,253 @@
     tools:layout_editor_absoluteY="81dp">
 
 
-    <Button
-        android:id="@+id/buttonConnect"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="@string/connect"
-        app:layout_constraintEnd_toStartOf="@+id/buttonFileChoose"
-        app:layout_constraintHorizontal_bias="0.076"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textViewStateChat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="29dp"
-        android:text="State"
-        app:layout_constraintBottom_toTopOf="@+id/spinner"
-        app:layout_constraintEnd_toStartOf="@+id/imageMap"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/buttonSendMessage"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="17dp"
-        android:onClick="sendMessage"
-        android:text="Send message!"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
-
-    <EditText
-        android:id="@+id/editTextMessage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="160dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="160dp"
-        android:ems="10"
-        android:hint="Enter your message here"
-        android:inputType="textPersonName"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonConnect" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textViewStateChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="State" />
+
+        <EditText
+            android:id="@+id/editTextToken"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="new token"
+            android:inputType="textPersonName" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonConnect"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="@string/connect" />
+
+            <Button
+                android:id="@+id/buttonToken"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="setToken" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewUserId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Id"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_videorecorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="uploadVideo"
+        tools:layout_editor_absoluteX="72dp"
+        tools:layout_editor_absoluteY="598dp" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="tests" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.33"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown" />
+
+            <Spinner
+                android:id="@+id/spinnerSecond"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.33"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown" />
+
+            <Spinner
+                android:id="@+id/spinnerThird"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.33"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+        <Button
+            android:id="@+id/buttonFileChoose"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ChooseImage" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editTextThread"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_weight="0.5"
+                android:ems="10"
+                android:hint="Thread id"
+                android:inputType="textPersonName" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:onClick="SetThreadId"
+                android:text="Set Thread ID" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editTextMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:ems="10"
+                android:hint="Enter your message here"
+                android:inputType="textPersonName" />
+
+            <Button
+                android:id="@+id/buttonSendMessage"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:onClick="sendMessage"
+                android:text="Send message!" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/imageMap"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="20dp"
         android:background="@color/colorLightGrey"
-        app:layout_constraintBottom_toTopOf="@+id/spinner"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="354dp"
+        tools:layout_editor_absoluteY="605dp" />
 
-    <EditText
-        android:id="@+id/editTextThread"
-        android:layout_width="216dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="34dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="37dp"
-        android:ems="10"
-        android:hint="Thread id"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerSecond"
-        app:layout_constraintVertical_bias="1.0" />
-
-
-    <Button
-        android:onClick="SetThreadId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="Set Thread ID"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextThread"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.416"
-        app:layout_constraintStart_toEndOf="@+id/editTextThread"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerThird"
-        app:layout_constraintVertical_bias="1.0" />
-
-
-    <TextView
-        android:id="@+id/textViewUserId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="12dp"
-        android:text="User Id"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonConnect" />
-
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Spinner
-        android:id="@+id/spinnerSecond"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="117dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="113dp"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
-        app:layout_constraintEnd_toStartOf="@+id/spinnerThird"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.488" />
-
-    <Spinner
-        android:id="@+id/spinnerThird"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="117dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="113dp"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.488" />
-
-    <Button
-        android:id="@+id/buttonFileChoose"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:text="ChooseImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/buttonChooseFile"
         android:layout_width="114dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="144dp"
         android:onClick="ChooseFile"
         android:text="ChooseFile"
-        app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-        app:layout_constraintHorizontal_bias="0.166"
-        app:layout_constraintStart_toStartOf="@+id/buttonToken"
-        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="307dp" />
 
     <ProgressBar
         android:id="@+id/progressbar"
         style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="0dp"
+        android:layout_width="411dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="9dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner" />
+        android:visibility="gone"
+        tools:layout_editor_absoluteY="733dp" />
 
     <TextView
         android:id="@+id/percentage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonUploadImageProgress"
-        app:layout_constraintStart_toEndOf="@+id/buttonUploadImageProgress"
-        app:layout_constraintTop_toTopOf="@+id/buttonUploadImageProgress"
-        android:text="this is 100" />
+        android:text="this is 100"
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="202dp"
+        tools:layout_editor_absoluteY="451dp" />
 
-    <Button
-        android:id="@+id/buttonToken"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:text="setToken"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonChooseFile" />
-
-    <EditText
-        android:id="@+id/editTextToken"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="13dp"
-        android:ems="10"
-        android:hint="new token"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-        app:layout_constraintStart_toStartOf="@+id/buttonSendMessage"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSendMessage" />
 
     <Button
         android:id="@+id/buttonUploadImageProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:text="Upload image Progress"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/buttonToken"
-        app:layout_constraintTop_toBottomOf="@+id/buttonToken" />
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="437dp" />
 
     <Button
         android:id="@+id/buttonUploadFileProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:text="Upload file Progress"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/buttonUploadImageProgress"
-        app:layout_constraintTop_toBottomOf="@+id/buttonUploadImageProgress" />
-
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="553dp" />
 
     <TextView
         android:id="@+id/percentageFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:text="this is 0"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonUploadFileProgress"
-        app:layout_constraintStart_toEndOf="@+id/buttonUploadFileProgress"
-        app:layout_constraintTop_toTopOf="@+id/buttonUploadFileProgress" />
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="193dp"
+        tools:layout_editor_absoluteY="568dp" />
 
 </android.support.constraint.ConstraintLayout>

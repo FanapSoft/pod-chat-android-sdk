@@ -12,7 +12,8 @@
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true" />
     <application
         android:name="com.example.chat.application.chatexample.BaseApplication"
         android:allowBackup="true"
@@ -45,17 +46,8 @@
         <!-- <action android:name="android.intent.action.QUICKBOOT_POWERON" /> -->
         <!-- </intent-filter> -->
         <!-- </receiver> -->
-        <activity
-            android:name="com.example.chat.application.chatexample.ChatIntegrationActivity"
-            android:launchMode="singleInstance">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 <!--        <activity-->
-<!--            android:name="com.example.chat.application.chatexample.ChatMainActivity"-->
+<!--            android:name="com.example.chat.application.chatexample.ChatIntegrationActivity"-->
 <!--            android:launchMode="singleInstance">-->
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
@@ -63,6 +55,15 @@
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
 <!--        </activity>-->
+        <activity
+            android:name="com.example.chat.application.chatexample.ChatMainActivity"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -137,6 +137,7 @@ import java.util.Map;
 
 public class ChatMainActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
+    private static final int REQUEST_VIDEO_CAPTURE = 5;
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "appid";
     public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1007;
@@ -162,11 +163,11 @@ public class ChatMainActivity extends AppCompatActivity
 
     private Button btnUploadFile;
 
-    private Button btnUploadImage;
+    private Button btnUploadImage,btn_videorecorder;
 
 
 
-    private static String TOKEN = "f31a95a881f24f16832fbe1986adf22f";
+    private static String TOKEN = "a59e9e60f9a0485baa788c805a3cb4dc";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -183,7 +184,7 @@ public class ChatMainActivity extends AppCompatActivity
     private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
 
-    public static int TEST_THREAD_ID = 512704; // 149486 tak ghad keshide
+    public static int TEST_THREAD_ID = 512607; // 149486 tak ghad keshide
     private static final String TEST_THREAD_HASH = "9JKZPPLP4POGO4";
 
 
@@ -219,6 +220,13 @@ public class ChatMainActivity extends AppCompatActivity
 
     }
 
+    private void dispatchTakeVideoIntent() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
+        }
+    }
+
     private void setListeners() {
 
         imageMap.setOnLongClickListener((v) -> {
@@ -233,6 +241,10 @@ public class ChatMainActivity extends AppCompatActivity
 
             presenter.shareLogs();
             return true;
+        });
+        btn_videorecorder.setOnClickListener(v -> {
+            dispatchTakeVideoIntent();
+
         });
         buttonConnect.setOnClickListener(this);
         btnUploadFile.setOnClickListener(this::onUploadFile);
@@ -284,6 +296,7 @@ public class ChatMainActivity extends AppCompatActivity
         buttonToken = findViewById(R.id.buttonToken);
         btnUploadFile = findViewById(R.id.buttonUploadFileProgress);
         btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
+        btn_videorecorder = findViewById(R.id.btn_videorecorder);
 
         textViewToken.setText(TOKEN + name);
         editTextThread.setText(String.valueOf(TEST_THREAD_ID));
@@ -2619,6 +2632,11 @@ public class ChatMainActivity extends AppCompatActivity
                     setUri(Uri.parse(path));
 
                 } else if (requestCode == FILE_REQUEST_CODE) {
+                    Uri fileUri = data.getData();
+                    String path = FilePick.getSmartFilePath(this, fileUri);
+                    setFileUri(path);
+                    setUri(fileUri);
+                }else if (requestCode == REQUEST_VIDEO_CAPTURE) {
                     Uri fileUri = data.getData();
                     String path = FilePick.getSmartFilePath(this, fileUri);
                     setFileUri(path);
