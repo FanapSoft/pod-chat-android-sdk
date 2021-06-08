@@ -1767,8 +1767,8 @@ public class ChatIntegrationActivity extends AppCompatActivity
 
                 break;
             case 8:
-                createThread();
-
+            //    createThread();
+                createSelfThread();
                 break;
             case 9:
                 //get thread history
@@ -2441,6 +2441,14 @@ public class ChatIntegrationActivity extends AppCompatActivity
 
     }
 
+    private void createSelfThread(){
+        RequestCreateThread requestCreateThread = new RequestCreateThread
+                .Builder(ThreadType.Constants.SELF, new ArrayList<>())
+                .title("SelfTHread")
+                .build();
+
+        presenter.createThread(requestCreateThread);
+    }
     private void updateContact() {
 
         presenter.updateContact(52979, "agha masoud",
