@@ -2,6 +2,9 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -149,7 +152,7 @@ public class ChatMainActivity extends AppCompatActivity
     private EditText editTextThread;
     private Button buttonFileChoose;
     private Button buttonConnect;
-    private Button buttonToken;
+    private Button buttonToken,btn_copy;
     private ImageView imageMap;
     private TextView textViewState;
     private TextView percentage;
@@ -166,7 +169,7 @@ public class ChatMainActivity extends AppCompatActivity
     private Button btnUploadImage, btn_videorecorder;
 
 
-    private static String TOKEN = "96ea4a388edf4816b0c7ba2b301cfe06";
+    private static String TOKEN = "d29d093525fe4e89a6eea151dad63222";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
 
@@ -262,6 +265,10 @@ public class ChatMainActivity extends AppCompatActivity
 
         });
 
+        btn_copy.setOnClickListener(v -> {
+           copyToClipBoard();
+        });
+
         buttonToken.setOnLongClickListener(v -> {
 
             String entry = editTextToken.getText().toString();
@@ -292,6 +299,7 @@ public class ChatMainActivity extends AppCompatActivity
         buttonFileChoose = findViewById(R.id.buttonFileChoose);
         buttonConnect = findViewById(R.id.buttonConnect);
         buttonToken = findViewById(R.id.buttonToken);
+        btn_copy = findViewById(R.id.btn_copy);
         btnUploadFile = findViewById(R.id.buttonUploadFileProgress);
         btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
         btn_videorecorder = findViewById(R.id.btn_videorecorder);
@@ -2831,6 +2839,17 @@ public class ChatMainActivity extends AppCompatActivity
                 }
             });
         }
+    }
+
+    // Copy EditCopy text to the ClipBoard
+    private void copyToClipBoard()
+    {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("label", txt_messasges.getText().toString());
+        if (clipboard == null || clip == null) return;
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(this, "ok", Toast.LENGTH_SHORT).show();
     }
 
     public void SetThreadId(View view) {

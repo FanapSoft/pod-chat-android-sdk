@@ -168,10 +168,10 @@ public class ChatIntegrationActivity extends AppCompatActivity
 
     //    private static String TOKEN = "a47c9016c8354236abc01395093bed5c";//lase
 //    private static String TOKEN = "9c627a9125d04ebf8455bf57bb33d2a9";//second
-    private static String TOKEN = "99506f7c32c849a9a6e2a954303b81ee";//one
+//    private static String TOKEN = "99506f7c32c849a9a6e2a954303b81ee";//one
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Saba_Safavi);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Leila_Nemati);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Masoud_Amjadi);
@@ -179,8 +179,12 @@ public class ChatIntegrationActivity extends AppCompatActivity
 //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
 //    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.kafkaTestStream_serverName);
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+
+
+//   private static String ssoHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.kafkaTestStream_serverName);
 
 
     private static String appId = "POD-Chat";
@@ -190,18 +194,18 @@ public class ChatIntegrationActivity extends AppCompatActivity
      * kafkaTestStream server setting:
      */
 
-    private static String name = BaseApplication.getInstance().getString(R.string.kafkaTestStream_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.kafkaTestStream_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.kafkaTestStream_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.kafkaTestStream_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.kafkaTestStream_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.kafkaTestStream_platformHost);
 //  /**
 //     * Integration server setting:
 //     */
 //
-//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     public static int TEST_THREAD_ID = 47528; // Test Posspace file
 
