@@ -7952,10 +7952,6 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
 
-        if (cache) {
-
-        }
-
         if (chatReady) {
             String message = TagManager.createAddTagRequest(request, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "CREATE_TAG");
@@ -8011,7 +8007,7 @@ public class Chat extends AsyncAdapter {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(response -> {
-                        Log.e(TAG, "addTagParticipant: ");
+                        Log.e(TAG, "addTagParticipant: "+response.size());
                     });
         }
         if (chatReady) {
