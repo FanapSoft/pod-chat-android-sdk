@@ -27,6 +27,7 @@ import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.ResultPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.result_model.TagListResult;
 import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
 import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
@@ -251,7 +252,7 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnTagList(String content, ChatResponse<TagParticipantResult> chatResponse) {
+    public void callOnTagList(String content, ChatResponse<TagListResult> chatResponse) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.OnTagList(content, chatResponse);

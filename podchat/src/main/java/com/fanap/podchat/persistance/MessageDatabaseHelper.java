@@ -1,4 +1,4 @@
-package com.fanap.podchat.persistance;
+ package com.fanap.podchat.persistance;
 
 import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
@@ -4265,12 +4265,16 @@ public class MessageDatabaseHelper {
         worker(() -> {
             List<CacheTagParticipantVO> tagVos = new ArrayList<>();
             for (TagParticipantVO item : tagParticipantVOS) {
+
                 CacheTagParticipantVO cache = new CacheTagParticipantVO();
                 cache.setThreadId(item.getThreadId());
                 cache.setActive(item.isActive());
                 cache.setTagId(tagId);
                 cache.setId(item.getId());
                 tagVos.add(cache);
+
+                if (item.getConversationVO() != null)
+                    saveNewThread(item.getConversationVO());
             }
             messageDao.insertCacheTagParticipantVos(tagVos);
 
@@ -4285,6 +4289,9 @@ public class MessageDatabaseHelper {
         cacheFile.setTagId(tag.getTagId());
         cacheFile.setActive(tag.isActive());
         cacheFile.setName(tag.getTagName());
+        if (tag.getTagParticipants() != null && tag.getTagParticipants().size() > 0)
+            updateCacheTagParticipantVos(tag.getTagParticipants(), tag.getTagId());
+
         messageDao.insertCacheTagVo(cacheFile);
     }
 
@@ -4293,11 +4300,7 @@ public class MessageDatabaseHelper {
         return Observable
                 .create(emitter -> {
                     try {
-                        List<CacheTagVo> tags = messageDao.getCacheTagVos();
-                        List<TagVo> tagVos = new ArrayList<>();
-                        for (CacheTagVo item : tags) {
-                            tagVos.add(CacheTagVoToTagVoMapper(item));
-                        }
+                        List<TagVo> tagVos = prepareTagList();
                         emitter.onNext(tagVos);
                         emitter.onCompleted();
                     } catch (Exception e) {
@@ -4311,21 +4314,49 @@ public class MessageDatabaseHelper {
                 .create(emitter -> {
                     try {
                         List<CacheTagParticipantVO> tagParticipants = messageDao.getCacheTagParticipantVosByTagId(tagId);
-                        List<TagParticipantVO> tagVos = new ArrayList<>();
+                        List<TagParticipantVO> cacheTagParticipants = new ArrayList<>();
                         for (CacheTagParticipantVO item : tagParticipants) {
                             TagParticipantVO cache = cacheTagParticipantVOToTagParticipantVOMapper(item);
                             if (messageDao.getThreadById(item.getThreadId()) != null) {
                                 Thread thread = threadVoToThreadMapper(messageDao.getThreadById(item.getThreadId()), null);
                                 cache.setConversationVO(thread);
                             }
-                            tagVos.add(cache);
+                            cacheTagParticipants.add(cache);
                         }
-                        emitter.onNext(tagVos);
+                        emitter.onNext(cacheTagParticipants);
                         emitter.onCompleted();
                     } catch (Exception e) {
                         emitter.onError(e);
                     }
                 });
+    }
+
+    private List<TagVo> prepareTagList(){
+        List<CacheTagVo> tags = messageDao.getCacheTagVos();
+        List<TagVo> tagVos = new ArrayList<>();
+
+        for (CacheTagVo item : tags) {
+            TagVo tag = CacheTagVoToTagVoMapper(item);
+            long allUnreadCount = 0;
+            List<CacheTagParticipantVO> cacheTagParticipants = messageDao.getCacheTagParticipantVosByTagId(item.getTagId());
+            List<TagParticipantVO> tagParticipants = new ArrayList<>();
+            for (CacheTagParticipantVO cacheTagParticipantVO : cacheTagParticipants) {
+                TagParticipantVO cache = cacheTagParticipantVOToTagParticipantVOMapper(cacheTagParticipantVO);
+                if (messageDao.getThreadById(cacheTagParticipantVO.getThreadId()) != null) {
+                    Thread thread = threadVoToThreadMapper(messageDao.getThreadById(cacheTagParticipantVO.getThreadId()), null);
+                    cache.setConversationVO(thread);
+
+                    //TODO it should be save in db. can save it when save tags on db
+                    if(thread.getUnreadCount() > 0)
+                        allUnreadCount = allUnreadCount + thread.getUnreadCount();
+                }
+                tagParticipants.add(cache);
+            }
+            tag.setTagParticipants(tagParticipants);
+            tag.setAllUnreadCount(allUnreadCount);
+            tagVos.add(tag);
+        }
+        return tagVos;
     }
 
     public List<CacheFile> getImagesByHash(String hashCode) {

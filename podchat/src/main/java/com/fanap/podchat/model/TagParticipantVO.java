@@ -13,6 +13,7 @@ public class TagParticipantVO {
     @SerializedName("conversationVO")
     private Thread conversationVO;
 
+
     public TagParticipantVO(Long id, boolean active, Long threadId) {
         this.id = id;
         this.active = active;
@@ -52,4 +53,5 @@ public class TagParticipantVO {
     public void setConversationVO(Thread conversationVO) {
         this.conversationVO = conversationVO;
     }
+
 }

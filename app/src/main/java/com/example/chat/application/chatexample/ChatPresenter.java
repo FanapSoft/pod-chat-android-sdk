@@ -70,6 +70,7 @@ import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
 import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
 import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
 import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagListResult;
 import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
 import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
@@ -312,6 +313,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void OnTagParticipantRemoved(String content, ChatResponse<TagParticipantResult> response) {
+        Log.e(TAG, content);
+    }
+
+    @Override
+    public void OnTagList(String content, ChatResponse<TagListResult> response) {
         Log.e(TAG, content);
     }
 

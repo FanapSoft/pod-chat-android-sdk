@@ -3,6 +3,8 @@ package com.fanap.podchat.model;
 import com.fanap.podchat.mainmodel.Participant;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class TagVo {
 
     @SerializedName("id")
@@ -16,6 +18,11 @@ public class TagVo {
 
     @SerializedName("active")
     boolean active;
+
+    @SerializedName("tagParticipantVOList")
+    List<TagParticipantVO> tagParticipants;
+
+    private long allUnreadCount = 0;
 
     public TagVo(long tagId, String tagName, boolean active) {
         this.tagId = tagId;
@@ -51,7 +58,23 @@ public class TagVo {
         return owner;
     }
 
+    public long getAllUnreadCount() {
+        return allUnreadCount;
+    }
+
+    public void setAllUnreadCount(long allUnreadCount) {
+        this.allUnreadCount = allUnreadCount;
+    }
+
     public void setOwner(Participant owner) {
         this.owner = owner;
+    }
+
+    public List<TagParticipantVO> getTagParticipants() {
+        return tagParticipants;
+    }
+
+    public void setTagParticipants(List<TagParticipantVO> tagParticipants) {
+        this.tagParticipants = tagParticipants;
     }
 }

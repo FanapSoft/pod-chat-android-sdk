@@ -115,6 +115,7 @@ import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
 import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
 import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
 import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagListResult;
 import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
 import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.ThreadManager;
@@ -196,6 +197,7 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultThreadsSummary;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.model.TagVo;
 import com.fanap.podchat.networking.ProgressRequestBody;
 import com.fanap.podchat.networking.ProgressResponseBody;
 import com.fanap.podchat.networking.api.ContactApi;
@@ -7951,12 +7953,7 @@ public class Chat extends AsyncAdapter {
         String uniqueId = generateUniqueId();
 
         if (cache) {
-            messageDatabaseHelper.getTagVos()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(response -> {
-                        Log.e(TAG, "tags: ");
-                    });
+
         }
 
         if (chatReady) {
@@ -8018,7 +8015,6 @@ public class Chat extends AsyncAdapter {
                     });
         }
         if (chatReady) {
-
             String message = TagManager.createAddTagParticipantRequest(request, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_TAG_PARTICIPANT");
             Callback callbackTagParticipant = new Callback(request.getTagId());
@@ -8026,7 +8022,6 @@ public class Chat extends AsyncAdapter {
         } else {
             onChatNotReady(uniqueId);
         }
-
         return uniqueId;
     }
 
@@ -8037,12 +8032,22 @@ public class Chat extends AsyncAdapter {
 
         String uniqueId = generateUniqueId();
         if (cache) {
-
+            messageDatabaseHelper.getTagVos()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .filter(tags -> tags != null && tags.size() > 0)
+                    .subscribe(tags -> {
+                        ChatResponse<TagListResult> response = new ChatResponse<>();
+                        response.setResult(new TagListResult(tags));
+                        response.setUniqueId(uniqueId);
+                        response.setCache(true);
+                        listenerManager.callOnTagList(null, response);
+                    });
         }
         if (chatReady) {
 
             String message = TagManager.createTagListRequest(request, uniqueId);
-            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_TAG_PARTICIPANT");
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "GET_TAG_LIST");
 
         } else {
             onChatNotReady(uniqueId);
@@ -11778,19 +11783,37 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnTagList(ChatMessage chatMessage) {
+
         if (sentryResponseLog) {
             showLog("TAG LIST RECIVED", gson.toJson(chatMessage));
         } else {
             showLog("TAG LIST RECIVED");
         }
 
-        ChatResponse<TagParticipantResult> response = TagManager.prepareTagListResponse(chatMessage);
+        prepareTagsForResponse(chatMessage).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(tags -> {
+                    if (cache) {
+                        for (TagVo tag : tags.getResult().getTags()) {
+                            messageDatabaseHelper.updateCacheTagVo(tag);
+                        }
+                    }
+                    listenerManager.callOnTagList(chatMessage.getContent(), tags);
+                });
+    }
 
-        if (cache) {
-          //TODO implement cache for threads
-        }
+    private Observable<ChatResponse<TagListResult>> prepareTagsForResponse(ChatMessage chatMessage) {
+        return Observable
+                .create(emitter -> {
+                    try {
+                        ChatResponse<TagListResult> response = TagManager.prepareTagListResponse(chatMessage);
 
-        listenerManager.callOnTagList(chatMessage.getContent(), response);
+                        emitter.onNext(response);
+                        emitter.onCompleted();
+                    } catch (Exception e) {
+                        emitter.onError(e);
+                    }
+                });
     }
 
     private void handleSent(ChatMessage chatMessage, String messageUniqueId, long threadId) {
