@@ -171,9 +171,9 @@ public class ChatIntegrationActivity extends AppCompatActivity
 //    private static String TOKEN = "99506f7c32c849a9a6e2a954303b81ee";//one
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Saba_Safavi);
-//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Leila_Nemati);
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Leila_Nemati);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Masoud_Amjadi);
 //    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Mahyar_Zhiani);
 //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
@@ -182,7 +182,7 @@ public class ChatIntegrationActivity extends AppCompatActivity
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
-
+//
 //   private static String ssoHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_ssoHost);
 //    private static String serverName = BaseApplication.getInstance().getString(R.string.kafkaTestStream_serverName);
 
@@ -207,7 +207,7 @@ public class ChatIntegrationActivity extends AppCompatActivity
     private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
-    public static int TEST_THREAD_ID = 47528; // Test Posspace file
+    public static int TEST_THREAD_ID = 8934; // Test Posspace file
 
     private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
 
@@ -1684,7 +1684,7 @@ public class ChatIntegrationActivity extends AppCompatActivity
                 .messageType(TextMessageType.Constants.TEXT)
                 .build();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 5; i++) {
             presenter.sendTextMessage(editText.getText().toString() + System.currentTimeMillis()/1000, TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
         }
 
@@ -2473,32 +2473,39 @@ public class ChatIntegrationActivity extends AppCompatActivity
 //
 //        presenter.getHistory(request, null);
 
+        RequestGetHistory   request = new RequestGetHistory
+                .Builder(TEST_THREAD_ID)
+                .offset(0)
+                .count(50)
+                .build();
 
-        if (TEST_THREAD_LAST_SEEN_MESSAGE_TIME > 0) {
-            showToast("Get History to time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
-            RequestGetHistory request = new RequestGetHistory
-                    .Builder(TEST_THREAD_ID)
-                    .offset(0)
-                    .count(50)
-                    .order("desc") //.order("asc")
-                    .toTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
-                    .build();
+        presenter.getHistory(request, null);
 
-            presenter.getHistory(request, null);
-
-            showToast("Get History from time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
-
-            request = new RequestGetHistory
-                    .Builder(TEST_THREAD_ID)
-                    .offset(0)
-                    .count(50)
-                    .order("asc") //.order("asc")
-                    .fromTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
-                    .build();
-
-            presenter.getHistory(request, null);
-
-        }
+//        if (TEST_THREAD_LAST_SEEN_MESSAGE_TIME > 0) {
+//            showToast("Get History to time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+//            RequestGetHistory request = new RequestGetHistory
+//                    .Builder(TEST_THREAD_ID)
+//                    .offset(0)
+//                    .count(50)
+//                    .order("desc") //.order("asc")
+//                    .toTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+//                    .build();
+//
+//            presenter.getHistory(request, null);
+//
+//            showToast("Get History from time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+//
+//            request = new RequestGetHistory
+//                    .Builder(TEST_THREAD_ID)
+//                    .offset(0)
+//                    .count(50)
+//                    .order("asc") //.order("asc")
+//                    .fromTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+//                    .build();
+//
+//            presenter.getHistory(request, null);
+//
+//        }
 
     }
 
