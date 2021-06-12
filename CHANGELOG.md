@@ -18,7 +18,8 @@ All notable changes to this project will be documented here.
 [Added] ```OnTagParticipantAdded``` callback
 [Added] ```removeTagParticipant``` method
 [Added] ```OnTagParticipantRemoved``` callback
-
+[Added] ```getTagList``` method
+[Added] ```OnTagList``` callback
 
 
 ## Version [0.9.8.1] -2021-4-28
