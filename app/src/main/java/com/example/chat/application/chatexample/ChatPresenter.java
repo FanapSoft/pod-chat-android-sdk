@@ -318,7 +318,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void OnTagList(String content, ChatResponse<TagListResult> response) {
-        Log.e(TAG, content);
+        String x = response.getJson();
+        Log.e(TAG, x);
     }
 
     @Override

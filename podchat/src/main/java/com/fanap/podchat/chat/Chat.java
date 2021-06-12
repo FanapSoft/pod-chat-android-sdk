@@ -8002,14 +8002,7 @@ public class Chat extends AsyncAdapter {
     public String addTagParticipant(AddTagParticipantRequest request) {
 
         String uniqueId = generateUniqueId();
-        if (cache) {
-            messageDatabaseHelper.getTagParticipantsVos(request.getTagId())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(response -> {
-                        Log.e(TAG, "addTagParticipant: "+response.size());
-                    });
-        }
+
         if (chatReady) {
             String message = TagManager.createAddTagParticipantRequest(request, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_TAG_PARTICIPANT");
