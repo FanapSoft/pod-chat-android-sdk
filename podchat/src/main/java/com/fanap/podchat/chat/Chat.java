@@ -7948,19 +7948,20 @@ public class Chat extends AsyncAdapter {
     /**
      * Create user tag
      */
-    public String createTag(CreateTagRequest request) {
 
-        String uniqueId = generateUniqueId();
-
-        if (chatReady) {
-            String message = TagManager.createAddTagRequest(request, uniqueId);
-            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "CREATE_TAG");
-        } else {
-            onChatNotReady(uniqueId);
-        }
-
-        return uniqueId;
-    }
+//    public String createTag(CreateTagRequest request) {
+//
+//        String uniqueId = generateUniqueId();
+//
+//        if (chatReady) {
+//            String message = TagManager.createAddTagRequest(request, uniqueId);
+//            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "CREATE_TAG");
+//        } else {
+//            onChatNotReady(uniqueId);
+//        }
+//
+//        return uniqueId;
+//    }
 
     /**
      * Edit user tag
