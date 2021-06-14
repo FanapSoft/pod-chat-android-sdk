@@ -1349,6 +1349,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
+        Log.e(TAG, "onThreadInfoUpdated: "+response.getResult().getThread().getId() + "===> "+response.getResult().getThread().getLastMessage());
     }
 
     @Override

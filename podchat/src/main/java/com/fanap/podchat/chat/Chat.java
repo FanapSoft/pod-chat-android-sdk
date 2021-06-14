@@ -7276,10 +7276,14 @@ public class Chat extends AsyncAdapter {
                     final boolean[] loadFromCache = {true};
 
                     getHistoryFromCache(history, threadId, uniqueId)
-                            .filter(messages -> !MessageManager.hasGap(messages))
+//                            .filter(messages -> !MessageManager.hasGap(messages))
                             .subscribe(messagesFromCache -> {
 
                                 if (Util.isNullOrEmpty(messagesFromCache)) {
+                                    loadFromCache[0] = false;
+                                }
+
+                                if(MessageManager.hasGap(messagesFromCache)){
                                     loadFromCache[0] = false;
                                 }
 

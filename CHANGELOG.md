@@ -4,6 +4,8 @@
 
 # Changelog
 All notable changes to this project will be documented here.
+## Version [0.9.***]
+[BugFixed] Failure to receive history in specipic situtions
 
 
 ## Version [0.9.8.2]
