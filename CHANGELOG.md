@@ -4,8 +4,10 @@
 
 # Changelog
 All notable changes to this project will be documented here.
-## Version [0.9.***]
-[BugFixed] Failure to receive history in specipic situtions
+
+
+## Version [0.9.9.0]
+[BugFixed] Failure to receive history in specific situations
 
 
 ## Version [0.9.8.2]
@@ -17,11 +19,11 @@ All notable changes to this project will be documented here.
 [Added] ```deleteTag``` method
 [Added] ```onTagDeleted``` callback
 [Added] ```addTagParticipant``` method
-[Added] ```OnTagParticipantAdded``` callback
+[Added] ```onTagParticipantAdded``` callback
 [Added] ```removeTagParticipant``` method
-[Added] ```OnTagParticipantRemoved``` callback
+[Added] ```onTagParticipantRemoved``` callback
 [Added] ```getTagList``` method
-[Added] ```OnTagList``` callback
+[Added] ```onTagList``` callback
 
 
 ## Version [0.9.8.1] -2021-4-28
