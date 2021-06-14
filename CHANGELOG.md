@@ -13,17 +13,29 @@ All notable changes to this project will be documented here.
 ## Version [0.9.8.2]
 
 [Added] ```createTag``` method
+
 [Added] ```onTagCreated``` callback
+
 [Added] ```editTag``` method
+
 [Added] ```onTagEdited``` callback
+
 [Added] ```deleteTag``` method
+
 [Added] ```onTagDeleted``` callback
+
 [Added] ```addTagParticipant``` method
+
 [Added] ```onTagParticipantAdded``` callback
+
 [Added] ```removeTagParticipant``` method
+
 [Added] ```onTagParticipantRemoved``` callback
+
 [Added] ```getTagList``` method
+
 [Added] ```onTagList``` callback
+
 
 
 ## Version [0.9.8.1] -2021-4-28
