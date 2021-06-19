@@ -33,7 +33,7 @@
         <activity android:name="com.example.chat.application.chatexample.CallActivity">
 
         </activity>
-        <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity" /> <!-- <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver" -->
+        <activity android:name="com.example.chat.application.chatexample.SandboxServerActivity" /> <!-- <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver" -->
         <!-- android:exported="true"> -->
         <!-- <intent-filter> -->
         <!-- <action android:name="com.arissystem.touca.app" /> -->

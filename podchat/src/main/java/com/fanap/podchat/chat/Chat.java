@@ -304,6 +304,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -363,8 +364,7 @@ public class Chat extends AsyncAdapter {
     private String platformHost;
     private String fileServer;
     private String podSpaceServer;
-    private static
-    Chat instance;
+    private static Chat instance;
     private static SecurePreferences mSecurePrefs;
     private static ChatListenerManager listenerManager;
     private long userId;
@@ -420,7 +420,8 @@ public class Chat extends AsyncAdapter {
     private static final Handler pingHandler;
     private static final Handler tokenHandler;
     private boolean currentDeviceExist;
-    private Context context;
+   private WeakReference<Context> context;
+//    private Context context;
     private boolean log;
     private int expireAmount;
     private static Gson gson;
@@ -492,12 +493,11 @@ public class Chat extends AsyncAdapter {
      *
      * @param context for Async sdk and other usage
      **/
-    private static Context mcontext;
+
 
     public synchronized static Chat init(Context context) {
 
         if (instance == null) {
-            mcontext = context;
 
             setupSentry(context);
 
@@ -574,7 +574,7 @@ public class Chat extends AsyncAdapter {
         return "from local memmory \n\n ------------------------------------------------------------>" + sentrylogs.toString() + "\n\nfrom cash ------------------------------------------------------------>" + sentryCashedlogs.toString();
     }
 
-    private static void getCacheLogs(String path) {
+    private void getCacheLogs(String path) {
 
         File directory = new File(path);
         File[] files = directory.listFiles();
@@ -585,7 +585,7 @@ public class Chat extends AsyncAdapter {
             } else {
                 Log.e("sentryLogs", "get logs from cache");
                 try {
-                    sentryCashedlogs.append("addNew \n\n\n").append(readFromFile(mcontext, fi.toString()));
+                    sentryCashedlogs.append("addNew \n\n\n").append(readFromFile( fi.toString()));
                 } catch (Exception e) {
                     sentryCashedlogs.append("addNew \n\n\n can not get logs from cache file ");
                 }
@@ -595,7 +595,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private static String readFromFile(Context context, String path) {
+    private  String readFromFile(String path) {
 
         String ret = "";
 
@@ -661,11 +661,11 @@ public class Chat extends AsyncAdapter {
             }
         });
 
-        PodNotificationManager.withConfig(notificationConfig, context);
+        PodNotificationManager.withConfig(notificationConfig, getContext());
 
-        PodNotificationManager.registerFCMTokenReceiver(context);
+        PodNotificationManager.registerFCMTokenReceiver(getContext());
 
-        PodNotificationManager.registerClickReceiver(context);
+        PodNotificationManager.registerClickReceiver(getContext());
 
     }
 
@@ -683,7 +683,7 @@ public class Chat extends AsyncAdapter {
 
     public void clearAllNotifications() {
 
-        PodNotificationManager.clearNotifications(context);
+        PodNotificationManager.clearNotifications(getContext());
 
     }
 
@@ -741,7 +741,7 @@ public class Chat extends AsyncAdapter {
 
             //it ping and check network availability
 
-            pinger = new NetworkPingSender(context, new NetworkStateListener() {
+            pinger = new NetworkPingSender(getContext(), new NetworkStateListener() {
                 @Override
                 public void networkAvailable() {
 
@@ -825,7 +825,7 @@ public class Chat extends AsyncAdapter {
 
         try {
             if (networkStateReceiver != null)
-                context.registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+                getContext().registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         } catch (Exception e) {
             showErrorLog(e.getMessage());
             showErrorLog("Registering Receiver failed");
@@ -836,7 +836,7 @@ public class Chat extends AsyncAdapter {
 
         try {
             if (networkStateReceiver != null)
-                context.unregisterReceiver(networkStateReceiver);
+                getContext().unregisterReceiver(networkStateReceiver);
         } catch (IllegalArgumentException e) {
             showErrorLog(e.getMessage());
             showErrorLog("Unregistering Receiver failed");
@@ -1146,12 +1146,12 @@ public class Chat extends AsyncAdapter {
             }
 
             case Constants.REGISTER_FCM_USER_DEVICE: {
-                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
+                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, getContext());
                 break;
             }
 
             case Constants.UPDATE_FCM_APP_USERS_DEVICE: {
-                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage, context);
+                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage, getContext());
                 break;
             }
 
@@ -3958,7 +3958,7 @@ public class Chat extends AsyncAdapter {
                     uniqueId,
                     requestFileMessage.getFileUri(),
                     requestFileMessage.getUserGroupHash(),
-                    context,
+                    getContext(),
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
@@ -4131,7 +4131,7 @@ public class Chat extends AsyncAdapter {
                     uniqueId,
                     requestFileMessage.getFileUri(),
                     requestFileMessage.getUserGroupHash(),
-                    context,
+                    getContext(),
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
@@ -4557,7 +4557,7 @@ public class Chat extends AsyncAdapter {
             Subscription subscription = PodUploader.uploadPublicToPodSpace(
                     uniqueId,
                     request.getFileUri(),
-                    context,
+                    getContext(),
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
@@ -4788,7 +4788,7 @@ public class Chat extends AsyncAdapter {
             Subscription subscription = PodUploader.uploadPublicToPodSpace(
                     uniqueId,
                     request.getFileUri(),
-                    context,
+                    getContext(),
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
@@ -5002,7 +5002,7 @@ public class Chat extends AsyncAdapter {
                             uniqueId,
                             request.getFileUri(),
                             request.getUserGroupHashCode(),
-                            context,
+                            getContext(),
                             getPodSpaceServer(),
                             getToken(),
                             TOKEN_ISSUER,
@@ -5121,7 +5121,7 @@ public class Chat extends AsyncAdapter {
                     uniqueId,
                     request.getFileUri(),
                     userGroupHash,
-                    context,
+                    getContext(),
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
@@ -5411,7 +5411,7 @@ public class Chat extends AsyncAdapter {
                     Subscription subscription = PodUploader.uploadToPodSpace(
                             uniqueId,
                             Util.isNullOrEmpty(link) ? null : Uri.parse(link),
-                            userGroupHash, context,
+                            userGroupHash, getContext(),
                             getPodSpaceServer(),
                             getToken(),
                             TOKEN_ISSUER,
@@ -6422,7 +6422,7 @@ public class Chat extends AsyncAdapter {
 
         if (downloadQList.containsKey(uniqueId)) {
 
-            DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager downloadManager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
 
 
             int result = 0;
@@ -6784,7 +6784,7 @@ public class Chat extends AsyncAdapter {
         try {
             Subscription subscription = PodUploader.uploadToPodSpace(
                     uniqueId, request.getFileUri(),
-                    request.getUserGroupHashCode(), context,
+                    request.getUserGroupHashCode(), getContext(),
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
@@ -9057,7 +9057,7 @@ public class Chat extends AsyncAdapter {
                                         Subscription subscription = PodUploader.uploadToPodSpace(
                                                 finalUniqueId, fileUri,
                                                 request.getUserGroupHash(),
-                                                context,
+                                                getContext(),
                                                 getPodSpaceServer(),
                                                 getToken(),
                                                 TOKEN_ISSUER,
@@ -11419,7 +11419,7 @@ public class Chat extends AsyncAdapter {
         if (PodNotificationManager.isNotificationError(
                 chatMessage,
                 error,
-                context,
+                getContext(),
                 getUserId())) return;
 
         ThreadManager.onError(chatMessage);
@@ -12652,7 +12652,7 @@ public class Chat extends AsyncAdapter {
         showLog(state, "");
         permit = true;
         checkFreeSpace();
-        PodNotificationManager.onChatIsReady(context, userId);
+        PodNotificationManager.onChatIsReady(getContext(), userId);
         resetConnectHandler();
         listenerManager.callOnChatState("CHAT_READY");
 
@@ -15272,7 +15272,7 @@ public class Chat extends AsyncAdapter {
         try {
             if (Permission.Check_READ_STORAGE(activity)) {
 
-                String path = FilePick.getSmartFilePath(context, fileUri);
+                String path = FilePick.getSmartFilePath(getContext(), fileUri);
                 if (Util.isNullOrEmpty(path)) {
                     path = "";
                 }
@@ -15764,11 +15764,11 @@ public class Chat extends AsyncAdapter {
     }
 
     private void setContext(Context context) {
-        this.context = context;
+        this.context = new WeakReference<>(context);
     }
 
     private Context getContext() {
-        return context;
+        return context.get();
     }
 
     private void setFileServer(String fileServer) {

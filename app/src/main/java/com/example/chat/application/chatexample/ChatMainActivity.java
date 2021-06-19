@@ -183,7 +183,7 @@ public class ChatMainActivity extends AppCompatActivity
     private static String fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
 
     //518237 nemati
-    public static int TEST_THREAD_ID = 57499; // 149486 tak ghad keshide
+    public static int TEST_THREAD_ID = 603711; // 149486 tak ghad keshide
     private static final String TEST_THREAD_HASH = "621XTJ882ULNR7";
 
 
@@ -1025,13 +1025,13 @@ public class ChatMainActivity extends AppCompatActivity
 
 
         typeRoles.add(RoleType.Constants.THREAD_ADMIN);
-//        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
-//        typeRoles.add(RoleType.Constants.REMOVE_USER);
+        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
+        typeRoles.add(RoleType.Constants.REMOVE_USER);
 
 
         //roles to set auditor
-        typeRoles.add(RoleType.Constants.READ_THREAD);
-        typeRoles.add(RoleType.Constants.EDIT_THREAD);
+//        typeRoles.add(RoleType.Constants.READ_THREAD);
+//        typeRoles.add(RoleType.Constants.EDIT_THREAD);
 
 
 //        typeRoles.add(RoleType.Constants.ADD_RULE_TO_USER);
@@ -1048,7 +1048,7 @@ public class ChatMainActivity extends AppCompatActivity
 
 
         RequestRole requestRole = new RequestRole();
-        requestRole.setId(2985525);
+        requestRole.setId(942926);
         requestRole.setRoleTypes(typeRoles);
 
         ArrayList<RequestRole> requestRoles = new ArrayList<>();
@@ -1065,12 +1065,11 @@ public class ChatMainActivity extends AppCompatActivity
 
         ArrayList<String> typeRoles = new ArrayList<>();
         typeRoles.add(RoleType.Constants.THREAD_ADMIN);
-//        typeRoles.add(RoleType.Constants.READ_THREAD);
-//        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
+        typeRoles.add(RoleType.Constants.ADD_NEW_USER);
         typeRoles.add(RoleType.Constants.REMOVE_USER);
 
         RequestRole requestRole = new RequestRole();
-        requestRole.setId(2);
+        requestRole.setId(942926);
         requestRole.setRoleTypes(typeRoles);
 
 
@@ -2177,19 +2176,14 @@ public class ChatMainActivity extends AppCompatActivity
     }
 
     private void getThreadParticipants() {
-
-        new java.lang.Thread(() -> {
-            for (int i = 0; i < 100; i++) {
-                RequestThreadParticipant request =
-                        new RequestThreadParticipant.Builder()
-                                .count(50)
-                                .offset(i)
-                                .threadId(TEST_THREAD_ID)
+        RequestThreadParticipant request =
+                new RequestThreadParticipant.Builder()
+                        .threadId(TEST_THREAD_ID)
 //                        .withNoCache()
-                                .build();
+                        .build();
+
                 presenter.getThreadParticipant(request);
-            }
-        }).start();
+
 
 
 //        presenter.getThreadParticipant(20, null, TEST_THREAD_ID, new ChatHandler() {
@@ -2333,7 +2327,7 @@ public class ChatMainActivity extends AppCompatActivity
 
 
         List<Invitee> invite = new ArrayList<>();
-        invite.add(new Invitee("32991571", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farzad
+        invite.add(new Invitee("18232251", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farzad
 //        invite.add(new Invitee("29668088", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farzad
 //        invite.add(new Invitee("29668089", InviteType.Constants.TO_BE_USER_CONTACT_ID));//ahmad nekooi
 //        invite.add(new Invitee("6371218", InviteType.Constants.TO_BE_USER_CONTACT_ID));//farhad kheirkhah
@@ -2342,8 +2336,8 @@ public class ChatMainActivity extends AppCompatActivity
 
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(ThreadType.Constants.NORMAL, invite)
-                .title("Test Kidzy type code")
+                .Builder(ThreadType.Constants.OWNER_GROUP, invite)
+                .title("Test set rolllll")
 //                .withDescription("Test Thread Kidzy in KidzyGameChat typecode")
                 .build();
 

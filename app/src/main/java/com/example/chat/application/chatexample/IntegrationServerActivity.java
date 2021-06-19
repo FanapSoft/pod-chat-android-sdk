@@ -598,7 +598,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(IntegrationServerActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -671,7 +671,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
 
 //        RequestUploadImage requestUploadImage =
-//                new RequestUploadImage.Builder(ChatActivity.this, getUri())
+//                new RequestUploadImage.Builder(IntegrationServerActivity.this, getUri())
 //                        .sethC(140)
 //                        .setwC(140)
 //                        .setUserGroupHashCode(TEST_THREAD_HASH)
@@ -733,7 +733,7 @@ public class IntegrationServerActivity extends AppCompatActivity
         invite.add(new Invitee(1512305, InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
         RequestUploadImage requestUploadThreadImageImage = new RequestUploadImage
-                .Builder(ChatActivity.this, getUri())
+                .Builder(IntegrationServerActivity.this, getUri())
                 .setwC(140)
                 .sethC(140)
                 .build();
@@ -1214,7 +1214,7 @@ public class IntegrationServerActivity extends AppCompatActivity
                 .center(center)
                 .message("Im here now    :   ) ")
                 .setUserGroupHash(TEST_THREAD_HASH)
-                .activity(ChatActivity.this)
+                .activity(IntegrationServerActivity.this)
                 .threadId(TEST_THREAD_ID)
                 .build();
 
@@ -1290,7 +1290,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 //                        .Builder()
 //                        .center(center)
 //                        .message("This is location ")
-//                        .activity(ChatActivity.this)
+//                        .activity(IntegrationServerActivity.this)
 //                        .threadId(TEST_THREAD_ID)
 //                        .build();
 //
@@ -1336,7 +1336,7 @@ public class IntegrationServerActivity extends AppCompatActivity
                         break;
                     case 1:
 
-                        presenter.syncContact(ChatActivity.this);
+                        presenter.syncContact(IntegrationServerActivity.this);
                         break;
                     case 2:
 
@@ -1451,7 +1451,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
+                Toast.makeText(IntegrationServerActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -1480,7 +1480,7 @@ public class IntegrationServerActivity extends AppCompatActivity
          * */
 
         String uniqueId = "2a28e2e8-bae2-4f92-80dd-ccb86bf1a17b";
-        RetryUpload retryUpload = new RetryUpload.Builder().activity(ChatActivity.this).uniqueId(uniqueId).build();
+        RetryUpload retryUpload = new RetryUpload.Builder().activity(IntegrationServerActivity.this).uniqueId(uniqueId).build();
         presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
             @Override
             public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
@@ -1528,12 +1528,12 @@ public class IntegrationServerActivity extends AppCompatActivity
     }
 
     private void uploadImage() {
-        presenter.uploadImage(ChatActivity.this, getUri());
+        presenter.uploadImage(IntegrationServerActivity.this, getUri());
     }
 
     private void sendFileMessage(String[] fileUnique) {
         RequestFileMessage request = new RequestFileMessage.Builder(
-                ChatActivity.this,
+                IntegrationServerActivity.this,
                 TEST_THREAD_ID,
                 getUri(),
                 TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
@@ -1579,8 +1579,8 @@ public class IntegrationServerActivity extends AppCompatActivity
 
 
 //                        fileUnique[0] = presenter.sendFileMessage(
-//                                ChatActivity.this,
-//                                ChatActivity.this,
+//                                IntegrationServerActivity.this,
+//                                IntegrationServerActivity.this,
 //                                "test file message",
 //                                TEST_THREAD_ID,
 //                                getUri(),
@@ -1881,14 +1881,14 @@ public class IntegrationServerActivity extends AppCompatActivity
 //                    @Override
 //                    public void onSent(String uniqueId, long threadId) {
 //                        super.onSent(uniqueId, threadId);
-//                        Toast.makeText(ChatActivity.this, "its worked", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(IntegrationServerActivity.this, "its worked", Toast.LENGTH_SHORT).show();
 //                    }
 //
 //                    @Override
 //                    public void onSentResult(String content) {
 //                        super.onSentResult(content);
 //                        if (content != null) {
-//                            Toast.makeText(ChatActivity.this, "no null", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(IntegrationServerActivity.this, "no null", Toast.LENGTH_SHORT).show();
 //
 //                        }
 //                    }
@@ -2595,7 +2595,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
 
         RequestUploadImage requestUploadImage =
-                new RequestUploadImage.Builder(ChatActivity.this, getUri())
+                new RequestUploadImage.Builder(IntegrationServerActivity.this, getUri())
                         .sethC(140)
                         .setwC(140)
                         .build();
@@ -2786,7 +2786,7 @@ public class IntegrationServerActivity extends AppCompatActivity
                 .build();
         presenter.getContact(request);
 
-//        presenter.syncContact(ChatActivity.this);
+//        presenter.syncContact(IntegrationServerActivity.this);
 //        for (int i = 0; i < 5; i++) {
 //            RequestGetContact request2 = new RequestGetContact.Builder()
 //                    .count(50)
@@ -2833,7 +2833,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
+        Toast.makeText(IntegrationServerActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -2946,7 +2946,7 @@ public class IntegrationServerActivity extends AppCompatActivity
     public void onUploadImage(View view) {
 
 
-        presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
+        presenter.uploadImageProgress(this, IntegrationServerActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
             public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
@@ -3031,7 +3031,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
         if (getUri() != null) {
 
-            presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
+            presenter.uploadFileProgress(IntegrationServerActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
                 public void onProgressUpdate(int progress) {
 
@@ -3222,7 +3222,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
             if (th.getId() == TEST_THREAD_ID) {
                 TEST_THREAD_LAST_SEEN_MESSAGE_TIME = th.getLastSeenMessageTime();
-                Log.i(ChatActivity.class.getSimpleName(), "Thread last seen message time: " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME + " Cache " + thread.isCache());
+                Log.i(IntegrationServerActivity.class.getSimpleName(), "Thread last seen message time: " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME + " Cache " + thread.isCache());
             }
 
         }

@@ -4,6 +4,8 @@ import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import leakcanary.AppWatcher;
+
 
 public class BaseApplication extends MultiDexApplication {
 

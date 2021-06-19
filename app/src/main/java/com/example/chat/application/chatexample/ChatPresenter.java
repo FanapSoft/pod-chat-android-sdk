@@ -365,6 +365,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .build();
 
         chat.setNetworkStateConfig(build);
+//        chat.setTypeCode("KidzyGameChat");
 //
 //        chat.setUploadConfig(uploadConfig);
 //
