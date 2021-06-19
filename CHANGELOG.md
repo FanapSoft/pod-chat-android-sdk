@@ -6,6 +6,114 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.9.9.0]
+[BugFixed] Failure to receive history in specific situations
+
+
+## Version [0.9.8.2]
+
+[Added] ```createTag``` method
+
+[Added] ```onTagCreated``` callback
+
+[Added] ```editTag``` method
+
+[Added] ```onTagEdited``` callback
+
+[Added] ```deleteTag``` method
+
+[Added] ```onTagDeleted``` callback
+
+[Added] ```addTagParticipant``` method
+
+[Added] ```onTagParticipantAdded``` callback
+
+[Added] ```removeTagParticipant``` method
+
+[Added] ```onTagParticipantRemoved``` callback
+
+[Added] ```getTagList``` method
+
+[Added] ```onTagList``` callback
+
+
+
+## Version [0.9.8.1] -2021-4-28
+
+[BugFixed] NullPointerException on reconnect
+
+
+## Version [0.9.8.0] -2021-4-27
+
+[Added] ```getUserBots``` method
+
+[Added] ```onUserBots``` callback
+
+[Added] ```blockAssistant``` method
+
+[Added] ```onAssistantBlocked``` callback
+
+[Added] ```unBlockAssistant``` method
+
+[Added] ```onAssistantUnBlocked``` callback
+
+[Added] ```getBlocksAssistant``` method
+
+[Added] ```onAssistantBlocks``` callback
+
+[BugFixed] Database lock exception.
+
+[Improvement] Prevented from additional reconnect requests at the same time. 
+
+[Improvement] If the ```NetworkStateConfig``` is not set, the default mode uses.
+
+
+## Version [0.9.7.0] -2021-2-24
+
+[Added] ```getAssistantHistory``` method
+
+[Added] ```onGetAssistantHistory``` callback
+
+[Added] ```changeThreadType``` method
+
+[Added] ```onThreadTypeChanged``` callback
+
+[Added] ```getHashTagList``` method
+
+[Added] ```onGetHashTagList``` callback
+
+[Fixed] Sentry NativeLib Exception
+
+[Fixed] Minor bugs fixed
+
+
+
+## Version [0.9.6.0] -2021-1-26
+
+[Deprecated] removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler)
+
+[Added] Invitee to RemoveParticipantRequest 
+
+[Added] ability to removeParticipants with Invitee (userId and coreUserId)
+
+[Added] ```registerAssistant``` method
+
+[Added] ```onRegisterAssistant``` callback
+
+[Added] ```deactiveAssistant``` method
+
+[Added] ```onDeActiveAssistant``` callback
+
+[Added] ```getAssistants``` method
+
+[Added] ```onGetAssistants``` callback
+
+        
+        
+
+ 
+
+
 ## Version [0.9.5.0] -2020-12-5
 
 [Added] Accept call in mute state.

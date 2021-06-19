@@ -2,6 +2,7 @@ package com.fanap.podchat.repository;
 
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.queue.Failed;
@@ -9,6 +10,7 @@ import com.fanap.podchat.cachemodel.queue.Sending;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.contact.ContactManager;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.thread.ThreadManager;
@@ -412,6 +414,7 @@ public class ChatDataSource {
 
     }
 
+
     public Observable<CacheFile> checkInCache(String hashCode, Float quality) {
 
         return Observable
@@ -433,6 +436,7 @@ public class ChatDataSource {
 
     }
 
+
     public boolean checkIsAvailable(String hashCode, Float quality) {
 
         List<CacheFile> images = cacheDataSource.getImageByHash(hashCode);
@@ -452,4 +456,6 @@ public class ChatDataSource {
 
         return false;
     }
+
+
 }

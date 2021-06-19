@@ -19,7 +19,7 @@ public class KafkaTestActivity extends AppCompatActivity implements ICallState, 
 
     TextView status;
 
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);

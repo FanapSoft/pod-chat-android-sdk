@@ -86,6 +86,32 @@ public class DataTypeConverter {
     }
 
 
+    @TypeConverter
+    public String convertArrayToString(String[] data){
+
+
+
+        JsonElement element = gson.toJsonTree(data,new TypeToken<List<String>>(){}.getType());
+
+
+
+        return element.toString();
+
+
+    }
+
+
+
+    @TypeConverter
+    public String[] convertStringToArray(String data){
+
+        Type t = new TypeToken<List<String>>(){}.getType();
+
+        return gson.fromJson(data,t);
+
+    }
+
+
 
 
 

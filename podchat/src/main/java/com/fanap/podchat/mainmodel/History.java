@@ -17,6 +17,7 @@ public class History {
     private long offset;
     private long count;
     private String order;
+    private String hashtag;
     private String query;
     private String[] uniqueIds;
     private NosqlSearchMetadataCriteria metadataCriteria;
@@ -36,9 +37,14 @@ public class History {
         this.toTime = builder.toTime;
         this.toTimeNanos = builder.toTimeNanos;
         this.uniqueIds = builder.uniqueIds;
+        this.hashtag = builder.hashtag;
     }
 
     private History() {
+    }
+
+    public String getHashtag() {
+        return hashtag;
     }
 
     public static class Builder {
@@ -46,6 +52,7 @@ public class History {
         private long offset;
         private long count;
         private String order;
+        private String hashtag;
         private long firstMessageId;
         private long lastMessageId;
         private NosqlSearchMetadataCriteria metadataCriteria;
@@ -142,6 +149,12 @@ public class History {
         @Deprecated
         public Builder lastMessageId(long lastMessageId) {
             this.lastMessageId = lastMessageId;
+            return this;
+        }
+
+        @NonNull
+        public Builder hashtag(String hashtag) {
+            this.hashtag = hashtag;
             return this;
         }
 

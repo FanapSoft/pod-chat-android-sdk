@@ -1,6 +1,5 @@
 package com.fanap.podchat.repository;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.fanap.podchat.cachemodel.CacheFile;
@@ -21,9 +20,6 @@ import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
-import com.fanap.podchat.persistance.module.AppDatabaseModule;
-import com.fanap.podchat.persistance.module.AppModule;
-import com.fanap.podchat.persistance.module.DaggerMessageComponent;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.OnWorkDone;
@@ -32,31 +28,21 @@ import com.fanap.podchat.util.PodChatException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import rx.Observable;
 
 public class CacheDataSource {
 
 
     public static final String DISK = "DISK";
-    @Inject
     MessageDatabaseHelper databaseHelper;
     private int expireAmount = 2 * 24 * 60 * 60;
 
     public CacheDataSource() {
     }
 
-    public CacheDataSource(Context context, String key) {
-
-        DaggerMessageComponent.builder()
-                .appDatabaseModule(new AppDatabaseModule(context, key))
-                .appModule(new AppModule(context))
-                .build()
-                .injectDataSource(this);
-
+    public CacheDataSource(MessageDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
-
 
     /*
     Threads
@@ -167,13 +153,13 @@ public class CacheDataSource {
   Messages
    */
     public Observable<MessageManager.HistoryResponse> getMessagesData(History request, long threadId) {
-        return databaseHelper.getThreadHistory(request,threadId)
-                .map(data-> new MessageManager.HistoryResponse(data, DISK));
+        return databaseHelper.getThreadHistory(request, threadId)
+                .map(data -> new MessageManager.HistoryResponse(data, DISK));
     }
 
     public void cacheMessages(List<MessageVO> data, long threadId) {
 
-        databaseHelper.saveMessageHistory(data, threadId,getExpireAmount());
+        databaseHelper.saveMessageHistory(data, threadId, getExpireAmount());
     }
 
     public void cacheMessage(MessageVO message, long threadId) {
@@ -192,6 +178,10 @@ public class CacheDataSource {
     public void deleteMessage(long id, long threadId) {
 
         databaseHelper.deleteMessage(id, threadId);
+    }
+
+    public void updateThreadAfterChangeType(long threadId) {
+        databaseHelper.changeThreadAfterChangeType(threadId);
     }
 
     public void cancelMessage(String uniqueId) {
@@ -330,4 +320,5 @@ public class CacheDataSource {
         return databaseHelper.getImagesByHash(hashCode);
 
     }
+
 }

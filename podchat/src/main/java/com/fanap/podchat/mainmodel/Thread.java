@@ -48,8 +48,8 @@ public class Thread {
     private Boolean canSpam;
     private Boolean admin;
     private String uniqueName;
-    private boolean closed;
 
+    private boolean closed;
 
     public Thread(
             long id,

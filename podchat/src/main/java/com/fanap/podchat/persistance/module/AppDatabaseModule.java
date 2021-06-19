@@ -30,26 +30,22 @@ import static com.commonsware.cwac.saferoom.SQLCipherUtils.State.UNENCRYPTED;
 @Module
 public class AppDatabaseModule {
 
+    private static final int[] FallbackVersions = {3, 4, 5, 6, 7};
     private AppDatabase appDatabase;
     private static final String DATABASE_DB = "cache.db";
-//    final Migration MIGRATION_1_2 = new Migration(1, 2) {
-//        @Override
-//        public void migrate(@NonNull SupportSQLiteDatabase database) {
-//            appDatabase.query(new SimpleSQLiteQuery("alter table UserInfo add column"));
-//        }
-//    };
 
     public AppDatabaseModule(Context context, String secretKey) {
 
         char[] passphrase = secretKey.toCharArray();
         SafeHelperFactory factory = new SafeHelperFactory(passphrase);
 
-        File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+        File file = new File(String.valueOf(context.getDatabasePath(DATABASE_DB)));
 
         appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB)
                 .openHelperFactory(factory)
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
+//                .fallbackToDestructiveMigrationFrom(FallbackVersions)
                 .build();
         SQLCipherUtils.State state = SQLCipherUtils.getDatabaseState(file);
         if (state.equals(UNENCRYPTED)) {
@@ -80,12 +76,13 @@ public class AppDatabaseModule {
         char[] passphrase = stKey.toCharArray();
         SafeHelperFactory factory = new SafeHelperFactory(passphrase);
 
-        File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+        File file = new File(String.valueOf(context.getDatabasePath(DATABASE_DB)));
 
         appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB)
                 .openHelperFactory(factory)
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
+//                .fallbackToDestructiveMigrationFrom(FallbackVersions)
                 .build();
         SQLCipherUtils.State state = SQLCipherUtils.getDatabaseState(file);
         if (state.equals(UNENCRYPTED)) {

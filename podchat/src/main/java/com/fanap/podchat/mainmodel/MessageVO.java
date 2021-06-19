@@ -110,6 +110,7 @@ public class MessageVO {
 //
 //    }
 
+
     public boolean hasGap() {
         return hasGap;
     }

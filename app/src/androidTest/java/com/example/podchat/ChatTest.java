@@ -38,9 +38,11 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.TextMessageType;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -82,7 +84,7 @@ public class ChatTest extends ChatAdapter {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "a9e6e26d6fe940ddb714333e51e229d6";
+    private static String TOKEN = "cf06e0e5cc3f41fba837f4d05b9a4138";
 
 
     @Mock
@@ -169,7 +171,7 @@ public class ChatTest extends ChatAdapter {
                 socketAddress,
                 APP_ID,
                 serverName,
-                "f29512343de1472fa15d1e497e264c54",
+                TOKEN,
                 ssoHost,
                 platformHost,
                 fileServer,
@@ -221,6 +223,7 @@ public class ChatTest extends ChatAdapter {
     final ArrayList<Thread> threads = new ArrayList<>();
 
 
+    //requests for list of threads
     @Test
     public void populateThreadsListFromServerOrCache() {
 
@@ -249,6 +252,69 @@ public class ChatTest extends ChatAdapter {
 
     }
 
+    //requests for list of threads from server
+    @Test
+    public void populateThreadsListFromServerOnly() {
+
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
+
+                if(!thread.isCache()){
+                    System.out.println("Received List: " + content);
+                    threads.addAll(thread.getResult().getThreads());
+                    resumeProcess();
+                }
+
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestThread requestThread =
+                new RequestThread.Builder()
+                        .count(25)
+                        .build();
+
+        presenter.getThreads(requestThread, null);
+
+        pauseProcess();
+        System.out.println("Received List: " + threads.size());
+
+    }
+
+    //requests for list of threads from cache
+    @Test
+    public void populateThreadsListFromCacheOnly() {
+
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
+
+                if(thread.isCache()){
+                    System.out.println("Received List: " + content);
+                    threads.addAll(thread.getResult().getThreads());
+                    resumeProcess();
+                }
+
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestThread requestThread =
+                new RequestThread.Builder()
+                        .count(25)
+                        .build();
+
+        presenter.getThreads(requestThread, null);
+
+        pauseProcess();
+        System.out.println("Received List: " + threads.size());
+
+    }
 
     private void resumeProcess() {
         synchronized (sync) {
@@ -375,7 +441,7 @@ public class ChatTest extends ChatAdapter {
 
     @Test
     @LargeTest
-    //get 25 message before and after last seen
+    //get 25 message before and after last seen message time
     //messages NanoTimes should be lower than last seen in first case
     //and greater in second case
     public void getThreadHistoryBeforeAndAfterLastSeenMessage() {
@@ -431,10 +497,72 @@ public class ChatTest extends ChatAdapter {
 
     @Test
     @LargeTest
+    public void sendMessageToThreadMessage() {
+
+        populateThreadsListFromServerOrCache();
+
+        long threadID = 0;
+        for (Thread thread : new ArrayList<>(threads)) {
+            if (!thread.isClosed()
+                    && thread.isGroup() && thread.getAdmin()) {
+                threadID = thread.getId();
+            }
+        }
+        if (threadID > 0)
+            sendTestMessageOnSeen(threadID);
+
+
+    }
+
+    public void sendTestMessageOnSeen(long threadId) {
+        presenter.sendTextMessage("This is test " + new Date().getTime(), threadId, null, "From android instrumental test at " + new Date().getTime(), null);
+        sleep(2000);
+        Mockito.verify(view, Mockito.times(1)).onSentMessage();
+    }
+
+    @Test
+    @LargeTest
+    public void sendALotOfMessageToThread() {
+
+        populateThreadsListFromServerOnly();
+
+        long threadID = threads.get(0).getId();
+        for (Thread thread : new ArrayList<>(threads)) {
+            if (!thread.isClosed() &&
+            thread.getParticipantCount() > 1) {
+                threadID = thread.getId();
+            }
+        }
+
+        if (threadID > 0) {
+            int counter = 0;
+            int count = 5;
+            while (counter < count) {
+                RequestMessage requestMessage = new RequestMessage.Builder("This is test " + new Date().getTime(), threadID)
+                        .messageType(TextMessageType.Constants.TEXT)
+                        .jsonMetaData("From android instrumental test at " + new Date().getTime())
+                        .build();
+                presenter.sendTextMessage(requestMessage,null);
+                counter++;
+            }
+            sleep(7000);
+            Mockito.verify(view, Mockito.atLeastOnce()).onSentMessage();
+        }else {
+            Assert.fail("no suitable thread found");
+        }
+
+
+    }
+
+
+    @Test
+    @LargeTest
     //get threads histories one by one
     //performance should be acceptable
     public void getAllThreadsHistories() {
+        //get 25 thread from server
         populateThreadsListFromServerOrCache();
+
         long startTime = System.currentTimeMillis();
         for (Thread thread :
                 new ArrayList<>(threads)) {
@@ -472,14 +600,14 @@ public class ChatTest extends ChatAdapter {
             public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
 
 
-                   threadMessagesCount.set(history.getResult().getContentCount());
-                   long received = threadReceivedHistory.get();
-                   threadReceivedHistory.set(received + history.getResult().getHistory().size());
-                   hasNext.set(history.getResult().isHasNext());
-                   if(hasNext.get()){
-                       offset.set(offset.get() + history.getResult().getHistory().size());
-                   }
-                   resumeProcess();
+                threadMessagesCount.set(history.getResult().getContentCount());
+                long received = threadReceivedHistory.get();
+                threadReceivedHistory.set(received + history.getResult().getHistory().size());
+                hasNext.set(history.getResult().isHasNext());
+                if (hasNext.get()) {
+                    offset.set(offset.get() + history.getResult().getHistory().size());
+                }
+                resumeProcess();
 
             }
 

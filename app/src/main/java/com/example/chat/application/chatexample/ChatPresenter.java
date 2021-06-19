@@ -41,13 +41,22 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
+import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
+import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
@@ -55,11 +64,21 @@ import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
+import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
+import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
+import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
+import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagListResult;
+import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
@@ -73,6 +92,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
@@ -103,6 +123,7 @@ import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlockList;
@@ -128,7 +149,6 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -203,6 +223,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")
                 .setIcon(R.mipmap.ic_launcher)
+
                 .setNotificationImportance(NotificationManager.IMPORTANCE_DEFAULT)
                 .build();
 
@@ -272,6 +293,38 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         });
 
 
+    }
+
+    @Override
+    public void onTagCreated(String content, ChatResponse<TagResult> response) {
+        Log.e(TAG, content);
+        view.onTagCreated(response.getResult());
+    }
+
+    @Override
+    public void onTagEdited(String content, ChatResponse<TagResult> response) {
+        Log.e(TAG, content);
+    }
+
+    @Override
+    public void onTagDeleted(String content, ChatResponse<TagResult> response) {
+        Log.e(TAG, content);
+    }
+
+    @Override
+    public void OnTagParticipantAdded(String content, ChatResponse<TagParticipantResult> response) {
+        Log.e(TAG, content);
+    }
+
+    @Override
+    public void OnTagParticipantRemoved(String content, ChatResponse<TagParticipantResult> response) {
+        Log.e(TAG, content);
+    }
+
+    @Override
+    public void OnTagList(String content, ChatResponse<TagListResult> response) {
+        String x = response.getJson();
+        Log.e(TAG, x);
     }
 
     @Override
@@ -483,8 +536,55 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void getUserBots(GetUserBotsRequest request) {
+        chat.getUserBots(request);
+    }
+
+    @Override
     public void onBotCreated(ChatResponse<CreateBotResult> response) {
         view.onBotCreated(response);
+    }
+
+    @Override
+    public void onRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onRegisterAssistant: " + response.getJson());
+    }
+
+    @Override
+    public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
+    }
+
+    @Override
+    public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
+    }
+
+    @Override
+    public void onGetAssistantHistory(ChatResponse<List<AssistantHistoryVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onGetAssistants: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantBlocked(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantBlocked: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantUnBlocked: " + response.getJson());
+    }
+
+    @Override
+    public void onAssistantBlocks(ChatResponse<List<AssistantVo>> response) {
+        String json = response.getJson();
+        Log.e(TAG, "onAssistantBlocks: " + response.getJson());
     }
 
     @Override
@@ -798,6 +898,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.sendStatusPing(statusRequest);
 
         return uniqueId;
+    }
+
+    @Override
+    public String getHashTagList(RequestGetHashTagList request, ChatHandler handler) {
+        return chat.getHashTagList(request);
     }
 
     @Override
@@ -1249,6 +1354,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
+        Log.e(TAG, "onThreadInfoUpdated: "+response.getResult().getThread().getId() + "===> "+response.getResult().getThread().getLastMessage());
     }
 
     @Override
@@ -1295,6 +1401,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onSent(content, chatResponse);
         view.onSentMessage();
+        Log.e("testmsg", "id : " + chatResponse.getResult().getMessageId());
     }
 
     @Override
@@ -1451,6 +1558,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onUnmuteThread(String content, ChatResponse<ResultMute> outPutMute) {
         super.onUnmuteThread(content, outPutMute);
         view.onUnMuteThread();
+    }
+
+    @Override
+    public void onGetMentionList(ChatResponse<ResultHistory> response) {
+        super.onGetMentionList(response);
+    }
+
+    @Override
+    public void onGetHashTagList(ChatResponse<ResultHistory> response) {
+        super.onGetHashTagList(response);
+        Log.e(TAG, "onGetHashTagList: " + response.getJson());
+
     }
 
     @Override
@@ -2032,6 +2151,71 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void getAssistants(GetAssistantRequest request) {
+        chat.getAssistants(request);
+    }
+
+    @Override
+    public void deActiveAssistant(DeActiveAssistantRequest request) {
+        chat.deactiveAssistant(request);
+    }
+
+    @Override
+    public void getAssistantHistory(GetAssistantHistoryRequest request) {
+        chat.getAssistantHistory(request);
+    }
+
+    @Override
+    public void blockAssistant(BlockUnblockAssistantRequest o) {
+        chat.blockAssistant(o);
+    }
+
+    @Override
+    public void unBlockAssistant(BlockUnblockAssistantRequest o) {
+        chat.unBlockAssistant(o);
+    }
+
+    @Override
+    public void getBlocksAssistant(GetBlockedAssistantsRequest o) {
+        chat.getBlocksAssistant(o);
+    }
+
+    @Override
+    public void changeThreadType(ChangeThreadTypeRequest request) {
+        chat.changeThreadType(request);
+    }
+
+    @Override
+    public void createTag(CreateTagRequest request) {
+        chat.createTag(request);
+    }
+
+    @Override
+    public void editTag(EditTagRequest request) {
+        chat.editTag(request);
+    }
+
+    @Override
+    public void deleteTag(DeleteTagRequest request) {
+        chat.deleteTag(request);
+    }
+
+    @Override
+    public void addTagParticipant(AddTagParticipantRequest request) {
+        chat.addTagParticipant(request);
+    }
+
+    @Override
+    public void removeTagParticipant(RemoveTagParticipantRequest request) {
+        chat.removeTagParticipant(request);
+    }
+
+    @Override
+    public void getTagList(GetTagListRequest request) {
+        chat.getTagList(request);
+    }
+
+    @Override
     public void addCallParticipant(String username, boolean pooriaChecked, boolean masoudChecked, boolean farhadChecked) {
 
 
@@ -2073,6 +2257,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         }
 
+    }
+
+    @Override
+    public void onThreadTypeChanged(ChatResponse<Thread> response) {
+        super.onThreadTypeChanged(response);
+        Log.e(TAG, "onThreadChangeType: " + response.getJson());
     }
 
     @Override

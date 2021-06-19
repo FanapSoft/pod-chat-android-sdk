@@ -35,24 +35,39 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
 import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
+import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
+import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
+import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
+import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -64,11 +79,14 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.notification.PodNotificationManager;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestBlockList;
@@ -92,7 +110,6 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestRole;
@@ -126,7 +143,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class IntegrationServerActivity extends AppCompatActivity
+public class ChatActivity extends AppCompatActivity
         implements AdapterView.OnItemSelectedListener, View.OnClickListener, ChatContract.view {
     private static final int FILE_REQUEST_CODE = 2;
     public static final String APP_ID = "appid";
@@ -158,16 +175,16 @@ public class IntegrationServerActivity extends AppCompatActivity
 
 
     //main and sandbox
-
-//    private static String TOKEN = "869221a3923f49879ecd38824f7d787e";
+//
+//    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
 //    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
 //    private static String serverName = "chat-server";
 
 
     //local
 
-//
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
@@ -214,7 +231,7 @@ public class IntegrationServerActivity extends AppCompatActivity
     /**
      * Main Server Setting:
      */
-//
+////
 //    private static String name = BaseApplication.getInstance().getString(R.string.main_server_name);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
@@ -223,7 +240,7 @@ public class IntegrationServerActivity extends AppCompatActivity
     /**
      * Sandbox setting:
      */
-
+//
 //    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
 //    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
 //    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
@@ -232,8 +249,9 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     //sand box / group
 ////
-    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
-    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
+//    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
+//    public static int TEST_THREAD_ID = 5182; //amjadi, //sharifi //kheirkhah
+//    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
 //    main server / p2p
@@ -243,9 +261,11 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     // main server / group
 
-//    public static int TEST_THREAD_ID = 47528;
-//    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
-
+//    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
+    public static int TEST_THREAD_ID = 47528; // Test Posspace file
+    //    public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
+    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
+    private long tagId = 23;
 
 //    integration /group: fifi,jiji and ...
 //    public static int TEST_THREAD_ID = 6886;
@@ -274,6 +294,7 @@ public class IntegrationServerActivity extends AppCompatActivity
     long notificationMessageId = 0;
 
     int offset = 0;
+    private long TEST_THREAD_LAST_SEEN_MESSAGE_TIME;
 
 
     @Override
@@ -360,6 +381,7 @@ public class IntegrationServerActivity extends AppCompatActivity
         btnUploadImage = findViewById(R.id.buttonUploadImageProgress);
 
         textViewToken.setText(TOKEN + name);
+        editTextThread.setText(String.valueOf(TEST_THREAD_ID));
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
         Spinner spinnerThird = findViewById(R.id.spinnerThird);
@@ -576,7 +598,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        Toast.makeText(IntegrationServerActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -658,9 +680,9 @@ public class IntegrationServerActivity extends AppCompatActivity
 
         RequestThreadInfo request =
                 new RequestThreadInfo.Builder(TEST_THREAD_ID)
-                                                .name("Chat sample thread") // required. if not set, thread name will set to null
+                        .name("Chat sample thread") // required. if not set, thread name will set to null
 //                                                .metadata("{}") // required. if not set, thread metadata will set to null
-                                                .image("https://podspace.pod.ir/nzh/drive/downloadImage?hash=ELJIHZN9NP37ZIDA") // required. if not set, thread image will set to null
+                        .image("https://podspace.pod.ir/nzh/drive/downloadImage?hash=ELJIHZN9NP37ZIDA") // required. if not set, thread image will set to null
                         .description("this is test description updated on " + new Date().toString()) // required. if not set, thread name will set to null
 //                                                .setUploadThreadImageRequest(requestUploadImage) // set when you wanna upload thread image
 //                                                .setUserGroupHash(TEST_THREAD_HASH) // set when you wanna upload thread image
@@ -711,7 +733,7 @@ public class IntegrationServerActivity extends AppCompatActivity
         invite.add(new Invitee(1512305, InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
         RequestUploadImage requestUploadThreadImageImage = new RequestUploadImage
-                .Builder(IntegrationServerActivity.this, getUri())
+                .Builder(ChatActivity.this, getUri())
                 .setwC(140)
                 .sethC(140)
                 .build();
@@ -1192,7 +1214,7 @@ public class IntegrationServerActivity extends AppCompatActivity
                 .center(center)
                 .message("Im here now    :   ) ")
                 .setUserGroupHash(TEST_THREAD_HASH)
-                .activity(IntegrationServerActivity.this)
+                .activity(ChatActivity.this)
                 .threadId(TEST_THREAD_ID)
                 .build();
 
@@ -1314,7 +1336,7 @@ public class IntegrationServerActivity extends AppCompatActivity
                         break;
                     case 1:
 
-                        presenter.syncContact(IntegrationServerActivity.this);
+                        presenter.syncContact(ChatActivity.this);
                         break;
                     case 2:
 
@@ -1395,14 +1417,41 @@ public class IntegrationServerActivity extends AppCompatActivity
                         stopBot();
                         break;
                     }
+                    case 23: {
+                        getUserBots();
+                        break;
+                    }
+                    case 24: {
+                        createTag();
+                        break;
+                    }
+                    case 25: {
+                        editTag();
+                        break;
+                    }
+                    case 26: {
+                        deleteTag();
+                        break;
+                    }
+                    case 27: {
+                        addTagParticipant();
+                        break;
+                    }
+                    case 28: {
+                        removeTagParticipant();
+                        break;
+                    }
+                    case 29: {
+                        getTagList();
+                        break;
+                    }
                 }
             }
 
 
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(IntegrationServerActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -1431,7 +1480,7 @@ public class IntegrationServerActivity extends AppCompatActivity
          * */
 
         String uniqueId = "2a28e2e8-bae2-4f92-80dd-ccb86bf1a17b";
-        RetryUpload retryUpload = new RetryUpload.Builder().activity(IntegrationServerActivity.this).uniqueId(uniqueId).build();
+        RetryUpload retryUpload = new RetryUpload.Builder().activity(ChatActivity.this).uniqueId(uniqueId).build();
         presenter.retryUpload(retryUpload, new ProgressHandler.sendFileMessage() {
             @Override
             public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
@@ -1479,12 +1528,12 @@ public class IntegrationServerActivity extends AppCompatActivity
     }
 
     private void uploadImage() {
-        presenter.uploadImage(IntegrationServerActivity.this, getUri());
+        presenter.uploadImage(ChatActivity.this, getUri());
     }
 
     private void sendFileMessage(String[] fileUnique) {
         RequestFileMessage request = new RequestFileMessage.Builder(
-                IntegrationServerActivity.this,
+                ChatActivity.this,
                 TEST_THREAD_ID,
                 getUri(),
                 TextMessageType.Constants.POD_SPACE_PICTURE) // constructor
@@ -1579,6 +1628,64 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     }
 
+    private void getUserBots() {
+
+        GetUserBotsRequest request = new GetUserBotsRequest.Builder().build();
+
+        presenter.getUserBots(request);
+
+    }
+
+    public void createTag() {
+        CreateTagRequest request = new CreateTagRequest.Builder("Tag_" + System.currentTimeMillis() / 1000).build();
+        presenter.createTag(request);
+    }
+
+
+    public void editTag() {
+        EditTagRequest request = new EditTagRequest.Builder(tagId, "PrivateThreads" + System.currentTimeMillis()).build();
+        presenter.editTag(request);
+    }
+
+
+    public void deleteTag() {
+        DeleteTagRequest request = new DeleteTagRequest.Builder(tagId).build();
+        ;
+        presenter.deleteTag(request);
+    }
+
+
+    public void addTagParticipant() {
+        List<Long> threadIds = new ArrayList<>();
+        threadIds.add(8688l);
+        threadIds.add(8730l);
+        threadIds.add(8729l);
+        AddTagParticipantRequest request = new AddTagParticipantRequest.Builder(tagId, threadIds).build();
+        ;
+        presenter.addTagParticipant(request);
+    }
+
+    public void getTagList() {
+        GetTagListRequest request = new GetTagListRequest.Builder().build();
+        ;
+        presenter.getTagList(request);
+    }
+
+
+    public void removeTagParticipant() {
+        List<Long> threadIds = new ArrayList<>();
+        threadIds.add(8688l);
+        threadIds.add(8730l);
+        threadIds.add(8729l);
+        RemoveTagParticipantRequest request = new RemoveTagParticipantRequest.Builder(tagId, threadIds).build();
+        ;
+        presenter.removeTagParticipant(request);
+    }
+
+    @Override
+    public void onTagCreated(TagResult result) {
+        tagId = result.getTag().getTagId();
+    }
 
     private void startBot() {
 
@@ -1605,7 +1712,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     private void createBot() {
 
-        CreateBotRequest request = new CreateBotRequest.Builder("TEST2BOT")
+        CreateBotRequest request = new CreateBotRequest.Builder("TEST123BOT")
                 .build();
 
         presenter.createBot(request);
@@ -1692,23 +1799,23 @@ public class IntegrationServerActivity extends AppCompatActivity
         List<Invitee> inviteeList = new ArrayList<>();
 
         List<Long> participantIds = new ArrayList<>();
-        participantIds.add(11925L);
-        participantIds.add(5581L);
-        participantIds.add(1261L);
+        participantIds.add(18476L);
+//        participantIds.add(5581L);
+//        participantIds.add(1261L);
 
 
         //SET INVITEE LIST
-        Invitee invite = new Invitee("5739", InviteType.Constants.TO_BE_CORE_USER_ID);
-        Invitee invite2 = new Invitee("5736", InviteType.Constants.TO_BE_CORE_USER_ID);
+        Invitee invite = new Invitee("30150", InviteType.Constants.TO_BE_CORE_USER_ID);
+        Invitee invite2 = new Invitee("43593", InviteType.Constants.TO_BE_CORE_USER_ID);
+        //  Invitee invite2 = new Invitee("5736", InviteType.Constants.TO_BE_CORE_USER_ID);
         inviteeList.add(invite);
-        inviteeList.add(invite2);
-
+        // inviteeList.add(invite2);
 
 
         long threadId = TEST_THREAD_ID;
         RemoveParticipantRequest request = new RemoveParticipantRequest
-                .Builder(threadId, participantIds)
-                //.setInvitees(inviteeList)
+                .Builder(threadId, null)
+                .setInvitees(inviteeList)
                 .build();
         presenter.removeParticipants(request, null);
 
@@ -1763,6 +1870,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
 
         presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
+
 
         editText.setText("");
 
@@ -1948,13 +2056,13 @@ public class IntegrationServerActivity extends AppCompatActivity
 
                 break;
             }
-            case 26:{
+            case 26: {
 
                 closeThread();
 
                 break;
             }
-            case 27:{
+            case 27: {
 
                 getSentryLogs();
 
@@ -1981,6 +2089,44 @@ public class IntegrationServerActivity extends AppCompatActivity
                 break;
             }
 
+
+            case 31: {
+
+                getAssistantHistory();
+
+                break;
+            }
+
+
+            case 32: {
+                changePublicThreadToPrivate();
+                break;
+            }
+
+            case 33: {
+                changePrivateThreadToPublic();
+                break;
+            }
+            case 34: {
+                getHashTagHistory();
+                break;
+            }
+
+            case 35: {
+                blockAssistant();
+                break;
+            }
+
+            case 36: {
+                unBlockAssistant();
+                break;
+            }
+
+            case 37: {
+                getBlocksAssistant();
+                break;
+            }
+
         }
     }
 
@@ -1988,6 +2134,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
         presenter.closeThread(TEST_THREAD_ID);
     }
+
     private void getSentryLogs() {
 
         presenter.getSentryLogs();
@@ -2040,20 +2187,27 @@ public class IntegrationServerActivity extends AppCompatActivity
     }
 
     private void registerAssistant() {
+        //63263 kheirkhah
+        ////63264 anvari
+
+        //63254 sajadi
+        //63256 amjadi
+        //63257 zhiani
         //invite list
-        Invitee invite = new Invitee("5739", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+
+        //103187 nemati sandbox
+//        52987 sajadi 9063 sandbox
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
         //roles
         ArrayList<String> typeRoles = new ArrayList<>();
-        typeRoles.add(RoleType.Constants.READ_THREAD);
-        typeRoles.add(RoleType.Constants.EDIT_THREAD);
-
+        typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
 
 
         List<AssistantVo> assistantVos = new ArrayList<>();
         AssistantVo assistantVo = new AssistantVo();
         assistantVo.setInvitees(invite);
-        assistantVo.setContactType("0");
+        assistantVo.setContactType("default");
         assistantVo.setRoles(typeRoles);
 
         assistantVos.add(assistantVo);
@@ -2065,12 +2219,44 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     private void deactiveAssistant() {
 
+        //invite
+//        Invitee invite = new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
+
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVos.add(assistantVo);
+
+
+        DeActiveAssistantRequest request = new DeActiveAssistantRequest.Builder(assistantVos).build();
+        presenter.deActiveAssistant(request);
     }
 
     private void getAssistants() {
+        GetAssistantRequest request = new GetAssistantRequest.Builder().typeCode("default").setOffset(0).setCount(2).build();
+
+        presenter.getAssistants(request);
+
+    }
+
+    private void getAssistantHistory() {
+        GetAssistantHistoryRequest request = new GetAssistantHistoryRequest.Builder().build();
+        presenter.getAssistantHistory(request);
+    }
 
 
+    private void changePublicThreadToPrivate() {
+        ChangeThreadTypeRequest request = new ChangeThreadTypeRequest.Builder(8093, 1).build();
+        presenter.changeThreadType(request);
+
+    }
+
+    private void changePrivateThreadToPublic() {
+        String UniqName = "PrivatethreadConverted_" + System.currentTimeMillis() / 1000;
+        ChangeThreadTypeRequest request = new ChangeThreadTypeRequest.Builder(8093, 2).setUniqname(UniqName).build();
+        presenter.changeThreadType(request);
     }
 
     private void getNotSeenDur() {
@@ -2135,9 +2321,9 @@ public class IntegrationServerActivity extends AppCompatActivity
 //
 //                }
         RequestAddContact request = new RequestAddContact.Builder()
-                .firstName("masoud")
-                .lastName("amjadi")
-                .cellphoneNumber("09148401824") //80617 //80618
+                .firstName("Leila")
+                .lastName("Nemati")
+                .cellphoneNumber("09126975376") //80617 //80618
                 // .cellphoneNumber()
                 // .email()
                 .build();
@@ -2210,16 +2396,18 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     private void getThreadParticipants() {
 
-        RequestThreadParticipant request =
-                new RequestThreadParticipant.Builder()
-                        .count(20)
-                        .offset(0)
-                        .threadId(TEST_THREAD_ID)
+        new java.lang.Thread(() -> {
+            for (int i = 0; i < 100; i++) {
+                RequestThreadParticipant request =
+                        new RequestThreadParticipant.Builder()
+                                .count(50)
+                                .offset(i)
+                                .threadId(TEST_THREAD_ID)
 //                        .withNoCache()
-                        .build();
-
-
-        presenter.getThreadParticipant(request);
+                                .build();
+                presenter.getThreadParticipant(request);
+            }
+        }).start();
 
 
 //        presenter.getThreadParticipant(20, null, TEST_THREAD_ID, new ChatHandler() {
@@ -2263,7 +2451,7 @@ public class IntegrationServerActivity extends AppCompatActivity
                         Arrays.asList(invite),
                         THREAD_UNIQUE_NAME)
                         .withDescription("desc at " + new Date())
-                        .title("My Public Group")
+                        .title("My Public Group 22")
                         .withImage("http://google.com")
                         .withMetadata(metac)
                         .build();
@@ -2348,7 +2536,6 @@ public class IntegrationServerActivity extends AppCompatActivity
 //        };
 
 
-
         /**
          *
          *
@@ -2387,10 +2574,18 @@ public class IntegrationServerActivity extends AppCompatActivity
 //        invite.add(new Invitee("121", 1)); // user zizi
 //        invite.add(new Invitee("63270", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //        invite.add(new Invitee("63271", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-        invite.add(new Invitee("2951", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("63268", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("80617", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-//        invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
+//      integration users
+//        invite.add(new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        invite.add(new Invitee("63255", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        invite.add(new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//sand box users
+//        52620 farhad
+//        52979 masoud
+//        52987 khodam
+        //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63254", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //   invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
 //                                invite.add(new Invitee(123, 5)); //user fifi
@@ -2400,19 +2595,19 @@ public class IntegrationServerActivity extends AppCompatActivity
 
 
         RequestUploadImage requestUploadImage =
-                new RequestUploadImage.Builder(IntegrationServerActivity.this, getUri())
+                new RequestUploadImage.Builder(ChatActivity.this, getUri())
                         .sethC(140)
                         .setwC(140)
                         .build();
 
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
-                .Builder(ThreadType.Constants.OWNER_GROUP, invite)
-//                .title("A New Thread " + (new Date().getTime() / 1000))
+                .Builder(ThreadType.Constants.NORMAL, invite)
+                .title("Test Thread ByAhmad" + (new Date().getTime() / 1000))
 //                .withDescription("Description created at "
 //                        + new Date().getTime())
 //                .withImage("URL")
-                .withMetadata(metac)
+                //      .withMetadata(metac)
 //                .typeCode("podspace")
 //                .setUploadThreadImageRequest(requestUploadImage)
                 .build();
@@ -2424,8 +2619,8 @@ public class IntegrationServerActivity extends AppCompatActivity
 
     private void updateContact() {
 
-        presenter.updateContact(2951, "Farhad Amjadi",
-                "Amjadi", "--------", "zi@gmail.com"
+        presenter.updateContact(52979, "agha masoud",
+                "amjadi ", "---", "gizi@gmail.com"
         );
     }
 
@@ -2433,20 +2628,94 @@ public class IntegrationServerActivity extends AppCompatActivity
     public void getThreadHistory() {
 
 
-        RequestGetHistory request = new RequestGetHistory
+//        RequestGetHistory request = new RequestGetHistory
+//                .Builder(TEST_THREAD_ID)
+//                .offset(0)
+//                .count(50)
+//                .order("desc") //.order("asc")
+////                .fromTime(new Date().getTime())
+//                //   .toTime(new Date().getTime())
+////                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
+////                .withNoCache()
+//                .build();
+//
+//        presenter.getHistory(request, null);
+
+
+        if (TEST_THREAD_LAST_SEEN_MESSAGE_TIME > 0) {
+            showToast("Get History to time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+            RequestGetHistory request = new RequestGetHistory
+                    .Builder(TEST_THREAD_ID)
+                    .offset(0)
+                    .count(50)
+                    .order("desc") //.order("asc")
+                    .toTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+                    .build();
+
+            presenter.getHistory(request, null);
+
+            showToast("Get History from time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+
+            request = new RequestGetHistory
+                    .Builder(TEST_THREAD_ID)
+                    .offset(0)
+                    .count(50)
+                    .order("asc") //.order("asc")
+                    .fromTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+                    .build();
+
+            presenter.getHistory(request, null);
+
+        }
+
+    }
+
+//    public void getHashTagList() {
+//        RequestGetHashTagList request = new RequestGetHashTagList
+//                .Builder(TEST_THREAD_ID)
+//                .offset(0)
+//                .count(25)
+//                .setHashtag("ahmad")
+//                .build();
+//
+//        presenter.getHashTagLIst(request, null);
+//    }
+
+    public void getHashTagHistory() {
+        RequestGetHashTagList request = new RequestGetHashTagList
                 .Builder(TEST_THREAD_ID)
+                .setHashtag("test2")
                 .offset(0)
                 .count(25)
-                .order("desc") //.order("asc")
-//                .fromTime(new Date().getTime())
-             //   .toTime(new Date().getTime())
-//                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
-//                .withNoCache()
                 .build();
+        presenter.getHashTagList(request, null);
+    }
 
-        presenter.getHistory(request, null);
+    public void blockAssistant() {
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVos.add(assistantVo);
 
+        BlockUnblockAssistantRequest request = new BlockUnblockAssistantRequest.Builder(assistantVos, false).build();
+        presenter.blockAssistant(request);
+    }
 
+    public void unBlockAssistant() {
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        List<AssistantVo> assistantVos = new ArrayList<>();
+        AssistantVo assistantVo = new AssistantVo();
+        assistantVo.setInvitees(invite);
+        assistantVos.add(assistantVo);
+
+        BlockUnblockAssistantRequest request = new BlockUnblockAssistantRequest.Builder(assistantVos, true).build();
+        presenter.unBlockAssistant(request);
+    }
+
+    public void getBlocksAssistant() {
+        GetBlockedAssistantsRequest request = new GetBlockedAssistantsRequest.Builder().build();
+        presenter.getBlocksAssistant(request);
     }
 
     public void getThreads() {
@@ -2511,49 +2780,60 @@ public class IntegrationServerActivity extends AppCompatActivity
     private void getContacts() {
 
 
-        new Thread(() -> {
+        RequestGetContact request = new RequestGetContact.Builder()
+                .count(50)
+                .offset(0)
+                .build();
+        presenter.getContact(request);
+
+//        presenter.syncContact(ChatActivity.this);
+//        for (int i = 0; i < 5; i++) {
+//            RequestGetContact request2 = new RequestGetContact.Builder()
+//                    .count(50)
+//                    .offset(0)
+//                    .build();
+//            presenter.getContact(request2);
+//            RequestGetContact request = new RequestGetContact.Builder()
+//                    .count(50)
+//                    .offset(50)
+//                    .build();
+//            presenter.getContact(request);
+//            RequestThread request1 = new RequestThread.Builder()
+//                    .count(50)
+//                    .offset(0)
+//                    .build();
+//            presenter.getThreads(request1, null);
+//        }
 
 
-            RequestGetContact request = new RequestGetContact.Builder()
-                    .count(50)
-                    .offset(0)
-//                .withNoCache()
-                    .build();
-
-//        presenter.getContact(0, 0L, null);
-
-            presenter.getContact(request);
-
-        }).start();
-
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
 
-        new Thread(() -> {
-
-            RequestGetContact request2 = new RequestGetContact.Builder()
-                    .count(10)
-                    .offset(0)
-//                .withNoCache()
-                    .build();
-
-//        presenter.getContact(0, 0L, null);
-
-            presenter.getContact(request2);
-
-//        offset = offset + 50;
-
-
-        }).start();
+//        new Thread(() -> {
+//
+//            RequestGetContact request2 = new RequestGetContact.Builder()
+//                    .count(10)
+//                    .offset(0)
+////                .withNoCache()
+//                    .build();
+//
+////        presenter.getContact(0, 0L, null);
+//
+//            presenter.getContact(request2);
+//
+////        offset = offset + 50;
+//
+//
+//        }).start();
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        Toast.makeText(IntegrationServerActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ChatActivity.this, "\\__('?')__/", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -2666,7 +2946,7 @@ public class IntegrationServerActivity extends AppCompatActivity
     public void onUploadImage(View view) {
 
 
-        presenter.uploadImageProgress(this, IntegrationServerActivity.this, getUri(), new ProgressHandler.onProgress() {
+        presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
             public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
@@ -2694,13 +2974,13 @@ public class IntegrationServerActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-//        presenter.onStop();
+        presenter.onStop();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        presenter.onResume();
+        presenter.onResume();
     }
 
     @Override
@@ -2751,7 +3031,7 @@ public class IntegrationServerActivity extends AppCompatActivity
 
         if (getUri() != null) {
 
-            presenter.uploadFileProgress(IntegrationServerActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
+            presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
                 public void onProgressUpdate(int progress) {
 
@@ -2931,5 +3211,21 @@ public class IntegrationServerActivity extends AppCompatActivity
     @Override
     public void onChatProfileUpdated(ResultUpdateProfile result) {
         showToast("Profile Updated: " + result.getBio());
+    }
+
+    @Override
+    public void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
+
+
+        for (Thread th :
+                thread.getResult().getThreads()) {
+
+            if (th.getId() == TEST_THREAD_ID) {
+                TEST_THREAD_LAST_SEEN_MESSAGE_TIME = th.getLastSeenMessageTime();
+                Log.i(ChatActivity.class.getSimpleName(), "Thread last seen message time: " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME + " Cache " + thread.isCache());
+            }
+
+        }
+
     }
 }

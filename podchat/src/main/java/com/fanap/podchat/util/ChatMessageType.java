@@ -70,7 +70,7 @@ public class ChatMessageType {
             Constants.JOIN_THREAD,
             Constants.INTERACT_MESSAGE,
             Constants.UPDATE_USER_PROFILE,
-            Constants.CHANGE_THREAD_PRIVACY,
+            Constants.CHANGE_THREAD_TYPE,
             Constants.GET_THING_INFO,
             Constants.GET_REPORT_REASONS,
             Constants.REPORT_THREAD,
@@ -110,6 +110,15 @@ public class ChatMessageType {
             Constants.UN_MUTE_CALL_PARTICIPANT,
             Constants.CANCEL_GROUP_CALL,
             Constants.REGISTER_ASSISTANT,
+            Constants.DEACTICVE_ASSISTANT,
+            Constants.GET_ASSISTANTS,
+            Constants.GET_ASSISTANT_HISTORY,
+            Constants.CREATE_TAG,
+            Constants.EDIT_TAG,
+            Constants.DELETE_TAG,
+            Constants.ADD_TAG_PARTICIPANT,
+            Constants.REMOVE_TAG_PARTICIPANT,
+            Constants.GET_TAG_LIST,
 
 
 
@@ -170,7 +179,7 @@ public class ChatMessageType {
         int PIN_MESSAGE = 50;
         int UNPIN_MESSAGE = 51;
         int UPDATE_CHAT_PROFILE = 52;
-        int CHANGE_THREAD_PRIVACY = 53;
+        int CHANGE_THREAD_TYPE = 53;
         int GET_USER_ROLES = 54;
         int GET_THING_INFO = 55;
         int GET_REPORT_REASONS = 56;
@@ -184,6 +193,7 @@ public class ChatMessageType {
         int DEFINE_BOT_COMMAND = 63;
         int START_BOT = 64;
         int STOP_BOT = 65;
+        int GET_USER_BOTS = 120;
 
 
         int CALL_REQUEST = 70;
@@ -227,8 +237,18 @@ public class ChatMessageType {
         int CLOSE_THREAD = 102;
         int ERROR = 999;
         int REGISTER_ASSISTANT = 107;
-        int REACTICVE_ASSISTANT = 108;
+        int DEACTICVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
+        int BLOCK_ASSISTANT = 116;
+        int UNBLOCK_ASSISTANT = 117;
+        int GET_BLOCKED_ASSISTANTS = 118;
+        int GET_ASSISTANT_HISTORY = 115;
+        int CREATE_TAG = 140;
+        int EDIT_TAG = 141;
+        int DELETE_TAG = 142;
+        int ADD_TAG_PARTICIPANT = 143;
+        int REMOVE_TAG_PARTICIPANT = 144;
+        int GET_TAG_LIST = 145;
 
     }
 
