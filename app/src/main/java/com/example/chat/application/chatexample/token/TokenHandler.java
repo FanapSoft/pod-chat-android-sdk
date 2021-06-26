@@ -59,14 +59,10 @@ public class TokenHandler {
     }
 
 
-    public TokenHandler(Context context) {
+    public TokenHandler(Context context,ITokenHandler iTokenHandler) {
         this.context = context;
-        checkRefreshToken();
-    }
-
-    public void addListener(ITokenHandler iTokenHandler) {
-
         listener = iTokenHandler;
+        checkRefreshToken();
     }
 
     public void handshake(String number) {

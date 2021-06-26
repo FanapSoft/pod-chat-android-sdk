@@ -24,6 +24,7 @@ import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
+import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.CreateCallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
@@ -198,8 +199,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         chat = Chat.init(context);
-//        RefWatcher refWatcher = LeakCanary.installedRefWatcher();
-//        refWatcher.watch(chat);
 
         chat.addListener(this);
 
@@ -253,9 +252,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         activity.getApplication().registerActivityLifecycleCallbacks(this);
 
 
-        tokenHandler = new TokenHandler(activity.getApplicationContext());
-
-        tokenHandler.addListener(new TokenHandler.ITokenHandler() {
+        tokenHandler = new TokenHandler(activity.getApplicationContext(),new TokenHandler.ITokenHandler() {
             @Override
             public void onGetToken(String token) {
                 view.onGetToken(token);
@@ -1318,7 +1315,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
         ContactsFragment fragment = new ContactsFragment();
-//        fragment.setCa
         Bundle v = new Bundle();
 
 
@@ -1362,6 +1358,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
         if (Util.isNotNullOrEmpty(outPutError.getUniqueId()) && uniqueIds.contains(outPutError.getUniqueId())) {
+            view.onError("");
             view.updateStatus(outPutError.getErrorMessage());
         }
     }
@@ -1599,8 +1596,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 //            usernames.add("09379520706");
 //            usernames.add("09124704905");
 
-            chat.getContacts(new RequestGetContact.Builder()
-                    .count(50).offset(0).build(), null);
+//            chat.getContacts(new RequestGetContact.Builder()
+//                    .count(50).offset(0).build(), null);
 //            for (int i = 0; i < usernames.size(); i++) {
 //
 //
@@ -1953,8 +1950,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onReceiveCallHistory(ChatResponse<GetCallHistoryResult> response) {
 
-
-        view.onGetCallHistory(response);
+//        List<CallVO> calls = new ArrayList<>();
+//
+//        for (CallVO call :
+//                response.getResult().getCallsList()) {
+//
+//            if(call.getPartnerParticipantVO()!=null)
+//                calls.add(call);
+//
+//        }
+//
+//        view.onGetCallHistory(response);
 
     }
 
@@ -2035,22 +2041,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         GetCallHistoryRequest request = new GetCallHistoryRequest.Builder()
-                .setType(CallType.Constants.VOICE_CALL)
-                .count(10)
+                .setType(CallType.Constants.VIDEO_CALL)
+                .count(50)
                 .build();
 
         uniqueIds.add(chat.getCallsHistory(request));
-
-
-        RequestGetHistory request1 = new RequestGetHistory
-                .Builder(6869)
-                .offset(0)
-                .withNoCache()
-                .count(10)
-                .order("desc")
-                .build();
-
-        getHistory(request1, null);
 
 
     }
@@ -2184,13 +2179,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getContact() {
 
-        RequestGetContact request =
-                new RequestGetContact.Builder()
-                        .count(50)
-                        .offset(0)
-                        .build();
+        if(chat.isChatReady()){
+            view.onLoadingContactsStarted();
+            RequestGetContact request =
+                    new RequestGetContact.Builder()
+                            .count(50)
+                            .offset(0)
+                            .build();
 
-        uniqueIds.add(chat.getContacts(request, null));
+            uniqueIds.add(chat.getContacts(request, null));
+        }
+
 
     }
 
@@ -2343,10 +2342,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void requestCall(int partnerId, boolean checked) {
+    public void requestP2PCallWithP2PThreadId(int threadId) {
         List<Invitee> invitees = new ArrayList<>();
         Invitee invitee = new Invitee();
-        invitee.setId(partnerId);
+        invitee.setId(threadId);
         invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
         invitees.add(invitee);
 
@@ -2360,8 +2359,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
             showVideoViews();
         }
 
-        String uniqueId = chat.requestCall(callRequest);
+        String uniqueId = chat.requestGroupCall(callRequest);
         uniqueIds.add(uniqueId);
+    }
+
+    @Override
+    public void requestP2PCallWithContactId(int contactId) {
+
     }
 
     @Override

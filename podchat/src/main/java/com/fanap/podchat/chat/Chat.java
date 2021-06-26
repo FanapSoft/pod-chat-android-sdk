@@ -2072,7 +2072,7 @@ public class Chat extends AsyncAdapter {
 
             if (Util.isNotNullOrEmpty(sendVideoTopic)) {
                 visibleView(localPartnerView);
-
+                localPartnerView.getSurfaceView().setZOrderOnTop(true);
                 CallPartner lPartner = new CallPartner.Builder()
                         .setPartnerType(PartnerType.LOCAL)
                         .setName(info.getResult().getClientDTO().getSendKey() + "" + sendVideoTopic)
@@ -2141,8 +2141,7 @@ public class Chat extends AsyncAdapter {
     private void visibleView(View view) {
         new Handler(context.getMainLooper())
                 .post(() -> {
-                    if (view.getVisibility() == View.INVISIBLE
-                            || view.getVisibility() == View.GONE)
+                    if (view.getVisibility() != View.VISIBLE)
                         view.setVisibility(View.VISIBLE);
                 });
     }

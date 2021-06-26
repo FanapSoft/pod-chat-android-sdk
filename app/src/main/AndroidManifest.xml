@@ -28,12 +28,6 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="n">
-        <activity android:name="com.fanap.podchat.KafkaTestActivity">
-
-
-
-
-        </activity>
         <activity android:name="com.example.chat.application.chatexample.CallActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

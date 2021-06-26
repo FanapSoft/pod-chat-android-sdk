@@ -28,6 +28,7 @@ public class LoginFragment extends Fragment {
 
     public interface ILoginInterface {
         void onTokenReceived(String token);
+        void onLocalTokenSelected(String token);
     }
 
     private ILoginInterface callback;
@@ -109,9 +110,7 @@ public class LoginFragment extends Fragment {
 
     private void setupTokenHandler(View view) {
 
-        tokenHandler = new TokenHandler(view.getContext().getApplicationContext());
-
-        tokenHandler.addListener(new TokenHandler.ITokenHandler() {
+        tokenHandler = new TokenHandler(view.getContext().getApplicationContext(),new TokenHandler.ITokenHandler() {
             @Override
             public void onGetToken(String token) {
 
@@ -120,19 +119,16 @@ public class LoginFragment extends Fragment {
             }
 
             @Override
-            public void onTokenRefreshed(String token) {
-
-//                if (state.equals(ChatStateType.ChatSateConstant.ASYNC_READY))
-//                    chat.setToken(token);
-//                else view.onGetToken(token);
-
-            }
+            public void onTokenRefreshed(String token) {}
 
             @Override
             public void onError(String message) {
-//                view.onError(message);
+
+                Toast.makeText(view.getContext(), "Login Error " + message, Toast.LENGTH_SHORT).show();
+                viewSwitcher.setDisplayedChild(0);
             }
         });
+
     }
 
     private void setupTokenList(View view) {
@@ -149,7 +145,7 @@ public class LoginFragment extends Fragment {
             public void onTokenSelected(TokenModel token) {
                 Log.i("LOGIN", "SELECTED TOKEN: " + token.getToken());
                 if (callback != null) {
-                    callback.onTokenReceived(token.getToken());
+                    callback.onLocalTokenSelected(token.getToken());
                 }
             }
         });

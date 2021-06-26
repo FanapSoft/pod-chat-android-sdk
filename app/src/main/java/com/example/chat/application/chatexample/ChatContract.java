@@ -10,6 +10,7 @@ import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
+import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
@@ -42,6 +43,7 @@ import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
@@ -110,7 +112,7 @@ public interface ChatContract {
         default void onGetThreadHistory(ChatResponse<ResultHistory> history) {
         }
 
-        default void onGetContacts() {
+        default void onGetContacts(ChatResponse<ResultContact> outPutContact) {
 
         }
 
@@ -243,7 +245,7 @@ public interface ChatContract {
 
         default void onVoiceCallStarted(String uniqueId, String clientId){}
 
-        default void onGetCallHistory(ChatResponse<GetCallHistoryResult> result){}
+        default void onGetCallHistory(List<CallVO> calls){}
 
         default void onCallReconnect(long callId){}
 
@@ -290,6 +292,10 @@ public interface ChatContract {
         default void onChatProfileUpdated(ResultUpdateProfile result){}
 
         default void onLoginNeeded(){}
+
+        default void onLoadingContactsStarted(){}
+
+        default void setInitState(){}
     }
 
     interface presenter {
@@ -572,7 +578,9 @@ public interface ChatContract {
 
         void requestMainOrSandboxCall(String query, boolean isGroupCall);
 
-        void requestCall(int partnerId, boolean checked);
+        void requestP2PCallWithP2PThreadId(int threadId);
+
+        void requestP2PCallWithContactId(int contactId);
 
         void terminateCall();
 

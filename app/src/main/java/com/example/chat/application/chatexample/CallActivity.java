@@ -9,32 +9,33 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 
 import com.fanap.podcall.util.CallPermissionHandler;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
+import com.fanap.podchat.call.history.HistoryAdaptor;
 import com.fanap.podchat.call.login.LoginFragment;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
-import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
@@ -42,15 +43,20 @@ import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatStateType;
-import com.fanap.podchat.util.Util;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class CallActivity extends AppCompatActivity implements ChatContract.view, LoginFragment.ILoginInterface {
+public class CallActivity extends AppCompatActivity implements ChatContract.view,
+        LoginFragment.ILoginInterface,
+        ContactsFragment.IContactsFragment {
 
 
     private static final String TAG = "CHAT_SDK_CALL";
@@ -117,17 +123,17 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private ChatContract.presenter presenter;
 
-    Button buttonCloseHistory, buttonAddCallParticipant,
+    Button buttonAddCallParticipant,
             buttonStartSandboxCall, buttonRemoveCallParticipant,
             buttonTerminateCall;
 
-    TextView tvStatus, tvCallerName, tvHistory;
+    TextView tvStatus, tvCallerName, tvHistory, tvCalleeName;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
-    View callRequestView, inCallView, viewHistory;
+    View callRequestView, inCallView;
     ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker;
-    EditText etSandboxPartnerId, etNewParticipantToAdd;
+    EditText etSandboxThreadId, etNewParticipantToAdd;
 
     FrameLayout frameLayout;
     FloatingActionButton fabContacts;
@@ -152,6 +158,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             remoteCallPartner3,
             remoteCallPartner4;
     private boolean isVideoPaused = false;
+
+
+    private RecyclerView recyclerViewHistory;
+    private ViewSwitcher viewSwitcherRecentCalls;
+    ScheduledExecutorService ex;
 
 
     @Override
@@ -236,7 +247,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 //        });
 
 
-
 //
         buttonAcceptCall.setOnClickListener(v -> {
 
@@ -261,9 +271,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 presenter.endStream();
                 inCallView.setVisibility(View.INVISIBLE);
                 callRequestView.setVisibility(View.INVISIBLE);
-
+                fabContacts.show();
                 isTestMode = false;
-
+                tvCalleeName.setText("");
             } else {
                 presenter.endRunningCall();
             }
@@ -281,9 +291,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
-
-
-        buttonCloseHistory.setOnClickListener(v -> viewHistory.setVisibility(View.INVISIBLE));
 
         buttonMute.setOnClickListener(v -> {
 
@@ -321,15 +328,20 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonStartSandboxCall.setOnClickListener(v -> {
             if (chatReady) {
-                presenter.requestMainOrSandboxCall(etSandboxPartnerId.getText().toString(), false);
+                try {
+                    presenter.requestP2PCallWithP2PThreadId(Integer.parseInt(etSandboxThreadId.getText().toString()));
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(this, "Chat is not ready", Toast.LENGTH_SHORT).show();
             }
         });
 
 
-
-        fabContacts.setOnClickListener(v -> presenter.getContact());
+        fabContacts.setOnClickListener(v -> {
+            presenter.getContact();
+        });
 
         localCallPartner.setOnClickListener(v -> presenter.switchCamera());
         localCallPartner.setOnClickListener(v -> {
@@ -414,32 +426,36 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.GONE);
+            inCallView.setVisibility(View.VISIBLE);
             buttonStartSandboxCall.setVisibility(View.VISIBLE);
             tvCallerName.setText("");
+            fabContacts.show();
         });
 
 
     }
 
 
-
     private void init() {
 
 
-        presenter = new ChatPresenter(this, this, this);
+        viewSwitcherRecentCalls = findViewById(R.id.viewSwitcherRecentCalls);
 
-        buttonCloseHistory = findViewById(R.id.buttonCloseHistory);
+        presenter = new CallPresenter(this, this, this);
+
+        recyclerViewHistory = findViewById(R.id.recyclerViewHistories);
+
 
         buttonAddCallParticipant = findViewById(R.id.btnAddCallParticipant);
         buttonRemoveCallParticipant = findViewById(R.id.btnRemoveCallParticipant);
 
         tvStatus = findViewById(R.id.tvStatus);
         tvCallerName = findViewById(R.id.tvCallerName);
+        tvCalleeName = findViewById(R.id.tvCalleeName);
         tvHistory = findViewById(R.id.tvHistory);
 
         callRequestView = findViewById(R.id.viewCallRequest);
         inCallView = findViewById(R.id.viewCall);
-        viewHistory = findViewById(R.id.viewHistory);
 
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
@@ -452,7 +468,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
 
 
-        etSandboxPartnerId = findViewById(R.id.etSandBoxPartnerId);
+        etSandboxThreadId = findViewById(R.id.etSandBoxPartnerId);
         etNewParticipantToAdd = findViewById(R.id.etNewParticipant);
 
         frameLayout = findViewById(R.id.frame_call);
@@ -477,8 +493,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         if (!CallPermissionHandler.needCameraAndRecordPermission(this)) {
             presenter.setupVideoCallParam(localCallPartner, views);
-        }else {
-            CallPermissionHandler.requestPermission(this,101);
+        } else {
+            CallPermissionHandler.requestPermission(this, 101);
         }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -487,7 +503,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         Log.e(TAG, "Call info: " + callInfo);
 
-//        connect();
         if (callInfo != null) {
             presenter.setCallInfo(callInfo);
             showInCallView();
@@ -505,7 +520,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
             runOnUiThread(() -> {
                 tvStatus.setText("Chat is Ready :)");
+                viewSwitcherRecentCalls.setDisplayedChild(0);
             });
+
+            presenter.getCallHistory();
 
         } else {
 
@@ -527,9 +545,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.VISIBLE);
-            viewHistory.setVisibility(View.INVISIBLE);
             buttonStartSandboxCall.setVisibility(View.INVISIBLE);
             tvCallerName.setText(" " + callerName);
+            fabContacts.hide();
         });
 
     }
@@ -571,15 +589,44 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.VISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
-
+            fabContacts.hide();
             buttonStartSandboxCall.setVisibility(View.INVISIBLE);
         });
+
+        AtomicInteger sec = new AtomicInteger();
+        AtomicInteger min = new AtomicInteger();
+        min.set(0);
+
+        if (ex == null) {
+            ex = Executors.newSingleThreadScheduledExecutor();
+
+            ex.scheduleAtFixedRate(
+                    () -> runOnUiThread(
+                            () -> {
+                                if (sec.get() < 10)
+                                    tvCalleeName.setText(min.get() + ":0" + sec.getAndIncrement());
+                                else if (sec.get() > 9 && sec.get() < 60) {
+                                    tvCalleeName.setText(min.get() + ":" + sec.getAndIncrement());
+                                } else {
+                                    sec.set(0);
+                                    tvCalleeName.setText(min.incrementAndGet() + ":00");
+                                }
+                            }),
+                    0,
+                    1,
+                    TimeUnit.SECONDS);
+        }
+
     }
 
     private void hideInCallView() {
+        ex.shutdown();
+        ex = null;
         runOnUiThread(() -> {
+            viewSwitcherRecentCalls.setDisplayedChild(1);
             inCallView.setVisibility(View.GONE);
             callRequestView.setVisibility(View.INVISIBLE);
+            fabContacts.show();
             buttonStartSandboxCall.setVisibility(View.VISIBLE);
         });
     }
@@ -588,7 +635,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.VISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
-
+            fabContacts.hide();
             buttonStartSandboxCall.setVisibility(View.INVISIBLE);
         });
     }
@@ -597,6 +644,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.GONE);
             callRequestView.setVisibility(View.GONE);
+            fabContacts.show();
             buttonStartSandboxCall.setVisibility(View.VISIBLE);
         });
     }
@@ -614,55 +662,84 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 
         runOnUiThread(() -> {
+            viewSwitcherRecentCalls.setDisplayedChild(1);
             inCallView.setVisibility(View.INVISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
 //            buttonTestCall.setVisibility(View.VISIBLE);
+            fabContacts.show();
             buttonStartSandboxCall.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Call has been ended", Toast.LENGTH_SHORT).show();
             tvStatus.setText("Call has been ended");
+            tvCalleeName.setText("");
         });
     }
 
     @SuppressLint("SetTextI18n")
     @Override
-    public void onGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
+    public void onGetCallHistory(List<CallVO> calls) {
 
         runOnUiThread(() -> {
 
-            viewHistory.setVisibility(View.VISIBLE);
+            fabContacts.show();
 
-            String source = Util.parserBoolean(response.isCache()) ? "Cache" : "Server";
+            viewSwitcherRecentCalls.setDisplayedChild(1);
 
-            tvHistory.append("\n\n\n===\nSource: " + source + "\n===\n");
+            HistoryAdaptor hAdaptor = new HistoryAdaptor(
+                    new ArrayList<>(calls),
+                    this, call ->
+            {
+                tvCalleeName.setText("Calling " + call.getPartnerParticipantVO().getFirstName() + " " + call.getPartnerParticipantVO().getLastName());
 
-            tvHistory.append("Content Count: " + response.getResult().getContentCount() + "\n\n");
-
-            tvHistory.append("Has Next: " + response.getResult().isHasNext() + "\n\n");
-
-
-            if (!Util.isNullOrEmpty(response.getResult().getCallsList()))
-                for (CallVO call :
-                        response.getResult().getCallsList()) {
-
-                    tvHistory.append("\n====================\n");
-
-                    tvHistory.append("Call id: " + call.getId() + "\n");
-                    tvHistory.append("Call CreatorId: " + call.getCreatorId() + "\n");
-                    tvHistory.append("Call CreateTime: " + call.getCreateTime() + "\n");
-                    tvHistory.append("Call StartTime: " + call.getStartTime() + "\n");
-                    tvHistory.append("Call EndTime: " + call.getEndTime() + "\n");
-                    tvHistory.append("Call Status: " + call.getStatus() + "\n");
-                    tvHistory.append("Call Type: " + call.getType() + "\n");
-                    try {
-                        tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() + "\n");
-                    } catch (Exception ignored) {
-                    }
-
+                if (call.getPartnerParticipantVO().getContactId() > 0) {
+                    presenter.requestP2PCallWithContactId(
+                            (int) call.getPartnerParticipantVO().getContactId()
+                    );
                 }
-            else {
-                tvHistory.append("\nNo call history\n");
             }
-            tvHistory.append("\n====================\n");
+            );
+
+            recyclerViewHistory.setAdapter(hAdaptor);
+
+            recyclerViewHistory.setLayoutManager(
+                    new LinearLayoutManager(this,
+                            LinearLayoutManager.VERTICAL,
+                            false)
+            );
+
+//            viewHistory.setVisibility(View.VISIBLE);
+//
+//            String source = Util.parserBoolean(response.isCache()) ? "Cache" : "Server";
+//
+//            tvHistory.append("\n\n\n===\nSource: " + source + "\n===\n");
+//
+//            tvHistory.append("Content Count: " + response.getResult().getContentCount() + "\n\n");
+//
+//            tvHistory.append("Has Next: " + response.getResult().isHasNext() + "\n\n");
+//
+//
+//            if (!Util.isNullOrEmpty(response.getResult().getCallsList()))
+//                for (CallVO call :
+//                        response.getResult().getCallsList()) {
+//
+//                    tvHistory.append("\n====================\n");
+//
+//                    tvHistory.append("Call id: " + call.getId() + "\n");
+//                    tvHistory.append("Call CreatorId: " + call.getCreatorId() + "\n");
+//                    tvHistory.append("Call CreateTime: " + call.getCreateTime() + "\n");
+//                    tvHistory.append("Call StartTime: " + call.getStartTime() + "\n");
+//                    tvHistory.append("Call EndTime: " + call.getEndTime() + "\n");
+//                    tvHistory.append("Call Status: " + call.getStatus() + "\n");
+//                    tvHistory.append("Call Type: " + call.getType() + "\n");
+//                    try {
+//                        tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() + "\n");
+//                    } catch (Exception ignored) {
+//                    }
+//
+//                }
+//            else {
+//                tvHistory.append("\nNo call history\n");
+//            }
+//            tvHistory.append("\n====================\n");
         });
 
     }
@@ -698,9 +775,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             Toast.makeText(this, "Group Call from " + callerName, Toast.LENGTH_SHORT).show();
             callRequestView.setVisibility(View.VISIBLE);
-            viewHistory.setVisibility(View.INVISIBLE);
             buttonStartSandboxCall.setVisibility(View.INVISIBLE);
             tvCallerName.setText(callerName + " from " + title);
+            fabContacts.hide();
         });
 
     }
@@ -726,7 +803,33 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onTokenReceived(String token) {
+
+        Fragment f2 = getSupportFragmentManager().findFragmentByTag("LFRAG");
+        if (f2 != null) {
+            getSupportFragmentManager().
+                    beginTransaction()
+                    .remove(f2)
+                    .commit();
+        }
+
         connectToSandbox(token);
+    }
+
+    @Override
+    public void onLocalTokenSelected(String token) {
+
+        Fragment f2 = getSupportFragmentManager().findFragmentByTag("LFRAG");
+        if (f2 != null) {
+            getSupportFragmentManager().
+                    beginTransaction()
+                    .remove(f2)
+                    .commit();
+        }
+
+        TOKEN = token;
+
+        connect();
+
     }
 
     private void connectToSandbox(String token) {
@@ -750,7 +853,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     public void onGetUserInfo(ChatResponse<ResultUserInfo> outPutUserInfo) {
 
 
-        Toast.makeText(this, "Hello " + outPutUserInfo.getResult().getUser().getName() , Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> {
+            tvStatus.append(" " + "\n" + outPutUserInfo.getResult().getUser().getName());
+            tvStatus.append(" " + "\n" + outPutUserInfo.getResult().getUser().getId());
+
+        });
 
 
     }
@@ -860,13 +967,23 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
         runOnUiThread(() -> {
-            fabContacts.hide();
-            if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null)
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.frame_call, fragment, "CFRAG")
-                        .addToBackStack("CFRAG")
-                        .commit();
+            if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null) {
+                fabContacts.hide();
+
+                FrameLayout frameLayout = findViewById(R.id.frame_call);
+                frameLayout.setVisibility(View.VISIBLE);
+                try {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame_call, fragment, "CFRAG")
+                            .addToBackStack("CFRAG")
+                            .commit();
+                } catch (Exception e) {
+                    fabContacts.show();
+
+                    Toast.makeText(this, "Please try again", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
     }
@@ -887,6 +1004,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onBackPressed() {
+
+        viewSwitcherRecentCalls.setDisplayedChild(1);
 
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
@@ -928,6 +1047,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     public void onLoginNeeded() {
 
 
+        if (fabContacts != null) {
+            fabContacts.hide();
+        }
+
         LoginFragment loginFragment = new LoginFragment();
 
         if (getSupportFragmentManager().findFragmentByTag("LFRAG") == null)
@@ -940,5 +1063,53 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     }
 
+    @Override
+    public void onLoadingContactsStarted() {
+        runOnUiThread(() -> {
+            viewSwitcherRecentCalls.setDisplayedChild(0);
+            fabContacts.hide();
+        });
+    }
 
+    @Override
+    public void onError(String message) {
+
+    }
+
+
+    @Override
+    public void onContactsSelected(ContactsWrapper contact) {
+
+
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            fabContacts.show();
+            Fragment f = getSupportFragmentManager().findFragmentByTag("CFRAG");
+
+            if (f != null) {
+                getSupportFragmentManager().
+                        beginTransaction()
+                        .remove(f)
+                        .commit();
+            }
+        }
+
+
+        tvCalleeName.setText("Calling " + contact.getFirstName() + " " + contact.getLastName());
+        presenter.requestP2PCallWithContactId((int) contact.getId());
+
+    }
+
+    @Override
+    public void setInitState() {
+
+
+        runOnUiThread(() -> {
+            localCallPartner.setVisibility(View.GONE);
+            viewSwitcherRecentCalls.setDisplayedChild(1);
+            fabContacts.show();
+            hideRequestCallView();
+        });
+
+    }
 }

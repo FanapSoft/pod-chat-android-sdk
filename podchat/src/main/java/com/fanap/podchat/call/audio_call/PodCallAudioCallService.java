@@ -44,7 +44,7 @@ public class PodCallAudioCallService extends Service {
 
     private CallInfo callInfo;
 
-    PodCallAudioCallManager callManager;
+//    PodCallAudioCallManager callManager;
 
     ICallServiceState callStateCallback;
 
@@ -61,11 +61,11 @@ public class PodCallAudioCallService extends Service {
 
     @Override
     public void onDestroy() {
-
-        if (callManager != null) {
-            callManager.endStream();
-            callManager = null;
-        }
+//
+//        if (callManager != null) {
+//            callManager.endStream();
+//            callManager = null;
+//        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
@@ -102,9 +102,9 @@ public class PodCallAudioCallService extends Service {
         }
 
 
-        //prevents to start again
-        if (callManager != null)
-            return START_NOT_STICKY;
+//        //prevents to start again
+//        if (callManager != null)
+//            return START_NOT_STICKY;
 
         getIntentData(intent);
 
@@ -122,11 +122,11 @@ public class PodCallAudioCallService extends Service {
 
     private void startStreaming() {
 
-        callManager = new PodCallAudioCallManager(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
-
-        if (!Util.isNullOrEmpty(sendingTopic)) {
-            callManager.startStream();
-        }else callManager.testAudio();
+//        callManager = new PodCallAudioCallManager(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
+//
+//        if (!Util.isNullOrEmpty(sendingTopic)) {
+//            callManager.startStream();
+//        }else callManager.testAudio();
     }
 
     private void getIntentData(Intent intent) {
@@ -178,11 +178,11 @@ public class PodCallAudioCallService extends Service {
     }
 
     public void switchMic(boolean isMute) {
-        callManager.switchAudioMuteState(isMute);
+//        callManager.switchAudioMuteState(isMute);
     }
 
     public void switchSpeaker(boolean isSpeakerOn) {
-        callManager.switchAudioSpeakerState(isSpeakerOn);
+//        callManager.switchAudioSpeakerState(isSpeakerOn);
     }
 
     public void endCall() {
@@ -191,21 +191,21 @@ public class PodCallAudioCallService extends Service {
 
     public void setSSL(boolean enableSSL) {
 
-        if (callManager != null)
-            callManager.setSSL(enableSSL);
+//        if (callManager != null)
+//            callManager.setSSL(enableSSL);
     }
 
     public void addNewCallParticipant(List<CallParticipantVO> joinedParticipants) {
 
-        if (callManager!=null){
-            callManager.addCallParticipant(joinedParticipants);
-        }
+//        if (callManager!=null){
+//            callManager.addCallParticipant(joinedParticipants);
+//        }
 
     }
 
     public void removeCallParticipant(ArrayList<CallParticipantVO> callParticipantList) {
-        if(callManager!=null)
-            callManager.removeCallParticipant(callParticipantList);
+//        if(callManager!=null)
+//            callManager.removeCallParticipant(callParticipantList);
     }
 
     public class CallBinder extends Binder {
