@@ -4,6 +4,16 @@
 
 # Changelog
 All notable changes to this project will be documented here.
+## Version [0.9.9.2] -
+
+[Added] ```startShareScreen``` callback
+
+[Added] ```onShareScreenStarted``` method
+
+[Added] ```endShareScreen``` callback
+
+[Added] ```onShareScreenEnded``` method
+[Updated] ```Add  ChatDataDTO to  StartedCallModel```
 
 ## Version [0.9.6.0] -2020-1-26
 

@@ -6,10 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    android:visibility="gone"
     android:keepScreenOn="true"
-    tools:visibility="gone">
+    android:visibility="visible"
+    tools:visibility="visible">
 
+
+    <ImageButton
+        android:id="@+id/buttonShareScreen"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/circle_green"
+        app:layout_constraintBottom_toTopOf="@+id/buttonEndCall"
+        app:layout_constraintEnd_toEndOf="@+id/buttonMute"
+        app:layout_constraintHorizontal_bias="0.384"
+        app:layout_constraintStart_toStartOf="@+id/buttonMute"
+        app:srcCompat="@drawable/ic_baseline_mobile_screen_share_24" />
 
     <LinearLayout
         android:id="@+id/layoutAddParticipant"
@@ -41,10 +53,10 @@
 
 
     <EditText
-        android:hint="Enter new participant username"
         android:id="@+id/etNewParticipant"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Enter new participant username"
         android:inputType="text"
         android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/layoutAddParticipant" />
@@ -109,10 +121,10 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginEnd="48dp"
+        android:alpha="0.6"
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
-        android:alpha="0.6"
         app:layout_constraintTop_toTopOf="@+id/guideline3"
         app:srcCompat="@drawable/ic_speaker_on" />
 

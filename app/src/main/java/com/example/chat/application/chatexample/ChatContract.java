@@ -562,6 +562,8 @@ public interface ChatContract {
 
         void switchSpeaker();
 
+        void switchShareScreen();
+
         void requestGroupCall(boolean fifi, boolean zizi, boolean jiji);
 
         void addCallParticipant(String username, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
@@ -591,5 +593,7 @@ public interface ChatContract {
         void pauseVideo();
 
         void resumeVideo();
+
+
     }
 }

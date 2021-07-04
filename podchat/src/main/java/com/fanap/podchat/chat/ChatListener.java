@@ -359,4 +359,7 @@ public interface ChatListener {
     default void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response){}
 
     default void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response){}
+
+    default void onShareScreenStarted(ChatResponse<JoinCallParticipantResult> response){}
+    default void onShareScreenEnded(ChatResponse<JoinCallParticipantResult> response){}
 }

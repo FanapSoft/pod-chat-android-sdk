@@ -1315,6 +1315,26 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnShareScreenStarted(ChatResponse<JoinCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onShareScreenStarted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnShareScreenEnded(ChatResponse<JoinCallParticipantResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onShareScreenEnded(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
 
 //    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
 //

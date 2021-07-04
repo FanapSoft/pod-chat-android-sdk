@@ -124,7 +124,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
+    ImageButton buttonRejectCall, buttonAcceptCall,buttonShareScreen, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
     EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId, etNewParticipantToAdd;
     CheckBox checkBoxSSL,
             checkBoxGroupCall,
@@ -144,6 +144,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     Vibrator vibrator;
     boolean isMute = false;
+    boolean isShare = false;
     boolean isSpeakerOn = false;
 
 
@@ -295,6 +296,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
+        buttonShareScreen.setOnClickListener(v -> {
+            vibrate();
+            presenter.switchShareScreen();
+
+            toggleShare((ImageButton) v);
+        });
+
         buttonTerminateCall.setOnClickListener(v -> {
 
             onCallEnded();
@@ -381,6 +389,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 presenter.switchCamera();
             }
         });
+
         localCallPartner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -413,12 +422,28 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         updateMuteButton(isMute);
     }
 
+    private void toggleShare(ImageButton v) {
+
+        isShare = !isShare;
+
+        updateShareButton(isShare);
+    }
+
     private void updateMuteButton(boolean isMute) {
 
         if (isMute) {
             buttonMute.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_on));
         } else {
             buttonMute.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_mic_off));
+        }
+    }
+
+    private void updateShareButton(boolean isShare) {
+
+        if (isShare) {
+            buttonMute.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_mobile_screen_share_24));
+        } else {
+            buttonMute.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_stop_24));
         }
     }
 
@@ -569,6 +594,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
+        buttonShareScreen = findViewById(R.id.buttonShareScreen);
         buttonTerminateCall = findViewById(R.id.btnTerminateCall);
         buttonGetHistory = findViewById(R.id.buttonGetHistory);
         buttonConnectSandBox = findViewById(R.id.btnConnectToSandbox);

@@ -189,7 +189,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private CreateCallVO callVO;
     private boolean speakerOn = false;
     private boolean isMute = false;
-    private boolean isInCall;
+    private boolean isInCall = false;
+    private boolean isShare;
     private List<CallPartnerView> videoCallViews;
     private CallPartnerView callLocalView;
 
@@ -2073,6 +2074,21 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
     }
+
+    @Override
+    public void switchShareScreen() {
+        this.isShare = !this.isShare;
+
+        Log.d(TAG, "CHANGE SHARE SCREEN: " + isShare);
+        if (isInCall) {
+            if (isShare) {
+                chat.startShareScreen(callVO.getCallId());
+            } else {
+                chat.endShareScreen(callVO.getCallId());
+            }
+        }
+    }
+
 
     @Override
     public void switchSpeaker() {
