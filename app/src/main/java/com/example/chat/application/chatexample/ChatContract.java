@@ -9,6 +9,7 @@ import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
+import com.fanap.podchat.call.request_model.DeleteCallFromHistoryRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.Chat;
@@ -300,6 +301,7 @@ public interface ChatContract {
 
         default void onChatProfileUpdated(ResultUpdateProfile result){}
         default void onTagCreated(TagResult result){}
+
     }
 
     interface presenter {
@@ -624,5 +626,6 @@ public interface ChatContract {
 
        void getTagList(GetTagListRequest request);
 
+        void deleteCallFromHistory(DeleteCallFromHistoryRequest request);
     }
 }

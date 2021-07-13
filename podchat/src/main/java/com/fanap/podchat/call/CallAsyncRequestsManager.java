@@ -8,6 +8,7 @@ import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.model.CreateCallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
+import com.fanap.podchat.call.request_model.DeleteCallFromHistoryRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
@@ -20,6 +21,7 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.DeletedCallsFromHistory;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
@@ -82,6 +84,47 @@ public class CallAsyncRequestsManager {
         jsonObject.remove("subjectId");
 
         return jsonObject.toString();
+
+    }
+
+    public static String deleteCallFromHistoryRequest(DeleteCallFromHistoryRequest request, String uniqueId) {
+
+        JsonArray contacts = new JsonArray();
+        for (Long p : request.getCallIds()) {
+            contacts.add(p);
+        }
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(contacts.toString());
+        message.setType(ChatMessageType.Constants.DELETE_CALL_FROM_HISTORY);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? CoreConfig.typeCode : request.getTypeCode());
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(message);
+
+        return jsonObject.toString();
+
+    }
+
+    public static ChatResponse<DeletedCallsFromHistory> handleCallsDeletedFromHistory(ChatMessage chatMessage) {
+
+        ChatResponse<DeletedCallsFromHistory> response = new ChatResponse<>();
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        ArrayList<Long> callIds = new ArrayList<>();
+
+        try {
+            callIds = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<List<Long>>() {
+            }.getType());
+        } catch (JsonSyntaxException ignored) {
+        }
+
+        response.setResult(new DeletedCallsFromHistory(callIds));
+
+        return response;
 
     }
 

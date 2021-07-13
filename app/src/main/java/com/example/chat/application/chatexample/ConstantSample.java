@@ -76,6 +76,7 @@ public class ConstantSample {
             "Add Tag Participant",
             "Remove Tag Participant",
             "Get Tag List",
+            "Delete Calls From History",
     };
 
     public static final String[] funcThird = {

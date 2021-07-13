@@ -31,6 +31,7 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.call.request_model.DeleteCallFromHistoryRequest;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.RoleType;
@@ -1445,6 +1446,10 @@ public class ChatActivity extends AppCompatActivity
                         getTagList();
                         break;
                     }
+                    case 30: {
+                        deleteCallsFromHistory();
+                        break;
+                    }
                 }
             }
 
@@ -1669,6 +1674,18 @@ public class ChatActivity extends AppCompatActivity
         GetTagListRequest request = new GetTagListRequest.Builder().build();
         ;
         presenter.getTagList(request);
+    }
+
+    public void deleteCallsFromHistory() {
+        List<Long> callIds = new ArrayList<>();
+        callIds.add(8688l);
+        callIds.add(8730l);
+        callIds.add(8729l);
+        DeleteCallFromHistoryRequest request = new DeleteCallFromHistoryRequest.Builder()
+                .setCallIds(callIds)
+                .build();
+
+        presenter.deleteCallFromHistory(request);
     }
 
 

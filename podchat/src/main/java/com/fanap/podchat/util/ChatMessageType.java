@@ -119,6 +119,7 @@ public class ChatMessageType {
             Constants.ADD_TAG_PARTICIPANT,
             Constants.REMOVE_TAG_PARTICIPANT,
             Constants.GET_TAG_LIST,
+            Constants.DELETE_CALL_FROM_HISTORY,
 
 
 
@@ -243,6 +244,7 @@ public class ChatMessageType {
         int UNBLOCK_ASSISTANT = 117;
         int GET_BLOCKED_ASSISTANTS = 118;
         int GET_ASSISTANT_HISTORY = 115;
+        int DELETE_CALL_FROM_HISTORY = 125;
         int CREATE_TAG = 140;
         int EDIT_TAG = 141;
         int DELETE_TAG = 142;

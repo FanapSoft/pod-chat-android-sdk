@@ -2,6 +2,7 @@ package com.fanap.podchat.chat;
 
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
+import com.fanap.podchat.call.result_model.DeletedCallsFromHistory;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
@@ -372,4 +373,5 @@ public interface ChatListener {
     default void OnTagParticipantAdded(String content, ChatResponse<TagParticipantResult> response){}
     default void OnTagParticipantRemoved(String content, ChatResponse<TagParticipantResult> response){}
     default void OnTagList(String content, ChatResponse<TagListResult> response){}
+    default void OnCallsDeletedFromHistory(String content, ChatResponse<DeletedCallsFromHistory> response){}
 }

@@ -30,9 +30,9 @@
 
 
         </activity>
-        <activity android:name="com.example.chat.application.chatexample.CallActivity">
+<!--        <activity android:name="com.example.chat.application.chatexample.CallActivity">-->
 
-        </activity>
+<!--        </activity>-->
         <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity" /> <!-- <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver" -->
         <!-- android:exported="true"> -->
         <!-- <intent-filter> -->
@@ -55,7 +55,7 @@
 <!--            </intent-filter>-->
 <!--        </activity> -->
         <activity
-            android:name="com.example.chat.application.chatexample.ChatMainActivity"
+            android:name="com.example.chat.application.chatexample.CallActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

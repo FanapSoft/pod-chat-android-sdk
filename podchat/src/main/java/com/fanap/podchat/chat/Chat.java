@@ -45,6 +45,7 @@ import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
+import com.fanap.podchat.call.request_model.DeleteCallFromHistoryRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
@@ -57,6 +58,7 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.DeletedCallsFromHistory;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
@@ -1238,6 +1240,11 @@ public class Chat extends AsyncAdapter {
                 break;
             }
 
+            case Constants.DELETE_CALL_FROM_HISTORY: {
+                handleOnCallsDeletedFromHistory(chatMessage);
+                break;
+            }
+
             case Constants.BLOCK_ASSISTANT: {
                 handleOnAssistantBlocked(chatMessage);
                 break;
@@ -1865,6 +1872,20 @@ public class Chat extends AsyncAdapter {
         }
 
         listenerManager.callOnGetAssistantHistory(response);
+
+    }
+
+    private void handleOnCallsDeletedFromHistory(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("ON CALLS DELETE FROM HISTORY", gson.toJson(chatMessage));
+        } else {
+            showLog("ON CALLS DELETE FROM HISTORY");
+        }
+
+        ChatResponse<DeletedCallsFromHistory> response = CallAsyncRequestsManager.handleCallsDeletedFromHistory(chatMessage);
+
+        listenerManager.callOnCallsDeletedFromHistory(chatMessage.getContent(),response);
 
     }
 
@@ -2795,6 +2816,19 @@ public class Chat extends AsyncAdapter {
             onChatNotReady(uniqueId);
         }
 
+        return uniqueId;
+    }
+
+    public String deleteCallFromHistory(DeleteCallFromHistoryRequest request) {
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+
+            String message = CallAsyncRequestsManager.deleteCallFromHistoryRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "DELETE_CALL_FROM_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
         return uniqueId;
     }
 
@@ -7283,7 +7317,7 @@ public class Chat extends AsyncAdapter {
                                     loadFromCache[0] = false;
                                 }
 
-                                if(MessageManager.hasGap(messagesFromCache)){
+                                if (MessageManager.hasGap(messagesFromCache)) {
                                     loadFromCache[0] = false;
                                 }
 

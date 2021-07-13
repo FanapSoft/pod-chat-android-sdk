@@ -22,6 +22,7 @@ import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CreateCallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
+import com.fanap.podchat.call.request_model.DeleteCallFromHistoryRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
@@ -2182,7 +2183,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void createTag(CreateTagRequest request) {
-        chat.createTag(request);
+//        chat.createTag(request);
     }
 
     @Override
@@ -2208,6 +2209,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getTagList(GetTagListRequest request) {
         chat.getTagList(request);
+    }
+
+    @Override
+    public void deleteCallFromHistory(DeleteCallFromHistoryRequest request) {
+      chat.deleteCallFromHistory(request);
     }
 
     @Override
