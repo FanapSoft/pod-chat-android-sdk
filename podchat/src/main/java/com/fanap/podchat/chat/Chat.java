@@ -43,6 +43,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.audio_call.ICallState;
 import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
 import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.persist.CacheCall;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.DeleteCallFromHistoryRequest;
@@ -1885,6 +1886,14 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<DeletedCallsFromHistory> response = CallAsyncRequestsManager.handleCallsDeletedFromHistory(chatMessage);
 
+        if(cache){
+            messageDatabaseHelper.deleteCallHistoryFromCache(new OnWorkDone() {
+                @Override
+                public void onWorkDone(@Nullable Object o) {
+                    Log.e(TAG, "Delete call from cache history" );
+                }
+            }, response.getResult().getCallIds());
+        }
         listenerManager.callOnCallsDeletedFromHistory(chatMessage.getContent(),response);
 
     }

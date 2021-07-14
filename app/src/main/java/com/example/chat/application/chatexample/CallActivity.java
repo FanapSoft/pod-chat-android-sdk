@@ -29,6 +29,7 @@ import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
+import com.fanap.podchat.call.request_model.DeleteCallFromHistoryRequest;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
@@ -115,15 +116,15 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant,
             buttonConnectSandBox, buttonStartSandboxCall, buttonShareLog, buttonRemoveCallParticipant,
-            buttonTerminateCall;
+            buttonTerminateCall, buttonAddToDeleteList, buttonClear, buttonDeleteFromCallHistory;
 
-    TextView tvStatus, tvCallerName, tvHistory;
+    TextView tvStatus, tvCallerName, tvHistory, tv_selection_list;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView, viewHistory;
     ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
-    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId, etNewParticipantToAdd;
+    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId, etNewParticipantToAdd, etCallId;
     CheckBox checkBoxSSL,
             checkBoxGroupCall,
             checkboxZiziPartner,
@@ -332,7 +333,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                     checkboxAddFarhad.isChecked());
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(),checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(), checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
 
         buttonConnectSandBox.setOnClickListener(v -> {
 
@@ -534,6 +535,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         tvCallerName = findViewById(R.id.tvCallerName);
         tvHistory = findViewById(R.id.tvHistory);
+        tv_selection_list = findViewById(R.id.tv_selection_list);
 
         callRequestView = findViewById(R.id.viewCallRequest);
         inCallView = findViewById(R.id.viewCall);
@@ -571,6 +573,11 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         buttonShareLog = findViewById(R.id.btnShareLogs);
 
+        buttonAddToDeleteList = findViewById(R.id.buttonAddToDeleteList);
+        buttonClear = findViewById(R.id.buttonClear);
+        buttonDeleteFromCallHistory = findViewById(R.id.buttonDeleteFromCallHistory);
+        etCallId = findViewById(R.id.etCallId);
+
 //        checkBoxViewSandBox = findViewById(R.id.checkBoxSandBox);
 //        checkBoxViewIntegaration = findViewById(R.id.checkboxIntegration);
 //
@@ -595,6 +602,49 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             presenter.setCallInfo(callInfo);
             showInCallView();
         }
+
+        buttonAddToDeleteList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!etCallId.getText().toString().equals(""))
+                    callIds.add(Long.valueOf(etCallId.getText().toString()));
+                updateSelectionList();
+            }
+        });
+        buttonClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callIds.clear();
+                updateSelectionList();
+            }
+        });
+        buttonDeleteFromCallHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (callIds.size() > 0)
+                    deleteCallsFromHistory();
+                else
+                    Toast.makeText(CallActivity.this, "please check selection list", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    List<Long> callIds = new ArrayList<>();
+
+    private void updateSelectionList() {
+        tv_selection_list.setText("");
+        for (long id : callIds) {
+            tv_selection_list.append(id + " , ");
+        }
+    }
+
+    public void deleteCallsFromHistory() {
+
+        DeleteCallFromHistoryRequest request = new DeleteCallFromHistoryRequest.Builder()
+                .setCallIds(callIds)
+                .build();
+
+        presenter.deleteCallFromHistory(request);
     }
 
     @Override
@@ -755,7 +805,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @SuppressLint("SetTextI18n")
     @Override
     public void onGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
-
+        tvHistory .setText("");
         runOnUiThread(() -> {
 
             viewHistory.setVisibility(View.VISIBLE);
@@ -999,7 +1049,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers) {
 
-        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null){
+        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null) {
 
 
             ContactsFragment contactsFragment = (ContactsFragment) getSupportFragmentManager().findFragmentByTag("CFRAG");

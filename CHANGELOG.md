@@ -6,6 +6,10 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.9.9.1]
+[Added] ```deleteCallFromHistory``` method
+[Added] ```onCallsDeletedFromHistory``` callback
+
 ## Version [0.9.9.0]
 [BugFixed] Failure to receive history in specific situations
 

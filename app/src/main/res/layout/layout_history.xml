@@ -5,14 +5,75 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/viewHistory"
-    android:translationZ="5dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:translationZ="5dp"
     android:visibility="gone"
-    tools:visibility="gone"
-    tools:targetApi="lollipop">
+    tools:targetApi="lollipop"
+    tools:visibility="gone">
 
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCloseHistory">
+
+        <Button
+            android:id="@+id/buttonAddToDeleteList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonClear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear"
+            app:layout_constraintStart_toStartOf="@+id/buttonAddToDeleteList"
+            app:layout_constraintTop_toBottomOf="@+id/buttonAddToDeleteList" />
+
+        <EditText
+            android:id="@+id/etCallId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:inputType="number"
+            android:text="Name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonAddToDeleteList"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonDeleteFromCallHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Delete from history"
+            app:layout_constraintEnd_toEndOf="@+id/etCallId"
+            app:layout_constraintStart_toStartOf="@+id/etCallId"
+            app:layout_constraintTop_toBottomOf="@+id/etCallId" />
+
+        <TextView
+            android:id="@+id/tv_selection_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="TextView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonDeleteFromCallHistory" />
+    </android.support.constraint.ConstraintLayout>
 
     <Button
         android:id="@+id/buttonCloseHistory"
@@ -28,7 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCloseHistory"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
         app:layout_constraintVertical_bias="0.0"
         tools:layout_editor_absoluteX="8dp">
 

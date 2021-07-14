@@ -4478,6 +4478,15 @@ public class MessageDatabaseHelper {
     }
 
 
+    public void deleteCallHistoryFromCache(OnWorkDone listener, List<Long> calIds) {
+        worker(() -> {
+            for (long calId :calIds){
+                messageDao.deleteCallFromHistory(calId);
+            }
+            listener.onWorkDone(true);
+        });
+    }
+
     public void updateCashAssistantHistory(OnWorkDone listener, List<AssistantHistoryVo> response) {
         worker(() -> {
             List<CacheAssistantHistoryVo> cashAssitantHistory = new ArrayList<>();
@@ -4502,6 +4511,4 @@ public class MessageDatabaseHelper {
             listener.onWorkDone(true);
         });
     }
-
-
 }

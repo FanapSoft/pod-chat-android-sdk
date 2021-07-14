@@ -477,6 +477,8 @@ public interface MessageDao {
     @Query("SELECT COUNT(*) FROM CACHECALL where type = :type")
     long getCountOfCachedCallByType(long type);
 
+    @Query("delete from CacheCall where id = :id")
+    void deleteCallFromHistory(long id);
 
     @Query("SELECT * FROM CACHECALL where id IN (:callIds) order by createTime desc LIMIT :count OFFSET :offset")
     List<CacheCall> getCachedCallByIds(long count, long offset, String callIds);
