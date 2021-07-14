@@ -6042,11 +6042,11 @@ public class Chat extends AsyncAdapter {
 
 
     private String getPodSpaceFileUrl(String hashCode) {
-        return getPodSpaceServer() + "nzh/drive/downloadFile?hash=" + hashCode;
+        return getPodSpaceServer() + "api/files/" + hashCode;
     }
 
     private String getPodSpaceImageUrl(String hashCode) {
-        return getPodSpaceServer() + "nzh/drive/downloadImage?hash=" + hashCode;
+        return getPodSpaceServer() + "api/images/" + hashCode;
     }
 
     private String getPodSpaceServer() {

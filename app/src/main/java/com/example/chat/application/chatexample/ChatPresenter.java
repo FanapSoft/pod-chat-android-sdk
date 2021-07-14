@@ -2182,7 +2182,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void createTag(CreateTagRequest request) {
-        chat.createTag(request);
+//        chat.createTag(request);
     }
 
     @Override
