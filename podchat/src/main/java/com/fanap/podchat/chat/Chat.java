@@ -368,6 +368,7 @@ public class Chat extends AsyncAdapter {
     public static final String API_NESHAN_ORG = "https://api.neshan.org/";
 
     private long freeSpaceThreshold = 100 * 1024 * 1024;
+    private static Context mContext;
 
     private int signalMessageRanTime = 0;
     private static Async async;

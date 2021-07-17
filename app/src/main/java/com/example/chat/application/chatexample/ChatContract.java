@@ -57,6 +57,7 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
