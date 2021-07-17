@@ -9,6 +9,7 @@ import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
 import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.contact.ContactManager;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.thread.ThreadManager;
@@ -22,6 +23,7 @@ import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import io.sentry.core.Sentry;
@@ -33,8 +35,12 @@ public class MemoryDataSource {
     public static final String MEMORY = "MEMORY";
 
 
+
     private ArrayList<Thread> threadsList = new ArrayList<>();
+
+
     private long threadListContentCount = threadsList.size();
+
 
 
     private ArrayList<Contact> contactsList = new ArrayList<>();
@@ -136,15 +142,16 @@ public class MemoryDataSource {
 
     }
 
-
     private ThreadManager.ThreadResponse createThreadListResponse(List<Thread> data) {
         return new ThreadManager.ThreadResponse(data, threadListContentCount, MEMORY);
     }
+
 
     private List<Thread> updateThreadsContentCount(List<Thread> data) {
         threadListContentCount = data.size();
         return data;
     }
+
 
     public void cacheThreads(List<Thread> data) {
         for (Thread thread : data) {
@@ -156,18 +163,21 @@ public class MemoryDataSource {
         insert(threadsList, thread);
     }
 
+
     /*
     Contact
      */
 
     public Observable<ContactManager.ContactResponse> getContactsData(
             Integer count,
-            Long offset
+            Long offset,
+            String username
     ) {
 
 
         return Observable.from(new ArrayList<>(contactsList))
                 .toList()
+                .flatMap(data -> ContactManager.getByUsername(username, data))
                 .map(this::updateContactsContentCount)
                 .map(ContactManager::sortContacts)
                 .map(data -> page(data, count, offset))

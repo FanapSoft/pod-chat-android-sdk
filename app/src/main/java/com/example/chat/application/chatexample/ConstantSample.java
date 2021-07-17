@@ -42,7 +42,8 @@ public class ConstantSample {
             "Get Hash Tag List",
             "Block Assistant",
             "UnBlock Assistant",
-            "Get Blocks Assistant"
+            "Get Blocks Assistant",
+            " Get Mutual Group"
     };
 
     public static final String[] funcSecond = {

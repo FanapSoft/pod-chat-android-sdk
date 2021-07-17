@@ -23,6 +23,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
+        android:hardwareAccelerated="false"
         tools:targetApi="n">
         <activity android:name="com.fanap.podchat.KafkaTestActivity">
 

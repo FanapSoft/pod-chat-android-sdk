@@ -68,6 +68,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -249,9 +250,8 @@ public class ChatActivity extends AppCompatActivity
 
     //sand box / group
 ////
-//    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
-//    public static int TEST_THREAD_ID = 5182; //amjadi, //sharifi //kheirkhah
-//    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
+    public static int TEST_THREAD_ID = 152321; //amjadi, //sharifi //kheirkhah
+    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
 
 
 //    main server / p2p
@@ -1869,7 +1869,7 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
 
-        presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
+    presenter.sendTextMessage(editText.getText().toString() , TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
 
 
         editText.setText("");
@@ -2056,13 +2056,13 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
-            case 26: {
+            case 26:{
 
                 closeThread();
 
                 break;
             }
-            case 27: {
+            case 27:{
 
                 getSentryLogs();
 
@@ -2124,6 +2124,11 @@ public class ChatActivity extends AppCompatActivity
 
             case 37: {
                 getBlocksAssistant();
+                break;
+            }
+
+            case 38: {
+                getMutualGroup();
                 break;
             }
 
@@ -2197,11 +2202,13 @@ public class ChatActivity extends AppCompatActivity
 
         //103187 nemati sandbox
 //        52987 sajadi 9063 sandbox
-        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+       Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
         //roles
         ArrayList<String> typeRoles = new ArrayList<>();
         typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
+
+
 
 
         List<AssistantVo> assistantVos = new ArrayList<>();
@@ -2241,7 +2248,7 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-    private void getAssistantHistory() {
+    private void getAssistantHistory(){
         GetAssistantHistoryRequest request = new GetAssistantHistoryRequest.Builder().build();
         presenter.getAssistantHistory(request);
     }
@@ -2250,6 +2257,13 @@ public class ChatActivity extends AppCompatActivity
     private void changePublicThreadToPrivate() {
         ChangeThreadTypeRequest request = new ChangeThreadTypeRequest.Builder(8093, 1).build();
         presenter.changeThreadType(request);
+
+    }
+
+    private void getMutualGroup() {
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        GetMutualGroupRequest request = new GetMutualGroupRequest.Builder(invite).build();
+        presenter.getMutualGroups(request);
 
     }
 
@@ -2396,18 +2410,16 @@ public class ChatActivity extends AppCompatActivity
 
     private void getThreadParticipants() {
 
-        new java.lang.Thread(() -> {
-            for (int i = 0; i < 100; i++) {
-                RequestThreadParticipant request =
-                        new RequestThreadParticipant.Builder()
-                                .count(50)
-                                .offset(i)
-                                .threadId(TEST_THREAD_ID)
+        RequestThreadParticipant request =
+                new RequestThreadParticipant.Builder()
+                        .count(20)
+                        .offset(0)
+                        .threadId(TEST_THREAD_ID)
 //                        .withNoCache()
-                                .build();
-                presenter.getThreadParticipant(request);
-            }
-        }).start();
+                        .build();
+
+
+        presenter.getThreadParticipant(request);
 
 
 //        presenter.getThreadParticipant(20, null, TEST_THREAD_ID, new ChatHandler() {
@@ -2582,9 +2594,9 @@ public class ChatActivity extends AppCompatActivity
 //        52620 farhad
 //        52979 masoud
 //        52987 khodam
-        //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+      //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         invite.add(new Invitee("63254", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-        //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+     //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         //   invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
@@ -2780,55 +2792,45 @@ public class ChatActivity extends AppCompatActivity
     private void getContacts() {
 
 
-        RequestGetContact request = new RequestGetContact.Builder()
-                .count(50)
-                .offset(0)
-                .build();
-        presenter.getContact(request);
-
-//        presenter.syncContact(ChatActivity.this);
-//        for (int i = 0; i < 5; i++) {
-//            RequestGetContact request2 = new RequestGetContact.Builder()
-//                    .count(50)
-//                    .offset(0)
-//                    .build();
-//            presenter.getContact(request2);
-//            RequestGetContact request = new RequestGetContact.Builder()
-//                    .count(50)
-//                    .offset(50)
-//                    .build();
-//            presenter.getContact(request);
-//            RequestThread request1 = new RequestThread.Builder()
-//                    .count(50)
-//                    .offset(0)
-//                    .build();
-//            presenter.getThreads(request1, null);
-//        }
+new Thread(() -> {
 
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+            RequestGetContact request = new RequestGetContact.Builder()
+                    .count(50)
+                    .offset(0)
+                    .setUserName("mahyar.zhiani")
+//                .withNoCache()
+                    .build();
+
+//        presenter.getContact(0, 0L, null);
+
+            presenter.getContact(request);
+
+        }).start();
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 
-//        new Thread(() -> {
-//
-//            RequestGetContact request2 = new RequestGetContact.Builder()
-//                    .count(10)
-//                    .offset(0)
-////                .withNoCache()
-//                    .build();
-//
-////        presenter.getContact(0, 0L, null);
-//
-//            presenter.getContact(request2);
-//
-////        offset = offset + 50;
-//
-//
-//        }).start();
+        new Thread(() -> {
+
+            RequestGetContact request2 = new RequestGetContact.Builder()
+                    .count(10)
+                    .offset(0)
+//                .withNoCache()
+                    .build();
+
+//        presenter.getContact(0, 0L, null);
+
+            presenter.getContact(request2);
+
+//        offset = offset + 50;
+
+
+        }).start();
     }
 
     @Override
