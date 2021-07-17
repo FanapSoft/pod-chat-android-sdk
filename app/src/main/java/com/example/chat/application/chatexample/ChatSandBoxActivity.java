@@ -33,6 +33,7 @@ import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultStaticMapImage;
+import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
@@ -75,16 +76,15 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
     private Uri uri;
     private String fileUri;
-    private static String name = "SandBox";
-    private static String TOKEN = "0cc5b265bb8b4ab59aeaf818143a3e88";
     private TextView percentageFile;
-    private static String socketAddres = "wss://chat-sandbox.pod.ir/ws";
-    private static String serverName = "chat-server";
-    private static String appId = "POD-Chat";
-    private static String ssoHost = "https://accounts.pod.ir/";
-    private static String platformHost = "https://sandbox.pod.ir:8043/srv/basic-platform/";
-    private static String fileServer = "http://sandbox.pod.ir:8443/";
-    private static String TYPE_CODE = "";
+    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);;
+    private static String sandBoxSSOHost = BaseApplication.getInstance().getString(R.string.sandbox_ssoHost);
+    private static String appId = BaseApplication.getInstance().getString(R.string.sandbox_appId);
+    private static String sandBoxName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String sandBoxSocketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String sandBoxPlatformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String sandBoxFileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String podspaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
 
 
     @Override
@@ -118,7 +118,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
         buttonFileChoose.setOnClickListener(this);
 
-        textViewToken.setText(TOKEN + name);
+        textViewToken.setText(TOKEN + sandBoxName);
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
         Spinner spinnerThird = findViewById(R.id.spinnerThird);
@@ -495,7 +495,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = gson.toJson(inviter);
         RequestMessage requestMessage = new RequestMessage
-                .Builder("test at" + " " + new Date().getTime() + name, 1105)
+                .Builder("test at" + " " + new Date().getTime() + sandBoxName, 1105)
                 .jsonMetaData(meta)
                 .build();
         presenter.sendTextMessage(requestMessage, null);
@@ -691,7 +691,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = gson.toJson(inviter);
         presenter.editMessage(9261,
-                "hi this is edit at" + new Date().getTime() + "by" + name, meta, null);
+                "hi this is edit at" + new Date().getTime() + "by" + sandBoxName, meta, null);
     }
 
     private void addContact() {
@@ -795,18 +795,19 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             showPicChooser();
         }
         if (v == buttonConnect) {
-            presenter.connect(socketAddres,
-                    appId, serverName, TOKEN, ssoHost,
-                    platformHost, fileServer, TYPE_CODE);
 
-//            PodNotify podNotify = new PodNotify.newBuilder()
-//                    .setAppId("NotificationService")
-//                    .setServerName("SendPushByAppId")
-//                    .setSocketServerAddress("http://172.16.110.61:8017")
-//                    .setToken(TOKEN)
-//                    .build(this);
-//
-//            podNotify.start(this);
+            RequestConnect request = new RequestConnect.Builder(
+                    sandBoxSocketAddress,
+                    appId,
+                    sandBoxName,
+                    TOKEN,
+                    sandBoxSSOHost,
+                    sandBoxPlatformHost,
+                    sandBoxFileServer,
+                    podspaceServer
+            ).build();
+
+            presenter.connect(request);
         }
         if (v == buttonToken) {
 

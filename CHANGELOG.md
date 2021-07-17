@@ -6,6 +6,8 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.9.10.0] -2021-7-17
+
 [Added] ```getMutualGroup``` method
 
 [Added] ```onGetMutualGroups``` callback

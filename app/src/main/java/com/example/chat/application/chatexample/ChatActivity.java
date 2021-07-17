@@ -80,7 +80,6 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
-import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.ResultFile;
@@ -177,17 +176,17 @@ public class ChatActivity extends AppCompatActivity
 
     //main and sandbox
 //
-//    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
-//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
-//    private static String serverName = "chat-server";
+    private static String TOKEN = "68510a4efd9542049d30487d54b5c291";
+    private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String serverName = "chat-server";
 
 
     //local
 
 
-    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
-    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+//    private static String ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
+//    private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
 
     //test
@@ -205,10 +204,10 @@ public class ChatActivity extends AppCompatActivity
      * Integration server setting:
      */
 ////
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
-    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
+//    private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+//    private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
 
     /**
      * Nemati
@@ -242,10 +241,10 @@ public class ChatActivity extends AppCompatActivity
      * Sandbox setting:
      */
 //
-//    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
-//    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+    private static String name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
+    private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
+    private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
+    private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
 //
 
     //sand box / group
@@ -261,10 +260,10 @@ public class ChatActivity extends AppCompatActivity
 
     // main server / group
 
-//    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
-    public static int TEST_THREAD_ID = 47528; // Test Posspace file
+    //    public static int TEST_THREAD_ID = 47528; // 149486 tak ghad keshide
+//    public static int TEST_THREAD_ID = 47528; // Test Posspace file
     //    public static int TEST_THREAD_ID = 1482; // 149486 tak ghad keshide
-    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
+//    private static final String TEST_THREAD_HASH = "4S5U1G4EH82BVB";
     private long tagId = 23;
 
 //    integration /group: fifi,jiji and ...
@@ -1869,7 +1868,7 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
 
-    presenter.sendTextMessage(editText.getText().toString() , TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
+        presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
 
 
         editText.setText("");
@@ -2056,13 +2055,13 @@ public class ChatActivity extends AppCompatActivity
 
                 break;
             }
-            case 26:{
+            case 26: {
 
                 closeThread();
 
                 break;
             }
-            case 27:{
+            case 27: {
 
                 getSentryLogs();
 
@@ -2202,13 +2201,11 @@ public class ChatActivity extends AppCompatActivity
 
         //103187 nemati sandbox
 //        52987 sajadi 9063 sandbox
-       Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
 
         //roles
         ArrayList<String> typeRoles = new ArrayList<>();
         typeRoles.add(RoleType.Constants.REMOVE_ROLE_FROM_USER);
-
-
 
 
         List<AssistantVo> assistantVos = new ArrayList<>();
@@ -2248,7 +2245,7 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-    private void getAssistantHistory(){
+    private void getAssistantHistory() {
         GetAssistantHistoryRequest request = new GetAssistantHistoryRequest.Builder().build();
         presenter.getAssistantHistory(request);
     }
@@ -2594,9 +2591,9 @@ public class ChatActivity extends AppCompatActivity
 //        52620 farhad
 //        52979 masoud
 //        52987 khodam
-      //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         invite.add(new Invitee("63254", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-     //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         //   invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 //                                invite.add(new Invitee(9981084527L, 3)); zizi cellphone
@@ -2792,7 +2789,7 @@ public class ChatActivity extends AppCompatActivity
     private void getContacts() {
 
 
-new Thread(() -> {
+        new Thread(() -> {
 
 
             RequestGetContact request = new RequestGetContact.Builder()
@@ -3218,16 +3215,6 @@ new Thread(() -> {
     @Override
     public void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
 
-
-        for (Thread th :
-                thread.getResult().getThreads()) {
-
-            if (th.getId() == TEST_THREAD_ID) {
-                TEST_THREAD_LAST_SEEN_MESSAGE_TIME = th.getLastSeenMessageTime();
-                Log.i(ChatActivity.class.getSimpleName(), "Thread last seen message time: " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME + " Cache " + thread.isCache());
-            }
-
-        }
 
     }
 }
