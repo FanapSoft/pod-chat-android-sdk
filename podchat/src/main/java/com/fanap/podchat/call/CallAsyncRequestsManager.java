@@ -2,16 +2,20 @@ package com.fanap.podchat.call;
 
 import android.util.Log;
 
+import com.fanap.podchat.call.constants.CallType;
+import com.fanap.podchat.call.constants.ClientType;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.model.CreateCallVO;
+import com.fanap.podchat.call.model.SendClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
+import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -93,10 +97,20 @@ public class CallAsyncRequestsManager {
 
         if (request.getSubjectId() <= 0)
             createCallVO.setInvitees(request.getInvitees());
+        else
+            createCallVO.setThreadId(request.getSubjectId());
+
 
         createCallVO.setType(request.getCallType());
 
+        SendClientDTO sendClientDTO = new SendClientDTO();
+        sendClientDTO.setVideo(request.getCallType() == CallType.Constants.VIDEO_CALL);
+        sendClientDTO.setMute(false);
+        sendClientDTO.setClientType(ClientType.Constants.ANDROID);
+
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
+        JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
+        contentObj.add("creatorClientDto", clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -156,7 +170,14 @@ public class CallAsyncRequestsManager {
 
         createCallVO.setType(request.getCallType());
 
+        SendClientDTO sendClientDTO = new SendClientDTO();
+        sendClientDTO.setVideo(request.getCallType() == CallType.Constants.VIDEO_CALL);
+        sendClientDTO.setMute(false);
+        sendClientDTO.setClientType(ClientType.Constants.ANDROID);
+
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
+        JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
+        contentObj.add("creatorClientDto", clientDtoObj);
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -269,19 +290,23 @@ public class CallAsyncRequestsManager {
     public static String createAcceptCallRequest(AcceptCallRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
-        if(request.isMute()){
-            JsonObject content = new JsonObject();
-            content.addProperty("mute",request.isMute());
-            message.setContent(content.toString());
-        }
+
+        SendClientDTO sendClientDTO = new SendClientDTO();
+        sendClientDTO.setVideo(request.isVideoCall());
+        sendClientDTO.setMute(request.isMute());
+        sendClientDTO.setClientType(ClientType.Constants.ANDROID);
+        JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
+
+        message.setContent(clientDtoObj.toString());
         message.setType(ChatMessageType.Constants.ACCEPT_CALL);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setSubjectId(request.getCallId());
         message.setUniqueId(uniqueId);
 
-        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
-        return a.toString();
+        JsonObject messageObj = (JsonObject) App.getGson().toJsonTree(message);
+
+        return messageObj.toString();
     }
 
     public static String createRejectCallRequest(RejectCallRequest request, String uniqueId) {
@@ -313,6 +338,62 @@ public class CallAsyncRequestsManager {
             return createUnMuteCallParticipantMessage(request, uniqueId);
 
 
+    }
+
+    public static String createTurnOffVideoMessage(long callId, String uniqueId) {
+
+        ArrayList<Long> ids = new ArrayList<>();
+        ids.add(CoreConfig.userId);
+        TurnCallParticipantVideoOffRequest request = new TurnCallParticipantVideoOffRequest.Builder(callId, ids).build();
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.TURN_OFF_VIDEO_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+    }
+
+    public static String createTurnOnVideoMessage(long callId, String uniqueId) {
+
+        ArrayList<Long> ids = new ArrayList<>();
+        ids.add(CoreConfig.userId);
+        TurnCallParticipantVideoOffRequest request = new TurnCallParticipantVideoOffRequest.Builder(callId, ids).build();
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.TURN_ON_VIDEO_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+    }
+
+    public static String createTurnOffVideoMessage(TurnCallParticipantVideoOffRequest request, String uniqueId) throws PodChatException {
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException(ChatConstant.ERROR_INVALID_THREAD_ID, ChatConstant.ERROR_CODE_INVALID_THREAD_ID);
+
+        if (Util.isNullOrEmpty(request.getParticipantsIds()))
+            throw new PodChatException(ChatConstant.MUTE_USER_LIST_IS_EMPTY, ChatConstant.ERROR_CODE_INVALID_DATA);
+
+        String content = App.getGson().toJson(request.getParticipantsIds());
+
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content);
+        message.setType(ChatMessageType.Constants.TURN_OFF_VIDEO_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
     }
 
 
@@ -785,7 +866,7 @@ public class CallAsyncRequestsManager {
 
         try {
             CallParticipantVO participantVO =
-                    App.getGson().fromJson(chatMessage.getContent(),CallParticipantVO.class);
+                    App.getGson().fromJson(chatMessage.getContent(), CallParticipantVO.class);
 
             CallCancelResult result = new CallCancelResult(participantVO);
 
@@ -808,4 +889,6 @@ public class CallAsyncRequestsManager {
 
 
     }
+
+
 }

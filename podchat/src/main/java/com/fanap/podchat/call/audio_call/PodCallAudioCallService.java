@@ -8,17 +8,10 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.fanap.podchat.call.model.CallInfo;
-import com.fanap.podchat.call.model.CallParticipantVO;
-import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.notification.ShowNotificationHelper;
-import com.fanap.podchat.util.Util;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import static com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager.KAFKA_CONFIG;
-import static com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager.SSL_CONFIG;
-import static com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager.TARGET_ACTIVITY;
+import static com.fanap.podchat.call.audio_call.CallServiceManager.TARGET_ACTIVITY;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
 
 public class PodCallAudioCallService extends Service {
@@ -33,18 +26,9 @@ public class PodCallAudioCallService extends Service {
 
     private IBinder serviceBinder = new CallBinder();
 
-    private String sendingTopic;
-    //    private String clientId;
-    private String sendKey;
-    private String brokerAddress;
-    private String receivingTopic;
-    private String ssl_key;
-
     String targetActivity;
 
     private CallInfo callInfo;
-
-    PodCallAudioCallManager callManager;
 
     ICallServiceState callStateCallback;
 
@@ -61,11 +45,6 @@ public class PodCallAudioCallService extends Service {
 
     @Override
     public void onDestroy() {
-
-        if (callManager != null) {
-            callManager.endStream();
-            callManager = null;
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
@@ -101,16 +80,9 @@ public class PodCallAudioCallService extends Service {
             return START_NOT_STICKY;
         }
 
-
-        //prevents to start again
-        if (callManager != null)
-            return START_NOT_STICKY;
-
         getIntentData(intent);
 
         showAudioCallNotification();
-
-        startStreaming();
 
         return START_NOT_STICKY;
     }
@@ -120,28 +92,7 @@ public class PodCallAudioCallService extends Service {
                 intent.getAction().equals(EndCallReceiver.ACTION_STOP_CALL);
     }
 
-    private void startStreaming() {
-
-        callManager = new PodCallAudioCallManager(this, sendingTopic, receivingTopic, sendKey, brokerAddress, ssl_key);
-
-        if (!Util.isNullOrEmpty(sendingTopic)) {
-            callManager.startStream();
-        }else callManager.testAudio();
-    }
-
     private void getIntentData(Intent intent) {
-
-        ClientDTO client = intent.getParcelableExtra(KAFKA_CONFIG);
-
-        if (client != null) {
-            sendingTopic = client.getTopicSend();
-            receivingTopic = client.getTopicReceive();
-            sendKey = client.getSendKey();
-            brokerAddress = client.getBrokerAddress();
-        }
-
-
-        ssl_key = intent.getStringExtra(SSL_CONFIG);
 
         targetActivity = intent.getStringExtra(TARGET_ACTIVITY);
 
@@ -177,35 +128,9 @@ public class PodCallAudioCallService extends Service {
         return serviceBinder;
     }
 
-    public void switchMic(boolean isMute) {
-        callManager.switchAudioMuteState(isMute);
-    }
-
-    public void switchSpeaker(boolean isSpeakerOn) {
-        callManager.switchAudioSpeakerState(isSpeakerOn);
-    }
 
     public void endCall() {
         onDestroy();
-    }
-
-    public void setSSL(boolean enableSSL) {
-
-        if (callManager != null)
-            callManager.setSSL(enableSSL);
-    }
-
-    public void addNewCallParticipant(List<CallParticipantVO> joinedParticipants) {
-
-        if (callManager!=null){
-            callManager.addCallParticipant(joinedParticipants);
-        }
-
-    }
-
-    public void removeCallParticipant(ArrayList<CallParticipantVO> callParticipantList) {
-        if(callManager!=null)
-            callManager.removeCallParticipant(callParticipantList);
     }
 
     public class CallBinder extends Binder {

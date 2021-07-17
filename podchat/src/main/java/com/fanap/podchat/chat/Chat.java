@@ -21,12 +21,23 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
+import com.fanap.podcall.IPodCall;
+import com.fanap.podcall.PartnerType;
+import com.fanap.podcall.PodCall;
+import com.fanap.podcall.PodCallBuilder;
+import com.fanap.podcall.PodCallV2;
+import com.fanap.podcall.audio.AudioCallParam;
+import com.fanap.podcall.kafka.KafkaConfig;
+import com.fanap.podcall.model.CallPartner;
+import com.fanap.podcall.model.VideoCallParam;
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
@@ -41,7 +52,8 @@ import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.call.CallAsyncRequestsManager;
 import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.audio_call.ICallState;
-import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
+import com.fanap.podchat.call.audio_call.CallServiceManager;
+import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
@@ -49,6 +61,7 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
+import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
@@ -387,19 +400,19 @@ public class Chat extends AsyncAdapter {
 
     private NetworkPingSender.NetworkStateConfig networkStateConfig;
 
-    private HashMap<String, Long> downloadQList = new HashMap<>();
-    private HashMap<String, Call> downloadCallList = new HashMap<>();
+    private final HashMap<String, Long> downloadQList = new HashMap<>();
+    private final HashMap<String, Call> downloadCallList = new HashMap<>();
 
-    private HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
-    private HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
-    private HashMap<Long, ArrayList<String>> threadSignalsKeeper = new HashMap<>();
+    private final HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
+    private final HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
+    private final HashMap<Long, ArrayList<String>> threadSignalsKeeper = new HashMap<>();
     private static JsonParser parser;
     private static HashMap<String, ChatHandler> handlerSend;
     private static HashMap<String, SendingQueueCache> sendingQList;
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
     private static HashMap<String, String> hashTagCallBacks;
-    private HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
+    private final HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
 
     private ProgressHandler.cancelUpload cancelUpload;
     private static final String API_KEY_MAP = "8b77db18704aa646ee5aaea13e7370f4f88b9e8c";
@@ -453,10 +466,13 @@ public class Chat extends AsyncAdapter {
     private static ChatDataSource dataSource;
 
 
-    private static PodCallAudioCallServiceManager audioCallManager;
+    private PodCallV2 podVideoCall;
+    private CallServiceManager callServiceManager;
     private boolean requestToClose;
     private Handler connectHandler;
 
+    private List<CallPartnerView> videoCallPartnerViews;
+    private CallPartnerView localPartnerView;
 
     /**
      * @param freeSpaceThreshold needed free space for downloading media in bytes.
@@ -492,12 +508,11 @@ public class Chat extends AsyncAdapter {
      *
      * @param context for Async sdk and other usage
      **/
-    private static Context mcontext;
 
     public synchronized static Chat init(Context context) {
 
         if (instance == null) {
-            mcontext = context;
+            mContext = context;
 
             setupSentry(context);
 
@@ -527,9 +542,6 @@ public class Chat extends AsyncAdapter {
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
             gson = new GsonBuilder().create();
-            audioCallManager = new PodCallAudioCallServiceManager(context);
-
-
             Sentry.setExtra("chat-sdk-version-name", BuildConfig.VERSION_NAME);
             Sentry.setExtra("chat-sdk-version-code", String.valueOf(BuildConfig.VERSION_CODE));
             Sentry.setExtra("chat-sdk-build-type", BuildConfig.BUILD_TYPE);
@@ -542,8 +554,8 @@ public class Chat extends AsyncAdapter {
     }
 
     private static String sentryCachDir = "";
-    private static StringBuilder sentrylogs = new StringBuilder();
-    private static StringBuilder sentryCashedlogs = new StringBuilder();
+    private static final StringBuilder sentrylogs = new StringBuilder();
+    private static final StringBuilder sentryCashedlogs = new StringBuilder();
 
     private static void setupSentry(Context context) {
         SentryAndroid.init(context.getApplicationContext(),
@@ -558,10 +570,6 @@ public class Chat extends AsyncAdapter {
 
                     options.setBeforeSend((event, hint) -> {
                         options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
-
-//                        String breadCrumbs = App.getGson().toJson(event.getBreadcrumbs());
-//                        sentrylogs.append(breadCrumbs + "\n \n");
-//                        Log.e("sentryLogs", "send new log");
                         return event;
                     });
                 });
@@ -585,7 +593,7 @@ public class Chat extends AsyncAdapter {
             } else {
                 Log.e("sentryLogs", "get logs from cache");
                 try {
-                    sentryCashedlogs.append("addNew \n\n\n").append(readFromFile(mcontext, fi.toString()));
+                    sentryCashedlogs.append("addNew \n\n\n").append(readFromFile(mContext, fi.toString()));
                 } catch (Exception e) {
                     sentryCashedlogs.append("addNew \n\n\n can not get logs from cache file ");
                 }
@@ -1190,6 +1198,11 @@ public class Chat extends AsyncAdapter {
             case Constants.REMOVE_CALL_PARTICIPANT:
                 handleOnCallParticipantRemoved(chatMessage);
                 break;
+            case Constants.TURN_ON_VIDEO_CALL:
+                handOnCallParticipantAddedVideo(chatMessage);
+                break;
+            case Constants.TURN_OFF_VIDEO_CALL:
+                handleOnCallParticipantRemovedVideo(chatMessage);
             case Constants.GET_CALLS:
                 handleOnGetCallsHistory(chatMessage, callback);
                 break;
@@ -1437,6 +1450,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+
     private void handleOnCallParticipantCanceledCall(ChatMessage chatMessage) {
 
         showLog("RECEIVE_CANCEL_GROUP_CALL", gson.toJson(chatMessage));
@@ -1496,7 +1510,7 @@ public class Chat extends AsyncAdapter {
 
     private void callOnCurrentUserUnMutedByAdnmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
         showLog("RECEIVE_UN_MUTED_BY_ADMIN");
-        audioCallManager.switchAudioMuteState(false);
+        podVideoCall.unMuteAudio();
         listenerManager.callOnUnMutedByAdmin(response);
     }
 
@@ -1568,7 +1582,7 @@ public class Chat extends AsyncAdapter {
 
     private void callOnCurrentUserMutedByAdmin(ChatResponse<MuteUnMuteCallParticipantResult> response) {
         showLog("RECEIVE_MUTED_BY_ADMIN");
-        audioCallManager.switchAudioMuteState(true);
+        podVideoCall.muteAudio();
         listenerManager.callOnMutedByAdmin(response);
     }
 
@@ -2119,11 +2133,12 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<CallRequestResult> response
                 = CallAsyncRequestsManager.handleOnCallRequest(chatMessage);
-        audioCallManager.addNewCallInfo(response);
+//        audioCallManager.addNewCallInfo(response);
         deliverCallRequest(chatMessage);
         listenerManager.callOnCallRequest(response);
 
     }
+
 
     private void handleOnGroupCallRequestReceived(ChatMessage chatMessage) {
 
@@ -2135,7 +2150,7 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<CallRequestResult> response
                 = CallAsyncRequestsManager.handleOnGroupCallRequest(chatMessage);
-        audioCallManager.addNewCallInfo(response);
+//        audioCallManager.addNewCallInfo(response);
         deliverCallRequest(chatMessage);
         listenerManager.callOnGroupCallRequest(response);
 
@@ -2194,26 +2209,8 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<CallStartResult> response = CallAsyncRequestsManager.fillResult(info);
 
-        audioCallManager.startCallStream(info, new ICallState() {
-            @Override
-            public void onInfoEvent(String info) {
-                showLog(info);
-            }
 
-            @Override
-            public void onErrorEvent(String cause) {
-                showErrorLog(cause);
-            }
-
-            @Override
-            public void onEndCallRequested() {
-
-                endAudioCall(CallAsyncRequestsManager.createEndCallRequest(info.getSubjectId()));
-
-                listenerManager.callOnEndCallRequestFromNotification();
-
-            }
-        });
+        startVideoCall(info);
 
         getCallParticipants(new GetCallParticipantsRequest.Builder().setCallId(info.getSubjectId()).build());
 
@@ -2222,6 +2219,194 @@ public class Chat extends AsyncAdapter {
 
         listenerManager.callOnCallVoiceCallStarted(response);
 
+    }
+
+//    private void startAudioCall(ChatResponse<StartedCallModel> info) {
+//
+//        audioCallManager.startCallStream(info, new ICallState() {
+//            @Override
+//            public void onInfoEvent(String info) {
+//                showLog(info);
+//            }
+//
+//            @Override
+//            public void onErrorEvent(String cause) {
+//                showErrorLog(cause);
+//            }
+//
+//            @Override
+//            public void onEndCallRequested() {
+//
+//                endAudioCall(CallAsyncRequestsManager.createEndCallRequest(info.getSubjectId()));
+//
+//                listenerManager.callOnEndCallRequestFromNotification();
+//
+//            }
+//        });
+//    }
+
+    private void startVideoCall(ChatResponse<StartedCallModel> info) {
+
+        if (podVideoCall != null) {
+            KafkaConfig kafkaConfig = new KafkaConfig.Builder(info.getResult().getClientDTO().getBrokerAddress())
+                    .setSsl(info.getResult().getCert_file())
+                    .build();
+
+            podVideoCall.setKafkaConfig(kafkaConfig);
+
+
+            String sendVideoTopic = info.getResult().getClientDTO().getTopicSendVideo();
+            String sendAudioTopic = info.getResult().getClientDTO().getTopicSendAudio();
+            String receiveVideoTopic = info.getResult().getClientDTO().getTopicReceiveVideo();
+            String receiveAudioTopic = info.getResult().getClientDTO().getTopicReceiveAudio();
+
+
+            if (Util.isNotNullOrEmpty(sendVideoTopic)) {
+                visibleView(localPartnerView);
+                localPartnerView.getSurfaceView().setZOrderOnTop(true);
+                CallPartner lPartner = new CallPartner.Builder()
+                        .setPartnerType(PartnerType.LOCAL)
+                        .setName(info.getResult().getClientDTO().getSendKey() + "" + sendVideoTopic)
+                        .setVideoTopic(sendVideoTopic)
+                        .setAudioTopic(sendAudioTopic)
+                        .setVideoView(localPartnerView)
+                        .build();
+
+                podVideoCall.addPartner(lPartner);
+            }
+
+            if (Util.isNotNullOrEmpty(receiveVideoTopic)) {
+                if (hasRemotePartnerView()) {
+
+                    visibleView(videoCallPartnerViews.get(0));
+
+                    CallPartner rPartner = new CallPartner.Builder()
+                            .setPartnerType(PartnerType.REMOTE)
+                            .setName(info.getResult().getClientDTO().getSendKey() + "" + receiveVideoTopic)
+                            .setVideoTopic(receiveVideoTopic)
+                            .setAudioTopic(receiveAudioTopic)
+                            .setVideoView(videoCallPartnerViews.remove(0))
+                            .build();
+
+                    podVideoCall.addPartner(rPartner);
+                }
+            }
+
+            podVideoCall.startCall();
+
+            if (callServiceManager != null)
+                callServiceManager.startCallService(info, new ICallState() {
+                    @Override
+                    public void onInfoEvent(String info) {
+
+                    }
+
+                    @Override
+                    public void onErrorEvent(String cause) {
+
+                    }
+
+                    @Override
+                    public void onEndCallRequested() {
+                        podVideoCall.endCall();
+
+                        endAudioCall(CallAsyncRequestsManager.createEndCallRequest(info.getSubjectId()));
+
+                        listenerManager.callOnEndCallRequestFromNotification();
+                    }
+                });
+        }
+
+
+    }
+
+    private void visibleView(View view) {
+        new Handler(context.getMainLooper())
+                .post(() -> {
+                    if (view.getVisibility() != View.VISIBLE)
+                        view.setVisibility(View.VISIBLE);
+                });
+    }
+
+    public void openCamera() {
+        if (podVideoCall != null)
+            podVideoCall.openCamera();
+    }
+
+    public void closeCamera() {
+        if (podVideoCall != null)
+            podVideoCall.closeCamera();
+    }
+
+    public void switchCamera() {
+        if (podVideoCall != null) {
+            podVideoCall.switchCamera();
+        }
+    }
+
+    public String turnOffVideo(long callId) {
+        if (podVideoCall != null)
+            podVideoCall.pauseVideo();
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createTurnOffVideoMessage(callId, uniqueId);
+            setCallBacks(false, false, false, true, Constants.TURN_OFF_VIDEO_CALL, null, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_OFF_VIDEO_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+
+    }
+
+    public String turnCallParticipantVideoOff(TurnCallParticipantVideoOffRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            try {
+                String message = CallAsyncRequestsManager.createTurnOffVideoMessage(request, uniqueId);
+                setCallBacks(false, false, false, true, Constants.TURN_OFF_VIDEO_CALL, null, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_OFF_VIDEO_CALL");
+            } catch (PodChatException e) {
+                captureError(e);
+            }
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    public String turnOnVideo(long callId) {
+        if (podVideoCall != null) {
+
+            podVideoCall.resumeVideo();
+        }
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createTurnOnVideoMessage(callId, uniqueId);
+            setCallBacks(false, false, false, true, Constants.TURN_ON_VIDEO_CALL, null, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_ON_VIDEO_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    // TODO: 1/31/2021 Create new view and send with call back
+    private boolean hasRemotePartnerView() {
+
+        if (videoCallPartnerViews.size() == 0) {
+            listenerManager.callOnNoViewToAddNewPartnerError();
+        }
+        return videoCallPartnerViews.size() > 0;
     }
 
     private void handleOnVoiceCallEnded(ChatMessage chatMessage) {
@@ -2233,7 +2418,13 @@ public class Chat extends AsyncAdapter {
             showLog("RECEIVE_VOICE_CALL_ENDED");
         }
 
-        audioCallManager.endStream(true);
+//        audioCallManager.endStream(true);
+
+        if (podVideoCall != null)
+            podVideoCall.endCall();
+
+        if (callServiceManager != null)
+            callServiceManager.stopCallService();
 
         ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
 
@@ -2252,9 +2443,94 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
 
-        audioCallManager.addCallParticipant(response);
+//        audioCallManager.addCallParticipant(response);
+
+        if (podVideoCall != null)
+            addVideoCallPartner(response, false);
 
         listenerManager.callOnCallParticipantJoined(response);
+
+
+    }
+
+    private void handleOnCallParticipantRemovedVideo(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_CALL_PARTICIPANT_STOPPED_VIDEO", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_CALL_PARTICIPANT_STOPPED_VIDEO");
+        }
+        ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
+
+        if (podVideoCall != null)
+            removeVideoCallPartner(response);
+
+        listenerManager.callOnCallParticipantStoppedVideo(response);
+
+    }
+
+    private void handOnCallParticipantAddedVideo(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_CALL_PARTICIPANT_STARTED_VIDEO", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_CALL_PARTICIPANT_STARTED_VIDEO");
+        }
+
+        ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
+
+        if (podVideoCall != null)
+            addVideoCallPartner(response, true);
+
+        listenerManager.callOnCallParticipantStartedVideo(response);
+
+    }
+
+    private void addVideoCallPartner(ChatResponse<JoinCallParticipantResult> response, boolean forceVideo) {
+
+        if (hasRemotePartnerView()) {
+            for (CallParticipantVO callParticipant :
+                    response.getResult().getJoinedParticipants()) {
+
+                if (forceVideo || callParticipant.hasVideo()) {
+                    String topic = callParticipant.getSendTopicVideo();
+
+                    if (Util.isNotNullOrEmpty(topic)) {
+
+                        visibleView(videoCallPartnerViews.get(0));
+
+                        CallPartner rPartner = new CallPartner.Builder()
+                                .setPartnerType(PartnerType.REMOTE)
+                                .setName(callParticipant.getSendTopicVideo() + " ")
+                                .setVideoTopic(topic)
+                                .setVideoView(videoCallPartnerViews.remove(0))
+                                .build();
+
+                        podVideoCall.addPartner(rPartner);
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    private void removeVideoCallPartner(ChatResponse<JoinCallParticipantResult> response) {
+
+
+        for (CallParticipantVO callParticipant :
+                response.getResult().getJoinedParticipants()) {
+            String topic = callParticipant.getSendTopicVideo();
+            if (Util.isNotNullOrEmpty(topic)) {
+                CallPartner rPartner = new CallPartner.Builder()
+                        .setPartnerType(PartnerType.REMOTE)
+                        .setName(callParticipant.getSendTopicVideo() + " ")
+                        .setVideoTopic(topic)
+                        .build();
+                podVideoCall.removePartner(rPartner);
+            }
+
+        }
 
 
     }
@@ -2270,11 +2546,30 @@ public class Chat extends AsyncAdapter {
 
         ChatResponse<LeaveCallResult> response = CallAsyncRequestsManager.handleOnParticipantLeft(chatMessage);
 
-        audioCallManager.removeCallParticipant(response.getResult());
+//        audioCallManager.removeCallParticipant(response.getResult());
+
+        removeCallPartner(response.getResult().getCallParticipants().get(0));
 
         listenerManager.callOnCallParticipantLeft(response);
 
 
+    }
+
+    private void removeCallPartner(String topic) {
+        if (podVideoCall != null)
+            podVideoCall.removePartnerOfTopic(topic);
+    }
+
+    private void removeCallPartner(CallParticipantVO partner) {
+        // TODO: 5/30/2021 Change to a better scenario!
+        if (podVideoCall != null) {
+            if (partner.getSendTopicVideo() != null) {
+                podVideoCall.removePartnerOfTopic(partner.getSendTopicVideo());
+                return;
+            }
+            if (partner.getSendTopicAudio() != null)
+                podVideoCall.removePartnerOfTopic(partner.getSendTopicAudio());
+        }
     }
 
     private void handleOnCallParticipantRemoved(ChatMessage chatMessage) {
@@ -2289,7 +2584,13 @@ public class Chat extends AsyncAdapter {
             } else {
                 showLog("RECEIVE_REMOVED_FROM_CALL");
             }
-            audioCallManager.endStream(true);
+//            audioCallManager.endStream(true);
+
+            if (podVideoCall != null)
+                podVideoCall.endCall();
+
+            if (callServiceManager != null)
+                callServiceManager.stopCallService();
 
             listenerManager.callOnRemovedFromCall(response);
 
@@ -2301,7 +2602,10 @@ public class Chat extends AsyncAdapter {
                 showLog("RECEIVE_CALL_PARTICIPANT_REMOVED");
             }
 
-            audioCallManager.removeCallParticipant(response.getResult());
+//            audioCallManager.removeCallParticipant(response.getResult());
+
+            if (podVideoCall != null)
+                removeCallPartner(response.getResult().getCallParticipants().get(0));
 
             listenerManager.callOnCallParticipantRemoved(response);
 
@@ -2402,6 +2706,7 @@ public class Chat extends AsyncAdapter {
      */
     public void rawLog(boolean rawLog) {
         this.rawLog = rawLog;
+        async.rawLog(rawLog);
     }
 
     /**
@@ -2661,9 +2966,9 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    @Deprecated
     public void setAudioCallConfig(CallConfig callConfig) {
-        if (audioCallManager != null)
-            audioCallManager.setCallConfig(callConfig);
+        callServiceManager = new CallServiceManager(context, callConfig);
     }
 
     public String requestCall(CallRequest request) {
@@ -2678,6 +2983,11 @@ public class Chat extends AsyncAdapter {
         }
 
         return uniqueId;
+    }
+
+    private void initialVideoCall() {
+//        if (podVideoCall != null)
+//            podVideoCall.initial();
     }
 
     public String getCallParticipants(GetCallParticipantsRequest request) {
@@ -2740,8 +3050,11 @@ public class Chat extends AsyncAdapter {
 
     public String endAudioCall(EndCallRequest endCallRequest) {
 
-        if (audioCallManager != null)
-            audioCallManager.endStream(false);
+        if (callServiceManager != null)
+            callServiceManager.stopCallService();
+
+        if (podVideoCall != null)
+            podVideoCall.endCall();
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -2755,8 +3068,8 @@ public class Chat extends AsyncAdapter {
 
     public String terminateAudioCall(TerminateCallRequest terminateCallRequest) {
 
-        if (audioCallManager != null)
-            audioCallManager.endStream(false);
+//        if (audioCallManager != null)
+//            audioCallManager.endStream(false);
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -2771,6 +3084,12 @@ public class Chat extends AsyncAdapter {
     public String rejectVoiceCall(RejectCallRequest request) {
 
         String uniqueId = generateUniqueId();
+        try {
+            if (podVideoCall != null)
+                podVideoCall.endCall();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (chatReady) {
             String message = CallAsyncRequestsManager.createRejectCallRequest(request, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REJECT_VOICE_CALL_REQUEST");
@@ -2789,7 +3108,7 @@ public class Chat extends AsyncAdapter {
             setCallBacks(false, false, false, true, Constants.ACCEPT_CALL, null, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ACCEPT_VOICE_CALL_REQUEST");
             if (request.isMute()) {
-                audioCallManager.switchAudioMuteState(true);
+                podVideoCall.muteAudio();
             }
         } else {
             onChatNotReady(uniqueId);
@@ -2847,7 +3166,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public void endAudioStream() {
-        audioCallManager.endStream(false);
+        podVideoCall.endAudio();
     }
 
     /**
@@ -2857,24 +3176,25 @@ public class Chat extends AsyncAdapter {
      * @param sender   sending topic
      * @param receiver receiving topic
      */
+    @Deprecated
     public void testCall(String groupId, String sender, String receiver) {
 
-        audioCallManager.testStream(groupId, sender, receiver, new ICallState() {
-            @Override
-            public void onInfoEvent(String info) {
-
-            }
-
-            @Override
-            public void onErrorEvent(String cause) {
-
-            }
-
-            @Override
-            public void onEndCallRequested() {
-
-            }
-        });
+//        audioCallManager.testStream(groupId, sender, receiver, new ICallState() {
+//            @Override
+//            public void onInfoEvent(String info) {
+//
+//            }
+//
+//            @Override
+//            public void onErrorEvent(String cause) {
+//
+//            }
+//
+//            @Override
+//            public void onEndCallRequested() {
+//
+//            }
+//        });
     }
 
 
@@ -2889,50 +3209,52 @@ public class Chat extends AsyncAdapter {
      * @param callState    callback
      */
 
+    @Deprecated
     public void testCall(@NonNull String broker, @NonNull String sendTopic, @NonNull String receiveTopic, @NonNull String ssl, @NonNull String sendKey, @NonNull ICallState callState) {
 
-        audioCallManager.testStream(broker, sendTopic, receiveTopic, ssl, sendKey, callState);
+//        audioCallManager.testStream(broker, sendTopic, receiveTopic, ssl, sendKey, callState);
     }
 
     /**
      * This is to test the quality of the recording and playback.
      */
+    @Deprecated
     public void testAudio() {
-        audioCallManager.testAudio(new ICallState() {
-            @Override
-            public void onInfoEvent(String info) {
-
-            }
-
-            @Override
-            public void onErrorEvent(String cause) {
-
-            }
-
-            @Override
-            public void onEndCallRequested() {
-
-            }
-        });
+//        audioCallManager.testAudio(new ICallState() {
+//            @Override
+//            public void onInfoEvent(String info) {
+//
+//            }
+//
+//            @Override
+//            public void onErrorEvent(String cause) {
+//
+//            }
+//
+//            @Override
+//            public void onEndCallRequested() {
+//
+//            }
+//        });
     }
 
 
     public void switchCallSpeakerState(boolean isSpeakerOn) {
 
-        audioCallManager.switchAudioSpeakerState(isSpeakerOn);
-    }
+        if (isSpeakerOn)
+            podVideoCall.speakerOn();
 
-    @Deprecated
-    public void switchCallMuteState(boolean isMute) {
-
-        audioCallManager.switchAudioMuteState(isMute);
-
+        else podVideoCall.speakerOff();
     }
 
 
     public String switchCallMuteState(boolean isMute, long callId) {
 
-        audioCallManager.switchAudioMuteState(isMute);
+        if (isMute) {
+            podVideoCall.muteAudio();
+        } else {
+            podVideoCall.unMuteAudio();
+        }
 
         String uniqueId = generateUniqueId();
 
@@ -6324,6 +6646,109 @@ public class Chat extends AsyncAdapter {
 
         ProgressResponseBody.setTimeoutConfig(config);
     }
+
+
+    @Deprecated
+    public void setupCall(VideoCallParam videoCallParam,
+                          AudioCallParam audioCallParam
+            , List<CallPartnerView> remoteViews) {
+
+        this.localPartnerView = videoCallParam.getCameraPreview();
+
+        this.videoCallPartnerViews = new ArrayList<>(remoteViews);
+
+        podVideoCall = new PodCallBuilder(mContext, new IPodCall() {
+            @Override
+            public void onError(String s) {
+                captureError(new PodChatException(s, 6012));
+            }
+
+            @Override
+            public void onEvent(String s) {
+                showLog(s);
+            }
+
+            @Override
+            public void onCameraReady(PodCall podCall) {
+                showLog("Camera Call is ready");
+            }
+
+            @Override
+            public void onCameraReady(PodCallV2 podCallV2) {
+                showLog("Camera Call is ready");
+            }
+        })
+                .setVideoCallParam(videoCallParam)
+                .setAudioCallParam(audioCallParam)
+                .buildV2();
+
+        podVideoCall.initial();
+
+    }
+
+
+    public void setupCall(VideoCallParam videoCallParam, AudioCallParam audioCallParam, CallConfig callConfig, List<CallPartnerView> remoteViews) {
+
+        this.localPartnerView = videoCallParam.getCameraPreview();
+
+        this.videoCallPartnerViews = new ArrayList<>(remoteViews);
+
+        callServiceManager = new CallServiceManager(context, callConfig);
+
+        podVideoCall = new PodCallBuilder(mContext, new IPodCall() {
+            @Override
+            public void onError(String s) {
+                captureError(new PodChatException(s, 6012));
+            }
+
+            @Override
+            public void onEvent(String s) {
+                showLog(s);
+            }
+
+            @Override
+            public void onCameraReady(PodCall podCall) {
+                showLog("Camera Call is ready");
+            }
+
+            @Override
+            public void onCameraReady(PodCallV2 podCallV2) {
+                showLog("Camera Call is ready");
+            }
+        })
+                .setVideoCallParam(videoCallParam)
+                .setAudioCallParam(audioCallParam)
+                .buildV2();
+
+        podVideoCall.initial();
+
+
+    }
+
+    public void addPartnerView(CallPartnerView view) {
+        if (Util.isNullOrEmpty(videoCallPartnerViews)) {
+            videoCallPartnerViews = new ArrayList<>();
+        }
+        videoCallPartnerViews.add(view);
+    }
+
+    public void addAllPartnerView(List<CallPartnerView> views) {
+        if (Util.isNullOrEmpty(videoCallPartnerViews)) {
+            videoCallPartnerViews = new ArrayList<>();
+        }
+        videoCallPartnerViews.addAll(views);
+    }
+
+    public void setPartnerViews(List<CallPartnerView> views) {
+        videoCallPartnerViews = new ArrayList<>(views);
+    }
+
+    public void updatePartnerViews(List<CallPartnerView> views) {
+        if (videoCallPartnerViews == null || videoCallPartnerViews.size() == 0)
+            videoCallPartnerViews = new ArrayList<>(views);
+    }
+
+
 
 
     /**
@@ -10358,11 +10783,7 @@ public class Chat extends AsyncAdapter {
                     ResultParticipant resultParticipant = new ResultParticipant();
 
                     resultParticipant.setContentCount(participantsList.size());
-                    if (participantsList.size() + offset < participantCount) {
-                        resultParticipant.setHasNext(true);
-                    } else {
-                        resultParticipant.setHasNext(false);
-                    }
+                    resultParticipant.setHasNext(participantsList.size() + offset < participantCount);
                     resultParticipant.setParticipants(participantsList);
                     chatResponse.setResult(resultParticipant);
                     chatResponse.setCache(true);
@@ -10463,11 +10884,7 @@ public class Chat extends AsyncAdapter {
                     resultParticipant.setThreadId(threadId);
 
                     resultParticipant.setContentCount(participants.size());
-                    if (participants.size() + offset < participantCount) {
-                        resultParticipant.setHasNext(true);
-                    } else {
-                        resultParticipant.setHasNext(false);
-                    }
+                    resultParticipant.setHasNext(participants.size() + offset < participantCount);
                     resultParticipant.setParticipants(participants);
                     chatResponse.setResult(resultParticipant);
                     chatResponse.setCache(true);
@@ -12756,11 +13173,7 @@ public class Chat extends AsyncAdapter {
 
             resultParticipant.setNextOffset(callback.getOffset() + participants.size());
             resultParticipant.setContentCount(chatMessage.getContentCount());
-            if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultParticipant.setHasNext(true);
-            } else {
-                resultParticipant.setHasNext(false);
-            }
+            resultParticipant.setHasNext(participants.size() + callback.getOffset() < chatMessage.getContentCount());
 
 
             chatResponse.setResult(resultParticipant);
@@ -13694,11 +14107,7 @@ public class Chat extends AsyncAdapter {
 
         resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
         resultHistory.setContentCount(chatMessage.getContentCount());
-        if (messageVOS.size() + callback.getOffset() < chatMessage.getContentCount()) {
-            resultHistory.setHasNext(true);
-        } else {
-            resultHistory.setHasNext(false);
-        }
+        resultHistory.setHasNext(messageVOS.size() + callback.getOffset() < chatMessage.getContentCount());
 
 
         chatResponse.setSubjectId(chatMessage.getSubjectId());
@@ -13791,11 +14200,7 @@ public class Chat extends AsyncAdapter {
 
                 String asyncContent = jsonObject.toString();
 
-                if (syncContact) {
-                    setCallBacks(null, null, null, false, Constants.GET_CONTACTS, offset, uniqueId);
-                } else {
-                    setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
-                }
+                setCallBacks(null, null, null, !syncContact, Constants.GET_CONTACTS, offset, uniqueId);
                 sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "GET_CONTACT_SEND");
                 if (handler != null) {
                     handler.onGetContact(uniqueId);
@@ -13985,11 +14390,7 @@ public class Chat extends AsyncAdapter {
         chatResponse.setCache(true);
 
 
-        if (threadList.size() + finalOffset < contentCount) {
-            resultThreads.setHasNext(true);
-        } else {
-            resultThreads.setHasNext(false);
-        }
+        resultThreads.setHasNext(threadList.size() + finalOffset < contentCount);
         resultThreads.setNextOffset(finalOffset + threadList.size());
         chatResponse.setResult(resultThreads);
         chatResponse.setUniqueId(uniqueId);
@@ -14121,11 +14522,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (callback != null) {
-            if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultParticipant.setHasNext(true);
-            } else {
-                resultParticipant.setHasNext(false);
-            }
+            resultParticipant.setHasNext(participants.size() + callback.getOffset() < chatMessage.getContentCount());
             resultParticipant.setNextOffset(callback.getOffset() + participants.size());
         }
 
@@ -14188,11 +14585,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (callback != null) {
-            if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultParticipant.setHasNext(true);
-            } else {
-                resultParticipant.setHasNext(false);
-            }
+            resultParticipant.setHasNext(participants.size() + callback.getOffset() < chatMessage.getContentCount());
             resultParticipant.setNextOffset(callback.getOffset() + participants.size());
         }
 
@@ -14493,9 +14886,9 @@ public class Chat extends AsyncAdapter {
 
     private static class PhoneContactAsyncTask extends AsyncTask<Void, Void, List<PhoneContact>> {
 
-        private PhoneContactDbHelper pcDbHelper;
+        private final PhoneContactDbHelper pcDbHelper;
 
-        private OnContactLoaded listener;
+        private final OnContactLoaded listener;
 
         PhoneContactAsyncTask(PhoneContactDbHelper dbHelper, OnContactLoaded onContactLoaded) {
 
@@ -15624,11 +16017,7 @@ public class Chat extends AsyncAdapter {
 
         if (callback != null) {
 
-            if (threads.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultThreads.setHasNext(true);
-            } else {
-                resultThreads.setHasNext(false);
-            }
+            resultThreads.setHasNext(threads.size() + callback.getOffset() < chatMessage.getContentCount());
 
             resultThreads.setNextOffset(callback.getOffset() + threads.size());
         }
@@ -15696,11 +16085,7 @@ public class Chat extends AsyncAdapter {
         resultContact.setContacts(contacts);
         resultContact.setContentCount(chatMessage.getContentCount());
 
-        if (contacts.size() + callback.getOffset() < chatMessage.getContentCount()) {
-            resultContact.setHasNext(true);
-        } else {
-            resultContact.setHasNext(false);
-        }
+        resultContact.setHasNext(contacts.size() + callback.getOffset() < chatMessage.getContentCount());
         resultContact.setNextOffset(callback.getOffset() + contacts.size());
         resultContact.setContentCount(chatMessage.getContentCount());
 

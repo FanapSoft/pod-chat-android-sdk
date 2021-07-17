@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+
     <application
         android:name="com.example.chat.application.chatexample.BaseApplication"
         android:allowBackup="true"
@@ -24,12 +28,6 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="n">
-        <activity android:name="com.fanap.podchat.KafkaTestActivity">
-
-
-
-
-        </activity>
         <activity android:name="com.example.chat.application.chatexample.CallActivity">
 
         </activity>
