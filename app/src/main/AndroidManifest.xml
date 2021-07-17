@@ -55,7 +55,7 @@
 <!--            </intent-filter>-->
 <!--        </activity> -->
         <activity
-            android:name="com.example.chat.application.chatexample.ChatMainActivity"
+            android:name="com.example.chat.application.chatexample.ChatActivity"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

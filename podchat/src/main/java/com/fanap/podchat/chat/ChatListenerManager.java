@@ -33,6 +33,7 @@ import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.thread.respone.DeleteGroupResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -246,6 +247,16 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.OnTagParticipantRemoved(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnGroupDeleted(String content, ChatResponse<DeleteGroupResult> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnGroupDeleted(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

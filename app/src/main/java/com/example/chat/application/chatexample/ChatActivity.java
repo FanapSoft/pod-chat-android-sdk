@@ -68,6 +68,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
+import com.fanap.podchat.chat.thread.request.DeleteGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -1445,6 +1446,10 @@ public class ChatActivity extends AppCompatActivity
                         getTagList();
                         break;
                     }
+                    case 30: {
+                        deleteGroup();
+                        break;
+                    }
                 }
             }
 
@@ -1669,6 +1674,12 @@ public class ChatActivity extends AppCompatActivity
         GetTagListRequest request = new GetTagListRequest.Builder().build();
         ;
         presenter.getTagList(request);
+    }
+
+    public void deleteGroup() {
+        DeleteGroupRequest request = new DeleteGroupRequest.Builder(8712).build();
+
+        presenter.deleteGroup(request);
     }
 
 

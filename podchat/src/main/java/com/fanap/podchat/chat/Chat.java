@@ -126,8 +126,10 @@ import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.DeleteGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.thread.respone.DeleteGroupResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
@@ -1323,6 +1325,10 @@ public class Chat extends AsyncAdapter {
 
             case Constants.GET_TAG_LIST:
                 handleOnTagList(chatMessage);
+                break;
+
+            case Constants.DELETE_MESSAGE_THREAD:
+                handleOnDeleteGroup(chatMessage);
                 break;
 
             case Constants.SENT:
@@ -7283,7 +7289,7 @@ public class Chat extends AsyncAdapter {
                                     loadFromCache[0] = false;
                                 }
 
-                                if(MessageManager.hasGap(messagesFromCache)){
+                                if (MessageManager.hasGap(messagesFromCache)) {
                                     loadFromCache[0] = false;
                                 }
 
@@ -8050,6 +8056,8 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+
+
     /**
      * Remove user tags participant
      */
@@ -8062,6 +8070,24 @@ public class Chat extends AsyncAdapter {
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REMOVE_TAG_PARTICIPANT");
             Callback callbackTagParticipant = new Callback(request.getTagId());
             messageCallbacks.put(uniqueId, callbackTagParticipant);
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+
+    /**
+     * The group can be deleted by a user who has ownership accessability
+     */
+    public String deleteGroup(DeleteGroupRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = ThreadManager.createDeleteGroupRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REMOVE_TAG_PARTICIPANT");
         } else {
             onChatNotReady(uniqueId);
         }
@@ -11794,6 +11820,19 @@ public class Chat extends AsyncAdapter {
                     }
                     listenerManager.callOnTagList(chatMessage.getContent(), tags);
                 });
+    }
+
+    private void handleOnDeleteGroup(ChatMessage chatMessage) {
+
+        ChatResponse<DeleteGroupResult> response = ThreadManager.handleDeleteGroupResponse(chatMessage);
+
+        if (sentryResponseLog) {
+            showLog("GROUP DELETED", gson.toJson(chatMessage));
+        } else {
+            showLog("GROUP DELETED");
+        }
+
+        listenerManager.callOnGroupDeleted(chatMessage.getContent(), response);
     }
 
     private Observable<ChatResponse<TagListResult>> prepareTagsForResponse(ChatMessage chatMessage) {

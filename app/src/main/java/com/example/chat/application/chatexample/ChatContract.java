@@ -45,6 +45,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
+import com.fanap.podchat.chat.thread.request.DeleteGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -623,6 +624,7 @@ public interface ChatContract {
         void removeTagParticipant(RemoveTagParticipantRequest request);
 
        void getTagList(GetTagListRequest request);
+       void deleteGroup(DeleteGroupRequest request);
 
     }
 }

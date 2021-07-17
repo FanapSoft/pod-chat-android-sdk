@@ -7,11 +7,14 @@ import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.DeleteGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.thread.respone.DeleteGroupResult;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.localmodel.SetRuleVO;
 import com.fanap.podchat.mainmodel.AsyncMessage;
@@ -70,6 +73,27 @@ public class ThreadManager {
         ChatResponse<CloseThreadResult> response = new ChatResponse<>();
 
         CloseThreadResult result = new CloseThreadResult();
+
+        result.setThreadId(chatMessage.getSubjectId());
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setSubjectId(chatMessage.getSubjectId());
+
+        response.setCache(false);
+
+        response.setHasError(false);
+
+        return response;
+    }
+
+    public static ChatResponse<DeleteGroupResult> handleDeleteGroupResponse(ChatMessage chatMessage) {
+
+        ChatResponse<DeleteGroupResult> response = new ChatResponse<>();
+
+        DeleteGroupResult result = new DeleteGroupResult();
 
         result.setThreadId(chatMessage.getSubjectId());
 
@@ -147,6 +171,21 @@ public class ThreadManager {
         return App.getGson().toJson(message);
     }
 
+
+    public static String createDeleteGroupRequest(DeleteGroupRequest request,
+                                                  String uniqueId) {
+        AsyncMessage message = new ChatMessage();
+
+        message.setType(ChatMessageType.Constants.DELETE_MESSAGE_THREAD);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setUniqueId(uniqueId);
+        message.setSubjectId(request.getThreadId());
+
+        return App.getGson().toJson(message);
+
+    }
     public static String createChangeThreadTypeRequest(ChangeThreadTypeRequest request, String uniqueId) throws PodChatException {
 
         JsonObject content = new JsonObject();

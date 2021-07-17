@@ -80,8 +80,10 @@ import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.DeleteGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.thread.respone.DeleteGroupResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -2182,7 +2184,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void createTag(CreateTagRequest request) {
-        chat.createTag(request);
+      //  chat.createTag(request);
     }
 
     @Override
@@ -2206,8 +2208,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void OnGroupDeleted(String content, ChatResponse<DeleteGroupResult> response) {
+        Log.e(TAG, "OnGroupDeleted: ");
+    }
+
+    @Override
     public void getTagList(GetTagListRequest request) {
         chat.getTagList(request);
+    }
+
+    @Override
+    public void deleteGroup(DeleteGroupRequest request) {
+        chat.deleteGroup(request);
     }
 
     @Override
