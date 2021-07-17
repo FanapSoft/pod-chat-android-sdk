@@ -174,12 +174,13 @@ import static com.example.chat.application.chatexample.CallActivity.POORIA_CID;
 import static com.example.chat.application.chatexample.CallActivity.Pooria_ID;
 
 
-public class CallPresenter extends ChatAdapter implements ChatContract.presenter, Application.ActivityLifecycleCallbacks {
+public class CallPresenter extends ChatAdapter implements CallContract.presenter, Application.ActivityLifecycleCallbacks {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
     private static final String TAG = "CHAT_SDK_PRESENTER";
+    private final Enum<ServerType> serverType;
     private Chat chat;
-    private ChatContract.view view;
+    private CallContract.view view;
     private Context context;
     private Activity activity;
     private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
@@ -199,8 +200,10 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     private List<CallPartnerView> remotePartnersViews;
     private CallPartnerView cameraPreview;
 
-    public CallPresenter(Context context, ChatContract.view view, Activity activity) {
+    public CallPresenter(Context context, CallContract.view view, Activity activity, Enum<ServerType> serverType) {
 
+
+        this.serverType = serverType;
 
         chat = Chat.init(context);
 
@@ -218,10 +221,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         chat.setupNotification(notificationConfig);
-
-        CallConfig callConfig = new CallConfig(CallActivity.class.getName());
-
-        chat.setAudioCallConfig(callConfig);
 
         chat.isCacheables(false);
 
@@ -283,11 +282,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getSentryLogs() {
-        view.onGetSentryLogs(chat.getSenrtyLogs());
-    }
-
-    @Override
     public void connect(String serverAddress, String appId, String severName,
                         String token, String ssoHost, String platformHost, String fileServer, String typeCode) {
 
@@ -299,22 +293,25 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         cameraPreview = localVideo;
         this.remotePartnersViews = remoteViews;
 
-        VideoCallParam callParam =
+        CallConfig callConfig = new CallConfig(CallActivity.class.getName());
+
+        VideoCallParam videoCallParam =
                 new VideoCallParam.Builder(localVideo)
-                        .setCamWidth(176)
-                        .setCamHeight(144)
+                        .setCamWidth(320)
+                        .setCamHeight(240)
                         .setCamFPS(30)
                         .setVideoCodecType(VideoCodecType.VIDEO_CODEC_VP8)
                         .setBitrate(90_000)
                         .build();
 
         AudioCallParam audioCallParam = new AudioCallParam.Builder()
-                .setBitrate(8000)
-                .setFrameSize(960)
-                .setNumberOfChannels(1)
+                .setFrameRate(16000)
+                .setBitrate(12000)
+                .setFrameSize(60)
+                .setNumberOfChannels(2)
                 .build();
 
-        chat.setupCall(callParam, audioCallParam, remoteViews);
+        chat.setupCall(videoCallParam, audioCallParam, callConfig, remoteViews);
 
     }
 
@@ -372,23 +369,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void checkIsNameAvailable(RequestCheckIsNameAvailable request) {
-
-        chat.isNameAvailable(request);
-    }
-
-    @Override
-    public void createPublicThread(RequestCreatePublicThread request) {
-
-        chat.createThread(request);
-    }
-
-    @Override
-    public void joinPublicThread(RequestJoinPublicThread request) {
-        chat.joinPublicThread(request);
-    }
-
-    @Override
     public void getContact(RequestGetContact request) {
 
         chat.getContacts(request, null);
@@ -401,15 +381,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
-    @Override
-    public void getBlockList(RequestBlockList request) {
-        chat.getBlockList(request, null);
-    }
-
-    @Override
-    public void getThreadParticipant(RequestThreadParticipant request) {
-        chat.getThreadParticipants(request, null);
-    }
 
     @Override
     public void acceptIncomingCall() {
@@ -447,21 +418,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void shareLogs() {
-        if (chat != null) {
-            chat.shareLogs(context);
-        }
-    }
-
-    @Override
-    public String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile) {
-
-        Log.e(TAG, "isInCache=" + chat.isAvailableInCache(rePod));
-
-        return chat.getFile(rePod, iDownloadFile);
-    }
-
-    @Override
     public void onStart() {
 
     }
@@ -483,24 +439,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
-    @Override
-    public String downloadFile(RequestGetPodSpaceImage rePod, ProgressHandler.IDownloadFile iDownloadFile) {
-
-        Log.e(TAG, "isInCache=" + chat.isAvailableInCache(rePod));
-
-        return chat.getImage(rePod, iDownloadFile);
-
-    }
-
-    @Override
-    public String updateThreadInfo(RequestThreadInfo request) {
-        return chat.updateThreadInfo(request, null);
-    }
-
-    @Override
-    public String createThread(RequestCreateThread requestCreateThread) {
-        return chat.createThread(requestCreateThread);
-    }
 
     @Override
     public void deliverNotification(String threadId) {
@@ -513,94 +451,23 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void defineBotCommand(DefineBotCommandRequest request) {
-        String uniqueId = chat.addBotCommand(request);
-    }
-
-    @Override
-    public void createBot(CreateBotRequest request) {
-        String uniqueId = chat.createBot(request);
-    }
-
-    @Override
-    public void startBot(StartAndStopBotRequest request) {
-        String uniqueId = chat.startBot(request);
-    }
-
-    @Override
-    public void stopBot(StartAndStopBotRequest request) {
-        String uniqueId = chat.stopBot(request);
-    }
-
-    @Override
-    public void onBotCreated(ChatResponse<CreateBotResult> response) {
-        view.onBotCreated(response);
-    }
-
-    @Override
-    public void onRegisterAssistant(ChatResponse<List<AssistantVo>> response) {
-        Log.e(TAG, "onRegisterAssistant: " + response.getJson());
-    }
-
-    @Override
-    public void onDeActiveAssistant(ChatResponse<List<AssistantVo>> response) {
-        Log.e(TAG, "onDeActiveAssistant: " + response.getJson());
-    }
-
-    @Override
-    public void onGetAssistants(ChatResponse<List<AssistantVo>> response) {
-        Log.e(TAG, "onGetAssistants: " + response.getJson());
-    }
-
-    @Override
-    public void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response) {
-        view.onBotCommandsDefined(response);
-    }
-
-
-    @Override
-    public void onBotStopped(ChatResponse<StartStopBotResult> response) {
-        view.onBotStopped(response.getResult().getBotName());
-    }
-
-    @Override
-    public void onBotStarted(ChatResponse<StartStopBotResult> response) {
-        view.onBotStarted(response.getResult().getBotName());
-
-    }
-
-    @Override
-    public void testCall(String groupId, String sender, String receiver) {
-
-        chat.testCall(groupId, sender, receiver);
-    }
-
-    @Override
     public void endStream() {
         chat.endAudioStream();
     }
 
     @Override
-    public void testCall() {
-//        chat.testCall();
-        chat.testAudio();
-
-    }
-
-
-    @Override
     public void enableAutoRefresh(Activity activity, String entry) {
 
 
-       if(Util.isNotNullOrEmpty(entry)){
-           if (entry.startsWith("09")) {
-               tokenHandler.handshake(entry);
-           } else if (entry.trim().startsWith("*")) {
-               view.onGetToken(entry.replace("*", ""));
-           } else {
-               tokenHandler.verifyNumber(entry);
-           }
-       }
+        if (Util.isNotNullOrEmpty(entry)) {
+            if (entry.startsWith("09")) {
+                tokenHandler.handshake(entry);
+            } else if (entry.trim().startsWith("*")) {
+                view.onGetToken(entry.replace("*", ""));
+            } else {
+                tokenHandler.verifyNumber(entry);
+            }
+        }
 
 
 //        ArrayList<String> scopes = new ArrayList<>();
@@ -630,179 +497,14 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendLocationMessage(RequestLocationMessage request) {
-        chat.sendLocationMessage(request);
-    }
-
-    @Override
-    public void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage handler) {
-
-        chat.sendLocationMessage(requestLocationMessage, handler);
-    }
-
-    @Override
     public void onLogEvent(String log) {
         view.onLogEvent(log);
     }
-
-
-    @Override
-    public void searchMap(String searchTerm, double lat, double lon) {
-
-
-        RequestMapSearch request = new RequestMapSearch
-                .Builder(searchTerm, lat, lon)
-                .build();
-
-        chat.mapSearch(request);
-    }
-
-    @Override
-    public void retryUpload(RetryUpload retry, ProgressHandler.sendFileMessage handler) {
-        chat.retryUpload(retry, handler);
-    }
-
-    @Override
-    public void resendMessage(String uniqueId) {
-        chat.resendMessage(uniqueId);
-    }
-
-    @Override
-    public void cancelMessage(String uniqueId) {
-        chat.cancelMessage(uniqueId);
-    }
-
-    @Override
-    public void retryUpload(String uniqueId) {
-
-    }
-
-
-    @Override
-    public void cancelUpload(String uniqueId) {
-        chat.cancelUpload(uniqueId);
-    }
-
-    @Override
-    public void getSeenMessageList(RequestSeenMessageList requestParams) {
-
-        chat.getMessageSeenList(requestParams);
-
-    }
-
-    @Override
-    public void deliveredMessageList(RequestDeliveredMessageList requestParams) {
-
-        chat.getMessageDeliveredList(requestParams);
-
-    }
-
-    @Override
-    public void createThreadWithMessage(RequestCreateThread threadRequest) {
-
-        chat.createThreadWithMessage(threadRequest);
-    }
-
-    @Override
-    public String createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
-            , String metadata) {
-
-
-        return chat.createThread(threadType, invitee, threadTitle, description, image, metadata, null);
-    }
-
-    @Override
-    public void getThreads(RequestThread requestThread, ChatHandler handler) {
-
-        chat.getThreads(requestThread, handler);
-
-
-        StatusPingRequest statusRequest = new StatusPingRequest.Builder()
-                .inChat()
-                .build();
-
-        chat.sendStatusPing(statusRequest);
-
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException ignored) {}
-//
-//        RequestGetUnreadMessagesCount req = new RequestGetUnreadMessagesCount
-//                .Builder()
-//                .withMuteThreads()
-//                .build();
-//
-//        chat.getAllUnreadMessagesCount(req);
-    }
-
-    @Override
-    public void getThreads(Integer count,
-                           Long offset,
-                           ArrayList<Integer> threadIds,
-                           String threadName,
-                           long creatorCoreUserId,
-                           long partnerCoreUserId,
-                           long partnerCoreContactId,
-                           ChatHandler handler) {
-
-        RequestThread request = new RequestThread.Builder()
-                .count(count)
-                .offset(offset)
-                .threadIds(threadIds)
-                .threadName(threadName)
-                .creatorCoreUserId(creatorCoreUserId)
-                .partnerCoreContactId(partnerCoreContactId)
-                .partnerCoreContactId(partnerCoreContactId)
-                .build();
-
-
-        chat.getThreads(request, handler);
-    }
-
-    @Override
-    public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler) {
-
-
-        RequestThread request = new RequestThread.Builder()
-                .count(count)
-                .offset(offset)
-                .threadIds(threadIds)
-                .threadName(threadName)
-                .creatorCoreUserId(0)
-                .partnerCoreContactId(0)
-                .partnerCoreContactId(0)
-                .build();
-
-        chat.getThreads(request, handler);
-    }
-
 
     @Override
     public void setToken(String token) {
         chat.setToken(token);
     }
-
-
-    @Override
-    public void mapSearch(String searchTerm, Double latitude, Double longitude) {
-        chat.mapSearch(searchTerm, latitude, longitude);
-    }
-
-    @Override
-    public void mapRouting(String origin, String originLng) {
-        chat.mapRouting(origin, originLng);
-    }
-
-    @Override
-    public void mapStaticImage(RequestMapStaticImage request) {
-        chat.mapStaticImage(request);
-    }
-
-    @Override
-    public void mapReverse(RequestMapReverse request) {
-        chat.mapReverse(request);
-    }
-
 
     @Override
     public void getUserInfo(ChatHandler handler) {
@@ -811,490 +513,14 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(History history, long threadId, ChatHandler handler) {
-
-//
-//        RequestGetHistory request = new RequestGetHistory.Builder()
-//                .threadId(history.getId())
-//                .build();
-//
-//
-//
-//
-//        String uniq = chat.getHistory(history, handler);
-//        if (uniq != null) {
-//            Log.i("un", uniq);
-//        }
-
-
-    }
-
-    @Override
-    public String getHistory(RequestGetHistory request, ChatHandler handler) {
-
-        String uniqueId = chat.getHistory(request, handler);
-
-
-        StatusPingRequest statusRequest = new StatusPingRequest.Builder()
-                .inThread()
-                .setThreadId(request.getThreadId())
-                .build();
-
-        chat.sendStatusPing(statusRequest);
-
-        return uniqueId;
-    }
-
-    @Override
-    public String getHashTagLIst(RequestGetHashTagList request, ChatHandler handler) {
-        return chat.getHashTagList(request);
-    }
-
-    @Override
-    public void searchHistory(NosqlListMessageCriteriaVO builderListMessage, ChatHandler handler) {
-        chat.searchHistory(builderListMessage, handler);
-    }
-
-    @Override
     public void getContact(Integer count, Long offset, ChatHandler handler) {
         chat.getContacts(count, offset, handler);
-    }
-
-    @Override
-    public void createThread(int threadType, Invitee[] invitee, String threadTitle, String description, String image
-            , String systemMetadata, ChatHandler handler) {
-        chat.createThread(threadType, invitee, threadTitle, description, image, systemMetadata, handler);
-    }
-
-    @Override
-    public void sendTextMessage(String textMessage, long threadId, Integer messageType, String metaData, ChatHandler handler) {
-        chat.sendTextMessage(textMessage, threadId, messageType, metaData, handler);
-    }
-
-    @Override
-    public void sendTextMessage(RequestMessage requestMessage, ChatHandler handler) {
-        chat.sendTextMessage(requestMessage, null);
-    }
-
-    @Override
-    public void replyMessage(String messageContent, long threadId, long messageId, Integer messageType, ChatHandler handler) {
-        chat.replyMessage(messageContent, threadId, messageId, "meta", messageType, handler);
-    }
-
-    @Override
-    public void replyFileMessage(RequestReplyFileMessage request, ProgressHandler.sendFileMessage handler) {
-        chat.replyFileMessage(request, handler);
-    }
-
-    @Override
-    public void replyMessage(RequestReplyMessage request, ChatHandler handler) {
-        chat.replyMessage(request, handler);
-    }
-
-    @Override
-    public void muteThread(int threadId, ChatHandler handler) {
-        chat.muteThread(threadId, handler);
-    }
-
-    @Override
-    public void renameThread(long threadId, String title, ChatHandler handler) {
-
-
-        chat.renameThread(threadId, title, handler);
-    }
-
-    @Override
-    public void unMuteThread(int threadId, ChatHandler handler) {
-        chat.unMuteThread(threadId, handler);
-    }
-
-    @Override
-    public void editMessage(int messageId, String messageNewContent, String metaData, ChatHandler handler) {
-
-        RequestEditMessage requestEditMessage = new RequestEditMessage.Builder(messageNewContent,
-                messageId)
-                .metaData(metaData)
-                .build();
-
-        chat.editMessage(requestEditMessage, handler);
-    }
-
-    @Override
-    public void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler) {
-
-        RequestThreadParticipant participant = new RequestThreadParticipant
-                .Builder(threadId)
-                .count(50)
-                .offset(0)
-                .build();
-        chat.getThreadParticipants(participant, handler);
-
-//        chat.getThreadParticipants(count, offset, threadId, handler);
-    }
-
-    @Override
-    public void addContact(String firstName, String lastName, String cellphoneNumber, String email, String username) {
-
-
-//        RequestAddContact requestAddContact = new RequestAddContact.Builder()
-//                .firstName(firstName)
-//                .lastName(lastName)
-//                .cellphoneNumber(cellphoneNumber)
-//                .email(email)
-//                .username(username)
-//                .build();
-
-
-        chat.addContact(firstName, lastName, cellphoneNumber, email, null, username);
-
-
-    }
-
-    @Override
-    public void removeContact(long id) {
-        chat.removeContact(id);
-    }
-
-    @Override
-    public void searchContact(RequestSearchContact requestSearchContact) {
-        chat.searchContact(requestSearchContact);
-    }
-
-    @Override
-    public void block(Long contactId, Long userId, Long threadId, ChatHandler handler) {
-//        RequestBlock requestBlock = new RequestBlock.Builder()
-//                .contactId()
-//                .threadId()
-//                .userId()
-//                .build();
-//        chat.block(requestBlock,null);
-        chat.block(contactId, userId, threadId, handler);
-    }
-
-    @Override
-    public void unBlock(Long blockId, Long userId, Long threadId, Long contactId, ChatHandler handler) {
-
-        chat.unblock(blockId, userId, threadId, contactId, handler);
-    }
-
-    @Override
-    public void unBlock(RequestUnBlock request, ChatHandler handler) {
-
-//        RequestUnBlock requestUnBlock = new RequestUnBlock.Builder()
-//                .blockId()
-//                .contactId()
-//                .threadId()
-//                .userId()
-//                .build();requestUnBlock = new RequestUnBlock.Builder()
-//                .blockId()
-//                .contactId()
-//                .threadId()
-//                .userId()
-//                .build();
-
-        chat.unblock(request, handler);
-    }
-
-    @Override
-    public void spam(long threadId) {
-
-        RequestSpam requestSpam = new RequestSpam.Builder()
-                .threadId(threadId)
-                .build();
-
-        chat.spam(requestSpam);
-
-
-    }
-
-    @Override
-    public String spam(RequestSpam requestSpam) {
-
-
-        return chat.spam(requestSpam);
-    }
-
-    @Override
-    public void getBlockList(Long count, Long offset, ChatHandler handler) {
-        chat.getBlockList(count, offset, handler);
-    }
-
-    @Override
-    public String sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData, Integer messageType, ProgressHandler.sendFileMessage handler) {
-
-        RequestFileMessage request = new RequestFileMessage.Builder(activity, threadId, fileUri, messageType)
-                .description(description)
-                .systemMetadata(metaData)
-
-                .build();
-
-
-        return chat.sendFileMessage(request, handler);
-    }
-
-    @Override
-    public String sendFileMessage(RequestFileMessage requestFileMessage, ProgressHandler.sendFileMessage handler) {
-        return chat.sendFileMessage(requestFileMessage, handler);
-    }
-
-    @Override
-    public void syncContact(Activity activity) {
-        chat.syncContact(activity);
-    }
-
-    @Override
-    public void forwardMessage(long threadId, ArrayList<Long> messageIds) {
-        chat.forwardMessage(threadId, messageIds);
-    }
-
-    @Override
-    public void forwardMessage(RequestForwardMessage request) {
-        chat.forwardMessage(request);
-    }
-
-    @Override
-    public void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email) {
-
-
-        chat.updateContact(id, firstName, lastName, cellphoneNumber, email);
-    }
-
-    @Override
-    public void updateContact(RequestUpdateContact updateContact) {
-        chat.updateContact(updateContact);
-    }
-
-    @Override
-    public void uploadImage(Activity activity, Uri fileUri) {
-
-        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
-                .build();
-        chat.uploadImage(req);
-    }
-
-    @Override
-    public void uploadFile(@NonNull Activity activity, @NonNull Uri uri) {
-
-        RequestUploadFile request = new RequestUploadFile.Builder(activity, uri)
-                .build();
-
-        chat.uploadFile(request);
-    }
-
-    @Override
-    public void seenMessage(int messageId, long ownerId, ChatHandler handler) {
-        chat.seenMessage(messageId, ownerId, handler);
     }
 
     @Override
     public void logOut() {
         tokenHandler.logOut();
         chat.closeChat();
-    }
-
-    @Override
-    public void removeParticipants(long threadId, List<Long> contactIds, ChatHandler handler) {
-        chat.removeParticipants(threadId, contactIds, handler);
-    }
-
-    @Override
-    public void removeParticipants(RemoveParticipantRequest removeParticipantRequest, ChatHandler handler) {
-        chat.removeParticipants(removeParticipantRequest, handler);
-    }
-
-
-    @Override
-    public void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler) {
-        chat.addParticipants(requestAddParticipants, handler);
-    }
-
-    @Override
-    public void leaveThread(long threadId, ChatHandler handler) {
-
-        SafeLeaveRequest request = new SafeLeaveRequest.Builder(threadId, 18477)
-                .build();
-//        RequestLeaveThread leaveThread = new RequestLeaveThread.Builder(threadId).shouldKeepHistory()
-//                .build();
-//
-//        chat.leaveThread(leaveThread, null);
-
-        chat.safeLeaveThread(request);
-    }
-
-    @Override
-    public void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler) {
-
-
-//        chat.updateThreadInfo(threadId, threadInfoVO, handler);
-    }
-
-    @Override
-    public void updateThreadInfo(RequestThreadInfo request, ChatHandler handler) {
-        chat.updateThreadInfo(request, handler);
-    }
-
-    @Override
-    public void deleteMessage(ArrayList<Long> messageIds, long threadId, Boolean deleteForAll, ChatHandler handler) {
-
-        RequestDeleteMessage requestDeleteMessage = new RequestDeleteMessage
-                .Builder()
-                .messageIds(messageIds)
-                .deleteForAll(deleteForAll)
-                .build();
-
-
-        String un = chat.deleteMessage(requestDeleteMessage, handler);
-
-
-    }
-
-    @Override
-    public void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler) {
-
-        if (deleteMessage.getMessageIds().size() > 1) {
-            String uniqueId = chat.deleteMessage(deleteMessage, handler);
-        } else {
-            List<String> uniqueIds = chat.deleteMultipleMessage(deleteMessage, handler);
-        }
-    }
-
-    @Override
-    public void uploadImageProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgress handler) {
-
-
-        RequestUploadImage req = new RequestUploadImage.Builder(activity, fileUri)
-                .setwC(240)
-                .sethC(120)
-                .setxC(10)
-                .setyC(5)
-                .setPublic(false)
-                .build();
-
-//        chat.uploadImageProgress(activity,fileUri,handler);
-        chat.uploadImageProgress(req, handler);
-
-
-    }
-
-    @Override
-    public void uploadFileProgress(Context context, Activity activity, Uri fileUri, ProgressHandler.onProgressFile handler) {
-
-
-        RequestUploadFile req = new RequestUploadFile
-                .Builder(activity, fileUri)
-                .setPublic(false)
-                .build();
-
-        chat.uploadFileProgress(req, handler);
-    }
-
-    @Override
-    public void setAdmin(RequestSetAdmin requestAddAdmin) {
-        chat.addAdmin(requestAddAdmin);
-    }
-
-    @Override
-    public void removeAdminRules(RequestSetAdmin requestAddAdmin) {
-
-        chat.removeAdmin(requestAddAdmin);
-    }
-
-    @Override
-    public void clearHistory(RequestClearHistory requestClearHistory) {
-        chat.clearHistory(requestClearHistory);
-    }
-
-    @Override
-    public void getAdminList(RequestGetAdmin requestGetAdmin) {
-        chat.getAdminList(requestGetAdmin);
-    }
-
-
-    @Override
-    public void getNotSeenDuration(ArrayList<Integer> userIds) {
-
-
-        RequestGetLastSeens requestGetLastSeens =
-                new RequestGetLastSeens
-                        .Builder(userIds)
-                        .build();
-
-
-        chat.getNotSeenDuration(requestGetLastSeens);
-
-
-    }
-
-    @Override
-    public String startTyping(long threadId) {
-
-        RequestSignalMsg requestSignalMsg = new RequestSignalMsg.Builder()
-                .signalType(ChatMessageType.SignalMsg.IS_TYPING)
-                .threadId(threadId)
-                .build();
-
-        return chat.startTyping(requestSignalMsg);
-
-
-    }
-
-    @Override
-    public boolean stopTyping(String signalUniqueId) {
-
-        chat.stopTyping();
-
-        return true;
-
-    }
-
-    @Override
-    public void stopAllSignalMessages() {
-
-        chat.stopAllSignalMessages();
-    }
-
-    @Override
-    public void pinThread(RequestPinThread requestPinThread) {
-
-        chat.pinThread(requestPinThread);
-    }
-
-
-    @Override
-    public void unPinThread(RequestPinThread requestPinThread) {
-        chat.unPinThread(requestPinThread);
-    }
-
-    @Override
-    public void setAuditor(RequestSetAuditor requestAddAdmin) {
-
-        chat.addAuditor(requestAddAdmin);
-
-    }
-
-    @Override
-    public void removeAuditor(RequestSetAuditor requestAddAdmin) {
-
-        chat.removeAuditor(requestAddAdmin);
-    }
-
-
-    @Override
-    public void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.sendFileMessage handler) {
-        chat.createThreadWithFile(request, handler);
-    }
-
-    //View
-    @Override
-    public void onDeliver(String content, ChatResponse<ResultMessage> chatResponse) {
-        super.onDeliver(content, chatResponse);
-        view.onGetDeliverMessage();
-    }
-
-    @Override
-    public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
-        super.onGetThread(content, thread);
-        view.onGetThreadList(content, thread);
     }
 
     @Override
@@ -1330,20 +556,8 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onSeen(String content, ChatResponse<ResultMessage> chatResponse) {
-        super.onSeen(content, chatResponse);
-        view.onGetSeenMessage();
-    }
-
-    @Override
     public void onUserInfo(String content, ChatResponse<ResultUserInfo> outPutUserInfo) {
         view.onGetUserInfo(outPutUserInfo);
-    }
-
-    @Override
-    public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
-        super.onSent(content, chatResponse);
-        view.onSentMessage();
     }
 
     @Override
@@ -1374,148 +588,10 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getUserRoles(RequestGetUserRoles req) {
-
-        String uniqueId = chat.getCurrentUserRoles(req);
-
-
-    }
-
-    @Override
-    public void pinMessage(RequestPinMessage requestPinMessage) {
-
-        String uniqueId = chat.pinMessage(requestPinMessage);
-
-
-    }
-
-    @Override
-    public void unPinMessage(RequestPinMessage requestPinMessage) {
-
-        String uniqueId = chat.unPinMessage(requestPinMessage);
-    }
-
-    @Override
-    public void getMentionList(RequestGetMentionList req) {
-
-        chat.getMentionList(req);
-
-    }
-
-    @Override
-    public void startTyping(RequestSignalMsg req) {
-
-        chat.startTyping(req);
-
-    }
-
-    @Override
-    public String downloadFile(RequestGetImage requestGetImage, ProgressHandler.IDownloadFile onProgressFile) {
-        return chat.getImage(requestGetImage, onProgressFile);
-    }
-
-    @Override
-    public String downloadFile(RequestGetFile requestGetFile, ProgressHandler.IDownloadFile onProgressFile) {
-        return chat.getFile(requestGetFile, onProgressFile);
-    }
-
-    @Override
-    public boolean cancelDownload(String downloadingId) {
-        return chat.cancelDownload(downloadingId);
-    }
-
-    @Override
-    public void getCacheSize() {
-        chat.getCacheSize();
-    }
-
-    @Override
-    public void clearDatabaseCache(Chat.IClearMessageCache listener) {
-        chat.clearCacheDatabase(listener);
-    }
-
-    @Override
-    public long getStorageSize() {
-        return chat.getStorageSize();
-    }
-
-    @Override
-    public long getImageFolderSize() {
-        return chat.getCachedPicturesFolderSize();
-    }
-
-    @Override
-    public long getFilesFolderSize() {
-        return chat.getCachedFilesFolderSize();
-    }
-
-    @Override
-    public boolean clearPictures() {
-        return chat.clearCachedPictures();
-    }
-
-    @Override
-    public boolean clearFiles() {
-        return chat.clearCachedFiles();
-    }
-
-    @Override
     public void closeChat() {
 //        chat.closeChat();
     }
 
-    @Override
-    public void addContact(RequestAddContact request) {
-        chat.addContact(request);
-    }
-
-    @Override
-    public void updateChatProfile(RequestUpdateProfile request) {
-        chat.updateChatProfile(request);
-    }
-
-
-    @Override
-    public void onCreateThread(String content, ChatResponse<ResultThread> outPutThread) {
-        super.onCreateThread(content, outPutThread);
-        view.onCreateThread();
-    }
-
-    @Override
-    public void onGetThreadParticipant(String content, ChatResponse<ResultParticipant> outPutParticipant) {
-        super.onGetThreadParticipant(content, outPutParticipant);
-        view.onGetThreadParticipant();
-    }
-
-    @Override
-    public void onEditedMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
-        super.onEditedMessage(content, chatResponse);
-        view.onEditMessage();
-    }
-
-    @Override
-    public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
-        super.onGetHistory(content, history);
-        view.onGetThreadHistory(history);
-    }
-
-    @Override
-    public void onMuteThread(String content, ChatResponse<ResultMute> outPutMute) {
-        super.onMuteThread(content, outPutMute);
-        view.onMuteThread();
-    }
-
-    @Override
-    public void onUnmuteThread(String content, ChatResponse<ResultMute> outPutMute) {
-        super.onUnmuteThread(content, outPutMute);
-        view.onUnMuteThread();
-    }
-
-    @Override
-    public void onRenameThread(String content, OutPutThread outPutThread) {
-        super.onRenameThread(content, outPutThread);
-        view.onRenameGroupThread();
-    }
 
     @Override
     public void onContactAdded(String content, ChatResponse<ResultAddContact> chatResponse) {
@@ -1523,30 +599,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         view.onAddContact();
     }
 
-    @Override
-    public void onUpdateContact(String content, ChatResponse<ResultUpdateContact> chatResponse) {
-        super.onUpdateContact(content, chatResponse);
-        view.onUpdateContact();
-    }
-
-    @Override
-    public void onUploadFile(String content, ChatResponse<ResultFile> response) {
-        super.onUploadFile(content, response);
-        view.onUploadFile();
-    }
-
-
-    @Override
-    public void onUploadImageFile(String content, ChatResponse<ResultImageFile> chatResponse) {
-        super.onUploadImageFile(content, chatResponse);
-        view.onUploadImageFile();
-    }
-
-    @Override
-    public void onRemoveContact(String content, ChatResponse<ResultRemoveContact> response) {
-        super.onRemoveContact(content, response);
-        view.onRemoveContact();
-    }
 
     @Override
     public void onThreadAddParticipant(String content, ChatResponse<ResultAddParticipant> outPutAddParticipant) {
@@ -1558,13 +610,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     public void onThreadRemoveParticipant(String content, ChatResponse<ResultParticipant> chatResponse) {
         super.onThreadRemoveParticipant(content, chatResponse);
         view.onRemoveParticipant();
-    }
-
-
-    @Override
-    public void onDeleteMessage(String content, ChatResponse<ResultDeleteMessage> outPutDeleteMessage) {
-        super.onDeleteMessage(content, outPutDeleteMessage);
-        view.onDeleteMessage();
     }
 
     @Override
@@ -1654,51 +699,11 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
-    @Override
-    public void onBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
-        super.onBlock(content, outPutBlock);
-        view.onBlock();
-    }
-
-    @Override
-    public void onUnBlock(String content, ChatResponse<ResultBlock> outPutBlock) {
-        super.onUnBlock(content, outPutBlock);
-        view.onUnblock();
-    }
-
-    @Override
-    public void onMapSearch(String content, OutPutMapNeshan outPutMapNeshan) {
-        super.onMapSearch(content, outPutMapNeshan);
-        view.onMapSearch();
-    }
-
-    @Override
-    public void onMapRouting(String content) {
-        view.onMapRouting();
-    }
-
-    @Override
-    public void onGetBlockList(String content, ChatResponse<ResultBlockList> outPutBlockList) {
-        super.onGetBlockList(content, outPutBlockList);
-        view.ongetBlockList();
-    }
 
     @Override
     public void OnSeenMessageList(String content, ChatResponse<ResultParticipant> chatResponse) {
 
     }
-
-    @Override
-    public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
-        super.onSearchContact(content, chatResponse);
-        view.onSearchContact();
-    }
-
-    @Override
-    public void OnStaticMap(ChatResponse<ResultStaticMapImage> chatResponse) {
-        view.onMapStaticImage(chatResponse);
-    }
-
 
     @Override
     public void handleCallbackError(Throwable cause) throws Exception {
@@ -1731,48 +736,11 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         super.OnSetRule(outputSetRoleToUser);
     }
 
-
     @Override
     public void onGetThreadParticipant(ChatResponse<ResultParticipant> outPutParticipant) {
         super.onGetThreadParticipant(outPutParticipant);
 
 
-    }
-
-    @Override
-    public void onPinMessage(ChatResponse<ResultPinMessage> response) {
-        view.onPinMessage(response);
-    }
-
-    @Override
-    public void onUnPinMessage(ChatResponse<ResultPinMessage> response) {
-        view.onUnPinMessage(response);
-    }
-
-    @Override
-    public void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
-        view.onGetCurrentUserRoles(response);
-    }
-
-    @Override
-    public void onTypingSignalTimeout(long threadId) {
-        view.onTypingSignalTimeout(threadId);
-    }
-
-
-    @Override
-    public void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
-        view.onUniqueNameIsAvailable(response);
-    }
-
-    @Override
-    public void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
-        view.onJoinPublicThread(response);
-    }
-
-    @Override
-    public void onGetUnreadMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
-        view.onGetUnreadsMessagesCount(response);
     }
 
     @Override
@@ -1812,11 +780,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onPingStatusSent(ChatResponse<StatusPingResult> response) {
-        view.pingStatusSent(response);
-    }
-
-    @Override
     public void onReceiveCallRequest(ChatResponse<CallRequestResult> response) {
 
         if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
@@ -1840,7 +803,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
     }
-
 
     @Override
     public void onReceiveGroupCallRequest(ChatResponse<CallRequestResult> response) {
@@ -1902,16 +864,15 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         });
     }
 
-
     @Override
     public void onVoiceCallStarted(ChatResponse<CallStartResult> response) {
 
         isInCall = true;
 
-        activity.runOnUiThread(()->{
+        activity.runOnUiThread(() -> {
             if (cameraPreview != null) {
 
-                cameraPreview.setLayoutParams(defaultCameraPreviewLayoutParams);
+//                cameraPreview.setLayoutParams(defaultCameraPreviewLayoutParams);
 
                 cameraPreview.getSurfaceView().setZOrderOnTop(true);
                 cameraPreview.getSurfaceView().setZOrderMediaOverlay(true);
@@ -1949,7 +910,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         }
         return callerName;
     }
-
 
     @Override
     public void onCallRequestRejected(ChatResponse<CallRequestResult> response) {
@@ -1989,7 +949,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
     }
 
-
     @Override
     public void terminateCall() {
 
@@ -2012,7 +971,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
     }
-
 
     @Override
     public void endRunningCall() {
@@ -2074,7 +1032,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     }
-
 
     @Override
     public void switchMute() {
@@ -2190,21 +1147,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void closeThread(int testThreadId) {
-
-        CloseThreadRequest closeThreadRequest = new CloseThreadRequest
-                .Builder(testThreadId)
-                .typeCode("default")
-                .build();
-
-        if (chat.isChatReady()) {
-            String uniqueId = chat.closeThread(closeThreadRequest);
-        }
-
-
-    }
-
-    @Override
     public void getContact() {
 
         if (chat.isChatReady()) {
@@ -2219,21 +1161,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
         }
 
 
-    }
-
-    @Override
-    public void registerAssistant(RegisterAssistantRequest request) {
-        chat.registerAssistant(request);
-    }
-
-    @Override
-    public void getAssistants(GetAssistantRequest request) {
-        chat.getAssistants(request);
-    }
-
-    @Override
-    public void deActiveAssistant(DeActiveAssistantRequest request) {
-        chat.deactiveAssistant(request);
     }
 
     @Override
@@ -2407,7 +1334,35 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
             showVideoViews();
         }
 
-        String uniqueId = chat.requestGroupCall(callRequest);
+        String uniqueId;
+        if (serverType == ServerType.SANDBOX) {
+            uniqueId = chat.requestGroupCall(callRequest);
+        } else {
+            uniqueId = chat.requestCall(callRequest);
+        }
+        callUniqueIds.add(uniqueId);
+        callimpUniqueIds.add(uniqueId);
+    }
+
+    @Override
+    public void requestP2PCallWithUserId(int userId) {
+        List<Invitee> invitees = new ArrayList<>();
+        Invitee invitee = new Invitee();
+        invitee.setId(userId);
+        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+        invitees.add(invitee);
+
+
+        //request with invitee list
+        CallRequest callRequest = new CallRequest.Builder(
+                invitees,
+                CallType.Constants.VIDEO_CALL).build();
+
+        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
+            showVideoViews();
+        }
+
+        String uniqueId = chat.requestCall(callRequest);
         callUniqueIds.add(uniqueId);
         callimpUniqueIds.add(uniqueId);
     }
@@ -2484,7 +1439,6 @@ public class CallPresenter extends ChatAdapter implements ChatContract.presenter
 
         view.onCallCreated(response.getResult().getCallId());
     }
-
 
     @Override
     public void onAudioCallUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {

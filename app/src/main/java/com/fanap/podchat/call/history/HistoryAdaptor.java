@@ -62,30 +62,35 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
             CallVO historyVO = historyVOS.get(viewHolder.getAdapterPosition());
 
-            if(historyVO.getPartnerParticipantVO()!=null){
+            if (historyVO.getPartnerParticipantVO() != null) {
 
-                viewHolder.tvName.setText(historyVO.getPartnerParticipantVO().getFirstName() + " " + historyVO.getPartnerParticipantVO().getLastName());
-
+                if (historyVO.getPartnerParticipantVO().getFirstName() != null || historyVO.getPartnerParticipantVO().getLastName() != null)
+                    viewHolder.tvName.setText(historyVO.getPartnerParticipantVO().getFirstName() + " " + historyVO.getPartnerParticipantVO().getLastName());
+                else if (historyVO.getPartnerParticipantVO().getCellphoneNumber() != null) {
+                    viewHolder.tvName.setText(historyVO.getPartnerParticipantVO().getCellphoneNumber());
+                } else {
+                    viewHolder.tvName.setText(historyVO.getPartnerParticipantVO().getContactName());
+                }
                 if (Util.isNotNullOrEmpty(historyVO.getPartnerParticipantVO().getImage()))
                     Glide.with(context)
                             .load(historyVO.getPartnerParticipantVO().getImage())
                             .apply(RequestOptions.circleCropTransform())
                             .into(viewHolder.imageViewProfile);
-                else{
-                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context,R.mipmap.ic_profile));
+                else {
+                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
 
                 }
 
-                setImageStatus(viewHolder.imageStatus,historyVO.getStatus());
+                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
 
                 viewHolder.imageButtonCall.setOnClickListener(v -> {
                     if (iHistoryInterface != null)
                         iHistoryInterface.onCallSelected(historyVO);
                 });
-            }else {
+            } else {
                 viewHolder.tvName.setText("Invalid name");
-                viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context,R.mipmap.ic_profile));
-                setImageStatus(viewHolder.imageStatus,historyVO.getStatus());
+                viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
+                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
             }
 
         }
@@ -95,38 +100,38 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
     private void setImageStatus(ImageView imageStatus, int status) {
 
-        switch (status){
+        switch (status) {
 
-            case CallStatus.Constants.ACCEPTED:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_end_green));
+            case CallStatus.Constants.ACCEPTED: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_end_green));
                 break;
             }
-            case CallStatus.Constants.REQUESTED:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_requested));
+            case CallStatus.Constants.REQUESTED: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_requested));
                 break;
             }
-            case CallStatus.Constants.CANCELED:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_requested));
+            case CallStatus.Constants.CANCELED: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_requested));
                 break;
             }
-            case CallStatus.Constants.MISS:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_missed_red));
+            case CallStatus.Constants.MISS: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_missed_red));
                 break;
             }
-            case CallStatus.Constants.DECLINED:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_declined));
+            case CallStatus.Constants.DECLINED: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_declined));
                 break;
             }
-            case CallStatus.Constants.STARTED:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_requested));
+            case CallStatus.Constants.STARTED: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_requested));
                 break;
             }
-            case CallStatus.Constants.ENDED:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_end_green));
+            case CallStatus.Constants.ENDED: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_end_green));
                 break;
             }
-            case CallStatus.Constants.LEAVE:{
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_call_end_green));
+            case CallStatus.Constants.LEAVE: {
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_end_green));
                 break;
             }
 

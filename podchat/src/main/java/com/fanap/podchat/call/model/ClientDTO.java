@@ -43,7 +43,7 @@ public class ClientDTO implements Parcelable {
         if (topicSend != null && topicSend.endsWith(VOICE_TOPIC_SUFFIX))
             return topicSend.replace(VOICE_TOPIC_SUFFIX,VIDEO_TOPIC_SUFFIX);
         if (topicSend != null)
-            return topicSend + VIDEO_TOPIC_SUFFIX;
+            return VIDEO_TOPIC_SUFFIX +  topicSend;
         return null;
     }
 
@@ -53,7 +53,7 @@ public class ClientDTO implements Parcelable {
         if (topicSend != null && topicSend.endsWith(VIDEO_TOPIC_SUFFIX))
             return topicSend.replace(VIDEO_TOPIC_SUFFIX,VOICE_TOPIC_SUFFIX);
         if (topicSend != null)
-            return topicSend + VOICE_TOPIC_SUFFIX;
+            return  VOICE_TOPIC_SUFFIX + topicSend;
         return null;
     }
 
@@ -63,7 +63,7 @@ public class ClientDTO implements Parcelable {
         if (topicReceive != null && topicReceive.endsWith(VOICE_TOPIC_SUFFIX))
             return topicReceive.replace(VOICE_TOPIC_SUFFIX, VIDEO_TOPIC_SUFFIX);
         if (topicReceive != null)
-            return topicReceive + VIDEO_TOPIC_SUFFIX;
+            return  VIDEO_TOPIC_SUFFIX + topicReceive;
         return null;
     }
 
@@ -73,7 +73,7 @@ public class ClientDTO implements Parcelable {
         if (topicReceive != null && topicReceive.endsWith(VIDEO_TOPIC_SUFFIX))
             return topicReceive.replace(VIDEO_TOPIC_SUFFIX, VOICE_TOPIC_SUFFIX);
         if (topicReceive != null)
-            return topicReceive + VOICE_TOPIC_SUFFIX;
+            return  VOICE_TOPIC_SUFFIX + topicReceive;
         return null;
     }
 

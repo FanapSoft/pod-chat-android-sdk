@@ -52,7 +52,7 @@ import com.fanap.podchat.cachemodel.queue.WaitQueueCache;
 import com.fanap.podchat.call.CallAsyncRequestsManager;
 import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.audio_call.ICallState;
-import com.fanap.podchat.call.audio_call.PodCallAudioCallServiceManager;
+import com.fanap.podchat.call.audio_call.CallServiceManager;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
@@ -383,19 +383,19 @@ public class Chat extends AsyncAdapter {
 
     private NetworkPingSender.NetworkStateConfig networkStateConfig;
 
-    private HashMap<String, Long> downloadQList = new HashMap<>();
-    private HashMap<String, Call> downloadCallList = new HashMap<>();
+    private final HashMap<String, Long> downloadQList = new HashMap<>();
+    private final HashMap<String, Call> downloadCallList = new HashMap<>();
 
-    private HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
-    private HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
-    private HashMap<Long, ArrayList<String>> threadSignalsKeeper = new HashMap<>();
+    private final HashMap<String, Handler> signalHandlerKeeper = new HashMap<>();
+    private final HashMap<String, RequestSignalMsg> requestSignalsKeeper = new HashMap<>();
+    private final HashMap<Long, ArrayList<String>> threadSignalsKeeper = new HashMap<>();
     private static JsonParser parser;
     private static HashMap<String, ChatHandler> handlerSend;
     private static HashMap<String, SendingQueueCache> sendingQList;
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
     private static HashMap<String, String> hashTagCallBacks;
-    private HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
+    private final HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
 
     private ProgressHandler.cancelUpload cancelUpload;
     private static final String API_KEY_MAP = "8b77db18704aa646ee5aaea13e7370f4f88b9e8c";
@@ -451,11 +451,11 @@ public class Chat extends AsyncAdapter {
     static ChatDataSource dataSource;
 
 
-    PodCallV2 podVideoCall;
+    private PodCallV2 podVideoCall;
+    private CallServiceManager callServiceManager;
     private boolean requestToClose;
     private List<CallPartnerView> videoCallPartnerViews;
     private CallPartnerView localPartnerView;
-
 
     /**
      * @param freeSpaceThreshold needed free space for downloading media in bytes.
@@ -536,8 +536,8 @@ public class Chat extends AsyncAdapter {
     }
 
     private static String sentryCachDir = "";
-    private static StringBuilder sentrylogs = new StringBuilder();
-    private static StringBuilder sentryCashedlogs = new StringBuilder();
+    private static final StringBuilder sentrylogs = new StringBuilder();
+    private static final StringBuilder sentryCashedlogs = new StringBuilder();
 
     private static void setupSentry(Context context) {
         SentryAndroid.init(context.getApplicationContext(),
@@ -2019,8 +2019,6 @@ public class Chat extends AsyncAdapter {
 
         startVideoCall(info);
 
-//        startAudioCall(info);
-
         getCallParticipants(new GetCallParticipantsRequest.Builder().setCallId(info.getSubjectId()).build());
 
         if (callback != null)
@@ -2101,38 +2099,29 @@ public class Chat extends AsyncAdapter {
                 }
             }
 
-//            if (hasRemotePartnerView()) {
-//                CallPartner constantPartner = new CallPartner.Builder()
-//                        .setPartnerType(PartnerType.REMOTE)
-//                        .setName(info.getResult().getClientDTO().getSendKey() + "" + "asgar1")
-//                        .setVideoTopic("asgar1")
-//                        .setVideoView(videoCallPartnerViews.remove(0))
-//                        .build();
-//                podVideoCall.addPartner(constantPartner);
-//            }
-//            if (hasRemotePartnerView()) {
-//                CallPartner constantPartner2 = new CallPartner.Builder()
-//                        .setPartnerType(PartnerType.REMOTE)
-//                        .setName(info.getResult().getClientDTO().getSendKey() + "" + "asgar2")
-//                        .setVideoTopic("asgar2")
-//                        .setVideoView(videoCallPartnerViews.remove(0))
-//                        .build();
-//                podVideoCall.addPartner(constantPartner2);
-//            }
-//
-//
-//            if (hasRemotePartnerView()) {
-//
-//                CallPartner constantPartner3 = new CallPartner.Builder()
-//                        .setPartnerType(PartnerType.REMOTE)
-//                        .setName(info.getResult().getClientDTO().getSendKey() + "" + "asgar3")
-//                        .setVideoTopic("asgar3")
-//                        .setVideoView(videoCallPartnerViews.remove(0))
-//                        .build();
-//                podVideoCall.addPartner(constantPartner3);
-//            }
-
             podVideoCall.startCall();
+
+            if (callServiceManager != null)
+                callServiceManager.startCallService(info, new ICallState() {
+                    @Override
+                    public void onInfoEvent(String info) {
+
+                    }
+
+                    @Override
+                    public void onErrorEvent(String cause) {
+
+                    }
+
+                    @Override
+                    public void onEndCallRequested() {
+                        podVideoCall.endCall();
+
+                        endAudioCall(CallAsyncRequestsManager.createEndCallRequest(info.getSubjectId()));
+
+                        listenerManager.callOnEndCallRequestFromNotification();
+                    }
+                });
         }
 
 
@@ -2240,6 +2229,9 @@ public class Chat extends AsyncAdapter {
 
         if (podVideoCall != null)
             podVideoCall.endCall();
+
+        if (callServiceManager != null)
+            callServiceManager.stopCallService();
 
         ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
 
@@ -2403,6 +2395,9 @@ public class Chat extends AsyncAdapter {
 
             if (podVideoCall != null)
                 podVideoCall.endCall();
+
+            if (callServiceManager != null)
+                callServiceManager.stopCallService();
 
             listenerManager.callOnRemovedFromCall(response);
 
@@ -2765,10 +2760,9 @@ public class Chat extends AsyncAdapter {
     }
 
 
+    @Deprecated
     public void setAudioCallConfig(CallConfig callConfig) {
-//        if (audioCallManager != null)
-//            audioCallManager.setCallConfig(callConfig);
-        // TODO: 5/30/2021 Run on Service ...
+        callServiceManager = new CallServiceManager(context, callConfig);
     }
 
     public String requestCall(CallRequest request) {
@@ -2850,8 +2844,8 @@ public class Chat extends AsyncAdapter {
 
     public String endAudioCall(EndCallRequest endCallRequest) {
 
-//        if (audioCallManager != null)
-//            audioCallManager.endStream(false);
+        if (callServiceManager != null)
+            callServiceManager.stopCallService();
 
         if (podVideoCall != null)
             podVideoCall.endCall();
@@ -3041,7 +3035,10 @@ public class Chat extends AsyncAdapter {
 
     public void switchCallSpeakerState(boolean isSpeakerOn) {
 
-        podVideoCall.speakerOn();
+        if (isSpeakerOn)
+            podVideoCall.speakerOn();
+
+        else podVideoCall.speakerOff();
     }
 
 
@@ -6311,42 +6308,8 @@ public class Chat extends AsyncAdapter {
         ProgressResponseBody.setTimeoutConfig(config);
     }
 
-    public void setupVideoCall(VideoCallParam callParam
-            , List<CallPartnerView> remoteViews) {
 
-        this.localPartnerView = callParam.getCameraPreview();
-
-        this.videoCallPartnerViews = new ArrayList<>(remoteViews);
-
-        podVideoCall = new PodCallBuilder(mContext, new IPodCall() {
-            @Override
-            public void onError(String s) {
-                captureError(new PodChatException(s, 6012));
-            }
-
-            @Override
-            public void onEvent(String s) {
-                showLog(s);
-            }
-
-            @Override
-            public void onCameraReady(PodCall podCall) {
-                showLog("Video Call is ready");
-            }
-
-            @Override
-            public void onCameraReady(PodCallV2 podCallV2) {
-
-            }
-        })
-                .setVideoCallParam(callParam)
-                .buildV2();
-
-        podVideoCall.initial();
-
-    }
-
-
+    @Deprecated
     public void setupCall(VideoCallParam videoCallParam,
                           AudioCallParam audioCallParam
             , List<CallPartnerView> remoteViews) {
@@ -6368,12 +6331,12 @@ public class Chat extends AsyncAdapter {
 
             @Override
             public void onCameraReady(PodCall podCall) {
-                showLog("Video Call is ready");
+                showLog("Camera Call is ready");
             }
 
             @Override
             public void onCameraReady(PodCallV2 podCallV2) {
-
+                showLog("Camera Call is ready");
             }
         })
                 .setVideoCallParam(videoCallParam)
@@ -6381,6 +6344,45 @@ public class Chat extends AsyncAdapter {
                 .buildV2();
 
         podVideoCall.initial();
+
+    }
+
+
+    public void setupCall(VideoCallParam videoCallParam, AudioCallParam audioCallParam, CallConfig callConfig, List<CallPartnerView> remoteViews) {
+
+        this.localPartnerView = videoCallParam.getCameraPreview();
+
+        this.videoCallPartnerViews = new ArrayList<>(remoteViews);
+
+        callServiceManager = new CallServiceManager(context, callConfig);
+
+        podVideoCall = new PodCallBuilder(mContext, new IPodCall() {
+            @Override
+            public void onError(String s) {
+                captureError(new PodChatException(s, 6012));
+            }
+
+            @Override
+            public void onEvent(String s) {
+                showLog(s);
+            }
+
+            @Override
+            public void onCameraReady(PodCall podCall) {
+                showLog("Camera Call is ready");
+            }
+
+            @Override
+            public void onCameraReady(PodCallV2 podCallV2) {
+                showLog("Camera Call is ready");
+            }
+        })
+                .setVideoCallParam(videoCallParam)
+                .setAudioCallParam(audioCallParam)
+                .buildV2();
+
+        podVideoCall.initial();
+
 
     }
 
@@ -6406,6 +6408,8 @@ public class Chat extends AsyncAdapter {
         if (videoCallPartnerViews == null || videoCallPartnerViews.size() == 0)
             videoCallPartnerViews = new ArrayList<>(views);
     }
+
+
 
 
     /**
@@ -10350,11 +10354,7 @@ public class Chat extends AsyncAdapter {
                     ResultParticipant resultParticipant = new ResultParticipant();
 
                     resultParticipant.setContentCount(participantsList.size());
-                    if (participantsList.size() + offset < participantCount) {
-                        resultParticipant.setHasNext(true);
-                    } else {
-                        resultParticipant.setHasNext(false);
-                    }
+                    resultParticipant.setHasNext(participantsList.size() + offset < participantCount);
                     resultParticipant.setParticipants(participantsList);
                     chatResponse.setResult(resultParticipant);
                     chatResponse.setCache(true);
@@ -10455,11 +10455,7 @@ public class Chat extends AsyncAdapter {
                     resultParticipant.setThreadId(threadId);
 
                     resultParticipant.setContentCount(participants.size());
-                    if (participants.size() + offset < participantCount) {
-                        resultParticipant.setHasNext(true);
-                    } else {
-                        resultParticipant.setHasNext(false);
-                    }
+                    resultParticipant.setHasNext(participants.size() + offset < participantCount);
                     resultParticipant.setParticipants(participants);
                     chatResponse.setResult(resultParticipant);
                     chatResponse.setCache(true);
@@ -12726,11 +12722,7 @@ public class Chat extends AsyncAdapter {
 
             resultParticipant.setNextOffset(callback.getOffset() + participants.size());
             resultParticipant.setContentCount(chatMessage.getContentCount());
-            if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultParticipant.setHasNext(true);
-            } else {
-                resultParticipant.setHasNext(false);
-            }
+            resultParticipant.setHasNext(participants.size() + callback.getOffset() < chatMessage.getContentCount());
 
 
             chatResponse.setResult(resultParticipant);
@@ -13663,11 +13655,7 @@ public class Chat extends AsyncAdapter {
 
         resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
         resultHistory.setContentCount(chatMessage.getContentCount());
-        if (messageVOS.size() + callback.getOffset() < chatMessage.getContentCount()) {
-            resultHistory.setHasNext(true);
-        } else {
-            resultHistory.setHasNext(false);
-        }
+        resultHistory.setHasNext(messageVOS.size() + callback.getOffset() < chatMessage.getContentCount());
 
 
         chatResponse.setSubjectId(chatMessage.getSubjectId());
@@ -13760,11 +13748,7 @@ public class Chat extends AsyncAdapter {
 
                 String asyncContent = jsonObject.toString();
 
-                if (syncContact) {
-                    setCallBacks(null, null, null, false, Constants.GET_CONTACTS, offset, uniqueId);
-                } else {
-                    setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
-                }
+                setCallBacks(null, null, null, !syncContact, Constants.GET_CONTACTS, offset, uniqueId);
                 sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "GET_CONTACT_SEND");
                 if (handler != null) {
                     handler.onGetContact(uniqueId);
@@ -14024,11 +14008,7 @@ public class Chat extends AsyncAdapter {
         chatResponse.setCache(true);
 
 
-        if (threadList.size() + finalOffset < contentCount) {
-            resultThreads.setHasNext(true);
-        } else {
-            resultThreads.setHasNext(false);
-        }
+        resultThreads.setHasNext(threadList.size() + finalOffset < contentCount);
         resultThreads.setNextOffset(finalOffset + threadList.size());
         chatResponse.setResult(resultThreads);
         chatResponse.setUniqueId(uniqueId);
@@ -14160,11 +14140,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (callback != null) {
-            if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultParticipant.setHasNext(true);
-            } else {
-                resultParticipant.setHasNext(false);
-            }
+            resultParticipant.setHasNext(participants.size() + callback.getOffset() < chatMessage.getContentCount());
             resultParticipant.setNextOffset(callback.getOffset() + participants.size());
         }
 
@@ -14227,11 +14203,7 @@ public class Chat extends AsyncAdapter {
 
 
         if (callback != null) {
-            if (participants.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultParticipant.setHasNext(true);
-            } else {
-                resultParticipant.setHasNext(false);
-            }
+            resultParticipant.setHasNext(participants.size() + callback.getOffset() < chatMessage.getContentCount());
             resultParticipant.setNextOffset(callback.getOffset() + participants.size());
         }
 
@@ -14532,9 +14504,9 @@ public class Chat extends AsyncAdapter {
 
     private static class PhoneContactAsyncTask extends AsyncTask<Void, Void, List<PhoneContact>> {
 
-        private PhoneContactDbHelper pcDbHelper;
+        private final PhoneContactDbHelper pcDbHelper;
 
-        private OnContactLoaded listener;
+        private final OnContactLoaded listener;
 
         PhoneContactAsyncTask(PhoneContactDbHelper dbHelper, OnContactLoaded onContactLoaded) {
 
@@ -15704,11 +15676,7 @@ public class Chat extends AsyncAdapter {
 
         if (callback != null) {
 
-            if (threads.size() + callback.getOffset() < chatMessage.getContentCount()) {
-                resultThreads.setHasNext(true);
-            } else {
-                resultThreads.setHasNext(false);
-            }
+            resultThreads.setHasNext(threads.size() + callback.getOffset() < chatMessage.getContentCount());
 
             resultThreads.setNextOffset(callback.getOffset() + threads.size());
         }
@@ -15776,11 +15744,7 @@ public class Chat extends AsyncAdapter {
         resultContact.setContacts(contacts);
         resultContact.setContentCount(chatMessage.getContentCount());
 
-        if (contacts.size() + callback.getOffset() < chatMessage.getContentCount()) {
-            resultContact.setHasNext(true);
-        } else {
-            resultContact.setHasNext(false);
-        }
+        resultContact.setHasNext(contacts.size() + callback.getOffset() < chatMessage.getContentCount());
         resultContact.setNextOffset(callback.getOffset() + contacts.size());
         resultContact.setContentCount(chatMessage.getContentCount());
 

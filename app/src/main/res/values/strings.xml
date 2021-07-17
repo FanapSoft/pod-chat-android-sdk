@@ -1,9 +1,5 @@
 <resources>
     <string name="app_name">PodChat</string>
-    <string name="socket_server_address">ws://172.16.110.235:8003/ws</string>
-    <string name="server_name">mnot</string>
-    <string name="sso_host">sso</string>
-    <string name="server_token">641d08846788430fa19292efc60a9a60</string>
     <string name="tab_function">Function</string>
     <string name="tab_chat">chat</string>
     <string name="tab_log">Log</string>

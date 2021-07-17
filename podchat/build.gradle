@@ -5,7 +5,7 @@ apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.8.1'
+    libraryVersion = '0.9.9.1'
 }
 android {
 
@@ -13,11 +13,10 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 166
+        versionCode 168
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
     buildTypes {
         release {
@@ -61,8 +60,6 @@ dependencies {
 
     //room
     api 'android.arch.persistence.room:runtime:1.1.1'
-    implementation 'android.arch.persistence.room:runtime:1.1.1'
-
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
 
     //rx for room

@@ -582,6 +582,8 @@ public interface ChatContract {
 
         void requestP2PCallWithContactId(int contactId);
 
+        void requestP2PCallWithUserId(int userId);
+
         void terminateCall();
 
         void removeCallParticipant(String etId, boolean checked, boolean checked1, boolean checked2);

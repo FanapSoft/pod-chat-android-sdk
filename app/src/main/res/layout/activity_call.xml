@@ -8,7 +8,6 @@
     tools:context="com.example.chat.application.chatexample.CallActivity">
 
 
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabShowContactsList"
         android:layout_width="wrap_content"
@@ -25,19 +24,14 @@
         android:id="@+id/tvStatus"
         style="@style/text_style"
         android:layout_width="match_parent"
-        android:gravity="start"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:gravity="start"
         android:textColor="@color/colorPrimary"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Connecting..." />
-
-
-
-
-
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -55,7 +49,7 @@
             android:layout_marginEnd="8dp"
             android:layout_weight="0.3"
             android:background="@drawable/rounded_button_transparent"
-            android:hint="P2P Thread Id"
+            android:hint="User id"
             android:inputType="phone"
             android:paddingStart="8dp"
             android:textColor="@color/white"
@@ -112,15 +106,15 @@
 
 
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_gravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
 
             <ProgressBar
-                android:layout_gravity="center"
                 android:layout_width="24dp"
-                android:layout_height="24dp"/>
+                android:layout_height="24dp"
+                android:layout_gravity="center" />
 
             <TextView
                 style="@style/text_style"
@@ -135,15 +129,33 @@
 
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerViewHistories"
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="@+id/view2"
-            app:layout_constraintStart_toStartOf="@+id/textView2"
-            app:layout_constraintTop_toBottomOf="@+id/textView2" />
-    </ViewSwitcher>
+            android:layout_height="wrap_content">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewHistories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="@+id/view2"
+                    app:layout_constraintStart_toStartOf="@+id/textView2"
+                    app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="90dp" />
+
+            </LinearLayout>
+
+
+        </android.support.v4.widget.NestedScrollView>
+
+    </ViewSwitcher>
 
 
     <include
@@ -157,6 +169,7 @@
         android:id="@+id/frame_call"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible" />
+        android:visibility="visible"
+        tools:visibility="gone" />
 
 </android.support.constraint.ConstraintLayout>

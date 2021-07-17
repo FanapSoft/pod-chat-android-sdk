@@ -2369,6 +2369,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void requestP2PCallWithUserId(int userId) {
+
+    }
+
+    @Override
     public void onCallReconnect(ChatResponse<CallReconnectResult> response) {
         view.onCallReconnect(response.getResult().getCallId());
     }
