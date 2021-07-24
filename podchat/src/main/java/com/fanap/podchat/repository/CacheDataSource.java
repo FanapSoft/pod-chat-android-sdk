@@ -16,6 +16,7 @@ import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
@@ -73,10 +74,45 @@ public class CacheDataSource {
                     }
                 });
     }
+    /*
+    Threads
+     */
+    public Observable<ThreadManager.ThreadResponse> getMutualThreadsData(Integer count, Long offset, Long userId) throws RoomIntegrityException {
+
+
+        return Observable
+                .create(emitter -> {
+                    try {
+                        databaseHelper.getMutualThreadRaw(count, offset,userId, new OnWorkDone() {
+                            @Override
+                            public void onWorkDone(@Nullable Object o) {
+//                                emitter.onNext(new ThreadManager.CacheThread((List<Thread>) o, ((List<Thread>) o).size()));
+                            }
+
+                            @Override
+                            public void onWorkDone(@Nullable Object o, List z) {
+
+                                ThreadManager.ThreadResponse threadResponse = new ThreadManager.ThreadResponse(z, (Long) o, DISK);
+
+                                emitter.onNext(threadResponse);
+
+                            }
+                        });
+                    } catch (RoomIntegrityException e) {
+                        emitter.onError(e);
+                    }
+                });
+    }
 
     public void cacheThreads(List<Thread> data) {
         databaseHelper.saveThreads(data);
     }
+
+    public void cacheMutualThreads(List<Thread> data,long userId) {
+        databaseHelper.saveMutualThreads(data,userId);
+    }
+
+
 
     public void cacheThread(Thread thread) {
         databaseHelper.saveNewThread(thread);
@@ -86,7 +122,7 @@ public class CacheDataSource {
     Contacts
      */
 
-    public Observable<ContactManager.ContactResponse> getContactsData(Integer count, Long offset) {
+    public Observable<ContactManager.ContactResponse> getContactsData(Integer count, Long offset,String username) {
 
 
         return Observable.create(emitter -> {
@@ -94,7 +130,7 @@ public class CacheDataSource {
 
             try {
 
-                List<Contact> contactList = databaseHelper.getContacts(count, offset);
+                List<Contact> contactList = databaseHelper.getContacts(count, offset,username);
 
                 long contentCount = databaseHelper.getContactCount();
 

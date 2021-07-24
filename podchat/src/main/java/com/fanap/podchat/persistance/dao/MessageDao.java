@@ -15,6 +15,7 @@ import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.cachemodel.CacheMutualGroupVo;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
@@ -81,6 +82,9 @@ public interface MessageDao {
 
     @Query("select * from CacheContact order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
+
+    @Query("select * from CacheContact WHERE linkedUser_username=:username order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
+    List<CacheContact> getRawContacts(Integer count, Long offset,String username);
 
     @RawQuery
     List<CacheContact> getRawContacts(SupportSQLiteQuery sqLiteQuery);
@@ -544,6 +548,8 @@ public interface MessageDao {
     @Insert(onConflict = REPLACE)
     void insertCacheAssistantHistoryVo(List<CacheAssistantHistoryVo> assistantVo);
 
+
+
     @Query("DELETE FROM CacheAssistantHistoryVo")
     void deleteAllCacheAssistantHistoryVo();
 
@@ -572,4 +578,12 @@ public interface MessageDao {
 
 
 
+    @Insert(onConflict = REPLACE)
+    void insertCacheMutualVo(CacheMutualGroupVo assistantVo);
+
+    @Query("SELECT * FROM CacheMutualGroupVo WHERE contactId = :contactId")
+    List<CacheMutualGroupVo> getMutualGroup(String contactId);
+
+    @Query("DELETE FROM CacheMutualGroupVo")
+    void deleteAllCacheMutualGroupVo();
 }

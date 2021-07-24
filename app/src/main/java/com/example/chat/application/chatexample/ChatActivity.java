@@ -69,7 +69,7 @@ import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
-//import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -189,8 +189,9 @@ public class ChatActivity extends AppCompatActivity
 
 
     //views
-    private Button btConnect;
+    private Button btConnect, btSendMsg, btChangeThreadId, btSettoken;
     private TextView tvState, tvUserInfo, tvServerType;
+    private EditText et_text;
 
     //other variables
     private Map<String, List<Method>> categoryMap;
@@ -649,6 +650,10 @@ public class ChatActivity extends AppCompatActivity
     private void setListeners() {
         //new
         btConnect.setOnClickListener(this);
+        btSendMsg.setOnClickListener(this::sendMessage);
+        btChangeThreadId.setOnClickListener(this::setThreadId);
+        btSettoken.setOnClickListener(this::setToken);
+
         // end new
 
 //
@@ -673,6 +678,10 @@ public class ChatActivity extends AppCompatActivity
         tvState = findViewById(R.id.tvState);
         tvUserInfo = findViewById(R.id.tvUserInfo);
         tvServerType = findViewById(R.id.tvServerType);
+        et_text = findViewById(R.id.et_text);
+        btSendMsg = findViewById(R.id.btSendMsg);
+        btChangeThreadId = findViewById(R.id.btChangeThreadId);
+        btSettoken = findViewById(R.id.btSettoken);
         // end of
 
         presenter = new ChatPresenter(this, this, this);
@@ -1864,7 +1873,7 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 //
 //
-//        presenter.sendTextMessage(editText.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
+        presenter.sendTextMessage(et_text.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
 //
 //
 //        editText.setText("");
@@ -2031,9 +2040,9 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void getMutualGroup() {
-//        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
-//        GetMutualGroupRequest request = new GetMutualGroupRequest.Builder(invite).build();
-//        presenter.getMutualGroups(request);
+        Invitee invite = new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID);
+        GetMutualGroupRequest request = new GetMutualGroupRequest.Builder(invite).build();
+        presenter.getMutualGroups(request);
 
     }
 
@@ -2565,7 +2574,7 @@ public class ChatActivity extends AppCompatActivity
             RequestGetContact request = new RequestGetContact.Builder()
                     .count(50)
                     .offset(0)
-//                    .setUserName("mahyar.zhiani")
+                    .setUserName("mahyar.zhiani")
 //       .withNoCache()
                     .build();
 
@@ -2876,14 +2885,20 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
-    public void SetThreadId(View view) {
+    public void setThreadId(View view) {
 
 
-//        String tId = editTextThread.getText().toString();
+        String tId = et_text.getText().toString();
 
-//        if (!tId.isEmpty())
-//            TEST_THREAD_ID = Integer.valueOf(tId);
+        if (!tId.isEmpty())
+            TEST_THREAD_ID = Integer.valueOf(tId);
 
+    }
+
+    public void setToken(View view) {
+        String tId = et_text.getText().toString();
+        if (!tId.isEmpty())
+            TOKEN = tId;
     }
 
     @Override

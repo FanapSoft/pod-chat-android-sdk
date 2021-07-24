@@ -80,6 +80,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
@@ -1348,6 +1349,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onGetMutualGroups(String content, ChatResponse<ResultThreads> thread) {
+        super.onGetMutualGroups(content, thread);
+        Log.e(TAG, "onGetMutualGroups: " + content);
+
+    }
+
+    @Override
     public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
         Log.e(TAG, "onThreadInfoUpdated: "+response.getResult().getThread().getId() + "===> "+response.getResult().getThread().getLastMessage());
     }
@@ -2208,6 +2216,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getTagList(GetTagListRequest request) {
         chat.getTagList(request);
+    }
+
+    @Override
+    public void getMutualGroups(GetMutualGroupRequest request) {
+       chat.getMutualGroup(request);
     }
 
     @Override

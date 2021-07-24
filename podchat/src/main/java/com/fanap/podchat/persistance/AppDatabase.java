@@ -11,6 +11,7 @@ import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.cachemodel.CacheMutualGroupVo;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
 import com.fanap.podchat.cachemodel.CacheTagParticipantVO;
@@ -65,6 +66,7 @@ import com.fanap.podchat.util.DataTypeConverter;
         CallHistoryVO.class,
         CacheAssistantVo.class,
         CacheAssistantHistoryVo.class,
+        CacheMutualGroupVo.class,
         CacheTagVo.class,
         CacheTagParticipantVO.class,
 }, version = 6, exportSchema = false)

@@ -6,6 +6,7 @@ public class LinkedUser  {
     @ColumnInfo(name = "linkedUser_id")
     private long id;
     private long coreUserId;
+    @ColumnInfo(name = "linkedUser_username")
     private String username;
     private String nickname;
     private String name;

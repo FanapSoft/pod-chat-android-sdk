@@ -249,6 +249,7 @@ public class ChatMessageType {
         int ADD_TAG_PARTICIPANT = 143;
         int REMOVE_TAG_PARTICIPANT = 144;
         int GET_TAG_LIST = 145;
+        int MUTAL_GROUPS = 130;
 
     }
 
