@@ -31,14 +31,7 @@
         <activity android:name="com.example.chat.application.chatexample.CallActivity">
 
         </activity>
-        <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity" >
-        </activity>
 
-        <activity
-            android:name="com.example.chat.application.chatexample.ChatMainActivity"
-            android:launchMode="singleInstance">
-
-        </activity>
         <activity android:name="com.example.chat.application.chatexample.ChatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
