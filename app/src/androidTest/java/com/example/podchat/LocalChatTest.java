@@ -9,7 +9,6 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
-import com.example.chat.application.chatexample.ChatSandBoxActivity;
 import com.fanap.podchat.mainmodel.History;
 
 import org.junit.Before;

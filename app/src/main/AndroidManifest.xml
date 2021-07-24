@@ -23,40 +23,16 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning"
+        android:hardwareAccelerated="false"
         tools:targetApi="n">
         <activity android:name="com.fanap.podchat.KafkaTestActivity">
-
-
-
 
         </activity>
         <activity android:name="com.example.chat.application.chatexample.CallActivity">
 
         </activity>
-        <activity android:name="com.example.chat.application.chatexample.ChatSandBoxActivity" /> <!-- <receiver android:name="com.arissystem.touca.tmtp.TmtpPushReceiver" -->
-        <!-- android:exported="true"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="com.arissystem.touca.app" /> -->
-        <!-- </intent-filter> -->
-        <!-- </receiver> -->
-        <!-- <receiver android:name="com.arissystem.touca.tmtp.sdk.receivers.TmtpBootReceiver"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.BOOT_COMPLETED" /> -->
-        <!-- <action android:name="android.intent.action.QUICKBOOT_POWERON" /> -->
-        <!-- </intent-filter> -->
-        <!-- </receiver> -->
-<!--        <activity-->
-<!--            android:name="com.example.chat.application.chatexample.ChatActivity"-->
-<!--            android:launchMode="singleInstance">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity> -->
-        <activity
-            android:name="com.example.chat.application.chatexample.ChatMainActivity"
-            android:launchMode="singleInstance">
+        <activity android:name="com.example.chat.application.chatexample.ChatActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
