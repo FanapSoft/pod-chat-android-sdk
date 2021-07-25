@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -176,28 +178,37 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-//    TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private String TOKEN = "91cf7327e2c148b78fb65230d5bba49a";
+    private final Enum<ServerType> serverType = ServerType.Main;
+    //    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private String TOKEN = "3279c79854f44305a2d130374a59a166";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
-    private static String appId = "POD-Chat";
     private String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
-    private String name;
     private String socketAddress;
     private String platformHost;
     private String fileServer;
 
 
     //views
-    private Button btConnect, btSendMsg, btChangeThreadId, btSettoken;
+    private Button btConnect, btSendMsg, btChangeThreadId, btSettoken, btGoToUpload;
     private TextView tvState, tvUserInfo, tvServerType;
     private EditText et_text;
+
+    //upload views
+    private ImageButton ibClose;
+    private TextView tvPercent;
+    private ImageView imImage, imImagedownloaded;
+    private Button btChooseFile, btUploadImage, btDownloadFile, btDownloadImage, btUploadFile;
+    private ConstraintLayout vUpload;
+
 
     //other variables
     private Map<String, List<Method>> categoryMap;
     private List<Method> movieList;
     private ExpandablePlaceHolderView expandablePlaceHolderView;
-    private final Enum<ServerType> serverType = ServerType.Main;
+
+
+    private String fileHash = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -653,18 +664,19 @@ public class ChatActivity extends AppCompatActivity
         btSendMsg.setOnClickListener(this::sendMessage);
         btChangeThreadId.setOnClickListener(this::setThreadId);
         btSettoken.setOnClickListener(this::setToken);
+        btGoToUpload.setOnClickListener(v -> vUpload.setVisibility(View.VISIBLE));
 
+        //upload view listeners
+        ibClose.setOnClickListener(v -> vUpload.setVisibility(View.GONE));
+        btChooseFile.setOnClickListener(v -> showPicChooser());
+
+        btChooseFile.setOnClickListener(v -> showPicChooser());
+
+        btUploadImage.setOnClickListener(v -> uploadImageProgress());
+        btDownloadFile.setOnClickListener(v -> downloadFile());
+        btDownloadImage.setOnClickListener(v -> downloadImage());
+        btUploadFile.setOnClickListener(v -> uploadFileProgress());
         // end new
-
-//
-//        buttonFileChoose.setOnClickListener(this);
-//        buttonFileChoose.setOnLongClickListener(v -> {
-//
-//            presenter.shareLogs();
-//            return true;
-//        });
-
-
     }
 
     private void init() {
@@ -682,6 +694,20 @@ public class ChatActivity extends AppCompatActivity
         btSendMsg = findViewById(R.id.btSendMsg);
         btChangeThreadId = findViewById(R.id.btChangeThreadId);
         btSettoken = findViewById(R.id.btSettoken);
+        btGoToUpload = findViewById(R.id.btGoToUpload);
+
+        //upload - download views
+        tvPercent = findViewById(R.id.tvPercent);
+        ibClose = findViewById(R.id.ibClose);
+        imImage = findViewById(R.id.imImage);
+        imImagedownloaded = findViewById(R.id.imImagedownloaded);
+        vUpload = findViewById(R.id.vUpload);
+        btChooseFile = findViewById(R.id.btChooseFile);
+
+        btUploadImage = findViewById(R.id.btUploadImage);
+        btDownloadFile = findViewById(R.id.btDownloadFile);
+        btDownloadImage = findViewById(R.id.btDownloadImage);
+        btUploadFile = findViewById(R.id.btUploadFile);
         // end of
 
         presenter = new ChatPresenter(this, this, this);
@@ -982,7 +1008,7 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
-                .Builder("613Q7WCCEXZ1DGY5")
+                .Builder(fileHash)
 //       .setCrop(true)
                 .setQuality(0.45f)
                 .build();
@@ -1101,6 +1127,68 @@ public class ChatActivity extends AppCompatActivity
 //
 //        });
 
+
+    }
+
+
+    private void downloadImage() {
+
+        RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
+                .Builder(fileHash)
+//       .setCrop(true)
+                .setQuality(0.45f)
+                .build();
+
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_EXTERNAL_STORAGE);
+            return;
+
+        }
+
+        downloadingId = presenter.downloadFile(rePodImage, new ProgressHandler.IDownloadFile() {
+            @Override
+            public void onProgressUpdate(String uniqueId, long bytesDownloaded, long totalBytesToDownload) {
+                Log.e("DOWNLOAD", "IN ACTIVITY: " + "Downloaded: " + bytesDownloaded + " Left: " + totalBytesToDownload);
+            }
+
+            @Override
+            public void onProgressUpdate(String uniqueId, int progress) {
+                Log.e("DOWNLOAD", "IN ACTIVITY: " + "Progress: " + progress);
+            }
+
+            @Override
+            public void onError(String uniqueId, String error, String url) {
+                Log.e("DOWNLOAD", "IN ACTIVITY: ERROR :(((");
+            }
+
+            @Override
+            public void onLowFreeSpace(String uniqueId, String url) {
+                Log.e("DOWNLOAD", "Low Space...");
+            }
+
+            @Override
+            public void onFileReady(ChatResponse<ResultDownloadFile> response) {
+                Log.e("DOWNLOAD", "IN ACTIVITY: Finish File!!!!");
+                Log.e("DOWNLOAD", "File name: " + response.getResult().getFile().getName());
+                Log.e("DOWNLOAD", "Uri " + response.getResult().getUri());
+                Log.e("DOWNLOAD", "File Exist " + response.getResult().getFile().exists());
+                if (response.getResult().getFile().exists()) {
+                    try {
+                        Bitmap v = BitmapFactory.decodeFile(response.getResult().getFile().getAbsolutePath());
+                        runOnUiThread(() -> {
+                            imImagedownloaded.setImageBitmap(v);
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.e("DOWNLOAD", "Not Image");
+                    }
+                }
+            }
+        });
 
     }
 
@@ -1551,7 +1639,15 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void uploadImage() {
-        presenter.uploadImage(ChatActivity.this, getUri());
+        if (getUri() != null) {
+            presenter.uploadImage(ChatActivity.this, getUri());
+        } else {
+            showUriEmptyError();
+        }
+    }
+
+    private void showUriEmptyError() {
+        Toast.makeText(this, "please choose a file", Toast.LENGTH_SHORT).show();
     }
 
     private void sendFileMessage(String[] fileUnique) {
@@ -2653,7 +2749,6 @@ public class ChatActivity extends AppCompatActivity
         ssoHost = BaseApplication.getInstance().getString(R.string.sso_host);
         serverName = "chat-server";
 
-        name = BaseApplication.getInstance().getString(R.string.main_server_name);
         socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
@@ -2663,7 +2758,6 @@ public class ChatActivity extends AppCompatActivity
         ssoHost = BaseApplication.getInstance().getString(R.string.sandbox_ssoHost);
         serverName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
 
-        name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
         socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
@@ -2675,7 +2769,6 @@ public class ChatActivity extends AppCompatActivity
         ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
         serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
-        name = BaseApplication.getInstance().getString(R.string.integration_serverName);
         socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
@@ -2696,7 +2789,7 @@ public class ChatActivity extends AppCompatActivity
                     Uri selectedFileUri = data.getData();
                     String path = selectedFileUri.toString();
                     setUri(Uri.parse(path));
-
+                    imImage.setImageURI(Uri.parse(path));
                 } else if (requestCode == FILE_REQUEST_CODE) {
                     Uri fileUri = data.getData();
                     String path = FilePick.getSmartFilePath(this, fileUri);
@@ -2757,14 +2850,14 @@ public class ChatActivity extends AppCompatActivity
         this.signalUniq = signalUniq;
     }
 
-    public void onUploadImage(View view) {
+    public void uploadImageProgress() {
 
 
         presenter.uploadImageProgress(this, ChatActivity.this, getUri(), new ProgressHandler.onProgress() {
             @Override
             public void onProgressUpdate(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
 
-//                runOnUiThread(() -> percentage.setText(progress + "%"));
+                runOnUiThread(() -> tvPercent.setText(progress + "%"));
 
                 Log.e("UPLOAD_IMAGE", "op " + progress + " sent " + totalBytesSent + " toSend " + totalBytesToSend);
 
@@ -2776,8 +2869,9 @@ public class ChatActivity extends AppCompatActivity
                 Log.e("UPLAOD", imageJson);
                 runOnUiThread(() -> {
                     Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
-//                    percentage.setTextColor(getResources().getColor(R.color.colorAccent));
-//                    percentage.setText("100");
+                    tvPercent.setTextColor(getResources().getColor(R.color.colorAccent));
+                    tvPercent.setText("100");
+                    fileHash = chatResponse.getResult().getHashCode();
                 });
 
             }
@@ -2841,10 +2935,9 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
-    public void onUploadFile(View view) {
+    public void uploadFileProgress() {
 
         if (getUri() != null) {
-
             presenter.uploadFileProgress(ChatActivity.this, this, getUri(), new ProgressHandler.onProgressFile() {
                 @Override
                 public void onProgressUpdate(int progress) {
@@ -2858,7 +2951,7 @@ public class ChatActivity extends AppCompatActivity
                     Log.e("UFP", "op" + progress + " sent" + totalBytesSent + " toSend" + totalBytesToSend);
 
                     runOnUiThread(() -> {
-//                        percentageFile.setText(progress + "%")
+                        tvPercent.setText(progress + "%");
                     });
 
 
@@ -2876,12 +2969,14 @@ public class ChatActivity extends AppCompatActivity
 
                     runOnUiThread(() -> {
                         Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
-//                        percentageFile.setText("100");
-//                        percentageFile.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        tvPercent.setText("100");
+                        tvPercent.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
                     });
 
                 }
             });
+        } else {
+            showUriEmptyError();
         }
     }
 

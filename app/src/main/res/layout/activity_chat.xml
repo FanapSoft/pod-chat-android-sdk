@@ -5,21 +5,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+
     android:layout_height="match_parent">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"
+        android:visibility="visible"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="76dp">
+        tools:layout_editor_absoluteY="76dp"
+        tools:visibility="visible">
 
         <android.support.constraint.Guideline
             android:id="@+id/guideline5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="176dp" />
+            android:visibility="visible"
+            app:layout_constraintGuide_begin="176dp"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/tvState"
@@ -28,6 +34,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             android:text="NotReady"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@+id/tvServerType"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
@@ -66,13 +73,12 @@
             android:id="@+id/expandablePlaceHolder"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/guideline5">
+            app:layout_constraintTop_toBottomOf="@+id/btGoToUpload">
 
         </com.mindorks.placeholderview.ExpandablePlaceHolderView>
 
@@ -113,15 +119,176 @@
             android:id="@+id/et_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:ems="10"
             android:hint="msg - threadid - token"
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/btSettoken"
             app:layout_constraintTop_toBottomOf="@+id/btChangeThreadId" />
+
+        <Button
+            android:id="@+id/btGoToUpload"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="UploadTests"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_text"
+            app:layout_constraintVertical_bias="0.0" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+
+        android:id="@+id/vUpload"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <Button
+            android:id="@+id/btUploadFile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="UPloadFile"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="@+id/btUploadImage"
+            app:layout_constraintStart_toStartOf="@+id/btUploadImage"
+            app:layout_constraintTop_toBottomOf="@+id/btDownloadImage" />
+
+        <Button
+            android:id="@+id/btUploadImage"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="UploadImage"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btChooseFile" />
+
+        <Button
+            android:id="@+id/btDownloadFile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="DownloadFile"
+            app:layout_constraintEnd_toEndOf="@+id/btUploadImage"
+            app:layout_constraintStart_toStartOf="@+id/btUploadImage"
+            app:layout_constraintTop_toBottomOf="@+id/btUploadImage" />
+
+        <Button
+            android:id="@+id/btDownloadImage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="DownloadImage"
+            app:layout_constraintEnd_toEndOf="@+id/btUploadImage"
+            app:layout_constraintStart_toStartOf="@+id/btUploadImage"
+            app:layout_constraintTop_toBottomOf="@+id/btDownloadFile" />
+
+        <ImageView
+            android:id="@+id/imImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toTopOf="@+id/imImagedownloaded"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btUploadImage"
+            app:layout_constraintTop_toTopOf="@+id/btUploadImage"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <ImageView
+            android:id="@+id/imImagedownloaded"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="@+id/btUploadFile"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btUploadImage"
+            app:layout_constraintTop_toBottomOf="@+id/imImage"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <ImageButton
+            android:id="@+id/ibClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_delete"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/btChooseFile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Choose File"
+            app:layout_constraintBottom_toBottomOf="@+id/ibClose"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/ibClose"
+            app:layout_constraintTop_toTopOf="@+id/ibClose" />
+
+        <EditText
+            android:id="@+id/editTextNumber"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:gravity="center"
+            android:hint="Thread ID"
+            android:inputType="number"
+            app:layout_constraintEnd_toEndOf="@+id/imImage"
+            app:layout_constraintStart_toStartOf="@+id/btUploadFile"
+            app:layout_constraintTop_toBottomOf="@+id/tvPercent" />
+
+        <Button
+            android:id="@+id/btSendImage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="2dp"
+            android:text="Send Image Message"
+            app:layout_constraintEnd_toStartOf="@+id/btSentFile"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btSentFile" />
+
+        <Button
+            android:id="@+id/btSentFile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Send File Message"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btSendImage"
+            app:layout_constraintTop_toBottomOf="@+id/editTextNumber" />
+
+        <TextView
+            android:id="@+id/tvPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="TextView"
+            app:layout_constraintStart_toStartOf="@+id/btUploadFile"
+            app:layout_constraintTop_toBottomOf="@+id/btUploadFile" />
 
     </android.support.constraint.ConstraintLayout>
 
