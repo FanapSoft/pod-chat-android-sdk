@@ -91,7 +91,7 @@ dependencies {
 
 
     //call
-    embed project(path: ':podcall')
+    api project(path: ':podcall')
 
 //    List<String> runTasks = gradle.startParameter.getTaskNames();
 //

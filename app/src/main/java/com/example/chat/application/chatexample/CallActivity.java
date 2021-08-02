@@ -165,7 +165,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     ScheduledExecutorService ex;
 
 
-    private final Enum<ServerType> serverType = ServerType.SANDBOX;
+    private final Enum<ServerType> serverType = ServerType.MAIN;
 
 
     @Override
