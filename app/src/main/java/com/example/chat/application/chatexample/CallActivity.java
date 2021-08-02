@@ -61,6 +61,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     static int Masoud_ID = 18476;
     static int Farhad_ID = 18478;
 
+
     public final static String POORIA_CID = BaseApplication.getInstance().getString(R.string.ZIZI_FIFI_CONTACT_ID);
     public final static String MASOUD_CID = BaseApplication.getInstance().getString(R.string.ZIZI_JIJI_CONTACT_ID);
 
