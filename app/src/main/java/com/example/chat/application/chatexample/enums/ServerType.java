@@ -6,10 +6,16 @@ public enum ServerType {
         public String toString() {
             return "Main";
         }
-    }, Integration {
+    },
+    Integration {
         @Override
         public String toString() {
             return "Integration";
+        }
+    }, KafkaTest {
+        @Override
+        public String toString() {
+            return "KafkaTest";
         }
     }, Sandbox {
         @Override

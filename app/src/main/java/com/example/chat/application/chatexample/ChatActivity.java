@@ -157,8 +157,8 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
-    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
-    public static int TEST_THREAD_ID = 152321;
+    private static final String TEST_THREAD_HASH = "P7SJFYC6LUJMI1";
+    public static int TEST_THREAD_ID = 9150;
 
 
     ArrayList<String> runningSignals = new ArrayList<>();
@@ -178,9 +178,9 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-    private final Enum<ServerType> serverType = ServerType.Main;
-    //    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private String TOKEN = "3279c79854f44305a2d130374a59a166";
+    private final Enum<ServerType> serverType = ServerType.Integration;
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    //    private String TOKEN = "311e7e89c91b4ec9aa1bccf66e256ab2";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
     private String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
@@ -198,7 +198,7 @@ public class ChatActivity extends AppCompatActivity
     private ImageButton ibClose;
     private TextView tvPercent;
     private ImageView imImage, imImagedownloaded;
-    private Button btChooseFile, btUploadImage, btDownloadFile, btDownloadImage, btUploadFile;
+    private Button btChooseFile, btUploadImage, btDownloadFile, btDownloadImage, btUploadFile, btSentFile;
     private ConstraintLayout vUpload;
 
 
@@ -676,6 +676,7 @@ public class ChatActivity extends AppCompatActivity
         btDownloadFile.setOnClickListener(v -> downloadFile());
         btDownloadImage.setOnClickListener(v -> downloadImage());
         btUploadFile.setOnClickListener(v -> uploadFileProgress());
+        btSentFile.setOnClickListener(v -> sendFileMessage(new String[1]));
         // end new
     }
 
@@ -703,6 +704,7 @@ public class ChatActivity extends AppCompatActivity
         imImagedownloaded = findViewById(R.id.imImagedownloaded);
         vUpload = findViewById(R.id.vUpload);
         btChooseFile = findViewById(R.id.btChooseFile);
+        btSentFile = findViewById(R.id.btSentFile);
 
         btUploadImage = findViewById(R.id.btUploadImage);
         btDownloadFile = findViewById(R.id.btDownloadFile);
@@ -1908,20 +1910,25 @@ public class ChatActivity extends AppCompatActivity
     private void removeParticipants() {
         List<Invitee> inviteeList = new ArrayList<>();
 
-        List<Long> participantIds = new ArrayList<>();
-        participantIds.add(18476L);
+//        List<Long> participantIds = new ArrayList<>();
+//        participantIds.add(18476L);
 //        participantIds.add(5581L);
 //        participantIds.add(1261L);
 
 
-        //SET INVITEE LIST
-        Invitee invite = new Invitee("30150", InviteType.Constants.TO_BE_CORE_USER_ID);
-        Invitee invite2 = new Invitee("43593", InviteType.Constants.TO_BE_CORE_USER_ID);
-        //  Invitee invite2 = new Invitee("5736", InviteType.Constants.TO_BE_CORE_USER_ID);
-        inviteeList.add(invite);
-        // inviteeList.add(invite2);
+//        //SET INVITEE LIST
+//        Invitee invite = new Invitee("30150", InviteType.Constants.TO_BE_CORE_USER_ID);
+//        Invitee invite2 = new Invitee("43593", InviteType.Constants.TO_BE_CORE_USER_ID);
+//        //  Invitee invite2 = new Invitee("5736", InviteType.Constants.TO_BE_CORE_USER_ID);
+//        inviteeList.add(invite);
+//        // inviteeList.add(invite2);
 
 
+//        inviteeList.add(new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        inviteeList.add(new Invitee("63255", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        inviteeList.add(new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        inviteeList.add(new Invitee("18479", InviteType.Constants.TO_BE_USER_ID));
+//        63253L
         long threadId = TEST_THREAD_ID;
         RemoveParticipantRequest request = new RemoveParticipantRequest
                 .Builder(threadId, null)
@@ -1935,19 +1942,22 @@ public class ChatActivity extends AppCompatActivity
 
 
         //add with coreUserIds
+//        inviteeList.add(new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        inviteeList.add(new Invitee("63255", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+//        inviteeList.add(new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID));
 
         RequestAddParticipants request = RequestAddParticipants
                 .newBuilder()
                 .threadId((long) TEST_THREAD_ID)
 //       .withCoreUserIds(982L, 5241L)
-//       .withUserNames("a.rokni",
+                .withUserNames("nadia.anvari")
 //      "ms.alavizadeh",
 //      "bhamidpour",
 //      "z.morshedi",
 //      "m.rashed")
 //       .withContactIds(10001L,1000L)
-//       .withContactId(1000L)
-                .withUsername("TEST2BOT")
+//       .withCoreUserId(18478L)
+//                .withUsername("TEST2BOT")
                 .build();
 
 
@@ -2429,9 +2439,8 @@ public class ChatActivity extends AppCompatActivity
          */
 
 //        Invitee[] invite = new Invitee[]{
-////       new Invitee(3361, 2)
-////       , new Invitee(3102, 2)
-////       new Invitee(091, 1),
+////       new Invitee(3361, ///       , new Invitee(3102, 2)
+////        new Invitee(091, 1),
 ////       new Invitee("22835", InviteType.Constants.TO_BE_USER_CONTACT_ID),
 //       new Invitee("29782", InviteType.Constants.TO_BE_USER_CONTACT_ID),
 ////       new Invitee("27774", InviteType.Constants.TO_BE_USER_CONTACT_ID),
@@ -2467,7 +2476,11 @@ public class ChatActivity extends AppCompatActivity
 //        52979 masoud
 //        52987 khodam
         //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-        invite.add(new Invitee("63254", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+
+        invite.add(new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63255", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+
         //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         //   invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
@@ -2487,7 +2500,7 @@ public class ChatActivity extends AppCompatActivity
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
                 .Builder(ThreadType.Constants.NORMAL, invite)
-                .title("Test Thread ByAhmad" + (new Date().getTime() / 1000))
+                .title("thread for test upload 1" + (new Date().getTime() / 1000))
 //       .withDescription("Description created at "
 //      + new Date().getTime())
 //       .withImage("URL")
@@ -2728,6 +2741,8 @@ public class ChatActivity extends AppCompatActivity
             SetSandBoxServer();
         } else if (serverType == ServerType.Integration) {
             SetIntgrationServer();
+        } else if (serverType == ServerType.KafkaTest) {
+            SetKafkaTestServer();
         } else SetMainServer();
 
         RequestConnect rc = new RequestConnect.Builder(
@@ -2761,6 +2776,17 @@ public class ChatActivity extends AppCompatActivity
         socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+        podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_integration);
+
+    }
+
+    private void SetKafkaTestServer() {
+        ssoHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_ssoHost);
+        serverName = BaseApplication.getInstance().getString(R.string.kafkaTestStream_server_name);
+
+        socketAddress = BaseApplication.getInstance().getString(R.string.kafkaTestStream_socketAddress);
+        platformHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_platformHost);
+        fileServer = BaseApplication.getInstance().getString(R.string.kafkaTestStream_fileServer);
 
     }
 
@@ -2772,6 +2798,8 @@ public class ChatActivity extends AppCompatActivity
         socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+        podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_integration);
+
     }
 
     private void showPicChooser() {
