@@ -904,6 +904,17 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnGetMutualGroup(String content, ChatResponse<ResultThreads> thread) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetMutualGroups(content,thread);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
     public void callOnAssistantBlocked(ChatResponse<List<AssistantVo>> response) {
 
         for (ChatListener listener : getSynchronizedListeners()) {

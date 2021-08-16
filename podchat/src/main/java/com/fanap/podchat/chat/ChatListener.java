@@ -378,4 +378,5 @@ public interface ChatListener {
     default void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response){}
 
     default void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response){}
+    default void onGetMutualGroups(String content, ChatResponse<ResultThreads> thread){}
 }

@@ -18,6 +18,7 @@ import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.cachemodel.CacheMutualGroupVo;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
@@ -1723,6 +1724,61 @@ public class MessageDatabaseHelper {
         return contacts;
     }
 
+
+    @NonNull
+    public List<Contact> getContacts(Integer count, Long offset, String username) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        List<Contact> contacts = new ArrayList<>();
+
+        List<CacheContact> cacheContacts = null;
+        if (username != null) {
+            cacheContacts = messageDao.getRawContacts(count, offset,username);
+        }
+        else {
+            cacheContacts = messageDao.getContacts(count, offset);
+        }
+
+        if (cacheContacts != null && cacheContacts.size() > 0) {
+            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.getDefault());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            Date nowDate = c.getTime();
+
+            for (CacheContact cacheContact : cacheContacts) {
+                try {
+                    Date expireDate = format.parse(cacheContact.getExpireDate());
+                    if (expireDate != null && expireDate.compareTo(nowDate) < 0) {
+                        deleteContact(cacheContact);
+                    } else {
+                        Contact contact = new Contact(
+                                cacheContact.getId(),
+                                cacheContact.getFirstName(),
+                                cacheContact.getUserId(),
+                                cacheContact.getLastName(),
+                                cacheContact.getBlocked(),
+                                cacheContact.getCreationDate(),
+                                cacheContact.getLinkedUser(),
+                                cacheContact.getCellphoneNumber(),
+                                cacheContact.getEmail(),
+                                cacheContact.getUniqueId(),
+                                cacheContact.getNotSeenDuration(),
+                                cacheContact.isHasUser()
+                        );
+
+                        contact.setCache(true);
+
+                        contacts.add(contact);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return contacts;
+    }
+
     public int getContactCount() {
         return messageDao.getContactCount();
     }
@@ -2687,6 +2743,22 @@ public class MessageDatabaseHelper {
 
     }
 
+    public void getMutualThreadRaw(Integer count,
+                                   Long offset,
+                                   Long userId,
+                                   OnWorkDone listener) throws RoomIntegrityException {
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        worker(() -> {
+            getMutualThreads(count, offset, userId, (threads -> {
+                List<Thread> threadsli = (List<Thread>) threads;
+                long size = threadsli.size();
+                listener.onWorkDone(threadsli);
+                listener.onWorkDone(size, threadsli);
+            }));
+        });
+    }
+
     private String getPaging(Integer count, Long offset) {
         return " LIMIT " + count + " OFFSET " + offset;
     }
@@ -3011,6 +3083,26 @@ public class MessageDatabaseHelper {
         return threads;
     }
 
+    public void getMutualThreads(long count, long offset, Long userId, OnWorkDone listener) {
+        List<Thread> threads;
+        if (messageDao.getMutualGroup(String.valueOf(userId)) != null) {
+            List<CacheMutualGroupVo> threadVos = messageDao.getMutualGroup(String.valueOf(userId));
+            if(threadVos.size()>0) {
+                ArrayList<Integer> threadids = new ArrayList<Integer>();
+                for (String id : threadVos.get(0).getThreadids()) {
+                    threadids.add(Integer.parseInt(id));
+                }
+                threads = getThreadsByThreadIds(threadids);
+                Log.e(TAG, "getMutualThreads: " + threads);
+            }else
+                threads = new ArrayList<>();
+        } else {
+            threads = new ArrayList<>();
+        }
+
+        listener.onWorkDone(threads);
+    }
+
     public void getThreadList(OnWorkDone listener) {
 
         new java.lang.Thread(() -> {
@@ -3216,6 +3308,27 @@ public class MessageDatabaseHelper {
         });
 
     }
+
+    public void saveMutualThreads(@NonNull List<Thread> threads, long userId) {
+
+
+        worker(() -> {
+            List<String> threadids = new ArrayList<>();
+            CacheMutualGroupVo cacheMutualGroupVo = new CacheMutualGroupVo();
+            cacheMutualGroupVo.setContactId(userId);
+
+            for (Thread thread : threads) {
+                if (thread.getId() > 0) {
+                    threadids.add(String.valueOf(thread.getId()) );
+                }
+            }
+
+            cacheMutualGroupVo.setThreadids(threadids);
+            messageDao.insertCacheMutualVo(cacheMutualGroupVo);
+        });
+
+    }
+
 
     private void prepareThreadVOAndSaveIt(Thread thread) {
 

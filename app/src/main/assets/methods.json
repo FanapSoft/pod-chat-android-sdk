@@ -1,0 +1,390 @@
+[
+  {
+    "categoty": "Contact",
+    "name": "SyncContact"
+  },
+  {
+    "categoty": "Contact",
+    "name": "BlockContact"
+  },
+  {
+    "categoty": "Contact",
+    "name": "UnBlockContact"
+  },
+  {
+    "categoty": "Contact",
+    "name": "GetContacts"
+  },
+  {
+    "categoty": "Contact",
+    "name": "AddContact"
+  },
+  {
+    "categoty": "Contact",
+    "name": "RemoveContact"
+  },
+  {
+    "categoty": "Contact",
+    "name": "UpdateContact"
+  },
+  {
+    "categoty": "Contact",
+    "name": "SearchContact"
+  },
+  {
+    "categoty": "File",
+    "name": "UploadFile"
+  },
+  {
+    "categoty": "File",
+    "name": "DownloadFile"
+  },
+  {
+    "categoty": "File",
+    "name": "UploadImage"
+  },
+  {
+    "categoty": "File",
+    "name": "DownloadImage"
+  },
+  {
+    "categoty": "File",
+    "name": "CancelDownloadImage"
+  },
+  {
+    "categoty": "File",
+    "name": "DownloadFileFromThread"
+  },
+  {
+    "categoty": "File",
+    "name": "UploadFileToThread"
+  },
+  {
+    "categoty": "File",
+    "name": "RetryUpload"
+  },
+  {
+    "categoty": "File",
+    "name": "CancelUpload"
+  },
+  {
+    "categoty": "File",
+    "name": "SendReplyFileMessage"
+  },
+  {
+    "categoty": "Thread",
+    "name": "CreateThread"
+  },
+  {
+    "categoty": "Thread",
+    "name": "AddParticipant"
+  },
+  {
+    "categoty": "Thread",
+    "name": "RemoveParticipant"
+  },
+  {
+    "categoty": "Thread",
+    "name": "GetAllThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "PinThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "UnPinThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "SpamThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "GetAdmins"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "ClearHistory"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "CloseThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "RenameThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "GetThreadParticipants"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "GetThreadHistory"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "MuteThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "UnMuteThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "UpdateThreadInfo"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "GetDeliverMessageList"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "CreateThreadWithMessage"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "GetThreadWithCoreUser"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "CreateThreadWithFile"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "GetHashTagHistory"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "ChangePrivateThreadToPublic"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "SearchHistory"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "SetAdminRules"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "RemoveAdminRules"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "SafeLeave"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "LeaveThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "GetMentionList"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "CheckIsNameAvailable"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "CreatePublicThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "JoinPublicThread"
+  },
+  {
+    "categoty": "ThreadAction",
+    "name": "DeleteGroup"
+  },
+  {
+    "categoty": "ThreadRole",
+    "name": "SetRole"
+  },
+  {
+    "categoty": "ThreadRole",
+    "name": "GetRole"
+  },
+  {
+    "categoty": "ThreadRole",
+    "name": "RemoveRole"
+  },
+  {
+    "categoty": "Message",
+    "name": "SendTextMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "SendFileMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "PingMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "ForwardMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "ReplyMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "SeenMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "SeenMessageList"
+  },
+  {
+    "categoty": "Message",
+    "name": "GetNotSeenDur"
+  },
+  {
+    "categoty": "Message",
+    "name": "DeleteMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "EditMessage"
+  },
+  {
+    "categoty": "Message",
+    "name": "StartTyping"
+  },
+  {
+    "categoty": "Message",
+    "name": "StopTyping"
+  },
+  {
+    "categoty": "Bot",
+    "name": "CreateBot"
+  },
+  {
+    "categoty": "Bot",
+    "name": "DefineBotCommand"
+  },
+  {
+    "categoty": "Bot",
+    "name": "StartBot"
+  },
+  {
+    "categoty": "Bot",
+    "name": "StopBot"
+  },
+  {
+    "categoty": "Bot",
+    "name": "GetUserBots"
+  },
+  {
+    "categoty": "Tag",
+    "name": "AddTag"
+  },
+  {
+    "categoty": "Tag",
+    "name": "EditTag"
+  },
+  {
+    "categoty": "Tag",
+    "name": "DeleteTag"
+  },
+  {
+    "categoty": "Tag",
+    "name": "AddTagParticipant"
+  },
+  {
+    "categoty": "Tag",
+    "name": "RemoveTagParticipant"
+  },
+  {
+    "categoty": "Tag",
+    "name": "GetTagList"
+  },
+  {
+    "categoty": "User",
+    "name": "GetUserInfo"
+  },
+  {
+    "categoty": "User",
+    "name": "GetBlockedList"
+  },
+  {
+    "categoty": "User",
+    "name": "GetMutualGroup"
+  },
+  {
+    "categoty": "User",
+    "name": "UpdateProfile"
+  },
+  {
+    "categoty": "StorageAndCache",
+    "name": "GetCacheSize"
+  },
+  {
+    "categoty": "StorageAndCache",
+    "name": "ClearCache"
+  },
+  {
+    "categoty": "StorageAndCache",
+    "name": "GetStorageSize"
+  },
+  {
+    "categoty": "StorageAndCache",
+    "name": "ClearStorage"
+  },
+  {
+    "categoty": "Assistant",
+    "name": "RegisterAssistant"
+  },
+  {
+    "categoty": "Assistant",
+    "name": "DeactiveAssistant"
+  },
+  {
+    "categoty": "Assistant",
+    "name": "GetAssistants"
+  },
+  {
+    "categoty": "Assistant",
+    "name": "GetAssistantHistory"
+  },
+  {
+    "categoty": "Assistant",
+    "name": "BlockAssistant"
+  },
+  {
+    "categoty": "Assistant",
+    "name": "UnBlockAssistant"
+  },
+  {
+    "categoty": "Assistant",
+    "name": "GetBlocksAssistant"
+  },
+  {
+    "categoty": "Other",
+    "name": "SendLocationMsg"
+  },
+  {
+    "categoty": "Other",
+    "name": "MapReverse"
+  },
+  {
+    "categoty": "Other",
+    "name": "MapStatic"
+  },
+  {
+    "categoty": "Other",
+    "name": "GetSentryLogs"
+  },
+  {
+    "categoty": "Other",
+    "name": "SearchMap"
+  },
+  {
+    "categoty": "Other",
+    "name": "RouteMap"
+  }
+]

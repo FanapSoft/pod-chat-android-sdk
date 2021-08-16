@@ -49,7 +49,12 @@ public class Participant {
 
     private ChatProfileVO chatProfileVO;
 
+    public Participant(long contactId) {
+        this.contactId = contactId;
+    }
+
     public Participant() {
+        this.contactId = contactId;
     }
 
     public Participant(
