@@ -18,11 +18,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
@@ -134,7 +132,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.mindorks.placeholderview.ExpandablePlaceHolderView;
-import com.mindorks.placeholderview.annotations.Resolve;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
@@ -2627,12 +2624,12 @@ public class ChatActivity extends AppCompatActivity
 
     private void connect() {
         if (serverType == ServerType.Main) {
-            SetMainServer();
+            setMainServer();
         } else if (serverType == ServerType.Sandbox) {
-            SetSandBoxServer();
+            setSandBoxServer();
         } else if (serverType == ServerType.Integration) {
-            SetIntgrationServer();
-        } else SetMainServer();
+            setIntgrationServer();
+        } else setMainServer();
 
         RequestConnect rc = new RequestConnect.Builder(
                 socketAddress,
@@ -2649,8 +2646,8 @@ public class ChatActivity extends AppCompatActivity
         tvServerType.setText(serverType.name());
     }
 
-    private void SetMainServer() {
-        ssoHost = BaseApplication.getInstance().getString(R.string.sso_host);
+    private void setMainServer() {
+        ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
         serverName = "chat-server";
 
         name = BaseApplication.getInstance().getString(R.string.main_server_name);
@@ -2659,7 +2656,7 @@ public class ChatActivity extends AppCompatActivity
         fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
     }
 
-    private void SetSandBoxServer() {
+    private void setSandBoxServer() {
         ssoHost = BaseApplication.getInstance().getString(R.string.sandbox_ssoHost);
         serverName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
 
@@ -2670,7 +2667,7 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-    private void SetIntgrationServer() {
+    private void setIntgrationServer() {
 
         ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
         serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);

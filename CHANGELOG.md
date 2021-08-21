@@ -6,6 +6,94 @@
 All notable changes to this project will be documented here.
 
 
+## Version [0.9.11.0] -2021-8-21
+
+[Added] **Video Call**
+
+[Improved] **Audio Call**
+
+[Added] Permission to use the camera
+
+[َAdded] setupCall(VideoCallParam, AudioCallParam, CallConfig, List<CallPartnerView>)
+
+[Added] requestCall(CallRequest) method
+
+[Added] acceptVoiceCall(AcceptCallRequest) method
+
+[Added] onCallCreated() callback
+
+[Added] onCallDelivered(ChatResponse<CallDeliverResult>) callback
+
+[Added] onReceiveCallRequest(ChatResponse<CallRequestResult>) callback
+
+[Added] onVoiceCallStarted(ChatResponse<CallStartResult>) callback
+
+[Added] rejectVoiceCall(RejectCallRequest) method
+
+[Added] onCallRequestRejected(ChatResponse<CallRequestResult>) callback
+
+[Added] endAudioCall(EndCallRequest) method
+
+[Added] onVoiceCallEnded(ChatResponse<EndCallResult>) callback
+
+[Added] onEndCallRequestFromNotification() callback
+
+[Added] onCallReconnect(ChatResponse<CallReconnectResult>) callback
+
+[Added] onCallConnect(ChatResponse<CallReconnectResult>) callback
+
+[Added] MessageVO.getCallHistoryVO();
+
+[Added] getCallsHistory(GetCallHistoryRequest) method
+
+[Added] onReceiveCallHistory(ChatResponse<GetCallHistoryResult>) callback
+
+[Added] switchCallMuteState(Boolean,CallId) method
+
+[Added] onAudioCallMuted(ChatResponse<CallParticipantMuteResult>) callback
+
+[Added] onAudioCallUnMuted(ChatResponse<CallParticipantMuteResult>) callback
+
+[Added] requestMuteCallParticipant(MuteUnMuteCallParticipantRequest) method
+
+[Added] onCallParticipantMuted(ChatResponse<CallParticipnatMuteResult>) callback
+
+[Added] requestUnMuteCallParticipant(MuteUnMuteCallParticipantRequest) method
+
+[Added] onCallParticipantUnMuted(ChatResponse<CallParticipnatMuteResult>) callback
+
+[Added] onMutedByAdmin(ChatResponse<CallParticipantMuteResult>) callback
+
+[Added] onUnMutedByAdmin(ChatResponse<CallParticipantMuteResult>) callback
+
+[Added] switchCallSpeakerState(Boolean) method
+
+[Added] openCamera() method
+
+[Added] closeCamera() method
+
+[Added] switchCamera() method
+
+[Added] turnOnVideo(CallId) method
+
+[Added] turnOffVideo(CallId) method
+
+[Added] turnCallParticipantVideoOff(TurnCallParticipantVideoOffRequest) method
+
+[Added] onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult>) callback
+
+[Added] onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult>) callback
+
+[Added] getCallParticipants(GetCallParticipantsRequest)
+
+[Added] onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult>) callback
+
+
+
+
+
+
+
 ## Version [0.9.10.0] -2021-7-17
 
 [Added] ```getMutualGroup``` method

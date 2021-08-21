@@ -5,7 +5,7 @@ apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.9.0-call-beta'
+    libraryVersion = '0.9.11.0'
 }
 android {
 
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 169
+        versionCode 171
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -91,18 +91,15 @@ dependencies {
 
 
     //call
-    api project(path: ':podcall')
+    List<String> runTasks = gradle.startParameter.getTaskNames();
 
-//    List<String> runTasks = gradle.startParameter.getTaskNames();
-//
-//    for (String item : runTasks) {
-//        println(item)
-//        if (item.contains("assembleDebug")) {
-//            api project(path: ':podcall')
-//        } else {
-//            embed project(path: ':podcall')
-//        }
-//    }
+    for (String item : runTasks) {
+        if (item.contains("assembleDebug")) {
+            api project(path: ':podcall')
+        } else {
+            embed project(path: ':podcall')
+        }
+    }
 
 }
 
