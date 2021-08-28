@@ -22,19 +22,15 @@ import android.widget.RemoteViews;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.R;
-import com.fanap.podchat.call.audio_call.EndCallReceiver;
-import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-import static com.fanap.podchat.call.audio_call.PodCallAudioCallService.REQUEST_CODE_END_CALL;
-import static com.fanap.podchat.call.audio_call.PodCallAudioCallService.REQUEST_CODE_OPEN_APP;
+
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
 import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
 import static com.fanap.podchat.util.ChatConstant.POD_PUSH_MESSAGE_ID;
@@ -67,7 +63,7 @@ public class ShowNotificationHelper {
 
     public static final String ACTION_1 = "action_1";
     private static final int SUMMARY_ID = 1000001;
-    private static final String SUMMARY_KEY = "com.fanap.podchat:notification";
+    private static final String SUMMARY_KEY = "com.com.fanap.podchat:notification";
 
 
     public static void setupNotificationChannel(Context context) {
@@ -84,61 +80,6 @@ public class ShowNotificationHelper {
         }
 
 
-    }
-
-
-    public static void showRunningCallNotification(Service context, String targetActivity,
-                                                   CallInfo callInfo, String CALL_CHANNEL_ID, int notificationId) {
-        Intent closeAction = new Intent(context, EndCallReceiver.class);
-
-        Intent openAppIntent = new Intent(context, context.getClass());
-
-        if (!Util.isNullOrEmpty(targetActivity)) {
-            try {
-                Class<?> targetClass = Class.forName(targetActivity);
-                openAppIntent = new Intent(context, targetClass);
-            } catch (ClassNotFoundException e) {
-                openAppIntent = new Intent(context, context.getClass());
-            }
-        }
-
-        if (callInfo != null)
-            openAppIntent.putExtra(POD_CALL_INFO, callInfo);
-
-        PendingIntent pendingIntentOpenApp = PendingIntent.getActivity(context,
-                REQUEST_CODE_OPEN_APP, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        PendingIntent pendingIntentEnd = PendingIntent.getBroadcast(context,
-                REQUEST_CODE_END_CALL, closeAction, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationCompat.Action actionStop = new NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
-                "پایان تماس", pendingIntentEnd);
-
-
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_in_call_notifiacion);
-
-        if (callInfo != null) {
-            remoteViews.setTextViewText(R.id.textViewCallName, callInfo.getCallName());
-        }
-
-        remoteViews.setOnClickPendingIntent(R.id.buttonEndCall, pendingIntentEnd);
-
-
-        Notification notification = new NotificationCompat
-                .Builder(context, CALL_CHANNEL_ID)
-                .setCustomContentView(remoteViews)
-                .setSmallIcon(R.drawable.ic_call)
-                .setContentIntent(pendingIntentOpenApp)
-                .setOngoing(true)
-                .build();
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForeground(notificationId, notification);
-        } else {
-            NotificationManagerCompat managerCompat = NotificationManagerCompat.from(context);
-            managerCompat.notify(notificationId, notification);
-        }
     }
 
 

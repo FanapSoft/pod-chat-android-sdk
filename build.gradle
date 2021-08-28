@@ -5,8 +5,8 @@ buildscript {
 
     repositories {
         google()
+        mavenCentral()
         jcenter()
-//        mavenCentral()
         maven {
             url "https://s3.amazonaws.com/repo.commonsware.com"
         }
@@ -25,15 +25,16 @@ buildscript {
 allprojects {
     repositories {
         google()
+        mavenCentral()
         jcenter()
+
+        maven {
+            url "https://s3.amazonaws.com/repo.commonsware.com"
+        }
         maven {
             url 'http://www.idescout.com/maven/repo/'
             name 'IDEScout, Inc.'
         }
-        maven {
-            url "https://s3.amazonaws.com/repo.commonsware.com"
-        }
-
     }
 }
 

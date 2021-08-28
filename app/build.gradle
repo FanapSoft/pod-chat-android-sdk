@@ -26,6 +26,20 @@ android {
         }
 
     }
+    flavorDimensions "default"
+
+    productFlavors{
+
+        withCall{
+            matchingFallbacks = ["withCall","withoutCall"]
+
+        }
+        withoutCall{
+
+            matchingFallbacks = ["withoutCall","withCall"]
+        }
+
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -90,7 +104,4 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview'
     }
 
-}
-repositories {
-    mavenCentral()
 }
