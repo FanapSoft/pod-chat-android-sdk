@@ -30,6 +30,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
@@ -314,6 +315,9 @@ public interface ChatListener {
     default void onReceiveGroupCallRequest(ChatResponse<CallRequestResult> response){}
 
     default void onCallRequestRejected(ChatResponse<CallRequestResult> response){}
+
+    default void onCallRecordStarted(ChatResponse<Participant> response){}
+    default void onCallRecordEnded(ChatResponse<Participant> response){}
 
     default void onVoiceCallStarted(ChatResponse<CallStartResult> response){}
 

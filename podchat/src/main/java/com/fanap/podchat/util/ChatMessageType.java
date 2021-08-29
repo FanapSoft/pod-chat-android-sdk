@@ -119,11 +119,13 @@ public class ChatMessageType {
             Constants.ADD_TAG_PARTICIPANT,
             Constants.REMOVE_TAG_PARTICIPANT,
             Constants.GET_TAG_LIST,
-
-
-
             Constants.TURN_ON_VIDEO_CALL,
-            Constants.TURN_OFF_VIDEO_CALL
+            Constants.TURN_OFF_VIDEO_CALL,
+            Constants.START_RECORD_CALL,
+            Constants.END_RECORD_CALL,
+            Constants.START_SHARE_SCREEN,
+            Constants.END_SHARE_SCREEN
+
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -224,6 +226,12 @@ public class ChatMessageType {
         int CALL_CREATED = 111;
         int GET_ACTIVE_CALL_PARTICIPANTS = 110;
 
+        int START_RECORD_CALL = 121;
+        int END_RECORD_CALL = 122;
+
+        int START_SHARE_SCREEN = 123;
+        int END_SHARE_SCREEN = 124;
+
         int LAST_MESSAGE_DELETED = 66;
         int LAST_MESSAGE_EDITED = 67;
 
@@ -256,8 +264,7 @@ public class ChatMessageType {
         int TURN_ON_VIDEO_CALL = 113;
         int TURN_OFF_VIDEO_CALL = 114;
 
-        int START_SHARE_SCREEN = 123;
-        int END_SHARE_SCREEN = 124;
+
 
 
 

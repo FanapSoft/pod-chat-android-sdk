@@ -19,6 +19,7 @@ import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.StartShareScreenRequest;
 import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
@@ -39,6 +40,7 @@ import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RemoveParticipantRequest;
@@ -516,6 +518,51 @@ public class CallAsyncRequestsManager {
         message.setType(ChatMessageType.Constants.END_CALL_REQUEST);
         message.setToken(CoreConfig.token);
         message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+
+    }
+
+    public static String createStartRecordCall(StartOrEndCallRecordRequest request, String uniqueId)  throws PodChatException {
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.START_RECORD_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getSubjectId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+
+    }
+
+    public static ChatResponse<Participant> handleStartedRecordCallResponse(ChatMessage chatMessage) {
+
+        ChatResponse<Participant> response = new ChatResponse<>();
+        Participant result = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<Participant>() {
+        }.getType());
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setCache(false);
+
+        return response;
+    }
+
+    public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId) throws PodChatException  {
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.END_RECORD_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getSubjectId());
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setUniqueId(uniqueId);
         message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);

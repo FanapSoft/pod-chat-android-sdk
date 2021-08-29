@@ -35,6 +35,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
@@ -1134,6 +1135,30 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onReceiveCallRequest(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callonCallRecordStarted(ChatResponse<Participant> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallRecordStarted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callonCallRecordEnded(ChatResponse<Participant> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallRecordEnded(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

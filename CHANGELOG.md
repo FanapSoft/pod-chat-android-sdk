@@ -19,6 +19,15 @@ All notable changes to this project will be documented here.
 
 [Updated] ```Add  ChatDataDTO to  StartedCallModel```
 
+[Added] ```startCallRecord``` method
+
+[Added] ```onCallRecordStarted``` callback
+
+[Added] ```endCallRecord``` method
+
+[Added] ```onCallRecordEnded``` callback
+
+
 
 
 ## Version [0.9.11.0] -2021-8-21

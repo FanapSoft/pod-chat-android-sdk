@@ -61,6 +61,7 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
@@ -1210,6 +1211,12 @@ public class Chat extends AsyncAdapter {
             case Constants.END_SHARE_SCREEN:
                 handOnShareScreenEnded(chatMessage);
                 break;
+            case Constants.START_RECORD_CALL:
+                handleOnStartedCallRecord(chatMessage);
+                break;
+            case Constants.END_RECORD_CALL:
+                handleOnEndedCallRecord(chatMessage);
+                break;
             case Constants.TURN_OFF_VIDEO_CALL:
                 handleOnCallParticipantRemovedVideo(chatMessage);
             case Constants.GET_CALLS:
@@ -2262,6 +2269,33 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    private void handleOnStartedCallRecord(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECORD_CALL_STARTED", gson.toJson(chatMessage));
+        } else {
+            showLog("RECORD_CALL_STARTED");
+        }
+
+        ChatResponse<Participant> response
+                = CallAsyncRequestsManager.handleStartedRecordCallResponse(chatMessage);
+        listenerManager.callonCallRecordStarted(response);
+
+    }
+
+    private void handleOnEndedCallRecord(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECORD_CALL_ENDED", gson.toJson(chatMessage));
+        } else {
+            showLog("RECORD_CALL_ENDED");
+        }
+        ChatResponse<Participant> response
+                = CallAsyncRequestsManager.handleStartedRecordCallResponse(chatMessage);
+
+        listenerManager.callonCallRecordEnded(response);
+
+    }
 //    private void startAudioCall(ChatResponse<StartedCallModel> info) {
 //
 //        audioCallManager.startCallStream(info, new ICallState() {
@@ -2360,6 +2394,78 @@ public class Chat extends AsyncAdapter {
 
 
     }
+
+
+
+    /**
+     * @param request request to start call recording
+     *
+     *
+     *            */
+    public String startCallRecord(StartOrEndCallRecordRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = null;
+            try {
+                message = CallAsyncRequestsManager.createStartRecordCall(request, uniqueId);
+            } catch (PodChatException e) {
+                new PodThreadManager().doThisAndGo(() -> {
+                    e.setUniqueId(uniqueId);
+                    e.setToken(getToken());
+                    captureError(e);
+                });
+                return uniqueId;
+            }
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_START_CALL_RECORD_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+
+    }
+
+
+
+    /**
+     * @param request request to end call recording
+     *
+     *
+     *            */
+    public String endCallRecord(StartOrEndCallRecordRequest request) {
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+
+            String message = null;
+            try {
+                message = CallAsyncRequestsManager.createEndRecordCall(request, uniqueId);
+            } catch (PodChatException e) {
+                new PodThreadManager().doThisAndGo(() -> {
+                    e.setUniqueId(uniqueId);
+                    e.setToken(getToken());
+                    captureError(e);
+                });
+                return uniqueId;
+            }
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_END_CALL_RECORD_REQUEST");
+
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+
+    }
+
+
+
+
 
     private void visibleView(View view) {
         new Handler(context.getMainLooper())
