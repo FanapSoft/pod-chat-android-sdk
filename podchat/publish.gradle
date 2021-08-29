@@ -9,6 +9,93 @@ task sourceJar(type: Jar) {
     classifier "sources"
 }
 
+tasks.register('printPublishFilesPath') {
+
+    group 'publishing'
+
+    doLast {
+
+        println("Artifacts are ready for publish ${projectDir}/publishArtifacts/")
+
+        fileTree("${projectDir}/publishArtifacts/").visit {
+            println it.file.path
+        }
+    }
+}
+
+tasks.register('preparePublishingFiles', Copy) {
+
+    group 'publishing'
+
+    println("moving publish files...")
+    from "$buildDir/outputs/aar"
+    include "*-publish-*"
+    into "/publishArtifacts"
+
+    rename "(.+)-v$libraryVersion(.+)", '$1$2'
+    rename '(.+)-publish(.+)', '$1$2'
+    rename '(.+)-withCall(.+)', '$1$2'
+
+}
+
+tasks.register('preparePublishing') {
+
+    group 'publishing'
+
+    dependsOn tasks.clean
+    dependsOn tasks.assemblePublish
+    dependsOn 'preparePublishingFiles'
+    dependsOn 'printPublishFilesPath'
+
+    tasks.assemblePublish.mustRunAfter 'clean'
+    tasks.preparePublishingFiles.mustRunAfter 'assemblePublish'
+    tasks.printPublishFilesPath.mustRunAfter 'preparePublishingFiles'
+
+}
+
+tasks.register('publishToLocalMaven'){
+
+    group 'publishing'
+
+    dependsOn tasks.preparePublishing
+    dependsOn tasks.publishWithoutCallPublicationToMavenLocal
+    dependsOn tasks.publishWithCallPublicationToMavenLocal
+
+    tasks.publishWithCallPublicationToMavenLocal.mustRunAfter 'preparePublishing'
+    tasks.publishWithoutCallPublicationToMavenLocal.mustRunAfter 'publishWithCallPublicationToMavenLocal'
+
+
+}
+
+tasks.register('publishToCustomMaven'){
+
+    group 'publishing'
+
+    dependsOn tasks.preparePublishing
+    dependsOn tasks.publishWithoutCallPublicationToCustomMavenRepoRepository
+    dependsOn tasks.publishWithCallPublicationToCustomMavenRepoRepository
+
+    tasks.publishWithoutCallPublicationToCustomMavenRepoRepository.mustRunAfter 'preparePublishing'
+    tasks.publishWithCallPublicationToCustomMavenRepoRepository.mustRunAfter 'publishWithoutCallPublicationToCustomMavenRepoRepository'
+
+
+}
+
+tasks.register('publishToGithub'){
+
+    group 'publishing'
+
+    dependsOn tasks.preparePublishing
+    dependsOn tasks.publishWithoutCallPublicationToGithubPackagesRepository
+    dependsOn tasks.publishWithCallPublicationToGithubPackagesRepository
+
+    tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
+    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
+
+
+}
+
+
 publishing {
     repositories {
         maven {
@@ -66,7 +153,7 @@ publishing {
             groupId LIB_GROUP_ID
             artifactId LIB_ARTIFACT_ID
             version LIB_ARTIFACT_V
-            artifact("$buildDir/outputs/aar/podchat-v0.9.11.0-release-withCall.aar")
+            artifact("/publishArtifacts/podchat.aar")
 
             pom.withXml {
                 final dependenciesNode = asNode().appendNode('dependencies')
@@ -98,8 +185,8 @@ publishing {
         withoutCall(MavenPublication) {
             groupId LIB_GROUP_ID
             artifactId LIB_ARTIFACT_ID
-            version "$LIB_ARTIFACT_V-noCall"
-            artifact("$buildDir/outputs/aar/podchat-v0.9.11.0-release-withoutCall.aar")
+            version "$LIB_ARTIFACT_V-light"
+            artifact("/publishArtifacts/podchat-withoutCall.aar")
 
             pom.withXml {
                 final dependenciesNode = asNode().appendNode('dependencies')
