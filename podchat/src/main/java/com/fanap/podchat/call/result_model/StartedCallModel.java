@@ -1,15 +1,25 @@
 package com.fanap.podchat.call.result_model;
 
+import com.fanap.podchat.call.model.ChatDataDTO;
 import com.fanap.podchat.call.model.ClientDTO;
 
 public class StartedCallModel {
 
 	private String cert_file;
 	private ClientDTO clientDTO;
+	private ChatDataDTO chatDataDTO;
 	private String callImage;
 	private String callName;
 	private Boolean video;
 	private Boolean mute;
+
+	public ChatDataDTO getChatDataDTO() {
+		return chatDataDTO;
+	}
+
+	public void setChatDataDTO(ChatDataDTO chatDataDTO) {
+		this.chatDataDTO = chatDataDTO;
+	}
 
 	public ClientDTO getClientDTO() {
 		return clientDTO;
@@ -18,7 +28,6 @@ public class StartedCallModel {
 	public void setClientDTO(ClientDTO clientDTO) {
 		this.clientDTO = clientDTO;
 	}
-
 
 	public String getCert_file() {
 		return cert_file;
@@ -62,4 +71,5 @@ public class StartedCallModel {
 		this.mute = mute;
 		return this;
 	}
+
 }

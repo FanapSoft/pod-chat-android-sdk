@@ -1204,6 +1204,12 @@ public class Chat extends AsyncAdapter {
             case Constants.TURN_ON_VIDEO_CALL:
                 handOnCallParticipantAddedVideo(chatMessage);
                 break;
+            case Constants.START_SHARE_SCREEN:
+                handOnShareScreenStarted(chatMessage);
+                break;
+            case Constants.END_SHARE_SCREEN:
+                handOnShareScreenEnded(chatMessage);
+                break;
             case Constants.TURN_OFF_VIDEO_CALL:
                 handleOnCallParticipantRemovedVideo(chatMessage);
             case Constants.GET_CALLS:
@@ -2283,7 +2289,7 @@ public class Chat extends AsyncAdapter {
     private void startVideoCall(ChatResponse<StartedCallModel> info) {
 
         if (podVideoCall != null) {
-            KafkaConfig kafkaConfig = new KafkaConfig.Builder(info.getResult().getClientDTO().getBrokerAddress())
+            KafkaConfig kafkaConfig = new KafkaConfig.Builder(info.getResult().getChatDataDTO().getBrokerAddress())
                     .setSsl(info.getResult().getCert_file())
                     .build();
 
@@ -2416,6 +2422,43 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
+    //Send request to start screen share screen
+    public String startShareScreen(long callId) {
+
+        //TODO start share screen streaming
+        String uniqueId = generateUniqueId();
+        captureError(new PodChatException(ChatConstant.ERROR_METHOD_NOT_IMPLEMENTED,ChatConstant.ERROR_CODE_METHOD_NOT_IMPLEMENTED,uniqueId));
+
+//        if (chatReady) {
+//            String message = CallAsyncRequestsManager.createStartShareScreenMessage(callId, uniqueId);
+//            setCallBacks(false, false, false, true, Constants.START_SHARE_SCREEN, null, uniqueId);
+//            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_START_SHARE_SCREEN");
+//        } else {
+//            onChatNotReady(uniqueId);
+//        }
+
+        return uniqueId;
+    }
+
+    //Send request to end screen share screen
+    public String endShareScreen(long callId) {
+
+
+
+        //TODO stop share screen streaming
+        String uniqueId = generateUniqueId();
+        captureError(new PodChatException(ChatConstant.ERROR_METHOD_NOT_IMPLEMENTED,ChatConstant.ERROR_CODE_METHOD_NOT_IMPLEMENTED,uniqueId));
+//        if (chatReady) {
+//            String message = CallAsyncRequestsManager.createEndShareScreenMessage(callId, uniqueId);
+//            setCallBacks(false, false, false, true, Constants.END_SHARE_SCREEN, null, uniqueId);
+//            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_END_SHARE_SCREEN");
+//        } else {
+//            onChatNotReady(uniqueId);
+//        }
+
+        return uniqueId;
+    }
+
     public String turnOnVideo(long callId) {
         if (podVideoCall != null) {
 
@@ -2518,6 +2561,42 @@ public class Chat extends AsyncAdapter {
             addVideoCallPartner(response, true);
 
         listenerManager.callOnCallParticipantStartedVideo(response);
+
+    }
+
+    private void handOnShareScreenStarted(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_SHARE_SCREEN_STARTED", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_SHARE_SCREEN_STARTED");
+        }
+
+        ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
+
+        if (podVideoCall != null) {
+
+        }
+
+        listenerManager.callOnShareScreenStarted(response);
+
+    }
+
+    private void handOnShareScreenEnded(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_SHARE_SCREEN_ENDED", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_SHARE_SCREEN_ENDED");
+        }
+
+        ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
+
+        if (podVideoCall != null) {
+
+        }
+
+        listenerManager.callOnShareScreenEnded(response);
 
     }
 

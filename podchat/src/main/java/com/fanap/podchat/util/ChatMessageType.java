@@ -256,6 +256,9 @@ public class ChatMessageType {
         int TURN_ON_VIDEO_CALL = 113;
         int TURN_OFF_VIDEO_CALL = 114;
 
+        int START_SHARE_SCREEN = 123;
+        int END_SHARE_SCREEN = 124;
+
 
 
     }

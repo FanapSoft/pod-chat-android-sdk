@@ -6,6 +6,21 @@
 All notable changes to this project will be documented here.
 
 
+
+## Version [-Add Version Here-] -
+
+[Added] ```startShareScreen``` callback
+
+[Added] ```onShareScreenStarted``` method
+
+[Added] ```endShareScreen``` callback
+
+[Added] ```onShareScreenEnded``` method
+
+[Updated] ```Add  ChatDataDTO to  StartedCallModel```
+
+
+
 ## Version [0.9.11.0] -2021-8-21
 
 [Added] **Video Call**

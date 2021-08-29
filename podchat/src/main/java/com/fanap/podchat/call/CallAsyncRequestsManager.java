@@ -12,9 +12,11 @@ import com.fanap.podchat.call.model.SendClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
+import com.fanap.podchat.call.request_model.StartShareScreenRequest;
 import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
@@ -371,6 +373,32 @@ public class CallAsyncRequestsManager {
         message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
         JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
         return a.toString();
+    }
+
+    public static String createStartShareScreenMessage(long callId, String uniqueId) {
+        StartShareScreenRequest request = new StartShareScreenRequest.Builder(callId).build();
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.START_SHARE_SCREEN);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(message);
+        return jsonObject.toString();
+    }
+
+    public static String createEndShareScreenMessage(long callId, String uniqueId) {
+        EndShareScreenRequest request = new EndShareScreenRequest.Builder(callId).build();
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.END_SHARE_SCREEN);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(message);
+        return jsonObject.toString();
     }
 
     public static String createTurnOffVideoMessage(TurnCallParticipantVideoOffRequest request, String uniqueId) throws PodChatException {

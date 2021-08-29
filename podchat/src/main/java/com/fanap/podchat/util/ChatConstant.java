@@ -47,6 +47,8 @@ public class ChatConstant {
 
     public static final int ERROR_CODE_INVALID_BOT_COMMAND = 6901;
 
+    public static final int ERROR_CODE_METHOD_NOT_IMPLEMENTED = 7000;
+
 
     /*
     Bots
@@ -93,6 +95,7 @@ public class ChatConstant {
     public static final String ERROR_INVALID_USER_GROUP_HASH = "Invalid userGroupHash value";
     public static final String ERROR_INVALID_THREAD_ID = "Invalid thread id";
     public static final String ERROR_ASYNC_EXCEPTION = "Async Error";
+    public static final String ERROR_METHOD_NOT_IMPLEMENTED = "This method is not implemented in current version!";
 
 
     /*
