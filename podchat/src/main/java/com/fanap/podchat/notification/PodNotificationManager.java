@@ -8,6 +8,7 @@ import android.os.Build;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.R;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;

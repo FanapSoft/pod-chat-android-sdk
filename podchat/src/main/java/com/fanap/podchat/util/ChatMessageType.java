@@ -122,6 +122,8 @@ public class ChatMessageType {
 
 
 
+            Constants.TURN_ON_VIDEO_CALL,
+            Constants.TURN_OFF_VIDEO_CALL
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -250,6 +252,11 @@ public class ChatMessageType {
         int REMOVE_TAG_PARTICIPANT = 144;
         int GET_TAG_LIST = 145;
         int MUTAL_GROUPS = 130;
+
+        int TURN_ON_VIDEO_CALL = 113;
+        int TURN_OFF_VIDEO_CALL = 114;
+
+
 
     }
 

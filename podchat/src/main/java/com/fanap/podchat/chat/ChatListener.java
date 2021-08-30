@@ -372,5 +372,11 @@ public interface ChatListener {
     default void OnTagParticipantAdded(String content, ChatResponse<TagParticipantResult> response){}
     default void OnTagParticipantRemoved(String content, ChatResponse<TagParticipantResult> response){}
     default void OnTagList(String content, ChatResponse<TagListResult> response){}
+
+    default void onNoViewToAddNewParticipant(){}
+
+    default void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response){}
+
+    default void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response){}
     default void onGetMutualGroups(String content, ChatResponse<ResultThreads> thread){}
 }

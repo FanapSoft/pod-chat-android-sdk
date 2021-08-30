@@ -1,9 +1,11 @@
 package com.fanap.podchat.call.model;
 
-import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.mainmodel.Participant;
 
 import java.io.Serializable;
+
+import static com.fanap.podchat.call.model.ClientDTO.VIDEO_TOPIC_SUFFIX;
+import static com.fanap.podchat.call.model.ClientDTO.VOICE_TOPIC_SUFFIX;
 
 public class CallParticipantVO implements Serializable {
 
@@ -16,6 +18,8 @@ public class CallParticipantVO implements Serializable {
     private String receiveTopic;
     private Boolean active;
     private int callStatus;
+    private boolean mute;
+    private boolean video;
     private Participant participantVO;
 
 
@@ -55,6 +59,26 @@ public class CallParticipantVO implements Serializable {
         return sendTopic;
     }
 
+    public String getSendTopicVideo() {
+        if (sendTopic != null && sendTopic.endsWith(VIDEO_TOPIC_SUFFIX))
+            return sendTopic;
+        if (sendTopic != null && sendTopic.endsWith(VOICE_TOPIC_SUFFIX))
+            return sendTopic.replace(VOICE_TOPIC_SUFFIX,VIDEO_TOPIC_SUFFIX);
+        if (sendTopic != null)
+            return sendTopic + VIDEO_TOPIC_SUFFIX;
+        return null;
+    }
+
+    public String getSendTopicAudio() {
+        if (sendTopic != null && sendTopic.endsWith(VOICE_TOPIC_SUFFIX))
+            return sendTopic;
+        if (sendTopic != null && sendTopic.endsWith(VIDEO_TOPIC_SUFFIX))
+            return sendTopic.replace(VIDEO_TOPIC_SUFFIX,VOICE_TOPIC_SUFFIX);
+        if (sendTopic != null)
+            return sendTopic + VOICE_TOPIC_SUFFIX;
+        return null;
+    }
+
     public void setSendTopic(String sendTopic) {
         this.sendTopic = sendTopic;
     }
@@ -89,5 +113,21 @@ public class CallParticipantVO implements Serializable {
 
     public void setParticipantVO(Participant participantVO) {
         this.participantVO = participantVO;
+    }
+
+    public boolean isMute() {
+        return mute;
+    }
+
+    public void setMute(boolean mute) {
+        this.mute = mute;
+    }
+
+    public boolean hasVideo() {
+        return video;
+    }
+
+    public void setVideo(boolean video) {
+        this.video = video;
     }
 }

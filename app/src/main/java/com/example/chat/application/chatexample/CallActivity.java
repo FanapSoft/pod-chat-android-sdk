@@ -4,33 +4,42 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
+
+import com.fanap.podcall.util.CallPermissionHandler;
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
+import com.fanap.podchat.call.history.HistoryAdaptor;
+import com.fanap.podchat.call.login.LoginFragment;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
-import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
@@ -38,23 +47,28 @@ import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatStateType;
-import com.fanap.podchat.util.Util;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class CallActivity extends AppCompatActivity implements ChatContract.view {
+public class CallActivity extends AppCompatActivity implements CallContract.view,
+        LoginFragment.ILoginInterface,
+        ContactsFragment.IContactsFragment {
 
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
-    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
+    private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private final static String Masoud_TOKEN = BaseApplication.getInstance().getString(R.string.Nadia_Anvari);
     //INTEGRATION
 
     static int Pooria_ID = 18477;
@@ -78,61 +92,47 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     //integration
     private static String serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
-    private static String name = BaseApplication.getInstance().getString(R.string.integration_serverName);
+    private static String integrationName = BaseApplication.getInstance().getString(R.string.integration_serverName);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-//
-
-
-    //nemati
-//    private static String serverName = BaseApplication.getInstance().getString(R.string.nemati_serverName);
-//    private static String name = BaseApplication.getInstance().getString(R.string.nemati_serverName);
-//    private static String platformHost = BaseApplication.getInstance().getString(R.string.nemati_platformHost);
-//    private static String fileServer = BaseApplication.getInstance().getString(R.string.nemati_fileServer);
-
-
-//    integration /group
 
     public static int TEST_THREAD_ID = 7090;
 
 
+    private static String sandBoxServerName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
     private static String sandBoxSSOHost = BaseApplication.getInstance().getString(R.string.sandbox_ssoHost);
-    private static String sandBoxServerName = "chat-server";
-
-
-    private static String sandBoxName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
     private static String sandBoxSocketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String sandBoxPlatformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String sandBoxFileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+
+
+    private static String mainServerName = BaseApplication.getInstance().getString(R.string.main_server_name);
+    private static String mainSSOHost = BaseApplication.getInstance().getString(R.string.ssoHost);
+    private static String mainSocketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
+    private static String mainPlatformHost = BaseApplication.getInstance().getString(R.string.platformHost);
+    private static String mainFileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+
+
     private static String podspaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
 
-
     private boolean permissionToRecordAccepted = false;
-    private String[] permissions = {Manifest.permission.RECORD_AUDIO};
+    private String[] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
 
 
-    private ChatContract.presenter presenter;
+    private CallContract.presenter presenter;
 
-    Button buttonCall, buttonConnect, buttonTestCall, buttonCloseHistory, buttonAddCallParticipant,
-            buttonConnectSandBox, buttonStartSandboxCall, buttonShareLog, buttonRemoveCallParticipant,
+    Button buttonAddCallParticipant,
+            buttonStartCallById, buttonRemoveCallParticipant,
             buttonTerminateCall;
 
-    TextView tvStatus, tvCallerName, tvHistory;
+    TextView tvStatus, tvCallerName, tvHistory, tvCalleeName;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
-    View callRequestView, inCallView, viewHistory;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonGetHistory, buttonMute, buttonSpeaker;
-    EditText etGroupId, etSender, etReceiver, etNumberOrOtp, etSandboxPartnerId, etNewParticipantToAdd;
-    CheckBox checkBoxSSL,
-            checkBoxGroupCall,
-            checkboxZiziPartner,
-            checkboxJijiPartner,
-            checkboxFifiPartner,
-            checkboxAddFarhad,
-            checkboxAddMasoud,
-            checkboxAddPooria;
+    View callRequestView, inCallView;
+    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker;
+    EditText etSandboxThreadId, etNewParticipantToAdd;
 
     FrameLayout frameLayout;
     FloatingActionButton fabContacts;
@@ -142,6 +142,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
     Vibrator vibrator;
+    Ringtone ringtone;
+
     boolean isMute = false;
     boolean isSpeakerOn = false;
 
@@ -150,6 +152,21 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private boolean chatReady;
     private boolean isTestMode = false;
 //    private boolean isInCall = false;
+
+    CallPartnerView localCallPartner,
+            remoteCallPartner1,
+            remoteCallPartner2,
+            remoteCallPartner3,
+            remoteCallPartner4;
+    private boolean isVideoPaused = false;
+
+
+    private RecyclerView recyclerViewHistory;
+    private ViewSwitcher viewSwitcherRecentCalls;
+    ScheduledExecutorService ex;
+
+
+    private final Enum<ServerType> serverType = ServerType.MAIN;
 
 
     @Override
@@ -183,73 +200,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private void setListeners() {
 
-
-        buttonConnect.setOnClickListener((v) -> connect());
-
-        buttonCall.setOnClickListener(v -> {
-
-            if (chatReady) {
-                if (checkBoxGroupCall.isChecked()) {
-                    presenter.requestGroupCall(checkboxFifiPartner.isChecked(), checkboxZiziPartner.isChecked(), checkboxJijiPartner.isChecked());
-                    updateStatus("Starting Group Call");
-                } else {
-                    presenter.requestCall(partnerId, checkBoxSSL.isChecked());
-                    updateStatus(String.format("Calling %s", presenter.getNameById(partnerId)));
-                }
-            } else
-                Toast.makeText(this, "Chat Is Not Ready", Toast.LENGTH_SHORT).show();
-
-
-        });
-
-        buttonTestCall.setOnClickListener(v -> {
-
-            isTestMode = true;
-
-//            setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
-            if (!etGroupId.getText().toString().isEmpty()
-                    && !etSender.getText().toString().isEmpty()
-                    && !etReceiver.getText().toString().isEmpty()) {
-
-                presenter.testCall(etGroupId.getText().toString(),
-                        etSender.getText().toString(),
-                        etReceiver.getText().toString()
-                );
-
-            } else presenter.testCall();
-
-            runOnUiThread(() -> {
-                showInCallView();
-                buttonConnect.setVisibility(View.INVISIBLE);
-            });
-
-
-        });
-
-        buttonTestCall.setOnLongClickListener(v -> {
-            presenter.endStream();
-
-            return true;
-        });
-
-
-        groupCaller.setOnCheckedChangeListener((group, checkedId) -> {
-
-            Log.e(TAG, "Checked -> " + checkedId);
-
-            updateCaller(checkedId);
-
-
-        });
-
-        groupPartner.setOnCheckedChangeListener((group, checkedId) -> {
-
-            Log.e(TAG, "Checked -> " + checkedId);
-
-            updatePartner(checkedId);
-
-        });
-
         buttonAcceptCall.setOnClickListener(v -> {
 
             updateViewOnCallReaction();
@@ -273,12 +223,9 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                 presenter.endStream();
                 inCallView.setVisibility(View.INVISIBLE);
                 callRequestView.setVisibility(View.INVISIBLE);
-                buttonCall.setVisibility(View.VISIBLE);
-//                buttonTestCall.setVisibility(View.VISIBLE);
-                buttonConnect.setVisibility(View.VISIBLE);
-
+                fabContacts.show();
                 isTestMode = false;
-
+                tvCalleeName.setText("");
             } else {
                 presenter.endRunningCall();
             }
@@ -296,10 +243,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         });
 
-
-        buttonGetHistory.setOnClickListener(v -> presenter.getCallHistory());
-
-        buttonCloseHistory.setOnClickListener(v -> viewHistory.setVisibility(View.INVISIBLE));
 
         buttonMute.setOnClickListener(v -> {
 
@@ -328,44 +271,39 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         {
 
             presenter.addCallParticipant(etNewParticipantToAdd.getText().toString(),
-                    checkboxAddPooria.isChecked(),
-                    checkboxAddMasoud.isChecked(),
-                    checkboxAddFarhad.isChecked());
+                    false,
+                    false,
+                    false);
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(),checkboxAddPooria.isChecked(), checkboxAddMasoud.isChecked(), checkboxAddFarhad.isChecked()));
+        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(), false, false, false));
 
-        buttonConnectSandBox.setOnClickListener(v -> {
-
-            presenter.enableAutoRefresh(this, etNumberOrOtp.getText().toString());
-
-            etNumberOrOtp.setText("");
-
-        });
-
-        buttonConnectSandBox.setOnLongClickListener(v -> {
-            presenter.logOut();
-            etNumberOrOtp.setText("");
-            return true;
-        });
-
-        buttonStartSandboxCall.setOnClickListener(v -> {
+        buttonStartCallById.setOnClickListener(v -> {
             if (chatReady) {
-                presenter.requestMainOrSandboxCall(etSandboxPartnerId.getText().toString(), checkBoxGroupCall.isChecked());
+                try {
+                    presenter.requestP2PCallWithUserId(Integer.parseInt(etSandboxThreadId.getText().toString()));
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(this, "Chat is not ready", Toast.LENGTH_SHORT).show();
             }
         });
 
-        buttonShareLog.setOnClickListener(v -> {
-            presenter.shareLogs();
+
+        fabContacts.setOnClickListener(v -> {
+            presenter.getContact();
         });
 
-        fabContacts.setOnClickListener(v -> presenter.getContact());
-//        checkBoxViewSandBox.setOnCheckedChangeListener((buttonView, isChecked) -> groupSandBoxViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
-//
-//        checkBoxViewIntegaration.setOnCheckedChangeListener((buttonView, isChecked) -> groupIntegartionViews.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+        localCallPartner.setOnClickListener(v -> presenter.switchCamera());
+        localCallPartner.setOnClickListener(v -> {
+            if (isVideoPaused)
+                presenter.resumeVideo();
+            else
+                presenter.pauseVideo();
 
+            isVideoPaused = !isVideoPaused;
+        });
     }
 
     private void toggleSpeaker(ImageButton v) {
@@ -409,15 +347,33 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     private void vibrateE() {
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//
-//            vibrator.vibrate(VibrationEffect.createWaveform(VIB_PATTERN, 0));
-//
-//        } else {
-//            //deprecated in API 26
-//            vibrator.vibrate(VIB_PATTERN, 0);
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
+            vibrator.vibrate(VibrationEffect.createWaveform(VIB_PATTERN, 0));
+
+        } else {
+            //deprecated in API 26
+            vibrator.vibrate(VIB_PATTERN, 0);
+        }
+
+    }
+
+    private void ring() {
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ringtone.setVolume(0.1f);
+        }
+        ringtone.play();
+    }
+
+    private boolean stopRingtone() {
+        if (ringtone != null) {
+            ringtone.stop();
+            ringtone = null;
+            return true;
+        }
+        return false;
     }
 
     private void scaleIt(View v) {
@@ -437,153 +393,80 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     private void updateViewOnCallReaction() {
 
         cancelVib();
+        stopRingtone();
 
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.GONE);
-            buttonCall.setVisibility(View.VISIBLE);
-            buttonStartSandboxCall.setVisibility(View.VISIBLE);
-            buttonConnectSandBox.setVisibility(View.VISIBLE);
+            inCallView.setVisibility(View.VISIBLE);
+            buttonStartCallById.setVisibility(View.VISIBLE);
             tvCallerName.setText("");
+            fabContacts.show();
         });
 
 
     }
 
-    private void updatePartner(int checkedId) {
-
-        switch (checkedId) {
-
-            case R.id.radioFarhadPartner: {
-
-                Log.e(TAG, "Checked -> zizi");
-
-                partnerId = Farhad_ID;
-
-                break;
-            }
-            case R.id.radioMasoudPartner: {
-
-                Log.e(TAG, "Checked -> fifi");
-                partnerId = Pooria_ID;
-
-                break;
-            }
-            case R.id.radioPooriaPartner: {
-
-                Log.e(TAG, "Checked -> jiji");
-                partnerId = Masoud_ID;
-
-                break;
-            }
-
-
-        }
-
-
-    }
-
-    private void updateCaller(int checkedId) {
-
-        switch (checkedId) {
-
-            case R.id.radioFarhadCaller: {
-
-                Log.e(TAG, "Checked -> farhad");
-
-                TOKEN = Farhad_TOKEN;
-
-                break;
-            }
-            case R.id.radioMasoudCaller: {
-
-                Log.e(TAG, "Checked -> masoud");
-
-                TOKEN = Masoud_TOKEN;
-
-                break;
-            }
-            case R.id.radioPooriaCaller: {
-
-                Log.e(TAG, "Checked -> pooria");
-
-                TOKEN = Pooria_TOKEN;
-
-                break;
-            }
-
-
-        }
-    }
 
     private void init() {
 
 
-        presenter = new ChatPresenter(this, this, this);
-        buttonCall = findViewById(R.id.btnCallRequest);
-        buttonConnect = findViewById(R.id.btnConnect);
-        buttonTestCall = findViewById(R.id.btnCallTest);
+        viewSwitcherRecentCalls = findViewById(R.id.viewSwitcherRecentCalls);
 
-        buttonCloseHistory = findViewById(R.id.buttonCloseHistory);
+        presenter = new CallPresenter(this, this, this, serverType);
+
+        recyclerViewHistory = findViewById(R.id.recyclerViewHistories);
+
 
         buttonAddCallParticipant = findViewById(R.id.btnAddCallParticipant);
         buttonRemoveCallParticipant = findViewById(R.id.btnRemoveCallParticipant);
 
-        groupCaller = findViewById(R.id.radioCaller);
-        groupPartner = findViewById(R.id.radioPartner);
-
         tvStatus = findViewById(R.id.tvStatus);
-
         tvCallerName = findViewById(R.id.tvCallerName);
+        tvCalleeName = findViewById(R.id.tvCalleeName);
         tvHistory = findViewById(R.id.tvHistory);
 
         callRequestView = findViewById(R.id.viewCallRequest);
         inCallView = findViewById(R.id.viewCall);
-        viewHistory = findViewById(R.id.viewHistory);
 
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
         buttonTerminateCall = findViewById(R.id.btnTerminateCall);
-        buttonGetHistory = findViewById(R.id.buttonGetHistory);
-        buttonConnectSandBox = findViewById(R.id.btnConnectToSandbox);
-        buttonStartSandboxCall = findViewById(R.id.btnSandboxCall);
+        buttonStartCallById = findViewById(R.id.btnSandboxCall);
 
 
         buttonMute = findViewById(R.id.buttonMute);
         buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
 
-        etGroupId = findViewById(R.id.etGroupId);
-        etSender = findViewById(R.id.etSender);
-        etReceiver = findViewById(R.id.etReceiver);
-        etNumberOrOtp = findViewById(R.id.etOtpNumber);
-        etSandboxPartnerId = findViewById(R.id.etSandBoxPartnerId);
+
+        etSandboxThreadId = findViewById(R.id.etSandBoxPartnerId);
         etNewParticipantToAdd = findViewById(R.id.etNewParticipant);
-
-        checkBoxSSL = findViewById(R.id.checkboxSSL);
-        checkBoxGroupCall = findViewById(R.id.checkboxGroupCall);
-
-        checkboxZiziPartner = findViewById(R.id.checkboxZiziPartner);
-        checkboxFifiPartner = findViewById(R.id.checkboxFifiPartner);
-        checkboxJijiPartner = findViewById(R.id.checkboxJijiPartner);
-
-        checkboxAddFarhad = findViewById(R.id.checkboxAddFarhad);
-        checkboxAddPooria = findViewById(R.id.checkboxAddPooria);
-        checkboxAddMasoud = findViewById(R.id.checkboxAddMasoud);
-
-        buttonShareLog = findViewById(R.id.btnShareLogs);
-
-//        checkBoxViewSandBox = findViewById(R.id.checkBoxSandBox);
-//        checkBoxViewIntegaration = findViewById(R.id.checkboxIntegration);
-//
-//        groupSandBoxViews = findViewById(R.id.groupSandBox);
-//        groupIntegartionViews = findViewById(R.id.groupIntegration);
-
 
         frameLayout = findViewById(R.id.frame_call);
         fabContacts = findViewById(R.id.fabShowContactsList);
-        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
 
         Logger.addLogAdapter(new AndroidLogAdapter());
+
+        localCallPartner = findViewById(R.id.localPartnerCameraView);
+        remoteCallPartner1 = findViewById(R.id.remotePartnerView1);
+        remoteCallPartner2 = findViewById(R.id.remotePartnerView2);
+        remoteCallPartner3 = findViewById(R.id.remotePartnerView3);
+        remoteCallPartner4 = findViewById(R.id.remotePartnerView4);
+
+
+        List<CallPartnerView> views = new ArrayList<>();
+
+        views.add(remoteCallPartner1);
+        views.add(remoteCallPartner2);
+        views.add(remoteCallPartner3);
+        views.add(remoteCallPartner4);
+
+
+        if (!CallPermissionHandler.needCameraAndRecordPermission(this)) {
+            presenter.setupVideoCallParam(localCallPartner, views);
+        } else {
+            CallPermissionHandler.requestPermission(this, 101);
+        }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -591,7 +474,6 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         Log.e(TAG, "Call info: " + callInfo);
 
-//        connect();
         if (callInfo != null) {
             presenter.setCallInfo(callInfo);
             showInCallView();
@@ -608,17 +490,16 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
             chatReady = true;
 
             runOnUiThread(() -> {
-                buttonConnect.setVisibility(View.INVISIBLE);
-                buttonCall.setVisibility(View.VISIBLE);
                 tvStatus.setText("Chat is Ready :)");
+                viewSwitcherRecentCalls.setDisplayedChild(0);
             });
+
+            presenter.getCallHistory();
 
         } else {
 
             chatReady = false;
             runOnUiThread(() -> {
-                buttonConnect.setVisibility(View.VISIBLE);
-                buttonCall.setVisibility(View.INVISIBLE);
                 tvStatus.setText("Connecting...");
             });
 
@@ -632,15 +513,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     public void onVoiceCallRequestReceived(String callerName) {
 
         vibrateE();
+        ring();
 
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.VISIBLE);
-            viewHistory.setVisibility(View.INVISIBLE);
-            buttonCall.setVisibility(View.INVISIBLE);
-            buttonTestCall.setVisibility(View.INVISIBLE);
-            buttonConnectSandBox.setVisibility(View.INVISIBLE);
-            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+            buttonStartCallById.setVisibility(View.INVISIBLE);
             tvCallerName.setText(" " + callerName);
+            fabContacts.hide();
         });
 
     }
@@ -650,12 +529,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
         cancelVib();
+        stopRingtone();
 
         runOnUiThread(() -> {
-            buttonCall.setVisibility(View.VISIBLE);
-//            buttonTestCall.setVisibility(View.VISIBLE);
-            buttonConnectSandBox.setVisibility(View.VISIBLE);
-            buttonStartSandboxCall.setVisibility(View.VISIBLE);
+            buttonStartCallById.setVisibility(View.VISIBLE);
             tvStatus.setText(String.format("%s Rejected Your Call Request", callerName));
         });
 
@@ -669,6 +546,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
 
         cancelVib();
+
+        stopRingtone();
 
         runOnUiThread(this::showInCallView);
 
@@ -685,23 +564,45 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.VISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
-            buttonCall.setVisibility(View.INVISIBLE);
-            buttonTestCall.setVisibility(View.INVISIBLE);
-
-            buttonConnectSandBox.setVisibility(View.INVISIBLE);
-            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+            fabContacts.hide();
+            buttonStartCallById.setVisibility(View.INVISIBLE);
+            tvCalleeName.setText("");
         });
+
+        AtomicInteger sec = new AtomicInteger();
+        sec.set(0);
+        AtomicInteger min = new AtomicInteger();
+        min.set(0);
+
+        if (ex == null) {
+            ex = Executors.newSingleThreadScheduledExecutor();
+
+            ex.scheduleAtFixedRate(
+                    () -> runOnUiThread(
+                            () -> {
+                                if (sec.get() < 10)
+                                    tvCalleeName.setText(min.get() + ":0" + sec.getAndIncrement());
+                                else if (sec.get() > 9 && sec.get() < 60) {
+                                    tvCalleeName.setText(min.get() + ":" + sec.getAndIncrement());
+                                } else {
+                                    sec.set(0);
+                                    tvCalleeName.setText(min.incrementAndGet() + ":00");
+                                }
+                            }),
+                    0,
+                    1,
+                    TimeUnit.SECONDS);
+        }
+
     }
 
     private void hideInCallView() {
         runOnUiThread(() -> {
+            viewSwitcherRecentCalls.setDisplayedChild(1);
             inCallView.setVisibility(View.GONE);
             callRequestView.setVisibility(View.INVISIBLE);
-            buttonCall.setVisibility(View.VISIBLE);
-            buttonTestCall.setVisibility(View.INVISIBLE);
-
-            buttonConnectSandBox.setVisibility(View.VISIBLE);
-            buttonStartSandboxCall.setVisibility(View.VISIBLE);
+            fabContacts.show();
+            buttonStartCallById.setVisibility(View.VISIBLE);
         });
     }
 
@@ -709,11 +610,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.VISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
-            buttonCall.setVisibility(View.INVISIBLE);
-            buttonTestCall.setVisibility(View.INVISIBLE);
-
-            buttonConnectSandBox.setVisibility(View.INVISIBLE);
-            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+            fabContacts.hide();
+            buttonStartCallById.setVisibility(View.INVISIBLE);
         });
     }
 
@@ -721,11 +619,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.GONE);
             callRequestView.setVisibility(View.GONE);
-            buttonCall.setVisibility(View.VISIBLE);
-            buttonTestCall.setVisibility(View.INVISIBLE);
-
-            buttonConnectSandBox.setVisibility(View.VISIBLE);
-            buttonStartSandboxCall.setVisibility(View.VISIBLE);
+            fabContacts.show();
+            buttonStartCallById.setVisibility(View.VISIBLE);
         });
     }
 
@@ -741,58 +636,65 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
         setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 
+        stopCallTimer();
+
         runOnUiThread(() -> {
+            viewSwitcherRecentCalls.setDisplayedChild(1);
             inCallView.setVisibility(View.INVISIBLE);
             callRequestView.setVisibility(View.INVISIBLE);
-            buttonCall.setVisibility(View.VISIBLE);
 //            buttonTestCall.setVisibility(View.VISIBLE);
-            buttonConnectSandBox.setVisibility(View.VISIBLE);
-            buttonStartSandboxCall.setVisibility(View.VISIBLE);
+            fabContacts.show();
+            buttonStartCallById.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Call has been ended", Toast.LENGTH_SHORT).show();
             tvStatus.setText("Call has been ended");
+            tvCalleeName.setText("");
         });
+
+    }
+
+    private void stopCallTimer() {
+        if (ex != null) {
+            ex.shutdown();
+            ex = null;
+        }
     }
 
     @SuppressLint("SetTextI18n")
     @Override
-    public void onGetCallHistory(ChatResponse<GetCallHistoryResult> response) {
+    public void onGetCallHistory(List<CallVO> calls) {
 
         runOnUiThread(() -> {
 
-            viewHistory.setVisibility(View.VISIBLE);
+            fabContacts.show();
 
-            String source = Util.parserBoolean(response.isCache()) ? "Cache" : "Server";
+            viewSwitcherRecentCalls.setDisplayedChild(1);
 
-            tvHistory.append("\n\n\n===\nSource: " + source + "\n===\n");
+            HistoryAdaptor hAdaptor = new HistoryAdaptor(
+                    new ArrayList<>(calls),
+                    this, call ->
+            {
+                tvCalleeName.setText("Calling " + call.getPartnerParticipantVO().getFirstName() + " " + call.getPartnerParticipantVO().getLastName());
 
-            tvHistory.append("Content Count: " + response.getResult().getContentCount() + "\n\n");
-
-            tvHistory.append("Has Next: " + response.getResult().isHasNext() + "\n\n");
-
-
-            if (!Util.isNullOrEmpty(response.getResult().getCallsList()))
-                for (CallVO call :
-                        response.getResult().getCallsList()) {
-
-                    tvHistory.append("\n====================\n");
-
-                    tvHistory.append("Call id: " + call.getId() + "\n");
-                    tvHistory.append("Call CreatorId: " + call.getCreatorId() + "\n");
-                    tvHistory.append("Call CreateTime: " + call.getCreateTime() + "\n");
-                    tvHistory.append("Call StartTime: " + call.getStartTime() + "\n");
-                    tvHistory.append("Call EndTime: " + call.getEndTime() + "\n");
-                    tvHistory.append("Call Status: " + call.getStatus() + "\n");
-                    tvHistory.append("Call Type: " + call.getType() + "\n");
-                    try {
-                        tvHistory.append("Call PartnerParticipant: " + call.getPartnerParticipantVO().toString() + "\n");
-                    } catch (Exception ignored) {
-                    }
-
+                if (call.getPartnerParticipantVO().getContactId() > 0) {
+                    presenter.requestP2PCallWithContactId(
+                            (int) call.getPartnerParticipantVO().getContactId()
+                    );
+                } else if (call.getPartnerParticipantVO().getId() > 0) {
+                    presenter.requestP2PCallWithUserId(
+                            (int) call.getPartnerParticipantVO().getId()
+                    );
                 }
-            else {
-                tvHistory.append("\nNo call history\n");
             }
-            tvHistory.append("\n====================\n");
+            );
+
+            recyclerViewHistory.setAdapter(hAdaptor);
+
+            recyclerViewHistory.setLayoutManager(
+                    new LinearLayoutManager(this,
+                            LinearLayoutManager.VERTICAL,
+                            false)
+            );
+
         });
 
     }
@@ -824,16 +726,13 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     public void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants) {
 
         vibrateE();
-
+        ring();
         runOnUiThread(() -> {
             Toast.makeText(this, "Group Call from " + callerName, Toast.LENGTH_SHORT).show();
             callRequestView.setVisibility(View.VISIBLE);
-            viewHistory.setVisibility(View.INVISIBLE);
-            buttonCall.setVisibility(View.INVISIBLE);
-            buttonTestCall.setVisibility(View.INVISIBLE);
-            buttonConnectSandBox.setVisibility(View.INVISIBLE);
-            buttonStartSandboxCall.setVisibility(View.INVISIBLE);
+            buttonStartCallById.setVisibility(View.INVISIBLE);
             tvCallerName.setText(callerName + " from " + title);
+            fabContacts.hide();
         });
 
     }
@@ -854,6 +753,52 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onGetToken(String token) {
+        connect(token);
+    }
+
+    private void connect(String token) {
+        if (serverType == ServerType.SANDBOX)
+            connectToSandbox(token);
+        else if (serverType == ServerType.MAIN)
+            connectToMainServer(token);
+
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Connected to " + serverType.toString(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onTokenReceived(String token) {
+
+        Fragment f2 = getSupportFragmentManager().findFragmentByTag("LFRAG");
+        if (f2 != null) {
+            getSupportFragmentManager().
+                    beginTransaction()
+                    .remove(f2)
+                    .commit();
+        }
+
+        connect(token);
+    }
+
+    @Override
+    public void onLocalTokenSelected(String token) {
+
+        Fragment f2 = getSupportFragmentManager().findFragmentByTag("LFRAG");
+        if (f2 != null) {
+            getSupportFragmentManager().
+                    beginTransaction()
+                    .remove(f2)
+                    .commit();
+        }
+
+        TOKEN = token;
+
+        connect();
+
+    }
+
+    private void connectToSandbox(String token) {
 
         RequestConnect request = new RequestConnect.Builder(
                 sandBoxSocketAddress,
@@ -867,16 +812,35 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         ).build();
 
         presenter.connect(request);
+    }
 
+    private void connectToMainServer(String token) {
+
+        RequestConnect request = new RequestConnect.Builder(
+                mainSocketAddress,
+                appId,
+                mainServerName,
+                token,
+                mainSSOHost,
+                mainPlatformHost,
+                mainFileServer,
+                podspaceServer
+        ).build();
+
+        presenter.connect(request);
     }
 
 
     @Override
     public void onGetUserInfo(ChatResponse<ResultUserInfo> outPutUserInfo) {
 
-        long id = outPutUserInfo.getResult().getUser().getId();
 
-        runOnUiThread(() -> etNumberOrOtp.setText("Your ID is: " + id));
+        runOnUiThread(() -> {
+            tvStatus.append(" " + "\n" + outPutUserInfo.getResult().getUser().getName());
+            tvStatus.append(" " + "\n" + outPutUserInfo.getResult().getUser().getId());
+            tvStatus.append(" " + "\n" + "Server name: " + serverType);
+
+        });
 
 
     }
@@ -986,13 +950,22 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
 
         runOnUiThread(() -> {
-            fabContacts.hide();
-            if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null)
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.frame_call, fragment, "CFRAG")
-                        .addToBackStack("CFRAG")
-                        .commit();
+            if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null) {
+                fabContacts.hide();
+
+                FrameLayout frameLayout = findViewById(R.id.frame_call);
+                frameLayout.setVisibility(View.VISIBLE);
+                try {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame_call, fragment, "CFRAG")
+                            .addToBackStack("CFRAG")
+                            .commit();
+                } catch (Exception e) {
+                    fabContacts.show();
+                    Log.wtf(TAG, e);
+                }
+            }
         });
 
     }
@@ -1000,7 +973,7 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers) {
 
-        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null){
+        if (getSupportFragmentManager().findFragmentByTag("CFRAG") != null) {
 
 
             ContactsFragment contactsFragment = (ContactsFragment) getSupportFragmentManager().findFragmentByTag("CFRAG");
@@ -1014,6 +987,8 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onBackPressed() {
 
+        viewSwitcherRecentCalls.setDisplayedChild(1);
+
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
             fabContacts.show();
@@ -1025,6 +1000,14 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
                         .remove(f)
                         .commit();
             }
+
+            Fragment f2 = getSupportFragmentManager().findFragmentByTag("LFRAG");
+            if (f2 != null) {
+                getSupportFragmentManager().
+                        beginTransaction()
+                        .remove(f2)
+                        .commit();
+            }
         } else
             super.onBackPressed();
 
@@ -1032,6 +1015,10 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     protected void onPause() {
+        presenter.rejectIncomingCall();
+        onCallEnded();
+        cancelVib();
+        stopRingtone();
         presenter.onStop();
         super.onPause();
     }
@@ -1041,4 +1028,91 @@ public class CallActivity extends AppCompatActivity implements ChatContract.view
         presenter.onResume();
         super.onResume();
     }
+
+    @Override
+    public void onLoginNeeded() {
+
+
+        if (fabContacts != null) {
+            fabContacts.hide();
+        }
+
+        LoginFragment loginFragment = new LoginFragment();
+
+        if (getSupportFragmentManager().findFragmentByTag("LFRAG") == null)
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frame_call, loginFragment, "LFRAG")
+                    .addToBackStack("LFRAG")
+                    .commit();
+
+
+    }
+
+    @Override
+    public void onLoadingContactsStarted() {
+        runOnUiThread(() -> {
+            viewSwitcherRecentCalls.setDisplayedChild(0);
+            fabContacts.hide();
+        });
+    }
+
+    @Override
+    public void onError(String message) {
+
+    }
+
+
+    @Override
+    public void onContactsSelected(ContactsWrapper contact) {
+
+
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            fabContacts.show();
+            Fragment f = getSupportFragmentManager().findFragmentByTag("CFRAG");
+
+            if (f != null) {
+                getSupportFragmentManager().
+                        beginTransaction()
+                        .remove(f)
+                        .commit();
+            }
+        }
+
+
+        tvCalleeName.setText("Calling " + contact.getFirstName() + " " + contact.getLastName());
+        presenter.requestP2PCallWithContactId((int) contact.getId());
+
+    }
+
+    @Override
+    public void setInitState() {
+
+
+        runOnUiThread(() -> {
+            localCallPartner.setVisibility(View.GONE);
+            viewSwitcherRecentCalls.setDisplayedChild(1);
+            fabContacts.show();
+            hideRequestCallView();
+        });
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) || (keyCode == KeyEvent.KEYCODE_VOLUME_UP) || keyCode==KeyEvent.KEYCODE_POWER) {
+
+            if(!stopRingtone()){
+                return super.onKeyDown(keyCode, event);
+            }else{
+                cancelVib();
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
 }

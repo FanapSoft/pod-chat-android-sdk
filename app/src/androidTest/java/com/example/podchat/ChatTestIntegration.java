@@ -10,7 +10,6 @@ import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
 
 import com.example.chat.application.chatexample.BaseApplication;
 import com.example.chat.application.chatexample.ChatActivity;
@@ -1025,7 +1024,7 @@ public class ChatTestIntegration extends ChatAdapter {
         sleep(3000);
         presenter.getContact(50, 0L, null);
         sleep(3000);
-        Mockito.verify(view, Mockito.times(1)).onGetContacts();
+        Mockito.verify(view, Mockito.times(1)).onGetContacts(null);
     }
 
     @Test

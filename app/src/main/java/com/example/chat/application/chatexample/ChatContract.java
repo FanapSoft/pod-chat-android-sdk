@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
+import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.chat.Chat;
@@ -56,6 +58,7 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
@@ -122,7 +125,7 @@ public interface ChatContract {
         default void onGetThreadHistory(ChatResponse<ResultHistory> history) {
         }
 
-        default void onGetContacts() {
+        default void onGetContacts(ChatResponse<ResultContact> outPutContact) {
 
         }
 
@@ -255,7 +258,7 @@ public interface ChatContract {
 
         default void onVoiceCallStarted(String uniqueId, String clientId){}
 
-        default void onGetCallHistory(ChatResponse<GetCallHistoryResult> result){}
+        default void onGetCallHistory(List<CallVO> calls){}
 
         default void onCallReconnect(long callId){}
 
@@ -301,6 +304,12 @@ public interface ChatContract {
 
         default void onChatProfileUpdated(ResultUpdateProfile result){}
         default void onTagCreated(TagResult result){}
+
+        default void onLoginNeeded(){}
+
+        default void onLoadingContactsStarted(){}
+
+        default void setInitState(){}
     }
 
     interface presenter {
@@ -310,8 +319,6 @@ public interface ChatContract {
         void sendLocationMessage(RequestLocationMessage request);
 
         void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
-
-        String requestMainOrSandboxCall(int partnerId, boolean checked);
 
         void searchMap(String haram, double lat, double lon);
 
@@ -584,9 +591,13 @@ public interface ChatContract {
 
         void setCallInfo(CallInfo callInfo);
 
-        void requestMainOrSandboxCall(String query, boolean checked);
+        void requestMainOrSandboxCall(String query, boolean isGroupCall);
 
-        void requestCall(int partnerId, boolean checked);
+        void requestP2PCallWithP2PThreadId(int threadId);
+
+        void requestP2PCallWithContactId(int contactId);
+
+        void requestP2PCallWithUserId(int userId);
 
         void terminateCall();
 
@@ -625,6 +636,13 @@ public interface ChatContract {
 
        void getTagList(GetTagListRequest request);
 
+        void setupVideoCallParam(CallPartnerView localCallPartner, List<CallPartnerView> views);
+
+        void switchCamera();
+
+        void pauseVideo();
+
+        void resumeVideo();
         void getMutualGroups(GetMutualGroupRequest request);
 
     }

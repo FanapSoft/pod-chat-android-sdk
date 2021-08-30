@@ -108,7 +108,7 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvContactName);
-            imageViewProfile = itemView.findViewById(R.id.imageContact);
+            imageViewProfile = itemView.findViewById(R.id.imageStatus);
             imageButtonCall = itemView.findViewById(R.id.imgBtnCallContact);
             imageViewDone = itemView.findViewById(R.id.imageDone);
         }
