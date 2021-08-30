@@ -157,8 +157,8 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
-    private static final String TEST_THREAD_HASH = "P7SJFYC6LUJMI1";
-    public static int TEST_THREAD_ID = 9150;
+    private static final String TEST_THREAD_HASH = "JNLGU4YQE5DZTD9Z";
+    public static int TEST_THREAD_ID = 53255;
 
 
     ArrayList<String> runningSignals = new ArrayList<>();
@@ -178,9 +178,10 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-    private final Enum<ServerType> serverType = ServerType.Integration;
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    //    private String TOKEN = "311e7e89c91b4ec9aa1bccf66e256ab2";
+    private final Enum<ServerType> serverType = ServerType.Sandbox;
+//    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+        private String TOKEN = "52678dcd8a2b48e7b8660cbd0dfea02a";
+//        private String TOKEN = "c13546cffb4d4bd682f19edbc6084977";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
     private String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
@@ -208,7 +209,7 @@ public class ChatActivity extends AppCompatActivity
     private ExpandablePlaceHolderView expandablePlaceHolderView;
 
 
-    private String fileHash = null;
+    private String fileHash = "UDXVMRM5E8R2KR44";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1013,6 +1014,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder(fileHash)
 //       .setCrop(true)
                 .setQuality(0.45f)
+                .setCheckUserGroupAccess(true)
                 .build();
 
 
@@ -1139,6 +1141,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder(fileHash)
 //       .setCrop(true)
                 .setQuality(0.45f)
+                .setCheckUserGroupAccess(true)
                 .build();
 
 
@@ -1679,6 +1682,7 @@ public class ChatActivity extends AppCompatActivity
                     public void onFinishImage(String json, ChatResponse<ResultImageFile> chatResponse) {
 
                         Log.e("SFM", "onFinishImage");
+                        fileHash = chatResponse.getResult().getHashCode();
 
                     }
 
@@ -1686,7 +1690,7 @@ public class ChatActivity extends AppCompatActivity
                     public void onFinishFile(String json, ChatResponse<ResultFile> chatResponse) {
 
                         Log.e("SFM", "onFinishFile");
-
+                        fileHash = chatResponse.getResult().getHashCode();
                     }
 
                     @Override

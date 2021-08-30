@@ -1,5 +1,7 @@
 package com.fanap.podchat;
 
+import android.util.Log;
+
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.model.ChatResponse;
@@ -67,6 +69,11 @@ public abstract class ProgressHandler {
         }
 
         void onError(String uniqueId, String error, String url);
+        default void onError(Integer status, String error, String message, String path, String timestamp, String reference)
+        {
+            Log.d("TAG", "onError: ");
+        }
+
 
         default void onLowFreeSpace(String uniqueId, String url) {
         }

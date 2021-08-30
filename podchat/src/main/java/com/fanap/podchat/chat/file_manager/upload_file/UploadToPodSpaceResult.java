@@ -7,8 +7,8 @@ public class UploadToPodSpaceResult {
 	@SerializedName("size")
 	private int size;
 
-	@SerializedName("hashCode")
-	private String hashCode;
+	@SerializedName("hash")
+	private String hash;
 
 	@SerializedName("created")
 	private long created;
@@ -31,11 +31,11 @@ public class UploadToPodSpaceResult {
 	}
 
 	public void setHashCode(String hashCode){
-		this.hashCode = hashCode;
+		this.hash = hashCode;
 	}
 
 	public String getHashCode(){
-		return hashCode;
+		return hash;
 	}
 
 	public void setCreated(long created){
@@ -75,7 +75,7 @@ public class UploadToPodSpaceResult {
 		return 
 			"Result{" + 
 			"size = '" + size + '\'' + 
-			",hashCode = '" + hashCode + '\'' + 
+			",hash = '" + hash + '\'' +
 			",created = '" + created + '\'' + 
 			",name = '" + name + '\'' + 
 			",parentHash = '" + parentHash + '\'' + 

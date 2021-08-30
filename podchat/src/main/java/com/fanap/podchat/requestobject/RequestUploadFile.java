@@ -11,6 +11,15 @@ public class RequestUploadFile {
     private Uri fileUri;
     private String userGroupHashCode;
     private boolean isPublic;
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     RequestUploadFile(Builder builder) {
         activity = builder.activity;

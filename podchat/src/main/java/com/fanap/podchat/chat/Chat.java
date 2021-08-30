@@ -4060,6 +4060,7 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    requestFileMessage.getDescription(),
                     requestFileMessage.getImageXc(),
                     requestFileMessage.getImageYc(),
                     requestFileMessage.getImageHc(),
@@ -4233,6 +4234,7 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    requestFileMessage.getDescription(),
                     requestFileMessage.getImageXc(),
                     requestFileMessage.getImageYc(),
                     requestFileMessage.getImageHc(),
@@ -4659,6 +4661,7 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    request.getDescription(),
                     String.valueOf(request.getxC()),
                     String.valueOf(request.getyC()),
                     String.valueOf(request.gethC()),
@@ -4890,6 +4893,7 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    request.getDescription(),
                     request.isPublic(),
                     new PodUploader.IPodUploadFileToPodSpace() {
 
@@ -5104,6 +5108,7 @@ public class Chat extends AsyncAdapter {
                             getPodSpaceServer(),
                             getToken(),
                             TOKEN_ISSUER,
+                            "",
                             new PodUploader.IPodUploadFileToPodSpace() {
                                 @Override
                                 public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
@@ -5223,6 +5228,7 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    "",
                     String.valueOf(request.getxC()),
                     String.valueOf(request.getyC()),
                     String.valueOf(request.gethC()),
@@ -5513,6 +5519,7 @@ public class Chat extends AsyncAdapter {
                             getPodSpaceServer(),
                             getToken(),
                             TOKEN_ISSUER,
+                            null,
                             new PodUploader.IPodUploadFileToPodSpace() {
                                 @Override
                                 public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
@@ -5811,6 +5818,12 @@ public class Chat extends AsyncAdapter {
                         }
 
                         @Override
+                        public void onError(Integer status, String error, String message, String path, String timestamp, String reference) {
+                            showErrorLog("Download Error. cause: " + error);
+                        }
+
+
+                        @Override
                         public void onProgressUpdate(String mUniqueId, long bytesDownloaded, long totalBytesToDownload) {
 
                             progressHandler.onProgressUpdate(uniqueId, bytesDownloaded, totalBytesToDownload);
@@ -6041,6 +6054,11 @@ public class Chat extends AsyncAdapter {
                         }
 
                         @Override
+                        public void onError(Integer status, String error, String message, String path, String timestamp, String reference) {
+                            showErrorLog("Download Error. cause: " + error);
+                        }
+
+                        @Override
                         public void onProgressUpdate(String mUniqueId, long bytesDownloaded, long totalBytesToDownload) {
 
                             progressHandler.onProgressUpdate(uniqueId, bytesDownloaded, totalBytesToDownload);
@@ -6080,6 +6098,7 @@ public class Chat extends AsyncAdapter {
                     downloaderErrorInterface,
                     request.getSize(),
                     request.getQuality(),
+                    request.getCheckUserGroupAccess(),
                     request.getCrop());
 
             downloadCallList.put(uniqueId, call);
@@ -6886,6 +6905,7 @@ public class Chat extends AsyncAdapter {
                     getPodSpaceServer(),
                     getToken(),
                     TOKEN_ISSUER,
+                    "",
                     request.getImageXc(),
                     request.getImageYc(),
                     request.getImageHc(),
@@ -8867,150 +8887,150 @@ public class Chat extends AsyncAdapter {
      * [default value] width = 800
      * [default value] height = 500
      */
-    private String mainMapStaticImage(RequestLocationMessage request,
-                                      Activity activity,
-                                      String uniqueId,
-                                      boolean isMessage) {
-
-
-        try {
-            if (Util.isNullOrEmpty(uniqueId)) {
-                uniqueId = generateUniqueId();
-            }
-
-            if (needReadStoragePermission(activity)) return uniqueId;
-
-            if (chatReady) {
-                String type = request.getType();
-                int zoom = request.getZoom();
-                int width = request.getWidth();
-                int height = request.getHeight();
-                String center = request.getCenter();
-                long threadId = request.getThreadId();
-                int messageType = request.getMessageType();
-                String systemMetadata = request.getSystemMetadata();
-
-                if (Util.isNullOrEmpty(type)) {
-                    type = "standard-night";
-                }
-                if (Util.isNullOrEmpty(zoom)) {
-                    zoom = 15;
-                }
-                if (Util.isNullOrEmpty(width)) {
-                    width = 800;
-                }
-                if (Util.isNullOrEmpty(height)) {
-                    height = 500;
-                }
-
-
-                JsonObject jsonObject = (JsonObject) gson.toJsonTree(request);
-
-                jsonObject.addProperty("uniqueId", uniqueId);
-
-                showLog("SEND_GET_MAP_STATIC", getJsonForLog(jsonObject));
-
-
-                RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
-                MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
-
-                Call<ResponseBody> call = mapApi.mapStaticCall(API_KEY_MAP,
-                        type,
-                        zoom,
-                        center,
-                        width,
-                        height);
-
-
-                String finalUniqueId = uniqueId;
-
-                String finalUniqueId1 = uniqueId;
-                call.enqueue(new retrofit2.Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call,
-                                           Response<ResponseBody> response) {
-                        if (response.isSuccessful()) {
-
-                            if (response.body() != null) {
-                                Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
-                                ChatResponse<ResultStaticMapImage> chatResponse = new ChatResponse<>();
-                                ResultStaticMapImage result = new ResultStaticMapImage();
-                                result.setBitmap(bitmap);
-                                chatResponse.setUniqueId(finalUniqueId);
-                                chatResponse.setResult(result);
-                                listenerManager.callOnStaticMap(chatResponse);
-                                showLog("RECEIVE_MAP_STATIC", "[]");
-                                if (!call.isCanceled()) {
-                                    call.cancel();
-                                }
-
-                                if (isMessage) {
-                                    File file = null;
-                                    try {
-                                        file = FileUtils.saveBitmap(bitmap, "map");
-                                    } catch (Exception e) {
-                                        captureError(ChatConstant.ERROR_WRITING_FILE,
-                                                ChatConstant.ERROR_CODE_WRITING_FILE,
-                                                finalUniqueId1);
-                                    }
-
-                                    if (file == null) {
-
-                                        captureError(ChatConstant.ERROR_WRITING_FILE,
-                                                ChatConstant.ERROR_CODE_WRITING_FILE,
-                                                finalUniqueId1);
-
-                                        return;
-                                    }
-
-                                    Uri fileUri = Uri.fromFile(file);
-//                                    String newPath = FilePick.getSmartFilePath(getContext(), fileUri);
-
-                                    String mimType = handleMimType(fileUri, file);
-
-                                    LFileUpload lFileUpload = new LFileUpload();
-
-                                    lFileUpload.setFileUri(fileUri);
-                                    if (activity != null) {
-                                        lFileUpload.setActivity(activity);
-                                    }
-                                    lFileUpload.setThreadId(threadId);
-                                    lFileUpload.setUniqueId(finalUniqueId);
-                                    lFileUpload.setMessageType(messageType);
-                                    lFileUpload.setMimeType(mimType);
-                                    lFileUpload.setMethodName(ChatConstant.METHOD_LOCATION_MSG);
-                                    lFileUpload.setSystemMetaData(systemMetadata);
-                                    lFileUpload.setCenter(center);
-
-                                    uploadImageFileMessage(lFileUpload);
-
-                                }
-                            }
-                        } else {
-
-                            captureError(ChatConstant.ERROR_CALL_NESHAN_API,
-                                    ChatConstant.ERROR_CODE_CALL_NESHAN_API, finalUniqueId);
-                            showErrorLog(response.message());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        captureError(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, t);
-                    }
-                });
-
-
-            } else {
-                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-            }
-
-        } catch (Throwable throwable) {
-            captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable);
-
-        }
-        return uniqueId;
-    }
+//    private String mainMapStaticImage(RequestLocationMessage request,
+//                                      Activity activity,
+//                                      String uniqueId,
+//                                      boolean isMessage) {
+//
+//
+//        try {
+//            if (Util.isNullOrEmpty(uniqueId)) {
+//                uniqueId = generateUniqueId();
+//            }
+//
+//            if (needReadStoragePermission(activity)) return uniqueId;
+//
+//            if (chatReady) {
+//                String type = request.getType();
+//                int zoom = request.getZoom();
+//                int width = request.getWidth();
+//                int height = request.getHeight();
+//                String center = request.getCenter();
+//                long threadId = request.getThreadId();
+//                int messageType = request.getMessageType();
+//                String systemMetadata = request.getSystemMetadata();
+//
+//                if (Util.isNullOrEmpty(type)) {
+//                    type = "standard-night";
+//                }
+//                if (Util.isNullOrEmpty(zoom)) {
+//                    zoom = 15;
+//                }
+//                if (Util.isNullOrEmpty(width)) {
+//                    width = 800;
+//                }
+//                if (Util.isNullOrEmpty(height)) {
+//                    height = 500;
+//                }
+//
+//
+//                JsonObject jsonObject = (JsonObject) gson.toJsonTree(request);
+//
+//                jsonObject.addProperty("uniqueId", uniqueId);
+//
+//                showLog("SEND_GET_MAP_STATIC", getJsonForLog(jsonObject));
+//
+//
+//                RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+//                MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+//
+//                Call<ResponseBody> call = mapApi.mapStaticCall(API_KEY_MAP,
+//                        type,
+//                        zoom,
+//                        center,
+//                        width,
+//                        height);
+//
+//
+//                String finalUniqueId = uniqueId;
+//
+//                String finalUniqueId1 = uniqueId;
+//                call.enqueue(new retrofit2.Callback<ResponseBody>() {
+//                    @Override
+//                    public void onResponse(Call<ResponseBody> call,
+//                                           Response<ResponseBody> response) {
+//                        if (response.isSuccessful()) {
+//
+//                            if (response.body() != null) {
+//                                Bitmap bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+//                                ChatResponse<ResultStaticMapImage> chatResponse = new ChatResponse<>();
+//                                ResultStaticMapImage result = new ResultStaticMapImage();
+//                                result.setBitmap(bitmap);
+//                                chatResponse.setUniqueId(finalUniqueId);
+//                                chatResponse.setResult(result);
+//                                listenerManager.callOnStaticMap(chatResponse);
+//                                showLog("RECEIVE_MAP_STATIC", "[]");
+//                                if (!call.isCanceled()) {
+//                                    call.cancel();
+//                                }
+//
+//                                if (isMessage) {
+//                                    File file = null;
+//                                    try {
+//                                        file = FileUtils.saveBitmap(bitmap, "map");
+//                                    } catch (Exception e) {
+//                                        captureError(ChatConstant.ERROR_WRITING_FILE,
+//                                                ChatConstant.ERROR_CODE_WRITING_FILE,
+//                                                finalUniqueId1);
+//                                    }
+//
+//                                    if (file == null) {
+//
+//                                        captureError(ChatConstant.ERROR_WRITING_FILE,
+//                                                ChatConstant.ERROR_CODE_WRITING_FILE,
+//                                                finalUniqueId1);
+//
+//                                        return;
+//                                    }
+//
+//                                    Uri fileUri = Uri.fromFile(file);
+////                                    String newPath = FilePick.getSmartFilePath(getContext(), fileUri);
+//
+//                                    String mimType = handleMimType(fileUri, file);
+//
+//                                    LFileUpload lFileUpload = new LFileUpload();
+//
+//                                    lFileUpload.setFileUri(fileUri);
+//                                    if (activity != null) {
+//                                        lFileUpload.setActivity(activity);
+//                                    }
+//                                    lFileUpload.setThreadId(threadId);
+//                                    lFileUpload.setUniqueId(finalUniqueId);
+//                                    lFileUpload.setMessageType(messageType);
+//                                    lFileUpload.setMimeType(mimType);
+//                                    lFileUpload.setMethodName(ChatConstant.METHOD_LOCATION_MSG);
+//                                    lFileUpload.setSystemMetaData(systemMetadata);
+//                                    lFileUpload.setCenter(center);
+//
+//                                    uploadImageFileMessage(lFileUpload);
+//
+//                                }
+//                            }
+//                        } else {
+//
+//                            captureError(ChatConstant.ERROR_CALL_NESHAN_API,
+//                                    ChatConstant.ERROR_CODE_CALL_NESHAN_API, finalUniqueId);
+//                            showErrorLog(response.message());
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                        captureError(t.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, finalUniqueId, t);
+//                    }
+//                });
+//
+//
+//            } else {
+//                captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+//            }
+//
+//        } catch (Throwable throwable) {
+//            captureError(throwable.getMessage(), ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId, throwable);
+//
+//        }
+//        return uniqueId;
+//    }
 
 
     private String mainMapStaticImage(RequestLocationMessage request,
@@ -9161,6 +9181,7 @@ public class Chat extends AsyncAdapter {
                                                 getPodSpaceServer(),
                                                 getToken(),
                                                 TOKEN_ISSUER,
+                                                "",
                                                 new PodUploader.IPodUploadFileToPodSpace() {
                                                     @Override
                                                     public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int actualHeight, int width, int height) {
@@ -15091,287 +15112,292 @@ public class Chat extends AsyncAdapter {
      * totalBytesToSend - Total bytes to send.
      */
 
-
-    private void uploadImageFileMessage(LFileUpload lFileUpload) {
-
-        Activity activity = lFileUpload.getActivity();
-        String description = lFileUpload.getDescription();
-        Uri fileUri = lFileUpload.getFileUri();
-        Integer messageType = lFileUpload.getMessageType();
-        long threadId = lFileUpload.getThreadId();
-        String uniqueId = lFileUpload.getUniqueId();
-        String systemMetaData = lFileUpload.getSystemMetaData();
-        long messageId = lFileUpload.getMessageId();
-        String mimeType = lFileUpload.getMimeType();
-        String center = lFileUpload.getCenter();
-        String methodName = lFileUpload.getMethodName();
-
-        systemMetaData = systemMetaData != null ? systemMetaData : "";
-        description = description != null ? description : "";
-        messageType = messageType != null ? messageType : 0;
-
-        if (Permission.Check_READ_STORAGE(activity)) {
-            String path = FilePick.getSmartFilePath(getContext(), fileUri);
-
-            if (Util.isNullOrEmpty(path)) {
-                path = "";
-            }
-            File file = new File(path);
-            if (file.exists()) {
-                long fileSize = file.length();
-
-                addToUploadQueue(description, fileUri, messageType, threadId, "", uniqueId, systemMetaData, messageId, mimeType, center, methodName, file, fileSize);
-
-                if (log)
-                    Log.i(TAG, "Message with this" + "  uniqueId  " + uniqueId + "  has been added to Uploading Queue");
-                lFileUpload.setFile(file);
-                lFileUpload.setFileSize(fileSize);
-                lFileUpload.setSystemMetaData(systemMetaData);
-                lFileUpload.setDescription(description);
-                lFileUpload.setMessageType(messageType);
-                lFileUpload.setCenter(center);
-
-                mainUploadImageFileMsg(lFileUpload);
-
-            } else {
-                if (log) Log.e(TAG, "File Is Not Exist");
-                captureError("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
-            }
-        } else {
-
-            Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
-
-            captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
-                    , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
-//            listenerManager.callOnLogEvent(jsonError);
-        }
-    }
-
-
-    private void mainUploadImageFileMsg(LFileUpload fileUpload) {
-
-        JsonObject jsonLog = new JsonObject();
-
-        String description = fileUpload.getDescription();
-
-        jsonLog.addProperty("description", description);
-
-        ProgressHandler.sendFileMessage handler = fileUpload.getHandler();
-
-        Integer messageType = fileUpload.getMessageType();
-
-        jsonLog.addProperty("messageType", messageType);
-
-        long threadId = fileUpload.getThreadId();
-
-        jsonLog.addProperty("threadId", threadId);
-
-        String uniqueId = fileUpload.getUniqueId();
-
-        jsonLog.addProperty("uniqueId", uniqueId);
-
-        String systemMetaData = fileUpload.getSystemMetaData();
-
-        jsonLog.addProperty("systemMetaData", systemMetaData);
-
-        long messageId = fileUpload.getMessageId();
-
-        jsonLog.addProperty("messageId", messageId);
-
-        String mimeType = fileUpload.getMimeType();
-
-        jsonLog.addProperty("mimeType", mimeType);
-
-        String methodName = fileUpload.getMethodName();
-
-        jsonLog.addProperty("methodName", methodName);
-
-        long fileSize = fileUpload.getFileSize();
-
-        jsonLog.addProperty("fileSize", fileSize);
-
-        String center = fileUpload.getCenter();
-
-        jsonLog.addProperty("center", center);
-
-        File file = fileUpload.getFile();
-
-        if (chatReady) {
-
-            if (fileServer != null) {
-
-                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
-
-                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-
-                try {
-                    showLog("UPLOAD_FILE_TO_SERVER", getJsonForLog(jsonLog));
-                } catch (Exception e) {
-                    showErrorLog(e.getMessage());
-                }
-
-                ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId,
-
-                        new ProgressRequestBody.UploadCallbacks() {
-
-                            @Override
-                            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
-
-                                Log.i(TAG, "on progress");
-                                if (handler != null) {
-                                    handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
-                                    if (log)
-                                        Log.i(TAG, "uniqueId " + uniqueId + " bytesSent " + progress);
-                                } else {
-
-                                    if (log)
-                                        Log.i(TAG, "Handler is null");
-
-                                }
-                            }
-
-                            @Override
-                            public void onError() {
-                                if (log)
-                                    Log.i(TAG, "Error on upload");
-
-                            }
-
-                            @Override
-                            public void onFinish() {
-
-                                if (log)
-                                    Log.i(TAG, "Finish upload");
-
-                            }
-
-                        });
-
-                MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
-
-
-                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
-                Observable<Response<FileImageUpload>> uploadObservable =
-                        fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
-
-                Subscription subscribe = uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
-                    if (fileUploadResponse.body() != null && fileUploadResponse.isSuccessful()) {
-                        boolean hasError = fileUploadResponse.body().isHasError();
-                        if (hasError) {
-                            String errorMessage = fileUploadResponse.body().getMessage();
-                            int errorCode = fileUploadResponse.body().getErrorCode();
-                            String jsonError = captureError(errorMessage, errorCode, uniqueId);
-//                            listenerManager.callOnLogEvent(jsonError);
-                            ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
-
-                            if (handler != null) {
-                                handler.onError(jsonError, error);
-                            }
-
-                        } else {
-
-                            //remove from Uploading Queue
-                            removeFromUploadQueue(uniqueId);
-
-                            ResultImageFile result = fileUploadResponse.body().getResult();
-                            long imageId = result.getId();
-                            String hashCode = result.getHashCode();
-
-                            ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
-                            ResultImageFile resultImageFile = new ResultImageFile();
-                            chatResponse.setUniqueId(uniqueId);
-                            resultImageFile.setId(result.getId());
-                            resultImageFile.setHashCode(result.getHashCode());
-                            resultImageFile.setName(result.getName());
-                            resultImageFile.setHeight(result.getHeight());
-                            resultImageFile.setWidth(result.getWidth());
-                            resultImageFile.setActualHeight(result.getActualHeight());
-                            resultImageFile.setActualWidth(result.getActualWidth());
-
-                            chatResponse.setResult(resultImageFile);
-
-                            String imageJson = gson.toJson(chatResponse);
-
-                            listenerManager.callOnUploadImageFile(imageJson, chatResponse);
-
-                            if (handler != null) {
-                                handler.onFinishImage(imageJson, chatResponse);
-                            }
-
-                            showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
-//                            if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
-//                            listenerManager.callOnLogEvent(imageJson);
-                            String metaJson;
-
-                            if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_LOCATION_MSG)) {
-                                metaJson = createImageMetadata(file, hashCode, imageId, result.getActualHeight()
-                                        , result.getActualWidth(), mimeType, fileSize, null, true, center);
-
-                            } else {
-                                metaJson = createImageMetadata(file, hashCode, imageId, result.getActualHeight()
-                                        , result.getActualWidth(), mimeType, fileSize, null, false, null);
-                            }
 //
-                            JsonObject js = new JsonObject();
-                            js.addProperty("metadata", metaJson);
-                            js.addProperty("uniqueId", uniqueId);
+//    private void uploadImageFileMessage(LFileUpload lFileUpload) {
+//
+//        Activity activity = lFileUpload.getActivity();
+//        String description = lFileUpload.getDescription();
+//        Uri fileUri = lFileUpload.getFileUri();
+//        Integer messageType = lFileUpload.getMessageType();
+//        long threadId = lFileUpload.getThreadId();
+//        String uniqueId = lFileUpload.getUniqueId();
+//        String systemMetaData = lFileUpload.getSystemMetaData();
+//        long messageId = lFileUpload.getMessageId();
+//        String mimeType = lFileUpload.getMimeType();
+//        String center = lFileUpload.getCenter();
+//        String methodName = lFileUpload.getMethodName();
+//
+//        systemMetaData = systemMetaData != null ? systemMetaData : "";
+//        description = description != null ? description : "";
+//        messageType = messageType != null ? messageType : 0;
+//
+//        if (Permission.Check_READ_STORAGE(activity)) {
+//            String path = FilePick.getSmartFilePath(getContext(), fileUri);
+//
+//            if (Util.isNullOrEmpty(path)) {
+//                path = "";
+//            }
+//            File file = new File(path);
+//            if (file.exists()) {
+//                long fileSize = file.length();
+//
+//                addToUploadQueue(description, fileUri, messageType, threadId, "", uniqueId, systemMetaData, messageId, mimeType, center, methodName, file, fileSize);
+//
+//                if (log)
+//                    Log.i(TAG, "Message with this" + "  uniqueId  " + uniqueId + "  has been added to Uploading Queue");
+//                lFileUpload.setFile(file);
+//                lFileUpload.setFileSize(fileSize);
+//                lFileUpload.setSystemMetaData(systemMetaData);
+//                lFileUpload.setDescription(description);
+//                lFileUpload.setMessageType(messageType);
+//                lFileUpload.setCenter(center);
+//
+//                mainUploadImageFileMsg(lFileUpload);
+//
+//            } else {
+//                if (log) Log.e(TAG, "File Is Not Exist");
+//                captureError("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+//            }
+//        } else {
+//
+//            Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
+//
+//            captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+//                    , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, null);
+////            listenerManager.callOnLogEvent(jsonError);
+//        }
+//    }
+//
 
 
-                            // send to handler
-                            if (handler != null) {
-                                handler.onFinishImage(imageJson, chatResponse);
-                            }
-
-                            if (isReplyMessage(methodName)) {
-
-                                showLog("SEND_REPLY_FILE_MESSAGE", getJsonForLog(js));
-
-                                mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, uniqueId, null);
-//                                if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
-//                                listenerManager.callOnLogEvent(metaJson);
-                            } else {
-                                sendTextMessageWithFile(description, threadId, metaJson, systemMetaData, uniqueId, typeCode, messageType);
-                            }
-//                            listenerManager.callOnLogEvent(metaJson);
-                        }
-                    }
-                }, throwable -> {
-
-                    try {
-                        String jsonError = captureError(throwable.getMessage()
-                                , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
 
 
-                        ErrorOutPut error = new ErrorOutPut(true, throwable.getMessage()
-                                , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+//    private void mainUploadImageFileMsg(LFileUpload fileUpload) {
+//
+//        JsonObject jsonLog = new JsonObject();
+//
+//        String description = fileUpload.getDescription();
+//
+//        jsonLog.addProperty("description", description);
+//
+//        ProgressHandler.sendFileMessage handler = fileUpload.getHandler();
+//
+//        Integer messageType = fileUpload.getMessageType();
+//
+//        jsonLog.addProperty("messageType", messageType);
+//
+//        long threadId = fileUpload.getThreadId();
+//
+//        jsonLog.addProperty("threadId", threadId);
+//
+//        String uniqueId = fileUpload.getUniqueId();
+//
+//        jsonLog.addProperty("uniqueId", uniqueId);
+//
+//        String systemMetaData = fileUpload.getSystemMetaData();
+//
+//        jsonLog.addProperty("systemMetaData", systemMetaData);
+//
+//        long messageId = fileUpload.getMessageId();
+//
+//        jsonLog.addProperty("messageId", messageId);
+//
+//        String mimeType = fileUpload.getMimeType();
+//
+//        jsonLog.addProperty("mimeType", mimeType);
+//
+//        String methodName = fileUpload.getMethodName();
+//
+//        jsonLog.addProperty("methodName", methodName);
+//
+//        long fileSize = fileUpload.getFileSize();
+//
+//        jsonLog.addProperty("fileSize", fileSize);
+//
+//        String center = fileUpload.getCenter();
+//
+//        jsonLog.addProperty("center", center);
+//
+//        File file = fileUpload.getFile();
+//
+//        if (chatReady) {
+//
+//            if (fileServer != null) {
+//
+//                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+//
+//                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+//
+//                try {
+//                    showLog("UPLOAD_FILE_TO_SERVER", getJsonForLog(jsonLog));
+//                } catch (Exception e) {
+//                    showErrorLog(e.getMessage());
+//                }
+//
+//                ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId,
+//
+//                        new ProgressRequestBody.UploadCallbacks() {
+//
+//                            @Override
+//                            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+//
+//                                Log.i(TAG, "on progress");
+//                                if (handler != null) {
+//                                    handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
+//                                    if (log)
+//                                        Log.i(TAG, "uniqueId " + uniqueId + " bytesSent " + progress);
+//                                } else {
+//
+//                                    if (log)
+//                                        Log.i(TAG, "Handler is null");
+//
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onError() {
+//                                if (log)
+//                                    Log.i(TAG, "Error on upload");
+//
+//                            }
+//
+//                            @Override
+//                            public void onFinish() {
+//
+//                                if (log)
+//                                    Log.i(TAG, "Finish upload");
+//
+//                            }
+//
+//                        });
+//
+//                MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+//
+//
+//                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+//
+//                Observable<Response<FileImageUpload>> uploadObservable =
+//                        fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
+//
+//                Subscription subscribe = uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(fileUploadResponse -> {
+//                    if (fileUploadResponse.body() != null && fileUploadResponse.isSuccessful()) {
+//                        boolean hasError = fileUploadResponse.body().isHasError();
+//                        if (hasError) {
+//                            String errorMessage = fileUploadResponse.body().getMessage();
+//                            int errorCode = fileUploadResponse.body().getErrorCode();
+//                            String jsonError = captureError(errorMessage, errorCode, uniqueId);
+////                            listenerManager.callOnLogEvent(jsonError);
+//                            ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
+//
+//                            if (handler != null) {
+//                                handler.onError(jsonError, error);
+//                            }
+//
+//                        } else {
+//
+//                            //remove from Uploading Queue
+//                            removeFromUploadQueue(uniqueId);
+//
+//                            ResultImageFile result = fileUploadResponse.body().getResult();
+//                            long imageId = result.getId();
+//                            String hashCode = result.getHashCode();
+//
+//                            ChatResponse<ResultImageFile> chatResponse = new ChatResponse<>();
+//                            ResultImageFile resultImageFile = new ResultImageFile();
+//                            chatResponse.setUniqueId(uniqueId);
+//                            resultImageFile.setId(result.getId());
+//                            resultImageFile.setHashCode(result.getHashCode());
+//                            resultImageFile.setName(result.getName());
+//                            resultImageFile.setHeight(result.getHeight());
+//                            resultImageFile.setWidth(result.getWidth());
+//                            resultImageFile.setActualHeight(result.getActualHeight());
+//                            resultImageFile.setActualWidth(result.getActualWidth());
+//
+//                            chatResponse.setResult(resultImageFile);
+//
+//                            String imageJson = gson.toJson(chatResponse);
+//
+//                            listenerManager.callOnUploadImageFile(imageJson, chatResponse);
+//
+//                            if (handler != null) {
+//                                handler.onFinishImage(imageJson, chatResponse);
+//                            }
+//
+//                            showLog("RECEIVE_UPLOAD_IMAGE", imageJson);
+////                            if (log) Log.i(TAG, "RECEIVE_UPLOAD_IMAGE");
+////                            listenerManager.callOnLogEvent(imageJson);
+//                            String metaJson;
+//
+//                            if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_LOCATION_MSG)) {
+//                                metaJson = createImageMetadata(file, hashCode, imageId, result.getActualHeight()
+//                                        , result.getActualWidth(), mimeType, fileSize, null, true, center);
+//
+//                            } else {
+//                                metaJson = createImageMetadata(file, hashCode, imageId, result.getActualHeight()
+//                                        , result.getActualWidth(), mimeType, fileSize, null, false, null);
+//                            }
+////
+//                            JsonObject js = new JsonObject();
+//                            js.addProperty("metadata", metaJson);
+//                            js.addProperty("uniqueId", uniqueId);
+//
+//
+//                            // send to handler
+//                            if (handler != null) {
+//                                handler.onFinishImage(imageJson, chatResponse);
+//                            }
+//
+//                            if (isReplyMessage(methodName)) {
+//
+//                                showLog("SEND_REPLY_FILE_MESSAGE", getJsonForLog(js));
+//
+//                                mainReplyMessage(description, threadId, messageId, systemMetaData, messageType, metaJson, uniqueId, null);
+////                                if (log) Log.i(TAG, "SEND_REPLY_FILE_MESSAGE");
+////                                listenerManager.callOnLogEvent(metaJson);
+//                            } else {
+//                                sendTextMessageWithFile(description, threadId, metaJson, systemMetaData, uniqueId, typeCode, messageType);
+//                            }
+////                            listenerManager.callOnLogEvent(metaJson);
+//                        }
+//                    }
+//                }, throwable -> {
+//
+//                    try {
+//                        String jsonError = captureError(throwable.getMessage()
+//                                , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+//
+//
+//                        ErrorOutPut error = new ErrorOutPut(true, throwable.getMessage()
+//                                , ChatConstant.ERROR_CODE_UNKNOWN_EXCEPTION, uniqueId);
+//
+//                        if (log) Log.e(TAG, jsonError);
+//                        if (handler != null) {
+//                            handler.onError(jsonError, error);
+//                        }
+//                    } catch (Exception e) {
+//                        showErrorLog(e.getMessage());
+//                        onUnknownException(uniqueId, e);
+//                    }
+//
+//                });
+//
+//                /*
+//                 * Cancel Upload request
+//                 * */
+//
+//                initCancelUpload(uniqueId, subscribe);
+//
+//
+//            } else {
+//                if (log) Log.e(TAG, "FileServer url Is null");
+//            }
+//
+//        } else {
+//            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+//        }
+//    }
 
-                        if (log) Log.e(TAG, jsonError);
-                        if (handler != null) {
-                            handler.onError(jsonError, error);
-                        }
-                    } catch (Exception e) {
-                        showErrorLog(e.getMessage());
-                        onUnknownException(uniqueId, e);
-                    }
 
-                });
-
-                /*
-                 * Cancel Upload request
-                 * */
-
-                initCancelUpload(uniqueId, subscribe);
-
-
-            } else {
-                if (log) Log.e(TAG, "FileServer url Is null");
-            }
-
-        } else {
-            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-        }
-    }
 
     private void removeFromUploadQueue(String uniqueId) {
         if (cache) {
@@ -15386,56 +15412,56 @@ public class Chat extends AsyncAdapter {
         return gson.toJson(jsonLog);
     }
 
-    private void uploadFileMessage(LFileUpload lFileUpload) {
-
-        Activity activity = lFileUpload.getActivity();
-        String description = lFileUpload.getDescription();
-        Uri fileUri = lFileUpload.getFileUri();
-        Integer messageType = lFileUpload.getMessageType();
-        long threadId = lFileUpload.getThreadId();
-        String uniqueId = lFileUpload.getUniqueId();
-        String systemMetadata = lFileUpload.getSystemMetaData();
-        String mimeType = lFileUpload.getMimeType();
-
-        systemMetadata = systemMetadata != null ? systemMetadata : "";
-        description = description != null ? description : "";
-        messageType = messageType != null ? messageType : 0;
-        try {
-            if (Permission.Check_READ_STORAGE(activity)) {
-
-                String path = FilePick.getSmartFilePath(context, fileUri);
-                if (Util.isNullOrEmpty(path)) {
-                    path = "";
-                }
-                File file = new File(path);
-                long file_size;
-                if (file.exists() || file.isFile()) {
-
-                    file_size = file.length();
-
-                    addToUploadQueue(description, fileUri, messageType, threadId, "", uniqueId, systemMetadata, mimeType, file, file_size);
-
-                    lFileUpload.setFileSize(file_size);
-
-                    lFileUpload.setFile(file);
-
-                    mainUploadFileMessage(lFileUpload);
-
-                } else {
-                    if (log) Log.e(TAG, "File Is Not Exist");
-                    captureError("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
-                }
-            } else {
-                Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
-                String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
-                        , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
-                if (log) Log.e(TAG, jsonError);
-            }
-        } catch (Throwable e) {
-            showErrorLog(e.getMessage());
-            onUnknownException(uniqueId, e);
-        }
-    }
+//    private void uploadFileMessage(LFileUpload lFileUpload) {
+//
+//        Activity activity = lFileUpload.getActivity();
+//        String description = lFileUpload.getDescription();
+//        Uri fileUri = lFileUpload.getFileUri();
+//        Integer messageType = lFileUpload.getMessageType();
+//        long threadId = lFileUpload.getThreadId();
+//        String uniqueId = lFileUpload.getUniqueId();
+//        String systemMetadata = lFileUpload.getSystemMetaData();
+//        String mimeType = lFileUpload.getMimeType();
+//
+//        systemMetadata = systemMetadata != null ? systemMetadata : "";
+//        description = description != null ? description : "";
+//        messageType = messageType != null ? messageType : 0;
+//        try {
+//            if (Permission.Check_READ_STORAGE(activity)) {
+//
+//                String path = FilePick.getSmartFilePath(context, fileUri);
+//                if (Util.isNullOrEmpty(path)) {
+//                    path = "";
+//                }
+//                File file = new File(path);
+//                long file_size;
+//                if (file.exists() || file.isFile()) {
+//
+//                    file_size = file.length();
+//
+//                    addToUploadQueue(description, fileUri, messageType, threadId, "", uniqueId, systemMetadata, mimeType, file, file_size);
+//
+//                    lFileUpload.setFileSize(file_size);
+//
+//                    lFileUpload.setFile(file);
+//
+//                    mainUploadFileMessage(lFileUpload);
+//
+//                } else {
+//                    if (log) Log.e(TAG, "File Is Not Exist");
+//                    captureError("File is not Exist", ChatConstant.ERROR_CODE_INVALID_FILE_URI, uniqueId);
+//                }
+//            } else {
+//                Permission.Request_READ_STORAGE(activity, READ_EXTERNAL_STORAGE_CODE);
+//                String jsonError = captureError(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION
+//                        , ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION, uniqueId);
+//                if (log) Log.e(TAG, jsonError);
+//            }
+//        } catch (Throwable e) {
+//            showErrorLog(e.getMessage());
+//            onUnknownException(uniqueId, e);
+//        }
+//    }
 
     private void addToUploadQueue(String description,
                                   Uri fileUri,
@@ -15527,159 +15553,159 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-
-    private void mainUploadFileMessage(LFileUpload lFileUpload) {
-
-        JsonObject jsonLog = new JsonObject();
-
-        String description = lFileUpload.getDescription();
-
-        jsonLog.addProperty("description", description);
-
-        Integer messageType = lFileUpload.getMessageType();
-
-        jsonLog.addProperty("messageType", messageType);
-
-        long threadId = lFileUpload.getThreadId();
-
-        jsonLog.addProperty("threadId", threadId);
-
-        String uniqueId = lFileUpload.getUniqueId();
-
-        jsonLog.addProperty("uniqueId", uniqueId);
-
-        String systemMetadata = lFileUpload.getSystemMetaData();
-
-        jsonLog.addProperty("systemMetadata", systemMetadata);
-
-        long messageId = lFileUpload.getMessageId();
-
-        jsonLog.addProperty("messageId", messageId);
-
-        String mimeType = lFileUpload.getMimeType();
-        jsonLog.addProperty("mimeType", mimeType);
-
-        File file = lFileUpload.getFile();
-
-        ProgressHandler.sendFileMessage handler = lFileUpload.getHandler();
-
-        long file_size = lFileUpload.getFileSize();
-
-        jsonLog.addProperty("file_size", file_size);
-
-        String methodName = lFileUpload.getMethodName();
-
-        jsonLog.addProperty("methodName", methodName);
-
-        jsonLog.addProperty("name", file.getName());
-
-        showLog("UPLOADING_FILE_TO_SERVER", getJsonForLog(jsonLog));
-
-
-        if (chatReady) {
-
-            if (getFileServer() != null) {
-
-                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
-                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-
-                RequestBody name = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
-
-                ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
-
-                    @Override
-                    public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
-
-                        if (handler != null)
-                            handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
-                    }
-                });
-
-                MultipartBody.Part body = MultipartBody
-                        .Part.createFormData("file",
-                                file.getName(),
-                                requestFile);
-
-                Observable<Response<FileUpload>> uploadObservable =
-                        fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
-
-                Subscription subscription = uploadObservable
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(fileUploadResponse -> {
-
-                            if (fileUploadResponse.isSuccessful() && fileUploadResponse.body() != null) {
-                                boolean error = fileUploadResponse.body().isHasError();
-                                if (error) {
-                                    String errorMessage = fileUploadResponse.body().getMessage();
-                                    if (log) Log.e(TAG, errorMessage);
-
-                                    if (handler != null) {
-
-                                        String jsonError = captureError(ChatConstant.ERROR_UPLOAD_FILE, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
-                                        ErrorOutPut errorOutPut = new ErrorOutPut(true, ChatConstant.ERROR_UPLOAD_FILE, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
-                                        handler.onError(jsonError, errorOutPut);
-
-                                    }
-
-                                } else {
-
-                                    //remove from Uploading Queue
-                                    removeFromUploadQueue(uniqueId);
-
-                                    ResultFile result = fileUploadResponse.body().getResult();
-                                    if (result != null) {
-                                        long fileId = result.getId();
-                                        String hashCode = result.getHashCode();
-                                        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
-                                        chatResponse.setResult(result);
-                                        chatResponse.setUniqueId(uniqueId);
-                                        result.setSize(file_size);
-
-                                        String json = gson.toJson(chatResponse);
-
-                                        showLog("FILE_UPLOADED_TO_SERVER", json);
-
-                                        listenerManager.callOnUploadFile(json, chatResponse);
-
-                                        if (handler != null) {
-
-                                            handler.onFinishFile(json, chatResponse);
-                                        }
-
-                                        String jsonMeta = createFileMetadata(file, hashCode, fileId, mimeType, file_size, "");
-
-                                        if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
-
-                                            showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
-                                            mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta, uniqueId, null);
-
-                                        } else {
-                                            sendTextMessageWithFile(description, threadId, jsonMeta, systemMetadata, uniqueId, typeCode, messageType);
-                                        }
-                                    }
-
-                                }
-                            }
-                        }, throwable -> {
-                            if (log) Log.e(TAG, throwable.getMessage());
-                        });
-
-                /*
-                 * Cancel Uploading progress
-                 * */
-
-                initCancelUpload(uniqueId, subscription);
-
-            } else {
-                if (log) Log.e(TAG, "FileServer url Is null");
-            }
-
-        } else {
-            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-//            listenerManager.callOnLogEvent(jsonError);
-        }
-    }
+//
+//    private void mainUploadFileMessage(LFileUpload lFileUpload) {
+//
+//        JsonObject jsonLog = new JsonObject();
+//
+//        String description = lFileUpload.getDescription();
+//
+//        jsonLog.addProperty("description", description);
+//
+//        Integer messageType = lFileUpload.getMessageType();
+//
+//        jsonLog.addProperty("messageType", messageType);
+//
+//        long threadId = lFileUpload.getThreadId();
+//
+//        jsonLog.addProperty("threadId", threadId);
+//
+//        String uniqueId = lFileUpload.getUniqueId();
+//
+//        jsonLog.addProperty("uniqueId", uniqueId);
+//
+//        String systemMetadata = lFileUpload.getSystemMetaData();
+//
+//        jsonLog.addProperty("systemMetadata", systemMetadata);
+//
+//        long messageId = lFileUpload.getMessageId();
+//
+//        jsonLog.addProperty("messageId", messageId);
+//
+//        String mimeType = lFileUpload.getMimeType();
+//        jsonLog.addProperty("mimeType", mimeType);
+//
+//        File file = lFileUpload.getFile();
+//
+//        ProgressHandler.sendFileMessage handler = lFileUpload.getHandler();
+//
+//        long file_size = lFileUpload.getFileSize();
+//
+//        jsonLog.addProperty("file_size", file_size);
+//
+//        String methodName = lFileUpload.getMethodName();
+//
+//        jsonLog.addProperty("methodName", methodName);
+//
+//        jsonLog.addProperty("name", file.getName());
+//
+//        showLog("UPLOADING_FILE_TO_SERVER", getJsonForLog(jsonLog));
+//
+//
+//        if (chatReady) {
+//
+//            if (getFileServer() != null) {
+//
+//                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+//                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+//
+//                RequestBody name = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+//
+//                ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
+//
+//                    @Override
+//                    public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+//
+//                        if (handler != null)
+//                            handler.onProgressUpdate(uniqueId, progress, totalBytesSent, totalBytesToSend);
+//                    }
+//                });
+//
+//                MultipartBody.Part body = MultipartBody
+//                        .Part.createFormData("file",
+//                                file.getName(),
+//                                requestFile);
+//
+//                Observable<Response<FileUpload>> uploadObservable =
+//                        fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
+//
+//                Subscription subscription = uploadObservable
+//                        .subscribeOn(Schedulers.io())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .subscribe(fileUploadResponse -> {
+//
+//                            if (fileUploadResponse.isSuccessful() && fileUploadResponse.body() != null) {
+//                                boolean error = fileUploadResponse.body().isHasError();
+//                                if (error) {
+//                                    String errorMessage = fileUploadResponse.body().getMessage();
+//                                    if (log) Log.e(TAG, errorMessage);
+//
+//                                    if (handler != null) {
+//
+//                                        String jsonError = captureError(ChatConstant.ERROR_UPLOAD_FILE, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+//                                        ErrorOutPut errorOutPut = new ErrorOutPut(true, ChatConstant.ERROR_UPLOAD_FILE, ChatConstant.ERROR_CODE_UPLOAD_FILE, uniqueId);
+//                                        handler.onError(jsonError, errorOutPut);
+//
+//                                    }
+//
+//                                } else {
+//
+//                                    //remove from Uploading Queue
+//                                    removeFromUploadQueue(uniqueId);
+//
+//                                    ResultFile result = fileUploadResponse.body().getResult();
+//                                    if (result != null) {
+//                                        long fileId = result.getId();
+//                                        String hashCode = result.getHashCode();
+//                                        ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+//                                        chatResponse.setResult(result);
+//                                        chatResponse.setUniqueId(uniqueId);
+//                                        result.setSize(file_size);
+//
+//                                        String json = gson.toJson(chatResponse);
+//
+//                                        showLog("FILE_UPLOADED_TO_SERVER", json);
+//
+//                                        listenerManager.callOnUploadFile(json, chatResponse);
+//
+//                                        if (handler != null) {
+//
+//                                            handler.onFinishFile(json, chatResponse);
+//                                        }
+//
+//                                        String jsonMeta = createFileMetadata(file, hashCode, fileId, mimeType, file_size, "");
+//
+//                                        if (!Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG)) {
+//
+//                                            showLog("SEND_REPLY_FILE_MESSAGE", jsonMeta);
+//                                            mainReplyMessage(description, threadId, messageId, systemMetadata, messageType, jsonMeta, uniqueId, null);
+//
+//                                        } else {
+//                                            sendTextMessageWithFile(description, threadId, jsonMeta, systemMetadata, uniqueId, typeCode, messageType);
+//                                        }
+//                                    }
+//
+//                                }
+//                            }
+//                        }, throwable -> {
+//                            if (log) Log.e(TAG, throwable.getMessage());
+//                        });
+//
+//                /*
+//                 * Cancel Uploading progress
+//                 * */
+//
+//                initCancelUpload(uniqueId, subscription);
+//
+//            } else {
+//                if (log) Log.e(TAG, "FileServer url Is null");
+//            }
+//
+//        } else {
+//            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+////            listenerManager.callOnLogEvent(jsonError);
+//        }
+//    }
 
     private boolean isReplyMessage(String methodName) {
         return !Util.isNullOrEmpty(methodName) && methodName.equals(ChatConstant.METHOD_REPLY_MSG);

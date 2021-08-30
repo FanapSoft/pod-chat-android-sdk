@@ -131,6 +131,9 @@ public class ProgressResponseBody extends ResponseBody {
             }
         }
 
+//        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+//        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+//        httpClientBuilder.addInterceptor(logging);
 
         httpClientBuilder.addInterceptor(chain -> {
             if (listener == null) return chain.proceed(chain.request());
@@ -141,6 +144,7 @@ public class ProgressResponseBody extends ResponseBody {
                     .build();
         });
 
+
         return httpClientBuilder;
     }
 
@@ -150,6 +154,7 @@ public class ProgressResponseBody extends ResponseBody {
 
         Gson gson = new GsonBuilder().setLenient().create();
         GsonConverterFactory factory = GsonConverterFactory.create(gson);
+
 
 
         return new Retrofit.Builder()

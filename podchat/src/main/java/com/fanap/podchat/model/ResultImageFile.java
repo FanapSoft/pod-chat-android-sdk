@@ -3,7 +3,7 @@ package com.fanap.podchat.model;
 public class ResultImageFile {
     private long id;
     private String name;
-    private String hashCode;
+    private String hash;
     private String description;
     private int actualWidth;
     private int actualHeight;
@@ -28,11 +28,11 @@ public class ResultImageFile {
     }
 
     public String getHashCode() {
-        return hashCode;
+        return hash;
     }
 
     public void setHashCode(String hashCode) {
-        this.hashCode = hashCode;
+        this.hash = hashCode;
     }
 
     public String getDescription() {

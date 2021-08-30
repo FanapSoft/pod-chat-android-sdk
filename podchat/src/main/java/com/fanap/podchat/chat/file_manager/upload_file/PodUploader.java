@@ -73,6 +73,7 @@ public class PodUploader {
             String fileServer,
             String token,
             int tokenIssuer,
+            String description,
             IPodUploadFileToPodSpace listener) throws Exception {
 
         if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
@@ -98,11 +99,11 @@ public class PodUploader {
 
         if (mimeType != null && FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
 
-            return uploadImageToPodSpace(uniqueId, threadHashCode, fileServer, token, tokenIssuer, "", "", "", "", listener, mimeType, file, fileSize);
+            return uploadImageToPodSpace(uniqueId, threadHashCode, fileServer, token, description, "", "", "", "", listener, mimeType, file, fileSize);
 
         }
 
-        return uploadFileToPodSpace(uniqueId, threadHashCode, fileServer, token, tokenIssuer, listener, mimeType, file, fileSize);
+        return uploadFileToPodSpace(uniqueId, threadHashCode, fileServer, token, description, listener, mimeType, file, fileSize);
 
     }
 
@@ -115,6 +116,7 @@ public class PodUploader {
             String fileServer,
             String token,
             int tokenIssuer,
+            String description,
             String xC,
             String yC,
             String hC,
@@ -145,11 +147,11 @@ public class PodUploader {
 
         if (mimeType != null && FileUtils.isImage(mimeType) && !FileUtils.isGif(mimeType)) {
 
-            return uploadImageToPodSpace(uniqueId, threadHashCode, fileServer, token, tokenIssuer, xC, yC, hC, wC, listener, mimeType, file, fileSize);
+            return uploadImageToPodSpace(uniqueId, threadHashCode, fileServer, token, description, xC, yC, hC, wC, listener, mimeType, file, fileSize);
 
         }
 
-        return uploadFileToPodSpace(uniqueId, threadHashCode, fileServer, token, tokenIssuer, listener, mimeType, file, fileSize);
+        return uploadFileToPodSpace(uniqueId, threadHashCode, fileServer, token, description, listener, mimeType, file, fileSize);
 
     }
 
@@ -161,6 +163,7 @@ public class PodUploader {
             String fileServer,
             String token,
             int tokenIssuer,
+            String description,
             String xC,
             String yC,
             String hC,
@@ -196,7 +199,7 @@ public class PodUploader {
 
         }
 
-        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer, isPublic, listener, mimeType, file, fileSize);
+        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer,description, isPublic, listener, mimeType, file, fileSize);
 
     }
 
@@ -207,6 +210,7 @@ public class PodUploader {
             String fileServer,
             String token,
             int tokenIssuer,
+            String description,
             boolean isPublic,
             IPodUploadFileToPodSpace listener) throws Exception {
 
@@ -238,21 +242,17 @@ public class PodUploader {
 
         }
 
-        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer, isPublic,listener, mimeType, file, fileSize);
+        return uploadPublicFileToPodSpace(uniqueId, fileServer, token, tokenIssuer,description, isPublic,listener, mimeType, file, fileSize);
 
     }
 
 
-    private static Subscription uploadFileToPodSpace(String uniqueId, String threadHashCode, String fileServer, String token, int tokenIssuer, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) {
+    private static Subscription uploadFileToPodSpace(String uniqueId, String threadHashCode, String fileServer, String token, String description, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) {
 
         listener.onUploadStarted(mimeType, file, fileSize);
 
         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-
-        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
-
-        RequestBody hashGroupPart = RequestBody.create(MediaType.parse("multipart/form-data"), threadHashCode);
 
         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
@@ -273,10 +273,10 @@ public class PodUploader {
         Observable<Response<UploadToPodSpaceResponse>> uploadObservable =
                 fileApi.uploadToPodSpace(
                         filePart,
-                        token,
-                        tokenIssuer,
-                        namePart,
-                        hashGroupPart);
+                        "Bearer "+token,
+                        threadHashCode,
+                        description
+                        );
 
 
         long finalFileSize = fileSize;
@@ -319,7 +319,7 @@ public class PodUploader {
                 }, error -> listener.onFailure(error.getMessage(),error));
     }
 
-    private static Subscription uploadImageToPodSpace(String uniqueId, String threadHashCode, String fileServer, String token, int tokenIssuer, String xC, String yC, String hC, String wC, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) throws FileNotFoundException {
+    private static Subscription uploadImageToPodSpace(String uniqueId, String threadHashCode, String fileServer, String token, String description, String xC, String yC, String hC, String wC, IPodUploadFileToPodSpace listener, String mimeType, File file, long fileSize) throws FileNotFoundException {
         int width = 0;
         int height = 0;
         String nWidth = "0";
@@ -344,15 +344,17 @@ public class PodUploader {
         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
-        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+//        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+//
+//        RequestBody xCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(xC) ? xC : "0");
+//        RequestBody yCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(yC) ? yC : "0");
+//        RequestBody hCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nWidth);
+//        RequestBody wCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nHeight);
 
-        RequestBody hashGroupPart = RequestBody.create(MediaType.parse("multipart/form-data"), threadHashCode);
+        Integer xCPart = !Util.isNullOrEmpty(xC) ? Integer.valueOf(xC) : 0;
+        Integer yCPart = Integer.valueOf(!Util.isNullOrEmpty(yC) ? yC : "0");
 
-
-        RequestBody xCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(xC) ? xC : "0");
-        RequestBody yCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(yC) ? yC : "0");
-        RequestBody hCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nWidth);
-        RequestBody wCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nHeight);
+        Integer wCPart = Integer.valueOf(nHeight);
 
 
         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
@@ -374,14 +376,12 @@ public class PodUploader {
         Observable<Response<UploadToPodSpaceResponse>> uploadObservable =
                 fileApi.uploadImageToPodSpace(
                         filePart,
-                        token,
-                        tokenIssuer,
-                        namePart,
-                        hashGroupPart,
+                        "Bearer "+token,
+                        threadHashCode,
+                        description,
                         xCPart,
                         yCPart,
-                        wCPart,
-                        hCPart);
+                        wCPart);
 
 
         int finalWidth = width;
@@ -431,6 +431,7 @@ public class PodUploader {
                                                            String fileServer,
                                                            String token,
                                                            int tokenIssuer,
+                                                           String description,
                                                            boolean isPublic,
                                                            IPodUploadFileToPodSpace listener,
                                                            String mimeType,
@@ -463,9 +464,8 @@ public class PodUploader {
         Observable<Response<UploadToPodSpaceResponse>> uploadObservable =
                 fileApi.uploadPublicFileToPodSpace(
                         filePart,
-                        token,
-                        tokenIssuer,
-                        namePart,
+                        "Bearer "+token,
+                        description,
                         isPublic);
 
 
@@ -540,13 +540,16 @@ public class PodUploader {
         RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
         FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
-        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+//        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+//
+//        RequestBody xCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(xC) ? xC : "0");
+//        RequestBody yCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(yC) ? yC : "0");
+//        RequestBody hCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nWidth);
+//        RequestBody wCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nHeight);
 
-        RequestBody xCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(xC) ? xC : "0");
-        RequestBody yCPart = RequestBody.create(MediaType.parse("multipart/form-data"), !Util.isNullOrEmpty(yC) ? yC : "0");
-        RequestBody hCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nWidth);
-        RequestBody wCPart = RequestBody.create(MediaType.parse("multipart/form-data"), nHeight);
-
+        Integer xCPart = !Util.isNullOrEmpty(xC) ? Integer.valueOf(xC) : 0;
+        Integer yCPart = !Util.isNullOrEmpty(yC) ? Integer.valueOf(yC) : 0;
+        Integer wCPart = Integer.valueOf(nHeight);
 
         ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
 
@@ -567,13 +570,10 @@ public class PodUploader {
         Observable<Response<UploadToPodSpaceResponse>> uploadObservable =
                 fileApi.uploadPublicImageToPodSpace(
                         filePart,
-                        token,
-                        tokenIssuer,
-                        namePart,
+                        "Bearer "+token,
                         xCPart,
                         yCPart,
                         wCPart,
-                        hCPart,
                         isPublic);
 
 
@@ -620,203 +620,203 @@ public class PodUploader {
     }
 
 
-    public static Subscription uploadFileToChatServer(
-            String uniqueId,
-            @NonNull Uri fileUri,
-            Context context,
-            String fileServer,
-            String token,
-            int tokenIssuer,
-            IPodUploadFile listener) throws Exception {
+//    public static Subscription uploadFileToChatServer(
+//            String uniqueId,
+//            @NonNull Uri fileUri,
+//            Context context,
+//            String fileServer,
+//            String token,
+//            int tokenIssuer,
+//            IPodUploadFile listener) throws Exception {
+//
+//
+//        if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
+//        String mimeType = FileUtils.getMimeType(fileUri, context);
+//
+//        String path = FilePick.getSmartFilePath(context, fileUri);
+//        if (path == null) throw new NullPointerException("Invalid path!");
+//
+//        File file = new File(path);
+//
+//        if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
+//
+//        long fileSize = 0;
+//
+//        try {
+//            fileSize = file.length();
+//        } catch (Exception x) {
+//            Log.e(TAG, "File length exception: " + x.getMessage());
+//        }
+//
+//        listener.onUploadStarted(mimeType, file, fileSize);
+//
+//        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
+//        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+//
+//        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+//
+//        ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
+//
+//            @Override
+//            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+//
+//                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
+//            }
+//
+//        });
+//
+//        MultipartBody.Part filePart = MultipartBody
+//                .Part.createFormData("file",
+//                        file.getName(),
+//                        requestFile);
+//
+//
+//        Observable<Response<FileUpload>> uploadObservable =
+//                fileApi.sendFile(
+//                        filePart,
+//                        token,
+//                        tokenIssuer,
+//                        namePart);
+//
+//
+//        long finalFileSize = fileSize;
+//        return uploadObservable
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage(),error))
+//                .subscribe(response -> {
+//                    if (response.isSuccessful()
+//                            && response.body() != null) {
+//
+//                        if (response.body().isHasError()) {
+//                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                            uniqueId, token));
+//                        } else {
+//                            listener.onSuccess(response.body(), file, mimeType, finalFileSize);
+//                        }
+//
+//                    } else {
+//
+//                        if (response.body() != null) {
+//                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                            uniqueId,token));
+//                        } else {
+//                            listener.onFailure(uniqueId + " - " + response.message(),
+//                                    new PodChatException(uniqueId + " - " + response.message(),
+//                                            uniqueId,token));
+//
+//                        }
+//
+//
+//                    }
+//
+//                });
+//
+//
+//    }
 
-
-        if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(fileUri, context);
-
-        String path = FilePick.getSmartFilePath(context, fileUri);
-        if (path == null) throw new NullPointerException("Invalid path!");
-
-        File file = new File(path);
-
-        if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
-
-        long fileSize = 0;
-
-        try {
-            fileSize = file.length();
-        } catch (Exception x) {
-            Log.e(TAG, "File length exception: " + x.getMessage());
-        }
-
-        listener.onUploadStarted(mimeType, file, fileSize);
-
-        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
-        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-
-        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
-
-        ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
-
-            @Override
-            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
-
-                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
-            }
-
-        });
-
-        MultipartBody.Part filePart = MultipartBody
-                .Part.createFormData("file",
-                        file.getName(),
-                        requestFile);
-
-
-        Observable<Response<FileUpload>> uploadObservable =
-                fileApi.sendFile(
-                        filePart,
-                        token,
-                        tokenIssuer,
-                        namePart);
-
-
-        long finalFileSize = fileSize;
-        return uploadObservable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage(),error))
-                .subscribe(response -> {
-                    if (response.isSuccessful()
-                            && response.body() != null) {
-
-                        if (response.body().isHasError()) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                            uniqueId, token));
-                        } else {
-                            listener.onSuccess(response.body(), file, mimeType, finalFileSize);
-                        }
-
-                    } else {
-
-                        if (response.body() != null) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                            uniqueId,token));
-                        } else {
-                            listener.onFailure(uniqueId + " - " + response.message(),
-                                    new PodChatException(uniqueId + " - " + response.message(),
-                                            uniqueId,token));
-
-                        }
-
-
-                    }
-
-                });
-
-
-    }
-
-    public static Subscription uploadImageToChatServer(
-            String uniqueId,
-            @NonNull Uri fileUri,
-            Context context,
-            String fileServer,
-            String token,
-            int tokenIssuer,
-            IPodUploadImage listener) throws Exception {
-
-
-        if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
-        String mimeType = FileUtils.getMimeType(fileUri, context);
-
-        String path = FilePick.getSmartFilePath(context, fileUri);
-        if (path == null) throw new NullPointerException("Invalid path!");
-
-        File file = new File(path);
-
-        if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
-
-
-        long fileSize = 0;
-
-        try {
-            fileSize = file.length();
-        } catch (Exception x) {
-            Log.e(TAG, "File length exception: " + x.getMessage());
-        }
-
-
-        listener.onUploadStarted(mimeType, file, fileSize);
-
-        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
-        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-
-        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
-
-        ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
-
-            @Override
-            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
-
-                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
-            }
-
-        });
-
-        MultipartBody.Part filePart = MultipartBody
-                .Part.createFormData("image",
-                        file.getName(),
-                        requestFile);
-
-
-        Observable<Response<FileImageUpload>> uploadObservable =
-                fileApi.sendImageFile(
-                        filePart,
-                        token,
-                        tokenIssuer,
-                        namePart);
-
-
-        long finalFileSize = fileSize;
-        return uploadObservable
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage(),error))
-                .subscribe(response -> {
-                    if (response.isSuccessful()
-                            && response.body() != null) {
-
-                        if (response.body().isHasError()) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                            uniqueId,
-                                            token));
-                        } else {
-                            listener.onSuccess(response.body(), file, mimeType, finalFileSize);
-                        }
-
-
-                    } else {
-
-                        if (response.body() != null) {
-                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
-                                            uniqueId,token));
-                        } else {
-                            listener.onFailure(uniqueId + " - " + response.message(),
-                                    new PodChatException(uniqueId + " - " + response.message(),
-                                            uniqueId,
-                                            token));
-
-                        }
-
-                    }
-
-                });
-
-
-    }
+//    public static Subscription uploadImageToChatServer(
+//            String uniqueId,
+//            @NonNull Uri fileUri,
+//            Context context,
+//            String fileServer,
+//            String token,
+//            int tokenIssuer,
+//            IPodUploadImage listener) throws Exception {
+//
+//
+//        if (fileUri.getPath() == null) throw new NullPointerException("Invalid file uri!");
+//        String mimeType = FileUtils.getMimeType(fileUri, context);
+//
+//        String path = FilePick.getSmartFilePath(context, fileUri);
+//        if (path == null) throw new NullPointerException("Invalid path!");
+//
+//        File file = new File(path);
+//
+//        if (!file.exists() || !file.isFile()) throw new FileNotFoundException("Invalid file!");
+//
+//
+//        long fileSize = 0;
+//
+//        try {
+//            fileSize = file.length();
+//        } catch (Exception x) {
+//            Log.e(TAG, "File length exception: " + x.getMessage());
+//        }
+//
+//
+//        listener.onUploadStarted(mimeType, file, fileSize);
+//
+//        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileServer);
+//        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+//
+//        RequestBody namePart = RequestBody.create(MediaType.parse("multipart/form-data"), file.getName());
+//
+//        ProgressRequestBody requestFile = new ProgressRequestBody(file, mimeType, uniqueId, new ProgressRequestBody.UploadCallbacks() {
+//
+//            @Override
+//            public void onProgress(String uniqueId, int progress, int totalBytesSent, int totalBytesToSend) {
+//
+//                listener.onProgressUpdate(progress, totalBytesSent, totalBytesToSend);
+//            }
+//
+//        });
+//
+//        MultipartBody.Part filePart = MultipartBody
+//                .Part.createFormData("image",
+//                        file.getName(),
+//                        requestFile);
+//
+//
+//        Observable<Response<FileImageUpload>> uploadObservable =
+//                fileApi.sendImageFile(
+//                        filePart,
+//                        token,
+//                        tokenIssuer,
+//                        namePart);
+//
+//
+//        long finalFileSize = fileSize;
+//        return uploadObservable
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .doOnError(error -> listener.onFailure(uniqueId + " - " + error.getMessage(),error))
+//                .subscribe(response -> {
+//                    if (response.isSuccessful()
+//                            && response.body() != null) {
+//
+//                        if (response.body().isHasError()) {
+//                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                            uniqueId,
+//                                            token));
+//                        } else {
+//                            listener.onSuccess(response.body(), file, mimeType, finalFileSize);
+//                        }
+//
+//
+//                    } else {
+//
+//                        if (response.body() != null) {
+//                            listener.onFailure(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                    new PodChatException(uniqueId + " - " + response.body().getMessage() + " - " + response.body().getReferenceNumber(),
+//                                            uniqueId,token));
+//                        } else {
+//                            listener.onFailure(uniqueId + " - " + response.message(),
+//                                    new PodChatException(uniqueId + " - " + response.message(),
+//                                            uniqueId,
+//                                            token));
+//
+//                        }
+//
+//                    }
+//
+//                });
+//
+//
+//    }
 
 
     public static ResultFile generateFileUploadResult(UploadToPodSpaceResult response) {

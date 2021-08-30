@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.file_manager.download_file.model.ResultDownloadFile;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.networking.ProgressResponseBody;
@@ -366,18 +367,15 @@ public class PodDownloader {
     }
 
 
-
-
-
     public static Call downloadFileFromPodSpace(
             ProgressHandler.IDownloadFile progressHandler,
-                                String token,
-                                int tokenIssuer,
-                                String fileHash,
-                                String fileServer,
-                                String fileName,
-                                File destinationFolder,
-                                IDownloaderError downloaderErrorInterface) {
+            String token,
+            int tokenIssuer,
+            String fileHash,
+            String fileServer,
+            String fileName,
+            File destinationFolder,
+            IDownloaderError downloaderErrorInterface) {
 
         Retrofit retrofit =
                 ProgressResponseBody.getDownloadRetrofit(fileServer, progressHandler);
@@ -387,8 +385,7 @@ public class PodDownloader {
 
         Call<ResponseBody> call = api.downloadPodSpaceFile(
                 fileHash,
-                token,
-                tokenIssuer);
+                "Bearer " + token);
 
         final String[] downloadTempPath = new String[1];
 
@@ -546,6 +543,7 @@ public class PodDownloader {
             IDownloaderError downloaderErrorInterface,
             String size,
             Float quality,
+            Boolean checkUserGroupAccess,
             Boolean crop) {
 
         Retrofit retrofit =
@@ -559,16 +557,17 @@ public class PodDownloader {
                 size,
                 quality,
                 crop,
-                token,
-                tokenIssuer);
+                checkUserGroupAccess,
+                "Bearer " + token);
 
         final String[] downloadTempPath = new String[1];
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-
-
+                ResponseBody error = response.errorBody();
+                String errore = App.getGson().toJson(error);
+                Log.d(TAG, "onResponse: ");
                 new Thread(() -> {
 
 
@@ -701,6 +700,7 @@ public class PodDownloader {
                 call.cancel();
                 downloaderErrorInterface.errorUnknownException(t.getMessage());
             }
+
         });
 
         return call;

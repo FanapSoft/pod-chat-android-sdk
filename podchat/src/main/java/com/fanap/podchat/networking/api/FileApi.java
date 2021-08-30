@@ -20,6 +20,7 @@ import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Streaming;
 import retrofit2.http.Url;
@@ -40,52 +41,49 @@ public interface FileApi {
 
     @NonNull
     @Multipart
-    @POST("userGroup/uploadFile")
+//    @POST("userGroup/uploadFile")
+    @POST("/api/usergroups/{userGroupHash}/files")
     Observable<Response<UploadToPodSpaceResponse>> uploadToPodSpace(
-            @Part MultipartBody.Part file
-            , @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("filename") RequestBody fileName,
-            @Part("userGroupHash") RequestBody userGroupHash);
+            @Part MultipartBody.Part file,
+            @Header("Authorization") String token,
+            @Path("userGroupHash") String userGroupHash,
+            @Part("description") String description
+    );
 
     @NonNull
     @Multipart
-    @POST("nzh/drive/uploadFile")
+//    @POST("nzh/drive/uploadFile")
+    @POST("/api/files")
     Observable<Response<UploadToPodSpaceResponse>> uploadPublicFileToPodSpace(
-            @Part MultipartBody.Part file
-            , @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("filename") RequestBody fileName,
+            @Part MultipartBody.Part file,
+             @Header("Authorization") String token,
+            @Part("description") String description,
             @Part("isPublic") Boolean isPublic
     );
 
 
     @NonNull
     @Multipart
-    @POST("userGroup/uploadImage")
+    @POST("/api/usergroups/{userGroupHash}/images")
     Observable<Response<UploadToPodSpaceResponse>> uploadImageToPodSpace(
-            @Part MultipartBody.Part file
-            , @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("filename") RequestBody fileName,
-            @Part("userGroupHash") RequestBody userGroupHash,
-            @Part("xC") RequestBody xC,
-            @Part("yC") RequestBody yC,
-            @Part("wC") RequestBody wC,
-            @Part("hC") RequestBody hC);
+            @Part MultipartBody.Part file,
+            @Header("Authorization") String token,
+            @Path("userGroupHash") String userGroupHash,
+            @Part("description") String description,
+            @Part("x") Integer xC,
+            @Part("y") Integer yC,
+            @Part("with") Integer wC
+            );
 
     @NonNull
     @Multipart
-    @POST("nzh/drive/uploadImage")
+    @POST("/api/images")
     Observable<Response<UploadToPodSpaceResponse>> uploadPublicImageToPodSpace(
             @Part MultipartBody.Part file
-            , @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("filename") RequestBody fileName,
-            @Part("xC") RequestBody xC,
-            @Part("yC") RequestBody yC,
-            @Part("wC") RequestBody wC,
-            @Part("hC") RequestBody hC,
+            , @Header("Authorization") String token,
+            @Part("x") Integer xC,
+            @Part("y") Integer yC,
+            @Part("with") Integer wC,
             @Part("isPublic") Boolean isPublic);
 
 
@@ -107,36 +105,6 @@ public interface FileApi {
             , @Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") RequestBody fileName);
-
-    @NonNull
-    @POST("nzh/drive/uploadFileFromUrl")
-    Observable<Response<FileUpload>> uploadFileFromUrl(
-            @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("fileName") String fileName
-            , @Part("folderHash") String folderHash
-            , @Part("metadata") String metadata
-            , @Part("description") String description
-            , @Part("isPublic") boolean isPublic
-            , @Part("tags") ArrayList<String> tags
-    );
-//
-//    @NonNull
-//    @GET("nzh/file/")
-//    @Streaming
-//    Observable<Response<ResponseBody>> getFile
-//            (@Query("fileId") int fileId
-//                    , @Query("downloadable") boolean downloadable
-//                    , @Query("hashCode") String hashCode);
-//
-//
-//    @NonNull
-//    @GET("nzh/image/")
-//    @Streaming
-//    Observable<Response<ResponseBody>> getImage
-//            (@Query("fileId") int fileId
-//                    , @Query("downloadable") boolean downloadable
-//                    , @Query("hashCode") String hashCode);
 
 
     @NonNull
@@ -162,22 +130,21 @@ public interface FileApi {
     Call<ResponseBody> download(@Url String url);
 
 
-    @GET("nzh/drive/downloadFile")
+    @GET("/api/files/{hash}")
     @Streaming
     Call<ResponseBody> downloadPodSpaceFile(
-            @Query("hash") String hash,
-            @Header("_token_") String token,
-            @Header("_token_issuer_") int tokenIssuer);
+            @Path("hash") String hash,
+            @Header("Authorization") String token);
 
-    @GET("nzh/drive/downloadImage")
+    @GET("/api/images/{hash}")
     @Streaming
     Call<ResponseBody> downloadPodSpaceImage(
-            @Query("hash") String hash,
+            @Path("hash") String hash,
             @Query("size") String size,
             @Query("quality") Float quality,
             @Query("crop") Boolean crop,
-            @Header("_token_") String token,
-            @Header("_token_issuer_") int tokenIssuer);
+            @Query("checkUserGroupAccess") Boolean checkUserGroupAccess,
+            @Header("Authorization") String token);
 
 
 }

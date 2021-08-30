@@ -6,15 +6,21 @@ import retrofit2.http.Query;
 
 public class RequestGetPodSpaceImage extends RequestGetPodSpaceFile {
 
-    private String size;
+    private String size = "ACTUAL";
     private Float quality;
     private Boolean crop;
+    private Boolean checkUserGroupAccess;
 
     private RequestGetPodSpaceImage(Builder builder) {
         super(builder);
         this.size = builder.size;
         this.quality = builder.quality;
         this.crop = builder.crop;
+        this.checkUserGroupAccess = builder.checkUserGroupAccess;
+    }
+
+    public Boolean getCheckUserGroupAccess() {
+        return checkUserGroupAccess;
     }
 
     public String getSize() {
@@ -33,6 +39,7 @@ public class RequestGetPodSpaceImage extends RequestGetPodSpaceFile {
         private String size;
         private Float quality;
         private Boolean crop;
+        private Boolean checkUserGroupAccess;
 
 
         public Builder(String hashCode) {
@@ -54,6 +61,10 @@ public class RequestGetPodSpaceImage extends RequestGetPodSpaceFile {
 
         public Builder setQuality(Float quality) {
             this.quality = quality;
+            return this;
+        }
+        public Builder setCheckUserGroupAccess(Boolean checkUserGroupAccess) {
+            this.checkUserGroupAccess = checkUserGroupAccess;
             return this;
         }
 
