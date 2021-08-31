@@ -69,11 +69,6 @@ public abstract class ProgressHandler {
         }
 
         void onError(String uniqueId, String error, String url);
-        default void onError(Integer status, String error, String message, String path, String timestamp, String reference)
-        {
-            Log.d("TAG", "onError: ");
-        }
-
 
         default void onLowFreeSpace(String uniqueId, String url) {
         }

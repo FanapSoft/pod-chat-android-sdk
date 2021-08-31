@@ -235,10 +235,10 @@
             android:id="@+id/btChooseFile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:text="Choose File"
             app:layout_constraintBottom_toBottomOf="@+id/ibClose"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button3"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/ibClose"
             app:layout_constraintTop_toTopOf="@+id/ibClose" />
 
@@ -289,6 +289,27 @@
             android:text="TextView"
             app:layout_constraintStart_toStartOf="@+id/btUploadFile"
             app:layout_constraintTop_toBottomOf="@+id/btUploadFile" />
+
+        <TextView
+            android:id="@+id/tvLog"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="TextView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/btSentFile"
+            app:layout_constraintHorizontal_bias="0.49"
+            app:layout_constraintStart_toStartOf="@+id/btSendImage"
+            app:layout_constraintTop_toBottomOf="@+id/btSendImage" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/btChooseFile"
+            tools:layout_editor_absoluteY="3dp" />
 
     </android.support.constraint.ConstraintLayout>
 

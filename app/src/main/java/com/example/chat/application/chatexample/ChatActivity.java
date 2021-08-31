@@ -157,8 +157,8 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
-    private static final String TEST_THREAD_HASH = "JNLGU4YQE5DZTD9Z";
-    public static int TEST_THREAD_ID = 53255;
+    private static final String TEST_THREAD_HASH = "1XGH5XJMYQ361A";
+    public static int TEST_THREAD_ID = 53259;
 
 
     ArrayList<String> runningSignals = new ArrayList<>();
@@ -180,7 +180,7 @@ public class ChatActivity extends AppCompatActivity
     // Chat server config
     private final Enum<ServerType> serverType = ServerType.Sandbox;
 //    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-        private String TOKEN = "52678dcd8a2b48e7b8660cbd0dfea02a";
+        private String TOKEN = "e3402cdb715d42f9bed5b1ad53bd7f36";
 //        private String TOKEN = "c13546cffb4d4bd682f19edbc6084977";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
@@ -197,7 +197,7 @@ public class ChatActivity extends AppCompatActivity
 
     //upload views
     private ImageButton ibClose;
-    private TextView tvPercent;
+    private TextView tvPercent,tvLog;
     private ImageView imImage, imImagedownloaded;
     private Button btChooseFile, btUploadImage, btDownloadFile, btDownloadImage, btUploadFile, btSentFile;
     private ConstraintLayout vUpload;
@@ -671,8 +671,6 @@ public class ChatActivity extends AppCompatActivity
         ibClose.setOnClickListener(v -> vUpload.setVisibility(View.GONE));
         btChooseFile.setOnClickListener(v -> showPicChooser());
 
-        btChooseFile.setOnClickListener(v -> showPicChooser());
-
         btUploadImage.setOnClickListener(v -> uploadImageProgress());
         btDownloadFile.setOnClickListener(v -> downloadFile());
         btDownloadImage.setOnClickListener(v -> downloadImage());
@@ -700,6 +698,7 @@ public class ChatActivity extends AppCompatActivity
 
         //upload - download views
         tvPercent = findViewById(R.id.tvPercent);
+        tvLog = findViewById(R.id.tvLog);
         ibClose = findViewById(R.id.ibClose);
         imImage = findViewById(R.id.imImage);
         imImagedownloaded = findViewById(R.id.imImagedownloaded);
@@ -1045,11 +1044,13 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onError(String uniqueId, String error, String url) {
                 Log.e("DOWNLOAD", "IN ACTIVITY: ERROR :(((");
+                showLog("Error :" +error);
             }
 
             @Override
             public void onLowFreeSpace(String uniqueId, String url) {
                 Log.e("DOWNLOAD", "Low Space...");
+                showLog("Error : Low Space...");
             }
 
             @Override
@@ -1058,7 +1059,7 @@ public class ChatActivity extends AppCompatActivity
                 Log.e("DOWNLOAD", "File name: " + response.getResult().getFile().getName());
                 Log.e("DOWNLOAD", "Uri " + response.getResult().getUri());
                 Log.e("DOWNLOAD", "File Exist " + response.getResult().getFile().exists());
-
+                showLog("File Uri :" + response.getResult().getUri());
 
                 if (response.getResult().getFile().exists()) {
 
@@ -1134,6 +1135,14 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    private void showLog(String log){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvLog.setText(log);
+            }
+        });
+    }
 
     private void downloadImage() {
 
@@ -1168,11 +1177,13 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onError(String uniqueId, String error, String url) {
                 Log.e("DOWNLOAD", "IN ACTIVITY: ERROR :(((");
+                showLog("Error :" +error);
             }
 
             @Override
             public void onLowFreeSpace(String uniqueId, String url) {
                 Log.e("DOWNLOAD", "Low Space...");
+                showLog("Error : Low Space..." );
             }
 
             @Override
@@ -1192,6 +1203,8 @@ public class ChatActivity extends AppCompatActivity
                         Log.e("DOWNLOAD", "Not Image");
                     }
                 }
+
+                showLog("File Uri " + response.getResult().getUri() );
             }
         });
 
@@ -1684,6 +1697,8 @@ public class ChatActivity extends AppCompatActivity
                         Log.e("SFM", "onFinishImage");
                         fileHash = chatResponse.getResult().getHashCode();
 
+                        showLog("onFinishImage : image hash :" +fileHash);
+
                     }
 
                     @Override
@@ -1691,6 +1706,7 @@ public class ChatActivity extends AppCompatActivity
 
                         Log.e("SFM", "onFinishFile");
                         fileHash = chatResponse.getResult().getHashCode();
+                        showLog("onFinishFile : file hash :" +fileHash);
                     }
 
                     @Override
@@ -1698,7 +1714,7 @@ public class ChatActivity extends AppCompatActivity
 
                         Log.e("SFM", "onError");
 
-
+                        showLog("onError :" +jsonError);
                     }
                 });
 
@@ -2765,7 +2781,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void SetMainServer() {
-        ssoHost = BaseApplication.getInstance().getString(R.string.sso_host);
+        ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
         serverName = "chat-server";
 
         socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);

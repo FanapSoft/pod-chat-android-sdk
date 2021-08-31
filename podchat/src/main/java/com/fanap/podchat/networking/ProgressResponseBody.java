@@ -3,6 +3,7 @@ package com.fanap.podchat.networking;
 import android.util.Log;
 
 import com.fanap.podchat.ProgressHandler;
+import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.util.ChatConstant;
@@ -135,10 +136,41 @@ public class ProgressResponseBody extends ResponseBody {
 //        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 //        httpClientBuilder.addInterceptor(logging);
 
+//        if (httpClientBuilder.interceptors().size() > 0)
+//            httpClientBuilder.interceptors().remove(0);
+
         httpClientBuilder.addInterceptor(chain -> {
             if (listener == null) return chain.proceed(chain.request());
 
             Response originalResponse = chain.proceed(chain.request());
+
+            String res = App.getGson().toJson(originalResponse);
+            if (originalResponse.isSuccessful()) {
+                String error = "error was happend !!!";
+                switch (originalResponse.code()) {
+                    case 400:
+                        error = "Hash is invalid.";
+                        break;
+                    case 204:
+                        error = "No Content";
+                        break;
+                    case 401:
+                        error = "Unauthorized or Permission denied to destinationِ";
+                        break;
+                    case 402:
+                        error = "sufficient space";
+                        break;
+                    case 403:
+                        error = "Forbidden";
+                        break;
+                    case 404:
+                        error = "File or Folder not found";
+                        break;
+                }
+
+                listener.onError("Not", error, originalResponse.networkResponse().request().url().toString());
+            }
+
             return originalResponse.newBuilder()
                     .body(new ProgressResponseBody(originalResponse.body(), listener))
                     .build();
@@ -154,7 +186,6 @@ public class ProgressResponseBody extends ResponseBody {
 
         Gson gson = new GsonBuilder().setLenient().create();
         GsonConverterFactory factory = GsonConverterFactory.create(gson);
-
 
 
         return new Retrofit.Builder()

@@ -31,17 +31,6 @@ public interface FileApi {
 
     @NonNull
     @Multipart
-    @POST("nzh/uploadFile")
-    Observable<Response<FileUpload>> sendFile(
-            @Part MultipartBody.Part file
-            , @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("fileName") RequestBody fileName);
-
-
-    @NonNull
-    @Multipart
-//    @POST("userGroup/uploadFile")
     @POST("/api/usergroups/{userGroupHash}/files")
     Observable<Response<UploadToPodSpaceResponse>> uploadToPodSpace(
             @Part MultipartBody.Part file,
@@ -52,7 +41,6 @@ public interface FileApi {
 
     @NonNull
     @Multipart
-//    @POST("nzh/drive/uploadFile")
     @POST("/api/files")
     Observable<Response<UploadToPodSpaceResponse>> uploadPublicFileToPodSpace(
             @Part MultipartBody.Part file,
@@ -85,45 +73,6 @@ public interface FileApi {
             @Part("y") Integer yC,
             @Part("with") Integer wC,
             @Part("isPublic") Boolean isPublic);
-
-
-    @NonNull
-    @Multipart
-    @POST("nzh/uploadFile")
-    Call<Response<FileUpload>> sendFileRet(
-            @Part MultipartBody.Part file
-            , @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("fileName") RequestBody fileName);
-
-
-    @NonNull
-    @Multipart
-    @POST("nzh/uploadImage")
-    Observable<Response<FileImageUpload>> sendImageFile(
-            @Part MultipartBody.Part image
-            , @Header("_token_") String token
-            , @Header("_token_issuer_") int tokenIssuer
-            , @Part("fileName") RequestBody fileName);
-
-
-    @NonNull
-    @GET("nzh/file/")
-    @Streaming
-    Call<ResponseBody> getFile
-            (@Query("fileId") long fileId
-                    , @Query("downloadable") boolean downloadable
-                    , @Query("hashCode") String hashCode);
-
-
-    @NonNull
-    @GET("nzh/image/")
-    @Streaming
-    Call<ResponseBody> getImage
-            (@Query("fileId") long fileId
-                    , @Query("downloadable") boolean downloadable
-                    , @Query("hashCode") String hashCode);
-
 
     @GET
     @Streaming
