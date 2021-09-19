@@ -24,6 +24,7 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.CallTimeOutResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
@@ -624,6 +625,19 @@ public class CallAsyncRequestsManager {
         response.setResult(result);
         response.setSubjectId(chatMessage.getSubjectId());
         response.setUniqueId(chatMessage.getUniqueId());
+
+        return response;
+
+    }
+
+    public static ChatResponse<CallTimeOutResult> handleOnTimeOutCall(String uniqueId) {
+
+        ChatResponse<CallTimeOutResult> response = new ChatResponse<>();
+
+        CallTimeOutResult result = new CallTimeOutResult();
+        response.setResult(result);
+
+        response.setUniqueId(uniqueId);
 
         return response;
 

@@ -70,6 +70,7 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.CallTimeOutResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
@@ -298,6 +299,7 @@ import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.RequestMapSearch;
 import com.fanap.podchat.util.TextMessageType;
+import com.fanap.podchat.util.TimeOutUtils;
 import com.fanap.podchat.util.Util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -400,6 +402,8 @@ public class Chat extends AsyncAdapter {
 
     private long connectNumberOfRetry = 1000;
 
+    private long callTimeOutValue = 30000;
+
     private NetworkPingSender.NetworkStateConfig networkStateConfig;
 
     private final HashMap<String, Long> downloadQList = new HashMap<>();
@@ -414,6 +418,7 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, UploadingQueueCache> uploadingQList;
     private static HashMap<String, WaitQueueCache> waitQList;
     private static HashMap<String, String> hashTagCallBacks;
+    private static HashMap<String, Object> timeOutCallBacks;
 
     private final HashMap<String, ThreadManager.IThreadInfoCompleter> threadInfoCompletor = new HashMap<>();
 
@@ -541,6 +546,7 @@ public class Chat extends AsyncAdapter {
             uploadingQList = new HashMap();
             waitQList = new HashMap<>();
             hashTagCallBacks = new HashMap<>();
+            timeOutCallBacks = new HashMap<>();
 
             messageCallbacks = new HashMap<>();
             handlerSend = new HashMap<>();
@@ -1023,7 +1029,7 @@ public class Chat extends AsyncAdapter {
         @ChatStateType.ChatSateConstant String currentChatState = state;
 
         chatState = currentChatState;
-        Log.e("chatstate", "onStateChanged: "+ chatState);
+        Log.e("chatstate", "onStateChanged: " + chatState);
         switch (currentChatState) {
             case OPEN:
                 retrySetToken = 1;
@@ -1897,9 +1903,9 @@ public class Chat extends AsyncAdapter {
         } else {
             showLog("ON GET MUTUAL GROUPS");
         }
-        long UserId=0;
+        long UserId = 0;
         if (hashTagCallBacks.get(chatMessage.getUniqueId()) != null) {
-            UserId =Long.parseLong(hashTagCallBacks.get(chatMessage.getUniqueId()));
+            UserId = Long.parseLong(hashTagCallBacks.get(chatMessage.getUniqueId()));
             hashTagCallBacks.remove(chatMessage.getUniqueId());
         }
         ChatResponse<ResultThreads> chatResponse = reformatGetThreadsResponseForMutual(chatMessage, UserId);
@@ -2231,6 +2237,8 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnCallStarted(Callback callback, ChatMessage chatMessage) {
+
+        cancelCallTimeOutSchedule(chatMessage.getUniqueId());
 
         if (sentryResponseLog) {
             showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
@@ -3013,11 +3021,32 @@ public class Chat extends AsyncAdapter {
             String message = CallAsyncRequestsManager.createCallRequestMessage(request, uniqueId);
             setCallBacks(false, false, false, true, Constants.CALL_REQUEST, null, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_CALL");
+
+            startCallTimeOutSchedule(uniqueId);
+
         } else {
             onChatNotReady(uniqueId);
         }
 
         return uniqueId;
+    }
+
+    private void startCallTimeOutSchedule(String uniqueId) {
+
+        Object timeOutObject = TimeOutUtils.setTimeout(() -> {
+            listenerManager.callOnCallTimeOuted(CallAsyncRequestsManager.handleOnTimeOutCall(uniqueId));
+            timeOutCallBacks.remove(uniqueId);
+        }, callTimeOutValue);
+        timeOutCallBacks.put(uniqueId,timeOutObject);
+
+    }
+
+    private void cancelCallTimeOutSchedule(String uniqueId) {
+
+        Object timeOutObject = timeOutCallBacks.get(uniqueId);
+        TimeOutUtils.clearTimeout(timeOutObject);
+        timeOutCallBacks.remove(uniqueId);
+
     }
 
     private void initialVideoCall() {
@@ -3368,9 +3397,9 @@ public class Chat extends AsyncAdapter {
     public String getMutualGroup(GetMutualGroupRequest request) {
 
         String uniqueId = generateUniqueId();
-        Long offset =(long) request.getOffset();
+        Long offset = (long) request.getOffset();
         String ContactId = request.getUser().getId();
-        Integer count = (int)request.getCount();
+        Integer count = (int) request.getCount();
         boolean useCache = request.useCacheData();
         count = count != null && count > 0 ? count : 50;
 
@@ -3431,6 +3460,7 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
     /**
      * @param request You can add someone as assistant
      */
@@ -6848,8 +6878,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
-
     /**
      * clearCacheDatabase interface
      * <p>
@@ -7807,7 +7835,7 @@ public class Chat extends AsyncAdapter {
                                     loadFromCache[0] = false;
                                 }
 
-                                if(MessageManager.hasGap(messagesFromCache)){
+                                if (MessageManager.hasGap(messagesFromCache)) {
                                     loadFromCache[0] = false;
                                 }
 
@@ -8614,7 +8642,7 @@ public class Chat extends AsyncAdapter {
      */
     @Deprecated
     public String getContacts(Integer count, Long offset, ChatHandler handler) {
-        return getContactMain(count, offset,null, false, typeCode, true, handler);
+        return getContactMain(count, offset, null, false, typeCode, true, handler);
     }
 
 
@@ -16157,7 +16185,8 @@ public class Chat extends AsyncAdapter {
         outPutThreads.setResult(resultThreads);
         return outPutThreads;
     }
-   /**
+
+    /**
      * Reformat the get thread response
      */
     private ChatResponse<ResultThreads> reformatGetThreadsResponseForMutual(ChatMessage chatMessage, long userId) {
@@ -16170,7 +16199,7 @@ public class Chat extends AsyncAdapter {
             if (!handlerSend.containsKey(chatMessage.getUniqueId())) {
 //                messageDatabaseHelper.saveThreads(threads);
                 dataSource.saveThreadResultFromServer(threads);
-                dataSource.saveMutualThreadResultFromServer(threads,userId);
+                dataSource.saveMutualThreadResultFromServer(threads, userId);
             }
         }
 

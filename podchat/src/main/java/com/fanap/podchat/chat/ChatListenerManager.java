@@ -9,6 +9,7 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
+import com.fanap.podchat.call.result_model.CallTimeOutResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
@@ -1159,6 +1160,17 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onVoiceCallStarted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+    public void callOnCallTimeOuted(ChatResponse<CallTimeOutResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnCallTimeOuted(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

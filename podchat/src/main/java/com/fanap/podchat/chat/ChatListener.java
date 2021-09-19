@@ -2,6 +2,7 @@ package com.fanap.podchat.chat;
 
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
+import com.fanap.podchat.call.result_model.CallTimeOutResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
@@ -316,6 +317,8 @@ public interface ChatListener {
     default void onCallRequestRejected(ChatResponse<CallRequestResult> response){}
 
     default void onVoiceCallStarted(ChatResponse<CallStartResult> response){}
+
+    default void OnCallTimeOuted(ChatResponse<CallTimeOutResult> response){}
 
     default void onVoiceCallEnded(ChatResponse<EndCallResult> response){}
 
