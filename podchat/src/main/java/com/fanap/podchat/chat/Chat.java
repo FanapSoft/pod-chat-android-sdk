@@ -70,7 +70,6 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
-import com.fanap.podchat.call.result_model.CallTimeOutResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
@@ -3034,18 +3033,21 @@ public class Chat extends AsyncAdapter {
     private void startCallTimeOutSchedule(String uniqueId) {
 
         Object timeOutObject = TimeOutUtils.setTimeout(() -> {
+
             listenerManager.callOnCallTimeOuted(CallAsyncRequestsManager.handleOnTimeOutCall(uniqueId));
             timeOutCallBacks.remove(uniqueId);
         }, callTimeOutValue);
-        timeOutCallBacks.put(uniqueId,timeOutObject);
+        timeOutCallBacks.put(uniqueId, timeOutObject);
 
     }
 
     private void cancelCallTimeOutSchedule(String uniqueId) {
 
         Object timeOutObject = timeOutCallBacks.get(uniqueId);
-        TimeOutUtils.clearTimeout(timeOutObject);
-        timeOutCallBacks.remove(uniqueId);
+        if (timeOutObject != null) {
+            TimeOutUtils.clearTimeout(timeOutObject);
+            timeOutCallBacks.remove(uniqueId);
+        }
 
     }
 
@@ -3079,6 +3081,7 @@ public class Chat extends AsyncAdapter {
             String message = CallAsyncRequestsManager.createGroupCallRequestMessage(request, uniqueId);
             setCallBacks(false, false, false, true, Constants.GROUP_CALL_REQUEST, null, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_GROUP_CALL");
+            startCallTimeOutSchedule(uniqueId);
         } else {
             onChatNotReady(uniqueId);
         }
