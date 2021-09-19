@@ -6,6 +6,12 @@
 All notable changes to this project will be documented here.
 
 
+## Version [ ] -2021-
+
+[Added] **TimeOut Call**
+
+[Added] OnCallTimeOuted() callback
+
 ## Version [0.9.11.0] -2021-8-21
 
 [Added] **Video Call**
