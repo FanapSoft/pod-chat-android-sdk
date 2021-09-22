@@ -9,7 +9,7 @@
     android:keepScreenOn="true"
     android:visibility="gone"
     tools:showIn="@layout/activity_call"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
 
     <LinearLayout
@@ -90,21 +90,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
 
         <TableRow>
 
 
-            <com.fanap.podcall.view.CallPartnerView
-                android:id="@+id/remotePartnerView2"
-                android:layout_width="0dp"
-                android:layout_height="180dp"
-                android:layout_margin="16dp"
-                android:layout_weight="1"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+
 
         </TableRow>
 
@@ -140,12 +132,23 @@
         android:layout_width="320dp"
         android:layout_height="240dp"
         android:layout_margin="24dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.fanap.podcall.view.CallPartnerView
+        android:id="@+id/remotePartnerView2"
+        android:layout_width="160dp"
+        android:layout_height="240dp"
+        android:layout_margin="16dp"
+        android:layout_weight="1"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/remotePartnerView1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/remotePartnerView1" />
 
     <com.fanap.podcall.view.CallPartnerView
         android:id="@+id/localPartnerCameraView"
@@ -183,6 +186,19 @@
         app:srcCompat="@drawable/ic_mic_off" />
 
     <ImageButton
+        android:id="@+id/buttonStartRecord"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:alpha="0.6"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_white"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMute"
+        app:layout_constraintEnd_toEndOf="@+id/buttonMute"
+        app:layout_constraintStart_toStartOf="@+id/buttonMute"
+        app:srcCompat="@drawable/ic_start_record_call" />
+
+    <ImageButton
         android:id="@+id/buttonSpeakerOn"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -192,6 +208,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonEndCall"
         app:srcCompat="@drawable/ic_speaker_on" />
+
+    <ImageButton
+        android:id="@+id/buttonScreenShare"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:alpha="0.3"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonSpeakerOn"
+        app:layout_constraintEnd_toEndOf="@+id/buttonSpeakerOn"
+        app:layout_constraintStart_toStartOf="@+id/buttonSpeakerOn"
+        app:srcCompat="@drawable/ic_mobile_screen_share" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline3"

@@ -7,18 +7,18 @@ public class StartedCallModel {
 
 	private String cert_file;
 	private ClientDTO clientDTO;
-	private ChatDataDTO chatDataDTO;
+	private ChatDataDTO chatDataDto;
 	private String callImage;
 	private String callName;
 	private Boolean video;
 	private Boolean mute;
 
 	public ChatDataDTO getChatDataDTO() {
-		return chatDataDTO;
+		return chatDataDto;
 	}
 
-	public void setChatDataDTO(ChatDataDTO chatDataDTO) {
-		this.chatDataDTO = chatDataDTO;
+	public void setChatDataDTO(ChatDataDTO chatDataDto) {
+		this.chatDataDto = chatDataDto;
 	}
 
 	public ClientDTO getClientDTO() {

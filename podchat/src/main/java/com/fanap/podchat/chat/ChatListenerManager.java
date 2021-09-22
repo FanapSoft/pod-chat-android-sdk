@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
@@ -1142,29 +1143,7 @@ public class ChatListenerManager {
 
     }
 
-    public void callonCallRecordStarted(ChatResponse<Participant> response) {
 
-        for (ChatListener listener : getSynchronizedListeners()) {
-            try {
-                listener.onCallRecordStarted(response);
-            } catch (Throwable t) {
-                callHandleCallbackError(listener, t);
-            }
-        }
-
-    }
-
-    public void callonCallRecordEnded(ChatResponse<Participant> response) {
-
-        for (ChatListener listener : getSynchronizedListeners()) {
-            try {
-                listener.onCallRecordEnded(response);
-            } catch (Throwable t) {
-                callHandleCallbackError(listener, t);
-            }
-        }
-
-    }
 
     public void callOnCallRequestRejected(ChatResponse<CallRequestResult> response) {
 
@@ -1498,39 +1477,80 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnShareScreenStarted(ChatResponse<JoinCallParticipantResult> response) {
+    public void callOnScreenShareStarted(ChatResponse<ScreenShareResult> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onShareScreenStarted(response);
+                listener.onScreenShareStarted(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnShareScreenEnded(ChatResponse<JoinCallParticipantResult> response) {
+    public void callOnScreenShareEnded(ChatResponse<ScreenShareResult> response) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onShareScreenEnded(response);
+                listener.onScreenShareEnded(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
+    public void callOnCallParticipantSharedScreen(ChatResponse<ScreenShareResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantSharedScreen(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 
-//    public void callOnGetThreadAdmin(String jsonData, OutPutParticipant output) {
-//
-//        for (ChatListener listener : getSynchronizedListeners()) {
-//            try {
-//                listener.onGetThreadAdmin(jsonData,output);
-//            } catch (Throwable t) {
-//                callHandleCallbackError(listener, t);
-//            }
-//        }
-//
-//
-//    }
-//
+    public void callOnCallParticipantStoppedScreenSharing(ChatResponse<ScreenShareResult> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantStoppedScreenSharing(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 
+    public void callOnCallRecordStarted(ChatResponse<Participant> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallRecordStarted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnCallRecordEnded(ChatResponse<Participant> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallRecordEnded(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnCallParticipantStartRecording(ChatResponse<Participant> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantRecordStarted(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnCallParticipantStopRecording(ChatResponse<Participant> response) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallParticipantRecordStopped(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

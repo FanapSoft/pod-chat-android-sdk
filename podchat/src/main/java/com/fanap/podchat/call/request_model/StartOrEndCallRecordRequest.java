@@ -4,28 +4,26 @@ import com.fanap.podchat.requestobject.GeneralRequestObject;
 
 public class StartOrEndCallRecordRequest extends GeneralRequestObject {
 
-    private long subjectId;
+    private final long callId;
 
     StartOrEndCallRecordRequest(Builder builder) {
-
-        this.subjectId = builder.subjectId;
-
+        this.callId = builder.callId;
     }
 
-    public long getSubjectId() {
-        return subjectId;
+    public long getCallId() {
+        return callId;
     }
 
     public static class Builder {
 
-        private long subjectId;
+        private long callId;
 
         public Builder(long subjectId) {
-            this.subjectId = subjectId;
+            this.callId = subjectId;
         }
 
-        public Builder setSubjectId(long subjectId) {
-            this.subjectId = subjectId;
+        public Builder setCallId(long callId) {
+            this.callId = callId;
             return this;
         }
 

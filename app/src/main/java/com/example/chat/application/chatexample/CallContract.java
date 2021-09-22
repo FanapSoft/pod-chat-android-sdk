@@ -2,6 +2,7 @@ package com.example.chat.application.chatexample;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 
 import com.fanap.podcall.view.CallPartnerView;
@@ -195,6 +196,19 @@ public interface CallContract {
         default void onLoadingContactsStarted(){}
 
         default void setInitState(){}
+
+        default void onScreenIsSharing(){}
+
+        default void onCallParticipantSharedScreen(){}
+
+        default void onScreenShareEnded(){}
+
+        default void onCallParticipantStoppedScreenSharing(){}
+
+        default void onCallRecordingStarted(){}
+        default void onCallRecordingStopped(){}
+        default void onParticipantStartedRecordingCall(String name){}
+        default void onParticipantStoppedRecordingCall(String name){}
     }
 
     interface presenter {
@@ -275,5 +289,13 @@ public interface CallContract {
         void pauseVideo();
 
         void resumeVideo();
+
+        void onShareScreenTouched();
+
+        void handleActivityResult(int requestCode, int resultCode, Intent data);
+
+        void onActivityPaused();
+
+        void onRecordButtonTouched();
     }
 }

@@ -39,7 +39,7 @@ public class ChatConstant {
     public static final int ERROR_CODE_INVALID_DATA = 6700;
 
 
-    public static long ERROR_CODE_NOTIFICATION_ERROR = 6700;
+    public static final int ERROR_CODE_NOTIFICATION_ERROR = 6701;
 
     public static final int ERROR_CODE_INVALID_CONTACT_ID = 6800;
 
@@ -48,6 +48,9 @@ public class ChatConstant {
     public static final int ERROR_CODE_INVALID_BOT_COMMAND = 6901;
 
     public static final int ERROR_CODE_METHOD_NOT_IMPLEMENTED = 7000;
+
+    public static final int ERROR_CODE_INVALID_VIEW = 7100;
+
 
 
     /*
@@ -96,6 +99,8 @@ public class ChatConstant {
     public static final String ERROR_INVALID_THREAD_ID = "Invalid thread id";
     public static final String ERROR_ASYNC_EXCEPTION = "Async Error";
     public static final String ERROR_METHOD_NOT_IMPLEMENTED = "This method is not implemented in current version!";
+
+    public static final String ERROR_INVALID_CAMERA_PREVIEW = "Camera Preview is not valid";
 
 
     /*

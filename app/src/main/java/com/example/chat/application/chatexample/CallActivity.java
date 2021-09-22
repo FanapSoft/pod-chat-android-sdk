@@ -3,28 +3,37 @@ package com.example.chat.application.chatexample;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -130,7 +139,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker;
+    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker, buttonStartScreenShare, buttonStartCallRecord;
     EditText etSandboxThreadId, etNewParticipantToAdd;
 
     FrameLayout frameLayout;
@@ -165,7 +174,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     ScheduledExecutorService ex;
 
 
-    private final Enum<ServerType> serverType = ServerType.MAIN;
+    private final Enum<ServerType> serverType = ServerType.SANDBOX;
 
 
     @Override
@@ -303,6 +312,14 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
             isVideoPaused = !isVideoPaused;
         });
+
+        buttonStartScreenShare.setOnClickListener(v -> {
+            presenter.onShareScreenTouched();
+        });
+
+        buttonStartCallRecord.setOnClickListener(v -> {
+            presenter.onRecordButtonTouched();
+        });
     }
 
     private void toggleSpeaker(ImageButton v) {
@@ -433,6 +450,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         buttonTerminateCall = findViewById(R.id.btnTerminateCall);
         buttonStartCallById = findViewById(R.id.btnSandboxCall);
 
+        buttonStartScreenShare = findViewById(R.id.buttonScreenShare);
+        buttonStartCallRecord = findViewById(R.id.buttonStartRecord);
+
 
         buttonMute = findViewById(R.id.buttonMute);
         buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
@@ -477,6 +497,16 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             presenter.setCallInfo(callInfo);
             showInCallView();
         }
+    }
+
+    private void runTestCode() {
+
+        inCallView.setVisibility(View.VISIBLE);
+        localCallPartner.setVisibility(View.VISIBLE);
+
+        new Handler().postDelayed(() -> {
+            remoteCallPartner1.setVisibility(View.VISIBLE);
+        }, 2000);
     }
 
     @Override
@@ -760,6 +790,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             connectToSandbox(token);
         else if (serverType == ServerType.MAIN)
             connectToMainServer(token);
+        else if (serverType == ServerType.INTEGRATION) {
+            connect();
+        }
 
         runOnUiThread(() -> {
             Toast.makeText(this, "Connected to " + serverType.toString(), Toast.LENGTH_SHORT).show();
@@ -792,6 +825,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         }
 
         TOKEN = token;
+
+//        runTestCode();
 
         connect();
 
@@ -1014,11 +1049,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @Override
     protected void onPause() {
-        presenter.rejectIncomingCall();
-        onCallEnded();
         cancelVib();
         stopRingtone();
-        presenter.onStop();
+        presenter.onActivityPaused();
         super.onPause();
     }
 
@@ -1086,6 +1119,91 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
     @Override
+    public void onScreenIsSharing() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Sharing Started", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onScreenShareEnded() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Sharing Screen Stopped", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onCallParticipantSharedScreen() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Participant start sharing screen", Toast.LENGTH_SHORT).show();
+            int width = remoteCallPartner1.getLayoutParams().width;
+            remoteCallPartner1.getLayoutParams().width = width - ((width * 50) / 100);
+            remoteCallPartner1.animate().translationX(-250f);
+            remoteCallPartner2.setVisibility(View.VISIBLE);
+            remoteCallPartner2.getLayoutParams().width = remoteCallPartner2.getLayoutParams().width - ((remoteCallPartner2.getLayoutParams().width * 50) / 100);
+        });
+    }
+
+    @Override
+    public void onCallParticipantStoppedScreenSharing() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Participant Stopped sharing", Toast.LENGTH_SHORT).show();
+            DisplayMetrics met = this.getResources().getDisplayMetrics();
+            remoteCallPartner1.getLayoutParams().width = met.widthPixels;
+            remoteCallPartner1.getLayoutParams().height = met.heightPixels / 3;
+            remoteCallPartner2.animate().scaleX(0.0f)
+                    .scaleY(0.0f)
+                    .setInterpolator(new BounceInterpolator())
+                    .setDuration(250)
+                    .withEndAction(() -> {
+                        remoteCallPartner2.setVisibility(View.GONE);
+                    });
+        });
+    }
+
+
+    @Override
+    public void onCallRecordingStarted() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Recording Started", Toast.LENGTH_SHORT).show();
+            liveAnim(buttonStartCallRecord);
+        });
+    }
+
+    private void liveAnim(View v) {
+        v.animate()
+                .scaleX(0.7f)
+                .scaleY(0.7f)
+                .setDuration(250)
+                .withEndAction(() -> {
+                    v.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(250)
+                            .start();
+                    if (v.isActivated())
+                        liveAnim(v);
+                }).start();
+    }
+
+    @Override
+    public void onCallRecordingStopped() {
+        showToast("Call Recording Stopped...");
+        buttonStartCallRecord.setActivated(false);
+
+    }
+
+    @Override
+    public void onParticipantStartedRecordingCall(String name) {
+        showToast(name + " Started Recording Call");
+    }
+
+    @Override
+    public void onParticipantStoppedRecordingCall(String name) {
+        showToast(name + " Stopped Recording Call");
+    }
+
+    @Override
     public void setInitState() {
 
 
@@ -1101,11 +1219,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) || (keyCode == KeyEvent.KEYCODE_VOLUME_UP) || keyCode==KeyEvent.KEYCODE_POWER) {
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) || (keyCode == KeyEvent.KEYCODE_VOLUME_UP) || keyCode == KeyEvent.KEYCODE_POWER) {
 
-            if(!stopRingtone()){
+            if (!stopRingtone()) {
                 return super.onKeyDown(keyCode, event);
-            }else{
+            } else {
                 cancelVib();
                 return true;
             }
@@ -1114,4 +1232,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (presenter != null) {
+            presenter.handleActivityResult(requestCode, resultCode, data);
+        }
+    }
 }
