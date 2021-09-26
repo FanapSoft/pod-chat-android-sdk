@@ -192,6 +192,16 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnGetSearchThreadHistory(String content, ChatResponse<ResultHistory> chatResponse) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.OnGetSearchThreadHistory(content, chatResponse);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
     public void callOnGetContacts(String content, ChatResponse<ResultContact> outPutContact) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {

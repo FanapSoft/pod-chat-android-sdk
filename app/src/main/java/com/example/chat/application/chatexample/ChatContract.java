@@ -53,6 +53,7 @@ import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.ListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
@@ -348,6 +349,8 @@ public interface ChatContract {
         void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,
 
                         long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler);
+
+        void searchInThreadsHistory(ListMessageCriteriaVO request, ChatHandler handler)  ;
 
         void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,boolean isNew, ChatHandler handler);
 

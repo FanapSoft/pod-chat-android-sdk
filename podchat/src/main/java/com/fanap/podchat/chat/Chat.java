@@ -158,6 +158,7 @@ import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.ListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.MapReverse;
 import com.fanap.podchat.mainmodel.MapRout;
 import com.fanap.podchat.mainmodel.MessageVO;
@@ -1375,6 +1376,10 @@ public class Chat extends AsyncAdapter {
                 } else {
                     handleOnGetThreadHistory(callback, chatMessage);
                 }
+                break;
+
+            case Constants.SEARCH_IN_ALL_THREADS:
+                handleOnGetSearchResult(callback, chatMessage);
                 break;
             case Constants.GET_THREADS: {
                 if (threadInfoCompletor.containsKey(messageUniqueId)) {
@@ -8209,6 +8214,21 @@ public class Chat extends AsyncAdapter {
         return new ArrayList<>(editedMessages);
     }
 
+    public String searchInThreads(ListMessageCriteriaVO request, ChatHandler handler){
+        String uniqueId;
+        uniqueId = generateUniqueId();
+        if (chatReady) {
+            String asyncContent = SearchManager.prepareSearchInThreadsRequest(request, uniqueId, getTypeCode(), getToken());
+            setCallBacks(null, null, null, true, Constants.SEARCH_IN_ALL_THREADS, request.getOffset(), uniqueId);
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND SEARCH0. HISTORY");
+            if (handler != null) {
+                handler.onSearchHistory(uniqueId);
+            }
+        } else {
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+        }
+        return uniqueId;
+    }
     /**
      * Gets history of the thread
      * <p>
@@ -8242,9 +8262,8 @@ public class Chat extends AsyncAdapter {
         uniqueId = generateUniqueId();
         if (chatReady) {
             String asyncContent = SearchManager.prepareSearchRequest(messageCriteriaVO, uniqueId, getTypeCode(), getToken());
-
             setCallBacks(null, null, null, true, Constants.GET_HISTORY, messageCriteriaVO.getOffset(), uniqueId);
-            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND SEARCH0. HISTORY");
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND SEARCH  IN ALL THREADS HISTORY");
             if (handler != null) {
                 handler.onSearchHistory(uniqueId);
             }
@@ -14151,6 +14170,19 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnThreadRemoveParticipant(jsonRmParticipant, chatResponse);
     }
 
+    private void handleOnGetSearchResult(Callback callback, ChatMessage chatMessage) {
+
+        List<MessageVO> messageVOS = Mention.getMessageVOSFromChatMessage(chatMessage);
+        String response = new Gson().toJson(messageVOS);
+        if (cache) {
+
+
+        }
+
+
+        publishSearchHistoryServerResult(callback, chatMessage, messageVOS);
+    }
+
     private void handleOnGetThreadHistory(Callback callback, ChatMessage chatMessage) {
 
         List<MessageVO> messageVOS = Mention.getMessageVOSFromChatMessage(chatMessage);
@@ -14231,6 +14263,36 @@ public class Chat extends AsyncAdapter {
 
 
     }
+    private void publishSearchHistoryServerResult(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {
+
+        ResultHistory resultHistory = new ResultHistory();
+
+        ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
+
+        resultHistory.setNextOffset(callback.getOffset() + messageVOS.size());
+        resultHistory.setContentCount(chatMessage.getContentCount());
+        resultHistory.setHasNext(messageVOS.size() + callback.getOffset() < chatMessage.getContentCount());
+
+
+        chatResponse.setSubjectId(chatMessage.getSubjectId());
+        resultHistory.setHistory(messageVOS);
+        chatResponse.setErrorCode(0);
+        chatResponse.setHasError(false);
+        chatResponse.setErrorMessage("");
+        chatResponse.setResult(resultHistory);
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+
+        String json = gson.toJson(chatResponse);
+
+        if (sentryResponseLog) {
+            showLog("RECEIVE_GET_SEARCH_HISTORY", json);
+        } else {
+            showLog("RECEIVE_GET_SEARCH_HISTORY");
+        }
+        messageCallbacks.remove(chatMessage.getUniqueId());
+        listenerManager.callOnGetSearchThreadHistory(json, chatResponse);
+
+    }
 
     private void updateChatHistoryCache(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {
 
@@ -14248,6 +14310,26 @@ public class Chat extends AsyncAdapter {
         }
 
 
+    }
+
+    private void splitHistoryPerThreadForSearch(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {
+
+
+    }
+
+    private void updateThreadHistoryCacheForSearch(Callback callback, ChatMessage chatMessage,long threadId, List<MessageVO> messageVOS){
+
+        List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
+        }.getType());
+
+        if (messageVOS.size() > 0) {
+
+            new PodThreadManager()
+                    .addNewTask(() -> dataSource.updateHistoryResponse(callback, messageVOS, threadId, cMessageVOS))
+                    .addNewTask(() -> dataSource.saveMessageResultFromServer(messageVOS, threadId))
+                    .runTasksSynced();
+
+        }
     }
 
     private void notifyChatHistoryReceived(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {

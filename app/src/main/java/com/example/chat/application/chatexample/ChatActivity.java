@@ -75,6 +75,7 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.ListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
@@ -152,8 +153,8 @@ public class ChatActivity extends AppCompatActivity
     private static final int FILE_REQUEST_CODE = 2;
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
-    private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
-    public static int TEST_THREAD_ID = 152321;
+    private static final String TEST_THREAD_HASH = "P7SJFYC6LUJMI1";
+    public static int TEST_THREAD_ID = 9149;
 
 
     ArrayList<String> runningSignals = new ArrayList<>();
@@ -173,8 +174,8 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-//    TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private String TOKEN = "91cf7327e2c148b78fb65230d5bba49a";
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    //    private String TOKEN = "231bcada046f41ec8f5b9e6e17fdd9f4";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -194,7 +195,7 @@ public class ChatActivity extends AppCompatActivity
     private Map<String, List<Method>> categoryMap;
     private List<Method> movieList;
     private ExpandablePlaceHolderView expandablePlaceHolderView;
-    private final Enum<ServerType> serverType = ServerType.Main;
+    private final Enum<ServerType> serverType = ServerType.Integration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -415,6 +416,10 @@ public class ChatActivity extends AppCompatActivity
 
             case "JoinPublicThread":
                 joinPublicThread();
+                break;
+
+            case "SearchInThreadsHistory":
+                searchInThreadsHistory();
                 break;
 
             case "DeleteGroup":
@@ -2219,6 +2224,29 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    int offset = 0;
+    int count = 50;
+    int total = 350;
+
+    private void searchInThreadsHistory() {
+        boolean state = offset + count < total;
+        Log.e("TAG", "searchInThreadsHistory: " + state);
+        Log.e("TAG", "offset: " + offset);
+        Log.e("TAG", "count: " + count);
+        if (state)
+            offset = offset + count;
+
+        ListMessageCriteriaVO request = new ListMessageCriteriaVO
+                .Builder("hi")
+                .offset(5)
+                .count(5)
+                .build();
+
+        presenter.searchInThreadsHistory(request, null);
+
+
+    }
+
 
     private void createPublicThread() {
 
@@ -2368,7 +2396,10 @@ public class ChatActivity extends AppCompatActivity
 //        52979 masoud
 //        52987 khodam
         //  invite.add(new Invitee("52620", InviteType.Constants.TO_BE_USER_CONTACT_ID));
-        invite.add(new Invitee("63254", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63256", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        invite.add(new Invitee("63255", InviteType.Constants.TO_BE_USER_CONTACT_ID));
+
+//        invite.add(new Invitee("63253", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         //   invite.add(new Invitee("52987", InviteType.Constants.TO_BE_USER_CONTACT_ID));
         //   invite.add(new Invitee("1", InviteType.Constants.TO_BE_USER_ID)); //amjadi
 //        invite.add(new Invitee("80618", InviteType.Constants.TO_BE_USER_CONTACT_ID));
@@ -2388,7 +2419,7 @@ public class ChatActivity extends AppCompatActivity
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
                 .Builder(ThreadType.Constants.NORMAL, invite)
-                .title("Test Thread ByAhmad" + (new Date().getTime() / 1000))
+                .title("new Thread for search in history" + (new Date().getTime() / 1000))
 //       .withDescription("Description created at "
 //      + new Date().getTime())
 //       .withImage("URL")
@@ -2413,45 +2444,45 @@ public class ChatActivity extends AppCompatActivity
     public void getThreadHistory() {
 
 
-//        RequestGetHistory request = new RequestGetHistory
-//       .Builder(TEST_THREAD_ID)
-//       .offset(0)
-//       .count(50)
-//       .order("desc") //.order("asc")
-////       .fromTime(new Date().getTime())
-//       //   .toTime(new Date().getTime())
-////       .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
-////       .withNoCache()
-//       .build();
+        RequestGetHistory request = new RequestGetHistory
+                .Builder(TEST_THREAD_ID)
+                .offset(0)
+                .count(50)
+                .order("desc") //.order("asc")
+//       .fromTime(new Date().getTime())
+                //   .toTime(new Date().getTime())
+//       .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
+//       .withNoCache()
+                .build();
+
+        presenter.getHistory(request, null);
+
 //
-//        presenter.getHistory(request, null);
-
-
-        if (TEST_THREAD_LAST_SEEN_MESSAGE_TIME > 0) {
-            showToast("Get History to time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
-            RequestGetHistory request = new RequestGetHistory
-                    .Builder(TEST_THREAD_ID)
-                    .offset(0)
-                    .count(50)
-                    .order("desc") //.order("asc")
-                    .toTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
-                    .build();
-
-            presenter.getHistory(request, null);
-
-            showToast("Get History from time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
-
-            request = new RequestGetHistory
-                    .Builder(TEST_THREAD_ID)
-                    .offset(0)
-                    .count(50)
-                    .order("asc") //.order("asc")
-                    .fromTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
-                    .build();
-
-            presenter.getHistory(request, null);
-
-        }
+//        if (TEST_THREAD_LAST_SEEN_MESSAGE_TIME > 0) {
+//            showToast("Get History to time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+//            RequestGetHistory request = new RequestGetHistory
+//                    .Builder(TEST_THREAD_ID)
+//                    .offset(0)
+//                    .count(50)
+//                    .order("desc") //.order("asc")
+//                    .toTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+//                    .build();
+//
+//            presenter.getHistory(request, null);
+//
+//            showToast("Get History from time " + TEST_THREAD_LAST_SEEN_MESSAGE_TIME);
+//
+//            request = new RequestGetHistory
+//                    .Builder(TEST_THREAD_ID)
+//                    .offset(0)
+//                    .count(50)
+//                    .order("asc") //.order("asc")
+//                    .fromTime(TEST_THREAD_LAST_SEEN_MESSAGE_TIME)
+//                    .build();
+//
+//            presenter.getHistory(request, null);
+//
+//        }
 
     }
 

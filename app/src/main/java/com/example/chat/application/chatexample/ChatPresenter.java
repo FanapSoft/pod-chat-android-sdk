@@ -96,6 +96,7 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.ListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -840,6 +841,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void searchInThreadsHistory(ListMessageCriteriaVO request, ChatHandler handler) {
+        chat.searchInThreads(request, handler);
+    }
+
+    @Override
     public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler) {
 
 
@@ -1387,6 +1393,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
         Log.e(TAG, "onThreadInfoUpdated: "+response.getResult().getThread().getId() + "===> "+response.getResult().getThread().getLastMessage());
+    }
+
+    @Override
+    public void OnGetSearchThreadHistory(String content, ChatResponse<ResultHistory> history) {
+        Log.e(TAG, "OnGetSearchThreadHistory: "+content );
     }
 
     @Override

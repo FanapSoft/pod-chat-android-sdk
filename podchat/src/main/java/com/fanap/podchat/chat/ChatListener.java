@@ -81,6 +81,9 @@ public interface ChatListener {
     default void onGetHistory(String content, ChatResponse<ResultHistory> history) {
     }
 
+    default void OnGetSearchThreadHistory(String content, ChatResponse<ResultHistory> history) {
+    }
+
     default void onGetThread(String content, ChatResponse<ResultThreads> thread) {
 
     }

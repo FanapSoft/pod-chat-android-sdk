@@ -123,7 +123,8 @@ public class ChatMessageType {
 
 
             Constants.TURN_ON_VIDEO_CALL,
-            Constants.TURN_OFF_VIDEO_CALL
+            Constants.TURN_OFF_VIDEO_CALL,
+            Constants.SEARCH_IN_ALL_THREADS
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -255,6 +256,7 @@ public class ChatMessageType {
 
         int TURN_ON_VIDEO_CALL = 113;
         int TURN_OFF_VIDEO_CALL = 114;
+        int SEARCH_IN_ALL_THREADS = 105;
 
 
 

@@ -30,13 +30,13 @@
         android:hardwareAccelerated="false"
         tools:targetApi="n">
 
-        <activity android:name="com.example.chat.application.chatexample.CallActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+<!--        <activity android:name="com.example.chat.application.chatexample.CallActivity">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
 
         <activity android:name="com.example.chat.application.chatexample.ChatActivity">
             <intent-filter>

@@ -71,3 +71,5 @@ google-services.json
 /app/src/main/java/com/example/chat/application/chatexample/TestClass.java
 /podchat/src/main/java/com/fanap/podchat/TestClass.java
 /ntf_sdk/
+/podchat/google-services-sand-box.json
+/podchat/google-services -intgration.json

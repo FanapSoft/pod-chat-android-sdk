@@ -200,6 +200,10 @@
     "name": "DeleteGroup"
   },
   {
+    "categoty": "ThreadAction",
+    "name": "SearchInThreadsHistory"
+  },
+  {
     "categoty": "ThreadRole",
     "name": "SetRole"
   },
