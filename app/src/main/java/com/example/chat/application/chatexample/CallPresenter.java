@@ -100,6 +100,7 @@ import static com.example.chat.application.chatexample.CallActivity.Pooria_ID;
 public class CallPresenter extends ChatAdapter implements CallContract.presenter, Application.ActivityLifecycleCallbacks {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
+    public static final int BASE_CALL_TYPE = CallType.Constants.VIDEO_CALL;
     private final int SHARE_SCREEN_PERMISSION_CODE =107;
     private static final String TAG = "CHAT_SDK_PRESENTER";
     private final Enum<ServerType> serverType;
@@ -311,7 +312,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 chat.endShareScreen(request);
 
             }
-        }else {
+        }else if(isInCall){
             ScreenSharePermissionRequest permissionRequest
                     = new ScreenSharePermissionRequest.Builder(activity)
                     .setPermissionCode(SHARE_SCREEN_PERMISSION_CODE)
@@ -358,7 +359,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
                 callVO.getCallId());
 
-        if (true) {
+
+        if (callVO.getType() == CallType.Constants.VIDEO_CALL) {
             request.withVideo();
 
             showVideoViews();
@@ -1014,7 +1016,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
         GetCallHistoryRequest request = new GetCallHistoryRequest.Builder()
-                .setType(CallType.Constants.VIDEO_CALL)
+                .setType(BASE_CALL_TYPE)
                 .count(50)
                 .build();
 
@@ -1093,7 +1095,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(35311, CallType.Constants.VIDEO_CALL)
+                .Builder(35311, BASE_CALL_TYPE)
                 .build();
 
         showVideoViews();
@@ -1236,7 +1238,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                         //request with invitee list
                         CallRequest callRequest = new CallRequest.Builder(
                                 invitees,
-                                CallType.Constants.VIDEO_CALL).build();
+                                BASE_CALL_TYPE).build();
                         uniqueId = chat.requestCall(callRequest);
                         view.updateStatus("Request p2p call with: " + ids[0]);
 
@@ -1255,7 +1257,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
                         CallRequest callRequest = new CallRequest.Builder(
                                 invitees,
-                                CallType.Constants.VIDEO_CALL).build();
+                                BASE_CALL_TYPE).build();
                         uniqueId = chat.requestGroupCall(callRequest);
 
                         view.updateStatus("Request group call invitees: " + Arrays.toString(ids));
@@ -1267,7 +1269,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
                     CallRequest callRequest = new CallRequest.Builder(
                             Long.parseLong(query),
-                            CallType.Constants.VIDEO_CALL).build();
+                            BASE_CALL_TYPE).build();
                     if (isGroupCall) {
                         uniqueId = chat.requestGroupCall(callRequest);
                     } else {
@@ -1295,7 +1297,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         //request with threadId
         CallRequest callRequest = new CallRequest.Builder(
                 threadId,
-                CallType.Constants.VIDEO_CALL).build();
+                BASE_CALL_TYPE).build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
             showVideoViews();
@@ -1318,7 +1320,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         //request with invitee list
         CallRequest callRequest = new CallRequest.Builder(
                 invitees,
-                CallType.Constants.VIDEO_CALL).build();
+                BASE_CALL_TYPE).build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
             showVideoViews();
@@ -1346,7 +1348,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         //request with invitee list
         CallRequest callRequest = new CallRequest.Builder(
                 invitees,
-                CallType.Constants.VIDEO_CALL).build();
+                BASE_CALL_TYPE).build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
             showVideoViews();
@@ -1500,15 +1502,18 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onRecordButtonTouched() {
 
-        StartOrEndCallRecordRequest request =
-                new StartOrEndCallRecordRequest.Builder(callVO.getCallId())
-                .build();
+        if(callVO!=null && isInCall){
+            StartOrEndCallRecordRequest request =
+                    new StartOrEndCallRecordRequest.Builder(callVO.getCallId())
+                            .build();
 
-        if(isCallRecording){
-            chat.endCallRecord(request);
-        }else {
-            chat.startCallRecord(request);
+            if(isCallRecording){
+                chat.endCallRecord(request);
+            }else {
+                chat.startCallRecord(request);
+            }
         }
+
     }
 
 

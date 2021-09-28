@@ -87,7 +87,7 @@ dependencies {
     //placeholderview
 //    implementation 'com.mindorks:placeholderview:0.7.1'
     implementation ('com.mindorks:placeholderview:0.7.1') {
-        exclude group: 'com.android.support', module: 'recyclerview'
+        exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
 
 }

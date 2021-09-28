@@ -14,13 +14,14 @@ import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,7 +34,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -139,6 +139,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView;
+    ConstraintLayout constraintHolder, constraintChild;
     ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker, buttonStartScreenShare, buttonStartCallRecord;
     EditText etSandboxThreadId, etNewParticipantToAdd;
 
@@ -166,6 +167,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             remoteCallPartner2,
             remoteCallPartner3,
             remoteCallPartner4;
+    Object lpTemp;
     private boolean isVideoPaused = false;
 
 
@@ -186,6 +188,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         setListeners();
 
+//        runTestCode();
 
     }
 
@@ -314,13 +317,59 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         });
 
         buttonStartScreenShare.setOnClickListener(v -> {
+            scaleIt(v);
             presenter.onShareScreenTouched();
         });
 
         buttonStartCallRecord.setOnClickListener(v -> {
+            scaleIt(v);
             presenter.onRecordButtonTouched();
         });
+
+
+        View.OnClickListener cllPartnersListener = this::swapMainCallPartner;
+//        remoteCallPartner1.setOnClickListener(cllPartnersListener);
+        remoteCallPartner2.setOnClickListener(cllPartnersListener);
+        remoteCallPartner3.setOnClickListener(cllPartnersListener);
+        remoteCallPartner4.setOnClickListener(cllPartnersListener);
     }
+
+    private void swapMainCallPartner(View v) {
+
+        Boolean swapped = (Boolean) v.getTag();
+
+        if (swapped != null && swapped) {
+            animatePartnerViewDown(v);
+        } else {
+            pushPartnerViewUp(v);
+        }
+
+    }
+
+    private void pushPartnerViewUp(View v) {
+        moveViewToHolder(v);
+    }
+
+    private void animatePartnerViewDown(View v) {
+       moveToChild(v);
+    }
+
+    private void moveViewToHolder(View v) {
+        v.setTag(true);
+        ViewGroup.LayoutParams vL = v.getLayoutParams();
+        vL.width = -1;
+        vL.height = -1;
+        v.setLayoutParams(vL);
+    }
+
+    private void moveToChild(View v) {
+        v.setTag(false);
+        ViewGroup.LayoutParams vL = v.getLayoutParams();
+        vL.width = 0;
+        vL.height = 0;
+        v.setLayoutParams(vL);
+    }
+
 
     private void toggleSpeaker(ImageButton v) {
 
@@ -472,6 +521,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         remoteCallPartner3 = findViewById(R.id.remotePartnerView3);
         remoteCallPartner4 = findViewById(R.id.remotePartnerView4);
 
+        constraintHolder = findViewById(R.id.constraintHolder);
+//        constraintChild = findViewById(R.id.constraintChild);
+
 
         List<CallPartnerView> views = new ArrayList<>();
 
@@ -502,11 +554,20 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     private void runTestCode() {
 
         inCallView.setVisibility(View.VISIBLE);
-        localCallPartner.setVisibility(View.VISIBLE);
+        fabContacts.hide();
 
-        new Handler().postDelayed(() -> {
-            remoteCallPartner1.setVisibility(View.VISIBLE);
-        }, 2000);
+//        remoteCallPartner4.setVisibility(View.VISIBLE);
+//        remoteCallPartner1.setVisibility(View.VISIBLE);
+//        remoteCallPartner3.setVisibility(View.VISIBLE);
+//        remoteCallPartner2.setVisibility(View.VISIBLE);
+
+//        new Handler().postDelayed(() -> {
+//            ViewGroup.LayoutParams p = localCallPartner.getLayoutParams();
+//            p.width += (p.width * 100) / 100;
+//            p.height += (p.height * 100) / 100;
+//            localCallPartner.setLayoutParams(p);
+//        }, 20000);
+
     }
 
     @Override
@@ -826,8 +887,6 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         TOKEN = token;
 
-//        runTestCode();
-
         connect();
 
     }
@@ -1136,11 +1195,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     public void onCallParticipantSharedScreen() {
         runOnUiThread(() -> {
             Toast.makeText(this, "Participant start sharing screen", Toast.LENGTH_SHORT).show();
-            int width = remoteCallPartner1.getLayoutParams().width;
-            remoteCallPartner1.getLayoutParams().width = width - ((width * 50) / 100);
-            remoteCallPartner1.animate().translationX(-250f);
-            remoteCallPartner2.setVisibility(View.VISIBLE);
-            remoteCallPartner2.getLayoutParams().width = remoteCallPartner2.getLayoutParams().width - ((remoteCallPartner2.getLayoutParams().width * 50) / 100);
+//            int width = remoteCallPartner1.getLayoutParams().width;
+//            remoteCallPartner1.getLayoutParams().width = width - ((width * 50) / 100);
+//            remoteCallPartner1.animate().translationX(-250f);
+//            remoteCallPartner2.setVisibility(View.VISIBLE);
+//            remoteCallPartner2.getLayoutParams().width = remoteCallPartner2.getLayoutParams().width - ((remoteCallPartner2.getLayoutParams().width * 50) / 100);
         });
     }
 
@@ -1148,9 +1207,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     public void onCallParticipantStoppedScreenSharing() {
         runOnUiThread(() -> {
             Toast.makeText(this, "Participant Stopped sharing", Toast.LENGTH_SHORT).show();
-            DisplayMetrics met = this.getResources().getDisplayMetrics();
-            remoteCallPartner1.getLayoutParams().width = met.widthPixels;
-            remoteCallPartner1.getLayoutParams().height = met.heightPixels / 3;
+//            DisplayMetrics met = this.getResources().getDisplayMetrics();
+//            remoteCallPartner1.getLayoutParams().width = met.widthPixels;
+//            remoteCallPartner1.getLayoutParams().height = met.heightPixels / 3;
             remoteCallPartner2.animate().scaleX(0.0f)
                     .scaleY(0.0f)
                     .setInterpolator(new BounceInterpolator())
