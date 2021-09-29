@@ -52,39 +52,6 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/layoutAddParticipant" />
 
-    <Button
-        android:id="@+id/btnAddCallParticipant"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/colorAccent"
-        android:text="Add Call Participant"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/etNewParticipant"
-        tools:layout_editor_absoluteX="-16dp" />
-
-    <Button
-        android:id="@+id/btnRemoveCallParticipant"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/grey"
-        android:text="Remove Call Participant"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/btnAddCallParticipant"
-        tools:layout_editor_absoluteX="0dp" />
-
-    <Button
-        android:id="@+id/btnTerminateCall"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/red"
-        android:text="Terminate Call"
-        android:textColor="@color/white"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/btnRemoveCallParticipant"
-        tools:layout_editor_absoluteX="0dp" />
-
 
     <ImageButton
         android:id="@+id/buttonEndCall"
@@ -105,7 +72,8 @@
         android:id="@+id/constraintHolder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/colorAccent"
+        android:background="@color/colorPrimaryDark"
+        android:padding="4dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -135,7 +103,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline6"
         tools:text="Farhad Kheirkhah" />
-
 
 
     <ImageButton
@@ -182,6 +149,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonEndCall"
         app:srcCompat="@drawable/ic_mobile_screen_share" />
+
+    <ImageButton
+        android:id="@+id/buttonAddPartner"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:alpha="0.3"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonEndCall"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvCalleeName"
+        app:srcCompat="@drawable/ic_partner_add" />
 
     <com.fanap.podcall.view.CallPartnerView
         android:id="@+id/localPartnerCameraView"

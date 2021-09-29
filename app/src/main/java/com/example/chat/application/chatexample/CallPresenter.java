@@ -302,6 +302,31 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
     @Override
+    public void onContactSelected(ContactsWrapper contact) {
+        view.hideContactsFragment();
+
+        if(isInCall){
+            inviteCallParticipant(contact);
+        }else{
+            view.updateTvCallee("Calling " + contact.getFirstName() + " " + contact.getLastName());
+            view.showFabContact();
+            requestP2PCallWithContactId((int) contact.getId());
+        }
+
+
+    }
+
+    private void inviteCallParticipant(ContactsWrapper contact) {
+
+        view.showMessage("Call request sent to " + contact.getFirstName() + " " + contact.getLastName() + " " + contact.getCellphoneNumber());
+        RequestAddParticipants request = RequestAddParticipants.newBuilder()
+                        .threadId(callVO.getThreadId())
+                        .withContactId(contact.getId())
+                        .build();
+                callUniqueIds.add(chat.addGroupCallParticipant(request));
+    }
+
+    @Override
     public void onShareScreenTouched() {
         if(isScreenIsSharing){
             EndShareScreenRequest request =
@@ -1156,46 +1181,49 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     @Override
-    public void addCallParticipant(String username, boolean pooriaChecked, boolean masoudChecked, boolean farhadChecked) {
+    public void addCallParticipant() {
 
 
-        if (Util.isNotNullOrEmpty(username)) {
 
-            if (username.contains(",")) {
-                String[] names = username.split(",");
-                RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                        .threadId(callVO.getThreadId())
-                        .withUserNames(names)
-                        .build();
-                callUniqueIds.add(chat.addGroupCallParticipant(request));
-            } else {
-                RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                        .threadId(callVO.getThreadId())
-                        .withUserNames(username)
-                        .build();
-                callUniqueIds.add(chat.addGroupCallParticipant(request));
-            }
+        getContact();
 
-        } else {
-            List<Long> ids = new ArrayList<>();
-
-            if (pooriaChecked)
-                ids.add((long) Pooria_ID);
-            if (masoudChecked)
-                ids.add((long) Masoud_ID);
-            if (farhadChecked)
-                ids.add((long) Farhad_ID);
-
-            RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                    .threadId(callVO.getThreadId())
-                    .withCoreUserIds(ids)
-                    .build();
-
-
-            callUniqueIds.add(chat.addGroupCallParticipant(request));
-
-
-        }
+//        if (Util.isNotNullOrEmpty(username)) {
+//
+//            if (username.contains(",")) {
+//                String[] names = username.split(",");
+//                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+//                        .threadId(callVO.getThreadId())
+//                        .withUserNames(names)
+//                        .build();
+//                callUniqueIds.add(chat.addGroupCallParticipant(request));
+//            } else {
+//                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+//                        .threadId(callVO.getThreadId())
+//                        .withUserNames(username)
+//                        .build();
+//                callUniqueIds.add(chat.addGroupCallParticipant(request));
+//            }
+//
+//        } else {
+//            List<Long> ids = new ArrayList<>();
+//
+//            if (pooriaChecked)
+//                ids.add((long) Pooria_ID);
+//            if (masoudChecked)
+//                ids.add((long) Masoud_ID);
+//            if (farhadChecked)
+//                ids.add((long) Farhad_ID);
+//
+//            RequestAddParticipants request = RequestAddParticipants.newBuilder()
+//                    .threadId(callVO.getThreadId())
+//                    .withCoreUserIds(ids)
+//                    .build();
+//
+//
+//            callUniqueIds.add(chat.addGroupCallParticipant(request));
+//
+//
+//        }
 
     }
 

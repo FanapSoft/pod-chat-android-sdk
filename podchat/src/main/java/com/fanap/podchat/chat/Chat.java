@@ -328,6 +328,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -2326,10 +2327,6 @@ public class Chat extends AsyncAdapter {
 
             String sendVideoTopic = info.getResult().getClientDTO().getTopicSendVideo();
             String sendAudioTopic = info.getResult().getClientDTO().getTopicSendAudio();
-            String receiveVideoTopic = info.getResult().getClientDTO().getTopicReceiveVideo();
-            String receiveAudioTopic = info.getResult().getClientDTO().getTopicReceiveAudio();
-
-
             if (Util.isNotNullOrEmpty(sendVideoTopic)) {
                 visibleView(localPartnerView);
                 CallPartner lPartner = new CallPartner.Builder()
@@ -2343,22 +2340,35 @@ public class Chat extends AsyncAdapter {
                 podVideoCall.addPartner(lPartner);
             }
 
-            if (Util.isNotNullOrEmpty(receiveVideoTopic)) {
-                if (hasRemotePartnerView()) {
-
+            String receiveTopic = info.getResult().getClientDTO().getTopicReceive();
+            List<String> receiveList = Arrays.asList(receiveTopic.split(","));
+            if (Util.isNullOrEmpty(receiveList)) {
+                captureError(new PodChatException(ChatConstant.ERROR_INVALID_DATA, ChatConstant.ERROR_CODE_INVALID_DATA));
+                return;
+            }
+            if (receiveList.size() == 1) {
+                String receiveVideoTopic = info.getResult().getClientDTO().getTopicReceiveVideo();
+                String receiveAudioTopic = info.getResult().getClientDTO().getTopicReceiveAudio();
+                Boolean hasVideo = info.getResult().getClientDTO().getVideo();
+                CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
+                rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
+                        .setName(info.getResult().getClientDTO().getSendKey() + "" + receiveVideoTopic);
+                if (hasVideo && hasRemotePartnerView()) {
                     visibleView(videoCallPartnerViews.get(0));
-
-                    CallPartner rPartner = new CallPartner.Builder()
-                            .setPartnerType(PartnerType.REMOTE)
-                            .setName(info.getResult().getClientDTO().getSendKey() + "" + receiveVideoTopic)
+                    rPartnerBuilder
                             .setVideoTopic(receiveVideoTopic)
-                            .setAudioTopic(receiveAudioTopic)
-                            .setVideoView(videoCallPartnerViews.remove(0))
-                            .build();
-
-                    podVideoCall.addPartner(rPartner);
+                            .setVideoView(videoCallPartnerViews.remove(0));
+                }
+                rPartnerBuilder.setAudioTopic(receiveAudioTopic);
+                CallPartner rPartner = rPartnerBuilder.build();
+                podVideoCall.addPartner(rPartner);
+            } else {
+                for (String topic :
+                        receiveList) {
+                    addCallPartner(topic);
                 }
             }
+
 
             podVideoCall.startCall();
 
@@ -2386,6 +2396,27 @@ public class Chat extends AsyncAdapter {
         }
 
 
+    }
+
+    private void addCallPartner(String receiveTopic) {
+
+
+        String receiveVideoTopic = "Vi-" + receiveTopic;
+        String receiveAudioTopic = "Vo-" + receiveTopic;
+        boolean hasVideo = true; // todo fix later
+
+        CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
+        rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
+                .setName(receiveTopic+":"+System.currentTimeMillis());
+        if (hasVideo && hasRemotePartnerView()) {
+            visibleView(videoCallPartnerViews.get(0));
+            rPartnerBuilder
+                    .setVideoTopic(receiveVideoTopic)
+                    .setVideoView(videoCallPartnerViews.remove(0));
+        }
+        rPartnerBuilder.setAudioTopic(receiveAudioTopic);
+        CallPartner rPartner = rPartnerBuilder.build();
+        podVideoCall.addPartner(rPartner);
     }
 
 
@@ -2755,24 +2786,7 @@ public class Chat extends AsyncAdapter {
         if (hasRemotePartnerView()) {
             for (CallParticipantVO callParticipant :
                     response.getResult().getJoinedParticipants()) {
-
-                if (forceVideo || callParticipant.hasVideo()) {
-                    String topic = callParticipant.getSendTopicVideo();
-
-                    if (Util.isNotNullOrEmpty(topic)) {
-
-                        visibleView(videoCallPartnerViews.get(0));
-
-                        CallPartner rPartner = new CallPartner.Builder()
-                                .setPartnerType(PartnerType.REMOTE)
-                                .setName(callParticipant.getSendTopicVideo() + " ")
-                                .setVideoTopic(topic)
-                                .setVideoView(videoCallPartnerViews.remove(0))
-                                .build();
-
-                        podVideoCall.addPartner(rPartner);
-                    }
-                }
+                addCallPartner(callParticipant.getSendTopic());
             }
         }
 
