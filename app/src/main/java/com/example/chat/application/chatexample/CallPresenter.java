@@ -101,7 +101,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
     public static final int BASE_CALL_TYPE = CallType.Constants.VIDEO_CALL;
-    private final int SHARE_SCREEN_PERMISSION_CODE =107;
+    private final int SHARE_SCREEN_PERMISSION_CODE = 107;
     private static final String TAG = "CHAT_SDK_PRESENTER";
     private final Enum<ServerType> serverType;
     private Chat chat;
@@ -113,8 +113,6 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private String state = "";
     ViewGroup.
             LayoutParams defaultCameraPreviewLayoutParams;
-
-
 
 
     List<String> callUniqueIds = new ArrayList<>();
@@ -244,7 +242,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 .setLowQuality()
                 .build();
 
-        chat.setupCall(videoCallParam, audioCallParam,screenShareParam, callConfig, remoteViews);
+        chat.setupCall(videoCallParam, audioCallParam, screenShareParam, callConfig, remoteViews);
 
     }
 
@@ -260,6 +258,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void resumeVideo() {
+        chat.openCamera();
         chat.turnOnVideo(callVO != null ? callVO.getCallId() : 0);
     }
 
@@ -305,9 +304,9 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onContactSelected(ContactsWrapper contact) {
         view.hideContactsFragment();
 
-        if(isInCall){
+        if (isInCall) {
             inviteCallParticipant(contact);
-        }else{
+        } else {
             view.updateTvCallee("Calling " + contact.getFirstName() + " " + contact.getLastName());
             view.showFabContact();
             requestP2PCallWithContactId((int) contact.getId());
@@ -320,24 +319,24 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         view.showMessage("Call request sent to " + contact.getFirstName() + " " + contact.getLastName() + " " + contact.getCellphoneNumber());
         RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                        .threadId(callVO.getThreadId())
-                        .withContactId(contact.getId())
-                        .build();
-                callUniqueIds.add(chat.addGroupCallParticipant(request));
+                .threadId(callVO.getThreadId())
+                .withContactId(contact.getId())
+                .build();
+        callUniqueIds.add(chat.addGroupCallParticipant(request));
     }
 
     @Override
     public void onShareScreenTouched() {
-        if(isScreenIsSharing){
+        if (isScreenIsSharing) {
             EndShareScreenRequest request =
                     new EndShareScreenRequest.Builder(callVO.getCallId())
-                    .build();
+                            .build();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 isScreenIsSharing = false;
                 chat.endShareScreen(request);
 
             }
-        }else if(isInCall){
+        } else if (isInCall) {
             ScreenSharePermissionRequest permissionRequest
                     = new ScreenSharePermissionRequest.Builder(activity)
                     .setPermissionCode(SHARE_SCREEN_PERMISSION_CODE)
@@ -350,10 +349,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         }
     }
 
-    private void onShareScreenPermissionGranted(Intent data){
+    private void onShareScreenPermissionGranted(Intent data) {
 
         ScreenShareRequest request = new ScreenShareRequest
-                .Builder(data,callVO.getCallId())
+                .Builder(data, callVO.getCallId())
                 .build();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -1469,7 +1468,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
         for (CallParticipantVO participant :
                 response.getResult().getCallParticipants()) {
-            view.callParticipantUnMuted(participant);
+
+            Long userId = participant.getUserId();
+            CallPartnerView partnerView = null;
+            if (userId != null) {
+                partnerView = findParticipantView(userId);
+            }
+            view.callParticipantUnMuted(participant, partnerView);
         }
     }
 
@@ -1492,8 +1497,22 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onCallParticipantMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
         for (CallParticipantVO participant :
                 response.getResult().getCallParticipants()) {
-            view.callParticipantMuted(participant);
+            Long userId = participant.getUserId();
+            CallPartnerView partnerView = null;
+            if (userId != null) {
+                partnerView = findParticipantView(userId);
+            }
+            view.callParticipantMuted(participant,partnerView);
         }
+    }
+
+    private CallPartnerView findParticipantView(Long userId) {
+        for (CallPartnerView partnerView :
+                remotePartnersViews) {
+            if(partnerView.getPartnerId()!=null && partnerView.getPartnerId().equals(userId))
+                return partnerView;
+        }
+        return null;
     }
 
     @Override
@@ -1530,14 +1549,14 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onRecordButtonTouched() {
 
-        if(callVO!=null && isInCall){
+        if (callVO != null && isInCall) {
             StartOrEndCallRecordRequest request =
                     new StartOrEndCallRecordRequest.Builder(callVO.getCallId())
                             .build();
 
-            if(isCallRecording){
+            if (isCallRecording) {
                 chat.endCallRecord(request);
-            }else {
+            } else {
                 chat.startCallRecord(request);
             }
         }
@@ -1550,15 +1569,18 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         isCallRecording = true;
         view.onCallRecordingStarted();
     }
+
     @Override
     public void onCallRecordEnded(ChatResponse<Participant> response) {
         isCallRecording = false;
         view.onCallRecordingStopped();
     }
+
     @Override
     public void onCallParticipantRecordStarted(ChatResponse<Participant> response) {
         view.onParticipantStartedRecordingCall(" " + response.getResult().getFirstName() + " " + response.getResult().getLastName());
     }
+
     @Override
     public void onCallParticipantRecordStopped(ChatResponse<Participant> response) {
         view.onParticipantStoppedRecordingCall(" " + response.getResult().getFirstName() + " " + response.getResult().getLastName());
@@ -1568,8 +1590,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(resultCode==Activity.RESULT_OK){
-            if(requestCode==SHARE_SCREEN_PERMISSION_CODE){
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SHARE_SCREEN_PERMISSION_CODE) {
                 onShareScreenPermissionGranted(data);
             }
         }

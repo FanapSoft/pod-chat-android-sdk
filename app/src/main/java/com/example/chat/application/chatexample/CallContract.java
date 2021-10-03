@@ -103,8 +103,8 @@ public interface CallContract {
         default void audioCallMuted(){}
         default void audioCallUnMuted(){}
 
-        default void callParticipantMuted(CallParticipantVO participant){}
-        default void callParticipantUnMuted(CallParticipantVO participant){}
+        default void callParticipantMuted(CallParticipantVO participant, CallPartnerView partnerView){}
+        default void callParticipantUnMuted(CallParticipantVO participant,CallPartnerView partnerView){}
 
         default void audioCallMutedByAdmin(){}
         default void audioCallUnMutedByAdmin(){}

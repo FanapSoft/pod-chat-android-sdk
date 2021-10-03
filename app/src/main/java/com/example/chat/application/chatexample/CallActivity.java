@@ -11,25 +11,21 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -297,10 +293,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         localCallPartner.setOnClickListener(v -> presenter.switchCamera());
         localCallPartner.setOnClickListener(v -> {
-            if (isVideoPaused)
+            if (isVideoPaused) {
                 presenter.resumeVideo();
-            else
+            } else {
                 presenter.pauseVideo();
+            }
 
             isVideoPaused = !isVideoPaused;
         });
@@ -517,9 +514,6 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         constraintHolder = findViewById(R.id.constraintHolder);
 //        constraintChild = findViewById(R.id.constraintChild);
-
-
-
 
 
         if (!CallPermissionHandler.needCameraAndRecordPermission(this)) {
@@ -977,27 +971,40 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
     @Override
-    public void callParticipantMuted(CallParticipantVO participant) {
+    public void callParticipantMuted(CallParticipantVO participant, CallPartnerView partnerView) {
         showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " is muted now!");
+        runOnUiThread(()->{
+            if (partnerView != null)
+                partnerView.setDisplayIsMuteIcon(true);
+        });
     }
 
     @Override
-    public void callParticipantUnMuted(CallParticipantVO participant) {
+    public void callParticipantUnMuted(CallParticipantVO participant, CallPartnerView partnerView) {
         showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " Is unmuted now!");
-
+        runOnUiThread(()->{
+            if (partnerView != null)
+                partnerView.setDisplayIsMuteIcon(false);
+        });
     }
 
     @Override
     public void audioCallMutedByAdmin() {
         vibrate();
         showToast("Call creator muted you!");
+        if (localCallPartner != null) {
+            localCallPartner.setDisplayIsMuteIcon(true);
+        }
         updateMuteButton(true);
     }
 
     @Override
     public void audioCallUnMutedByAdmin() {
         vibrate();
-        showToast("Call creator unmuted you!");
+        showToast("Call creator UnMuted you!");
+        if (localCallPartner != null) {
+            localCallPartner.setDisplayIsMuteIcon(true);
+        }
         updateMuteButton(false);
     }
 
@@ -1300,8 +1307,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==CALL_PERMISSION_REQUEST_CODE){
-            if(resultCode== Activity.RESULT_OK){
+        if (requestCode == CALL_PERMISSION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
                 List<CallPartnerView> views = new ArrayList<>();
                 views.add(remoteCallPartner1);
                 views.add(remoteCallPartner2);
@@ -1309,8 +1316,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
                 views.add(remoteCallPartner4);
                 presenter.setupVideoCallParam(localCallPartner, views);
             }
-        }
-        else if (presenter != null) {
+        } else if (presenter != null) {
             presenter.handleActivityResult(requestCode, resultCode, data);
         }
     }

@@ -890,8 +890,22 @@ public class CallAsyncRequestsManager {
 
         ChatResponse<CallStartResult> response = new ChatResponse<>();
 
+        ArrayList<CallParticipantVO> callPartners = new ArrayList<>();
+
+        if(Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())){
+            for (ClientDTO client :
+                    callResponse.getResult().getOtherClientDtoList()) {
+                CallParticipantVO partner = new CallParticipantVO();
+                partner.setUserId(client.getUserId());
+                partner.setMute(client.getMute());
+                partner.setVideo(client.getVideo());
+
+                callPartners.add(partner);
+            }
+        }
+
         CallStartResult result = new CallStartResult(callResponse.getResult().getCallName(),
-                callResponse.getResult().getCallImage());
+                callResponse.getResult().getCallImage(),callPartners);
 
         response.setResult(result);
         response.setSubjectId(callResponse.getSubjectId());

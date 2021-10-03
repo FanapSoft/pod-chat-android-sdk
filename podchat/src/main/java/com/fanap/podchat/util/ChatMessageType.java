@@ -224,6 +224,10 @@ public class ChatMessageType {
 
 
         int CALL_CREATED = 111;
+
+        int TURN_ON_VIDEO_CALL = 113;
+        int TURN_OFF_VIDEO_CALL = 114;
+
         int GET_ACTIVE_CALL_PARTICIPANTS = 110;
 
         int START_RECORD_CALL = 121;
@@ -261,8 +265,6 @@ public class ChatMessageType {
         int GET_TAG_LIST = 145;
         int MUTAL_GROUPS = 130;
 
-        int TURN_ON_VIDEO_CALL = 113;
-        int TURN_OFF_VIDEO_CALL = 114;
 
 
 

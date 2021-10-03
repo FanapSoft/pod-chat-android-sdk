@@ -21,6 +21,7 @@ public class ClientDTO implements Parcelable {
     private String reciveMetaDataTopic;
     private Boolean mute;
     private Boolean video;
+    private Long userId;
 
     public String getClientId() {
         return clientId;
@@ -140,6 +141,10 @@ public class ClientDTO implements Parcelable {
 
     public void setVideo(Boolean video) {
         this.video = video;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     @Override
