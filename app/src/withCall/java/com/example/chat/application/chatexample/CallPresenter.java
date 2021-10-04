@@ -10,7 +10,9 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -382,11 +384,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 callVO.getCallId());
 
 
-//        if (callVO.getType() == CallType.Constants.VIDEO_CALL) {
-//            request.withVideo();
-//
-//            showVideoViews();
-//        }
+        if (callVO.getType() == BASE_CALL_TYPE) {
+            request.withVideo();
+
+            showVideoViews();
+        }
 
         String uniqueId = chat.acceptVoiceCall(request.build());
         callUniqueIds.add(uniqueId);
@@ -1321,7 +1323,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 threadId,
                 BASE_CALL_TYPE).build();
 
-        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
+        if (callRequest.getCallType() ==BASE_CALL_TYPE) {
             showVideoViews();
         }
 
