@@ -826,13 +826,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private void showVideoViews() {
         activity.runOnUiThread(() -> {
             try {
-                if (cameraPreview != null) {
+//                if (cameraPreview != null) {
 //                    cameraPreview.setVisibility(View.VISIBLE);
 //                    remotePartnersViews.get(0).setVisibility(View.VISIBLE);
 //                    defaultCameraPreviewLayoutParams = cameraPreview.getLayoutParams();
 //                    ViewGroup.LayoutParams lp = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
 //                    callLocalView.setLayoutParams(lp);
-                }
+//                }
                 chat.setPartnerViews(remotePartnersViews);
                 chat.openCamera();
             } catch (Exception e) {
@@ -887,10 +887,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
 
         isInCall = false;
-        if(isScreenIsSharing){
+        if (isScreenIsSharing) {
             EndShareScreenRequest endShareReq =
                     new EndShareScreenRequest.Builder(response.getResult().getCallId())
-                    .build();
+                            .build();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 chat.endShareScreen(endShareReq);
                 isScreenIsSharing = false;
@@ -1000,7 +1000,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 String uniqueId = chat.endAudioCall(endCallRequest);
                 callUniqueIds.add(uniqueId);
 
-                if(isScreenIsSharing){
+                if (isScreenIsSharing) {
                     EndShareScreenRequest request =
                             new EndShareScreenRequest.Builder(callVO.getCallId())
                                     .build();
@@ -1181,7 +1181,6 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void addCallParticipant() {
-
 
 
         getContact();
@@ -1408,11 +1407,16 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         for (CallParticipantVO c :
                 response.getResult().getCallParticipants()) {
-
             view.onCallParticipantLeft(c.getParticipantVO().getFirstName() + " " + c.getParticipantVO().getLastName());
-
-
         }
+        try {
+            CallPartnerView pw = findParticipantView(response.getResult().getCallParticipants().get(0).getUserId());
+            if (pw != null)
+                chat.addPartnerView(pw);
+        } catch (Exception e) {
+            view.onError(e.getMessage());
+        }
+
 
     }
 
@@ -1502,17 +1506,39 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             if (userId != null) {
                 partnerView = findParticipantView(userId);
             }
-            view.callParticipantMuted(participant,partnerView);
+            view.callParticipantMuted(participant, partnerView);
         }
     }
 
     private CallPartnerView findParticipantView(Long userId) {
+        CallPartnerView lpw = null;
         for (CallPartnerView partnerView :
                 remotePartnersViews) {
-            if(partnerView.getPartnerId()!=null && partnerView.getPartnerId().equals(userId))
-                return partnerView;
+            if (partnerView.getPartnerId() != null && partnerView.getPartnerId().equals(userId))
+                lpw = partnerView;
         }
-        return null;
+        return lpw;
+    }
+
+    @Override
+    public void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response) {
+        try {
+            CallPartnerView pw = findParticipantView(response.getResult().getJoinedParticipants().get(0).getUserId());
+            if (pw != null)
+                chat.addPartnerView(pw);
+        } catch (Exception e) {
+            view.onError(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response) {
+        try {
+            view.showMessage(response.getResult().getJoinedParticipants().get(0).getParticipantVO().getName() + " has video now!");
+        } catch (Exception e) {
+            view.onError(e.getMessage());
+        }
     }
 
     @Override

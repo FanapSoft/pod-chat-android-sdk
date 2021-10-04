@@ -2343,8 +2343,8 @@ public class Chat extends AsyncAdapter {
                 localPartnerView.setPartnerId(CoreConfig.userId);
                 localPartnerView.setPartnerName("You");
                 lCallPartnerBuilder.setVideoTopic(sendVideoTopic);
-                lCallPartnerBuilder.setVideoView(localPartnerView);
             }
+            lCallPartnerBuilder.setVideoView(localPartnerView);
             lCallPartnerBuilder.setAudioTopic(sendAudioTopic);
             podVideoCall.addPartner(lCallPartnerBuilder.build());
 
@@ -2400,11 +2400,10 @@ public class Chat extends AsyncAdapter {
                 if (client.getVideo() && hasRemotePartnerView()) {
                     visibleView(videoCallPartnerViews.get(0));
                     videoCallPartnerViews.get(0).setPartnerId(client.getUserId());
-                    rPartnerBuilder
-                            .setVideoTopic(client.getTopicSendVideo())
-                            .setVideoView(videoCallPartnerViews.remove(0));
+                    rPartnerBuilder.setVideoTopic(client.getTopicSendVideo());
                 }
 
+                rPartnerBuilder.setVideoView(videoCallPartnerViews.remove(0));
                 rPartnerBuilder.setAudioTopic(client.getTopicSendAudio());
                 CallPartner rPartner = rPartnerBuilder.build();
                 podVideoCall.addPartner(rPartner);
@@ -2571,9 +2570,29 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    public String turnOnVideo(long callId) {
+
+        if (podVideoCall != null)
+            podVideoCall.resumeVideo();
+
+        String uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createTurnOnVideoMessage(callId, uniqueId);
+            setCallBacks(false, false, false, true, Constants.TURN_ON_VIDEO_CALL, null, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_ON_VIDEO_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
     public String turnOffVideo(long callId) {
         if (podVideoCall != null)
             podVideoCall.pauseVideo();
+//        if (podVideoCall != null)
+//            podVideoCall.endVideo();
+        // TODO: 10/3/2021 endVideo here and add local video on turOnVideo server response
 
         String uniqueId = generateUniqueId();
 
@@ -2653,24 +2672,6 @@ public class Chat extends AsyncAdapter {
         return uniqueId;
     }
 
-    public String turnOnVideo(long callId) {
-        if (podVideoCall != null) {
-
-            podVideoCall.resumeVideo();
-        }
-
-        String uniqueId = generateUniqueId();
-
-        if (chatReady) {
-            String message = CallAsyncRequestsManager.createTurnOnVideoMessage(callId, uniqueId);
-            setCallBacks(false, false, false, true, Constants.TURN_ON_VIDEO_CALL, null, uniqueId);
-            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "SEND_TURN_ON_VIDEO_CALL");
-        } else {
-            onChatNotReady(uniqueId);
-        }
-
-        return uniqueId;
-    }
 
     // TODO: 1/31/2021 Create new view and send with call back
     private boolean hasRemotePartnerView() {
@@ -2867,9 +2868,26 @@ public class Chat extends AsyncAdapter {
 
     private void addVideoCallPartner(ChatResponse<JoinCallParticipantResult> response) {
 
-        if (hasRemotePartnerView()) {
-            for (CallParticipantVO callParticipant :
-                    response.getResult().getJoinedParticipants()) {
+        for (CallParticipantVO callParticipant :
+                response.getResult().getJoinedParticipants()) {
+
+            if (callParticipant.getUserId().equals(CoreConfig.userId)) {
+
+
+                CallPartner.Builder lCallPartnerBuilder = new CallPartner.Builder();
+                lCallPartnerBuilder.setPartnerType(PartnerType.LOCAL);
+                lCallPartnerBuilder.setName("You");
+
+                if (localPartnerView != null) {
+                    visibleView(localPartnerView);
+                    localPartnerView.setPartnerId(CoreConfig.userId);
+                    localPartnerView.setPartnerName("You");
+                    lCallPartnerBuilder.setVideoTopic(callParticipant.getSendTopicVideo());
+                    lCallPartnerBuilder.setVideoView(localPartnerView);
+                }
+                podVideoCall.addPartner(lCallPartnerBuilder.build());
+
+            } else if (hasRemotePartnerView()) {
 
                 String receiveVideoTopic = callParticipant.getSendTopicVideo();
 
@@ -2884,8 +2902,8 @@ public class Chat extends AsyncAdapter {
                     videoCallPartnerViews.get(0).setPartnerName(callParticipant.getParticipantVO() != null ? callParticipant.getParticipantVO().getName() : "");
                     rPartnerBuilder.setVideoTopic(receiveVideoTopic).setVideoView(videoCallPartnerViews.remove(0));
                 }
-                CallPartner rPartner = rPartnerBuilder.build();
-                podVideoCall.addPartner(rPartner);
+                podVideoCall.addPartner(rPartnerBuilder.build());
+
             }
         }
 
@@ -2894,14 +2912,15 @@ public class Chat extends AsyncAdapter {
 
     private void removeVideoCallPartner(ChatResponse<JoinCallParticipantResult> response) {
 
-
         for (CallParticipantVO callParticipant :
                 response.getResult().getJoinedParticipants()) {
-            String topic = callParticipant.getSendTopicVideo();
-            if (Util.isNotNullOrEmpty(topic)) {
-                podVideoCall.removePartnerVideo(topic);
-            }
 
+            if (!callParticipant.getUserId().equals(CoreConfig.userId)) {
+                String topic = callParticipant.getSendTopicVideo();
+                if (Util.isNotNullOrEmpty(topic)) {
+                    podVideoCall.removePartnerVideo(topic);
+                }
+            }
         }
 
 
