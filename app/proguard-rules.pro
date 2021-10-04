@@ -36,5 +36,4 @@
 -keep class net.sqlcipher.database.* {
     *;
 }
--dontobfuscate
 -keepattributes SourceFile,LineNumberTable
