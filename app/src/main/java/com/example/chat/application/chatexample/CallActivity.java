@@ -2,7 +2,9 @@ package com.example.chat.application.chatexample;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -11,6 +13,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -20,6 +24,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.BounceInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -65,6 +71,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
+    public static final int CALL_PERMISSION_REQUEST_CODE = 101;
     private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
     private final static String Farhad_TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
     private final static String Pooria_TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
@@ -121,16 +128,15 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     private CallContract.presenter presenter;
 
-    Button buttonAddCallParticipant,
-            buttonStartCallById, buttonRemoveCallParticipant,
-            buttonTerminateCall;
+    Button buttonStartCallById;
 
     TextView tvStatus, tvCallerName, tvHistory, tvCalleeName;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
     View callRequestView, inCallView;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker;
+    ConstraintLayout constraintHolder, constraintChild;
+    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker, buttonStartScreenShare, buttonStartCallRecord, buttonAddCallParticipant;
     EditText etSandboxThreadId, etNewParticipantToAdd;
 
     FrameLayout frameLayout;
@@ -157,6 +163,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             remoteCallPartner2,
             remoteCallPartner3,
             remoteCallPartner4;
+    Object lpTemp;
     private boolean isVideoPaused = false;
 
 
@@ -165,7 +172,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     ScheduledExecutorService ex;
 
 
-    private final Enum<ServerType> serverType = ServerType.MAIN;
+    private final Enum<ServerType> serverType = ServerType.SANDBOX;
 
 
     @Override
@@ -177,6 +184,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         setListeners();
 
+//        runTestCode();
 
     }
 
@@ -232,16 +240,10 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         });
 
-        buttonTerminateCall.setOnClickListener(v -> {
-
-            onCallEnded();
-
-
-            presenter.terminateCall();
-
-
+        buttonEndCall.setOnLongClickListener(v -> {
+            terminateCall();
+            return true;
         });
-
 
         buttonMute.setOnClickListener(v -> {
 
@@ -268,14 +270,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         buttonAddCallParticipant.setOnClickListener(v ->
         {
-
-            presenter.addCallParticipant(etNewParticipantToAdd.getText().toString(),
-                    false,
-                    false,
-                    false);
+            presenter.addCallParticipant();
 
         });
-        buttonRemoveCallParticipant.setOnClickListener(v -> presenter.removeCallParticipant(etNewParticipantToAdd.getText().toString(), false, false, false));
 
         buttonStartCallById.setOnClickListener(v -> {
             if (chatReady) {
@@ -296,14 +293,76 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         localCallPartner.setOnClickListener(v -> presenter.switchCamera());
         localCallPartner.setOnClickListener(v -> {
-            if (isVideoPaused)
+            if (isVideoPaused) {
                 presenter.resumeVideo();
-            else
+            } else {
                 presenter.pauseVideo();
+            }
 
             isVideoPaused = !isVideoPaused;
         });
+
+        buttonStartScreenShare.setOnClickListener(v -> {
+            scaleIt(v);
+            presenter.onShareScreenTouched();
+        });
+
+        buttonStartCallRecord.setOnClickListener(v -> {
+            scaleIt(v);
+            presenter.onRecordButtonTouched();
+        });
+
+
+        View.OnClickListener cllPartnersListener = this::swapMainCallPartner;
+//        remoteCallPartner1.setOnClickListener(cllPartnersListener);
+        remoteCallPartner2.setOnClickListener(cllPartnersListener);
+        remoteCallPartner3.setOnClickListener(cllPartnersListener);
+        remoteCallPartner4.setOnClickListener(cllPartnersListener);
     }
+
+    private void terminateCall() {
+        onCallEnded();
+
+
+        presenter.terminateCall();
+    }
+
+    private void swapMainCallPartner(View v) {
+
+        Boolean swapped = (Boolean) v.getTag();
+
+        if (swapped != null && swapped) {
+            animatePartnerViewDown(v);
+        } else {
+            pushPartnerViewUp(v);
+        }
+
+    }
+
+    private void pushPartnerViewUp(View v) {
+        moveViewToHolder(v);
+    }
+
+    private void animatePartnerViewDown(View v) {
+        moveToChild(v);
+    }
+
+    private void moveViewToHolder(View v) {
+        v.setTag(true);
+        ViewGroup.LayoutParams vL = v.getLayoutParams();
+        vL.width = -1;
+        vL.height = -1;
+        v.setLayoutParams(vL);
+    }
+
+    private void moveToChild(View v) {
+        v.setTag(false);
+        ViewGroup.LayoutParams vL = v.getLayoutParams();
+        vL.width = 0;
+        vL.height = 0;
+        v.setLayoutParams(vL);
+    }
+
 
     private void toggleSpeaker(ImageButton v) {
 
@@ -416,8 +475,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         recyclerViewHistory = findViewById(R.id.recyclerViewHistories);
 
 
-        buttonAddCallParticipant = findViewById(R.id.btnAddCallParticipant);
-        buttonRemoveCallParticipant = findViewById(R.id.btnRemoveCallParticipant);
+        buttonAddCallParticipant = findViewById(R.id.buttonAddPartner);
 
         tvStatus = findViewById(R.id.tvStatus);
         tvCallerName = findViewById(R.id.tvCallerName);
@@ -430,8 +488,10 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         buttonAcceptCall = findViewById(R.id.buttonAccept);
         buttonRejectCall = findViewById(R.id.buttonReject);
         buttonEndCall = findViewById(R.id.buttonEndCall);
-        buttonTerminateCall = findViewById(R.id.btnTerminateCall);
         buttonStartCallById = findViewById(R.id.btnSandboxCall);
+
+        buttonStartScreenShare = findViewById(R.id.buttonScreenShare);
+        buttonStartCallRecord = findViewById(R.id.buttonStartRecord);
 
 
         buttonMute = findViewById(R.id.buttonMute);
@@ -452,19 +512,19 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         remoteCallPartner3 = findViewById(R.id.remotePartnerView3);
         remoteCallPartner4 = findViewById(R.id.remotePartnerView4);
 
-
-        List<CallPartnerView> views = new ArrayList<>();
-
-        views.add(remoteCallPartner1);
-        views.add(remoteCallPartner2);
-        views.add(remoteCallPartner3);
-        views.add(remoteCallPartner4);
+        constraintHolder = findViewById(R.id.constraintHolder);
+//        constraintChild = findViewById(R.id.constraintChild);
 
 
         if (!CallPermissionHandler.needCameraAndRecordPermission(this)) {
+            List<CallPartnerView> views = new ArrayList<>();
+            views.add(remoteCallPartner1);
+            views.add(remoteCallPartner2);
+            views.add(remoteCallPartner3);
+            views.add(remoteCallPartner4);
             presenter.setupVideoCallParam(localCallPartner, views);
         } else {
-            CallPermissionHandler.requestPermission(this, 101);
+            CallPermissionHandler.requestPermission(this, CALL_PERMISSION_REQUEST_CODE);
         }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -477,6 +537,25 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             presenter.setCallInfo(callInfo);
             showInCallView();
         }
+    }
+
+    private void runTestCode() {
+
+        inCallView.setVisibility(View.VISIBLE);
+        fabContacts.hide();
+
+//        remoteCallPartner4.setVisibility(View.VISIBLE);
+//        remoteCallPartner1.setVisibility(View.VISIBLE);
+//        remoteCallPartner3.setVisibility(View.VISIBLE);
+//        remoteCallPartner2.setVisibility(View.VISIBLE);
+
+//        new Handler().postDelayed(() -> {
+//            ViewGroup.LayoutParams p = localCallPartner.getLayoutParams();
+//            p.width += (p.width * 100) / 100;
+//            p.height += (p.height * 100) / 100;
+//            localCallPartner.setLayoutParams(p);
+//        }, 20000);
+
     }
 
     @Override
@@ -760,6 +839,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             connectToSandbox(token);
         else if (serverType == ServerType.MAIN)
             connectToMainServer(token);
+        else if (serverType == ServerType.INTEGRATION) {
+            connect();
+        }
 
         runOnUiThread(() -> {
             Toast.makeText(this, "Connected to " + serverType.toString(), Toast.LENGTH_SHORT).show();
@@ -889,27 +971,40 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
     @Override
-    public void callParticipantMuted(CallParticipantVO participant) {
+    public void callParticipantMuted(CallParticipantVO participant, CallPartnerView partnerView) {
         showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " is muted now!");
+        runOnUiThread(()->{
+            if (partnerView != null)
+                partnerView.setDisplayIsMuteIcon(true);
+        });
     }
 
     @Override
-    public void callParticipantUnMuted(CallParticipantVO participant) {
+    public void callParticipantUnMuted(CallParticipantVO participant, CallPartnerView partnerView) {
         showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " Is unmuted now!");
-
+        runOnUiThread(()->{
+            if (partnerView != null)
+                partnerView.setDisplayIsMuteIcon(false);
+        });
     }
 
     @Override
     public void audioCallMutedByAdmin() {
         vibrate();
         showToast("Call creator muted you!");
+        if (localCallPartner != null) {
+            localCallPartner.setDisplayIsMuteIcon(true);
+        }
         updateMuteButton(true);
     }
 
     @Override
     public void audioCallUnMutedByAdmin() {
         vibrate();
-        showToast("Call creator unmuted you!");
+        showToast("Call creator UnMuted you!");
+        if (localCallPartner != null) {
+            localCallPartner.setDisplayIsMuteIcon(true);
+        }
         updateMuteButton(false);
     }
 
@@ -1014,11 +1109,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @Override
     protected void onPause() {
-        presenter.rejectIncomingCall();
-        onCallEnded();
         cancelVib();
         stopRingtone();
-        presenter.onStop();
+        presenter.onActivityPaused();
         super.onPause();
     }
 
@@ -1064,11 +1157,23 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @Override
     public void onContactsSelected(ContactsWrapper contact) {
+        presenter.onContactSelected(contact);
+    }
 
+    @Override
+    public void showFabContact() {
+        fabContacts.show();
+    }
 
+    @Override
+    public void updateTvCallee(String txt) {
+        tvCalleeName.setText(txt);
+    }
+
+    @Override
+    public void hideContactsFragment() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
-            fabContacts.show();
             Fragment f = getSupportFragmentManager().findFragmentByTag("CFRAG");
 
             if (f != null) {
@@ -1078,11 +1183,91 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
                         .commit();
             }
         }
+    }
+
+    @Override
+    public void onScreenIsSharing() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Sharing Started", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onScreenShareEnded() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Sharing Screen Stopped", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onCallParticipantSharedScreen() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Participant start sharing screen", Toast.LENGTH_SHORT).show();
+//            int width = remoteCallPartner1.getLayoutParams().width;
+//            remoteCallPartner1.getLayoutParams().width = width - ((width * 50) / 100);
+//            remoteCallPartner1.animate().translationX(-250f);
+//            remoteCallPartner2.setVisibility(View.VISIBLE);
+//            remoteCallPartner2.getLayoutParams().width = remoteCallPartner2.getLayoutParams().width - ((remoteCallPartner2.getLayoutParams().width * 50) / 100);
+        });
+    }
+
+    @Override
+    public void onCallParticipantStoppedScreenSharing() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Participant Stopped sharing", Toast.LENGTH_SHORT).show();
+//            DisplayMetrics met = this.getResources().getDisplayMetrics();
+//            remoteCallPartner1.getLayoutParams().width = met.widthPixels;
+//            remoteCallPartner1.getLayoutParams().height = met.heightPixels / 3;
+            remoteCallPartner2.animate().scaleX(0.0f)
+                    .scaleY(0.0f)
+                    .setInterpolator(new BounceInterpolator())
+                    .setDuration(250)
+                    .withEndAction(() -> {
+                        remoteCallPartner2.setVisibility(View.GONE);
+                    });
+        });
+    }
 
 
-        tvCalleeName.setText("Calling " + contact.getFirstName() + " " + contact.getLastName());
-        presenter.requestP2PCallWithContactId((int) contact.getId());
+    @Override
+    public void onCallRecordingStarted() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Recording Started", Toast.LENGTH_SHORT).show();
+            liveAnim(buttonStartCallRecord);
+        });
+    }
 
+    private void liveAnim(View v) {
+        v.animate()
+                .scaleX(0.7f)
+                .scaleY(0.7f)
+                .setDuration(250)
+                .withEndAction(() -> {
+                    v.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(250)
+                            .start();
+                    if (v.isActivated())
+                        liveAnim(v);
+                }).start();
+    }
+
+    @Override
+    public void onCallRecordingStopped() {
+        showToast("Call Recording Stopped...");
+        buttonStartCallRecord.setActivated(false);
+
+    }
+
+    @Override
+    public void onParticipantStartedRecordingCall(String name) {
+        showToast(name + " Started Recording Call");
+    }
+
+    @Override
+    public void onParticipantStoppedRecordingCall(String name) {
+        showToast(name + " Stopped Recording Call");
     }
 
     @Override
@@ -1099,13 +1284,18 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
     @Override
+    public void showMessage(String msg) {
+        showToast(msg);
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) || (keyCode == KeyEvent.KEYCODE_VOLUME_UP) || keyCode==KeyEvent.KEYCODE_POWER) {
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) || (keyCode == KeyEvent.KEYCODE_VOLUME_UP) || keyCode == KeyEvent.KEYCODE_POWER) {
 
-            if(!stopRingtone()){
+            if (!stopRingtone()) {
                 return super.onKeyDown(keyCode, event);
-            }else{
+            } else {
                 cancelVib();
                 return true;
             }
@@ -1114,4 +1304,20 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CALL_PERMISSION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                List<CallPartnerView> views = new ArrayList<>();
+                views.add(remoteCallPartner1);
+                views.add(remoteCallPartner2);
+                views.add(remoteCallPartner3);
+                views.add(remoteCallPartner4);
+                presenter.setupVideoCallParam(localCallPartner, views);
+            }
+        } else if (presenter != null) {
+            presenter.handleActivityResult(requestCode, resultCode, data);
+        }
+    }
 }

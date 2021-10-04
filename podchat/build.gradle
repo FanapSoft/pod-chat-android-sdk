@@ -5,7 +5,7 @@ apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.11.0'
+    libraryVersion = '0.9.12.0'
 }
 android {
 
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 171
+        versionCode 175
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -26,7 +26,7 @@ android {
         debug {
             consumerProguardFile 'proguard-rules.pro'
         }
-        podChatPublishing {
+        publish {
             consumerProguardFile 'proguard-rules.pro'
         }
     }
@@ -91,15 +91,11 @@ dependencies {
 
 
     //call
-    List<String> runTasks = gradle.startParameter.getTaskNames();
+    debugApi project(path: ':podcall')
+    publishEmbed project(path: ':podcall')
+    releaseEmbed project(path: ':podcall')
 
-    for (String item : runTasks) {
-        if (item.contains("assembleDebug")) {
-            api project(path: ':podcall')
-        } else {
-            embed project(path: ':podcall')
-        }
-    }
+
 
 }
 

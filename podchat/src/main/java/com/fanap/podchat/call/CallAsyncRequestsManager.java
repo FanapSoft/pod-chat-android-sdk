@@ -12,11 +12,15 @@ import com.fanap.podchat.call.model.SendClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
+import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
+import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
 import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
@@ -37,6 +41,7 @@ import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RemoveParticipantRequest;
@@ -373,6 +378,30 @@ public class CallAsyncRequestsManager {
         return a.toString();
     }
 
+    public static String createStartShareScreenMessage(ScreenShareRequest request, String uniqueId) {
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.START_SHARE_SCREEN);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(message);
+        return jsonObject.toString();
+    }
+
+    public static String createEndShareScreenMessage(EndShareScreenRequest request, String uniqueId) {
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.END_SHARE_SCREEN);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(message);
+        return jsonObject.toString();
+    }
+
     public static String createTurnOffVideoMessage(TurnCallParticipantVideoOffRequest request, String uniqueId) throws PodChatException {
 
         if (request.getCallId() <= 0)
@@ -486,6 +515,51 @@ public class CallAsyncRequestsManager {
 
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.END_CALL_REQUEST);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+
+    }
+
+    public static String createStartRecordCall(StartOrEndCallRecordRequest request, String uniqueId) {
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.START_RECORD_CALL);
+        message.setToken(CoreConfig.token);
+        message.setSubjectId(request.getCallId());
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+        JsonObject a = (JsonObject) App.getGson().toJsonTree(message);
+        return a.toString();
+
+
+    }
+
+    public static ChatResponse<Participant> handleStartedRecordCallResponse(ChatMessage chatMessage) {
+
+        ChatResponse<Participant> response = new ChatResponse<>();
+        Participant result = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<Participant>() {
+        }.getType());
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setCache(false);
+
+        return response;
+    }
+
+    public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId){
+
+        AsyncMessage message = new AsyncMessage();
+        message.setType(ChatMessageType.Constants.END_RECORD_CALL);
         message.setToken(CoreConfig.token);
         message.setSubjectId(request.getCallId());
         message.setTokenIssuer(CoreConfig.tokenIssuer);
@@ -763,6 +837,26 @@ public class CallAsyncRequestsManager {
 
     }
 
+    public static ChatResponse<ScreenShareResult> handleOnScreenShareStarted(ChatMessage chatMessage) {
+        ChatResponse<ScreenShareResult> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(chatMessage.getUniqueId());
+
+            response.setSubjectId(chatMessage.getSubjectId());
+
+            ScreenShareResult screenSharer = App.getGson().fromJson(chatMessage.getContent(), ScreenShareResult.class);
+
+            response.setResult(screenSharer);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+        return response;
+    }
+
+
     public static ChatResponse<JoinCallParticipantResult> handleOnParticipantJoined(ChatMessage chatMessage) {
         ChatResponse<JoinCallParticipantResult> response = null;
         try {
@@ -796,8 +890,22 @@ public class CallAsyncRequestsManager {
 
         ChatResponse<CallStartResult> response = new ChatResponse<>();
 
+        ArrayList<CallParticipantVO> callPartners = new ArrayList<>();
+
+        if(Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())){
+            for (ClientDTO client :
+                    callResponse.getResult().getOtherClientDtoList()) {
+                CallParticipantVO partner = new CallParticipantVO();
+                partner.setUserId(client.getUserId());
+                partner.setMute(client.getMute());
+                partner.setVideo(client.getVideo());
+
+                callPartners.add(partner);
+            }
+        }
+
         CallStartResult result = new CallStartResult(callResponse.getResult().getCallName(),
-                callResponse.getResult().getCallImage());
+                callResponse.getResult().getCallImage(),callPartners);
 
         response.setResult(result);
         response.setSubjectId(callResponse.getSubjectId());

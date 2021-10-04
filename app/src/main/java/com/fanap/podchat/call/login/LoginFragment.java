@@ -137,7 +137,7 @@ public class LoginFragment extends Fragment {
 
         TokenModel tokenModel = new TokenModel("Farhad Kheirkhah", Objects.requireNonNull(getContext()).getResources().getString(R.string.Farhad_Kheirkhah));
         tokenModels.add(tokenModel);
-        tokenModel = new TokenModel("Masoud Amjadi", Objects.requireNonNull(getContext()).getResources().getString(R.string.Farhad_Kheirkhah));
+        tokenModel = new TokenModel("Masoud Amjadi", Objects.requireNonNull(getContext()).getResources().getString(R.string.Masoud_Amjadi));
         tokenModels.add(tokenModel);
 
         TokensAdaptor adaptor = new TokensAdaptor(tokenModels, view.getContext(), new TokensAdaptor.ITokenInterface() {

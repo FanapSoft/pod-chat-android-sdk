@@ -4,10 +4,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.net.Uri;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +16,9 @@ import android.widget.Toast;
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podcall.audio.AudioCallParam;
 import com.fanap.podcall.model.VideoCallParam;
+import com.fanap.podcall.screenshare.model.ScreenShareParam;
 import com.fanap.podcall.video.codec.VideoCodecType;
 import com.fanap.podcall.view.CallPartnerView;
-import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
@@ -32,7 +32,12 @@ import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
+import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRequest;
+import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
+import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
@@ -48,118 +53,36 @@ import com.fanap.podchat.call.result_model.RemoveFromCallResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.chat.assistant.model.AssistantVo;
-import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
-import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
-import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
-import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
-import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
-import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
-import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
-import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
-import com.fanap.podchat.chat.bot.result_model.StartStopBotResult;
-import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
-import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
-import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.request.StatusPingRequest;
-import com.fanap.podchat.chat.ping.result.StatusPingResult;
-import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
-import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
-import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
-import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
-import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
-import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
-import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
-import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
-import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.RequestSearchContact;
-import com.fanap.podchat.mainmodel.ResultDeleteMessage;
-import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
-import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutputSignalMessage;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultAddParticipant;
-import com.fanap.podchat.model.ResultBlock;
-import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultClearHistory;
 import com.fanap.podchat.model.ResultContact;
-import com.fanap.podchat.model.ResultFile;
-import com.fanap.podchat.model.ResultHistory;
-import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
-import com.fanap.podchat.model.ResultMessage;
-import com.fanap.podchat.model.ResultMute;
 import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultParticipant;
-import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.ResultSetAdmin;
-import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThread;
-import com.fanap.podchat.model.ResultThreads;
-import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.requestobject.RemoveParticipantRequest;
-import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
-import com.fanap.podchat.requestobject.RequestBlockList;
-import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
-import com.fanap.podchat.requestobject.RequestCreateThread;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestDeleteMessage;
-import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
-import com.fanap.podchat.requestobject.RequestEditMessage;
-import com.fanap.podchat.requestobject.RequestFileMessage;
-import com.fanap.podchat.requestobject.RequestForwardMessage;
-import com.fanap.podchat.requestobject.RequestGetAdmin;
 import com.fanap.podchat.requestobject.RequestGetContact;
-import com.fanap.podchat.requestobject.RequestGetFile;
-import com.fanap.podchat.requestobject.RequestGetHistory;
-import com.fanap.podchat.requestobject.RequestGetImage;
-import com.fanap.podchat.requestobject.RequestGetLastSeens;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.requestobject.RequestLocationMessage;
-import com.fanap.podchat.requestobject.RequestMapReverse;
-import com.fanap.podchat.requestobject.RequestMapStaticImage;
-import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.requestobject.RequestReplyFileMessage;
-import com.fanap.podchat.requestobject.RequestReplyMessage;
-import com.fanap.podchat.requestobject.RequestSeenMessageList;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
-import com.fanap.podchat.requestobject.RequestSetAuditor;
-import com.fanap.podchat.requestobject.RequestSignalMsg;
-import com.fanap.podchat.requestobject.RequestSpam;
-import com.fanap.podchat.requestobject.RequestThread;
-import com.fanap.podchat.requestobject.RequestThreadInfo;
-import com.fanap.podchat.requestobject.RequestThreadParticipant;
-import com.fanap.podchat.requestobject.RequestUnBlock;
-import com.fanap.podchat.requestobject.RequestUpdateContact;
-import com.fanap.podchat.requestobject.RequestUploadFile;
-import com.fanap.podchat.requestobject.RequestUploadImage;
-import com.fanap.podchat.requestobject.RetryUpload;
-import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
-import com.fanap.podchat.util.RequestMapSearch;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
@@ -177,6 +100,8 @@ import static com.example.chat.application.chatexample.CallActivity.Pooria_ID;
 public class CallPresenter extends ChatAdapter implements CallContract.presenter, Application.ActivityLifecycleCallbacks {
 
     public static final int SIGNAL_INTERVAL_TIME = 1000;
+    public static final int BASE_CALL_TYPE = CallType.Constants.VIDEO_CALL;
+    private final int SHARE_SCREEN_PERMISSION_CODE = 107;
     private static final String TAG = "CHAT_SDK_PRESENTER";
     private final Enum<ServerType> serverType;
     private Chat chat;
@@ -197,6 +122,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private boolean speakerOn = false;
     private boolean isMute = false;
     private boolean isInCall;
+    private boolean isScreenIsSharing;
+    private boolean isCallRecording;
     private List<CallPartnerView> remotePartnersViews;
     private CallPartnerView cameraPreview;
 
@@ -311,7 +238,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 .setNumberOfChannels(2)
                 .build();
 
-        chat.setupCall(videoCallParam, audioCallParam, callConfig, remoteViews);
+        ScreenShareParam screenShareParam = new ScreenShareParam.Builder()
+                .setLowQuality()
+                .build();
+
+        chat.setupCall(videoCallParam, audioCallParam, screenShareParam, callConfig, remoteViews);
 
     }
 
@@ -327,6 +258,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void resumeVideo() {
+        chat.openCamera();
         chat.turnOnVideo(callVO != null ? callVO.getCallId() : 0);
     }
 
@@ -369,6 +301,68 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
     @Override
+    public void onContactSelected(ContactsWrapper contact) {
+        view.hideContactsFragment();
+
+        if (isInCall) {
+            inviteCallParticipant(contact);
+        } else {
+            view.updateTvCallee("Calling " + contact.getFirstName() + " " + contact.getLastName());
+            view.showFabContact();
+            requestP2PCallWithContactId((int) contact.getId());
+        }
+
+
+    }
+
+    private void inviteCallParticipant(ContactsWrapper contact) {
+
+        view.showMessage("Call request sent to " + contact.getFirstName() + " " + contact.getLastName() + " " + contact.getCellphoneNumber());
+        RequestAddParticipants request = RequestAddParticipants.newBuilder()
+                .threadId(callVO.getThreadId())
+                .withContactId(contact.getId())
+                .build();
+        callUniqueIds.add(chat.addGroupCallParticipant(request));
+    }
+
+    @Override
+    public void onShareScreenTouched() {
+        if (isScreenIsSharing) {
+            EndShareScreenRequest request =
+                    new EndShareScreenRequest.Builder(callVO.getCallId())
+                            .build();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                isScreenIsSharing = false;
+                chat.endShareScreen(request);
+
+            }
+        } else if (isInCall) {
+            ScreenSharePermissionRequest permissionRequest
+                    = new ScreenSharePermissionRequest.Builder(activity)
+                    .setPermissionCode(SHARE_SCREEN_PERMISSION_CODE)
+                    .build();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                chat.requestScreenSharePermission(permissionRequest);
+            }
+
+        }
+    }
+
+    private void onShareScreenPermissionGranted(Intent data) {
+
+        ScreenShareRequest request = new ScreenShareRequest
+                .Builder(data, callVO.getCallId())
+                .build();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            isScreenIsSharing = true;
+            chat.startShareScreen(request);
+        }
+
+    }
+
+    @Override
     public void getContact(RequestGetContact request) {
 
         chat.getContacts(request, null);
@@ -389,7 +383,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
                 callVO.getCallId());
 
-        if (true) {
+
+        if (callVO.getType() == CallType.Constants.VIDEO_CALL) {
             request.withVideo();
 
             showVideoViews();
@@ -831,13 +826,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private void showVideoViews() {
         activity.runOnUiThread(() -> {
             try {
-                if (cameraPreview != null) {
-                    cameraPreview.setVisibility(View.VISIBLE);
-                    remotePartnersViews.get(0).setVisibility(View.VISIBLE);
-                    defaultCameraPreviewLayoutParams = cameraPreview.getLayoutParams();
+//                if (cameraPreview != null) {
+//                    cameraPreview.setVisibility(View.VISIBLE);
+//                    remotePartnersViews.get(0).setVisibility(View.VISIBLE);
+//                    defaultCameraPreviewLayoutParams = cameraPreview.getLayoutParams();
 //                    ViewGroup.LayoutParams lp = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
 //                    callLocalView.setLayoutParams(lp);
-                }
+//                }
                 chat.setPartnerViews(remotePartnersViews);
                 chat.openCamera();
             } catch (Exception e) {
@@ -849,13 +844,14 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private void hideVideoViews() {
         activity.runOnUiThread(() -> {
             try {
-                if (cameraPreview != null) {
-                    cameraPreview.setVisibility(View.INVISIBLE);
-                }
+//                if (cameraPreview != null) {
+//                    cameraPreview.setVisibility(View.INVISIBLE);
+//                }
                 if (remotePartnersViews != null)
                     for (CallPartnerView partnerView :
                             remotePartnersViews) {
-                        partnerView.setVisibility(View.INVISIBLE);
+                        partnerView.setVisibility(View.GONE);
+                        partnerView.reset();
                     }
                 chat.closeCamera();
             } catch (Exception e) {
@@ -868,20 +864,20 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onVoiceCallStarted(ChatResponse<CallStartResult> response) {
 
         isInCall = true;
-
-        activity.runOnUiThread(() -> {
-            if (cameraPreview != null) {
-
-//                cameraPreview.setLayoutParams(defaultCameraPreviewLayoutParams);
-
-                cameraPreview.getSurfaceView().setZOrderOnTop(true);
-                cameraPreview.getSurfaceView().setZOrderMediaOverlay(true);
-
-                remotePartnersViews.get(0).setVisibility(View.VISIBLE);
-                remotePartnersViews.get(0).getSurfaceView().setZOrderOnTop(false);
-                remotePartnersViews.get(0).getSurfaceView().setZOrderMediaOverlay(false);
-            }
-        });
+//
+//        activity.runOnUiThread(() -> {
+//            if (cameraPreview != null) {
+//
+////                cameraPreview.setLayoutParams(defaultCameraPreviewLayoutParams);
+//
+//                cameraPreview.getSurfaceView().setZOrderOnTop(true);
+//                cameraPreview.getSurfaceView().setZOrderMediaOverlay(true);
+//
+//                remotePartnersViews.get(0).setVisibility(View.VISIBLE);
+//                remotePartnersViews.get(0).getSurfaceView().setZOrderOnTop(false);
+//                remotePartnersViews.get(0).getSurfaceView().setZOrderMediaOverlay(false);
+//            }
+//        });
 
         view.onVoiceCallStarted(" " + response.getUniqueId(), "");
 
@@ -891,6 +887,16 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
 
         isInCall = false;
+        if (isScreenIsSharing) {
+            EndShareScreenRequest endShareReq =
+                    new EndShareScreenRequest.Builder(response.getResult().getCallId())
+                            .build();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                chat.endShareScreen(endShareReq);
+                isScreenIsSharing = false;
+            }
+        }
+
 
         hideVideoViews();
 
@@ -994,6 +1000,16 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 String uniqueId = chat.endAudioCall(endCallRequest);
                 callUniqueIds.add(uniqueId);
 
+                if (isScreenIsSharing) {
+                    EndShareScreenRequest request =
+                            new EndShareScreenRequest.Builder(callVO.getCallId())
+                                    .build();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        isScreenIsSharing = false;
+                        chat.endShareScreen(request);
+                    }
+                }
+
             }
 
         } else {
@@ -1024,7 +1040,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
         GetCallHistoryRequest request = new GetCallHistoryRequest.Builder()
-                .setType(CallType.Constants.VIDEO_CALL)
+                .setType(BASE_CALL_TYPE)
                 .count(50)
                 .build();
 
@@ -1103,7 +1119,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         CallRequest request = new CallRequest
 //                .Builder(invitees,CallType.Constants.VOICE_CALL)
-                .Builder(35311, CallType.Constants.VIDEO_CALL)
+                .Builder(35311, BASE_CALL_TYPE)
                 .build();
 
         showVideoViews();
@@ -1164,46 +1180,48 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     @Override
-    public void addCallParticipant(String username, boolean pooriaChecked, boolean masoudChecked, boolean farhadChecked) {
+    public void addCallParticipant() {
 
 
-        if (Util.isNotNullOrEmpty(username)) {
+        getContact();
 
-            if (username.contains(",")) {
-                String[] names = username.split(",");
-                RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                        .threadId(callVO.getThreadId())
-                        .withUserNames(names)
-                        .build();
-                callUniqueIds.add(chat.addGroupCallParticipant(request));
-            } else {
-                RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                        .threadId(callVO.getThreadId())
-                        .withUserNames(username)
-                        .build();
-                callUniqueIds.add(chat.addGroupCallParticipant(request));
-            }
-
-        } else {
-            List<Long> ids = new ArrayList<>();
-
-            if (pooriaChecked)
-                ids.add((long) Pooria_ID);
-            if (masoudChecked)
-                ids.add((long) Masoud_ID);
-            if (farhadChecked)
-                ids.add((long) Farhad_ID);
-
-            RequestAddParticipants request = RequestAddParticipants.newBuilder()
-                    .threadId(callVO.getThreadId())
-                    .withCoreUserIds(ids)
-                    .build();
-
-
-            callUniqueIds.add(chat.addGroupCallParticipant(request));
-
-
-        }
+//        if (Util.isNotNullOrEmpty(username)) {
+//
+//            if (username.contains(",")) {
+//                String[] names = username.split(",");
+//                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+//                        .threadId(callVO.getThreadId())
+//                        .withUserNames(names)
+//                        .build();
+//                callUniqueIds.add(chat.addGroupCallParticipant(request));
+//            } else {
+//                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+//                        .threadId(callVO.getThreadId())
+//                        .withUserNames(username)
+//                        .build();
+//                callUniqueIds.add(chat.addGroupCallParticipant(request));
+//            }
+//
+//        } else {
+//            List<Long> ids = new ArrayList<>();
+//
+//            if (pooriaChecked)
+//                ids.add((long) Pooria_ID);
+//            if (masoudChecked)
+//                ids.add((long) Masoud_ID);
+//            if (farhadChecked)
+//                ids.add((long) Farhad_ID);
+//
+//            RequestAddParticipants request = RequestAddParticipants.newBuilder()
+//                    .threadId(callVO.getThreadId())
+//                    .withCoreUserIds(ids)
+//                    .build();
+//
+//
+//            callUniqueIds.add(chat.addGroupCallParticipant(request));
+//
+//
+//        }
 
     }
 
@@ -1246,7 +1264,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                         //request with invitee list
                         CallRequest callRequest = new CallRequest.Builder(
                                 invitees,
-                                CallType.Constants.VIDEO_CALL).build();
+                                BASE_CALL_TYPE).build();
                         uniqueId = chat.requestCall(callRequest);
                         view.updateStatus("Request p2p call with: " + ids[0]);
 
@@ -1265,7 +1283,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
                         CallRequest callRequest = new CallRequest.Builder(
                                 invitees,
-                                CallType.Constants.VIDEO_CALL).build();
+                                BASE_CALL_TYPE).build();
                         uniqueId = chat.requestGroupCall(callRequest);
 
                         view.updateStatus("Request group call invitees: " + Arrays.toString(ids));
@@ -1277,7 +1295,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
                     CallRequest callRequest = new CallRequest.Builder(
                             Long.parseLong(query),
-                            CallType.Constants.VIDEO_CALL).build();
+                            BASE_CALL_TYPE).build();
                     if (isGroupCall) {
                         uniqueId = chat.requestGroupCall(callRequest);
                     } else {
@@ -1305,7 +1323,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         //request with threadId
         CallRequest callRequest = new CallRequest.Builder(
                 threadId,
-                CallType.Constants.VIDEO_CALL).build();
+                BASE_CALL_TYPE).build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
             showVideoViews();
@@ -1328,7 +1346,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         //request with invitee list
         CallRequest callRequest = new CallRequest.Builder(
                 invitees,
-                CallType.Constants.VIDEO_CALL).build();
+                BASE_CALL_TYPE).build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
             showVideoViews();
@@ -1356,7 +1374,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         //request with invitee list
         CallRequest callRequest = new CallRequest.Builder(
                 invitees,
-                CallType.Constants.VIDEO_CALL).build();
+                BASE_CALL_TYPE).build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
             showVideoViews();
@@ -1389,11 +1407,16 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         for (CallParticipantVO c :
                 response.getResult().getCallParticipants()) {
-
             view.onCallParticipantLeft(c.getParticipantVO().getFirstName() + " " + c.getParticipantVO().getLastName());
-
-
         }
+        try {
+            CallPartnerView pw = findParticipantView(response.getResult().getCallParticipants().get(0).getUserId());
+            if (pw != null)
+                chat.addPartnerView(pw);
+        } catch (Exception e) {
+            view.onError(e.getMessage());
+        }
+
 
     }
 
@@ -1449,7 +1472,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onCallParticipantUnMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
         for (CallParticipantVO participant :
                 response.getResult().getCallParticipants()) {
-            view.callParticipantUnMuted(participant);
+
+            Long userId = participant.getUserId();
+            CallPartnerView partnerView = null;
+            if (userId != null) {
+                partnerView = findParticipantView(userId);
+            }
+            view.callParticipantUnMuted(participant, partnerView);
         }
     }
 
@@ -1472,7 +1501,43 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onCallParticipantMuted(ChatResponse<MuteUnMuteCallParticipantResult> response) {
         for (CallParticipantVO participant :
                 response.getResult().getCallParticipants()) {
-            view.callParticipantMuted(participant);
+            Long userId = participant.getUserId();
+            CallPartnerView partnerView = null;
+            if (userId != null) {
+                partnerView = findParticipantView(userId);
+            }
+            view.callParticipantMuted(participant, partnerView);
+        }
+    }
+
+    private CallPartnerView findParticipantView(Long userId) {
+        CallPartnerView lpw = null;
+        for (CallPartnerView partnerView :
+                remotePartnersViews) {
+            if (partnerView.getPartnerId() != null && partnerView.getPartnerId().equals(userId))
+                lpw = partnerView;
+        }
+        return lpw;
+    }
+
+    @Override
+    public void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response) {
+        try {
+            CallPartnerView pw = findParticipantView(response.getResult().getJoinedParticipants().get(0).getUserId());
+            if (pw != null)
+                chat.addPartnerView(pw);
+        } catch (Exception e) {
+            view.onError(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response) {
+        try {
+            view.showMessage(response.getResult().getJoinedParticipants().get(0).getParticipantVO().getName() + " has video now!");
+        } catch (Exception e) {
+            view.onError(e.getMessage());
         }
     }
 
@@ -1487,4 +1552,84 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         view.hideCallRequest();
     }
 
+    @Override
+    public void onScreenShareStarted(ChatResponse<ScreenShareResult> response) {
+        view.onScreenIsSharing();
+    }
+
+    @Override
+    public void onScreenShareEnded(ChatResponse<ScreenShareResult> response) {
+        view.onScreenShareEnded();
+    }
+
+    @Override
+    public void onCallParticipantSharedScreen(ChatResponse<ScreenShareResult> response) {
+        view.onCallParticipantSharedScreen();
+    }
+
+    @Override
+    public void onCallParticipantStoppedScreenSharing(ChatResponse<ScreenShareResult> response) {
+        view.onCallParticipantStoppedScreenSharing();
+    }
+
+    @Override
+    public void onRecordButtonTouched() {
+
+        if (callVO != null && isInCall) {
+            StartOrEndCallRecordRequest request =
+                    new StartOrEndCallRecordRequest.Builder(callVO.getCallId())
+                            .build();
+
+            if (isCallRecording) {
+                chat.endCallRecord(request);
+            } else {
+                chat.startCallRecord(request);
+            }
+        }
+
+    }
+
+
+    @Override
+    public void onCallRecordStarted(ChatResponse<Participant> response) {
+        isCallRecording = true;
+        view.onCallRecordingStarted();
+    }
+
+    @Override
+    public void onCallRecordEnded(ChatResponse<Participant> response) {
+        isCallRecording = false;
+        view.onCallRecordingStopped();
+    }
+
+    @Override
+    public void onCallParticipantRecordStarted(ChatResponse<Participant> response) {
+        view.onParticipantStartedRecordingCall(" " + response.getResult().getFirstName() + " " + response.getResult().getLastName());
+    }
+
+    @Override
+    public void onCallParticipantRecordStopped(ChatResponse<Participant> response) {
+        view.onParticipantStoppedRecordingCall(" " + response.getResult().getFirstName() + " " + response.getResult().getLastName());
+    }
+
+
+    @Override
+    public void handleActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == SHARE_SCREEN_PERMISSION_CODE) {
+                onShareScreenPermissionGranted(data);
+            }
+        }
+
+    }
+
+    @Override
+    public void onActivityPaused() {
+//        if(isInCall){
+//
+//        }
+//        presenter.rejectIncomingCall();
+//        onCallEnded();
+    }
 }

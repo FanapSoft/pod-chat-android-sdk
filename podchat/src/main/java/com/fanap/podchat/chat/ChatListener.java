@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
@@ -30,6 +31,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
@@ -372,11 +374,21 @@ public interface ChatListener {
     default void OnTagParticipantAdded(String content, ChatResponse<TagParticipantResult> response){}
     default void OnTagParticipantRemoved(String content, ChatResponse<TagParticipantResult> response){}
     default void OnTagList(String content, ChatResponse<TagListResult> response){}
+    default void onGetMutualGroups(String content, ChatResponse<ResultThreads> thread){}
 
     default void onNoViewToAddNewParticipant(){}
 
     default void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response){}
 
     default void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response){}
-    default void onGetMutualGroups(String content, ChatResponse<ResultThreads> thread){}
+
+    default void onScreenShareStarted(ChatResponse<ScreenShareResult> response){}
+    default void onScreenShareEnded(ChatResponse<ScreenShareResult> response){}
+    default void onCallParticipantSharedScreen(ChatResponse<ScreenShareResult> response){}
+    default void onCallParticipantStoppedScreenSharing(ChatResponse<ScreenShareResult> response){}
+
+    default void onCallRecordStarted(ChatResponse<Participant> response){}
+    default void onCallRecordEnded(ChatResponse<Participant> response){}
+    default void onCallParticipantRecordStarted(ChatResponse<Participant> response){}
+    default void onCallParticipantRecordStopped(ChatResponse<Participant> response){}
 }
