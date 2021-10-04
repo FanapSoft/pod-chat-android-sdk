@@ -49,7 +49,9 @@ public class ChatConstant {
 
     public static final int ERROR_CODE_METHOD_NOT_IMPLEMENTED = 7000;
 
-    public static final int ERROR_CODE_INVALID_VIEW = 7100;
+    public static final int ERROR_CODE_CALL_INITIAL_ERROR = 7100;
+
+    public static final int ERROR_CODE_INVALID_VIEW = 7101;
 
 
 

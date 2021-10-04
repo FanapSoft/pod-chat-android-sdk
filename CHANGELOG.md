@@ -6,26 +6,56 @@
 All notable changes to this project will be documented here.
 
 
+## [Unreleased]
 
-## Version [-Add Version Here-] -
+### Added
 
-[Added] ```startShareScreen``` callback
+ ```startShareScreen``` callback
 
-[Added] ```onShareScreenStarted``` method
+ ```onShareScreenStarted``` method
 
-[Added] ```endShareScreen``` callback
+ ```endShareScreen``` callback
 
-[Added] ```onShareScreenEnded``` method
+ ```onShareScreenEnded``` method
 
-[Updated] ```Add  ChatDataDTO to  StartedCallModel```
+ ```startCallRecord``` method
 
-[Added] ```startCallRecord``` method
+ ```onCallRecordStarted``` callback
 
-[Added] ```onCallRecordStarted``` callback
+ ```endCallRecord``` method
 
-[Added] ```endCallRecord``` method
+ ```onCallRecordEnded``` callback
 
-[Added] ```onCallRecordEnded``` callback
+Share Screen and Call Record buttons to CallActivity UI
+
+### Changed
+
+CallActivity UI
+
+
+
+## [0.9.12.0] -2021-10-4
+
+### Added
+
+- partnerId to CallPartnerView
+
+- CallPartnerView.setDisplayCameraIsOffIcon
+
+- CallPartnerView.setDisplayIsMuteIcon
+
+- ArrayList<CallParticipantVO> to CallStartResult. only userId, mute and video fills in CallParticipantVO.
+
+
+### Fixed
+
+- VideoCall minor bugs
+
+### Changed
+
+- Improve group call
+
+- CallActivity UI
 
 
 

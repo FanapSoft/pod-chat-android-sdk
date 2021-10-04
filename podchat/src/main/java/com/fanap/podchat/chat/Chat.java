@@ -1034,7 +1034,6 @@ public class Chat extends AsyncAdapter {
         @ChatStateType.ChatSateConstant String currentChatState = state;
 
         chatState = currentChatState;
-        Log.e("chatstate", "onStateChanged: " + chatState);
         switch (currentChatState) {
             case OPEN:
                 retrySetToken = 1;
@@ -1914,6 +1913,7 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnGetMutualGroups(ChatMessage chatMessage) {
 
+        // TODO: 10/4/2021 Refactor this !!!
         if (sentryResponseLog) {
             showLog("ON GET MUTUAL GROUPS", gson.toJson(chatMessage));
         } else {
@@ -7142,7 +7142,7 @@ public class Chat extends AsyncAdapter {
         podVideoCall = new PodCallBuilder(mContext, new IPodCall() {
             @Override
             public void onError(String s) {
-                captureError(new PodChatException(s, 6012));
+                captureError(new PodChatException(s, ChatConstant.ERROR_CODE_CALL_INITIAL_ERROR));
             }
 
             @Override
@@ -7152,12 +7152,12 @@ public class Chat extends AsyncAdapter {
 
             @Override
             public void onCameraReady(PodCall podCall) {
-                showLog("Camera Call is ready");
+                showLog("Camera is ready");
             }
 
             @Override
             public void onCameraReady(PodCallV2 podCallV2) {
-                showLog("Camera Call is ready");
+                showLog("Camera is ready");
             }
         })
                 .setVideoCallParam(videoCallParam)
