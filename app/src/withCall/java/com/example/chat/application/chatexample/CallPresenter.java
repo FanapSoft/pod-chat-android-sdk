@@ -1410,7 +1410,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         try {
             CallPartnerView pw = findParticipantView(response.getResult().getCallParticipants().get(0).getUserId());
             if (pw != null)
-                chat.addPartnerView(pw);
+                chat.addPartnerView(pw,0);
         } catch (Exception e) {
             view.onError(e.getMessage());
         }
@@ -1523,7 +1523,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         try {
             CallPartnerView pw = findParticipantView(response.getResult().getJoinedParticipants().get(0).getUserId());
             if (pw != null)
-                chat.addPartnerView(pw);
+                chat.addPartnerView(pw,0);
         } catch (Exception e) {
             view.onError(e.getMessage());
         }

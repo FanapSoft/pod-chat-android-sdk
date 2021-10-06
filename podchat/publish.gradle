@@ -2,7 +2,8 @@ apply plugin: 'maven-publish'
 
 def LIB_GROUP_ID = 'com.github.FanapSoft'
 def LIB_ARTIFACT_ID = 'podchat'
-def LIB_ARTIFACT_V = '0.9.12.0-beta1'
+def MAIN_VERSION = libraryVersion
+def LIGHT_VERSION = libraryVersionLight
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -94,6 +95,31 @@ tasks.register('publishToGithub'){
 
 
 }
+tasks.register('publishLightVersionToGithub'){
+
+    group 'publishing'
+
+    dependsOn tasks.preparePublishing
+    dependsOn tasks.publishWithoutCallPublicationToGithubPackagesRepository
+
+    tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
+    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
+
+
+}
+tasks.register('publishMainVersionToGithub'){
+
+    group 'publishing'
+
+    dependsOn tasks.preparePublishing
+    dependsOn tasks.publishWithCallPublicationToGithubPackagesRepository
+
+    tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
+    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
+
+
+}
+
 
 
 publishing {
@@ -114,45 +140,11 @@ publishing {
         }
     }
     publications {
-        podchat(MavenPublication) {
-            groupId LIB_GROUP_ID
-            artifactId LIB_ARTIFACT_ID
-            version libraryVersion
-            artifact("$buildDir/outputs/aar/podchat-release.aar")
-            artifact(sourceJar)
-
-            pom.withXml {
-                final dependenciesNode = asNode().appendNode('dependencies')
-                ext.addDependency = { Dependency dep, String scope ->
-                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
-                        return
-                    final dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dep.group)
-                    dependencyNode.appendNode('artifactId', dep.name)
-                    dependencyNode.appendNode('version', dep.version)
-                    dependencyNode.appendNode('scope', scope)
-                    if (!dep.transitive) {
-                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                        exclusionNode.appendNode('groupId', '*')
-                        exclusionNode.appendNode('artifactId', '*')
-                    } else if (!dep.properties.excludeRules.empty) {
-                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
-                        dep.properties.excludeRules.each { ExcludeRule rule ->
-                            exclusionNode.appendNode('groupId', rule.group ?: '*')
-                            exclusionNode.appendNode('artifactId', rule.module ?: '*')
-                        }
-                    }
-                }
-                configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
-                configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
-                configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
-            }
-        }
 
         withCall(MavenPublication){
             groupId LIB_GROUP_ID
             artifactId LIB_ARTIFACT_ID
-            version LIB_ARTIFACT_V
+            version MAIN_VERSION
             artifact("/publishArtifacts/podchat.aar")
 
             pom.withXml {
@@ -185,7 +177,7 @@ publishing {
         withoutCall(MavenPublication) {
             groupId LIB_GROUP_ID
             artifactId LIB_ARTIFACT_ID
-            version "$LIB_ARTIFACT_V-light"
+            version "$LIGHT_VERSION-light"
             artifact("/publishArtifacts/podchat-withoutCall.aar")
 
             pom.withXml {

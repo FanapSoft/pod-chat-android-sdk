@@ -662,6 +662,13 @@ public class Chat extends ChatCore {
         videoCallPartnerViews.add(view);
     }
 
+    public void addPartnerView(CallPartnerView view,int pos) {
+        if (Util.isNullOrEmpty(videoCallPartnerViews)) {
+            videoCallPartnerViews = new ArrayList<>();
+        }
+        videoCallPartnerViews.add(pos,view);
+    }
+
     public void addAllPartnerView(List<CallPartnerView> views) {
         if (Util.isNullOrEmpty(videoCallPartnerViews)) {
             videoCallPartnerViews = new ArrayList<>();
@@ -888,6 +895,7 @@ public class Chat extends ChatCore {
             }
 
             if (podVideoCall != null)
+                // FIXME: 10/4/2021 
                 podVideoCall.endCall();
 
             if (callServiceManager != null)

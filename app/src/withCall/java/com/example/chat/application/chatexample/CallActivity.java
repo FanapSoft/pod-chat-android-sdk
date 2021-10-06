@@ -145,6 +145,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 //    Group groupSandBoxViews, groupIntegartionViews;
 
 
+    boolean enableVibrate = false;
+    boolean enableRing = false;
     Vibrator vibrator;
     Ringtone ringtone;
 
@@ -392,36 +394,40 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
     private void vibrate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (enableVibrate) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
 
-        } else {
-            //deprecated in API 26
-            vibrator.vibrate(100);
+            } else {
+                //deprecated in API 26
+                vibrator.vibrate(100);
+            }
         }
     }
 
     private void vibrateE() {
+        if (enableVibrate) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createWaveform(VIB_PATTERN, 0));
 
-            vibrator.vibrate(VibrationEffect.createWaveform(VIB_PATTERN, 0));
-
-        } else {
-            //deprecated in API 26
-            vibrator.vibrate(VIB_PATTERN, 0);
+            } else {
+                //deprecated in API 26
+                vibrator.vibrate(VIB_PATTERN, 0);
+            }
         }
-
     }
 
     private void ring() {
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ringtone.setVolume(0.1f);
+        if(enableRing){
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                ringtone.setVolume(0.1f);
+            }
+            ringtone.play();
         }
-        ringtone.play();
     }
 
     private boolean stopRingtone() {
@@ -972,7 +978,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     public void callParticipantMuted(CallParticipantVO participant, CallPartnerView partnerView) {
         showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " is muted now!");
-        runOnUiThread(()->{
+        runOnUiThread(() -> {
             if (partnerView != null)
                 partnerView.setDisplayIsMuteIcon(true);
         });
@@ -981,7 +987,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     public void callParticipantUnMuted(CallParticipantVO participant, CallPartnerView partnerView) {
         showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " Is unmuted now!");
-        runOnUiThread(()->{
+        runOnUiThread(() -> {
             if (partnerView != null)
                 partnerView.setDisplayIsMuteIcon(false);
         });
