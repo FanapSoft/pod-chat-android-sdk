@@ -28,9 +28,15 @@ All notable changes to this project will be documented here.
 
 Share Screen and Call Record buttons to CallActivity UI
 
+ ```Chat.addPartnerView(CallPartnerView,int)```
+
 ### Changed
 
 CallActivity UI
+
+### Fixed
+
+fix audio call concurrent exception
 
 
 
