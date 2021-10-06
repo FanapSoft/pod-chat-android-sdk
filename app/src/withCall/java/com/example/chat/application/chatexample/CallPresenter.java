@@ -384,7 +384,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 callVO.getCallId());
 
 
-        if (callVO.getType() == BASE_CALL_TYPE) {
+        if (callVO.getType() == CallType.Constants.VIDEO_CALL) {
             request.withVideo();
 
             showVideoViews();

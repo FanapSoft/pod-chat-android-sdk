@@ -1353,9 +1353,6 @@ public class Chat extends ChatCore {
     public String turnOffVideo(long callId) {
         if (podVideoCall != null)
             podVideoCall.endVideo();
-//        if (podVideoCall != null)
-//            podVideoCall.endVideo();
-        // TODO: 10/3/2021 endVideo here and add local video on turOnVideo server response
 
         String uniqueId = generateUniqueId();
 
