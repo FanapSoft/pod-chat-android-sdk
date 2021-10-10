@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -276,7 +275,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1066,7 +1064,7 @@ public class ChatCore extends AsyncAdapter {
                 handleOnGroupCallRequestReceived(chatMessage);
                 break;
             case Constants.DELIVER_CALL_REQUEST:
-                handleOnCallRequestDelivered(chatMessage);
+                handleOnCallRequestDelivered(chatMessage, callback);
                 break;
             case Constants.REJECT_CALL:
                 handleOnCallRequestRejected(chatMessage);
@@ -1358,20 +1356,27 @@ public class ChatCore extends AsyncAdapter {
         }
     }
 
-     void handleOnEndedCallRecord(ChatMessage chatMessage, Callback callback) { }
+    void handleOnEndedCallRecord(ChatMessage chatMessage, Callback callback) {
+    }
 
-     void handleOnStartedCallRecord(ChatMessage chatMessage, Callback callback) { }
+    void handleOnStartedCallRecord(ChatMessage chatMessage, Callback callback) {
+    }
 
-     void handOnShareScreenEnded(ChatMessage chatMessage, Callback callback) { }
+    void handOnShareScreenEnded(ChatMessage chatMessage, Callback callback) {
+    }
 
-     void handOnShareScreenStarted(ChatMessage chatMessage, Callback callback) { }
+    void handOnShareScreenStarted(ChatMessage chatMessage, Callback callback) {
+    }
 
 
-    protected void handleOnCallParticipantCanceledCall(ChatMessage chatMessage) { }
+    protected void handleOnCallParticipantCanceledCall(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnCallParticipantUnMuted(Callback callback, ChatMessage chatMessage) {}
+    protected void handleOnCallParticipantUnMuted(Callback callback, ChatMessage chatMessage) {
+    }
 
-    protected void handleOnCallParticipantMuted(Callback callback, ChatMessage chatMessage) {}
+    protected void handleOnCallParticipantMuted(Callback callback, ChatMessage chatMessage) {
+    }
 
     private void handleOnThreadClosed(ChatMessage chatMessage) {
 
@@ -1928,37 +1933,55 @@ public class ChatCore extends AsyncAdapter {
     }
 
 
-    protected void handleOnCallRequestReceived(ChatMessage chatMessage) {}
+    protected void handleOnCallRequestReceived(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnGroupCallRequestReceived(ChatMessage chatMessage) {}
+    protected void handleOnGroupCallRequestReceived(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnCallRequestDelivered(ChatMessage chatMessage) {}
+    protected void handleOnCallRequestDelivered(ChatMessage chatMessage, Callback callback) {
+    }
 
-    protected void handleOnCallRequestRejected(ChatMessage chatMessage) {}
+    protected void handleOnCallRequestRejected(ChatMessage chatMessage) {
+    }
 
-     void handleOnCallStarted(Callback callback, ChatMessage chatMessage) { }
-     void visibleView(View view) {
+    void handleOnCallStarted(Callback callback, ChatMessage chatMessage) {
+    }
+
+    void visibleView(View view) {
         new Handler(context.getMainLooper())
                 .post(() -> {
                     if (view.getVisibility() != View.VISIBLE)
                         view.setVisibility(View.VISIBLE);
                 });
     }
-     void handleOnVoiceCallEnded(ChatMessage chatMessage) { }
-     void handleOnNewCallParticipantJoined(ChatMessage chatMessage) {
+
+    void handleOnVoiceCallEnded(ChatMessage chatMessage) {
     }
-     void handleOnCallParticipantRemovedVideo(ChatMessage chatMessage) { }
-     void handOnCallParticipantAddedVideo(ChatMessage chatMessage) {}
 
-    protected void handleOnCallParticipantLeft(ChatMessage chatMessage) { }
+    void handleOnNewCallParticipantJoined(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnCallParticipantRemoved(ChatMessage chatMessage) { }
+    void handleOnCallParticipantRemovedVideo(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {}
+    void handOnCallParticipantAddedVideo(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnReceivedCallReconnect(ChatMessage chatMessage) {}
+    protected void handleOnCallParticipantLeft(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnReceivedCallConnect(ChatMessage chatMessage) {}
+    protected void handleOnCallParticipantRemoved(ChatMessage chatMessage) {
+    }
+
+    protected void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
+    }
+
+    protected void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
+    }
+
+    protected void handleOnReceivedCallConnect(ChatMessage chatMessage) {
+    }
 
     /**
      * It Connects to the Async .
@@ -11690,11 +11713,13 @@ public class ChatCore extends AsyncAdapter {
         }
     }
 
-    protected void handleOnCallCreated(ChatMessage chatMessage) {}
+    protected void handleOnCallCreated(ChatMessage chatMessage) {
+    }
 
-    protected void handleOnReceiveActiveCallParticipants(Callback callback, ChatMessage chatMessage) {}
+    protected void handleOnReceiveActiveCallParticipants(Callback callback, ChatMessage chatMessage) {
+    }
 
-     void removeCallback(String uniqueId) {
+    void removeCallback(String uniqueId) {
         messageCallbacks.remove(uniqueId);
     }
 
@@ -13211,9 +13236,9 @@ public class ChatCore extends AsyncAdapter {
 
     @NonNull
     protected String captureError(String errorMessage,
-                                long errorCode,
-                                String uniqueId,
-                                Throwable throwable) {
+                                  long errorCode,
+                                  String uniqueId,
+                                  Throwable throwable) {
 
         ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode, uniqueId);
 

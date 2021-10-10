@@ -1548,6 +1548,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onAnotherDeviceAcceptedCall() {
         view.hideCallRequest();
+        view.showMessage("Call accepted from another device");
     }
 
     @Override

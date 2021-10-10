@@ -30,6 +30,8 @@ Share Screen and Call Record buttons to CallActivity UI
 
  ```Chat.addPartnerView(CallPartnerView,int)```
 
+Accept Call from another device handled
+
 ### Changed
 
 CallActivity UI

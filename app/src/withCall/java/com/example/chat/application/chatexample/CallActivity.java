@@ -45,6 +45,7 @@ import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.example.BuildConfig;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ChatResponse;
@@ -129,7 +130,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     Button buttonStartCallById;
 
-    TextView tvStatus, tvCallerName, tvHistory, tvCalleeName;
+    TextView tvStatus, tvCallerName, tvHistory, tvCalleeName, tvVersion;
 
     RadioGroup groupCaller;
     RadioGroup groupPartner;
@@ -486,6 +487,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         tvCallerName = findViewById(R.id.tvCallerName);
         tvCalleeName = findViewById(R.id.tvCalleeName);
         tvHistory = findViewById(R.id.tvHistory);
+        tvVersion = findViewById(R.id.tvVersion);
 
         callRequestView = findViewById(R.id.viewCallRequest);
         inCallView = findViewById(R.id.viewCall);
@@ -542,6 +544,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             presenter.setCallInfo(callInfo);
             showInCallView();
         }
+
+        tvVersion.setText("v"+BuildConfig.VERSION_NAME);
     }
 
     private void runTestCode() {
