@@ -1367,11 +1367,38 @@ public class Chat extends ChatCore {
             podVideoCall.closeCamera();
     }
 
+    @Deprecated
     public void switchCamera() {
         if (podVideoCall != null) {
             podVideoCall.switchCamera();
         }
     }
+
+    public boolean isFrontCamera(){
+        if(podVideoCall!=null){
+            return podVideoCall.isFrontCamera();
+        }
+        return false;
+    }
+
+    public void switchToFrontCamera(){
+        if(podVideoCall!=null){
+            podVideoCall.switchToFrontCamera();
+        }
+    }
+
+    public boolean isBackCamera(){
+       if(podVideoCall!=null){
+        return podVideoCall.isBackCamera();
+       }
+       return false;
+    }
+    public void switchToBackCamera(){
+        if(podVideoCall!=null){
+            podVideoCall.switchToBackCamera();
+        }
+    }
+
 
     public String turnOnVideo(long callId) {
 

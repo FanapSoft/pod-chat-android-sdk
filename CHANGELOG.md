@@ -30,15 +30,34 @@ Share Screen and Call Record buttons to CallActivity UI
 
  ```Chat.addPartnerView(CallPartnerView,int)```
 
-Accept Call from another device handled
+```onAnotherDeviceAcceptedCall``` callback
+
+```VideoCallParam.CameraId```
+
+```Chat.switchToFrontCamera```
+
+```Chat.switchToBackCamera```
+
+```Chat.isBackCamera```
+
+```Chat.isFrontCamera```
+
 
 ### Changed
 
-CallActivity UI
+- CallActivity UI
 
 ### Fixed
 
-fix audio call concurrent exception
+- Fix audio call concurrent exception
+
+- Fix back camera rotation 
+
+### Deprecated
+
+```Chat.switchCamera```
+
+## [0.9.13.0] ---
 
 
 
@@ -48,9 +67,13 @@ fix audio call concurrent exception
 
 - partnerId to CallPartnerView
 
-- CallPartnerView.setDisplayCameraIsOffIcon
+- CallPartnerView.setPartnerName(String partnerName)
 
-- CallPartnerView.setDisplayIsMuteIcon
+- CallPartnerView.setDisplayName(boolean displayName)
+
+- CallPartnerView.setDisplayCameraIsOffIcon(Boolean displayCameraIsOffIcon)
+
+- CallPartnerView.setDisplayIsMuteIcon(Boolean displayIsMuteIcon)
 
 - ArrayList<CallParticipantVO> to CallStartResult. only userId, mute and video fills in CallParticipantVO.
 

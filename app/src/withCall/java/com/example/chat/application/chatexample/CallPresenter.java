@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podcall.audio.AudioCallParam;
+import com.fanap.podcall.camera.CameraId;
 import com.fanap.podcall.model.VideoCallParam;
 import com.fanap.podcall.screenshare.model.ScreenShareParam;
 import com.fanap.podcall.video.codec.VideoCodecType;
@@ -127,6 +128,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private List<CallPartnerView> remotePartnersViews;
     private CallPartnerView cameraPreview;
 
+    private int cameraId = CameraId.FRONT;
+
     public CallPresenter(Context context, CallContract.view view, Activity activity, Enum<ServerType> serverType) {
 
 
@@ -229,6 +232,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                         .setCamFPS(15)
                         .setVideoCodecType(VideoCodecType.VIDEO_CODEC_VP8)
                         .setBitrate(90_000)
+                        .setCameraId(cameraId)
                         .build();
 
         AudioCallParam audioCallParam = new AudioCallParam.Builder()
@@ -248,7 +252,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void switchCamera() {
-        chat.switchCamera();
+        if (cameraId == CameraId.FRONT) {
+            chat.switchToBackCamera();
+            cameraId = CameraId.BACK;
+        } else if (cameraId == CameraId.BACK) {
+            chat.switchToFrontCamera();
+            cameraId = CameraId.FRONT;
+        }
     }
 
     @Override
@@ -1071,7 +1081,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 //                chat.requestMuteCallParticipant(request);
 //            else
 //                chat.requestUnMuteCallParticipant(request);
-            callUniqueIds.add(chat.switchCallMuteState(isMute, callVO.getCallId())) ;
+            callUniqueIds.add(chat.switchCallMuteState(isMute, callVO.getCallId()));
         } else {
             // send mute state in AcceptCallRequest
         }
@@ -1323,7 +1333,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 threadId,
                 BASE_CALL_TYPE).build();
 
-        if (callRequest.getCallType() ==BASE_CALL_TYPE) {
+        if (callRequest.getCallType() == BASE_CALL_TYPE) {
             showVideoViews();
         }
 
@@ -1410,7 +1420,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         try {
             CallPartnerView pw = findParticipantView(response.getResult().getCallParticipants().get(0).getUserId());
             if (pw != null)
-                chat.addPartnerView(pw,0);
+                chat.addPartnerView(pw, 0);
         } catch (Exception e) {
             view.onError(e.getMessage());
         }
@@ -1523,7 +1533,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         try {
             CallPartnerView pw = findParticipantView(response.getResult().getJoinedParticipants().get(0).getUserId());
             if (pw != null)
-                chat.addPartnerView(pw,0);
+                chat.addPartnerView(pw, 0);
         } catch (Exception e) {
             view.onError(e.getMessage());
         }

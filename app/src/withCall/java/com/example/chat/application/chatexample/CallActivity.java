@@ -136,7 +136,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     RadioGroup groupPartner;
     View callRequestView, inCallView;
     ConstraintLayout constraintHolder, constraintChild;
-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker, buttonStartScreenShare, buttonStartCallRecord, buttonAddCallParticipant;
+    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker, buttonStartScreenShare, buttonStartCallRecord, buttonAddCallParticipant,
+    imgBtnSwitchCamera;
     EditText etSandboxThreadId, etNewParticipantToAdd;
 
     FrameLayout frameLayout;
@@ -293,7 +294,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             presenter.getContact();
         });
 
-        localCallPartner.setOnClickListener(v -> presenter.switchCamera());
+        imgBtnSwitchCamera.setOnClickListener(v -> {
+            scaleIt(v);
+            presenter.switchCamera();
+        });
+
         localCallPartner.setOnClickListener(v -> {
             if (isVideoPaused) {
                 presenter.resumeVideo();
@@ -310,8 +315,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         });
 
         buttonStartCallRecord.setOnClickListener(v -> {
-            scaleIt(v);
-            presenter.onRecordButtonTouched();
+//            scaleIt(v);
+//            presenter.onRecordButtonTouched();
+            showToast("Not available yet!");
         });
 
 
@@ -504,6 +510,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         buttonMute = findViewById(R.id.buttonMute);
         buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
 
+        imgBtnSwitchCamera = findViewById(R.id.imgBtnSwitchCamera);
 
         etSandboxThreadId = findViewById(R.id.etSandBoxPartnerId);
         etNewParticipantToAdd = findViewById(R.id.etNewParticipant);

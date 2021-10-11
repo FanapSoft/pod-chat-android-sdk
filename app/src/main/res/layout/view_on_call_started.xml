@@ -118,13 +118,14 @@
 
     <ImageButton
         android:id="@+id/buttonStartRecord"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:alpha="0.6"
-        android:background="@drawable/rounded_white"
-        app:layout_constraintBottom_toTopOf="@+id/buttonEndCall"
-        app:layout_constraintEnd_toStartOf="@+id/buttonEndCall"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:alpha="0.3"
+        android:layout_margin="8dp"
+        android:visibility="visible"
+        android:background="@android:color/transparent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonAddPartner"
         app:srcCompat="@drawable/ic_start_record_call" />
 
     <ImageButton
@@ -141,27 +142,36 @@
 
     <ImageButton
         android:id="@+id/buttonScreenShare"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:alpha="0.3"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:alpha="0.6"
+        android:layout_margin="8dp"
         android:background="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/buttonEndCall"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonEndCall"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvCalleeName"
         app:srcCompat="@drawable/ic_mobile_screen_share" />
 
     <ImageButton
         android:id="@+id/buttonAddPartner"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:alpha="0.3"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:alpha="0.6"
+        android:layout_margin="8dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonScreenShare"
+        app:srcCompat="@drawable/ic_partner_add" />
+
+    <ImageButton
+        android:id="@+id/imgBtnSwitchCamera"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/buttonEndCall"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvCalleeName"
-        app:srcCompat="@drawable/ic_partner_add" />
+        app:layout_constraintEnd_toEndOf="@+id/buttonEndCall"
+        app:layout_constraintStart_toStartOf="@+id/buttonEndCall"
+        app:srcCompat="@drawable/ic_cameraswitch" />
 
     <com.fanap.podcall.view.CallPartnerView
         android:id="@+id/localPartnerCameraView"
@@ -220,21 +230,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9" />
+        app:layout_constraintGuide_percent="0.9015048" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.40" />
+        app:layout_constraintGuide_percent="0.30" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.60" />
+        app:layout_constraintGuide_percent="0.50" />
 
 
 </android.support.constraint.ConstraintLayout>
