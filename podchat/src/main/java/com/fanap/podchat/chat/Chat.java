@@ -1024,7 +1024,7 @@ public class Chat extends AsyncAdapter {
         @ChatStateType.ChatSateConstant String currentChatState = state;
 
         chatState = currentChatState;
-        Log.e("chatstate", "onStateChanged: "+ chatState);
+      
         switch (currentChatState) {
             case OPEN:
                 retrySetToken = 1;
@@ -1839,7 +1839,6 @@ public class Chat extends AsyncAdapter {
 
         if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.deleteCacheAssistantVos(response.getResult());
-            Log.e(TAG, "handleOnDeActiveAssistant:");
         }
 
         listenerManager.callOnDeActiveAssistant(response);
@@ -1902,9 +1901,9 @@ public class Chat extends AsyncAdapter {
         } else {
             showLog("ON GET MUTUAL GROUPS");
         }
-        long UserId=0;
+        long UserId = 0;
         if (hashTagCallBacks.get(chatMessage.getUniqueId()) != null) {
-            UserId =Long.parseLong(hashTagCallBacks.get(chatMessage.getUniqueId()));
+            UserId = Long.parseLong(hashTagCallBacks.get(chatMessage.getUniqueId()));
             hashTagCallBacks.remove(chatMessage.getUniqueId());
         }
         ChatResponse<ResultThreads> chatResponse = reformatGetThreadsResponseForMutual(chatMessage, UserId);
@@ -3373,9 +3372,9 @@ public class Chat extends AsyncAdapter {
     public String getMutualGroup(GetMutualGroupRequest request) {
 
         String uniqueId = generateUniqueId();
-        Long offset =(long) request.getOffset();
+        Long offset = (long) request.getOffset();
         String ContactId = request.getUser().getId();
-        Integer count = (int)request.getCount();
+        Integer count = (int) request.getCount();
         boolean useCache = request.useCacheData();
         count = count != null && count > 0 ? count : 50;
 
@@ -3436,6 +3435,7 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
     /**
      * @param request You can add someone as assistant
      */
@@ -6853,8 +6853,6 @@ public class Chat extends AsyncAdapter {
     }
 
 
-
-
     /**
      * clearCacheDatabase interface
      * <p>
@@ -7812,7 +7810,7 @@ public class Chat extends AsyncAdapter {
                                     loadFromCache[0] = false;
                                 }
 
-                                if(MessageManager.hasGap(messagesFromCache)){
+                                if (MessageManager.hasGap(messagesFromCache)) {
                                     loadFromCache[0] = false;
                                 }
 
@@ -8214,7 +8212,7 @@ public class Chat extends AsyncAdapter {
         return new ArrayList<>(editedMessages);
     }
 
-    public String searchInThreads(ListMessageCriteriaVO request, ChatHandler handler){
+    public String searchInThreads(ListMessageCriteriaVO request, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
         if (chatReady) {
@@ -8229,6 +8227,7 @@ public class Chat extends AsyncAdapter {
         }
         return uniqueId;
     }
+
     /**
      * Gets history of the thread
      * <p>
@@ -8633,7 +8632,7 @@ public class Chat extends AsyncAdapter {
      */
     @Deprecated
     public String getContacts(Integer count, Long offset, ChatHandler handler) {
-        return getContactMain(count, offset,null, false, typeCode, true, handler);
+        return getContactMain(count, offset, null, false, typeCode, true, handler);
     }
 
 
@@ -14173,12 +14172,10 @@ public class Chat extends AsyncAdapter {
     private void handleOnGetSearchResult(Callback callback, ChatMessage chatMessage) {
 
         List<MessageVO> messageVOS = Mention.getMessageVOSFromChatMessage(chatMessage);
-        String response = new Gson().toJson(messageVOS);
+
         if (cache) {
-
-
+            splitHistoryPerThreadForSearch(messageVOS);
         }
-
 
         publishSearchHistoryServerResult(callback, chatMessage, messageVOS);
     }
@@ -14263,6 +14260,7 @@ public class Chat extends AsyncAdapter {
 
 
     }
+
     private void publishSearchHistoryServerResult(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {
 
         ResultHistory resultHistory = new ResultHistory();
@@ -14312,23 +14310,32 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    private void splitHistoryPerThreadForSearch(Callback callback, ChatMessage chatMessage, List<MessageVO> messageVOS) {
+    private void splitHistoryPerThreadForSearch(List<MessageVO> messageVOS) {
+        if (messageVOS.size() > 0) {
+            long threadId = messageVOS.get(0).getConversation().getId();
+            List<MessageVO> messageVosPerThread = new ArrayList<>();
 
+            // find meessage per thread
+            for (MessageVO message : messageVOS) {
+                long tId = message.getConversation().getId();
+                if (tId == threadId) {
+                    messageVosPerThread.add(message);
+                }
+            }
+            //update messages
 
+            updateThreadHistoryCacheForSearch(threadId, messageVosPerThread);
+            messageVOS.removeAll(messageVosPerThread);
+            if (messageVOS.size() > 0)
+                splitHistoryPerThreadForSearch(messageVOS);
+        }
     }
 
-    private void updateThreadHistoryCacheForSearch(Callback callback, ChatMessage chatMessage,long threadId, List<MessageVO> messageVOS){
-
-        List<CacheMessageVO> cMessageVOS = gson.fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CacheMessageVO>>() {
-        }.getType());
-
+    private void updateThreadHistoryCacheForSearch(long threadId, List<MessageVO> messageVOS) {
         if (messageVOS.size() > 0) {
-
             new PodThreadManager()
-                    .addNewTask(() -> dataSource.updateHistoryResponse(callback, messageVOS, threadId, cMessageVOS))
                     .addNewTask(() -> dataSource.saveMessageResultFromServer(messageVOS, threadId))
                     .runTasksSynced();
-
         }
     }
 
@@ -16239,7 +16246,8 @@ public class Chat extends AsyncAdapter {
         outPutThreads.setResult(resultThreads);
         return outPutThreads;
     }
-   /**
+
+    /**
      * Reformat the get thread response
      */
     private ChatResponse<ResultThreads> reformatGetThreadsResponseForMutual(ChatMessage chatMessage, long userId) {
@@ -16252,7 +16260,7 @@ public class Chat extends AsyncAdapter {
             if (!handlerSend.containsKey(chatMessage.getUniqueId())) {
 //                messageDatabaseHelper.saveThreads(threads);
                 dataSource.saveThreadResultFromServer(threads);
-                dataSource.saveMutualThreadResultFromServer(threads,userId);
+                dataSource.saveMutualThreadResultFromServer(threads, userId);
             }
         }
 
