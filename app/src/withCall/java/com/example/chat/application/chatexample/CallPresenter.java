@@ -1007,7 +1007,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                         .build();
 
 
-                String uniqueId = chat.endAudioCall(endCallRequest);
+                String uniqueId = chat.endCall(endCallRequest);
                 callUniqueIds.add(uniqueId);
 
                 if (isScreenIsSharing) {

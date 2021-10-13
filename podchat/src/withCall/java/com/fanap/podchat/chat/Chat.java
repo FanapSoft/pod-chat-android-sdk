@@ -435,10 +435,10 @@ public class Chat extends ChatCore {
 
                     @Override
                     public void onEndCallRequested() {
-                        podVideoCall.endCall();
-                        deviceIsInCall = false;
 
-                        endAudioCall(CallAsyncRequestsManager.createEndCallRequest(info.getSubjectId()));
+                        endCall();
+
+                        endCall(CallAsyncRequestsManager.createEndCallRequest(info.getSubjectId()));
 
                         listenerManager.callOnEndCallRequestFromNotification();
                     }
@@ -621,9 +621,8 @@ public class Chat extends ChatCore {
 
         String uniqueId = generateUniqueId();
         try {
-            if (podVideoCall != null)
-                podVideoCall.endCall();
-            deviceIsInCall = false;
+            endCall();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -641,14 +640,18 @@ public class Chat extends ChatCore {
         podVideoCall.endAudio();
     }
 
+    /**
+     * @Deprecated endAudioCall is misleading in video calls. use endCall()
+     * @param endCallRequest
+     * @return request uniqueId
+     */
+    @Deprecated
     public String endAudioCall(EndCallRequest endCallRequest) {
 
-        if (callServiceManager != null)
-            callServiceManager.stopCallService();
+        stopCallService();
 
-        if (podVideoCall != null)
-            podVideoCall.endCall();
-        deviceIsInCall = false;
+        endCall();
+
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
@@ -658,6 +661,28 @@ public class Chat extends ChatCore {
             onChatNotReady(uniqueId);
         }
         return uniqueId;
+    }
+
+    public String endCall(EndCallRequest endCallRequest) {
+
+        stopCallService();
+
+        endCall();
+
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createEndCallRequestMessage(endCallRequest, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_END_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
+    private void stopCallService() {
+        if (callServiceManager != null)
+            callServiceManager.stopCallService();
     }
 
     public void addPartnerView(CallPartnerView view) {
@@ -832,12 +857,10 @@ public class Chat extends ChatCore {
                showLog("RECEIVE_VOICE_CALL_ENDED");
            }
 
-           if (podVideoCall != null)
-               podVideoCall.endCall();
-           deviceIsInCall = false;
+           stopCallService();
 
-           if (callServiceManager != null)
-               callServiceManager.stopCallService();
+           endCall();
+
 
            ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
 
@@ -911,12 +934,10 @@ public class Chat extends ChatCore {
                   showLog("RECEIVE_REMOVED_FROM_CALL");
               }
 
-              if (podVideoCall != null)
-                  podVideoCall.endCall();
-              deviceIsInCall = false;
+              stopCallService();
 
-              if (callServiceManager != null)
-                  callServiceManager.stopCallService();
+              endCall();
+
 
               listenerManager.callOnRemovedFromCall(response);
 
@@ -937,6 +958,13 @@ public class Chat extends ChatCore {
 
       }
 
+    }
+
+    private void endCall() {
+        if (podVideoCall != null) {
+            podVideoCall.endCall();
+            deviceIsInCall = false;
+        }
     }
 
     @Override
