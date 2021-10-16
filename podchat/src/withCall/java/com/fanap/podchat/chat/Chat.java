@@ -272,8 +272,8 @@ public class Chat extends ChatCore {
 
     public String terminateAudioCall(TerminateCallRequest terminateCallRequest) {
 
-//        if (audioCallManager != null)
-//            audioCallManager.endStream(false);
+        stopCallService();
+        endCall();
 
         String uniqueId = generateUniqueId();
         if (chatReady) {

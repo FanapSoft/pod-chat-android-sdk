@@ -46,12 +46,17 @@ Share Screen and Call Record buttons to CallActivity UI
 ### Changed
 
 - CallActivity UI
+- Update podcall version to 3.4.0
 
 ### Fixed
 
-- Fix audio call concurrent exception
+- audio call concurrent exception
 
-- Fix back camera rotation 
+- back camera rotation 
+
+- crash when making large number of calls
+
+- bug to stop displaying CallPartnerView on Activity.onPause
 
 ### Deprecated
 
