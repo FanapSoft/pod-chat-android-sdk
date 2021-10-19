@@ -55,8 +55,8 @@
 
     <ImageButton
         android:id="@+id/buttonEndCall"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_row="2"
         android:layout_column="2"
         android:alpha="0.3"
@@ -73,19 +73,25 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/colorPrimaryDark"
-        android:padding="4dp"
+        android:padding="2dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
 
-        <com.fanap.podcall.view.CallPartnerView
-            android:id="@+id/remotePartnerView1"
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            app:cardCornerRadius="16dp"
+            android:layout_height="match_parent">
+            <com.fanap.podcall.view.CallPartnerView
+                android:id="@+id/remotePartnerView1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </android.support.v7.widget.CardView>
+
 
 
     </android.support.constraint.ConstraintLayout>
@@ -109,11 +115,13 @@
         android:id="@+id/buttonMute"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:alpha="0.3"
+        tools:background="@drawable/rounded_white_background"
         android:background="@android:color/transparent"
+        android:alpha="0.6"
         app:layout_constraintBottom_toBottomOf="@+id/buttonEndCall"
         app:layout_constraintEnd_toStartOf="@+id/buttonEndCall"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/buttonEndCall"
         app:srcCompat="@drawable/ic_mic_off" />
 
     <ImageButton
@@ -132,24 +140,26 @@
         android:id="@+id/buttonSpeakerOn"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:alpha="0.3"
+        tools:background="@drawable/rounded_white_background"
         android:background="@android:color/transparent"
+        android:alpha="0.6"
         app:layout_constraintBottom_toBottomOf="@+id/buttonEndCall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/buttonEndCall"
+        app:layout_constraintTop_toTopOf="@+id/buttonEndCall"
         app:srcCompat="@drawable/ic_speaker_on" />
 
     <ImageButton
         android:id="@+id/buttonScreenShare"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:alpha="0.6"
         android:layout_margin="8dp"
+        android:alpha="0.6"
         android:background="@android:color/transparent"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvCalleeName"
+        app:layout_constraintTop_toTopOf="@+id/constraintHolder"
         app:srcCompat="@drawable/ic_mobile_screen_share" />
 
     <ImageButton
@@ -166,11 +176,11 @@
     <ImageButton
         android:id="@+id/imgBtnSwitchCamera"
         android:layout_width="48dp"
+        android:layout_margin="8dp"
         android:layout_height="48dp"
         android:background="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@+id/buttonEndCall"
-        app:layout_constraintEnd_toEndOf="@+id/buttonEndCall"
-        app:layout_constraintStart_toStartOf="@+id/buttonEndCall"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonStartRecord"
         app:srcCompat="@drawable/ic_cameraswitch" />
 
     <com.fanap.podcall.view.CallPartnerView
@@ -230,21 +240,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9015048" />
+        app:layout_constraintGuide_percent="0.95" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.30" />
+        app:layout_constraintGuide_percent="0.50" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.50" />
+        app:layout_constraintGuide_percent="0.70" />
 
 
 </android.support.constraint.ConstraintLayout>

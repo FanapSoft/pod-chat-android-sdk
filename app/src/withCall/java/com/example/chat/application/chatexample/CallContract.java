@@ -13,10 +13,9 @@ import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultContact;
-import com.fanap.podchat.model.ResultUserInfo;
-import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestGetContact;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public interface CallContract {
     interface view {
 
 
-        default void onGetUserInfo(ChatResponse<ResultUserInfo> outPutUserInfo) {
+        default void updateUserInfo(UserInfo outPutUserInfo) {
         }
 
         default void onLogEvent(String log) {
@@ -65,10 +64,7 @@ public interface CallContract {
 
         default void onTokenExpired(){}
 
-
-        default void onGetToken(String token){}
-
-        default void onVoiceCallRequestReceived(String callerName){}
+        default void showCallRequest(String callerName){}
 
         default void onVoiceCallRequestRejected(String callerName){}
 
@@ -124,7 +120,7 @@ public interface CallContract {
 
         default void onLoginNeeded(){}
 
-        default void onLoadingContactsStarted(){}
+        default void hideFabContactButton(){}
 
         default void setInitState(){}
 
@@ -147,6 +143,8 @@ public interface CallContract {
         default void updateTvCallee(String txt){}
 
         default void showMessage(String msg){}
+
+        default void switchToRecentCallsLoading(){}
     }
 
     interface presenter {
@@ -155,14 +153,9 @@ public interface CallContract {
 
         void setToken(String token);
 
-        void connect(String serverAddress, String appId, String severName, String token, String ssoHost
-                , String platformHost, String fileServer, String typeCode);
-
-        void connect(RequestConnect requestConnect);
-
+        void connect();
 
         void getUserInfo(ChatHandler handler);
-
 
         void getContact(Integer count, Long offset, ChatHandler handler);
 
@@ -176,9 +169,6 @@ public interface CallContract {
         void acceptIncomingCall();
 
         void rejectIncomingCall();
-
-        String getNameById(int partnerId);
-
 
         void onStart();
 
@@ -194,13 +184,11 @@ public interface CallContract {
 
         void endRunningCall();
 
-        void getCallHistory();
 
         void switchMute();
 
         void switchSpeaker();
 
-        void requestGroupCall(boolean fifi, boolean zizi, boolean jiji);
 
         void addCallParticipant();
 
@@ -215,8 +203,6 @@ public interface CallContract {
         void requestP2PCallWithUserId(int userId);
 
         void terminateCall();
-
-        void removeCallParticipant(String etId, boolean checked, boolean checked1, boolean checked2);
 
         void getContact();
 
@@ -237,5 +223,7 @@ public interface CallContract {
         void onRecordButtonTouched();
 
         void onContactSelected(ContactsWrapper contact);
+
+        void connect(String token);
     }
 }

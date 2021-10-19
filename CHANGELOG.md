@@ -28,7 +28,12 @@ All notable changes to this project will be documented here.
 
 Share Screen and Call Record buttons to CallActivity UI
 
- ```Chat.addPartnerView(CallPartnerView,int)```
+
+## [0.9.13.0] -2021-10-18
+
+### Added
+
+```Chat.addPartnerView(CallPartnerView,int)```
 
 ```onAnotherDeviceAcceptedCall``` callback
 
@@ -45,24 +50,27 @@ Share Screen and Call Record buttons to CallActivity UI
 
 ### Changed
 
-- CallActivity UI
-- Update podcall version to 3.4.0
+- Update podcall version to 3.4.3
+
 
 ### Fixed
 
 - audio call concurrent exception
 
-- back camera rotation 
+- back camera rotation
 
 - crash when making large number of calls
 
 - bug to stop displaying CallPartnerView on Activity.onPause
 
+
 ### Deprecated
 
-```Chat.switchCamera```
+ ```Chat.switchCamera```
 
-## [0.9.13.0] ---
+ ```Chat.endAudioCall```
+
+ ```Chat.terminateAudioCall```
 
 
 

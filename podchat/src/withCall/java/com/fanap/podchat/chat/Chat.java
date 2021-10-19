@@ -270,7 +270,29 @@ public class Chat extends ChatCore {
         return uniqueId;
     }
 
+    /**
+     * @deprecated terminateAudioCall is misleading in video calls. {@link #terminateCall(TerminateCallRequest)}
+     * @param terminateCallRequest
+     * @return
+     */
+    @Deprecated
     public String terminateAudioCall(TerminateCallRequest terminateCallRequest) {
+
+        stopCallService();
+        endCall();
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createTerminateCallMessage(terminateCallRequest, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_TERMINATE_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
+    }
+
+
+    public String terminateCall(TerminateCallRequest terminateCallRequest) {
 
         stopCallService();
         endCall();
@@ -641,7 +663,7 @@ public class Chat extends ChatCore {
     }
 
     /**
-     * @Deprecated endAudioCall is misleading in video calls. use endCall()
+     * @Deprecated endAudioCall is misleading in video calls. use {@link #endCall(EndCallRequest)}
      * @param endCallRequest
      * @return request uniqueId
      */
