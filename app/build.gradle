@@ -7,8 +7,6 @@ android {
         applicationId "com.fanap.podchat"
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -26,6 +24,44 @@ android {
         }
 
     }
+    flavorDimensions "default"
+
+    productFlavors{
+
+        withCall{
+            versionName "1.0.0"
+            versionCode 1
+            matchingFallbacks = ["withCall","withoutCall"]
+        }
+        withoutCall{
+            versionName "0.0.1"
+            versionCode 1
+            matchingFallbacks = ["withoutCall","withCall"]
+        }
+
+    }
+
+
+    applicationVariants.all { variant ->
+
+        variant.outputs.all { output ->
+
+            def versionName = variant.versionName
+            def flavorName = variant.flavorName // e. g. withCall
+            def buildType = variant.buildType.name // e. g. debug
+            def variantName = variant.name // e. g. withCallDebug
+
+            if(flavorName == "withCall"){
+                outputFileName = "PodCall-v${versionName}.apk"
+            }else if(flavorName=="withoutCall"){
+                outputFileName = "PodChat-v${versionName}.apk"
+            }
+
+        }
+    }
+
+
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -90,7 +126,4 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
 
-}
-repositories {
-    mavenCentral()
 }

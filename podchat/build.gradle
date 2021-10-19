@@ -5,7 +5,8 @@ apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.12.0'
+    libraryVersion = '0.9.13.0'
+    libraryVersionLight = '0.9.12.0'
 }
 android {
 
@@ -13,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 175
+        versionCode 180
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -30,75 +31,107 @@ android {
             consumerProguardFile 'proguard-rules.pro'
         }
     }
+
+    flavorDimensions "default"
+    productFlavors {
+
+        withCall {
+            versionNameSuffix "-withCall"
+        }
+        withoutCall {
+            versionNameSuffix "-withoutCall"
+
+        }
+
+
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+}
+
+android.libraryVariants.all { variant ->
+
+    variant.outputs.all { output ->
+
+        def versionName = libraryVersion
+        def flavorName = variant.flavorName // e. g. withCall
+        def buildType = variant.buildType.name // e. g. debug
+        def variantName = variant.name // e. g. withCallDebug
+
+
+        outputFileName = "podchat-v${versionName}-${buildType}-${flavorName}.aar"
     }
 }
 
 
 //configurations.embed.transitive = true
 
+configurations {
+    withCallDebugApi
+    withCallPublishEmbed
+    withCallReleaseEmbed
+}
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation fileTree(include: ['*.aar'], dir: 'libs')
-    api 'com.android.support:support-annotations:28.0.0'
-    api 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.android.support:support-annotations:28.0.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
 
     //Retrofit
-    api 'com.squareup.retrofit2:retrofit:2.4.0'
-    api 'com.squareup.retrofit2:converter-gson:2.3.0'
-    api 'com.squareup.retrofit2:converter-scalars:2.1.0'
-    api 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     //okHttp
-    api 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
     //Rx
-    api 'io.reactivex:rxjava:1.1.6'
-    api 'io.reactivex:rxandroid:1.2.1'
+    implementation 'io.reactivex:rxjava:1.1.6'
+    implementation 'io.reactivex:rxandroid:1.2.1'
 
     //room
-    api 'android.arch.persistence.room:runtime:1.1.1'
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
 
     //rx for room
 //    implementation "android.arch.persistence.room:rxjava2:1.1.1"
 
-    api 'com.commonsware.cwac:saferoom:1.2.1'
+    implementation 'com.commonsware.cwac:saferoom:1.2.1'
 
 
-    api 'com.google.dagger:dagger:2.16'
+    implementation 'com.google.dagger:dagger:2.16'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.16'
 
-    api 'com.scottyab:secure-preferences-lib:0.1.7'
-//    api project(path: ':podasync')
-    api 'com.fanap.async:podasync:0.2.13.8'
+    implementation 'com.scottyab:secure-preferences-lib:0.1.7'
 
     //using for notification layout
-    api 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
 
     //Sentry, Store logs
-    api 'io.sentry:sentry-android:2.0.3'
-//    implementation 'org.slf4j:slf4j-nop:1.7.25'
+    implementation 'io.sentry:sentry-android:2.0.3'
+
     //notification
-    api 'com.google.firebase:firebase-analytics:16.0.0'
-    api 'com.google.firebase:firebase-messaging:18.0.0'
+    implementation 'com.google.firebase:firebase-analytics:16.0.0'
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'
 
-    api 'com.github.bumptech.glide:glide:4.7.1'
-
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
 
-
-    //call
-    debugApi project(path: ':podcall')
-    publishEmbed project(path: ':podcall')
-    releaseEmbed project(path: ':podcall')
+    api 'com.fanap.async:podasync:0.2.13.8'
 
 
+    withCallDebugApi project(path: ':podcall')
+    withCallPublishEmbed project(path: ':podcall')
+    withCallReleaseEmbed project(path: ':podcall')
 
 }
-
 
 
 apply from: file('publish.gradle')

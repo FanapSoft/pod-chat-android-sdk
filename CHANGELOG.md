@@ -28,9 +28,49 @@ All notable changes to this project will be documented here.
 
 Share Screen and Call Record buttons to CallActivity UI
 
+
+## [0.9.13.0] -2021-10-18
+
+### Added
+
+```Chat.addPartnerView(CallPartnerView,int)```
+
+```onAnotherDeviceAcceptedCall``` callback
+
+```VideoCallParam.CameraId```
+
+```Chat.switchToFrontCamera```
+
+```Chat.switchToBackCamera```
+
+```Chat.isBackCamera```
+
+```Chat.isFrontCamera```
+
+
 ### Changed
 
-CallActivity UI
+- Update podcall version to 3.4.3
+
+
+### Fixed
+
+- audio call concurrent exception
+
+- back camera rotation
+
+- crash when making large number of calls
+
+- bug to stop displaying CallPartnerView on Activity.onPause
+
+
+### Deprecated
+
+ ```Chat.switchCamera```
+
+ ```Chat.endAudioCall```
+
+ ```Chat.terminateAudioCall```
 
 
 
@@ -40,9 +80,13 @@ CallActivity UI
 
 - partnerId to CallPartnerView
 
-- CallPartnerView.setDisplayCameraIsOffIcon
+- CallPartnerView.setPartnerName(String partnerName)
 
-- CallPartnerView.setDisplayIsMuteIcon
+- CallPartnerView.setDisplayName(boolean displayName)
+
+- CallPartnerView.setDisplayCameraIsOffIcon(Boolean displayCameraIsOffIcon)
+
+- CallPartnerView.setDisplayIsMuteIcon(Boolean displayIsMuteIcon)
 
 - ArrayList<CallParticipantVO> to CallStartResult. only userId, mute and video fills in CallParticipantVO.
 
