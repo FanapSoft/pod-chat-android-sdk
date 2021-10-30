@@ -606,7 +606,7 @@ public class MessageManager {
         return App.getGson().toJsonTree(chatMessage).toString();
     }
 
-    public static JsonObject prepareSendTextMessageRequest(String textMessage, long threadId, Integer messageType, String jsonSystemMetadata, String uniqueId, String mTypecode, String token) {
+    public static JsonObject prepareSendTextMessageRequest(String textMessage, long threadId, Integer messageType, String jsonMetadata, String uniqueId, String mTypecode, String token) {
 
         ChatMessage chatMessageQueue = new ChatMessage();
         chatMessageQueue.setContent(textMessage);
@@ -615,8 +615,8 @@ public class MessageManager {
         chatMessageQueue.setToken(token);
 
 
-        if (jsonSystemMetadata != null) {
-            chatMessageQueue.setSystemMetadata(jsonSystemMetadata);
+        if (jsonMetadata != null) {
+            chatMessageQueue.setMetadata(jsonMetadata);
         }
 
         chatMessageQueue.setUniqueId(uniqueId);
