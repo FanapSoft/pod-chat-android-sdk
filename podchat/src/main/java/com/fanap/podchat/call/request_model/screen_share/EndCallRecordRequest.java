@@ -1,12 +1,12 @@
-package com.fanap.podchat.call.request_model;
+package com.fanap.podchat.call.request_model.screen_share;
 
 import com.fanap.podchat.requestobject.GeneralRequestObject;
 
-public class StartOrEndCallRecordRequest extends GeneralRequestObject {
+public class EndCallRecordRequest extends GeneralRequestObject {
 
     private final long callId;
 
-    StartOrEndCallRecordRequest(Builder builder) {
+    EndCallRecordRequest(Builder builder) {
         this.callId = builder.callId;
     }
 
@@ -27,8 +27,8 @@ public class StartOrEndCallRecordRequest extends GeneralRequestObject {
             return this;
         }
 
-        public StartOrEndCallRecordRequest build() {
-            return new StartOrEndCallRecordRequest(this);
+        public EndCallRecordRequest build() {
+            return new EndCallRecordRequest(this);
         }
     }
 

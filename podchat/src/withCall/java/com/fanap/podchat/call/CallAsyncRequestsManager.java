@@ -10,10 +10,12 @@ import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.model.CreateCallVO;
+import com.fanap.podchat.call.model.RecordDetailDto;
 import com.fanap.podchat.call.model.SendClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.screen_share.EndCallRecordRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
@@ -22,9 +24,8 @@ import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
 import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
-import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
+import com.fanap.podchat.call.request_model.StartCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
-import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
@@ -527,11 +528,21 @@ public class CallAsyncRequestsManager {
 
     }
 
-    public static String createStartRecordCall(StartOrEndCallRecordRequest request, String uniqueId) {
+    public static String createStartRecordCall(StartCallRecordRequest request, String uniqueId) {
+
+        RecordDetailDto recordDetailDto = new RecordDetailDto();
+
+        if (request.getContent() != null)
+            recordDetailDto.setContent(request.getContent());
+
+        if (request.getTags() != null) {
+            recordDetailDto.setTags(request.getTags());
+        }
 
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.START_RECORD_CALL);
         message.setToken(CoreConfig.token);
+        message.setContent(App.getGson().toJson(recordDetailDto));
         message.setSubjectId(request.getCallId());
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setUniqueId(uniqueId);
@@ -557,7 +568,7 @@ public class CallAsyncRequestsManager {
         return response;
     }
 
-    public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId){
+    public static String createEndRecordCall(EndCallRecordRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.END_RECORD_CALL);
@@ -893,7 +904,7 @@ public class CallAsyncRequestsManager {
 
         ArrayList<CallParticipantVO> callPartners = new ArrayList<>();
 
-        if(Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())){
+        if (Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())) {
             for (ClientDTO client :
                     callResponse.getResult().getOtherClientDtoList()) {
                 CallParticipantVO partner = new CallParticipantVO();
@@ -906,7 +917,7 @@ public class CallAsyncRequestsManager {
         }
 
         CallStartResult result = new CallStartResult(callResponse.getResult().getCallName(),
-                callResponse.getResult().getCallImage(),callPartners);
+                callResponse.getResult().getCallImage(), callPartners);
 
         response.setResult(result);
         response.setSubjectId(callResponse.getSubjectId());

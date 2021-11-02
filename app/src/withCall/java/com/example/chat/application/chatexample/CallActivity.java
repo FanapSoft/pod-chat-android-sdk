@@ -178,6 +178,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         fabContacts.setOnClickListener(v -> {
             presenter.getContact();
+            presenter.recordCall();
         });
 
         imgBtnSwitchCamera.setOnClickListener(v -> {

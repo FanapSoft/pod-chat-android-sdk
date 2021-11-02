@@ -29,9 +29,10 @@ import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
-import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
+import com.fanap.podchat.call.request_model.StartCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
+import com.fanap.podchat.call.request_model.screen_share.EndCallRecordRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
@@ -587,10 +588,9 @@ public class Chat extends ChatCore {
     /**
      * @param request request to start call recording
      */
-    public String startCallRecord(StartOrEndCallRecordRequest request) {
+    public String startCallRecord(StartCallRecordRequest request) {
 
         String uniqueId = generateUniqueId();
-
 
         if (chatReady) {
             String message = CallAsyncRequestsManager.createStartRecordCall(request, uniqueId);
@@ -606,7 +606,7 @@ public class Chat extends ChatCore {
     /**
      * @param request request to end call recording
      */
-    public String endCallRecord(StartOrEndCallRecordRequest request) {
+    public String endCallRecord(EndCallRecordRequest request) {
 
         String uniqueId = generateUniqueId();
 

@@ -38,8 +38,9 @@ import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
-import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
+import com.fanap.podchat.call.request_model.StartCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
+import com.fanap.podchat.call.request_model.screen_share.EndCallRecordRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
@@ -857,20 +858,19 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response) {
 
 
-          activity.runOnUiThread(()->{
-              for (CallParticipantVO cp :
-                      response.getResult().getCallParticipantVOS()) {
-                  try {
-                      CallPartnerView pw = findParticipantView(cp.getUserId());
-                      pw.setPartnerName(cp.getParticipantVO().getContactName());
-                      pw.setDisplayName(true);
-                  }catch (Exception ex){
-                      ex.printStackTrace();
-                  }
+        activity.runOnUiThread(() -> {
+            for (CallParticipantVO cp :
+                    response.getResult().getCallParticipantVOS()) {
+                try {
+                    CallPartnerView pw = findParticipantView(cp.getUserId());
+                    pw.setPartnerName(cp.getParticipantVO().getContactName());
+                    pw.setDisplayName(true);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
 
-              }
-          });
-
+            }
+        });
 
 
     }
@@ -1326,12 +1326,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 response.getResult().getJoinedParticipants()) {
 
             try {
-               activity.runOnUiThread(()->{
-                   CallPartnerView pw = findParticipantView(callParticipant.getUserId());
-                   pw.setDisplayName(true);
-                   pw.setPartnerName(callParticipant.getParticipantVO().getName());
-               });
-            }catch (Exception ignored){}
+                activity.runOnUiThread(() -> {
+                    CallPartnerView pw = findParticipantView(callParticipant.getUserId());
+                    pw.setDisplayName(true);
+                    pw.setPartnerName(callParticipant.getParticipantVO().getName());
+                });
+            } catch (Exception ignored) {
+            }
 
             view.onCallParticipantJoined(callParticipant.getParticipantVO().getFirstName() + " " + callParticipant.getParticipantVO().getLastName());
         }
@@ -1434,14 +1435,14 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response) {
         try {
             CallPartnerView pw = findParticipantView(response.getResult().getJoinedParticipants().get(0).getUserId());
-           activity.runOnUiThread(()->{
-               if (pw != null){
-                   pw.setPartnerName("");
-                   pw.setPartnerId(0L);
-                   pw.reset();
-                   chat.addPartnerView(pw, 0);
-               }
-           });
+            activity.runOnUiThread(() -> {
+                if (pw != null) {
+                    pw.setPartnerName("");
+                    pw.setPartnerId(0L);
+                    pw.reset();
+                    chat.addPartnerView(pw, 0);
+                }
+            });
         } catch (Exception e) {
             view.onError(e.getMessage());
         }
@@ -1493,19 +1494,37 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onRecordButtonTouched() {
 
         if (callVO != null && isInCall) {
-            StartOrEndCallRecordRequest request =
-                    new StartOrEndCallRecordRequest.Builder(callVO.getCallId())
+            EndCallRecordRequest request =
+                    new EndCallRecordRequest.Builder(callVO.getCallId())
                             .build();
 
             if (isCallRecording) {
                 chat.endCallRecord(request);
             } else {
-                chat.startCallRecord(request);
+                StartCallRecordRequest startCallRecordRequest =
+                        new StartCallRecordRequest.Builder(callVO.getCallId())
+                                .build();
+                chat.startCallRecord(startCallRecordRequest);
             }
         }
 
     }
 
+    @Override
+    public void recordCall() {
+        List<String> tags = new ArrayList<>();
+        tags.add("test0");
+        tags.add("test1");
+        tags.add("test2");
+        tags.add("test3");
+        StartCallRecordRequest startCallRecordRequest =
+                new StartCallRecordRequest.Builder(1000)
+//                        .setContent("testcontent")
+                        .setTags(tags)
+                        .build();
+        chat.startCallRecord(startCallRecordRequest);
+
+    }
 
     @Override
     public void onCallRecordStarted(ChatResponse<Participant> response) {

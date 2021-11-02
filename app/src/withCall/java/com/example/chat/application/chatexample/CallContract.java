@@ -216,6 +216,8 @@ public interface CallContract {
 
         void onShareScreenTouched();
 
+        void recordCall();
+
         void handleActivityResult(int requestCode, int resultCode, Intent data);
 
         void onActivityPaused();
