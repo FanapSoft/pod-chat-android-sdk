@@ -25,7 +25,9 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
 
     public interface IHistoryInterface {
-        void onCallSelected(CallVO call);
+        void onAudioCallSelected(CallVO call);
+
+        void onVideoCallSelected(CallVO call);
     }
 
     ArrayList<CallVO> historyVOS;
@@ -76,20 +78,35 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                             .into(viewHolder.imageViewProfile);
                 else {
                     viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
-
                 }
 
-                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
 
-                viewHolder.imageButtonCall.setOnClickListener(v -> {
-                    if (iHistoryInterface != null)
-                        iHistoryInterface.onCallSelected(historyVO);
-                });
-            } else {
+            } else if(historyVO.getConversationVO()!=null){
+                viewHolder.tvName.setText(historyVO.getConversationVO().getTitle());
+                if (Util.isNotNullOrEmpty(historyVO.getConversationVO().getImage()))
+                    Glide.with(context)
+                            .load(historyVO.getConversationVO().getImage())
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(viewHolder.imageViewProfile);
+                else {
+                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_group));
+                }
+            }else {
                 viewHolder.tvName.setText("Invalid name");
                 viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
                 setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
             }
+
+            setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+
+            viewHolder.imageButtonAudioCall.setOnClickListener(v -> {
+                if (iHistoryInterface != null)
+                    iHistoryInterface.onAudioCallSelected(historyVO);
+            });
+            viewHolder.imageButtonVideoCall.setOnClickListener(v -> {
+                if (iHistoryInterface != null)
+                    iHistoryInterface.onVideoCallSelected(historyVO);
+            });
 
         }
 
@@ -148,14 +165,15 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
         TextView tvName;
         ImageView imageViewProfile;
-        ImageButton imageButtonCall;
+        ImageButton imageButtonAudioCall,imageButtonVideoCall;
         ImageView imageStatus;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvContactName);
             imageViewProfile = itemView.findViewById(R.id.imageProfile);
-            imageButtonCall = itemView.findViewById(R.id.imgBtnCallContact);
+            imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
+            imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
             imageStatus = itemView.findViewById(R.id.imageStatus);
         }
 

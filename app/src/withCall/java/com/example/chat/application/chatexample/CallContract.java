@@ -142,9 +142,23 @@ public interface CallContract {
 
         default void updateTvCallee(String txt){}
 
+        default void updateTvCaller(String txt){}
+
         default void showMessage(String msg){}
 
         default void switchToRecentCallsLoading(){}
+
+        default void hideCameraPreview(){}
+        default void showCameraPreview(){}
+
+
+        default void hideRemoteViews(){}
+        default void showRemoteViews(){}
+
+        default void showVideoCallElements(){}
+
+        default void updateCallerImage(String profileUrl){}
+        default void updateCallImage(String profileUrl){}
     }
 
     interface presenter {
@@ -166,7 +180,9 @@ public interface CallContract {
 
         void getContact(RequestGetContact request);
 
-        void acceptIncomingCall();
+        void acceptIncomingCallWithVideo();
+
+        void acceptIncomingCallWithAudio();
 
         void rejectIncomingCall();
 
@@ -198,9 +214,9 @@ public interface CallContract {
 
         void requestP2PCallWithP2PThreadId(int threadId);
 
-        void requestP2PCallWithContactId(int contactId);
+        void requestP2PCallWithContactId(int contactId, int callType);
 
-        void requestP2PCallWithUserId(int userId);
+        void requestP2PCallWithUserId(int userId, int callType);
 
         void terminateCall();
 
@@ -210,10 +226,6 @@ public interface CallContract {
 
         void switchCamera();
 
-        void pauseVideo();
-
-        void resumeVideo();
-
         void onShareScreenTouched();
 
         void handleActivityResult(int requestCode, int resultCode, Intent data);
@@ -222,8 +234,18 @@ public interface CallContract {
 
         void onRecordButtonTouched();
 
-        void onContactSelected(ContactsWrapper contact);
+        void onContactSelected(ContactsWrapper contact, int callType);
 
         void connect(String token);
+
+        void requestAudioCall(CallVO call);
+
+        void requestVideoCall(CallVO call);
+
+        void rejectIncomingCallWithMessage(String msg);
+
+        void turnOnCamera();
+
+        void turnOffCamera();
     }
 }

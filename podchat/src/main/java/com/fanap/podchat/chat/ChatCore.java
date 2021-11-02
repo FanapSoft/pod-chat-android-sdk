@@ -315,7 +315,7 @@ import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CONNECTING;
 import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.OPEN;
 
 @SuppressWarnings("unchecked")
-public class ChatCore extends AsyncAdapter {
+public abstract class ChatCore extends AsyncAdapter {
     private static final String MTAG = "MTAG";
     public static final String PING = "PING";
     public static final int READ_EXTERNAL_STORAGE_CODE = 1007;

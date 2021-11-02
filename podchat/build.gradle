@@ -5,7 +5,7 @@ apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.13.0'
+    libraryVersion = '0.9.13.2'
     libraryVersionLight = '0.9.12.0'
 }
 android {
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 180
+        versionCode 182
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

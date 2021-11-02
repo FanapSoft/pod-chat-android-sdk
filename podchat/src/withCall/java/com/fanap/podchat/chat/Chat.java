@@ -7,7 +7,6 @@ import com.fanap.podcall.IPodCall;
 import com.fanap.podcall.PartnerType;
 import com.fanap.podcall.PodCall;
 import com.fanap.podcall.PodCallBuilder;
-import com.fanap.podcall.PodCallV2;
 import com.fanap.podcall.audio.AudioCallParam;
 import com.fanap.podcall.kafka.KafkaConfig;
 import com.fanap.podcall.model.CallPartner;
@@ -73,7 +72,7 @@ public class Chat extends ChatCore {
     private boolean deviceIsInCall = false;
     private List<CallPartnerView> videoCallPartnerViews;
     private CallPartnerView localPartnerView;
-    private PodCallV2 podVideoCall;
+    private PodCall podVideoCall;
     private CallServiceManager callServiceManager;
 
     @Deprecated
@@ -101,14 +100,10 @@ public class Chat extends ChatCore {
                 showLog("Camera is ready");
             }
 
-            @Override
-            public void onCameraReady(PodCallV2 podCallV2) {
-                showLog("Camera is ready");
-            }
         })
                 .setVideoCallParam(videoCallParam)
                 .setAudioCallParam(audioCallParam)
-                .buildV2();
+                .build();
 
         podVideoCall.initial();
 
@@ -143,15 +138,12 @@ public class Chat extends ChatCore {
                 showLog("Call is ready");
             }
 
-            @Override
-            public void onCameraReady(PodCallV2 podCallV2) {
-                showLog("Call is ready");
-            }
+
         })
                 .setVideoCallParam(videoCallParam)
                 .setAudioCallParam(audioCallParam)
                 .setScreenShareParam(screenShareParam)
-                .buildV2();
+                .build();
 
         podVideoCall.initial();
 
@@ -271,9 +263,9 @@ public class Chat extends ChatCore {
     }
 
     /**
-     * @deprecated terminateAudioCall is misleading in video calls. {@link #terminateCall(TerminateCallRequest)}
      * @param terminateCallRequest
      * @return
+     * @deprecated terminateAudioCall is misleading in video calls. {@link #terminateCall(TerminateCallRequest)}
      */
     @Deprecated
     public String terminateAudioCall(TerminateCallRequest terminateCallRequest) {
@@ -485,9 +477,9 @@ public class Chat extends ChatCore {
                     visibleView(videoCallPartnerViews.get(0));
                     videoCallPartnerViews.get(0).setPartnerId(client.getUserId());
                     rPartnerBuilder.setVideoTopic(client.getTopicSendVideo());
+                    rPartnerBuilder.setVideoView(videoCallPartnerViews.remove(0));
                 }
 
-                rPartnerBuilder.setVideoView(videoCallPartnerViews.remove(0));
                 rPartnerBuilder.setAudioTopic(client.getTopicSendAudio());
                 CallPartner rPartner = rPartnerBuilder.build();
                 podVideoCall.addPartner(rPartner);
@@ -663,9 +655,9 @@ public class Chat extends ChatCore {
     }
 
     /**
-     * @Deprecated endAudioCall is misleading in video calls. use {@link #endCall(EndCallRequest)}
      * @param endCallRequest
      * @return request uniqueId
+     * @Deprecated endAudioCall is misleading in video calls. use {@link #endCall(EndCallRequest)}
      */
     @Deprecated
     public String endAudioCall(EndCallRequest endCallRequest) {
@@ -714,11 +706,13 @@ public class Chat extends ChatCore {
         videoCallPartnerViews.add(view);
     }
 
-    public void addPartnerView(CallPartnerView view,int pos) {
+    public void addPartnerView(CallPartnerView view, int pos) {
         if (Util.isNullOrEmpty(videoCallPartnerViews)) {
             videoCallPartnerViews = new ArrayList<>();
+            videoCallPartnerViews.add(view);
+        }else {
+            videoCallPartnerViews.add(pos, view);
         }
-        videoCallPartnerViews.add(pos,view);
     }
 
     public void addAllPartnerView(List<CallPartnerView> views) {
@@ -830,7 +824,7 @@ public class Chat extends ChatCore {
 
     void handleOnCallStarted(Callback callback, ChatMessage chatMessage) {
 
-        if(deviceIsInCall){
+        if (deviceIsInCall) {
             if (sentryResponseLog) {
                 showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
             } else {
@@ -852,7 +846,7 @@ public class Chat extends ChatCore {
                 messageCallbacks.remove(callback.getUniqueId());
 
             listenerManager.callOnCallVoiceCallStarted(response);
-        }else{
+        } else {
             handleOnCallAcceptedFromAnotherDevice(chatMessage);
         }
 
@@ -872,22 +866,22 @@ public class Chat extends ChatCore {
     void handleOnVoiceCallEnded(ChatMessage chatMessage) {
 
 
-       if(deviceIsInCall){
-           if (sentryResponseLog) {
-               showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
-           } else {
-               showLog("RECEIVE_VOICE_CALL_ENDED");
-           }
+        if (deviceIsInCall) {
+            if (sentryResponseLog) {
+                showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVE_VOICE_CALL_ENDED");
+            }
 
-           stopCallService();
+            stopCallService();
 
-           endCall();
+            endCall();
 
 
-           ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
+            ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
 
-           listenerManager.callOnVoiceCallEnded(response);
-       }
+            listenerManager.callOnVoiceCallEnded(response);
+        }
 
 
     }
@@ -895,90 +889,90 @@ public class Chat extends ChatCore {
     @Override
     void handleOnNewCallParticipantJoined(ChatMessage chatMessage) {
 
-       if(deviceIsInCall){
-           if (sentryResponseLog) {
-               showLog("RECEIVE_PARTICIPANT_JOINED", gson.toJson(chatMessage));
-           } else {
-               showLog("RECEIVE_PARTICIPANT_JOINED");
-           }
+        if (deviceIsInCall) {
+            if (sentryResponseLog) {
+                showLog("RECEIVE_PARTICIPANT_JOINED", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVE_PARTICIPANT_JOINED");
+            }
 
-           ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
+            ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
 
 //        audioCallManager.addCallParticipant(response);
 
-           if (podVideoCall != null)
-               prepareRemotePartnersByCallParticipantVO(response.getResult().getJoinedParticipants());
+            if (podVideoCall != null)
+                prepareRemotePartnersByCallParticipantVO(response.getResult().getJoinedParticipants());
 
-           listenerManager.callOnCallParticipantJoined(response);
-       }
+            listenerManager.callOnCallParticipantJoined(response);
+        }
     }
 
     @Override
     protected void handleOnCallParticipantCanceledCall(ChatMessage chatMessage) {
-       if(deviceIsInCall){
-           showLog("RECEIVE_CANCEL_GROUP_CALL", gson.toJson(chatMessage));
+        if (deviceIsInCall) {
+            showLog("RECEIVE_CANCEL_GROUP_CALL", gson.toJson(chatMessage));
 
-           ChatResponse<CallCancelResult> response = CallAsyncRequestsManager.handleOnCallCanceled(chatMessage);
+            ChatResponse<CallCancelResult> response = CallAsyncRequestsManager.handleOnCallCanceled(chatMessage);
 
-           listenerManager.callOnCallCanceled(response);
-       }
+            listenerManager.callOnCallCanceled(response);
+        }
     }
 
     @Override
     protected void handleOnCallParticipantLeft(ChatMessage chatMessage) {
 
-       if(deviceIsInCall){
-           if (sentryResponseLog) {
-               showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
-           } else {
-               showLog("RECEIVE_LEAVE_CALL");
-           }
+        if (deviceIsInCall) {
+            if (sentryResponseLog) {
+                showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVE_LEAVE_CALL");
+            }
 
-           ChatResponse<LeaveCallResult> response = CallAsyncRequestsManager.handleOnParticipantLeft(chatMessage);
+            ChatResponse<LeaveCallResult> response = CallAsyncRequestsManager.handleOnParticipantLeft(chatMessage);
 
-           removeCallPartner(response.getResult().getCallParticipants().get(0));
+            removeCallPartner(response.getResult().getCallParticipants().get(0));
 
-           listenerManager.callOnCallParticipantLeft(response);
-       }
+            listenerManager.callOnCallParticipantLeft(response);
+        }
     }
 
     @Override
     protected void handleOnCallParticipantRemoved(ChatMessage chatMessage) {
 
-      if(deviceIsInCall){
-          ChatResponse<RemoveFromCallResult> response = CallAsyncRequestsManager.handleOnParticipantRemoved(chatMessage);
+        if (deviceIsInCall) {
+            ChatResponse<RemoveFromCallResult> response = CallAsyncRequestsManager.handleOnParticipantRemoved(chatMessage);
 
-          if (response.getResult().isUserRemoved()) {
+            if (response.getResult().isUserRemoved()) {
 
-              if (sentryResponseLog) {
-                  showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
-              } else {
-                  showLog("RECEIVE_REMOVED_FROM_CALL");
-              }
+                if (sentryResponseLog) {
+                    showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
+                } else {
+                    showLog("RECEIVE_REMOVED_FROM_CALL");
+                }
 
-              stopCallService();
+                stopCallService();
 
-              endCall();
+                endCall();
 
 
-              listenerManager.callOnRemovedFromCall(response);
+                listenerManager.callOnRemovedFromCall(response);
 
-          } else {
+            } else {
 
-              if (sentryResponseLog) {
-                  showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
-              } else {
-                  showLog("RECEIVE_CALL_PARTICIPANT_REMOVED");
-              }
+                if (sentryResponseLog) {
+                    showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
+                } else {
+                    showLog("RECEIVE_CALL_PARTICIPANT_REMOVED");
+                }
 
-              if (podVideoCall != null)
-                  removeCallPartner(response.getResult().getCallParticipants().get(0));
+                if (podVideoCall != null)
+                    removeCallPartner(response.getResult().getCallParticipants().get(0));
 
-              listenerManager.callOnCallParticipantRemoved(response);
+                listenerManager.callOnCallParticipantRemoved(response);
 
-          }
+            }
 
-      }
+        }
 
     }
 
@@ -1003,15 +997,12 @@ public class Chat extends ChatCore {
         if (podVideoCall != null)
             addVideoCallPartner(response);
 
-        //todo fire an event for local partner
-        listenerManager.callOnCallParticipantStartedVideo(response);
-
     }
 
     @Override
     void handleOnCallParticipantRemovedVideo(ChatMessage chatMessage) {
 
-        if(deviceIsInCall){
+        if (deviceIsInCall) {
             if (sentryResponseLog) {
                 showLog("RECEIVE_CALL_PARTICIPANT_STOPPED_VIDEO", gson.toJson(chatMessage));
             } else {
@@ -1031,7 +1022,7 @@ public class Chat extends ChatCore {
     @Override
     void handleOnEndedCallRecord(ChatMessage chatMessage, Callback callback) {
 
-        if(deviceIsInCall){
+        if (deviceIsInCall) {
             if (sentryResponseLog) {
                 showLog("RECORD_CALL_ENDED", gson.toJson(chatMessage));
             } else {
@@ -1053,7 +1044,7 @@ public class Chat extends ChatCore {
     @Override
     void handOnShareScreenStarted(ChatMessage chatMessage, Callback callback) {
 
-        if(deviceIsInCall){
+        if (deviceIsInCall) {
             if (sentryResponseLog) {
                 showLog("RECEIVE_SHARE_SCREEN_STARTED", gson.toJson(chatMessage));
             } else {
@@ -1128,197 +1119,197 @@ public class Chat extends ChatCore {
     @Override
     void handOnShareScreenEnded(ChatMessage chatMessage, Callback callback) {
 
-      if(deviceIsInCall){
-          if (sentryResponseLog) {
-              showLog("RECEIVE_SHARE_SCREEN_ENDED", gson.toJson(chatMessage));
-          } else {
-              showLog("RECEIVE_SHARE_SCREEN_ENDED");
-          }
+        if (deviceIsInCall) {
+            if (sentryResponseLog) {
+                showLog("RECEIVE_SHARE_SCREEN_ENDED", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVE_SHARE_SCREEN_ENDED");
+            }
 
-          ChatResponse<ScreenShareResult> response = CallAsyncRequestsManager.handleOnScreenShareStarted(chatMessage);
+            ChatResponse<ScreenShareResult> response = CallAsyncRequestsManager.handleOnScreenShareStarted(chatMessage);
 
-          if (callback != null) {
-              removeCallback(chatMessage.getUniqueId());
-              //client stopped screen share
-              listenerManager.callOnScreenShareEnded(response);
-          } else {
-              if (podVideoCall != null) {
-                  podVideoCall.removePartnerOfTopic("screenShare" + chatMessage.getSubjectId());
+            if (callback != null) {
+                removeCallback(chatMessage.getUniqueId());
+                //client stopped screen share
+                listenerManager.callOnScreenShareEnded(response);
+            } else {
+                if (podVideoCall != null) {
+                    podVideoCall.removePartnerOfTopic("screenShare" + chatMessage.getSubjectId());
 //                podVideoCall.removePartnerOfTopic(response.getResult().getTopicReceive());
-              }
-              listenerManager.callOnCallParticipantStoppedScreenSharing(response);
-          }
-      }
+                }
+                listenerManager.callOnCallParticipantStoppedScreenSharing(response);
+            }
+        }
 
     }
 
     @Override
     void handleOnStartedCallRecord(ChatMessage chatMessage, Callback callback) {
 
-       if(deviceIsInCall){
-           if (sentryResponseLog) {
-               showLog("RECORD_CALL_STARTED", gson.toJson(chatMessage));
-           } else {
-               showLog("RECORD_CALL_STARTED");
-           }
+        if (deviceIsInCall) {
+            if (sentryResponseLog) {
+                showLog("RECORD_CALL_STARTED", gson.toJson(chatMessage));
+            } else {
+                showLog("RECORD_CALL_STARTED");
+            }
 
-           ChatResponse<Participant> response
-                   = CallAsyncRequestsManager.handleStartedRecordCallResponse(chatMessage);
+            ChatResponse<Participant> response
+                    = CallAsyncRequestsManager.handleStartedRecordCallResponse(chatMessage);
 
-           if (callback != null) {
-               removeCallback(chatMessage.getUniqueId());
-               listenerManager.callOnCallRecordStarted(response);
-           } else {
-               listenerManager.callOnCallParticipantStartRecording(response);
-           }
-       }
+            if (callback != null) {
+                removeCallback(chatMessage.getUniqueId());
+                listenerManager.callOnCallRecordStarted(response);
+            } else {
+                listenerManager.callOnCallParticipantStartRecording(response);
+            }
+        }
 
     }
 
     @Override
     protected void handleOnCallParticipantMuted(Callback callback, ChatMessage chatMessage) {
-      if(deviceIsInCall){
-          showLog("RECEIVE_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
+        if (deviceIsInCall) {
+            showLog("RECEIVE_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
 
-          ChatResponse<MuteUnMuteCallParticipantResult> response =
-                  CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
+            ChatResponse<MuteUnMuteCallParticipantResult> response =
+                    CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
 
-          if (callback != null) {
+            if (callback != null) {
 
-              if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
-                  //audio call muted onAudioCallMuted
-                  showLog("RECEIVE_AUDIO_CALL_MUTED");
-                  callOnUserIsMute(callback, response);
+                if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+                    //audio call muted onAudioCallMuted
+                    showLog("RECEIVE_AUDIO_CALL_MUTED");
+                    callOnUserIsMute(callback, response);
 
-                  if (response.getResult().getCallParticipants().size() > 1) {
-                      callOnOtherCallParticipantsMuted(response);
-                  }
+                    if (response.getResult().getCallParticipants().size() > 1) {
+                        callOnOtherCallParticipantsMuted(response);
+                    }
 
-              } else {
-                  callOnOtherCallParticipantsMuted(response);
-              }
-
-
-          } else {
-
-              if (!response.isHasError()) {
-
-                  if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
-                      //user is muted onMutedByAdmin
-                      callOnCurrentUserMutedByAdmin(response);
-
-                      if (response.getResult().getCallParticipants().size() > 1) {
-                          callOnOtherCallParticipantsMuted(response);
-                      }
-                  } else {
-                      //call participant muted onCallParticipantMuted
-                      callOnOtherCallParticipantsMuted(response);
-                  }
-              }
-
-          }
+                } else {
+                    callOnOtherCallParticipantsMuted(response);
+                }
 
 
-      }
+            } else {
+
+                if (!response.isHasError()) {
+
+                    if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+                        //user is muted onMutedByAdmin
+                        callOnCurrentUserMutedByAdmin(response);
+
+                        if (response.getResult().getCallParticipants().size() > 1) {
+                            callOnOtherCallParticipantsMuted(response);
+                        }
+                    } else {
+                        //call participant muted onCallParticipantMuted
+                        callOnOtherCallParticipantsMuted(response);
+                    }
+                }
+
+            }
+
+
+        }
     }
 
     @Override
     protected void handleOnCallParticipantUnMuted(Callback callback, ChatMessage chatMessage) {
-       if(deviceIsInCall){
-           showLog("RECEIVE_UN_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
+        if (deviceIsInCall) {
+            showLog("RECEIVE_UN_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
 
-           ChatResponse<MuteUnMuteCallParticipantResult> response =
-                   CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
-
-
-           if (callback != null) {
-
-               if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
-                   //audio call unmuted onAudioCallMuted
-                   callOnUserIsUnMute(callback, response);
-
-                   if (response.getResult().getCallParticipants().size() > 1) {
-                       callOnOtherCallParticipantsUnMuted(response);
-                   }
-
-               } else {
-                   //call participant unmuted onCallParticipantUnMuted
-                   callOnOtherCallParticipantsUnMuted(response);
-               }
+            ChatResponse<MuteUnMuteCallParticipantResult> response =
+                    CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
 
 
-           } else {
+            if (callback != null) {
 
-               if (!response.isHasError()) {
+                if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+                    //audio call unmuted onAudioCallMuted
+                    callOnUserIsUnMute(callback, response);
 
-                   if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
-                       //user is unmuted onMutedByAdmin
-                       callOnCurrentUserUnMutedByAdmin(response);
+                    if (response.getResult().getCallParticipants().size() > 1) {
+                        callOnOtherCallParticipantsUnMuted(response);
+                    }
 
-                       if (response.getResult().getCallParticipants().size() > 1) {
-                           //call participant unmuted onCallParticipantUnMuted
-                           callOnOtherCallParticipantsUnMuted(response);
-                       }
+                } else {
+                    //call participant unmuted onCallParticipantUnMuted
+                    callOnOtherCallParticipantsUnMuted(response);
+                }
 
-                   } else {
-                       //call participant unmuted onCallParticipantUnMuted
-                       callOnOtherCallParticipantsUnMuted(response);
-                   }
-               }
 
-           }
-       }
+            } else {
+
+                if (!response.isHasError()) {
+
+                    if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+                        //user is unmuted onMutedByAdmin
+                        callOnCurrentUserUnMutedByAdmin(response);
+
+                        if (response.getResult().getCallParticipants().size() > 1) {
+                            //call participant unmuted onCallParticipantUnMuted
+                            callOnOtherCallParticipantsUnMuted(response);
+                        }
+
+                    } else {
+                        //call participant unmuted onCallParticipantUnMuted
+                        callOnOtherCallParticipantsUnMuted(response);
+                    }
+                }
+
+            }
+        }
     }
 
 
     @Override
     protected void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
-      if(callback!=null){
-          if (sentryResponseLog) {
-              showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
-          } else {
-              showLog("RECEIVED_CALL_HISTORY");
-          }
+        if (callback != null) {
+            if (sentryResponseLog) {
+                showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVED_CALL_HISTORY");
+            }
 
-          ChatResponse<GetCallHistoryResult> response = CallAsyncRequestsManager.handleOnGetCallHistory(chatMessage, callback);
+            ChatResponse<GetCallHistoryResult> response = CallAsyncRequestsManager.handleOnGetCallHistory(chatMessage, callback);
 
-          if (cache)
-              messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
+            if (cache)
+                messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
 
-          listenerManager.callOnGetCallHistory(response);
-      }
+            listenerManager.callOnGetCallHistory(response);
+        }
 
     }
 
     @Override
     protected void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
-       if(deviceIsInCall){
-           if (sentryResponseLog) {
-               showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
-           } else {
-               showLog("RECEIVED_CALL_RECONNECT");
-           }
+        if (deviceIsInCall) {
+            if (sentryResponseLog) {
+                showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVED_CALL_RECONNECT");
+            }
 
-           ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallReconnectReceived(chatMessage);
+            ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallReconnectReceived(chatMessage);
 
-           listenerManager.callOnCallReconnectReceived(response);
-       }
+            listenerManager.callOnCallReconnectReceived(response);
+        }
     }
 
     @Override
     protected void handleOnReceivedCallConnect(ChatMessage chatMessage) {
-       if(deviceIsInCall){
-           if (sentryResponseLog) {
-               showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
-           } else {
-               showLog("RECEIVED_CALL_CONNECT");
-           }
+        if (deviceIsInCall) {
+            if (sentryResponseLog) {
+                showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVED_CALL_CONNECT");
+            }
 
 
-           ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallConnectReceived(chatMessage);
+            ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallConnectReceived(chatMessage);
 
-           listenerManager.callOnCallConnectReceived(response);
-       }
+            listenerManager.callOnCallConnectReceived(response);
+        }
     }
 
 
@@ -1424,27 +1415,28 @@ public class Chat extends ChatCore {
         }
     }
 
-    public boolean isFrontCamera(){
-        if(podVideoCall!=null){
+    public boolean isFrontCamera() {
+        if (podVideoCall != null) {
             return podVideoCall.isFrontCamera();
         }
         return false;
     }
 
-    public void switchToFrontCamera(){
-        if(podVideoCall!=null){
+    public void switchToFrontCamera() {
+        if (podVideoCall != null) {
             podVideoCall.switchToFrontCamera();
         }
     }
 
-    public boolean isBackCamera(){
-       if(podVideoCall!=null){
-        return podVideoCall.isBackCamera();
-       }
-       return false;
+    public boolean isBackCamera() {
+        if (podVideoCall != null) {
+            return podVideoCall.isBackCamera();
+        }
+        return false;
     }
-    public void switchToBackCamera(){
-        if(podVideoCall!=null){
+
+    public void switchToBackCamera() {
+        if (podVideoCall != null) {
             podVideoCall.switchToBackCamera();
         }
     }
@@ -1522,7 +1514,9 @@ public class Chat extends ChatCore {
                 }
                 podVideoCall.addPartner(lCallPartnerBuilder.build());
 
-            } else if (hasRemotePartnerView()) {
+                //todo fire an event for local partner
+
+            } else {
 
                 String receiveVideoTopic = callParticipant.getSendTopicVideo();
 
@@ -1538,7 +1532,8 @@ public class Chat extends ChatCore {
                     rPartnerBuilder.setVideoTopic(receiveVideoTopic).setVideoView(videoCallPartnerViews.remove(0));
                 }
                 podVideoCall.addPartner(rPartnerBuilder.build());
-
+                //todo fire an event for local partner
+                listenerManager.callOnCallParticipantStartedVideo(response);
             }
         }
 
