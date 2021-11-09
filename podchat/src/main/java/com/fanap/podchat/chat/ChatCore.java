@@ -1115,6 +1115,9 @@ public class ChatCore extends AsyncAdapter {
             case Constants.CALL_CONNECT:
                 handleOnReceivedCallConnect(chatMessage);
                 break;
+            case Constants.CALL_CLIENT_ERRORS:
+                handleOnReceivedClientCallErrors(chatMessage);
+                break;
             case Constants.ALL_UNREAD_MESSAGE_COUNT:
                 handleOnGetUnreadMessagesCount(chatMessage);
                 break;
@@ -1981,6 +1984,10 @@ public class ChatCore extends AsyncAdapter {
     }
 
     protected void handleOnReceivedCallConnect(ChatMessage chatMessage) {
+    }
+
+    protected void handleOnReceivedClientCallErrors(ChatMessage chatMessage) {
+
     }
 
     /**

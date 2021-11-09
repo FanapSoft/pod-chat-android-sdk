@@ -1,6 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
+    ext{
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        localRepositoryPath = properties.getProperty('localRepo')
+        print(localRepositoryPath)
+    }
+
+
 
 
     repositories {
@@ -27,7 +35,9 @@ allprojects {
         google()
         mavenCentral()
         jcenter()
-
+        maven{
+            url localRepositoryPath
+        }
         maven {
             url "https://s3.amazonaws.com/repo.commonsware.com"
         }

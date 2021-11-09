@@ -26,7 +26,12 @@ All notable changes to this project will be documented here.
 
  ```onCallRecordEnded``` callback
 
+```Chat.sendClientCallErrors(CallClientErrorsRequest)``` method
+
+```ChatListeners.onCallClientErrors(ChatResponse<CallClientErrorsResult>)``` callback
+
 Share Screen and Call Record buttons to CallActivity UI
+
 
 
 ## [0.9.13.0] -2021-10-18

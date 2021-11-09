@@ -29,6 +29,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
+import com.fanap.podchat.call.model.CallErrorVO;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
@@ -45,6 +46,7 @@ import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRe
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
@@ -928,6 +930,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void terminateCall() {
 
+        isInCall = false;
+
         Log.e(TAG, "REQUEST TERMINATE FROM CLIENT");
 
         Log.e(TAG, "REQUEST TERMINATE FROM CLIENT. Call Response: " + callVO);
@@ -942,7 +946,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
             hideVideoViews();
 
-            String uniqueId = chat.terminateAudioCall(terminateCallRequest);
+            String uniqueId = chat.terminateCall(terminateCallRequest);
 
         }
 
@@ -953,6 +957,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
         if (isInCall) {
+
+            isInCall = false;
 
             Log.e(TAG, "REQUEST END CALL FROM CLIENT");
 
@@ -1339,6 +1345,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void onEndCallRequestFromNotification() {
+        isInCall = false;
         view.onVoiceCallEnded("", 0);
         stopScreenShare();
     }
@@ -1529,6 +1536,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         view.onParticipantStoppedRecordingCall(" " + response.getResult().getFirstName() + " " + response.getResult().getLastName());
     }
 
+    @Override
+    public void onCallClientErrors(ChatResponse<CallClientErrorsResult> response) {
+        CallErrorVO error = response.getResult().getCallErrorVO();
+        Participant cp = error.getParticipantVo();
+        view.showMessage(cp.getName() + " " + error.getMessage());
+    }
 
     @Override
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {

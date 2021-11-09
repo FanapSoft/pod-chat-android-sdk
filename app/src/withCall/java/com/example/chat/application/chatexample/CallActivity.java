@@ -201,9 +201,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         });
 
         buttonStartCallRecord.setOnClickListener(v -> {
-//            scaleIt(v);
-//            presenter.onRecordButtonTouched();
-            showToast("Not available yet!");
+            scaleIt(v);
+            presenter.onRecordButtonTouched();
+//            showToast("Not available yet!");
         });
 
 
