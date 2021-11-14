@@ -710,7 +710,7 @@ public class Chat extends ChatCore {
         if (Util.isNullOrEmpty(videoCallPartnerViews)) {
             videoCallPartnerViews = new ArrayList<>();
             videoCallPartnerViews.add(view);
-        }else {
+        } else {
             videoCallPartnerViews.add(pos, view);
         }
     }
@@ -1051,69 +1051,43 @@ public class Chat extends ChatCore {
                 showLog("RECEIVE_SHARE_SCREEN_STARTED");
             }
 
-            ChatResponse<ScreenShareResult> response = CallAsyncRequestsManager.handleOnScreenShareStarted(chatMessage);
-            long callId = chatMessage.getSubjectId();
-            if (callback != null) {
-                removeCallback(chatMessage.getUniqueId());
-                if (podVideoCall != null) {
-                    ScreenSharer screenSharer = new ScreenSharer.Builder()
-                            .setPartnerType(PartnerType.LOCAL)
-                            .setName("mn" + " " + System.currentTimeMillis())
-                            .setVideoTopic("screenShare" + callId)
-                            .build();
+            if (podVideoCall != null) {
+                ChatResponse<ScreenShareResult> response = CallAsyncRequestsManager.handleOnScreenShareStarted(chatMessage);
+                if (Util.isNotNullOrEmpty(response.getResult().getScreenShare())) {
+                    if (callback != null) {
+                        removeCallback(chatMessage.getUniqueId());
+
+                        ScreenSharer screenSharer = new ScreenSharer.Builder()
+                                .setPartnerType(PartnerType.LOCAL)
+                                .setName("Your Screen")
+                                .setVideoTopic(response.getResult().getScreenShare())
+                                .build();
 
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        podVideoCall.addScreenSharer(screenSharer);
-                        listenerManager.callOnScreenShareStarted(response);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            podVideoCall.addScreenSharer(screenSharer);
+                            listenerManager.callOnScreenShareStarted(response);
+                        }
+                    } else {
+                        if (hasRemotePartnerView()) {
+                            visibleView(videoCallPartnerViews.get(0));
+
+                            CallPartner rPartner = new CallPartner.Builder()
+                                    .setPartnerType(PartnerType.REMOTE)
+                                    .setName("Screen Sharer:" + response.getResult().getScreenOwner().getId())
+                                    .setVideoTopic(response.getResult().getScreenShare())
+                                    .setVideoView(videoCallPartnerViews.remove(0))
+                                    .build();
+
+                            podVideoCall.addPartner(rPartner);
+                            listenerManager.callOnCallParticipantSharedScreen(response);
+                        }
                     }
-
-                }
-            } else {
-                if (hasRemotePartnerView()) {
-                    visibleView(videoCallPartnerViews.get(0));
-
-                    CallPartner rPartner = new CallPartner.Builder()
-                            .setPartnerType(PartnerType.REMOTE)
-                            .setName("fa" + " " + System.currentTimeMillis())
-                            .setVideoTopic("screenShare" + callId)
-                            .setVideoView(videoCallPartnerViews.remove(0))
-                            .build();
-
-                    podVideoCall.addPartner(rPartner);
-                    listenerManager.callOnCallParticipantSharedScreen(response);
+                }else{
+                    captureError(new PodChatException(ChatConstant.ERROR_METHOD_NOT_IMPLEMENTED,ChatConstant.ERROR_CODE_METHOD_NOT_IMPLEMENTED,chatMessage.getUniqueId()));
                 }
             }
         }
-//        ChatResponse<ScreenShareResult> response = CallAsyncRequestsManager.handleOnScreenShareStarted(chatMessage);
-//
-//        if (response.getResult().isScreenSharer()) {
-//            if (podVideoCall != null) {
-//                ScreenSharer screenSharer = new ScreenSharer.Builder()
-//                        .setPartnerType(PartnerType.LOCAL)
-//                        .setName(response.getResult().getTopicSend() + " " + System.currentTimeMillis())
-//                        .setVideoTopic(response.getResult().getTopicSend())
-//                        .build();
-//
-//                podVideoCall.addScreenSharer(screenSharer);
-//                listenerManager.callOnShareScreenStarted(response);
-//            }
-//        } else {
-//            if (hasRemotePartnerView()) {
-//                visibleView(videoCallPartnerViews.get(0));
-//
-//                CallPartner rPartner = new CallPartner.Builder()
-//                        .setPartnerType(PartnerType.REMOTE)
-//                        .setName(response.getResult().getTopicSend() + " " + System.currentTimeMillis())
-//                        .setVideoTopic(response.getResult().getTopicReceive())
-//                        .setVideoView(videoCallPartnerViews.remove(0))
-//                        .build();
-//
-//                podVideoCall.addPartner(rPartner);
-//                listenerManager.callOnCallParticipantSharedScreen(response);
-//            }
-//
-//        }
     }
 
     @Override
@@ -1134,8 +1108,7 @@ public class Chat extends ChatCore {
                 listenerManager.callOnScreenShareEnded(response);
             } else {
                 if (podVideoCall != null) {
-                    podVideoCall.removePartnerOfTopic("screenShare" + chatMessage.getSubjectId());
-//                podVideoCall.removePartnerOfTopic(response.getResult().getTopicReceive());
+                    podVideoCall.removePartnerOfTopic(response.getResult().getScreenShare());
                 }
                 listenerManager.callOnCallParticipantStoppedScreenSharing(response);
             }

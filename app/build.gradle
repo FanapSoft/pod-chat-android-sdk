@@ -13,7 +13,9 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -29,7 +31,7 @@ android {
     productFlavors{
 
         withCall{
-            versionName "1.1.0"
+            versionName "1.2.0"
             versionCode 1
             matchingFallbacks = ["withCall","withoutCall"]
         }

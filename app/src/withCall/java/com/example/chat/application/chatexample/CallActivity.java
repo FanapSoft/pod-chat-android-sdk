@@ -644,7 +644,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
     private void showFabContacts() {
-        if(inCallView.getVisibility()!=View.VISIBLE){
+        if (inCallView.getVisibility() != View.VISIBLE) {
             fabContacts.show();
         }
     }
@@ -1151,7 +1151,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     public void onCallRecordingStarted() {
         runOnUiThread(() -> {
-            Toast.makeText(this, "Recording Started", Toast.LENGTH_SHORT).show();
+            showToast("تماس در حال ضبط شدن است");
             liveAnim(buttonStartCallRecord);
         });
     }
@@ -1174,7 +1174,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @Override
     public void onCallRecordingStopped() {
-        showToast("Call Recording Stopped...");
+        showToast("ضبط تماس به پایان رسید");
         buttonStartCallRecord.setActivated(false);
 
     }

@@ -1137,7 +1137,7 @@ public abstract class ChatCore extends AsyncAdapter {
                 break;
             }
 
-            case Constants.DEACTICVE_ASSISTANT: {
+            case Constants.DEACTIVE_ASSISTANT: {
                 handleOnDeActiveAssistant(chatMessage);
                 break;
             }
@@ -1152,7 +1152,7 @@ public abstract class ChatCore extends AsyncAdapter {
                 break;
             }
 
-            case Constants.MUTAL_GROUPS: {
+            case Constants.MUTUAL_GROUPS: {
                 handleOnGetMutualGroups(chatMessage);
                 break;
             }

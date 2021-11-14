@@ -51,7 +51,7 @@ public class AssistantManager {
         AsyncMessage message = new ChatMessage();
 
 
-        message.setType(ChatMessageType.Constants.DEACTICVE_ASSISTANT);
+        message.setType(ChatMessageType.Constants.DEACTIVE_ASSISTANT);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);

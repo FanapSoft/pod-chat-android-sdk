@@ -1,6 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
+    ext{
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        localRepositoryPath = properties.getProperty('localRepo')
+        print(localRepositoryPath)
+    }
+
+
 
 
     repositories {
@@ -24,6 +32,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven{
+            url localRepositoryPath
+        }
         google()
         mavenCentral()
         jcenter()
@@ -35,6 +46,7 @@ allprojects {
             url 'http://www.idescout.com/maven/repo/'
             name 'IDEScout, Inc.'
         }
+
     }
 }
 

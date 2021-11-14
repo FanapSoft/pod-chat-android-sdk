@@ -110,7 +110,7 @@ public class ChatMessageType {
             Constants.UN_MUTE_CALL_PARTICIPANT,
             Constants.CANCEL_GROUP_CALL,
             Constants.REGISTER_ASSISTANT,
-            Constants.DEACTICVE_ASSISTANT,
+            Constants.DEACTIVE_ASSISTANT,
             Constants.GET_ASSISTANTS,
             Constants.GET_ASSISTANT_HISTORY,
             Constants.CREATE_TAG,
@@ -251,7 +251,7 @@ public class ChatMessageType {
         int CLOSE_THREAD = 102;
         int ERROR = 999;
         int REGISTER_ASSISTANT = 107;
-        int DEACTICVE_ASSISTANT = 108;
+        int DEACTIVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
         int BLOCK_ASSISTANT = 116;
         int UNBLOCK_ASSISTANT = 117;
@@ -263,7 +263,7 @@ public class ChatMessageType {
         int ADD_TAG_PARTICIPANT = 143;
         int REMOVE_TAG_PARTICIPANT = 144;
         int GET_TAG_LIST = 145;
-        int MUTAL_GROUPS = 130;
+        int MUTUAL_GROUPS = 130;
 
 
 

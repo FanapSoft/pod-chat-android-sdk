@@ -32,6 +32,7 @@ import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.CreateCallVO;
+import com.fanap.podchat.call.recording.CallRecordTracer;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
@@ -119,7 +120,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
     List<String> callUniqueIds = new ArrayList<>();
-    List<String> callimpUniqueIds = new ArrayList<>();
+    List<String> callImpUniqueIds = new ArrayList<>();
 
     private CreateCallVO callVO;
     private boolean speakerOn = false;
@@ -130,7 +131,6 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private boolean isCallRecording;
     private List<CallPartnerView> remotePartnersViews;
     private CallPartnerView cameraPreview;
-
     private int cameraId = CameraId.FRONT;
 
 
@@ -639,12 +639,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             view.onError("خطا در برقراری تماس 😓");
             view.updateStatus(outPutError.getErrorMessage() + " 😨");
 
-            if (callimpUniqueIds.contains(outPutError.getUniqueId())) {
+            if (callImpUniqueIds.contains(outPutError.getUniqueId())) {
                 view.setInitState();
             }
 
             callUniqueIds.remove(outPutError.getUniqueId());
-            callimpUniqueIds.remove(outPutError.getUniqueId());
+            callImpUniqueIds.remove(outPutError.getUniqueId());
         }
 
     }
@@ -706,6 +706,18 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
+
+
+        if(CallRecordTracer.isRecordedFileMessage(chatResponse.getUniqueId())){
+
+            try {
+                view.showMessage("تماس در مسیر زیر ذخیره شد: \n "+ chatResponse.getResult().getMessageVO().getMetadata());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return;
+        }
 
         //This is reject message from contact
         if (!callUniqueIds.contains(chatResponse.getUniqueId())) {
@@ -924,6 +936,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onVoiceCallEnded(ChatResponse<EndCallResult> response) {
 
         isInCall = false;
+        isCallRecording = false;
         if (isScreenIsSharing) {
             EndShareScreenRequest endShareReq =
                     new EndShareScreenRequest.Builder(response.getResult().getCallId())
@@ -973,6 +986,9 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void terminateCall() {
 
+        isInCall = false;
+        isCallRecording = false;
+
         Log.e(TAG, "REQUEST TERMINATE FROM CLIENT");
 
         Log.e(TAG, "REQUEST TERMINATE FROM CLIENT. Call Response: " + callVO);
@@ -998,6 +1014,9 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
         if (isInCall) {
+
+            isInCall = false;
+            isCallRecording = false;
 
             Log.e(TAG, "REQUEST END CALL FROM CLIENT");
 
@@ -1241,7 +1260,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         String uniqueId = chat.requestCall(callRequest);
         callUniqueIds.add(uniqueId);
-        callimpUniqueIds.add(uniqueId);
+        callImpUniqueIds.add(uniqueId);
     }
 
     @Override
@@ -1271,7 +1290,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             uniqueId = chat.requestCall(callRequest);
         }
         callUniqueIds.add(uniqueId);
-        callimpUniqueIds.add(uniqueId);
+        callImpUniqueIds.add(uniqueId);
     }
 
     private void requestGroupCallWithThreadId(int threadId, int callType) {
@@ -1287,7 +1306,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         }
         String uniqueId = chat.requestGroupCall(callRequest);
         callUniqueIds.add(uniqueId);
-        callimpUniqueIds.add(uniqueId);
+        callImpUniqueIds.add(uniqueId);
 
     }
 
@@ -1306,7 +1325,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         String uniqueId = chat.requestCall(callRequest);
         callUniqueIds.add(uniqueId);
-        callimpUniqueIds.add(uniqueId);
+        callImpUniqueIds.add(uniqueId);
     }
 
     @Override
@@ -1379,7 +1398,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 if (Util.isNotNullOrEmpty(uniqueId)) {
 
                     callUniqueIds.add(uniqueId);
-                    callimpUniqueIds.add(uniqueId);
+                    callImpUniqueIds.add(uniqueId);
                 }
 
             }
@@ -1447,7 +1466,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                     pw.setDisplayName(true);
                     pw.setPartnerName(callParticipant.getParticipantVO().getName());
                 });
-            } catch (Exception ignored) {
+            } catch (Exception exc) {
+                Log.e(TAG, "Err: " + exc.getMessage());
             }
 
             view.showMessage(callParticipant.getParticipantVO().getName() + " وارد تماس شد!");
@@ -1456,6 +1476,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void onEndCallRequestFromNotification() {
+        isInCall = false;
+        isCallRecording = false;
         view.onVoiceCallEnded("", 0);
         stopScreenShare();
     }
@@ -1625,10 +1647,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                             .build();
 
             if (isCallRecording) {
-                chat.endCallRecord(request);
+                CallRecordTracer.requestUniqueId = chat.endCallRecord(request);
             } else {
                 chat.startCallRecord(request);
             }
+            isCallRecording = !isCallRecording;
         }
 
     }
@@ -1648,12 +1671,14 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void onCallParticipantRecordStarted(ChatResponse<Participant> response) {
-        view.onParticipantStartedRecordingCall(" " + response.getResult().getFirstName() + " " + response.getResult().getLastName());
+        view.showMessage(" " + response.getResult().getName() + " در حال ضبط تماس است...");
     }
 
     @Override
     public void onCallParticipantRecordStopped(ChatResponse<Participant> response) {
-        view.onParticipantStoppedRecordingCall(" " + response.getResult().getFirstName() + " " + response.getResult().getLastName());
+        CallRecordTracer.ongoingRecordUniqueId = response.getUniqueId();
+        view.showMessage(" " + response.getResult().getName() + " ضبط تماس را متوقف کرد." );
+
     }
 
 
