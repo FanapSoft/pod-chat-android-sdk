@@ -102,7 +102,7 @@ public class ChatConstant {
     public static final String ERROR_INVALID_USER_GROUP_HASH = "Invalid userGroupHash value";
     public static final String ERROR_INVALID_THREAD_ID = "Invalid thread id";
     public static final String ERROR_ASYNC_EXCEPTION = "Async Error";
-    public static final String ERROR_METHOD_NOT_IMPLEMENTED = "This method is not implemented in current version!";
+    public static final String ERROR_METHOD_NOT_IMPLEMENTED = "This feature is not available in current version!";
 
     public static final String ERROR_INVALID_CAMERA_PREVIEW = "Camera Preview is not valid";
     public static final String ERROR_CAMERA_NOT_AVAILABLE = "Camera is not available!";

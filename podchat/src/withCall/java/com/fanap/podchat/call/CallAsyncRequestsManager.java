@@ -947,12 +947,15 @@ public class CallAsyncRequestsManager {
         if(Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())){
             for (ClientDTO client :
                     callResponse.getResult().getOtherClientDtoList()) {
-                CallParticipantVO partner = new CallParticipantVO();
-                partner.setUserId(client.getUserId());
-                partner.setMute(client.getMute());
-                partner.setVideo(client.getVideo());
+                if(!client.getUserId().equals(CoreConfig.userId)){
+                    CallParticipantVO partner = new CallParticipantVO();
+                    partner.setUserId(client.getUserId());
+                    partner.setMute(client.getMute());
+                    partner.setVideo(client.getVideo());
 
-                callPartners.add(partner);
+                    callPartners.add(partner);
+                }
+
             }
         }
 

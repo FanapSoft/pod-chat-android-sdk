@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     android:background="@color/grey"
     tools:context="com.example.chat.application.chatexample.CallActivity">
 
@@ -98,12 +99,12 @@
     <ViewSwitcher
         android:id="@+id/viewSwitcherRecentCalls"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/tvVersion"
         app:layout_constraintEnd_toEndOf="@+id/view2"
         app:layout_constraintStart_toStartOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/textView2">
-
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -121,17 +122,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Loading..."
+                android:text="منتظر جواب سروریم...🙂"
                 android:textColor="@color/colorPrimary"
-                android:textSize="10sp"
+                android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="@+id/linearLayout"
                 app:layout_constraintTop_toBottomOf="@+id/view2" />
 
         </LinearLayout>
-
         <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -148,7 +148,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="90dp" />
+                    android:layout_height="150dp" />
 
             </LinearLayout>
 

@@ -20,7 +20,7 @@ public class ContactsFragment extends Fragment {
 
     public interface IContactsFragment {
 
-        void onContactsSelected(ContactsWrapper contact);
+        void onContactsSelected(ContactsWrapper contact, int callType);
     }
 
 
@@ -78,8 +78,8 @@ public class ContactsFragment extends Fragment {
 
     private void setListeners() {
 
-        viewAddContact.setOnClickListener(v-> Toast.makeText(getContext(), "Not Today!", Toast.LENGTH_SHORT).show());
-        viewCreateGroupCall.setOnClickListener(v-> Toast.makeText(getContext(), "Not Today!", Toast.LENGTH_SHORT).show());
+        viewAddContact.setOnClickListener(v-> Toast.makeText(getContext(), "فعلا این قابلیت اضافه نشده", Toast.LENGTH_SHORT).show());
+        viewCreateGroupCall.setOnClickListener(v-> Toast.makeText(getContext(), "فعلا این قابلیت اضافه نشده", Toast.LENGTH_SHORT).show());
 
     }
 
@@ -87,10 +87,10 @@ public class ContactsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         adaptor = new ContactsAdaptor(contacts, view.getContext(), false,
-                contactsWrapper -> {
+                (contactsWrapper, callType) -> {
                     Log.d("TAGG", "Selected " + contactsWrapper.getFirstName());
                     if (callback != null) {
-                        callback.onContactsSelected(contactsWrapper);
+                        callback.onContactsSelected(contactsWrapper,callType);
                     }
                 });
 

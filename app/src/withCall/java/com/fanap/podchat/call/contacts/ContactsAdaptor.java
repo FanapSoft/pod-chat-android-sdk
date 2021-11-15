@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.util.Util;
 
@@ -21,7 +22,7 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
 
 
     public interface IContactInterface {
-        void onCantactSelected(ContactsWrapper wrapper);
+        void onContactSelected(ContactsWrapper wrapper, int callType);
     }
 
     ArrayList<ContactsWrapper> contacts;
@@ -72,11 +73,18 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
 
 
             if(isMultiSelect)
-                viewHolder.imageButtonCall.setVisibility(View.GONE);
+            {
+                viewHolder.imageButtonAudioCall.setVisibility(View.GONE);
+                viewHolder.imageButtonVideoCall.setVisibility(View.GONE);
+            }
             else {
-                viewHolder.imageButtonCall.setOnClickListener(v->{
+                viewHolder.imageButtonAudioCall.setOnClickListener(v->{
                     if (iContactInterface != null)
-                        iContactInterface.onCantactSelected(contact);
+                        iContactInterface.onContactSelected(contact, CallType.Constants.VOICE_CALL);
+                });
+                viewHolder.imageButtonVideoCall.setOnClickListener(v -> {
+                    if (iContactInterface != null)
+                        iContactInterface.onContactSelected(contact, CallType.Constants.VIDEO_CALL);
                 });
             }
 
@@ -85,7 +93,7 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
                     contact.setSelected(!contact.isSelected());
                     notifyDataSetChanged();
                     if (iContactInterface != null)
-                        iContactInterface.onCantactSelected(contact);
+                        iContactInterface.onContactSelected(contact, 0);
                 }
             });
         }
@@ -102,14 +110,15 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
 
         TextView tvName;
         ImageView imageViewProfile;
-        ImageButton imageButtonCall;
+        ImageButton imageButtonAudioCall,imageButtonVideoCall;
         ImageView imageViewDone;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvContactName);
             imageViewProfile = itemView.findViewById(R.id.imageStatus);
-            imageButtonCall = itemView.findViewById(R.id.imgBtnCallContact);
+            imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
+            imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
             imageViewDone = itemView.findViewById(R.id.imageDone);
         }
 
