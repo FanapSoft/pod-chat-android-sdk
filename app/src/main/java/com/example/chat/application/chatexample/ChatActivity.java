@@ -2571,7 +2571,6 @@ public class ChatActivity extends AppCompatActivity
             RequestGetContact request = new RequestGetContact.Builder()
                     .count(50)
                     .offset(0)
-                    .setUserName("mahyar.zhiani")
 //       .withNoCache()
                     .build();
 
