@@ -637,6 +637,7 @@ public class CallAsyncRequestsManager {
 
         CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
         callRequestResult.setThreadId(chatMessage.getSubjectId());
+        callRequestResult.setGroup(true);
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
