@@ -5,7 +5,7 @@ import com.fanap.podchat.mainmodel.Participant;
 public class CallErrorVO {
     private Integer code;
     private String message;
-    private Participant participantVo;
+    private Participant participant;
 
     public Integer getCode() {
         return code;
@@ -25,12 +25,12 @@ public class CallErrorVO {
         return this;
     }
 
-    public Participant getParticipantVo() {
-        return participantVo;
+    public Participant getParticipant() {
+        return participant;
     }
 
-    public CallErrorVO setParticipantVo(Participant participantVo) {
-        this.participantVo = participantVo;
+    public CallErrorVO setParticipant(Participant participant) {
+        this.participant = participant;
         return this;
     }
 }

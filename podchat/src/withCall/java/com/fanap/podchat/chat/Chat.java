@@ -177,7 +177,7 @@ public class Chat extends ChatCore {
         return uniqueId;
     }
 
-    public String sendClientCallErrors(CallClientErrorsRequest request) {
+    private String sendClientCallErrors(CallClientErrorsRequest request) {
 
         String uniqueId = generateUniqueId();
         if (chatReady) {
