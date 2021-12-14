@@ -6,7 +6,7 @@
 All notable changes to this project will be documented here.
 
 
-## [Unreleased]
+## [0.9.14.0] -2021-11-15
 
 ### Added
 
@@ -26,7 +26,15 @@ All notable changes to this project will be documented here.
 
  ```onCallRecordEnded``` callback
 
-Share Screen and Call Record buttons to CallActivity UI
+ ```ChatListeners.onCallClientErrors(ChatResponse<CallClientErrorsResult>)``` callback
+
+
+### Changed
+
+ Improved bluetooth headset detection
+ 
+ Update podcall to 3.5.2
+
 
 
 ## [0.9.13.0] -2021-10-18

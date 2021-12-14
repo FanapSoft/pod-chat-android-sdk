@@ -87,6 +87,7 @@ import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestGetContact;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
@@ -1681,6 +1682,19 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     }
 
+    @Override
+    public void onCallClientErrors(ChatResponse<CallClientErrorsResult> response) {
+        CallErrorVO error = response.getResult().getCallErrorVO();
+        Participant cp = error.getParticipant();
+        if(error.getCode()== ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE){
+            view.showMessage("دوربین " + cp.getName() + " قابل استفاده نیست!");
+        }
+        if (error.getCode() == ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE) {
+            view.showMessage("میکروفن " + cp.getName() + " قابل استفاده نیست!");
+
+        }
+
+    }
 
     @Override
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {

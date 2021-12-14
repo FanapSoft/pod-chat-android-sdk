@@ -8,6 +8,8 @@ import com.fanap.podcall.PartnerType;
 import com.fanap.podcall.PodCall;
 import com.fanap.podcall.PodCallBuilder;
 import com.fanap.podcall.audio.AudioCallParam;
+import com.fanap.podcall.error.CameraUnavailableException;
+import com.fanap.podcall.error.MicrophoneUnavailableException;
 import com.fanap.podcall.kafka.KafkaConfig;
 import com.fanap.podcall.model.CallPartner;
 import com.fanap.podcall.model.VideoCallParam;
@@ -22,6 +24,7 @@ import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
+import com.fanap.podchat.call.request_model.CallClientErrorsRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
@@ -36,6 +39,7 @@ import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRe
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
@@ -138,7 +142,15 @@ public class Chat extends ChatCore {
                 showLog("Call is ready");
             }
 
+            @Override
+            public void onCameraIsNotAvailable(String message) {
+                captureError(new PodChatException(ChatConstant.ERROR_CAMERA_NOT_AVAILABLE,ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE));
+            }
 
+            @Override
+            public void onMicrophoneIsNotAvailable(String message) {
+                captureError(new PodChatException(ChatConstant.ERROR_MICROPHONE_NOT_AVAILABLE,ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE));
+            }
         })
                 .setVideoCallParam(videoCallParam)
                 .setAudioCallParam(audioCallParam)
@@ -158,6 +170,24 @@ public class Chat extends ChatCore {
             String message = CallAsyncRequestsManager.createCallRequestMessage(request, uniqueId);
             setCallBacks(false, false, false, true, ChatMessageType.Constants.CALL_REQUEST, null, uniqueId);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_NEW_CALL");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+    private String sendClientCallErrors(CallClientErrorsRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            try {
+                String message = CallAsyncRequestsManager.createCallClientErrorsRequestMessage(request, uniqueId);
+                setCallBacks(false, false, false, true, ChatMessageType.Constants.CALL_CLIENT_ERRORS, null, uniqueId);
+                sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_CALL_CLIENT_ERRORS");
+            } catch (PodChatException e) {
+                captureError(e);
+            }
         } else {
             onChatNotReady(uniqueId);
         }
@@ -433,7 +463,15 @@ public class Chat extends ChatCore {
             }
 
 
-            podVideoCall.startCall();
+            try {
+                podVideoCall.startCall();
+            } catch (MicrophoneUnavailableException e) {
+                captureError(new PodChatException(e.getMessage(),ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE,info.getUniqueId()));
+                sendClientCallErrors(new CallClientErrorsRequest.Builder(info.getSubjectId(),ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE).build());
+            } catch (CameraUnavailableException e) {
+                captureError(new PodChatException(e.getMessage(),ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE,info.getUniqueId()));
+                sendClientCallErrors(new CallClientErrorsRequest.Builder(info.getSubjectId(),ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE).build());
+            }
 
             if (callServiceManager != null)
                 callServiceManager.startCallService(info, new ICallState() {
@@ -977,9 +1015,9 @@ public class Chat extends ChatCore {
     }
 
     private void endCall() {
+        deviceIsInCall = false;
         if (podVideoCall != null) {
             podVideoCall.endCall();
-            deviceIsInCall = false;
         }
     }
 
@@ -1283,6 +1321,20 @@ public class Chat extends ChatCore {
 
             listenerManager.callOnCallConnectReceived(response);
         }
+    }
+
+    @Override
+    protected void handleOnReceivedClientCallErrors(ChatMessage chatMessage) {
+        if (sentryResponseLog) {
+            showLog("RECEIVED_CALL_CLIENT_ERRORS", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVED_CALL_CLIENT_ERRORS");
+        }
+
+
+        ChatResponse<CallClientErrorsResult> response = CallAsyncRequestsManager.handleOnCallClientErrorsReceived(chatMessage);
+
+        listenerManager.callOnCallClientCallErrorsReceived(response);
     }
 
 
