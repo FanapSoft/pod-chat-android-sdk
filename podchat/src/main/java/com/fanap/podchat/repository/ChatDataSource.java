@@ -2,7 +2,6 @@ package com.fanap.podchat.repository;
 
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.queue.Failed;
@@ -10,7 +9,6 @@ import com.fanap.podchat.cachemodel.queue.Sending;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
-import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.contact.ContactManager;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.thread.ThreadManager;
@@ -18,6 +16,7 @@ import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -46,11 +45,16 @@ public class ChatDataSource {
     THREADS
      */
 
-    public Observable<ThreadManager.ThreadResponse> getThreadsFromMemoryDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) {
+    private Observable<ThreadManager.ThreadResponse> getThreadsFromMemoryDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) {
         return memoryDataSource.getThreadsData(count, offset, threadIds, threadName, isNew);
     }
 
-    public Observable<ThreadManager.ThreadResponse> getThreadsFromCacheDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) throws RoomIntegrityException {
+    private Observable<ThreadManager.ThreadResponse> getMutualThreadsFromCacheDataSource(Integer count, Long offset, Long userId) throws RoomIntegrityException {
+        //get from disk cache and put in memory cache
+        return cacheDataSource.getMutualThreadsData(count, offset, userId).doOnNext(threadResponse -> saveThreadResultFromCache(threadResponse.getThreadList()));
+    }
+
+    private Observable<ThreadManager.ThreadResponse> getThreadsFromCacheDataSource(Integer count, Long offset, @Nullable ArrayList<Integer> threadIds, @Nullable String threadName, boolean isNew) throws RoomIntegrityException {
         //get from disk cache and put in memory cache
         return cacheDataSource.getThreadsData(count, offset, threadIds, threadName, isNew).doOnNext(threadResponse -> saveThreadResultFromCache(threadResponse.getThreadList()));
     }
@@ -83,12 +87,35 @@ public class ChatDataSource {
 
 
     }
+    public Observable<ThreadManager.ThreadResponse> getMutualThreadData(Integer count,
+                                                                  Long offset,
+                                                                        long  userId
+                                                                  ) throws RoomIntegrityException {
+
+
+        if (offset == null) {
+            offset = 0L;
+        }
+
+        if (count == null || count == 0)
+            count = 50;
+
+        return getMutualThreadsFromCacheDataSource(count, offset, userId);
+
+
+    }
 
 
     public void saveThreadResultFromServer(List<Thread> server) {
 
         memoryDataSource.cacheThreads(server);
         cacheDataSource.cacheThreads(server);
+
+    }
+
+    public void saveMutualThreadResultFromServer(List<Thread> server,long userId) {
+
+        cacheDataSource.cacheMutualThreads(server,userId);
 
     }
 
@@ -115,17 +142,20 @@ public class ChatDataSource {
     CONTACTS
      */
 
-    public Observable<ContactManager.ContactResponse> getContactsFromMemoryDataSource(Integer count, Long offset) {
-        return memoryDataSource.getContactsData(count, offset);
+    public Observable<ContactManager.ContactResponse> getContactsFromMemoryDataSource(Integer count, Long offset,
+                                                                                      String username) {
+        return memoryDataSource.getContactsData(count, offset,username);
     }
 
-    public Observable<ContactManager.ContactResponse> getContactsFromCacheDataSource(Integer count, Long offset) {
+    public Observable<ContactManager.ContactResponse> getContactsFromCacheDataSource(Integer count, Long offset,
+                                                                                     String username) {
         //get from disk cache and put in memory cache
-        return cacheDataSource.getContactsData(count, offset).doOnNext(cacheContact -> saveContactsResultFromCache(cacheContact.getContactsList()));
+        return cacheDataSource.getContactsData(count, offset,username).doOnNext(cacheContact -> saveContactsResultFromCache(cacheContact.getContactsList()));
     }
 
     public Observable<ContactManager.ContactResponse> getContactData(Integer count,
-                                                                     Long offset) {
+                                                                     Long offset,
+                                                                     String username) {
 
         if (offset == null) {
             offset = 0L;
@@ -136,8 +166,8 @@ public class ChatDataSource {
 
 
         return Observable.concat(
-                getContactsFromMemoryDataSource(count, offset),
-                getContactsFromCacheDataSource(count, offset))
+                getContactsFromMemoryDataSource(count, offset,username),
+                getContactsFromCacheDataSource(count, offset,username))
                 .first()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io());
@@ -300,6 +330,21 @@ public class ChatDataSource {
     public void cancelMessage(String uniqueId) {
         cacheDataSource.cancelMessage(uniqueId);
         memoryDataSource.cancelMessage(uniqueId);
+    }
+
+    public Observable<MessageManager.HistoryResponse> getMessagesSystemMetadataData(SearchSystemMetadataRequest request) {
+
+
+        return getMessagesSystemMetadataFromCacheDataSource(request)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+
+
+    }
+
+    private Observable<MessageManager.HistoryResponse> getMessagesSystemMetadataFromCacheDataSource(SearchSystemMetadataRequest request) {
+        //get from disk cache and put in memory cache
+        return cacheDataSource.getMessagesSystemMetadataData(request).doOnNext(historyResponse -> saveMessageResultFromCache(historyResponse.getResponse().getResult().getHistory()));
     }
 
     //Sending Queue

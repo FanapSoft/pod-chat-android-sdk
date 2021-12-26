@@ -1,9 +1,12 @@
 package com.fanap.podchat.chat.participant;
 
+import android.os.Build;
+
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
@@ -18,6 +21,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.List;
+
+import io.sentry.core.Sentry;
+import rx.Observable;
 
 public class ParticipantsManager {
 
@@ -158,6 +164,29 @@ public class ParticipantsManager {
 
         String asyncContent = jsonObject.toString();
         return asyncContent;
+
+    }
+
+    public static Observable<List<Participant>> getByIds(List<Integer> ids, List<Participant> participants) {
+
+        try {
+            if (Util.isNotNullOrEmpty(ids))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    return Observable.from(participants)
+                            .filter(t -> ids.contains(Math.toIntExact(t.getContactId())))
+                            .toList();
+                } else {
+                    return Observable.from(participants)
+                            .filter(t -> ids.contains((int) t.getContactId()))
+                            .toList();
+                }
+        } catch (Exception e) {
+            if (Sentry.isEnabled())
+                Sentry.captureException(e);
+            return Observable.from(participants).toList();
+        }
+
+        return Observable.from(participants).toList();
 
     }
 }

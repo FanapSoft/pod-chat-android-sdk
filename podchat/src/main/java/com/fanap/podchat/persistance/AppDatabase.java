@@ -11,8 +11,11 @@ import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.cachemodel.CacheMutualGroupVo;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
+import com.fanap.podchat.cachemodel.CacheTagParticipantVO;
+import com.fanap.podchat.cachemodel.CacheTagVo;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.GapMessageVO;
@@ -63,7 +66,10 @@ import com.fanap.podchat.util.DataTypeConverter;
         CallHistoryVO.class,
         CacheAssistantVo.class,
         CacheAssistantHistoryVo.class,
-}, version = 5, exportSchema = false)
+        CacheMutualGroupVo.class,
+        CacheTagVo.class,
+        CacheTagParticipantVO.class,
+}, version = 7, exportSchema = false)
 @TypeConverters({DataTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
 

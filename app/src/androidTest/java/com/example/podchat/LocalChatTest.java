@@ -7,9 +7,9 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.example.chat.application.chatexample.ChatActivity;
 import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
-import com.example.chat.application.chatexample.ChatSandBoxActivity;
 import com.fanap.podchat.mainmodel.History;
 
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class LocalChatTest {
 
     private static String TYPE_CODE = "";
 
-    private ChatSandBoxActivity activy;
+    private ChatActivity activy;
 
     @Before
     public void setUp() {

@@ -51,20 +51,18 @@ public class TokenHandler {
             refreshToken = refKey;
 
             refreshToken();
+        }else {
+            listener.onLoginNeeded();
         }
 
 
     }
 
 
-    public TokenHandler(Context context) {
+    public TokenHandler(Context context,ITokenHandler iTokenHandler) {
         this.context = context;
-        checkRefreshToken();
-    }
-
-    public void addListener(ITokenHandler iTokenHandler) {
-
         listener = iTokenHandler;
+        checkRefreshToken();
     }
 
     public void handshake(String number) {
@@ -352,5 +350,7 @@ public class TokenHandler {
         void onTokenRefreshed(String token);
 
         void onError(String message);
+
+        default void onLoginNeeded(){}
     }
 }

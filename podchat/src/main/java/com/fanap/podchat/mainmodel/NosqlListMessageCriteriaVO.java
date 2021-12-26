@@ -2,6 +2,7 @@ package com.fanap.podchat.mainmodel;
 
 import android.support.annotation.NonNull;
 
+@Deprecated
 public class NosqlListMessageCriteriaVO {
     private long messageThreadId;
     private long userId;

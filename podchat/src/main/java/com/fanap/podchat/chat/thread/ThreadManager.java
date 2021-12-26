@@ -6,10 +6,10 @@ import android.support.annotation.NonNull;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
-import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -161,6 +161,22 @@ public class ThreadManager {
         message.setContent(content.toString());
         message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setSubjectId(request.getThreadId());
+        message.setUniqueId(uniqueId);
+
+
+        return App.getGson().toJson(message);
+    }
+
+    public static String createMutaulGroupRequest(GetMutualGroupRequest request, String uniqueId) {
+        JsonObject content = (JsonObject) App.getGson().toJsonTree(request);
+        content.remove("useCache");
+
+        AsyncMessage message = new ChatMessage();
+        message.setType(ChatMessageType.Constants.MUTUAL_GROUPS);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setContent(content.toString());
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setUniqueId(uniqueId);
 
 
@@ -381,6 +397,7 @@ public class ThreadManager {
 
     }
 
+
     public static Observable<List<Thread>> getByName(String name, List<Thread> allThreads) {
 
         try {
@@ -420,6 +437,12 @@ public class ThreadManager {
         Collections.sort(sorted, ThreadManager::compareThreads);
         return sorted;
     }
+
+//    public static List<Thread> sortThreads(List<Thread> unsorted) {
+//        List<Thread> sorted = new ArrayList<>(unsorted);
+//        Collections.sort(sorted, ThreadManager::compareThreads);
+//        return sorted;
+//    }
 
     public static ChatResponse<ResultLeaveThread> prepareLeaveThreadResponse(ChatMessage chatMessage) {
 

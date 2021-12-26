@@ -17,7 +17,6 @@ import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
-import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.chat.ChatListener;
 import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
@@ -52,7 +51,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,8 +64,9 @@ import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
 
 
 @RunWith(AndroidJUnit4.class)
-public class ChatTest extends ChatAdapter {
+public class ChatTest {
 
+    public static final boolean CACHE = false;
     private static ChatContract.presenter presenter;
     @Mock
     private static ChatContract.view view;
@@ -109,63 +108,16 @@ public class ChatTest extends ChatAdapter {
 
         chat = Chat.init(appContext);
 
-//        chat.isCacheables(true);
-//
-//        chat.isLoggable(true);
-//        chat.rawLog(true);
-//        chat.isSentryLogActive(true);
-//        chat.isSentryResponseLogActive(true);
-//
-//        chat.setDownloadDirectory(appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS));
-//
-//        TimeoutConfig timeout = new TimeoutConfig()
-//                .newConfigBuilder()
-//                .withConnectTimeout(30, TimeUnit.SECONDS)
-//                .withWriteTimeout(30, TimeUnit.MINUTES)
-//                .withReadTimeout(30, TimeUnit.MINUTES)
-//                .build();
-//
-//
-//        chat.setUploadTimeoutConfig(timeout);
-//
-//        chat.setDownloadTimeoutConfig(timeout);
-//
-//        NetworkPingSender.NetworkStateConfig build = new NetworkPingSender.NetworkStateConfig()
-//                .setHostName("msg.pod.ir")
-//                .setPort(443)
-//                .setDisConnectionThreshold(2)
-//                .setInterval(7000)
-//                .setConnectTimeout(10000)
-//                .build();
-
-
-//        TimeoutConfig uploadConfig = new TimeoutConfig()
-//                .newConfigBuilder()
-//                .withConnectTimeout(120, TimeUnit.MINUTES)
-//                .withWriteTimeout(120, TimeUnit.MINUTES)
-//                .withReadTimeout(120, TimeUnit.MINUTES)
-//                .build();
-//
-//        TimeoutConfig downloadConfig = new TimeoutConfig()
-//                .newConfigBuilder()
-//                .withConnectTimeout(20, TimeUnit.SECONDS)
-//                .withWriteTimeout(0, TimeUnit.SECONDS)
-//                .withReadTimeout(5, TimeUnit.MINUTES)
-//                .build();
-
-//        chat.setNetworkStateConfig(build);
-//
-//        chat.setUploadConfig(uploadConfig);
-//
-//        chat.setDownloadConfig(downloadConfig);
-
-
     }
 
     @Before
     public void createChat() {
         Looper.prepare();
-        MockitoAnnotations.initMocks(this);
+
+        view = Mockito.mock(ChatContract.view.class);
+
+        chatActivity = chatActivityRule.getActivity();
+        presenter = new ChatPresenter(appContext, view, chatActivity);
 
         RequestConnect rc = new RequestConnect.Builder(
                 socketAddress,
@@ -192,36 +144,15 @@ public class ChatTest extends ChatAdapter {
 
         chat.connect(rc);
 
+        chat.isCacheables(CACHE);
+
         pauseProcess();
 
 
     }
 
-    @Before
-    public void setUp() {
-//        Looper.prepare();
-//        appContext = InstrumentationRegistry.getTargetContext();
-//        MockitoAnnotations.initMocks(this);
-        chatActivity = chatActivityRule.getActivity();
-        presenter = new ChatPresenter(appContext, view, chatActivity);
-
-//        RequestConnect rc = new RequestConnect.Builder(
-//                socketAddress,
-//                APP_ID,
-//                serverName,
-//                "f29512343de1472fa15d1e497e264c54",
-//                ssoHost,
-//                platformHost,
-//                fileServer,
-//                "podSpaceServer")
-//                .build();
-
-//        presenter.connect(rc);
-
-    }
 
     final ArrayList<Thread> threads = new ArrayList<>();
-
 
     //requests for list of threads
     @Test
@@ -234,7 +165,6 @@ public class ChatTest extends ChatAdapter {
 
                 System.out.println("Received List: " + content);
                 threads.addAll(thread.getResult().getThreads());
-                resumeProcess();
             }
         };
 
@@ -247,8 +177,10 @@ public class ChatTest extends ChatAdapter {
 
         presenter.getThreads(requestThread, null);
 
-        pauseProcess();
-        System.out.println("Received List: " + threads.size());
+        long t1 = System.currentTimeMillis();
+        Mockito.verify(view, Mockito.after(10000).atLeastOnce()).onGetThreadList(Mockito.any(), Mockito.any());
+        long t2 = System.currentTimeMillis();
+        System.out.println("Received List: " + threads.size() + " after: " + (t2 - t1) + " ms");
 
     }
 
@@ -261,7 +193,7 @@ public class ChatTest extends ChatAdapter {
             @Override
             public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
 
-                if(!thread.isCache()){
+                if (!thread.isCache()) {
                     System.out.println("Received List: " + content);
                     threads.addAll(thread.getResult().getThreads());
                     resumeProcess();
@@ -270,11 +202,12 @@ public class ChatTest extends ChatAdapter {
             }
         };
 
-        chat.addListener(chatListeners);
+        chat.setListener(chatListeners);
 
         RequestThread requestThread =
                 new RequestThread.Builder()
                         .count(25)
+                        .withNoCache()
                         .build();
 
         presenter.getThreads(requestThread, null);
@@ -293,7 +226,7 @@ public class ChatTest extends ChatAdapter {
             @Override
             public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
 
-                if(thread.isCache()){
+                if (thread.isCache()) {
                     System.out.println("Received List: " + content);
                     threads.addAll(thread.getResult().getThreads());
                     resumeProcess();
@@ -315,32 +248,6 @@ public class ChatTest extends ChatAdapter {
         System.out.println("Received List: " + threads.size());
 
     }
-
-    private void resumeProcess() {
-        synchronized (sync) {
-            sync.notify();
-        }
-    }
-
-    private void pauseProcess() {
-        synchronized (sync) {
-            try {
-                sync.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-//    @After
-//    public void closeChat() {
-//        if (chat != null) {
-//            chat.closeChat();
-//        } else if (presenter != null) {
-//            presenter.closeChat();
-//        }
-//    }
-
 
     @Test
     public void chatListeners() {
@@ -529,7 +436,7 @@ public class ChatTest extends ChatAdapter {
         long threadID = threads.get(0).getId();
         for (Thread thread : new ArrayList<>(threads)) {
             if (!thread.isClosed() &&
-            thread.getParticipantCount() > 1) {
+                    thread.getParticipantCount() > 1) {
                 threadID = thread.getId();
             }
         }
@@ -867,20 +774,8 @@ public class ChatTest extends ChatAdapter {
 
     }
 
-    private void sleep(int i) {
-        try {
-            java.lang.Thread.sleep(i);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
 
-    @Override
-    public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
-        super.onGetThread(content, thread);
-
-    }
 
     @Test
     @MediumTest
@@ -966,7 +861,7 @@ public class ChatTest extends ChatAdapter {
         sleep(3000);
         presenter.getContact(50, 0L, null);
         sleep(3000);
-        Mockito.verify(view, Mockito.times(1)).onGetContacts();
+        Mockito.verify(view, Mockito.times(1)).onGetContacts(null);
     }
 
     @Test
@@ -1324,5 +1219,28 @@ public class ChatTest extends ChatAdapter {
         presenter.mapSearch("میدان آزادی", 35.7003510, 51.3376472);
         sleep(3000);
         Mockito.verify(view, Mockito.times(1)).onMapSearch();
+    }
+
+    private void sleep(int i) {
+        try {
+            java.lang.Thread.sleep(i);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    private void resumeProcess() {
+        synchronized (sync) {
+            sync.notify();
+        }
+    }
+
+    private void pauseProcess() {
+        synchronized (sync) {
+            try {
+                sync.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
