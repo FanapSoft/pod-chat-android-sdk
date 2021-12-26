@@ -2171,7 +2171,7 @@ public abstract class ChatCore extends AsyncAdapter {
      * @param threadId           Id of the destination thread
      * @param jsonSystemMetadata It should be Json,if you don't have metaData you can set it to "null"
      */
-    public String sendTextMessage(String textMessage, long threadId, Integer messageType, String jsonMetadata
+    public String sendTextMessage(String textMessage, long threadId, Integer messageType, String jsonSystemMetadata
             , ChatHandler handler) {
 
         String asyncContentWaitQueue;
@@ -2180,10 +2180,10 @@ public abstract class ChatCore extends AsyncAdapter {
 
         try {
 
-            JsonObject jsonObject = (MessageManager.prepareSendTextMessageRequest(textMessage, threadId, messageType, jsonMetadata, uniqueId, getTypeCode(), getToken()));
+            JsonObject jsonObject = (MessageManager.prepareSendTextMessageRequest(textMessage, threadId, messageType, jsonSystemMetadata, uniqueId, getTypeCode(), getToken()));
 
             SendingQueueCache sendingQueue = new SendingQueueCache();
-            sendingQueue.setMetadata(jsonMetadata);
+            sendingQueue.setSystemMetadata(jsonSystemMetadata);
             sendingQueue.setMessageType(messageType);
             sendingQueue.setThreadId(threadId);
             sendingQueue.setUniqueId(uniqueId);
