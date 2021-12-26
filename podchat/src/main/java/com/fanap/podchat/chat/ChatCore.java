@@ -121,6 +121,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.MapReverse;
 import com.fanap.podchat.mainmodel.MapRout;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
@@ -6846,7 +6847,7 @@ public abstract class ChatCore extends AsyncAdapter {
                 .count(request.getCount())
                 .firstMessageId(request.getFirstMessageId())
                 .lastMessageId(request.getLastMessageId())
-                .metadataCriteria(request.getMetadataCriteria())
+
                 .offset(request.getOffset())
                 .fromTime(request.getFromTime())
                 .fromTimeNanos(request.getFromTimeNanos())
@@ -7082,6 +7083,7 @@ public abstract class ChatCore extends AsyncAdapter {
      * ------ List<NosqlSearchMetadataCriteria> or
      * ------ List<NosqlSearchMetadataCriteria> not
      **/
+    @Deprecated
     public String searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler) {
         String uniqueId;
         uniqueId = generateUniqueId();
@@ -7089,13 +7091,32 @@ public abstract class ChatCore extends AsyncAdapter {
             String asyncContent = SearchManager.prepareSearchRequest(messageCriteriaVO, uniqueId, getTypeCode(), getToken());
 
             setCallBacks(null, null, null, true, Constants.GET_HISTORY, messageCriteriaVO.getOffset(), uniqueId);
-            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND SEARCH0. HISTORY");
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND SEARCH HISTORY");
             if (handler != null) {
                 handler.onSearchHistory(uniqueId);
             }
         } else {
             captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
         }
+        return uniqueId;
+    }
+
+    public String searchHistory(SearchSystemMetadataRequest messageCriteriaVO, ChatHandler handler) {
+        String uniqueId;
+        uniqueId = generateUniqueId();
+
+        if (chatReady) {
+            String asyncContent = SearchManager.prepareSearchRequest(messageCriteriaVO, uniqueId, getTypeCode(), getToken());
+
+            setCallBacks(null, null, null, true, Constants.GET_HISTORY, messageCriteriaVO.getOffset(), uniqueId);
+            sendAsyncMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK, "SEND SEARCH HISTORY");
+            if (handler != null) {
+                handler.onSearchHistory(uniqueId);
+            }
+        } else {
+            captureError(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
+        }
+
         return uniqueId;
     }
 

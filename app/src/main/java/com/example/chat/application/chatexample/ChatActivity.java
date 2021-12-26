@@ -75,7 +75,7 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
@@ -173,8 +173,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-//    TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-    private String TOKEN = "91cf7327e2c148b78fb65230d5bba49a";
+    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -194,7 +193,7 @@ public class ChatActivity extends AppCompatActivity
     private Map<String, List<Method>> categoryMap;
     private List<Method> movieList;
     private ExpandablePlaceHolderView expandablePlaceHolderView;
-    private final Enum<ServerType> serverType = ServerType.Main;
+    private final Enum<ServerType> serverType = ServerType.Sandbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1525,7 +1524,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder("name")
                 .is("sina")
                 .build();
-        NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(231)
+        SearchSystemMetadataRequest criteriaVO = new SearchSystemMetadataRequest.Builder(231)
                 .count(10)
                 .metadataCriteria(builderMeta)
                 .build();

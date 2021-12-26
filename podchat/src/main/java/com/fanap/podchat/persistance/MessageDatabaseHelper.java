@@ -1,4 +1,4 @@
- package com.fanap.podchat.persistance;
+package com.fanap.podchat.persistance;
 
 import android.arch.persistence.db.SimpleSQLiteQuery;
 import android.arch.persistence.db.SupportSQLiteDatabase;
@@ -60,9 +60,11 @@ import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.PinMessageVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.ChatResponse;
@@ -1331,6 +1333,71 @@ public class MessageDatabaseHelper {
     }
 
 
+    public Observable<ChatResponse<ResultHistory>> getThreadHistory(@NonNull SearchSystemMetadataRequest request) {
+        return rx.Observable.create(subscriber -> {
+            List<MessageVO> messageVOS = new ArrayList<>();
+            List<CacheMessageVO> cacheMessageVOS;
+            long offset = request.getOffset();
+            long count = request.getCount();
+            String order = request.getOrder();
+            offset = offset >= 0 ? offset : 0;
+            count = count > 0 ? count : 50;
+            if (Util.isNullOrEmpty(order)) {
+                order = "desc";
+            }
+
+            String rawQuery = "SELECT * FROM CacheMessageVO WHERE threadVoId =" + request.getMessageThreadId();
+
+//            rawQuery = rawQuery + " AND system_metadata_" + request.getMetadataCriteria().getField() + " >= " + request.getMetadataCriteria().getGte();
+
+            long contentCount = messageDao.getHistoryContentCount(new SimpleSQLiteQuery(rawQuery.replaceFirst("SELECT \\* ", "SELECT COUNT(ID) ")));
+
+            rawQuery = addOrderAndLimitAndOffset(offset, count, order, rawQuery);
+
+            SupportSQLiteQuery sqLiteQuery = new SimpleSQLiteQuery(rawQuery);
+
+            cacheMessageVOS = messageDao.getRawHistory(sqLiteQuery);
+
+            prepareMessageVOs(messageVOS, cacheMessageVOS);
+
+            List<Sending> sendingList = getAllSendingQueueByThreadId(request.getMessageThreadId());
+
+            List<Uploading> uploadingList = getAllUploadingQueueByThreadId(request.getMessageThreadId());
+
+            List<Failed> failedList = getAllWaitQueueCacheByThreadId(request.getMessageThreadId());
+
+            ChatResponse<ResultHistory> chatResponse = new ChatResponse<>();
+            chatResponse.setCache(true);
+
+            ResultHistory resultHistory = new ResultHistory();
+            resultHistory.setHistory(messageVOS);
+
+            resultHistory.setNextOffset(request.getOffset() + messageVOS.size());
+            resultHistory.setContentCount(contentCount);
+            if (messageVOS.size() + request.getOffset() < contentCount) {
+                resultHistory.setHasNext(true);
+            } else {
+                resultHistory.setHasNext(false);
+            }
+
+            resultHistory.setHistory(messageVOS);
+
+
+            resultHistory.setSending(sendingList);
+            resultHistory.setUploadingQueue(uploadingList);
+            resultHistory.setFailed(failedList);
+            chatResponse.setErrorCode(0);
+            chatResponse.setHasError(false);
+            chatResponse.setErrorMessage("");
+            chatResponse.setResult(resultHistory);
+            chatResponse.setCache(true);
+            chatResponse.setSubjectId(request.getMessageThreadId());
+            subscriber.onNext(chatResponse);
+        });
+
+    }
+
+
     private void prepareMessageVOs(List<MessageVO> messageVOS, List<CacheMessageVO> cacheMessageVOS) {
 
         for (CacheMessageVO cacheMessageVO : cacheMessageVOS) {
@@ -1508,6 +1575,46 @@ public class MessageDatabaseHelper {
         return rawQuery;
     }
 
+    private String addSystemMetadataCriteriaIfExist(NosqlSearchMetadataCriteria metadataCriteria,
+                                                    String rawQuery) {
+
+        if (metadataCriteria != null) {
+
+            String field = metadataCriteria.getField();
+            rawQuery = rawQuery + " AND " + field;
+
+            if (Util.isNotNullOrEmpty(metadataCriteria.getAnd())) {
+
+
+            }
+            if (Util.isNotNullOrEmpty(metadataCriteria.getOr())) {
+
+
+            }
+            if (Util.isNotNullOrEmpty(metadataCriteria.getNot())) {
+
+
+            }
+
+            if (Util.isNotNullOrEmpty(metadataCriteria.getIs())) {
+                rawQuery = rawQuery + " IS " + metadataCriteria.getIs();
+                return rawQuery;
+            }
+            if (Util.isNotNullOrEmpty(metadataCriteria.getHas())) {
+                rawQuery = rawQuery + " LIKE '%' || "+ metadataCriteria.getHas() +" || '%' ";
+                return rawQuery;
+            }
+
+            if (Util.isNotNullOrEmpty(metadataCriteria.getGt())) {
+                rawQuery = rawQuery + " " + metadataCriteria.getAnd();
+                return rawQuery;
+            }
+
+        }
+
+        return rawQuery;
+    }
+
     private MessageVO cacheMessageVoToMessageVoMapper(Participant participant, ReplyInfoVO replyInfoVO, ForwardInfo forwardInfo, CacheMessageVO cacheMessageVO) {
         return new MessageVO(
                 cacheMessageVO.getId(),
@@ -1580,7 +1687,6 @@ public class MessageDatabaseHelper {
                 .count(request.getCount())
                 .firstMessageId(request.getFirstMessageId())
                 .lastMessageId(request.getLastMessageId())
-                .metadataCriteria(request.getMetadataCriteria())
                 .offset(request.getOffset())
                 .fromTime(request.getFromTime())
                 .fromTimeNanos(request.getFromTimeNanos())
@@ -1734,9 +1840,8 @@ public class MessageDatabaseHelper {
 
         List<CacheContact> cacheContacts = null;
         if (username != null) {
-            cacheContacts = messageDao.getRawContacts(count, offset,username);
-        }
-        else {
+            cacheContacts = messageDao.getRawContacts(count, offset, username);
+        } else {
             cacheContacts = messageDao.getContacts(count, offset);
         }
 
@@ -3087,14 +3192,14 @@ public class MessageDatabaseHelper {
         List<Thread> threads;
         if (messageDao.getMutualGroup(String.valueOf(userId)) != null) {
             List<CacheMutualGroupVo> threadVos = messageDao.getMutualGroup(String.valueOf(userId));
-            if(threadVos.size()>0) {
+            if (threadVos.size() > 0) {
                 ArrayList<Integer> threadids = new ArrayList<Integer>();
                 for (String id : threadVos.get(0).getThreadids()) {
                     threadids.add(Integer.parseInt(id));
                 }
                 threads = getThreadsByThreadIds(threadids);
                 Log.e(TAG, "getMutualThreads: " + threads);
-            }else
+            } else
                 threads = new ArrayList<>();
         } else {
             threads = new ArrayList<>();
@@ -3296,8 +3401,7 @@ public class MessageDatabaseHelper {
                     if (thread.getId() > 0)
                         prepareThreadVOAndSaveIt(thread);
                 } catch (Exception e) {
-                    if(Sentry.isEnabled())
-                    {
+                    if (Sentry.isEnabled()) {
                         Sentry.captureException(e);
                         e.printStackTrace();
                         break;
@@ -3319,7 +3423,7 @@ public class MessageDatabaseHelper {
 
             for (Thread thread : threads) {
                 if (thread.getId() > 0) {
-                    threadids.add(String.valueOf(thread.getId()) );
+                    threadids.add(String.valueOf(thread.getId()));
                 }
             }
 
@@ -4444,7 +4548,7 @@ public class MessageDatabaseHelper {
                 });
     }
 
-    private List<TagVo> prepareTagList(){
+    private List<TagVo> prepareTagList() {
         List<CacheTagVo> tags = messageDao.getCacheTagVos();
         List<TagVo> tagVos = new ArrayList<>();
 
@@ -4460,7 +4564,7 @@ public class MessageDatabaseHelper {
                     cache.setConversationVO(thread);
 
                     //TODO it should be save in db. can save it when save tags on db
-                    if(thread.getUnreadCount() > 0)
+                    if (thread.getUnreadCount() > 0)
                         allUnreadCount = allUnreadCount + thread.getUnreadCount();
                 }
                 tagParticipants.add(cache);
@@ -4506,7 +4610,7 @@ public class MessageDatabaseHelper {
 
     public void deleteCacheAssistantVos(List<AssistantVo> assistantVos) {
         worker(() -> {
-            for (AssistantVo item :  assistantVos) {
+            for (AssistantVo item : assistantVos) {
                 messageDao.deleteCacheAssistantVo(item.getParticipantVO().getId());
             }
         });
@@ -4548,7 +4652,7 @@ public class MessageDatabaseHelper {
             for (CacheAssistantHistoryVo item : list) {
                 AssistantHistoryVo assistantHistoryVo = new AssistantHistoryVo();
                 assistantHistoryVo.setActionName(item.getActionName());
-                assistantHistoryVo.setActionTime((int)item.getActionTime());
+                assistantHistoryVo.setActionTime((int) item.getActionTime());
                 assistantHistoryVo.setActionType(item.getActionType());
                 Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
                 assistantHistoryVo.setParticipantVO(participant);
@@ -4567,8 +4671,8 @@ public class MessageDatabaseHelper {
             messageDao.deleteAllCacheAssistantVo();
             for (AssistantVo assistantVo : response) {
                 CacheAssistantVo cacheFile = new CacheAssistantVo();
-                   cacheFile.setRoles(assistantVo.getRoles());
-                    cacheFile.setBlock(assistantVo.getBlock());
+                cacheFile.setRoles(assistantVo.getRoles());
+                cacheFile.setBlock(assistantVo.getBlock());
                 if (assistantVo.getParticipantVO() != null) {
                     Participant participant = assistantVo.getParticipantVO();
                     String participantJson = App.getGson().toJson(participant);

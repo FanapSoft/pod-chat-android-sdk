@@ -64,7 +64,7 @@ import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
@@ -787,7 +787,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void searchHistory(NosqlListMessageCriteriaVO builderListMessage, ChatHandler handler) {
+    public void searchHistory(SearchSystemMetadataRequest builderListMessage, ChatHandler handler) {
         chat.searchHistory(builderListMessage, handler);
     }
 
