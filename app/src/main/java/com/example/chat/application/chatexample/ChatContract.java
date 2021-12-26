@@ -5,70 +5,83 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.ProgressHandler;
-import com.fanap.podchat.call.contacts.ContactsFragment;
-import com.fanap.podchat.call.contacts.ContactsWrapper;
-import com.fanap.podchat.call.model.CallInfo;
-import com.fanap.podchat.call.model.CallParticipantVO;
-import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
-import com.fanap.podchat.call.result_model.GetCallHistoryResult;
+import com.fanap.podchat.chat.assistant.request_model.BlockUnblockAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.DeActiveAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
+import com.fanap.podchat.chat.assistant.request_model.RegisterAssistantRequest;
 import com.fanap.podchat.chat.bot.request_model.CreateBotRequest;
 import com.fanap.podchat.chat.bot.request_model.DefineBotCommandRequest;
+import com.fanap.podchat.chat.bot.request_model.GetUserBotsRequest;
 import com.fanap.podchat.chat.bot.request_model.StartAndStopBotRequest;
 import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.bot.result_model.DefineBotCommandResult;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.ResultUnreadMessagesCount;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
 import com.fanap.podchat.chat.ping.result.StatusPingResult;
+import com.fanap.podchat.chat.tag.request_model.AddTagParticipantRequest;
+import com.fanap.podchat.chat.tag.request_model.CreateTagRequest;
+import com.fanap.podchat.chat.tag.request_model.DeleteTagRequest;
+import com.fanap.podchat.chat.tag.request_model.EditTagRequest;
+import com.fanap.podchat.chat.tag.request_model.GetTagListRequest;
+import com.fanap.podchat.chat.tag.request_model.RemoveTagParticipantRequest;
+import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.RequestCheckIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.public_thread.RequestJoinPublicThread;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
-import com.fanap.podchat.chat.pin.pin_message.model.ResultPinMessage;
+import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultStaticMapImage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
+import com.fanap.podchat.requestobject.RemoveParticipantRequest;
 import com.fanap.podchat.requestobject.RequestAddContact;
-import com.fanap.podchat.requestobject.RequestBlockList;
-import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
-import com.fanap.podchat.requestobject.RequestGetContact;
-import com.fanap.podchat.requestobject.RequestGetFile;
-import com.fanap.podchat.requestobject.RequestGetImage;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
-import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
-import com.fanap.podchat.requestobject.RequestGetUserRoles;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
-import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
+import com.fanap.podchat.requestobject.RequestBlockList;
 import com.fanap.podchat.requestobject.RequestClearHistory;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestCreateThread;
+import com.fanap.podchat.requestobject.RequestCreateThreadWithFile;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
 import com.fanap.podchat.requestobject.RequestDeliveredMessageList;
 import com.fanap.podchat.requestobject.RequestFileMessage;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
 import com.fanap.podchat.requestobject.RequestGetAdmin;
+import com.fanap.podchat.requestobject.RequestGetContact;
+import com.fanap.podchat.requestobject.RequestGetFile;
 import com.fanap.podchat.requestobject.RequestGetHistory;
+import com.fanap.podchat.requestobject.RequestGetImage;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceFile;
+import com.fanap.podchat.requestobject.RequestGetPodSpaceImage;
+import com.fanap.podchat.requestobject.RequestGetUserRoles;
 import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
-import com.fanap.podchat.chat.pin.pin_thread.model.RequestPinThread;
-import com.fanap.podchat.requestobject.RequestRemoveParticipants;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
+import com.fanap.podchat.requestobject.RequestSetAdmin;
 import com.fanap.podchat.requestobject.RequestSetAuditor;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
 import com.fanap.podchat.requestobject.RequestSpam;
@@ -100,10 +113,10 @@ public interface ChatContract {
         default void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
         }
 
-        default void onGetThreadHistory() {
+        default void onGetThreadHistory(ChatResponse<ResultHistory> history) {
         }
 
-        default void onGetContacts() {
+        default void onGetContacts(ChatResponse<ResultContact> outPutContact) {
 
         }
 
@@ -228,57 +241,22 @@ public interface ChatContract {
 
         default void pingStatusSent(ChatResponse<StatusPingResult> response){}
 
-        default void onVoiceCallRequestReceived(String callerName){}
 
-        default void onVoiceCallRequestRejected(String callerName){}
-
-        default void onVoiceCallEnded(String uniqueId, long subjectId){}
-
-        default void onVoiceCallStarted(String uniqueId, String clientId){}
-
-        default void onGetCallHistory(ChatResponse<GetCallHistoryResult> result){}
-
-        default void onCallReconnect(long callId){}
-
-        default void onCallConnect(long callId){}
-
-        default void onCallDelivered(CallDeliverResult result){}
-
-        default void onGroupVoiceCallRequestReceived(String callerName, String title, List<Participant> participants){}
-
-        default void onCallParticipantLeft(String response){}
-
-        default void onCallParticipantJoined(String response){}
-
-        default void onCallParticipantRemoved(String name){}
-
-        default void onRemovedFromCall(){}
 
         default void updateStatus(String message){}
 
         default void onThreadClosed(long subjectId){}
 
-        default void onCallCreated(long threadId){}
-
-        default void audioCallMuted(){}
-        default void audioCallUnMuted(){}
-
-        default void callParticipantMuted(CallParticipantVO participant){}
-        default void callParticipantUnMuted(CallParticipantVO participant){}
-
-        default void audioCallMutedByAdmin(){}
-        default void audioCallUnMutedByAdmin(){}
-
-
-        default void callParticipantCanceledCall(String name){}
-
-        default void hideCallRequest(){}
-
-        default void showContactsFragment(ContactsFragment contactsWrappers){}
-
-        default void updateContactsFragment(ArrayList<ContactsWrapper> contactsWrappers){}
-
         default void onGetSentryLogs(String logs){}
+
+        default void onChatProfileUpdated(ResultUpdateProfile result){}
+        default void onTagCreated(TagResult result){}
+
+        default void onLoginNeeded(){}
+
+        default void onLoadingContactsStarted(){}
+
+        default void setInitState(){}
     }
 
     interface presenter {
@@ -288,8 +266,6 @@ public interface ChatContract {
         void sendLocationMessage(RequestLocationMessage request);
 
         void sendLocationMessage(RequestLocationMessage requestLocationMessage, ProgressHandler.sendFileMessage sendFileMessage);
-
-        String requestMainOrSandboxCall(int partnerId, boolean checked);
 
         void searchMap(String haram, double lat, double lon);
 
@@ -341,9 +317,10 @@ public interface ChatContract {
 
         void getHistory(History history, long threadId, ChatHandler handler);
 
-        void getHistory(RequestGetHistory request, ChatHandler handler);
+        String getHistory(RequestGetHistory request, ChatHandler handler);
+        String getHashTagList(RequestGetHashTagList request, ChatHandler handler);
 
-        void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
+        void searchHistory(SearchSystemMetadataRequest messageCriteriaVO, ChatHandler handler);
 
         void getContact(Integer count, Long offset, ChatHandler handler);
 
@@ -412,7 +389,7 @@ public interface ChatContract {
 
         void removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler);
 
-        void removeParticipants(RequestRemoveParticipants requestRemoveParticipants, ChatHandler handler);
+        void removeParticipants(RemoveParticipantRequest removeParticipantRequest, ChatHandler handler);
 
 
         void addParticipants(RequestAddParticipants requestAddParticipants, ChatHandler handler);
@@ -505,12 +482,6 @@ public interface ChatContract {
 
         void getThreadParticipant(RequestThreadParticipant request);
 
-        void acceptIncomingCall();
-
-        void rejectIncomingCall();
-
-        String getNameById(int partnerId);
-
         void shareLogs();
 
         String downloadFile(RequestGetPodSpaceFile rePod, ProgressHandler.IDownloadFile iDownloadFile);
@@ -539,38 +510,42 @@ public interface ChatContract {
 
         void stopBot(StartAndStopBotRequest request);
 
-
-        void testCall(String groupId, String sender, String receiver);
-
-        void endStream();
-
-        void testCall();
-
-        void endRunningCall();
-
-        void getCallHistory();
-
-        void switchMute();
-
-        void switchSpeaker();
-
-        void requestGroupCall(boolean fifi, boolean zizi, boolean jiji);
-
-        void addCallParticipant(String username, boolean fifiChecked, boolean jijiChecked, boolean ziziChecked);
-
-        void setCallInfo(CallInfo callInfo);
-
-        void requestMainOrSandboxCall(String query, boolean checked);
-
-        void requestCall(int partnerId, boolean checked);
-
-        void terminateCall();
-
-        void removeCallParticipant(boolean checked, boolean checked1, boolean checked2);
+        void getUserBots(GetUserBotsRequest request);
 
         void closeThread(int testThreadId);
 
         void getContact();
+
+        void registerAssistant(RegisterAssistantRequest request);
+
+        void getAssistants(GetAssistantRequest request);
+
+        void deActiveAssistant(DeActiveAssistantRequest request);
+
+        void getAssistantHistory(GetAssistantHistoryRequest request);
+
+        void blockAssistant(BlockUnblockAssistantRequest request);
+
+        void unBlockAssistant(BlockUnblockAssistantRequest request);
+
+        void getBlocksAssistant(GetBlockedAssistantsRequest request);
+
+        void changeThreadType(ChangeThreadTypeRequest request);
+
+
+        void createTag(CreateTagRequest request);
+
+        void editTag(EditTagRequest request);
+
+        void deleteTag(DeleteTagRequest request);
+
+        void addTagParticipant(AddTagParticipantRequest request);
+
+        void removeTagParticipant(RemoveTagParticipantRequest request);
+
+       void getTagList(GetTagListRequest request);
+
+        void getMutualGroups(GetMutualGroupRequest request);
 
     }
 }

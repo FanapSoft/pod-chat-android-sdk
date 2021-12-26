@@ -8,6 +8,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.FlakyTest;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.example.chat.application.chatexample.BaseApplication;
@@ -16,45 +17,64 @@ import com.example.chat.application.chatexample.ChatContract;
 import com.example.chat.application.chatexample.ChatPresenter;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.chat.Chat;
-import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.chat.ChatListener;
+import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
+import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultHistory;
 import com.fanap.podchat.model.ResultImageFile;
+import com.fanap.podchat.model.ResultMessage;
 import com.fanap.podchat.model.ResultThreads;
-import com.fanap.podchat.chat.pin.pin_message.model.RequestPinMessage;
+import com.fanap.podchat.requestobject.RequestConnect;
+import com.fanap.podchat.requestobject.RequestGetHistory;
 import com.fanap.podchat.requestobject.RequestGetUserRoles;
+import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestSignalMsg;
+import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.TextMessageType;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static com.example.chat.application.chatexample.ChatActivity.APP_ID;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
 
 
 @RunWith(AndroidJUnit4.class)
-public class ChatTest extends ChatAdapter {
+public class ChatTest {
 
+    public static final boolean CACHE = false;
     private static ChatContract.presenter presenter;
     @Mock
     private static ChatContract.view view;
+
+
     @Mock
     private Activity activity;
-    private Context appContext;
+    private static Context appContext;
 
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -63,53 +83,555 @@ public class ChatTest extends ChatAdapter {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "a9e6e26d6fe940ddb714333e51e229d6";
+    private static String TOKEN = "cf06e0e5cc3f41fba837f4d05b9a4138";
 
+
+    @Mock
+    ChatListener chatListeners;
 
     private ChatActivity chatActivity;
 
 
+    static Chat chat;
 
+    static final Object sync = new Object();
+
+    @Rule
+    public ActivityTestRule<ChatActivity> chatActivityRule = new ActivityTestRule<>(ChatActivity.class);
+
+
+    @BeforeClass
+    public static void initial() {
+
+
+        appContext = InstrumentationRegistry.getTargetContext();
+
+        chat = Chat.init(appContext);
+
+    }
 
     @Before
-    public void setUp() {
+    public void createChat() {
         Looper.prepare();
-        appContext = InstrumentationRegistry.getTargetContext();
-        MockitoAnnotations.initMocks(this);
+
+        view = Mockito.mock(ChatContract.view.class);
+
+        chatActivity = chatActivityRule.getActivity();
         presenter = new ChatPresenter(appContext, view, chatActivity);
-        presenter.connect(socketAddress,
-                appId, serverName, TOKEN, ssoHost,
-                platformHost, fileServer, "");
+
+        RequestConnect rc = new RequestConnect.Builder(
+                socketAddress,
+                APP_ID,
+                serverName,
+                TOKEN,
+                ssoHost,
+                platformHost,
+                fileServer,
+                "podSpaceServer")
+                .build();
+
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onChatState(String state) {
+                if (state.equals(CHAT_READY)) {
+                    resumeProcess();
+                }
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        chat.connect(rc);
+
+        chat.isCacheables(CACHE);
+
+        pauseProcess();
+
+
+    }
+
+
+    final ArrayList<Thread> threads = new ArrayList<>();
+
+    //requests for list of threads
+    @Test
+    public void populateThreadsListFromServerOrCache() {
+
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
+
+                System.out.println("Received List: " + content);
+                threads.addAll(thread.getResult().getThreads());
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestThread requestThread =
+                new RequestThread.Builder()
+                        .count(25)
+                        .build();
+
+        presenter.getThreads(requestThread, null);
+
+        long t1 = System.currentTimeMillis();
+        Mockito.verify(view, Mockito.after(10000).atLeastOnce()).onGetThreadList(Mockito.any(), Mockito.any());
+        long t2 = System.currentTimeMillis();
+        System.out.println("Received List: " + threads.size() + " after: " + (t2 - t1) + " ms");
+
+    }
+
+    //requests for list of threads from server
+    @Test
+    public void populateThreadsListFromServerOnly() {
+
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
+
+                if (!thread.isCache()) {
+                    System.out.println("Received List: " + content);
+                    threads.addAll(thread.getResult().getThreads());
+                    resumeProcess();
+                }
+
+            }
+        };
+
+        chat.setListener(chatListeners);
+
+        RequestThread requestThread =
+                new RequestThread.Builder()
+                        .count(25)
+                        .withNoCache()
+                        .build();
+
+        presenter.getThreads(requestThread, null);
+
+        pauseProcess();
+        System.out.println("Received List: " + threads.size());
+
+    }
+
+    //requests for list of threads from cache
+    @Test
+    public void populateThreadsListFromCacheOnly() {
+
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
+
+                if (thread.isCache()) {
+                    System.out.println("Received List: " + content);
+                    threads.addAll(thread.getResult().getThreads());
+                    resumeProcess();
+                }
+
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestThread requestThread =
+                new RequestThread.Builder()
+                        .count(25)
+                        .build();
+
+        presenter.getThreads(requestThread, null);
+
+        pauseProcess();
+        System.out.println("Received List: " + threads.size());
+
+    }
+
+    @Test
+    public void chatListeners() {
+
+        ChatListener listener1 = new ChatListener() {
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+
+            }
+        };
+        chat.addListener(listener1);
+        ChatListener listener2 = new ChatListener() {
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+
+            }
+        };
+        chat.addListener(listener2);
+        ChatListener listener3 = new ChatListener() {
+            @Override
+            public void onSent(String content, ChatResponse<ResultMessage> response) {
+
+            }
+        };
+        chat.addListener(listener3);
+
+        chat.removeListener(listener2);
+
+        Assert.assertFalse(chat.getListeners().contains(listener2));
+
     }
 
 
     @Test
     @LargeTest
-    public void updateUserProfile(){
+    public void getUserRolesInThread() {
 
+        populateThreadsListFromServerOrCache();
 
-        sleep(10000);
+        for (Thread t : threads) {
+            if (t.getAdmin()) {
+                System.out.println("Get roles in " + t.getId());
+                getCurrentUserRoles(t.getId());
+                break;
+            }
+        }
+        System.out.println("** Get roles in " + threads.get(0).getId());
+        getCurrentUserRoles(threads.get(0).getId());
 
-        RequestUpdateProfile request = new RequestUpdateProfile
-                .Builder("عیب رندان مکن ای زاهد پاکیزه سرشت")
+    }
+
+    public void getCurrentUserRoles(long threadID) {
+
+        RequestGetUserRoles req = new RequestGetUserRoles.Builder()
+                .setThreadId(threadID)
                 .build();
 
+        presenter.getUserRoles(req);
 
-        presenter.updateChatProfile(request);
+        sleep(1000);
 
-
-        Assert.assertTrue(true);
-
-
-
+        Mockito.verify(view, Mockito.atLeastOnce()).onGetCurrentUserRoles(Mockito.any());
 
 
     }
 
 
+    @Test
+    @LargeTest
+    public void getThreadHistoryIns() {
+        populateThreadsListFromServerOrCache();
+        System.out.println("** Get history of " + threads.get(0).getId());
+        for (Thread thread :
+                new ArrayList<>(threads)) {
+            getThreadHistory(thread.getId());
+        }
+//        getThreadHistory(threads.get(0).getId());
+    }
+
+    public void getThreadHistory(long threadId) {
 
 
+        RequestGetHistory request = new RequestGetHistory
+                .Builder(threadId)
+                .offset(0)
+                .count(25)
+                .order("desc") //.order("asc")
+//                .fromTime(new Date().getTime())
+                //   .toTime(new Date().getTime())
+//                .setMessageType(TextMessageType.Constants.POD_SPACE_PICTURE)
+//                .withNoCache()
+                .build();
+        presenter.getHistory(request, null);
+        sleep(2000);
+        Mockito.verify(view, Mockito.atLeastOnce()).onGetThreadHistory(Mockito.any());
+    }
 
+
+    @Test
+    @LargeTest
+    //get 25 message before and after last seen message time
+    //messages NanoTimes should be lower than last seen in first case
+    //and greater in second case
+    public void getThreadHistoryBeforeAndAfterLastSeenMessage() {
+
+        populateThreadsListFromServerOrCache();
+        System.out.println("** Get history of " + threads.get(0).getTitle());
+
+        Thread thread = threads.get(0);
+
+        final long lastSeen = thread.getLastSeenMessageTime() + thread.getLastSeenMessageNanos();
+
+        AtomicInteger numOfCacheResp = new AtomicInteger(0);
+
+        ChatListener historyListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+                int invokeTimes = 0;
+                if (history.isCache()) {
+                    invokeTimes = numOfCacheResp.getAndIncrement();
+                }
+                checkTimesIsValid(history, invokeTimes, lastSeen);
+                if (invokeTimes >= 2) {
+                    resumeProcess();
+                }
+            }
+        };
+        chat.addListener(historyListeners);
+        RequestGetHistory requestGetHistoryBeforeLastSeenTime = new RequestGetHistory
+                .Builder(thread.getId())
+                .toTimeNanos(lastSeen)
+                .offset(0)
+                .count(25)
+                .order("desc")
+                .build();
+
+        presenter.getHistory(requestGetHistoryBeforeLastSeenTime, null);
+
+        RequestGetHistory requestGetHistoryAfterLastSeenTime = new RequestGetHistory
+                .Builder(thread.getId())
+                .fromTimeNanos(lastSeen)
+                .offset(0)
+                .count(25)
+                .order("asc")
+                .build();
+        presenter.getHistory(requestGetHistoryAfterLastSeenTime, null);
+
+        pauseProcess();
+        sleep(2000);
+        Mockito.verify(view, Mockito.atLeast(2)).onGetThreadHistory(Mockito.any());
+
+    }
+
+
+    @Test
+    @LargeTest
+    public void sendMessageToThreadMessage() {
+
+        populateThreadsListFromServerOrCache();
+
+        long threadID = 0;
+        for (Thread thread : new ArrayList<>(threads)) {
+            if (!thread.isClosed()
+                    && thread.isGroup() && thread.getAdmin()) {
+                threadID = thread.getId();
+            }
+        }
+        if (threadID > 0)
+            sendTestMessageOnSeen(threadID);
+
+
+    }
+
+    public void sendTestMessageOnSeen(long threadId) {
+        presenter.sendTextMessage("This is test " + new Date().getTime(), threadId, null, "From android instrumental test at " + new Date().getTime(), null);
+        sleep(2000);
+        Mockito.verify(view, Mockito.times(1)).onSentMessage();
+    }
+
+    @Test
+    @LargeTest
+    public void sendALotOfMessageToThread() {
+
+        populateThreadsListFromServerOnly();
+
+        long threadID = threads.get(0).getId();
+        for (Thread thread : new ArrayList<>(threads)) {
+            if (!thread.isClosed() &&
+                    thread.getParticipantCount() > 1) {
+                threadID = thread.getId();
+            }
+        }
+
+        if (threadID > 0) {
+            int counter = 0;
+            int count = 5;
+            while (counter < count) {
+                RequestMessage requestMessage = new RequestMessage.Builder("This is test " + new Date().getTime(), threadID)
+                        .messageType(TextMessageType.Constants.TEXT)
+                        .jsonMetaData("From android instrumental test at " + new Date().getTime())
+                        .build();
+                presenter.sendTextMessage(requestMessage,null);
+                counter++;
+            }
+            sleep(7000);
+            Mockito.verify(view, Mockito.atLeastOnce()).onSentMessage();
+        }else {
+            Assert.fail("no suitable thread found");
+        }
+
+
+    }
+
+
+    @Test
+    @LargeTest
+    //get threads histories one by one
+    //performance should be acceptable
+    public void getAllThreadsHistories() {
+        //get 25 thread from server
+        populateThreadsListFromServerOrCache();
+
+        long startTime = System.currentTimeMillis();
+        for (Thread thread :
+                new ArrayList<>(threads)) {
+            System.out.println("NEXT: " + thread.getTitle());
+            System.out.println(thread.getId());
+            getThreadFullHistory(thread);
+        }
+        long endTime = System.currentTimeMillis();
+        Assert.assertTrue(true);
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println("TEST IS DONE FOR ");
+        System.out.println(threads.size());
+        System.out.println("THREADS IN");
+        System.out.println(endTime - startTime + " MILLISECONDS");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+
+    }
+
+    private void getThreadFullHistory(Thread thread) {
+
+
+        long startTime = System.currentTimeMillis();
+
+        AtomicBoolean hasNext = new AtomicBoolean(true);
+        int count = 25;
+        AtomicLong offset = new AtomicLong(0);
+        AtomicLong threadMessagesCount = new AtomicLong(-1);
+        AtomicLong threadReceivedHistory = new AtomicLong(0);
+        ChatListener historyListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+
+                threadMessagesCount.set(history.getResult().getContentCount());
+                long received = threadReceivedHistory.get();
+                threadReceivedHistory.set(received + history.getResult().getHistory().size());
+                hasNext.set(history.getResult().isHasNext());
+                if (hasNext.get()) {
+                    offset.set(offset.get() + history.getResult().getHistory().size());
+                }
+                resumeProcess();
+
+            }
+
+            @Override
+            public void onError(String content, ErrorOutPut error) {
+                Assert.fail(content);
+            }
+        };
+        chat.addListener(historyListeners);
+
+        while (hasNext.get()) {
+            RequestGetHistory requestGetHistory = new RequestGetHistory
+                    .Builder(thread.getId())
+                    .offset(offset.get())
+                    .withNoCache()
+                    .count(count)
+                    .order("desc")
+                    .build();
+            String uniqueId = presenter.getHistory(requestGetHistory, null);
+            pauseProcess();
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println("RUNNING TEST ON THREAD:");
+        System.out.println(thread.getTitle());
+        System.out.println(thread.getId());
+        System.out.println("RECEIVED TOTAL " + threadReceivedHistory + " MESSAGES OF HISTORY IN");
+        System.out.println(endTime - startTime + " MILLISECONDS");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        System.out.println(">>> >>> >>>");
+        Assert.assertEquals(threadMessagesCount.get(), threadReceivedHistory.get());
+
+
+    }
+
+    private void checkTimesIsValid(ChatResponse<ResultHistory> history, int invokeTimes, long lastSeen) {
+        switch (invokeTimes) {
+            case 1: {
+                for (MessageVO message :
+                        history.getResult().getHistory()) {
+                    Assert.assertTrue(message.getTimeNanos() <= lastSeen);
+                }
+                break;
+            }
+            case 2: {
+                for (MessageVO message :
+                        history.getResult().getHistory()) {
+                    Assert.assertTrue(message.getTimeNanos() >= lastSeen);
+                }
+                break;
+            }
+        }
+    }
+
+    //    @Test
+//    @LargeTest
+//    public void updateUserProfile() {
+//
+//
+//        sleep(10000);
+//
+//        RequestUpdateProfile request = new RequestUpdateProfile
+//                .Builder("عیب رندان مکن ای زاهد پاکیزه سرشت")
+//                .build();
+//
+//        chat.updateChatProfile(request);
+//
+//        sleep(1000);
+//
+//        Mockito.verify(chatListeners, Mockito.atLeastOnce()).onChatProfileUpdated(Mockito.any());
+//
+//
+//        Assert.assertTrue(true);
+//
+//
+//    }
+    @Test
+    @LargeTest
+    public void updateUserProfile() {
+
+
+        String bio = "عیب رندان مکن ای زاهد پاکیزه سرشت";
+        RequestUpdateProfile request = new RequestUpdateProfile
+                .Builder(bio)
+                .build();
+//
+//        presenter.updateChatProfile(request);
+//
+//        sleep(1000);
+
+        chat.updateChatProfile(request);
+
+        sleep(500);
+
+        ChatResponse<ResultUpdateProfile> response = new ChatResponse<>();
+        ResultUpdateProfile result = new ResultUpdateProfile();
+        result.setBio(bio);
+        response.setResult(result);
+
+        Mockito.verify(view, Mockito.atLeastOnce()).onChatProfileUpdated(Mockito.any());
+
+    }
+
+    @Test
+    @LargeTest
+    public void getUserInfo() {
+
+        presenter.getUserInfo(null);
+
+        sleep(500);
+        Mockito.verify(view, Mockito.atMost(3)).onGetUserInfo(Mockito.any());
+
+
+    }
 
 
     @Test
@@ -140,18 +662,17 @@ public class ChatTest extends ChatAdapter {
         Assert.assertEquals(0, presenter.getImageFolderSize());
 
 
-
     }
 
 
     @Test
     public void clearDataBase() {
 
-        sleep(10000);
+        sleep(500);
 
         presenter.getCacheSize();
 
-        sleep(2000);
+        sleep(500);
 
         presenter.clearDatabaseCache(new Chat.IClearMessageCache() {
             @Override
@@ -165,7 +686,7 @@ public class ChatTest extends ChatAdapter {
             }
         });
 
-        sleep(5000);
+        sleep(500);
 
         presenter.getCacheSize();
 
@@ -185,23 +706,19 @@ public class ChatTest extends ChatAdapter {
     @LargeTest
     public void getCurrentUserRoles() {
 
-
-        sleep(25000);
-
         RequestGetUserRoles req = new RequestGetUserRoles.Builder()
                 .setThreadId(5801)
                 .build();
 
-        presenter.getUserRoles(req);
+        chat.getCurrentUserRoles(req);
 
         sleep(1000);
 
-        Mockito.verify(view, Mockito.atLeastOnce()).onGetCurrentUserRoles(Mockito.any());
+//        Mockito.verify(view, Mockito.atLeastOnce()).onGetCurrentUserRoles(Mockito.any());
+        Mockito.verify(chatListeners, Mockito.atLeastOnce()).onError(Mockito.any(), Mockito.any());
 
 
     }
-
-
 
 
     @Test
@@ -223,8 +740,6 @@ public class ChatTest extends ChatAdapter {
     @Test
     @MediumTest
     public void pinMessage() {
-
-        sleep(25000);
 
         RequestPinMessage requestPinMessage = new RequestPinMessage.Builder()
                 .setMessageId(76306)
@@ -259,20 +774,8 @@ public class ChatTest extends ChatAdapter {
 
     }
 
-    private void sleep(int i) {
-        try {
-            Thread.sleep(i);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
 
-    @Override
-    public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
-        super.onGetThread(content, thread);
-
-    }
 
     @Test
     @MediumTest
@@ -348,7 +851,7 @@ public class ChatTest extends ChatAdapter {
         History history = new History.Builder().count(5).build();
         presenter.getHistory(history, 381, null);
         sleep(3000);
-        Mockito.verify(view, Mockito.times(1)).onGetThreadHistory();
+        Mockito.verify(view, Mockito.times(1)).onGetThreadHistory(Mockito.any());
     }
 
 
@@ -358,7 +861,7 @@ public class ChatTest extends ChatAdapter {
         sleep(3000);
         presenter.getContact(50, 0L, null);
         sleep(3000);
-        Mockito.verify(view, Mockito.times(1)).onGetContacts(outPutContact.getResult());
+        Mockito.verify(view, Mockito.times(1)).onGetContacts(null);
     }
 
     @Test
@@ -478,7 +981,7 @@ public class ChatTest extends ChatAdapter {
     @MediumTest
     public void addContact() {
         sleep(5000);
-        presenter.addContact("maman", "sadeghi", "091224858169", "dev55@gmail.com","");
+        presenter.addContact("maman", "sadeghi", "091224858169", "dev55@gmail.com", "");
         sleep(3000);
         Mockito.verify(view, Mockito.times(1)).onAddContact();
 //        Mockito.verify(view,Mockit.)
@@ -716,5 +1219,28 @@ public class ChatTest extends ChatAdapter {
         presenter.mapSearch("میدان آزادی", 35.7003510, 51.3376472);
         sleep(3000);
         Mockito.verify(view, Mockito.times(1)).onMapSearch();
+    }
+
+    private void sleep(int i) {
+        try {
+            java.lang.Thread.sleep(i);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    private void resumeProcess() {
+        synchronized (sync) {
+            sync.notify();
+        }
+    }
+
+    private void pauseProcess() {
+        synchronized (sync) {
+            try {
+                sync.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

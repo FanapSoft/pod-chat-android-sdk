@@ -1,6 +1,5 @@
 package com.fanap.podchat.repository;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 
 import com.fanap.podchat.cachemodel.CacheFile;
@@ -17,13 +16,11 @@ import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
-import com.fanap.podchat.persistance.module.AppDatabaseModule;
-import com.fanap.podchat.persistance.module.AppModule;
-import com.fanap.podchat.persistance.module.DaggerMessageComponent;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.OnWorkDone;
@@ -32,31 +29,21 @@ import com.fanap.podchat.util.PodChatException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import rx.Observable;
 
 public class CacheDataSource {
 
 
     public static final String DISK = "DISK";
-    @Inject
     MessageDatabaseHelper databaseHelper;
     private int expireAmount = 2 * 24 * 60 * 60;
 
     public CacheDataSource() {
     }
 
-    public CacheDataSource(Context context, String key) {
-
-        DaggerMessageComponent.builder()
-                .appDatabaseModule(new AppDatabaseModule(context, key))
-                .appModule(new AppModule(context))
-                .build()
-                .injectDataSource(this);
-
+    public CacheDataSource(MessageDatabaseHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
     }
-
 
     /*
     Threads
@@ -87,10 +74,45 @@ public class CacheDataSource {
                     }
                 });
     }
+    /*
+    Threads
+     */
+    public Observable<ThreadManager.ThreadResponse> getMutualThreadsData(Integer count, Long offset, Long userId) throws RoomIntegrityException {
+
+
+        return Observable
+                .create(emitter -> {
+                    try {
+                        databaseHelper.getMutualThreadRaw(count, offset,userId, new OnWorkDone() {
+                            @Override
+                            public void onWorkDone(@Nullable Object o) {
+//                                emitter.onNext(new ThreadManager.CacheThread((List<Thread>) o, ((List<Thread>) o).size()));
+                            }
+
+                            @Override
+                            public void onWorkDone(@Nullable Object o, List z) {
+
+                                ThreadManager.ThreadResponse threadResponse = new ThreadManager.ThreadResponse(z, (Long) o, DISK);
+
+                                emitter.onNext(threadResponse);
+
+                            }
+                        });
+                    } catch (RoomIntegrityException e) {
+                        emitter.onError(e);
+                    }
+                });
+    }
 
     public void cacheThreads(List<Thread> data) {
         databaseHelper.saveThreads(data);
     }
+
+    public void cacheMutualThreads(List<Thread> data,long userId) {
+        databaseHelper.saveMutualThreads(data,userId);
+    }
+
+
 
     public void cacheThread(Thread thread) {
         databaseHelper.saveNewThread(thread);
@@ -100,7 +122,7 @@ public class CacheDataSource {
     Contacts
      */
 
-    public Observable<ContactManager.ContactResponse> getContactsData(Integer count, Long offset) {
+    public Observable<ContactManager.ContactResponse> getContactsData(Integer count, Long offset,String username) {
 
 
         return Observable.create(emitter -> {
@@ -108,7 +130,7 @@ public class CacheDataSource {
 
             try {
 
-                List<Contact> contactList = databaseHelper.getContacts(count, offset);
+                List<Contact> contactList = databaseHelper.getContacts(count, offset,username);
 
                 long contentCount = databaseHelper.getContactCount();
 
@@ -167,13 +189,13 @@ public class CacheDataSource {
   Messages
    */
     public Observable<MessageManager.HistoryResponse> getMessagesData(History request, long threadId) {
-        return databaseHelper.getThreadHistory(request,threadId)
-                .map(data-> new MessageManager.HistoryResponse(data, DISK));
+        return databaseHelper.getThreadHistory(request, threadId)
+                .map(data -> new MessageManager.HistoryResponse(data, DISK));
     }
 
     public void cacheMessages(List<MessageVO> data, long threadId) {
 
-        databaseHelper.saveMessageHistory(data, threadId,getExpireAmount());
+        databaseHelper.saveMessageHistory(data, threadId, getExpireAmount());
     }
 
     public void cacheMessage(MessageVO message, long threadId) {
@@ -194,9 +216,18 @@ public class CacheDataSource {
         databaseHelper.deleteMessage(id, threadId);
     }
 
+    public void updateThreadAfterChangeType(long threadId) {
+        databaseHelper.changeThreadAfterChangeType(threadId);
+    }
+
     public void cancelMessage(String uniqueId) {
         databaseHelper.deleteSendingMessageQueue(uniqueId);
         databaseHelper.deleteWaitQueueMsgs(uniqueId);
+    }
+
+    public Observable<MessageManager.HistoryResponse> getMessagesSystemMetadataData(SearchSystemMetadataRequest request) {
+        return databaseHelper.getThreadHistory(request)
+                .map(data -> new MessageManager.HistoryResponse(data, DISK));
     }
 
     //sending queue
@@ -330,4 +361,5 @@ public class CacheDataSource {
         return databaseHelper.getImagesByHash(hashCode);
 
     }
+
 }

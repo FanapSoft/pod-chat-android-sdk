@@ -2,6 +2,7 @@ package com.fanap.podchat.chat.mention;
 
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
+import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
@@ -69,6 +70,25 @@ public class Mention {
     }
 
     public static ChatResponse<ResultHistory> getMentionListCacheResponse(RequestGetMentionList request,
+                                                                          List<MessageVO> messageVOS,
+                                                                          String uniqueId,
+                                                                          long contentCount) {
+
+        ResultHistory resultHistory = new ResultHistory();
+        resultHistory.setContentCount(contentCount);
+        resultHistory.setHistory(messageVOS);
+
+
+        ChatResponse<ResultHistory> finalResponse = new ChatResponse<>();
+        finalResponse.setResult(resultHistory);
+        finalResponse.setUniqueId(uniqueId);
+        finalResponse.setSubjectId(request.getThreadId());
+        finalResponse.setCache(true);
+
+        return finalResponse;
+    }
+
+    public static ChatResponse<ResultHistory> getHashTagListCacheResponse(RequestGetHashTagList request,
                                                                           List<MessageVO> messageVOS,
                                                                           String uniqueId,
                                                                           long contentCount) {

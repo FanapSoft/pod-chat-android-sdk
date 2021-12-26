@@ -12,6 +12,7 @@ import com.fanap.podchat.example.R;
 
 import java.util.concurrent.TimeUnit;
 
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -50,20 +51,18 @@ public class TokenHandler {
             refreshToken = refKey;
 
             refreshToken();
+        }else {
+            listener.onLoginNeeded();
         }
 
 
     }
 
 
-    public TokenHandler(Context context) {
+    public TokenHandler(Context context,ITokenHandler iTokenHandler) {
         this.context = context;
-        checkRefreshToken();
-    }
-
-    public void addListener(ITokenHandler iTokenHandler) {
-
         listener = iTokenHandler;
+        checkRefreshToken();
     }
 
     public void handshake(String number) {
@@ -73,7 +72,7 @@ public class TokenHandler {
         @SuppressLint("HardwareIds") String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
 
-        getAPI().handShake(deviceId)
+        getAPI().handShake("FanapTestDevice","android","10","MOBILE_PHONE",deviceId)
                 .enqueue(new Callback<HandShakeRes>() {
                     @Override
                     public void onResponse(Call<HandShakeRes> call, Response<HandShakeRes> response) {
@@ -143,27 +142,62 @@ public class TokenHandler {
     public void verifyNumber(String code) {
 
         getAPI().verifyNumber(auth, number, code)
-                .enqueue(new Callback<VerifyRes>() {
+                .enqueue(new Callback<SSoTokenRes>() {
                     @Override
-                    public void onResponse(Call<VerifyRes> call, Response<VerifyRes> response) {
+                    public void onResponse(Call<SSoTokenRes> call, Response<SSoTokenRes> response) {
 
-                        Log.i("OTP", "Number verified!");
+                        Log.d("OTP", "get token done!");
 
-                        if (response.body() != null && response.body().getResult() != null)
-                            getToken(response.body().getResult().getCode());
-                        else Log.i("OTP", "Number verify failed!");
+                        String accessToken = null;
+                        if (response.body() != null) {
 
+                            accessToken = response.body().getResult().getAccessToken();
+
+                            refreshToken = response.body().getResult().getRefreshToken();
+
+                            listener.onGetToken(accessToken);
+
+                            saveToken(refreshToken);
+
+                        } else {
+
+                            Log.e("OTP", "get token failed!");
+
+                        }
 
                     }
 
                     @Override
-                    public void onFailure(Call<VerifyRes> call, Throwable throwable) {
+                    public void onFailure(Call<SSoTokenRes> call, Throwable throwable) {
                         Log.i("OTP", "Number verify failed!");
                         listener.onError("verify failed");
 
 
                     }
                 });
+
+//        getAPI().verifyNumber(auth, number, code)
+//                .enqueue(new Callback<VerifyRes>() {
+//                    @Override
+//                    public void onResponse(Call<VerifyRes> call, Response<VerifyRes> response) {
+//
+//                        Log.i("OTP", "Number verified!");
+//
+//                        if (response.body() != null && response.body().getResult() != null)
+//                            getToken(response.body().getResult().getCode());
+//                        else Log.i("OTP", "Number verify failed!");
+//
+//
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<VerifyRes> call, Throwable throwable) {
+//                        Log.i("OTP", "Number verify failed!");
+//                        listener.onError("verify failed");
+//
+//
+//                    }
+//                });
 
 
     }
@@ -306,13 +340,6 @@ public class TokenHandler {
 
     public void logOut() {
 
-        SharedPreferences.Editor p = getDefaultSharedPreferences().edit();
-
-        p.remove(REFRESH_TOKEN);
-
-        p.apply();
-
-
     }
 
 
@@ -323,5 +350,7 @@ public class TokenHandler {
         void onTokenRefreshed(String token);
 
         void onError(String message);
+
+        default void onLoginNeeded(){}
     }
 }

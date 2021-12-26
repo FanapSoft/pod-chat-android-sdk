@@ -21,6 +21,7 @@ public class Callback {
     private long toTimeNanos;
 
     private long messageId;
+    private long tagId;
 
     public Callback(String order, long count, long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
         this.offset = offset;
@@ -31,6 +32,14 @@ public class Callback {
         this.result = result;
         this.count = count;
         this.order = order;
+    }
+
+    public Callback(long tagId) {
+        this.tagId = tagId;
+    }
+
+    public long getTagId() {
+        return tagId;
     }
 
     public Callback(String order, long count, long offset, int requestType, long firstMessageId, long lastMessageId, boolean result) {

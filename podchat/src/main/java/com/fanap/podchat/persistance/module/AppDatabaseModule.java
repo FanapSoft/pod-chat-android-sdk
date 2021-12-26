@@ -1,6 +1,9 @@
 package com.fanap.podchat.persistance.module;
 
+import android.arch.persistence.db.SimpleSQLiteQuery;
+import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Room;
+import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -27,24 +30,27 @@ import static com.commonsware.cwac.saferoom.SQLCipherUtils.State.UNENCRYPTED;
 @Module
 public class AppDatabaseModule {
 
+    private static final int[] FallbackVersions = {3, 4, 5, 6, 7};
     private AppDatabase appDatabase;
     private static final String DATABASE_DB = "cache.db";
 
-    public AppDatabaseModule(Context context,String secretKey) {
+    public AppDatabaseModule(Context context, String secretKey) {
 
         char[] passphrase = secretKey.toCharArray();
         SafeHelperFactory factory = new SafeHelperFactory(passphrase);
 
-        File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+        File file = new File(String.valueOf(context.getDatabasePath(DATABASE_DB)));
 
         appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB)
                 .openHelperFactory(factory)
                 .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+//                .fallbackToDestructiveMigrationFrom(FallbackVersions)
                 .build();
-        SQLCipherUtils.State  state = SQLCipherUtils.getDatabaseState(file);
+        SQLCipherUtils.State state = SQLCipherUtils.getDatabaseState(file);
         if (state.equals(UNENCRYPTED)) {
             try {
-                SQLCipherUtils.encrypt(context,file,passphrase);
+                SQLCipherUtils.encrypt(context, file, passphrase);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -54,7 +60,7 @@ public class AppDatabaseModule {
         if (appDatabase.isOpen()) {
             if (state.equals(ENCRYPTED)) {
                 try {
-                    SQLCipherUtils.decrypt(context,file,passphrase);
+                    SQLCipherUtils.decrypt(context, file, passphrase);
 //                    ;encrypt(context,file,passphrase);
 
                 } catch (IOException e) {
@@ -63,22 +69,25 @@ public class AppDatabaseModule {
             }
         }
     }
+
     public AppDatabaseModule(Context context) {
 
         String stKey = "slkjgndsjkkdhksdfas";
         char[] passphrase = stKey.toCharArray();
         SafeHelperFactory factory = new SafeHelperFactory(passphrase);
 
-        File file = new File(String.valueOf(context.getDatabasePath("cache.db")));
+        File file = new File(String.valueOf(context.getDatabasePath(DATABASE_DB)));
 
         appDatabase = Room.databaseBuilder(context, AppDatabase.class, DATABASE_DB)
                 .openHelperFactory(factory)
                 .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+//                .fallbackToDestructiveMigrationFrom(FallbackVersions)
                 .build();
         SQLCipherUtils.State state = SQLCipherUtils.getDatabaseState(file);
         if (state.equals(UNENCRYPTED)) {
             try {
-                SQLCipherUtils.encrypt(context,file,passphrase);
+                SQLCipherUtils.encrypt(context, file, passphrase);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -88,7 +97,7 @@ public class AppDatabaseModule {
         if (appDatabase.isOpen()) {
             if (state.equals(ENCRYPTED)) {
                 try {
-                    SQLCipherUtils.decrypt(context,file,passphrase);
+                    SQLCipherUtils.decrypt(context, file, passphrase);
 //                    ;encrypt(context,file,passphrase);
 
                 } catch (IOException e) {

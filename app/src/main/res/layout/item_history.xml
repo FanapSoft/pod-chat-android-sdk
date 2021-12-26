@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <ImageView
+        android:id="@+id/imageStatus"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_margin="8dp"
+        tools:src="@drawable/ic_call_end_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/imageProfile"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageStatus"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@mipmap/ic_profile" />
+
+
+    <TextView
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:id="@+id/tvContactName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimary"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/imageStatus"
+        app:layout_constraintEnd_toStartOf="@+id/imageProfile"
+        app:layout_constraintTop_toTopOf="@+id/imageStatus"
+        tools:text="نام مخاطب" />
+
+    <ImageButton
+        android:id="@+id/imgBtnCallContact"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="8dp"
+        android:background="@drawable/rounded_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_call_blue" />
+
+    <ImageButton
+        android:id="@+id/imgBtnVideoCallContact"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/rounded_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imgBtnCallContact"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_videocam" />
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="8dp"
+        android:background="@drawable/rounded_primary"
+        app:layout_constraintStart_toStartOf="@+id/imgBtnCallContact"
+        app:layout_constraintTop_toBottomOf="@+id/imgBtnCallContact" />
+
+</android.support.constraint.ConstraintLayout>

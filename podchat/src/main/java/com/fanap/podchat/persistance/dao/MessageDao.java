@@ -8,14 +8,19 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.RawQuery;
 import android.arch.persistence.room.Update;
 
+import com.fanap.podchat.cachemodel.CacheAssistantHistoryVo;
+import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheBlockedContact;
 import com.fanap.podchat.cachemodel.CacheContact;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheForwardInfo;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
+import com.fanap.podchat.cachemodel.CacheMutualGroupVo;
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.cachemodel.CacheParticipantRoles;
 import com.fanap.podchat.cachemodel.CacheReplyInfoVO;
+import com.fanap.podchat.cachemodel.CacheTagParticipantVO;
+import com.fanap.podchat.cachemodel.CacheTagVo;
 import com.fanap.podchat.cachemodel.CacheThreadParticipant;
 import com.fanap.podchat.cachemodel.GapMessageVO;
 import com.fanap.podchat.cachemodel.ThreadVo;
@@ -78,6 +83,9 @@ public interface MessageDao {
     @Query("select * from CacheContact order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
     List<CacheContact> getContacts(Integer count, Long offset);
 
+    @Query("select * from CacheContact WHERE linkedUser_username=:username order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset")
+    List<CacheContact> getRawContacts(Integer count, Long offset,String username);
+
     @RawQuery
     List<CacheContact> getRawContacts(SupportSQLiteQuery sqLiteQuery);
 
@@ -134,7 +142,7 @@ public interface MessageDao {
     void insertHistories(List<CacheMessageVO> messageVOS);
 
     /**
-     * Unread Messags
+     * Unread Messages
      */
 
     @Query("SELECT sum(unreadCount) from threadvo where unreadCount > 0")
@@ -510,4 +518,69 @@ public interface MessageDao {
 
     @Delete
     void deleteImage(CacheFile file);
+
+
+
+    //cache assistant
+    @Insert(onConflict = REPLACE)
+    void insertCacheAssistantVo(CacheAssistantVo assistantVo);
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheAssistantVos(List<CacheAssistantVo> assistantVo);
+
+
+    @Query("SELECT * FROM CacheAssistantVo")
+    List<CacheAssistantVo> getCacheAssistantVos();
+
+    @Query("delete from CacheAssistantVo where inviteeId = :inviteeId")
+    void deleteCacheAssistantVo(long inviteeId);
+
+    @Query("DELETE FROM CacheAssistantVo")
+    void deleteAllCacheAssistantVo();
+
+
+    @Query("SELECT * FROM CacheAssistantHistoryVo")
+    List<CacheAssistantHistoryVo> getCacheAssistantHistory();
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheAssistantHistoryVo(List<CacheAssistantHistoryVo> assistantVo);
+
+
+
+    @Query("DELETE FROM CacheAssistantHistoryVo")
+    void deleteAllCacheAssistantHistoryVo();
+
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheTagVo(CacheTagVo tagVo);
+
+    @Query("SELECT * FROM CacheTagVo")
+    List<CacheTagVo> getCacheTagVos();
+
+    @Query("DELETE FROM CacheTagVo")
+    void deleteAllCacheTagVo();
+
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheTagParticipantVos(List<CacheTagParticipantVO> tagVos);
+
+    @Query("SELECT * FROM CacheTagVo")
+    List<CacheTagParticipantVO> getAllCacheTagParticipantVOs();
+
+    @Query("SELECT * FROM CacheTagParticipantVO WHERE tagId=:tagId")
+    List<CacheTagParticipantVO> getCacheTagParticipantVosByTagId(long tagId);
+
+    @Query("DELETE FROM CacheTagParticipantVO")
+    void deleteAllCacheTagParticipantVO();
+
+
+
+    @Insert(onConflict = REPLACE)
+    void insertCacheMutualVo(CacheMutualGroupVo assistantVo);
+
+    @Query("SELECT * FROM CacheMutualGroupVo WHERE contactId = :contactId")
+    List<CacheMutualGroupVo> getMutualGroup(String contactId);
+
+    @Query("DELETE FROM CacheMutualGroupVo")
+    void deleteAllCacheMutualGroupVo();
 }

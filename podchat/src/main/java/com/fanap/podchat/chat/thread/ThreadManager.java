@@ -4,11 +4,12 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 
 import com.fanap.podchat.chat.App;
-import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
+import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
+import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -34,6 +35,7 @@ import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.Util;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,12 +88,21 @@ public class ThreadManager {
 
     public static void onError(ChatMessage chatMessage) {
 
-        if (chatMessage.getUniqueId().equals(requestUniqueId)) {
-            requestUniqueId = "";
-            unsubscribe(userRolesSubscription);
-            unsubscribe(setAdminSubscription);
-            unsubscribe(leaveThreadSubscription);
+        try {
+            if (isUniqueIdIsValid(chatMessage))
+                if (chatMessage.getUniqueId().equals(requestUniqueId)) {
+                    requestUniqueId = "";
+                    unsubscribe(userRolesSubscription);
+                    unsubscribe(setAdminSubscription);
+                    unsubscribe(leaveThreadSubscription);
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    private static boolean isUniqueIdIsValid(ChatMessage chatMessage) {
+        return chatMessage != null && chatMessage.getUniqueId() != null && !chatMessage.getUniqueId().isEmpty();
     }
 
     public interface ILastMessageChanged {
@@ -130,6 +141,42 @@ public class ThreadManager {
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setSubjectId(request.getThreadId());
+        message.setUniqueId(uniqueId);
+
+
+        return App.getGson().toJson(message);
+    }
+
+    public static String createChangeThreadTypeRequest(ChangeThreadTypeRequest request, String uniqueId) throws PodChatException {
+
+        JsonObject content = new JsonObject();
+        content.addProperty("type", request.getType());
+        if (request.getUniqname() != null)
+            content.addProperty("uniqueName", request.getUniqname());
+
+        AsyncMessage message = new ChatMessage();
+        message.setType(ChatMessageType.Constants.CHANGE_THREAD_TYPE);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setContent(content.toString());
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setSubjectId(request.getThreadId());
+        message.setUniqueId(uniqueId);
+
+
+        return App.getGson().toJson(message);
+    }
+
+    public static String createMutaulGroupRequest(GetMutualGroupRequest request, String uniqueId) {
+        JsonObject content = (JsonObject) App.getGson().toJsonTree(request);
+        content.remove("useCache");
+
+        AsyncMessage message = new ChatMessage();
+        message.setType(ChatMessageType.Constants.MUTUAL_GROUPS);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setContent(content.toString());
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
         message.setUniqueId(uniqueId);
 
 
@@ -350,6 +397,7 @@ public class ThreadManager {
 
     }
 
+
     public static Observable<List<Thread>> getByName(String name, List<Thread> allThreads) {
 
         try {
@@ -389,6 +437,12 @@ public class ThreadManager {
         Collections.sort(sorted, ThreadManager::compareThreads);
         return sorted;
     }
+
+//    public static List<Thread> sortThreads(List<Thread> unsorted) {
+//        List<Thread> sorted = new ArrayList<>(unsorted);
+//        Collections.sort(sorted, ThreadManager::compareThreads);
+//        return sorted;
+//    }
 
     public static ChatResponse<ResultLeaveThread> prepareLeaveThreadResponse(ChatMessage chatMessage) {
 
@@ -672,6 +726,20 @@ public class ThreadManager {
         chatMessage.setUniqueId(uniqueId);
         chatMessage.setTypeCode(mtypecode);
         return App.getGson().toJson(chatMessage);
+    }
+
+    public static ChatResponse<Thread> handleChangeThreadType(ChatMessage chatMessage) {
+
+        ChatResponse<Thread> response = new ChatResponse<>();
+        Thread thread = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<Thread>() {
+        }.getType());
+        response.setResult(thread);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        response.setCache(false);
+
+        return response;
     }
 
     public static String prepareGetHIstoryWithUniqueIdsRequest(long threadId, String uniqueId, String[] uniqueIds, String typeCode, String token) {
