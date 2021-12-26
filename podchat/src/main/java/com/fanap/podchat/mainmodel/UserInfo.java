@@ -19,10 +19,9 @@ public class UserInfo {
     private String cellphoneNumber;
     private String email;
     private String image;
-    private Boolean contactSynced;
 
     @Ignore
-    private ChatProfileVO chatProfileVO;
+    ChatProfileVO chatProfileVO;
 
 
     public ChatProfileVO getChatProfileVO() {
@@ -120,4 +119,5 @@ public class UserInfo {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

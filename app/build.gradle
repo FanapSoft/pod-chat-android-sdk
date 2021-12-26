@@ -114,11 +114,13 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
 //    implementation project(path: ':podotp')
 
+
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     //placeholderview
 //    implementation 'com.mindorks:placeholderview:0.7.1'
     implementation('com.mindorks:placeholderview:0.7.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
+
 
 }
