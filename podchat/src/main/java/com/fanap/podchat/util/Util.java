@@ -26,9 +26,12 @@ import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 public class Util {
 
@@ -75,6 +78,10 @@ public class Util {
         return list == null || list.size() == 0;
     }
 
+    public static <T> boolean isNullOrEmpty(@Nullable Queue<T> list) {
+        return list == null || list.size() == 0;
+    }
+
     public static <T extends Number> boolean isNullOrEmpty(@Nullable T number) {
         String num = String.valueOf(number);
         return number == null || num.equals("0");
@@ -87,7 +94,9 @@ public class Util {
     public static <T extends Object> boolean isNotNullOrEmpty(@Nullable List<T> list) {
         return list != null && list.size() > 0;
     }
-
+    public static <T> boolean isNotNullOrEmpty(@Nullable Queue<T> list) {
+        return list != null && list.size() > 0;
+    }
     public static boolean isNullOrEmptyMessageVO(@Nullable List<MessageVO> list) {
         return list == null || list.size() == 0;
     }

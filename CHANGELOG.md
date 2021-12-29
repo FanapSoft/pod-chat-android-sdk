@@ -5,12 +5,52 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## [0.9.**.**] -20**-**-**
+
+### Added
+
+ ```Chat.useCallPartnerViewManager()```
+
+ ```addView(@NonNull CallPartnerView... partnerView);```
+
+ ```setAutoGenerate(boolean isAutoGenerate);```
+
+ ```setAsScreenShareView(@NonNull CallPartnerView screenShareView);```
+
+ ```setAsCameraPreview(@NonNull CallPartnerView cameraPreview);```
+
+ ```getScreenShareView();```
+
+ ```getPartnerAssignedView(partnerUserId);```
+
+ ```getPartnerUnAssignedView(partnerUserId);```
+
+ ```setAutoGenerateCallback(CallPartnerViewManager.IAutoGenerate);```
+
+ ```CallPartnerViewManager.addView(List<CallPartnerView>)```
+
+ ```CallPartnerViewManager.showMuteIcon(partnerUserId) ```
+
+ ```CallPartnerViewManager.hideMuteIcon(partnerUserId) ```
+
+``` CallPartnerViewManager.showCameraIsOff(partnerUserId) ```
+
+ ```CallPartnerViewManager.hideCameraIsOff(partnerUserId)``` 
+
+ ```CallPartnerViewManager.releasePartnerView(partnerUserId)```
+
+ ```CallPartnerViewManager.releaseScreenShareView()```
+
+ ```CallPartnerViewManager.showPartnerName(userId, name)```
+
+ ```MainThreadExecutor```
+
+
+
 
 ## [0.9.14.0] -2021-12-26
 
 ### Added
-
- ```SearchSystemMetadataRequest```
 
  ```startShareScreen``` callback
 
@@ -29,6 +69,10 @@ All notable changes to this project will be documented here.
  ```onCallRecordEnded``` callback
 
  ```ChatListeners.onCallClientErrors(ChatResponse<CallClientErrorsResult>)``` callback
+ 
+ ```SearchSystemMetadataRequest```
+
+ ```searchHistory(SearchSystemMetadataRequest, ChatHandler)```
 
 
 ### Changed
@@ -37,7 +81,12 @@ All notable changes to this project will be documented here.
  
  Update podcall to 3.5.2
 
- Deprecated NosqlListMessageCriteriaVO
+
+### Deprecated
+ 
+ NosqlListMessageCriteriaVO
+
+ ```searchHistory(NosqlListMessageCriteriaVO,ChatHandler)```
 
 
 

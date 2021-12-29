@@ -1952,13 +1952,7 @@ public abstract class ChatCore extends AsyncAdapter {
     void handleOnCallStarted(Callback callback, ChatMessage chatMessage) {
     }
 
-    void visibleView(View view) {
-        new Handler(context.getMainLooper())
-                .post(() -> {
-                    if (view.getVisibility() != View.VISIBLE)
-                        view.setVisibility(View.VISIBLE);
-                });
-    }
+
 
     void handleOnVoiceCallEnded(ChatMessage chatMessage) {
     }

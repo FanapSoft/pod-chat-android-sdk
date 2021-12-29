@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -70,6 +71,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
 
+    //set it to true if you went test CallPartnerViewManager auto generate ability
+    public static final boolean CALL_PARTNER_VIEW_AUTO_GENERATE_TEST = false;
 
     private boolean permissionToRecordAccepted = false;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
@@ -440,9 +443,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         List<CallPartnerView> views = new ArrayList<>();
         views.add(remoteCallPartner1);
-        views.add(remoteCallPartner2);
-        views.add(remoteCallPartner3);
-        views.add(remoteCallPartner4);
+        if(!CALL_PARTNER_VIEW_AUTO_GENERATE_TEST){
+            views.add(remoteCallPartner2);
+            views.add(remoteCallPartner3);
+            views.add(remoteCallPartner4);
+        }
 
         presenter.setupVideoCallParam(localCallPartner, views);
 
@@ -1221,6 +1226,20 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    public void addNewView(CallPartnerView partnerView) {
+
+        showCallRequest("Call Partner");
+        runOnUiThread(()-> {
+            partnerView.setVisibility(View.VISIBLE);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400,400);
+            params.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
+            params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+            partnerView.setLayoutParams(params);
+            ((ConstraintLayout) inCallView).addView(partnerView);
+        });
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
