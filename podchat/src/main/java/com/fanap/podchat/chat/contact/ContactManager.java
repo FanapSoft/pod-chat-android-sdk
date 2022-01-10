@@ -1,17 +1,17 @@
 package com.fanap.podchat.chat.contact;
 
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.CoreConfig;
+import com.fanap.podchat.chat.contact.model.AddContactVO;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
-import com.fanap.podchat.localmodel.SetRuleVO;
+import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.Thread;
-import com.fanap.podchat.mainmodel.UserRoleVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultNotSeenDuration;
-import com.fanap.podchat.requestobject.RequestRole;
+import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.JsonObject;
@@ -43,6 +43,31 @@ public class ContactManager {
 
     }
 
+
+    public static String createAddContactRequest(RequestAddContact request,
+                                                 String uniqueId) {
+        AddContactVO addContactVO =
+                new AddContactVO()
+                        .setEmail(request.getEmail())
+                        .setFirstName(request.getFirstName())
+                        .setLastName(request.getLastName())
+                        .setUserName(request.getUsername())
+                        .setCellphoneNumber(request.getCellphoneNumber());
+
+        String content = App.getGson().toJson(addContactVO);
+
+        AsyncMessage message = new ChatMessage();
+
+        message.setType(ChatMessageType.Constants.ADD_CONTACT);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setContent(content);
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+
+    }
 
     //db query
 //    order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset
@@ -207,7 +232,7 @@ public class ContactManager {
     }
 
 
-    public static ChatResponse<ResultBlockList> prepareBlockListResponse(ChatMessage chatMessage){
+    public static ChatResponse<ResultBlockList> prepareBlockListResponse(ChatMessage chatMessage) {
         ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
         chatResponse.setErrorCode(0);
         chatResponse.setHasError(false);
@@ -293,7 +318,7 @@ public class ContactManager {
         try {
             if (Util.isNotNullOrEmpty(username)) {
                 return Observable.from(allContacts)
-                        .filter(t -> t.getLinkedUser()!=null)
+                        .filter(t -> t.getLinkedUser() != null)
                         .filter(t -> t.getLinkedUser().getUsername().contains(username))
                         .toList();
             } else {

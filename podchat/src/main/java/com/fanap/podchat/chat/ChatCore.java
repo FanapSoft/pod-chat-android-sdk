@@ -7852,14 +7852,24 @@ public abstract class ChatCore extends AsyncAdapter {
      */
     public String addContact(RequestAddContact request) {
 
-        String firstName = request.getFirstName();
-        String lastName = request.getLastName();
-        String email = request.getEmail();
-        String cellphoneNumber = request.getCellphoneNumber();
-        String username = request.getUsername();
-        String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = ContactManager.createAddContactRequest(request, uniqueId);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_CONTACT");
+        } else {
+            onChatNotReady(uniqueId);
+        }
 
-        return addContact(firstName, lastName, cellphoneNumber, email, typeCode, username);
+        return uniqueId;
+
+//        String firstName = request.getFirstName();
+//        String lastName = request.getLastName();
+//        String email = request.getEmail();
+//        String cellphoneNumber = request.getCellphoneNumber();
+//        String username = request.getUsername();
+//        String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
+//
+//        return addContact(firstName, lastName, cellphoneNumber, email, typeCode, username);
     }
 
     /**
