@@ -1239,6 +1239,10 @@ public abstract class ChatCore extends AsyncAdapter {
                     handleOutPutAddParticipantTag(chatMessage, messageUniqueId, callback.getTagId());
                 break;
 
+            case Constants.ADD_CONTACT:
+                handleOutPutAddContact(chatMessage);
+                break;
+
             case Constants.REMOVE_TAG_PARTICIPANT:
                 if (callback != null)
                     handleOutPutRemoveParticipantTag(chatMessage, messageUniqueId, callback.getTagId());
@@ -11150,6 +11154,25 @@ public abstract class ChatCore extends AsyncAdapter {
 
 
         listenerManager.callOnTagParticipantAdded(chatMessage.getContent(), response);
+    }
+
+    private void handleOutPutAddContact(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("CONTACT ADDED", gson.toJson(chatMessage));
+        } else {
+            showLog("CONTACT ADDED");
+        }
+
+        ChatResponse<ResultAddContact> chatResponse = ContactManager.prepareAddContactResponse(chatMessage);
+
+        String contactsJson = gson.toJson(chatMessage);
+
+        if (cache) {
+            dataSource.saveContactResultFromServer(chatResponse.getResult().getContact());
+        }
+
+        listenerManager.callOnAddContact(contactsJson, chatResponse);
     }
 
     private void handleOutPutRemoveParticipantTag(ChatMessage chatMessage, String messageUniqueId, long tagId) {

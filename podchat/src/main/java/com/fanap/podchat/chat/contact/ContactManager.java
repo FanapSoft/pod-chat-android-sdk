@@ -2,15 +2,20 @@ package com.fanap.podchat.chat.contact;
 
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
 import com.fanap.podchat.chat.contact.model.AddContactVO;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
+import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
 import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultNotSeenDuration;
+import com.fanap.podchat.model.TagParticipantVO;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
@@ -68,6 +73,21 @@ public class ContactManager {
         return App.getGson().toJson(message);
 
     }
+
+
+    public static ChatResponse<ResultAddContact> prepareAddContactResponse(ChatMessage chatMessage) {
+
+        ChatResponse<ResultAddContact> response = new ChatResponse<>();
+
+        ResultAddContact result = App.getGson().fromJson(chatMessage.getContent(), ResultAddContact.class);
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        return response;
+    }
+
 
     //db query
 //    order by hasUser desc, lastName is null or lastName='', lastName, firstName is null or firstName='', firstName LIMIT :count OFFSET :offset
