@@ -49,15 +49,16 @@ public class ContactManager {
     }
 
 
-    public static String createAddContactRequest(RequestAddContact request,
-                                                 String uniqueId) {
+    public static String createAddContactRequest( String uniqueId,String typeCode,List<String> firstNames,List<String> lastNames,List<String> userNames,List<String> cellNumbers,List<String> emails,List<String> uniqIds) {
+
         AddContactVO addContactVO =
                 new AddContactVO()
-                        .setEmail(request.getEmail())
-                        .setFirstName(request.getFirstName())
-                        .setLastName(request.getLastName())
-                        .setUserName(request.getUsername())
-                        .setCellphoneNumber(request.getCellphoneNumber());
+                        .setEmailList(emails)
+                        .setFirstNameList(firstNames)
+                        .setLastNameList(lastNames)
+                        .setUserNameList(userNames)
+                        .setCellphoneNumberList(cellNumbers)
+                        .setUniqueIdList(uniqIds);
 
         String content = App.getGson().toJson(addContactVO);
 
@@ -66,7 +67,7 @@ public class ContactManager {
         message.setType(ChatMessageType.Constants.ADD_CONTACT);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
-        message.setTypeCode(request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        message.setTypeCode(typeCode != null ? typeCode : CoreConfig.typeCode);
         message.setContent(content);
         message.setUniqueId(uniqueId);
 

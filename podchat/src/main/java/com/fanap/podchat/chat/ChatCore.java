@@ -276,6 +276,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -7857,23 +7858,21 @@ public abstract class ChatCore extends AsyncAdapter {
     public String addContact(RequestAddContact request) {
 
         String uniqueId = generateUniqueId();
+        List<String> firstNames = Arrays.asList(request.getFirstName());
+        List<String> lastNames = Arrays.asList(request.getLastName());
+        List<String> emails =Arrays.asList(request.getEmail());
+        List<String> cellNumbers = Arrays.asList(request.getCellphoneNumber());
+        List<String> userNames = Arrays.asList(request.getUsername());
+        List<String> uniqIds = Arrays.asList( generateUniqueId());
+        String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
+
         if (chatReady) {
-            String message = ContactManager.createAddContactRequest(request, uniqueId);
+            String message = ContactManager.createAddContactRequest( uniqueId,  typeCode, firstNames,  lastNames,  userNames, cellNumbers, emails, uniqIds);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_CONTACT");
         } else {
             onChatNotReady(uniqueId);
         }
-
         return uniqueId;
-
-//        String firstName = request.getFirstName();
-//        String lastName = request.getLastName();
-//        String email = request.getEmail();
-//        String cellphoneNumber = request.getCellphoneNumber();
-//        String username = request.getUsername();
-//        String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
-//
-//        return addContact(firstName, lastName, cellphoneNumber, email, typeCode, username);
     }
 
     /**
