@@ -127,6 +127,7 @@ public class ChatMessageType {
             Constants.START_SHARE_SCREEN,
             Constants.END_SHARE_SCREEN,
             Constants.ADD_CONTACT,
+            Constants.REMOVE_CONTACT,
 
     })
 
@@ -269,6 +270,7 @@ public class ChatMessageType {
         int MUTUAL_GROUPS = 130;
 
         int ADD_CONTACT = 200;
+        int REMOVE_CONTACT = 201;
 
 
 

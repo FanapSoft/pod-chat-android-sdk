@@ -15,6 +15,7 @@ import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultNotSeenDuration;
+import com.fanap.podchat.model.ResultRemoveContact;
 import com.fanap.podchat.model.TagParticipantVO;
 import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.util.ChatMessageType;
@@ -75,12 +76,43 @@ public class ContactManager {
 
     }
 
+    public static String createRemoveContactRequest( String uniqueId,String typeCode,List<String> userIds) {
+
+        String content = App.getGson().toJson(userIds);
+
+        AsyncMessage message = new ChatMessage();
+
+        message.setType(ChatMessageType.Constants.REMOVE_CONTACT);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(typeCode != null ? typeCode : CoreConfig.typeCode);
+        message.setContent(content);
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+
+    }
+
 
     public static ChatResponse<ResultAddContact> prepareAddContactResponse(ChatMessage chatMessage) {
 
         ChatResponse<ResultAddContact> response = new ChatResponse<>();
 
         ResultAddContact result = App.getGson().fromJson(chatMessage.getContent(), ResultAddContact.class);
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        return response;
+    }
+
+
+    public static ChatResponse<ResultRemoveContact> prepareRemoveContactResponse(ChatMessage chatMessage) {
+
+        ChatResponse<ResultRemoveContact> response = new ChatResponse<>();
+
+        ResultRemoveContact result = App.getGson().fromJson(chatMessage.getContent(), ResultRemoveContact.class);
 
         response.setResult(result);
 

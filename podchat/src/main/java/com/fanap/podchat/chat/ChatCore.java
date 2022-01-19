@@ -1244,6 +1244,11 @@ public abstract class ChatCore extends AsyncAdapter {
                 handleOutPutAddContact(chatMessage);
                 break;
 
+            case Constants.REMOVE_CONTACT:
+                if (callback != null)
+                    handleOutPutRemoveContact(chatMessage, callback.getUserId());
+                break;
+
             case Constants.REMOVE_TAG_PARTICIPANT:
                 if (callback != null)
                     handleOutPutRemoveParticipantTag(chatMessage, messageUniqueId, callback.getTagId());
@@ -7860,14 +7865,14 @@ public abstract class ChatCore extends AsyncAdapter {
         String uniqueId = generateUniqueId();
         List<String> firstNames = Arrays.asList(request.getFirstName());
         List<String> lastNames = Arrays.asList(request.getLastName());
-        List<String> emails =Arrays.asList(request.getEmail());
+        List<String> emails = Arrays.asList(request.getEmail());
         List<String> cellNumbers = Arrays.asList(request.getCellphoneNumber());
         List<String> userNames = Arrays.asList(request.getUsername());
-        List<String> uniqIds = Arrays.asList( generateUniqueId());
+        List<String> uniqIds = Arrays.asList(generateUniqueId());
         String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
 
         if (chatReady) {
-            String message = ContactManager.createAddContactRequest( uniqueId,  typeCode, firstNames,  lastNames,  userNames, cellNumbers, emails, uniqIds);
+            String message = ContactManager.createAddContactRequest(uniqueId, typeCode, firstNames, lastNames, userNames, cellNumbers, emails, uniqIds);
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_CONTACT");
         } else {
             onChatNotReady(uniqueId);
@@ -7880,6 +7885,7 @@ public abstract class ChatCore extends AsyncAdapter {
      *
      * @param userId id of the user that we want to remove from contact list
      */
+    @Deprecated
     public String removeContact(long userId) {
         String uniqueId = generateUniqueId();
 
@@ -7943,9 +7949,20 @@ public abstract class ChatCore extends AsyncAdapter {
      */
     public String removeContact(RequestRemoveContact request) {
 
-        long userId = request.getUserId();
+        String uniqueId = generateUniqueId();
+        List<String> userIds = Arrays.asList(String.valueOf(request.getUserId()));
+        String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
 
-        return removeContact(userId);
+        if (chatReady) {
+            String message = ContactManager.createRemoveContactRequest(uniqueId, typeCode, userIds);
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REMOVE_CONTACT");
+            Callback callbackRemoveContact = new Callback();
+            callbackRemoveContact.setUserId(request.getUserId());
+            messageCallbacks.put(uniqueId, callbackRemoveContact);
+        } else {
+            onChatNotReady(uniqueId);
+        }
+        return uniqueId;
 
     }
 
@@ -11171,7 +11188,24 @@ public abstract class ChatCore extends AsyncAdapter {
             dataSource.saveContactResultFromServer(chatResponse.getResult().getContact());
         }
 
-        listenerManager.callOnAddContact(contactsJson, chatResponse);
+    }
+
+    private void handleOutPutRemoveContact(ChatMessage chatMessage, long userId) {
+
+        if (sentryResponseLog) {
+            showLog("CONTACT REMOVED", gson.toJson(chatMessage));
+        } else {
+            showLog("CONTACT REMOVED");
+        }
+
+        ChatResponse<ResultRemoveContact> chatResponse = ContactManager.prepareRemoveContactResponse(chatMessage);
+
+        String json = gson.toJson(chatResponse);
+        if (cache) {
+            dataSource.deleteContactById(userId);
+        }
+
+        listenerManager.callOnRemoveContact(json, chatResponse);
     }
 
     private void handleOutPutRemoveParticipantTag(ChatMessage chatMessage, String messageUniqueId, long tagId) {

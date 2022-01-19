@@ -2125,7 +2125,7 @@ public class ChatActivity extends AppCompatActivity
                 .firstName("Nadia")
                 .lastName("Anvari")
                 .username("nadia.anvari")
-
+                .email("nadia.anvari@fanap.ir")
                 .build();
 
         presenter.addContact(request);
