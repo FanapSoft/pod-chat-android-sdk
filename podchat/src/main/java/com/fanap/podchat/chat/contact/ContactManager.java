@@ -12,6 +12,7 @@ import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultNotSeenDuration;
@@ -50,7 +51,7 @@ public class ContactManager {
     }
 
 
-    public static String createAddContactRequest( String uniqueId,String typeCode,List<String> firstNames,List<String> lastNames,List<String> userNames,List<String> cellNumbers,List<String> emails,List<String> uniqIds) {
+    public static String createAddContactRequest(String uniqueId, String typeCode, List<String> firstNames, List<String> lastNames, List<String> userNames, List<String> cellNumbers, List<String> emails, List<String> uniqIds) {
 
         AddContactVO addContactVO =
                 new AddContactVO()
@@ -76,7 +77,7 @@ public class ContactManager {
 
     }
 
-    public static String createRemoveContactRequest( String uniqueId,String typeCode,List<String> userIds) {
+    public static String createRemoveContactRequest(String uniqueId, String typeCode, List<String> userIds) {
 
         String content = App.getGson().toJson(userIds);
 
@@ -95,16 +96,31 @@ public class ContactManager {
 
 
     public static ChatResponse<ResultAddContact> prepareAddContactResponse(ChatMessage chatMessage) {
+        Contacts contacts = App.getGson().fromJson(chatMessage.getContent(), Contacts.class);
 
-        ChatResponse<ResultAddContact> response = new ChatResponse<>();
+        ChatResponse<ResultAddContact> chatResponse = new ChatResponse<>();
 
-        ResultAddContact result = App.getGson().fromJson(chatMessage.getContent(), ResultAddContact.class);
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+        ResultAddContact resultAddContact = new ResultAddContact();
+        resultAddContact.setContentCount(1);
+        Contact contact = new Contact();
 
-        response.setResult(result);
+        contact.setCellphoneNumber(contacts.getResult().get(0).getCellphoneNumber());
+        contact.setEmail(contacts.getResult().get(0).getEmail());
+        contact.setFirstName(contacts.getResult().get(0).getFirstName());
+        contact.setId(contacts.getResult().get(0).getId());
+        contact.setLastName(contacts.getResult().get(0).getLastName());
+        contact.setUniqueId(contacts.getResult().get(0).getUniqueId());
 
-        response.setUniqueId(chatMessage.getUniqueId());
+        //add linked user
+        LinkedUser linkedUser = contacts.getResult().get(0).getLinkedUser();
 
-        return response;
+        if (linkedUser != null)
+            contact.setLinkedUser(linkedUser);
+
+        resultAddContact.setContact(contact);
+        chatResponse.setResult(resultAddContact);
+        return chatResponse;
     }
 
 

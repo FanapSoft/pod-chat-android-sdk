@@ -11184,6 +11184,8 @@ public abstract class ChatCore extends AsyncAdapter {
 
         String contactsJson = gson.toJson(chatMessage);
 
+        listenerManager.callOnAddContact(contactsJson, chatResponse);
+
         if (cache) {
             dataSource.saveContactResultFromServer(chatResponse.getResult().getContact());
         }
