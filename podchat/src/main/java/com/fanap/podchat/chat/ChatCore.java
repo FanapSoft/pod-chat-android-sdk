@@ -11206,7 +11206,7 @@ public abstract class ChatCore extends AsyncAdapter {
         if (cache) {
             dataSource.deleteContactById(userId);
         }
-
+        messageCallbacks.remove(chatMessage.getUniqueId());
         listenerManager.callOnRemoveContact(json, chatResponse);
     }
 
