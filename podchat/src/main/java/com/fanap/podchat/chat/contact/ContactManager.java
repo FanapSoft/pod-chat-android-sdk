@@ -12,6 +12,7 @@ import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultBlockList;
@@ -128,9 +129,15 @@ public class ContactManager {
 
         ChatResponse<ResultRemoveContact> response = new ChatResponse<>();
 
-        ResultRemoveContact result = App.getGson().fromJson(chatMessage.getContent(), ResultRemoveContact.class);
-
+        ContactRemove contacts = App.getGson().fromJson(chatMessage.getContent(), ContactRemove.class);
+        ResultRemoveContact result = new ResultRemoveContact();
+        result.setResult(contacts.isResult());
         response.setResult(result);
+        if (contacts.getHasError()) {
+            response.setHasError(true);
+            response.setErrorCode(contacts.getErrorCode());
+            response.setErrorMessage(contacts.getErrorMessage());
+        } else response.setHasError(false);
 
         response.setUniqueId(chatMessage.getUniqueId());
 

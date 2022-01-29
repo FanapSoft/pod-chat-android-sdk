@@ -11201,13 +11201,16 @@ public abstract class ChatCore extends AsyncAdapter {
         }
 
         ChatResponse<ResultRemoveContact> chatResponse = ContactManager.prepareRemoveContactResponse(chatMessage);
-
-        String json = gson.toJson(chatResponse);
-        if (cache) {
-            dataSource.deleteContactById(userId);
+        if (!chatResponse.isHasError()) {
+            String json = gson.toJson(chatResponse);
+            if (cache) {
+                dataSource.deleteContactById(userId);
+            }
+            messageCallbacks.remove(chatMessage.getUniqueId());
+            listenerManager.callOnRemoveContact(json, chatResponse);
+        } else {
+            captureError(chatResponse.getErrorMessage(), chatResponse.getErrorCode(), chatResponse.getUniqueId());
         }
-        messageCallbacks.remove(chatMessage.getUniqueId());
-        listenerManager.callOnRemoveContact(json, chatResponse);
     }
 
     private void handleOutPutRemoveParticipantTag(ChatMessage chatMessage, String messageUniqueId, long tagId) {
