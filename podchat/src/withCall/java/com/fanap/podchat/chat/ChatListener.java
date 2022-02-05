@@ -2,6 +2,7 @@ package com.fanap.podchat.chat;
 
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
@@ -327,6 +328,8 @@ public interface ChatListener {
     default void onCallReconnect(ChatResponse<CallReconnectResult> response){}
 
     default void onCallConnect(ChatResponse<CallReconnectResult> response){}
+
+    default void onCallClientErrors(ChatResponse<CallClientErrorsResult> response){}
 
     default void onCallDelivered(ChatResponse<CallDeliverResult> response){}
 

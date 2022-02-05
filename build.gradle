@@ -38,7 +38,9 @@ allprojects {
         google()
         mavenCentral()
         jcenter()
-
+        maven{
+            url localRepositoryPath
+        }
         maven {
             url "https://s3.amazonaws.com/repo.commonsware.com"
         }

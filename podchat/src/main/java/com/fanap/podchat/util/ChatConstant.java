@@ -50,6 +50,8 @@ public class ChatConstant {
     public static final int ERROR_CODE_METHOD_NOT_IMPLEMENTED = 7000;
 
     public static final int ERROR_CODE_CALL_INITIAL_ERROR = 7100;
+    public static final int ERROR_CODE_MICROPHONE_NOT_AVAILABLE = 3000;
+    public static final int ERROR_CODE_CAMERA_NOT_AVAILABLE = 3001;
 
     public static final int ERROR_CODE_INVALID_VIEW = 7101;
 
@@ -103,6 +105,9 @@ public class ChatConstant {
     public static final String ERROR_METHOD_NOT_IMPLEMENTED = "This feature is not available in current version!";
 
     public static final String ERROR_INVALID_CAMERA_PREVIEW = "Camera Preview is not valid";
+    public static final String ERROR_CAMERA_NOT_AVAILABLE = "Camera is not available!";
+    public static final String ERROR_MICROPHONE_NOT_AVAILABLE = "Camera is not available!";
+
 
 
     /*

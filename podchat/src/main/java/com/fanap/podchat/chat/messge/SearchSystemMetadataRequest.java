@@ -1,9 +1,11 @@
-package com.fanap.podchat.mainmodel;
+package com.fanap.podchat.chat.messge;
 
 import android.support.annotation.NonNull;
 
-@Deprecated
-public class NosqlListMessageCriteriaVO {
+import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
+import com.fanap.podchat.requestobject.BaseRequestObject;
+
+public class SearchSystemMetadataRequest extends BaseRequestObject {
     private long messageThreadId;
     private long userId;
     private Long firstMessageId;
@@ -11,24 +13,20 @@ public class NosqlListMessageCriteriaVO {
     private Long id;
     private String query;
     private NosqlSearchMetadataCriteria metadataCriteria;
-    private long offset;
-    private int count;
     private String order;
 
-    public NosqlListMessageCriteriaVO(Builder builder) {
+    public SearchSystemMetadataRequest(Builder builder) {
         this.messageThreadId = builder.messageThreadId;
         this.userId = builder.userId;
         this.firstMessageId = builder.firstMessageId;
         this.lastMessageId = builder.lastMessageId;
         this.id = builder.id;
         this.query = builder.query;
-        this.offset = builder.offset;
-        this.count = builder.count;
         this.order = builder.order;
         this.metadataCriteria = builder.metadataCriteria;
     }
 
-    public static class Builder {
+    public static class Builder extends BaseRequestObject.Builder<Builder> {
         private final long messageThreadId;
         private long userId;
         private Long firstMessageId;
@@ -36,8 +34,6 @@ public class NosqlListMessageCriteriaVO {
         private Long id;
         private String query;
         private NosqlSearchMetadataCriteria metadataCriteria;
-        private long offset;
-        private int count;
         private String order;
 
         public Builder(long threadId) {
@@ -62,18 +58,11 @@ public class NosqlListMessageCriteriaVO {
             return this;
         }
 
-        @NonNull
-        public Builder offset(long offset) {
-            this.offset = offset;
+
+        @Override
+        protected Builder self() {
             return this;
         }
-
-        @NonNull
-        public Builder count(int count) {
-            this.count = count;
-            return this;
-        }
-
         @NonNull
         public Builder order(String order) {
             this.order = order;
@@ -99,8 +88,8 @@ public class NosqlListMessageCriteriaVO {
         }
 
         @NonNull
-        public NosqlListMessageCriteriaVO build() {
-            return new NosqlListMessageCriteriaVO(this);
+        public SearchSystemMetadataRequest build() {
+            return new SearchSystemMetadataRequest(this);
         }
     }
 
@@ -158,22 +147,6 @@ public class NosqlListMessageCriteriaVO {
 
     public void setMetadataCriteria(NosqlSearchMetadataCriteria metadataCriteria) {
         this.metadataCriteria = metadataCriteria;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
     }
 
     public String getOrder() {

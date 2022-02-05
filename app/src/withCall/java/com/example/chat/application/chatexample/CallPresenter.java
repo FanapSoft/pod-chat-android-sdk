@@ -28,6 +28,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
+import com.fanap.podchat.call.model.CallErrorVO;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
@@ -45,6 +46,7 @@ import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRe
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;

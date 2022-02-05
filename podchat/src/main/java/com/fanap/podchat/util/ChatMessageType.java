@@ -97,6 +97,7 @@ public class ChatMessageType {
             Constants.END_CALL,
             Constants.CALL_RECONNECT,
             Constants.CALL_CONNECT,
+            Constants.CALL_CLIENT_ERRORS,
             Constants.GROUP_CALL_REQUEST,
             Constants.LEAVE_CALL,
             Constants.ADD_CALL_PARTICIPANT,
@@ -210,6 +211,7 @@ public class ChatMessageType {
         int GET_CALLS = 77;
         int CALL_RECONNECT = 78;
         int CALL_CONNECT = 79;
+        int CALL_CLIENT_ERRORS = 153;
 
 
         int GROUP_CALL_REQUEST = 91;

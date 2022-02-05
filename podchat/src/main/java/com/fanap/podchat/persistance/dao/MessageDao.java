@@ -142,7 +142,7 @@ public interface MessageDao {
     void insertHistories(List<CacheMessageVO> messageVOS);
 
     /**
-     * Unread Messags
+     * Unread Messages
      */
 
     @Query("SELECT sum(unreadCount) from threadvo where unreadCount > 0")

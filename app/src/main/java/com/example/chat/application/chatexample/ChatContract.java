@@ -45,7 +45,7 @@ import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
@@ -320,7 +320,7 @@ public interface ChatContract {
         String getHistory(RequestGetHistory request, ChatHandler handler);
         String getHashTagList(RequestGetHashTagList request, ChatHandler handler);
 
-        void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler);
+        void searchHistory(SearchSystemMetadataRequest messageCriteriaVO, ChatHandler handler);
 
         void getContact(Integer count, Long offset, ChatHandler handler);
 

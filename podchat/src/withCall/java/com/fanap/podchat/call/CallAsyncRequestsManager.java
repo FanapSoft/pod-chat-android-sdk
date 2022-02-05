@@ -6,12 +6,14 @@ import android.util.Log;
 
 import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.constants.ClientType;
+import com.fanap.podchat.call.model.CallErrorVO;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
 import com.fanap.podchat.call.model.CreateCallVO;
 import com.fanap.podchat.call.model.SendClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
+import com.fanap.podchat.call.request_model.CallClientErrorsRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
@@ -26,6 +28,7 @@ import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
@@ -139,6 +142,30 @@ public class CallAsyncRequestsManager {
 
         return messageObj.toString();
 
+
+    }
+
+    public static String createCallClientErrorsRequestMessage(CallClientErrorsRequest request, String uniqueId) throws PodChatException {
+
+        if (request.getCallId() <= 0)
+            throw new PodChatException("Invalid call id", ChatConstant.ERROR_CODE_INVALID_THREAD_ID, uniqueId);
+
+        AsyncMessage message = new AsyncMessage();
+
+        JsonObject contentObj = new JsonObject();
+        contentObj.addProperty("code",request.getErrorCode());
+
+        message.setType(ChatMessageType.Constants.CALL_CLIENT_ERRORS);
+        message.setContent(contentObj.toString());
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setSubjectId(request.getCallId());
+        message.setTypeCode(Util.isNotNullOrEmpty(request.getTypeCode()) ? request.getTypeCode() : CoreConfig.typeCode);
+
+        JsonObject messageObj = (JsonObject) App.getGson().toJsonTree(message);
+
+        return messageObj.toString();
 
     }
 
@@ -610,6 +637,7 @@ public class CallAsyncRequestsManager {
 
         CallRequestResult callRequestResult = App.getGson().fromJson(chatMessage.getContent(), CallRequestResult.class);
         callRequestResult.setThreadId(chatMessage.getSubjectId());
+        callRequestResult.setGroup(true);
         ChatResponse<CallRequestResult> response = new ChatResponse<>();
         response.setResult(callRequestResult);
         response.setUniqueId(chatMessage.getUniqueId());
@@ -827,6 +855,30 @@ public class CallAsyncRequestsManager {
             result.setCallId(chatMessage.getSubjectId());
 
             result.setClientId(clientDTO.getClientId());
+
+            response.setResult(result);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+
+        return response;
+
+    }
+    public static ChatResponse<CallClientErrorsResult> handleOnCallClientErrorsReceived(ChatMessage chatMessage) {
+
+        ChatResponse<CallClientErrorsResult> response = null;
+        try {
+            CallErrorVO clientErrorVo = App.getGson().fromJson(chatMessage.getContent(), CallErrorVO.class);
+            response = new ChatResponse<>();
+
+            response.setUniqueId(chatMessage.getUniqueId());
+
+            response.setSubjectId(chatMessage.getSubjectId());
+
+            CallClientErrorsResult result = new CallClientErrorsResult(clientErrorVo);
+
+            result.setCallId(chatMessage.getSubjectId());
 
             response.setResult(result);
 

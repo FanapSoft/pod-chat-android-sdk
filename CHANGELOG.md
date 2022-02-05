@@ -6,9 +6,11 @@
 All notable changes to this project will be documented here.
 
 
-## [0.9.14.0] -2021-11-15
+## [0.9.14.0] -2021-12-26
 
 ### Added
+
+ ```SearchSystemMetadataRequest```
 
  ```startShareScreen``` callback
 
@@ -34,6 +36,8 @@ All notable changes to this project will be documented here.
  Improved bluetooth headset detection
  
  Update podcall to 3.5.2
+
+ Deprecated NosqlListMessageCriteriaVO
 
 
 

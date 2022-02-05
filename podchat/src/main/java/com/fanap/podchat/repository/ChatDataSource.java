@@ -2,7 +2,6 @@ package com.fanap.podchat.repository;
 
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.cachemodel.CacheAssistantVo;
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.cachemodel.queue.Failed;
@@ -10,7 +9,6 @@ import com.fanap.podchat.cachemodel.queue.Sending;
 import com.fanap.podchat.cachemodel.queue.SendingQueueCache;
 import com.fanap.podchat.cachemodel.queue.Uploading;
 import com.fanap.podchat.cachemodel.queue.UploadingQueueCache;
-import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.contact.ContactManager;
 import com.fanap.podchat.chat.messge.MessageManager;
 import com.fanap.podchat.chat.thread.ThreadManager;
@@ -18,6 +16,7 @@ import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -331,6 +330,21 @@ public class ChatDataSource {
     public void cancelMessage(String uniqueId) {
         cacheDataSource.cancelMessage(uniqueId);
         memoryDataSource.cancelMessage(uniqueId);
+    }
+
+    public Observable<MessageManager.HistoryResponse> getMessagesSystemMetadataData(SearchSystemMetadataRequest request) {
+
+
+        return getMessagesSystemMetadataFromCacheDataSource(request)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+
+
+    }
+
+    private Observable<MessageManager.HistoryResponse> getMessagesSystemMetadataFromCacheDataSource(SearchSystemMetadataRequest request) {
+        //get from disk cache and put in memory cache
+        return cacheDataSource.getMessagesSystemMetadataData(request).doOnNext(historyResponse -> saveMessageResultFromCache(historyResponse.getResponse().getResult().getHistory()));
     }
 
     //Sending Queue

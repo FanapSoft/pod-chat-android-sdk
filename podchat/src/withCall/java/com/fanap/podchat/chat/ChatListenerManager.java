@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
+import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.call.result_model.CallReconnectResult;
@@ -1213,6 +1214,18 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onCallConnect(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+    }
+
+    public void callOnCallClientCallErrorsReceived(ChatResponse<CallClientErrorsResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCallClientErrors(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
