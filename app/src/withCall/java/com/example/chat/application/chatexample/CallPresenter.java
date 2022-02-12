@@ -100,6 +100,8 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
@@ -254,9 +256,9 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         AudioCallParam audioCallParam = new AudioCallParam.Builder()
                 .setFrameRate(16000) //8000
-                .setBitrate(12000) //8000
+                .setBitrate(8000) //8000
                 .setFrameSize(60)
-                .setNumberOfChannels(2) //1
+                .setNumberOfChannels(1) //1
                 .build();
 
         ScreenShareParam screenShareParam = new ScreenShareParam.Builder()

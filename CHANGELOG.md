@@ -5,6 +5,15 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## [0.9.15.0] -2021-2-12
+
+### Changed
+
+ Update PodCall version to 3.5.6
+
+ The initial delay when starting a call is now reduced
+
+ 
 
 ## [0.9.14.0] -2021-12-26
 
