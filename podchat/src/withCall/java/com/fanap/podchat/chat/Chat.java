@@ -72,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class Chat extends ChatCore {
 
@@ -146,12 +147,12 @@ public class Chat extends ChatCore {
 
             @Override
             public void onCameraIsNotAvailable(String message) {
-                captureError(new PodChatException(ChatConstant.ERROR_CAMERA_NOT_AVAILABLE,ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE));
+                captureError(new PodChatException(ChatConstant.ERROR_CAMERA_NOT_AVAILABLE, ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE));
             }
 
             @Override
             public void onMicrophoneIsNotAvailable(String message) {
-                captureError(new PodChatException(ChatConstant.ERROR_MICROPHONE_NOT_AVAILABLE,ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE));
+                captureError(new PodChatException(ChatConstant.ERROR_MICROPHONE_NOT_AVAILABLE, ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE));
             }
         })
                 .setVideoCallParam(videoCallParam)
@@ -363,7 +364,6 @@ public class Chat extends ChatCore {
     }
 
 
-
     public String getActiveCalls(GetActiveCallsRequest request) {
 
         String uniqueId = generateUniqueId();
@@ -486,11 +486,11 @@ public class Chat extends ChatCore {
             try {
                 podVideoCall.startCall();
             } catch (MicrophoneUnavailableException e) {
-                captureError(new PodChatException(e.getMessage(),ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE,info.getUniqueId()));
-                sendClientCallErrors(new CallClientErrorsRequest.Builder(info.getSubjectId(),ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE).build());
+                captureError(new PodChatException(e.getMessage(), ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE, info.getUniqueId()));
+                sendClientCallErrors(new CallClientErrorsRequest.Builder(info.getSubjectId(), ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE).build());
             } catch (CameraUnavailableException e) {
-                captureError(new PodChatException(e.getMessage(),ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE,info.getUniqueId()));
-                sendClientCallErrors(new CallClientErrorsRequest.Builder(info.getSubjectId(),ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE).build());
+                captureError(new PodChatException(e.getMessage(), ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE, info.getUniqueId()));
+                sendClientCallErrors(new CallClientErrorsRequest.Builder(info.getSubjectId(), ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE).build());
             }
 
             if (callServiceManager != null)
@@ -962,11 +962,11 @@ public class Chat extends ChatCore {
 
     @Override
     protected void handleOnCallParticipantCanceledCall(ChatMessage chatMessage) {
-        if (deviceIsInCall) {
-            showLog("RECEIVE_CANCEL_GROUP_CALL", gson.toJson(chatMessage));
-
-            ChatResponse<CallCancelResult> response = CallAsyncRequestsManager.handleOnCallCanceled(chatMessage);
-
+        showLog("RECEIVE_CANCEL_GROUP_CALL", gson.toJson(chatMessage));
+        ChatResponse<CallCancelResult> response = CallAsyncRequestsManager.handleOnCallCanceled(chatMessage);
+        if (response.getResult().getCallParticipant().getUserId().equals(CoreConfig.userId)) {
+            listenerManager.callOnCallCanceled(response);
+        } else if (deviceIsInCall) {
             listenerManager.callOnCallCanceled(response);
         }
     }
@@ -1136,8 +1136,8 @@ public class Chat extends ChatCore {
                             listenerManager.callOnCallParticipantSharedScreen(response);
                         }
                     }
-                }else{
-                    captureError(new PodChatException(ChatConstant.ERROR_METHOD_NOT_IMPLEMENTED,ChatConstant.ERROR_CODE_METHOD_NOT_IMPLEMENTED,chatMessage.getUniqueId()));
+                } else {
+                    captureError(new PodChatException(ChatConstant.ERROR_METHOD_NOT_IMPLEMENTED, ChatConstant.ERROR_CODE_METHOD_NOT_IMPLEMENTED, chatMessage.getUniqueId()));
                 }
             }
         }
@@ -1322,7 +1322,6 @@ public class Chat extends ChatCore {
             listenerManager.callOnGetActiveCalls(response);
         }
     }
-
 
 
     @Override

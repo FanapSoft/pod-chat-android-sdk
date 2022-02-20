@@ -10327,53 +10327,6 @@ public abstract class ChatCore extends AsyncAdapter {
         return editMessage((int) request.getMessageId(), request.getMessageContent(), request.getMetaData(), handler);
 
 
-//        String uniqueId = generateUniqueId();
-//
-//        try {
-//            JsonObject jsonObject = null;
-//            if (chatReady) {
-//
-//                String messageContent = request.getMessageContent();
-//                long messageId = request.getMessageId();
-//                String metaData = request.getMetaData();
-//
-//                ChatMessage chatMessage = new ChatMessage();
-//                chatMessage.setMessageType(Constants.EDIT_MESSAGE);
-//                chatMessage.setToken(getToken());
-//                chatMessage.setUniqueId(uniqueId);
-//                chatMessage.setSubjectId(messageId);
-//                chatMessage.setContent(messageContent);
-//                chatMessage.setSystemMetadata(metaData);
-//                chatMessage.setTokenIssuer("1");
-//
-//                jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-//                jsonObject.remove("contentCount");
-//                jsonObject.remove("systemMetadata");
-//                jsonObject.remove("metadata");
-//                jsonObject.remove("repliedTo");
-//
-//                if (Util.isNullOrEmpty(typeCode)) {
-//                    if (Util.isNullOrEmpty(getTypeCode())) {
-//                        jsonObject.remove("typeCode");
-//                    } else {
-//                        jsonObject.addProperty("typeCode", getTypeCode());
-//                    }
-//                } else {
-//                    jsonObject.addProperty("typeCode", typeCode);
-//                }
-//
-//                setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
-//                sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_EDIT_MESSAGE");
-//            } else {
-//                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-//            }
-//            if (handler != null) {
-//                handler.onEditMessage(uniqueId);
-//            }
-//        } catch (Exception e) {
-//            if (log) Log.e(TAG, e.getCause().getMessage());
-//        }
-//        return uniqueId;
     }
 
     public String getMessageDeliveredList(RequestDeliveredMessageList requestParams) {
@@ -10687,11 +10640,6 @@ public abstract class ChatCore extends AsyncAdapter {
                 listenerManager.callOnLogEvent(json);
                 listenerManager.callOnLogEvent(i, json);
             }
-//            try {
-//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
         }
 
         if (sentryLog) {
@@ -10710,11 +10658,6 @@ public abstract class ChatCore extends AsyncAdapter {
     protected void showLog(String info) {
         if (log) {
             Log.d(TAG, info);
-//            try {
-//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
         }
         Breadcrumb c = new Breadcrumb();
         c.setCategory("INFO " + info);
@@ -10731,12 +10674,6 @@ public abstract class ChatCore extends AsyncAdapter {
         if (log) {
             Log.e(TAG, "Error");
             Log.e(TAG, message);
-
-//            try {
-//                FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
         }
 
         if (sentryLog) {
