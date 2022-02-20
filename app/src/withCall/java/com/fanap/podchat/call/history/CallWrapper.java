@@ -51,7 +51,7 @@ public class CallWrapper extends CallVO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CallWrapper that = (CallWrapper) o;
-        return this.getId() == that.getId();
+        return ((this.getId() == that.getId()) && (this.getCreateTime() == that.getCreateTime()));
 
     }
 

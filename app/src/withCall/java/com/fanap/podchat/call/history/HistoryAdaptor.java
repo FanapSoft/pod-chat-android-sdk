@@ -19,7 +19,9 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHolder> {
@@ -84,7 +86,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                             .apply(RequestOptions.circleCropTransform())
                             .into(viewHolder.imageViewProfile);
                 else {
-                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
+                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_person));
                 }
 
 
@@ -96,20 +98,21 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                             .apply(RequestOptions.circleCropTransform())
                             .into(viewHolder.imageViewProfile);
                 else {
-                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_group));
+                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_groups));
                 }
             } else {
                 viewHolder.tvName.setText("Invalid name");
-                viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
+                viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_person));
 
                 if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
-
                     setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
                 }
             }
 
             if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
                 setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+                Date time = new Date(historyVO.getCreateTime());
+                viewHolder.tvCallTime.setText(time.toString());
             }
 
             viewHolder.imageButtonAudioCall.setOnClickListener(v -> {
@@ -129,7 +132,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
         switch (status) {
 
             case CallStatus.Constants.ACCEPTED: {
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_end_green));
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_successful_incoming_call));
                 break;
             }
             case CallStatus.Constants.REQUESTED: {
@@ -149,7 +152,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                 break;
             }
             case CallStatus.Constants.STARTED: {
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_requested));
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_successfull_outgoing_call));
                 break;
             }
             case CallStatus.Constants.ENDED: {
@@ -199,6 +202,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             historyVOS = new ArrayList<>();
         }
         historyVOS.addAll(calls);
+        Collections.sort(historyVOS, (o1, o2) -> Long.compare(o2.getCreateTime(),o1.getCreateTime()));
         notifyItemRangeChanged(historyVOS.size(), calls.size());
     }
 
@@ -215,7 +219,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvName;
+        TextView tvName, tvCallTime;
         ImageView imageViewProfile;
         ImageButton imageButtonAudioCall, imageButtonVideoCall;
         ImageView imageStatus;
@@ -227,6 +231,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
             imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
             imageStatus = itemView.findViewById(R.id.imageStatus);
+            tvCallTime = itemView.findViewById(R.id.tvTime);
         }
 
     }
