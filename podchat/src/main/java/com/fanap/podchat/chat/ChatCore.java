@@ -1110,6 +1110,9 @@ public abstract class ChatCore extends AsyncAdapter {
             case Constants.GET_CALLS:
                 handleOnGetCallsHistory(chatMessage, callback);
                 break;
+            case Constants.GET_CALLS_TO_JOIN:
+                handleOnGetActiveCalls(chatMessage, callback);
+                break;
             case Constants.CALL_RECONNECT:
                 handleOnReceivedCallReconnect(chatMessage);
                 break;
@@ -1979,6 +1982,9 @@ public abstract class ChatCore extends AsyncAdapter {
     }
 
     protected void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
+    }
+
+    protected void handleOnGetActiveCalls(ChatMessage chatMessage, Callback callback) {
     }
 
     protected void handleOnReceivedCallReconnect(ChatMessage chatMessage) {

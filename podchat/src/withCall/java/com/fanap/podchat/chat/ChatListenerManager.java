@@ -12,6 +12,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetActiveCallsResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -1188,6 +1189,19 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onReceiveCallHistory(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
+    public void callOnGetActiveCalls(ChatResponse<GetActiveCallsResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onReceiveActiveCalls(response);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

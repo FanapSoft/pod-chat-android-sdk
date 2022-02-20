@@ -15,33 +15,34 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.call.CallStatus;
-import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHolder> {
 
 
     public interface IHistoryInterface {
-        void onAudioCallSelected(CallVO call);
+        void onAudioCallSelected(CallWrapper call);
 
-        void onVideoCallSelected(CallVO call);
+        void onVideoCallSelected(CallWrapper call);
     }
 
-    ArrayList<CallVO> historyVOS;
+    ArrayList<CallWrapper> historyVOS;
 
     Context context;
 
     IHistoryInterface iHistoryInterface;
 
-    public HistoryAdaptor(ArrayList<CallVO> historyVOS, Context context) {
+    public HistoryAdaptor(ArrayList<CallWrapper> historyVOS, Context context) {
         this.historyVOS = historyVOS;
         this.context = context;
     }
 
-    public HistoryAdaptor(ArrayList<CallVO> historyVOS, Context context, IHistoryInterface iHistoryInterface) {
+    public HistoryAdaptor(ArrayList<CallWrapper> historyVOS, Context context, IHistoryInterface iHistoryInterface) {
         this.historyVOS = historyVOS;
         this.context = context;
         this.iHistoryInterface = iHistoryInterface;
@@ -49,18 +50,24 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_history, viewGroup, false);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        View view;
+        if (viewType == CallWrapper.CallItemType.ACTIVE) {
+            view = LayoutInflater.from(context).inflate(R.layout.item_active_call, viewGroup, false);
+            return new ViewHolder(view);
+        }
+        view = LayoutInflater.from(context).inflate(R.layout.item_history, viewGroup, false);
         return new ViewHolder(view);
+
+
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-
         if (!historyVOS.isEmpty()) {
 
-            CallVO historyVO = historyVOS.get(viewHolder.getAdapterPosition());
+            CallWrapper historyVO = historyVOS.get(viewHolder.getAdapterPosition());
 
             if (historyVO.getPartnerParticipantVO() != null) {
 
@@ -81,7 +88,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                 }
 
 
-            } else if(historyVO.getConversationVO()!=null){
+            } else if (historyVO.getConversationVO() != null) {
                 viewHolder.tvName.setText(historyVO.getConversationVO().getTitle());
                 if (Util.isNotNullOrEmpty(historyVO.getConversationVO().getImage()))
                     Glide.with(context)
@@ -91,13 +98,19 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                 else {
                     viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_group));
                 }
-            }else {
+            } else {
                 viewHolder.tvName.setText("Invalid name");
                 viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
-                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+
+                if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
+
+                    setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+                }
             }
 
-            setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+            if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
+                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+            }
 
             viewHolder.imageButtonAudioCall.setOnClickListener(v -> {
                 if (iHistoryInterface != null)
@@ -109,8 +122,6 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             });
 
         }
-
-
     }
 
     private void setImageStatus(ImageView imageStatus, int status) {
@@ -161,11 +172,52 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
         return historyVOS.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return Util.isNullOrEmpty(historyVOS) ? super.getItemViewType(position)
+                : position >= historyVOS.size() ? super.getItemViewType(position)
+                : historyVOS.get(position).getCallItemType();
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void update(List<CallWrapper> calls) {
+        historyVOS = new ArrayList<>(calls);
+        notifyDataSetChanged();
+    }
+
+    public void addToFirst(List<CallWrapper> calls) {
+        if (historyVOS == null) {
+            historyVOS = new ArrayList<>();
+        }
+        historyVOS.addAll(0, calls);
+        notifyItemChanged(0);
+    }
+
+    public void add(List<CallWrapper> calls) {
+        if (historyVOS == null) {
+            historyVOS = new ArrayList<>();
+        }
+        historyVOS.addAll(calls);
+        notifyItemRangeChanged(historyVOS.size(), calls.size());
+    }
+
+    public void removeItem(CallWrapper call) {
+        if (historyVOS != null) {
+            if(historyVOS.contains(call)){
+                int pos = historyVOS.indexOf(call);
+                historyVOS.remove(call);
+                notifyItemRemoved(pos);
+            }
+        }
+    }
+
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName;
         ImageView imageViewProfile;
-        ImageButton imageButtonAudioCall,imageButtonVideoCall;
+        ImageButton imageButtonAudioCall, imageButtonVideoCall;
         ImageView imageStatus;
 
         public ViewHolder(@NonNull View itemView) {
@@ -178,4 +230,22 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
         }
 
     }
+
+
+    public static class ViewHolderActiveCall extends RecyclerView.ViewHolder {
+
+        TextView tvName;
+        ImageView imageViewProfile;
+        ImageButton imageButtonAudioCall, imageButtonVideoCall;
+
+        public ViewHolderActiveCall(@NonNull View itemView) {
+            super(itemView);
+            tvName = itemView.findViewById(R.id.tvContactName);
+            imageViewProfile = itemView.findViewById(R.id.imageProfile);
+            imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
+            imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
+        }
+
+    }
+
 }

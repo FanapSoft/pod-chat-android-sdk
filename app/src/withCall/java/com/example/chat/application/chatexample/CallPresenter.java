@@ -28,6 +28,7 @@ import com.fanap.podchat.call.CallConfig;
 import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
+import com.fanap.podchat.call.history.CallWrapper;
 import com.fanap.podchat.call.model.CallErrorVO;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
@@ -37,6 +38,7 @@ import com.fanap.podchat.call.recording.CallRecordTracer;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetActiveCallsRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
@@ -53,6 +55,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetActiveCallsResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -100,8 +103,6 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
@@ -137,6 +138,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     private List<CallPartnerView> remotePartnersViews;
     private CallPartnerView cameraPreview;
     private int cameraId = CameraId.FRONT;
+
+    private ArrayList<CallWrapper> callsList = new ArrayList<>();
 
 
     public CallPresenter(Context context, CallContract.view view, Activity activity) {
@@ -468,7 +471,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         String uniqueId = chat.rejectVoiceCall(request);
         callUniqueIds.add(uniqueId);
-
+        getActiveCalls();
     }
 
     @Override
@@ -487,7 +490,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 .jsonMetaData(new GsonBuilder().create().toJson("{\"callRejectWithMessage\":true}"))
                 .build();
         callUniqueIds.add(chat.sendTextMessage(requestRejectMessage, null));
-
+        getActiveCalls();
     }
 
     @Override
@@ -702,6 +705,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
             view.updateStatus("وصل شدیم ❤");
             getCallHistory();
+            getActiveCalls();
             view.switchToRecentCallsLoading();
         } else {
             view.updateStatus("داریم وصل می‌شیم... 😍");
@@ -713,10 +717,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
 
 
-        if(CallRecordTracer.isRecordedFileMessage(chatResponse.getUniqueId())){
+        if (CallRecordTracer.isRecordedFileMessage(chatResponse.getUniqueId())) {
 
             try {
-                view.showMessage("تماس در مسیر زیر ذخیره شد: \n "+ chatResponse.getResult().getMessageVO().getMetadata());
+                view.showMessage("تماس در مسیر زیر ذخیره شد: \n " + chatResponse.getResult().getMessageVO().getMetadata());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -956,7 +960,23 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         hideVideoViews();
 
         view.onVoiceCallEnded(response.getUniqueId(), response.getResult().getCallId());
+        removeActiveCallIfExist(response.getResult().getCallId());
+        getCallHistory();
 
+    }
+
+    private void removeActiveCallIfExist(long endedCallId) {
+        CallWrapper endedCallInList = null;
+        for (CallWrapper callItem :
+                callsList) {
+            if(callItem.getId() == endedCallId){
+                endedCallInList = callItem;
+                break;
+            }
+        }
+        if(endedCallInList!=null){
+            view.removeCallItem(endedCallInList);
+        }
     }
 
     @Override
@@ -973,18 +993,51 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onReceiveCallHistory(ChatResponse<GetCallHistoryResult> response) {
 
 
-        List<CallVO> calls = new ArrayList<>();
+        List<CallWrapper> calls = new ArrayList<>();
 
         for (CallVO call :
                 response.getResult().getCallsList()) {
 
-            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null)
-                calls.add(call);
+            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null){
+                CallWrapper callWrapper = CallWrapper.fromCall(call);
+                callWrapper.setCallItemType(CallWrapper.CallItemType.HISTORY);
+                calls.add(callWrapper);
+            }
+
 
         }
 
+        if(callsList.size()>0){
+            calls.removeAll(callsList);
+        }
 
+        callsList.addAll(calls);
         view.onGetCallHistory(calls);
+
+    }
+
+    @Override
+    public void onReceiveActiveCalls(ChatResponse<GetActiveCallsResult> response) {
+        List<CallWrapper> calls = new ArrayList<>();
+
+        for (CallVO call :
+                response.getResult().getCallsList()) {
+
+            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null){
+                CallWrapper callWrapper = CallWrapper.fromCall(call);
+                callWrapper.setCallItemType(CallWrapper.CallItemType.ACTIVE);
+                calls.add(callWrapper);
+            }
+
+        }
+
+        calls.removeAll(callsList);
+
+        callsList.addAll(calls);
+
+        if (calls.size() > 0) {
+            view.onGetActiveCalls(calls);
+        }
 
     }
 
@@ -1064,6 +1117,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             }
         }
         hideVideoViews();
+        getActiveCalls();
     }
 
     private void stopScreenShare() {
@@ -1087,6 +1141,17 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 .build();
 
         callUniqueIds.add(chat.getCallsHistory(request));
+
+    }
+
+    private void getActiveCalls() {
+
+        GetActiveCallsRequest request = new GetActiveCallsRequest.Builder()
+                .setType(BASE_CALL_TYPE)
+                .count(50)
+                .build();
+
+        callUniqueIds.add(chat.getActiveCalls(request));
 
     }
 
@@ -1199,23 +1264,46 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
 
     @Override
-    public void requestAudioCall(CallVO call) {
+    public void requestAudioCall(CallWrapper call) {
 
         if (chat.isChatReady()) {
-            requestP2PCall(call, CallType.Constants.VOICE_CALL);
+            if(call.getCallItemType() == CallWrapper.CallItemType.ACTIVE){
+                initCallVoByCallWrapper(call);
+                acceptIncomingCallWithAudio();
+                callsList.remove(call);
+                view.removeCallItem(call);
+            }else requestP2PCall(call, CallType.Constants.VOICE_CALL);
         } else {
             view.showMessage("Chat is not ready...");
         }
 
     }
 
+
     @Override
-    public void requestVideoCall(CallVO call) {
+    public void requestVideoCall(CallWrapper call) {
         if (chat.isChatReady()) {
-            requestP2PCall(call, CallType.Constants.VIDEO_CALL);
+            if(call.getCallItemType() == CallWrapper.CallItemType.ACTIVE){
+                initCallVoByCallWrapper(call);
+                acceptIncomingCallWithVideo();
+                callsList.remove(call);
+                view.removeCallItem(call);
+            }else requestP2PCall(call, CallType.Constants.VIDEO_CALL);
         } else {
             view.showMessage("Chat is not ready...");
         }
+
+    }
+
+    private void initCallVoByCallWrapper(CallWrapper call) {
+
+            callVO = new CreateCallVO();
+            callVO.setCallId(call.getId());
+            callVO.setGroup(call.isGroup());
+            callVO.setConversationVO(call.getConversationVO());
+            callVO.setCreatorId(call.getCreatorId());
+            callVO.setType(call.getType());
+
 
     }
 
@@ -1467,12 +1555,17 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
             try {
                 activity.runOnUiThread(() -> {
-                    CallPartnerView pw = findParticipantView(callParticipant.getUserId());
-                    pw.setDisplayName(true);
-                    pw.setPartnerName(callParticipant.getParticipantVO().getName());
+                    if(callParticipant.hasVideo()){
+                        CallPartnerView pw = findParticipantView(callParticipant.getUserId());
+                        if(pw!=null){
+                            pw.setDisplayName(true);
+                            pw.setPartnerName(callParticipant.getParticipantVO().getName());
+                        }
+
+                    }
                 });
             } catch (Exception exc) {
-                Log.e(TAG, "Err: " + exc.getMessage());
+                exc.printStackTrace();
             }
 
             view.showMessage(callParticipant.getParticipantVO().getName() + " وارد تماس شد!");
@@ -1485,6 +1578,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         isCallRecording = false;
         view.onVoiceCallEnded("", 0);
         stopScreenShare();
+        getCallHistory();
     }
 
     @Override
@@ -1682,7 +1776,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onCallParticipantRecordStopped(ChatResponse<Participant> response) {
         CallRecordTracer.ongoingRecordUniqueId = response.getUniqueId();
-        view.showMessage(" " + response.getResult().getName() + " ضبط تماس را متوقف کرد." );
+        view.showMessage(" " + response.getResult().getName() + " ضبط تماس را متوقف کرد.");
 
     }
 
@@ -1690,7 +1784,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onCallClientErrors(ChatResponse<CallClientErrorsResult> response) {
         CallErrorVO error = response.getResult().getCallErrorVO();
         Participant cp = error.getParticipant();
-        if(error.getCode()== ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE){
+        if (error.getCode() == ChatConstant.ERROR_CODE_CAMERA_NOT_AVAILABLE) {
             view.showMessage("دوربین " + cp.getName() + " قابل استفاده نیست!");
         }
         if (error.getCode() == ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE) {

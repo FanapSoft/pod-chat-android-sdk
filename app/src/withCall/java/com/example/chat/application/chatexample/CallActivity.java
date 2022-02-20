@@ -39,6 +39,7 @@ import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
+import com.fanap.podchat.call.history.CallWrapper;
 import com.fanap.podchat.call.history.HistoryAdaptor;
 import com.fanap.podchat.call.login.LoginFragment;
 import com.fanap.podchat.call.model.CallInfo;
@@ -56,6 +57,7 @@ import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -118,6 +120,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
 
     private RecyclerView recyclerViewHistory;
+    private HistoryAdaptor recyclerViewAdapter;
     private ViewSwitcher viewSwitcherRecentCalls;
     ScheduledExecutorService ex;
 
@@ -698,7 +701,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @SuppressLint("SetTextI18n")
     @Override
-    public void onGetCallHistory(List<CallVO> calls) {
+    public void onGetCallHistory(List<CallWrapper> calls) {
 
         runOnUiThread(() -> {
 
@@ -706,22 +709,13 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
             switchToRecentCallsRecycler();
 
-            HistoryAdaptor hAdaptor = new HistoryAdaptor(
-                    new ArrayList<>(calls),
-                    this, new HistoryAdaptor.IHistoryInterface() {
-                @Override
-                public void onAudioCallSelected(CallVO call) {
-                    presenter.requestAudioCall(call);
-                }
-
-                @Override
-                public void onVideoCallSelected(CallVO call) {
-                    presenter.requestVideoCall(call);
-                }
+            if(recyclerViewAdapter==null){
+                initRecyclerViewAdapter(calls);
+            }else {
+                recyclerViewAdapter.add(calls);
             }
-            );
 
-            recyclerViewHistory.setAdapter(hAdaptor);
+            recyclerViewHistory.setAdapter(recyclerViewAdapter);
 
             recyclerViewHistory.setLayoutManager(
                     new LinearLayoutManager(this,
@@ -733,8 +727,47 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     }
 
+    @Override
+    public void onGetActiveCalls(List<CallWrapper> calls) {
+
+
+        if(recyclerViewAdapter==null){
+            initRecyclerViewAdapter(calls);
+        }else {
+            recyclerViewAdapter.addToFirst(calls);
+            Objects.requireNonNull(recyclerViewHistory.getLayoutManager()).scrollToPosition(0);
+        }
+
+    }
+
+    private void initRecyclerViewAdapter(List<CallWrapper> calls) {
+        recyclerViewAdapter = new HistoryAdaptor(
+                new ArrayList<>(calls),
+                this, new HistoryAdaptor.IHistoryInterface() {
+
+                    @Override
+            public void onAudioCallSelected(CallWrapper call) {
+                presenter.requestAudioCall(call);
+            }
+
+            @Override
+            public void onVideoCallSelected(CallWrapper call) {
+                presenter.requestVideoCall(call);
+            }
+        });
+    }
+
+
+
     private void switchToRecentCallsRecycler() {
         viewSwitcherRecentCalls.setDisplayedChild(1);
+    }
+
+    @Override
+    public void removeCallItem(CallWrapper call) {
+        if(recyclerViewAdapter!=null){
+            recyclerViewAdapter.removeItem(call);
+        }
     }
 
     @Override

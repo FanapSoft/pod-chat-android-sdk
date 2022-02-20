@@ -16,6 +16,7 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallClientErrorsRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetActiveCallsRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
@@ -35,6 +36,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetActiveCallsResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -97,6 +99,33 @@ public class CallAsyncRequestsManager {
         return jsonObject.toString();
 
     }
+
+    public static String createGetActiveCallsRequest(GetActiveCallsRequest request, String uniqueId) {
+
+
+        request.setCount(request.getCount() > 0 ? request.getCount() : 50);
+
+        JsonObject content = (JsonObject) App.getGson().toJsonTree(request);
+
+        content.remove("useCache");
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content.toString());
+        message.setType(ChatMessageType.Constants.GET_CALLS_TO_JOIN);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? CoreConfig.typeCode : request.getTypeCode());
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(message);
+
+        jsonObject.remove("subjectId");
+
+        return jsonObject.toString();
+
+    }
+
+
 
     public static String createCallRequestMessage(CallRequest request, String uniqueId) {
 
@@ -791,6 +820,27 @@ public class CallAsyncRequestsManager {
         }
 
         response.setResult(new GetCallHistoryResult(calls, chatMessage.getContentCount(), (calls.size() + offset < chatMessage.getContentCount()), (calls.size() + offset)));
+
+        return response;
+
+    }
+    public static ChatResponse<GetActiveCallsResult> handleOnGetActiveCalls(ChatMessage chatMessage, Callback callback) {
+
+        ChatResponse<GetActiveCallsResult> response = new ChatResponse<>();
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        ArrayList<CallVO> calls = new ArrayList<>();
+
+        long offset = callback != null ? callback.getOffset() : 0;
+
+        try {
+            calls = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CallVO>>() {
+            }.getType());
+        } catch (JsonSyntaxException ignored) {
+        }
+
+        response.setResult(new GetActiveCallsResult(calls, chatMessage.getContentCount(), (calls.size() + offset < chatMessage.getContentCount()), (calls.size() + offset)));
 
         return response;
 

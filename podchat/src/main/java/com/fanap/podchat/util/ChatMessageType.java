@@ -125,7 +125,8 @@ public class ChatMessageType {
             Constants.START_RECORD_CALL,
             Constants.END_RECORD_CALL,
             Constants.START_SHARE_SCREEN,
-            Constants.END_SHARE_SCREEN
+            Constants.END_SHARE_SCREEN,
+            Constants.GET_CALLS_TO_JOIN
 
     })
 
@@ -237,6 +238,8 @@ public class ChatMessageType {
 
         int START_SHARE_SCREEN = 123;
         int END_SHARE_SCREEN = 124;
+
+        int GET_CALLS_TO_JOIN = 129;
 
         int LAST_MESSAGE_DELETED = 66;
         int LAST_MESSAGE_EDITED = 67;

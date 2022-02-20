@@ -27,6 +27,7 @@ import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallClientErrorsRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetActiveCallsRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
 import com.fanap.podchat.call.request_model.MuteUnMuteCallParticipantRequest;
@@ -46,6 +47,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetActiveCallsResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -353,6 +355,24 @@ public class Chat extends ChatCore {
             setCallBacks(false, false, false, false, ChatMessageType.Constants.GET_CALLS, request.getOffset(), uniqueId);
 
             sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_GET_CALL_HISTORIES");
+        } else {
+            onChatNotReady(uniqueId);
+        }
+
+        return uniqueId;
+    }
+
+
+
+    public String getActiveCalls(GetActiveCallsRequest request) {
+
+        String uniqueId = generateUniqueId();
+        if (chatReady) {
+            String message = CallAsyncRequestsManager.createGetActiveCallsRequest(request, uniqueId);
+
+            setCallBacks(false, false, false, false, ChatMessageType.Constants.GET_CALLS_TO_JOIN, request.getOffset(), uniqueId);
+
+            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REQUEST_GET_ACTIVE_CALLS");
         } else {
             onChatNotReady(uniqueId);
         }
@@ -903,25 +923,20 @@ public class Chat extends ChatCore {
     @Override
     void handleOnVoiceCallEnded(ChatMessage chatMessage) {
 
-
-        if (deviceIsInCall) {
-            if (sentryResponseLog) {
-                showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
-            } else {
-                showLog("RECEIVE_VOICE_CALL_ENDED");
-            }
-
-            stopCallService();
-
-            endCall();
-
-
-            ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
-
-            listenerManager.callOnVoiceCallEnded(response);
+        if (sentryResponseLog) {
+            showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
+        } else {
+            showLog("RECEIVE_VOICE_CALL_ENDED");
         }
 
+        if (deviceIsInCall) {
+            stopCallService();
+            endCall();
+        }
 
+        ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
+
+        listenerManager.callOnVoiceCallEnded(response);
     }
 
     @Override
@@ -1291,6 +1306,24 @@ public class Chat extends ChatCore {
         }
 
     }
+
+
+    @Override
+    protected void handleOnGetActiveCalls(ChatMessage chatMessage, Callback callback) {
+        if (callback != null) {
+            if (sentryResponseLog) {
+                showLog("RECEIVED_ACTIVE_CALLS", gson.toJson(chatMessage));
+            } else {
+                showLog("RECEIVED_ACTIVE_CALLS");
+            }
+
+            ChatResponse<GetActiveCallsResult> response = CallAsyncRequestsManager.handleOnGetActiveCalls(chatMessage, callback);
+
+            listenerManager.callOnGetActiveCalls(response);
+        }
+    }
+
+
 
     @Override
     protected void handleOnReceivedCallReconnect(ChatMessage chatMessage) {

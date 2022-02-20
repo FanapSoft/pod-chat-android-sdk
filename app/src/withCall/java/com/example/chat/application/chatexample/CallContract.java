@@ -6,9 +6,9 @@ import android.content.Intent;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
+import com.fanap.podchat.call.history.CallWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
-import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
@@ -72,7 +72,7 @@ public interface CallContract {
 
         default void onVoiceCallStarted(String uniqueId, String clientId){}
 
-        default void onGetCallHistory(List<CallVO> calls){}
+        default void onGetCallHistory(List<CallWrapper> calls){}
 
         default void onCallReconnect(long callId){}
 
@@ -159,6 +159,11 @@ public interface CallContract {
 
         default void updateCallerImage(String profileUrl){}
         default void updateCallImage(String profileUrl){}
+
+        default void onGetActiveCalls(List<CallWrapper> calls){}
+
+        default void removeCallItem(CallWrapper call){}
+
     }
 
     interface presenter {
@@ -238,9 +243,9 @@ public interface CallContract {
 
         void connect(String token);
 
-        void requestAudioCall(CallVO call);
+        void requestAudioCall(CallWrapper call);
 
-        void requestVideoCall(CallVO call);
+        void requestVideoCall(CallWrapper call);
 
         void rejectIncomingCallWithMessage(String msg);
 
