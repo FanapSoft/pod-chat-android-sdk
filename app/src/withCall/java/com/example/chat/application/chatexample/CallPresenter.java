@@ -254,7 +254,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 new VideoCallParam.Builder(localVideo)
                         .setCamWidth(320)
                         .setCamHeight(240)
-                        .setCamFPS(15)
+                        .setCamFPS(30)
                         .setVideoCodecType(VideoCodecType.VIDEO_CODEC_VP8)
                         .setBitrate(90_000)
                         .setCameraId(cameraId)
