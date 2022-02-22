@@ -1,17 +1,24 @@
 package com.fanap.podchat.chat.contact;
 
 import com.fanap.podchat.chat.App;
+import com.fanap.podchat.chat.CoreConfig;
+import com.fanap.podchat.chat.bot.result_model.CreateBotResult;
+import com.fanap.podchat.chat.contact.model.AddContactVO;
 import com.fanap.podchat.chat.contact.result_model.ContactSyncedResult;
-import com.fanap.podchat.localmodel.SetRuleVO;
+import com.fanap.podchat.chat.tag.result_model.TagParticipantResult;
+import com.fanap.podchat.mainmodel.AsyncMessage;
 import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Contact;
-import com.fanap.podchat.mainmodel.Thread;
-import com.fanap.podchat.mainmodel.UserRoleVO;
+import com.fanap.podchat.mainmodel.LinkedUser;
 import com.fanap.podchat.model.ChatResponse;
+import com.fanap.podchat.model.Contacts;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultNotSeenDuration;
-import com.fanap.podchat.requestobject.RequestRole;
+import com.fanap.podchat.model.ResultRemoveContact;
+import com.fanap.podchat.model.TagParticipantVO;
+import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
 import com.google.gson.JsonObject;
@@ -41,6 +48,93 @@ public class ContactManager {
 
         return response;
 
+    }
+
+
+    public static String createAddContactRequest(String uniqueId, String typeCode, List<String> firstNames, List<String> lastNames, List<String> userNames, List<String> cellNumbers, List<String> emails, List<String> uniqIds) {
+
+        AddContactVO addContactVO =
+                new AddContactVO()
+                        .setEmailList(emails)
+                        .setFirstNameList(firstNames)
+                        .setLastNameList(lastNames)
+                        .setUserNameList(userNames)
+                        .setCellphoneNumberList(cellNumbers)
+                        .setUniqueIdList(uniqIds);
+
+        String content = App.getGson().toJson(addContactVO);
+
+        AsyncMessage message = new ChatMessage();
+
+        message.setType(ChatMessageType.Constants.ADD_CONTACT);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(typeCode != null ? typeCode : CoreConfig.typeCode);
+        message.setContent(content);
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+
+    }
+
+    public static String createRemoveContactRequest(String uniqueId, String typeCode, List<String> userIds) {
+
+        String content = App.getGson().toJson(userIds);
+
+        AsyncMessage message = new ChatMessage();
+
+        message.setType(ChatMessageType.Constants.REMOVE_CONTACT);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setTypeCode(typeCode != null ? typeCode : CoreConfig.typeCode);
+        message.setContent(content);
+        message.setUniqueId(uniqueId);
+
+        return App.getGson().toJson(message);
+
+    }
+
+
+    public static ChatResponse<ResultAddContact> prepareAddContactResponse(ChatMessage chatMessage) {
+        Contacts contacts = App.getGson().fromJson(chatMessage.getContent(), Contacts.class);
+
+        ChatResponse<ResultAddContact> chatResponse = new ChatResponse<>();
+
+        chatResponse.setUniqueId(chatMessage.getUniqueId());
+        ResultAddContact resultAddContact = new ResultAddContact();
+        resultAddContact.setContentCount(1);
+        Contact contact = new Contact();
+
+        contact.setCellphoneNumber(contacts.getResult().get(0).getCellphoneNumber());
+        contact.setEmail(contacts.getResult().get(0).getEmail());
+        contact.setFirstName(contacts.getResult().get(0).getFirstName());
+        contact.setId(contacts.getResult().get(0).getId());
+        contact.setLastName(contacts.getResult().get(0).getLastName());
+        contact.setUniqueId(contacts.getResult().get(0).getUniqueId());
+
+        //add linked user
+        LinkedUser linkedUser = contacts.getResult().get(0).getLinkedUser();
+
+        if (linkedUser != null)
+            contact.setLinkedUser(linkedUser);
+
+        resultAddContact.setContact(contact);
+        chatResponse.setResult(resultAddContact);
+        return chatResponse;
+    }
+
+
+    public static ChatResponse<ResultRemoveContact> prepareRemoveContactResponse(ChatMessage chatMessage) {
+
+        ChatResponse<ResultRemoveContact> response = new ChatResponse<>();
+
+        ResultRemoveContact result = App.getGson().fromJson(chatMessage.getContent(), ResultRemoveContact.class);
+
+        response.setResult(result);
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        return response;
     }
 
 
@@ -207,7 +301,7 @@ public class ContactManager {
     }
 
 
-    public static ChatResponse<ResultBlockList> prepareBlockListResponse(ChatMessage chatMessage){
+    public static ChatResponse<ResultBlockList> prepareBlockListResponse(ChatMessage chatMessage) {
         ChatResponse<ResultBlockList> chatResponse = new ChatResponse<>();
         chatResponse.setErrorCode(0);
         chatResponse.setHasError(false);
@@ -293,7 +387,7 @@ public class ContactManager {
         try {
             if (Util.isNotNullOrEmpty(username)) {
                 return Observable.from(allContacts)
-                        .filter(t -> t.getLinkedUser()!=null)
+                        .filter(t -> t.getLinkedUser() != null)
                         .filter(t -> t.getLinkedUser().getUsername().contains(username))
                         .toList();
             } else {
