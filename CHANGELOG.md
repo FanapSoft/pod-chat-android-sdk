@@ -5,31 +5,35 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## [0.9.15.0] -2021-2-12
+## [0.9.15.0] -2021-2-23
 
 ### Added
 
- CallRequest.title
- CallRequest.description
- CallRequest.metadata
- CallRequest.image
- CallRequest.uniqueName
+ It's possible now to set title, description, metadata, uniqueName and image for a group call:
 
- ```Chat.getActiveCalls(GetActiveCallsRequest)``` method
- ```Chat.onReceiveActiveCalls(ChatResponse<GetActiveCallsResult>)``` callback
+- CallRequest.title
+- CallRequest.description
+- CallRequest.metadata
+- CallRequest.image
+- CallRequest.uniqueName
+
+ Get a list of active calls you can join:
+
+  ```Chat.getActiveCalls(GetActiveCallsRequest)``` method
+  ```Chat.onReceiveActiveCalls(ChatResponse<GetActiveCallsResult>)``` callback
 
 
 ### Changed
 
- Update PodCall version to 3.5.6
+ Update podCall version to 3.5.6
 
  The initial delay when starting a call is now reduced
 
- 
+ Chat.handleOnCallParticipantCanceledCall policy. This event is now also sent to the client who has canceled ( rejected ) incoming group call.
 
- 
+### Fixed
 
- 
+ Contacts... [Write here]
 
 ## [0.9.14.0] -2021-12-26
 
