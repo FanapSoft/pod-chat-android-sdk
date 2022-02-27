@@ -69,6 +69,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultBannedUser;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
@@ -143,6 +144,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class ChatActivity extends AppCompatActivity
@@ -154,8 +158,8 @@ public class ChatActivity extends AppCompatActivity
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
     private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
-    public static int TEST_THREAD_ID = 63264;
-
+    public static int TEST_THREAD_ID = 8911;
+    private static final String TAG = "CHAT_SDK_Activity";
 
     ArrayList<String> runningSignals = new ArrayList<>();
     long notificationThreadId = 0;
@@ -1857,6 +1861,32 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    boolean isBann = false;
+
+    @Override
+    public void onBanned(String content, ChatResponse<ResultBannedUser> response) {
+        ChatContract.view.super.onBanned(content, response);
+        if (!isBann) {
+            isBann = true;
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            Runnable unBannTask = new Runnable() {
+                @Override
+                public void run() {
+                    isBann = false;
+                    Log.e(TAG, "unBanned: now can use service");
+                }
+            };
+            executor.schedule(unBannTask, response.getResult().getduration(), TimeUnit.MILLISECONDS);
+        } else
+            Log.e(TAG, "onBanned: repeated");
+    }
+
+    @Override
+    public void onSentMessage() {
+        Log.e(TAG, "your meessage sent");
+
+    }
+
     public void sendMessage(View view) {
 
 //        Inviter inviter = new Inviter();
@@ -1870,8 +1900,20 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 //
 //
-        presenter.sendTextMessage(et_text.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
-//
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
+        for (int i = 0; i < 10; i++)
+            if (!isBann) {
+                Runnable task = () -> {
+                    presenter.sendTextMessage(et_text.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
+                    Log.e(TAG, "send messege request");
+                };
+                executor.schedule(task, 1000, TimeUnit.MILLISECONDS);
+            } else
+                Log.e(TAG, "you are banned");
+
+        executor.shutdown();
+        //
 //
 //        editText.setText("");
 

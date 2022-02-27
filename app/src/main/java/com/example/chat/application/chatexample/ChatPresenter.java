@@ -59,6 +59,7 @@ import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultBannedUser;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.example.R;
@@ -188,7 +189,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.setupNotification(notificationConfig);
 
 
-
         chat.isCacheables(true);
 
 
@@ -222,7 +222,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         activity.getApplication().registerActivityLifecycleCallbacks(this);
 
 
-        tokenHandler = new TokenHandler(activity.getApplicationContext(),new TokenHandler.ITokenHandler() {
+        tokenHandler = new TokenHandler(activity.getApplicationContext(), new TokenHandler.ITokenHandler() {
             @Override
             public void onGetToken(String token) {
                 view.onGetToken(token);
@@ -1246,7 +1246,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
-        Log.e(TAG, "onThreadInfoUpdated: "+response.getResult().getThread().getId() + "===> "+response.getResult().getThread().getLastMessage());
+        Log.e(TAG, "onThreadInfoUpdated: " + response.getResult().getThread().getId() + "===> " + response.getResult().getThread().getLastMessage());
     }
 
     @Override
@@ -1270,7 +1270,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onSent(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onSent(content, chatResponse);
         view.onSentMessage();
-        Log.e("testmsg", "id : " + chatResponse.getResult().getMessageId());
     }
 
     @Override
@@ -1580,6 +1579,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onBanned(String content, ChatResponse<ResultBannedUser> response) {
+        super.onBanned(content, response);
+        view.onBanned(content,response);
+    }
+
+    @Override
     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
         super.onNewMessage(content, chatResponse);
 
@@ -1798,7 +1803,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getContact() {
 
-        if(chat.isChatReady()){
+        if (chat.isChatReady()) {
             view.onLoadingContactsStarted();
             RequestGetContact request =
                     new RequestGetContact.Builder()
@@ -1884,7 +1889,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getMutualGroups(GetMutualGroupRequest request) {
-       chat.getMutualGroup(request);
+        chat.getMutualGroup(request);
     }
 
 

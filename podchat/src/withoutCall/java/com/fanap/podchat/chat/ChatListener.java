@@ -18,6 +18,7 @@ import com.fanap.podchat.chat.tag.result_model.TagResult;
 import com.fanap.podchat.chat.thread.public_thread.ResultIsNameAvailable;
 import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.user.profile.ResultBannedUser;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -150,6 +151,10 @@ public interface ChatListener {
     }
 
     default void onNewMessage(String content, ChatResponse<ResultNewMessage> response) {
+
+    }
+
+    default void onBanned(String content, ChatResponse<ResultBannedUser> response) {
 
     }
 

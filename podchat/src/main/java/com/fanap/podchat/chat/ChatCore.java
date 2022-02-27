@@ -102,7 +102,9 @@ import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.user.ban_user.BannUserManager;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultBannedUser;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
 import com.fanap.podchat.chat.user.user_roles.UserRoles;
@@ -10741,12 +10743,19 @@ public abstract class ChatCore extends AsyncAdapter {
         return mimType;
     }
 
+    private void handleBannedClient(ChatMessage chatMessage,  String message) {
+        ChatResponse<ResultBannedUser> chatResponse = BannUserManager.prepareBannedClientResponse(chatMessage,message);
+        String json = gson.toJson(chatResponse);
+        listenerManager.callOnBanned(json, chatResponse);
+    }
+
 
     private void handleError(ChatMessage chatMessage) {
-
         Error error = gson.fromJson(chatMessage.getContent(), Error.class);
         if (error.getCode() == 401) {
             pingHandler.removeCallbacksAndMessages(null);
+        } else if (error.getCode() == 208) {
+            handleBannedClient(chatMessage,error.getMessage());
         } else if (error.getCode() == 21) {
             userInfoResponse = true;
             retryStepUserInfo = 1;

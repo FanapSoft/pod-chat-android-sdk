@@ -41,6 +41,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
+import com.fanap.podchat.chat.user.profile.ResultBannedUser;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
@@ -108,6 +109,9 @@ public interface ChatContract {
         }
 
         default void onLogEvent(String log) {
+        }
+
+        default void onBanned(String content, ChatResponse<ResultBannedUser> response) {
         }
 
         default void onGetThreadList(String content, ChatResponse<ResultThreads> thread) {
@@ -213,55 +217,77 @@ public interface ChatContract {
         default void onGetThreadAdmin() {
         }
 
-        default void onTokenExpired(){}
+        default void onTokenExpired() {
+        }
 
-        default void onPinMessage(ChatResponse<ResultPinMessage> response){}
+        default void onPinMessage(ChatResponse<ResultPinMessage> response) {
+        }
 
-        default void onUnPinMessage(ChatResponse<ResultPinMessage> response){}
+        default void onUnPinMessage(ChatResponse<ResultPinMessage> response) {
+        }
 
-        default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response){}
+        default void onGetCurrentUserRoles(ChatResponse<ResultCurrentUserRoles> response) {
+        }
 
-        default void onTypingSignalTimeout(long threadId){}
+        default void onTypingSignalTimeout(long threadId) {
+        }
 
-        default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response){}
+        default void onUniqueNameIsAvailable(ChatResponse<ResultIsNameAvailable> response) {
+        }
 
-        default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response){}
+        default void onJoinPublicThread(ChatResponse<ResultJoinPublicThread> response) {
+        }
 
-        default void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response){}
+        default void onGetUnreadsMessagesCount(ChatResponse<ResultUnreadMessagesCount> response) {
+        }
 
-        default void onGetToken(String token){}
+        default void onGetToken(String token) {
+        }
 
-        default void onBotCreated(ChatResponse<CreateBotResult> response){}
+        default void onBotCreated(ChatResponse<CreateBotResult> response) {
+        }
 
-        default void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response){}
+        default void onBotCommandsDefined(ChatResponse<DefineBotCommandResult> response) {
+        }
 
-        default void onBotStopped(String botName){}
+        default void onBotStopped(String botName) {
+        }
 
-        default void onBotStarted(String botName){}
+        default void onBotStarted(String botName) {
+        }
 
-        default void pingStatusSent(ChatResponse<StatusPingResult> response){}
+        default void pingStatusSent(ChatResponse<StatusPingResult> response) {
+        }
 
 
+        default void updateStatus(String message) {
+        }
 
-        default void updateStatus(String message){}
+        default void onThreadClosed(long subjectId) {
+        }
 
-        default void onThreadClosed(long subjectId){}
+        default void onGetSentryLogs(String logs) {
+        }
 
-        default void onGetSentryLogs(String logs){}
+        default void onChatProfileUpdated(ResultUpdateProfile result) {
+        }
 
-        default void onChatProfileUpdated(ResultUpdateProfile result){}
-        default void onTagCreated(TagResult result){}
+        default void onTagCreated(TagResult result) {
+        }
 
-        default void onLoginNeeded(){}
+        default void onLoginNeeded() {
+        }
 
-        default void onLoadingContactsStarted(){}
+        default void onLoadingContactsStarted() {
+        }
 
-        default void setInitState(){}
+        default void setInitState() {
+        }
     }
 
     interface presenter {
 
-        void enableAutoRefresh(Activity activity,String entry);
+        void enableAutoRefresh(Activity activity, String entry);
 
         void sendLocationMessage(RequestLocationMessage request);
 
@@ -276,6 +302,7 @@ public interface ChatContract {
         void cancelMessage(String uniqueId);
 
         void retryUpload(String uniqueId);
+
         void getSentryLogs();
 
         void cancelUpload(String uniqueId);
@@ -296,7 +323,7 @@ public interface ChatContract {
 
                         long creatorCoreUserId, long partnerCoreUserId, long partnerCoreContactId, ChatHandler handler);
 
-        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,boolean isNew, ChatHandler handler);
+        void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, boolean isNew, ChatHandler handler);
 
         void setToken(String token);
 
@@ -318,6 +345,7 @@ public interface ChatContract {
         void getHistory(History history, long threadId, ChatHandler handler);
 
         String getHistory(RequestGetHistory request, ChatHandler handler);
+
         String getHashTagList(RequestGetHashTagList request, ChatHandler handler);
 
         void searchHistory(SearchSystemMetadataRequest messageCriteriaVO, ChatHandler handler);
@@ -347,7 +375,7 @@ public interface ChatContract {
 
         void getThreadParticipant(int count, Long offset, long threadId, ChatHandler handler);
 
-        void addContact(String firstName, String lastName, String cellphoneNumber, String email,String username);
+        void addContact(String firstName, String lastName, String cellphoneNumber, String email, String username);
 
         void removeContact(long id);
 
@@ -400,7 +428,7 @@ public interface ChatContract {
 
         void updateThreadInfo(RequestThreadInfo request, ChatHandler handler);
 
-        void deleteMessage(ArrayList<Long> messageIds,long threadId, Boolean deleteForAll, ChatHandler handler);
+        void deleteMessage(ArrayList<Long> messageIds, long threadId, Boolean deleteForAll, ChatHandler handler);
 
         void deleteMessage(RequestDeleteMessage deleteMessage, ChatHandler handler);
 
@@ -432,7 +460,7 @@ public interface ChatContract {
 
         void removeAuditor(RequestSetAuditor requestAddAdmin);
 
-        void createThreadWithFile(RequestCreateThreadWithFile request,ProgressHandler.sendFileMessage handler);
+        void createThreadWithFile(RequestCreateThreadWithFile request, ProgressHandler.sendFileMessage handler);
 
         void getUserRoles(RequestGetUserRoles req);
 
@@ -543,7 +571,7 @@ public interface ChatContract {
 
         void removeTagParticipant(RemoveTagParticipantRequest request);
 
-       void getTagList(GetTagListRequest request);
+        void getTagList(GetTagListRequest request);
 
         void getMutualGroups(GetMutualGroupRequest request);
 
