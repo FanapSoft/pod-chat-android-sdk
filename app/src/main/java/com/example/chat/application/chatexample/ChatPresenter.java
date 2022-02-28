@@ -58,6 +58,7 @@ import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.user.encryption.PodEncryption;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
@@ -71,6 +72,7 @@ import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.OutPutGetKey;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
 import com.fanap.podchat.model.OutPutThread;
@@ -188,7 +190,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.setupNotification(notificationConfig);
 
 
-
         chat.isCacheables(true);
 
 
@@ -222,7 +223,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         activity.getApplication().registerActivityLifecycleCallbacks(this);
 
 
-        tokenHandler = new TokenHandler(activity.getApplicationContext(),new TokenHandler.ITokenHandler() {
+        tokenHandler = new TokenHandler(activity.getApplicationContext(), new TokenHandler.ITokenHandler() {
             @Override
             public void onGetToken(String token) {
                 view.onGetToken(token);
@@ -525,6 +526,26 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onBotStarted(ChatResponse<StartStopBotResult> response) {
         view.onBotStarted(response.getResult().getBotName());
 
+    }
+
+    @Override
+    public void decryptMessage(String message, String privateKey) {
+
+    }
+
+    @Override
+    public void getPrivateKey(String keyId) {
+        chat.getPrivateKey(keyId, new PodEncryption.IPodPrivateKeyProvider() {
+            @Override
+            public void onPrivateKeyPrepared(OutPutGetKey response) {
+                Log.e(TAG, "onPrivateKeyPrepared: ");
+            }
+
+            @Override
+            public void onFaild(String error) {
+                Log.e(TAG, "onPrivateKeyPrepared: " + error);
+            }
+        });
     }
 
     @Override
@@ -1246,7 +1267,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onThreadInfoUpdated(String content, ChatResponse<ResultThread> response) {
-        Log.e(TAG, "onThreadInfoUpdated: "+response.getResult().getThread().getId() + "===> "+response.getResult().getThread().getLastMessage());
+        Log.e(TAG, "onThreadInfoUpdated: " + response.getResult().getThread().getId() + "===> " + response.getResult().getThread().getLastMessage());
     }
 
     @Override
@@ -1798,7 +1819,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getContact() {
 
-        if(chat.isChatReady()){
+        if (chat.isChatReady()) {
             view.onLoadingContactsStarted();
             RequestGetContact request =
                     new RequestGetContact.Builder()
@@ -1884,7 +1905,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getMutualGroups(GetMutualGroupRequest request) {
-       chat.getMutualGroup(request);
+        chat.getMutualGroup(request);
     }
 
 
