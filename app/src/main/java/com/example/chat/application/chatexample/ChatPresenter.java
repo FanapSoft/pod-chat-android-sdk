@@ -66,6 +66,7 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
@@ -1280,6 +1281,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onSeen(String content, ChatResponse<ResultMessage> chatResponse) {
         super.onSeen(content, chatResponse);
         view.onGetSeenMessage();
+    }
+
+    @Override
+    public void OnEncryptedMessage(String content, ChatResponse<MessageVO> chatResponse) {
+        super.OnEncryptedMessage(content, chatResponse);
+        chat.decryptMessage(chatResponse.getResult(),"");
     }
 
     @Override
