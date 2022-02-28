@@ -402,6 +402,7 @@ public abstract class ChatCore extends AsyncAdapter {
     private boolean userInfoResponse = false;
     private long ttl;
     private String ssoHost;
+    private String encryptionHost;
     private boolean isNetworkStateListenerEnable = true;
 
 
@@ -2026,9 +2027,12 @@ public abstract class ChatCore extends AsyncAdapter {
         String appId = requestConnect.getAppId();
         String severName = requestConnect.getSeverName();
         String ssoHost = requestConnect.getSsoHost();
+        String encryprionHost = requestConnect.getEncryptionServer();
         String podSpaceUrl = requestConnect.getPodSpaceServer();
-
-        connect(socketAddress, appId, severName, token, ssoHost, platformHost, fileServer, podSpaceUrl, typeCode);
+        if (encryprionHost != null)
+            connect(socketAddress, appId, severName, token, ssoHost, encryprionHost, platformHost, fileServer, podSpaceUrl, typeCode);
+        else
+            connect(socketAddress, appId, severName, token, ssoHost, platformHost, fileServer, podSpaceUrl, typeCode);
     }
 
     /**
@@ -2090,6 +2094,54 @@ public abstract class ChatCore extends AsyncAdapter {
                 setPlatformHost(platformHost);
                 setToken(token);
                 setSsoHost(ssoHost);
+                setTypeCode(typeCode);
+                setFileServer(fileServer);
+                setSocketAddress(socketAddress);
+                setAppId(appId);
+                setServerName(serverName);
+                setPodSpaceServer(podSpaceServer);
+
+                connectToAsync(socketAddress, appId, serverName, token, ssoHost);
+
+                setupNetworkStateListener();
+
+                scheduleForReconnect();
+
+            } else {
+                captureError("PlatformHost " + ChatConstant.ERROR_CHECK_URL
+                        , ChatConstant.ERROR_CODE_CHECK_URL, null);
+
+            }
+        } catch (Throwable throwable) {
+            captureError(new PodChatException("Connect method error: " + throwable.getMessage(), ChatConstant.ERROR_CODE_INVALID_PARAMETER));
+        }
+    }
+
+    public void connect(String socketAddress, String appId, String serverName, String token,
+                        String ssoHost, String encryptionHost, String platformHost, String fileServer, String podSpaceServer,
+                        String typeCode) {
+        try {
+
+            Sentry.setExtra("token", token);
+            Sentry.setExtra("typeCode", typeCode);
+            Sentry.setExtra("socketAddress", socketAddress);
+            Sentry.setExtra("appId", appId);
+            Sentry.setExtra("serverName", serverName);
+            Sentry.setExtra("platformHost", platformHost);
+            Sentry.setExtra("ssoHost", ssoHost);
+            Sentry.setExtra("encryptionHost", encryptionHost);
+            Sentry.setExtra("fileServer", fileServer);
+            Sentry.setExtra("podSpaceServer", podSpaceServer);
+            Sentry.setExtra("CACHE ENABLED", "" + cache);
+
+            if (platformHost.endsWith("/")) {
+
+                resetAsync();
+                setupContactApi(platformHost);
+                setPlatformHost(platformHost);
+                setToken(token);
+                setSsoHost(ssoHost);
+                setEncryptionHost(encryptionHost);
                 setTypeCode(typeCode);
                 setFileServer(fileServer);
                 setSocketAddress(socketAddress);
@@ -15150,6 +15202,10 @@ public abstract class ChatCore extends AsyncAdapter {
 
     private void setSsoHost(String ssoHost) {
         this.ssoHost = ssoHost;
+    }
+
+    private void setEncryptionHost(String encryptionHost) {
+        this.encryptionHost = encryptionHost;
     }
 
     private void setUserId(long userId) {
