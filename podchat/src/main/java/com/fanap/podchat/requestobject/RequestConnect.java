@@ -12,6 +12,7 @@ public class RequestConnect extends BaseRequestObject {
     private String platformHost;
     private String fileServer;
     private String podSpaceServer;
+    private String encryptionServer;
 
 
     public RequestConnect(@NonNull Builder builder) {
@@ -24,6 +25,7 @@ public class RequestConnect extends BaseRequestObject {
         this.token = builder.token;
         this.ssoHost = builder.ssoHost;
         this.podSpaceServer = builder.podSpaceServer;
+        this.encryptionServer = builder.encryptionServer;
     }
 
 
@@ -36,6 +38,7 @@ public class RequestConnect extends BaseRequestObject {
         private String ssoHost;
         private String platformHost;
         private String fileServer;
+        private String encryptionServer ;
 
 
 
@@ -50,6 +53,18 @@ public class RequestConnect extends BaseRequestObject {
             this.fileServer = fileServer;
         }
 
+        public Builder(String socketAddress, String appId, String severName, String token, String ssoHost, String platformHost, String fileServer, String podSpaceServer, String encryptionServer) {
+            this.podSpaceServer = podSpaceServer;
+            this.socketAddress = socketAddress;
+            this.appId = appId;
+            this.severName = severName;
+            this.token = token;
+            this.ssoHost = ssoHost;
+            this.platformHost = platformHost;
+            this.fileServer = fileServer;
+            this.encryptionServer = encryptionServer;
+        }
+
         @NonNull
         public RequestConnect build() {
             return new RequestConnect(this);
@@ -62,6 +77,9 @@ public class RequestConnect extends BaseRequestObject {
         }
     }
 
+    public String getEncryptionServer() {
+        return encryptionServer;
+    }
 
     public String getSocketAddress() {
         return socketAddress;
