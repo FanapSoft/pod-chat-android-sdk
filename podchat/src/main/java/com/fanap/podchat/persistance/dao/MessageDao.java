@@ -472,14 +472,26 @@ public interface MessageDao {
     @Query("SELECT * FROM CACHECALL where creatorId = :creatorUserId and type = :type order by createTime desc LIMIT :count OFFSET :offset")
     List<CacheCall> getCachedCallByUserId(long count, long offset, long creatorUserId, long type);
 
+    @Query("SELECT * FROM CACHECALL where creatorId = :creatorUserId and type = :type and threadId = :threadId order by createTime desc LIMIT :count OFFSET :offset")
+    List<CacheCall> getCachedCallByUserIdAndThreadId(long count, long offset, long creatorUserId, long threadId, long type);
+
     @Query("SELECT COUNT(*) FROM CACHECALL where creatorId = :creatorUserId and type = :type")
     long getCountOfCachedCallByUserId(long creatorUserId, long type);
+
+    @Query("SELECT COUNT(*) FROM CACHECALL where creatorId = :creatorUserId and type = :type and threadId = :threadId")
+    long getCountOfCachedCallByUserIdAndThreadId(long creatorUserId, long type,long threadId);
 
     @Query("SELECT * FROM CACHECALL where type = :type order by createTime desc LIMIT :count OFFSET :offset")
     List<CacheCall> getCachedCallByType(long count, long offset, long type);
 
+    @Query("SELECT * FROM CACHECALL where type = :type and threadId = :threadId order by createTime desc LIMIT :count OFFSET :offset")
+    List<CacheCall> getCachedCallByTypeAndThreadId(long count, long offset, long type, long threadId);
+
     @Query("SELECT COUNT(*) FROM CACHECALL where type = :type")
     long getCountOfCachedCallByType(long type);
+
+    @Query("SELECT COUNT(*) FROM CACHECALL where type = :type and threadId = :threadId")
+    long getCountOfCachedCallByTypeAndThreadId(long type,long threadId);
 
 
     @Query("SELECT * FROM CACHECALL where id IN (:callIds) order by createTime desc LIMIT :count OFFSET :offset")
@@ -490,6 +502,10 @@ public interface MessageDao {
 
     @Query("SELECT * FROM CACHECALL where id = :callId")
     CacheCall getCachedCallById(long callId);
+
+    @Query("SELECT * FROM CACHECALL where threadId = :threadId")
+    CacheCall getCachedCallByThreadId(long threadId);
+
 
 
     @Query("SELECT COUNT(*) FROM CACHECALL")

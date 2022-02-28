@@ -23,6 +23,13 @@ All notable changes to this project will be documented here.
   ```Chat.onReceiveActiveCalls(ChatResponse<GetActiveCallsResult>)``` callback
 
 
+ GetCallHistoryRequest.threadId to filter server result by threadId
+
+ CacheCall.threadId to filter cache result by threadId
+
+ CallVO.Thread to Chat.getCallsHistory cache result
+
+
 ### Changed
 
  Update podCall version to 3.5.6
@@ -31,9 +38,10 @@ All notable changes to this project will be documented here.
 
  Chat.handleOnCallParticipantCanceledCall policy. This event is now also sent to the client who has canceled ( rejected ) incoming group call.
 
-### Fixed
+ Update AppDatabase version to 8
 
- Contacts... [Write here]
+ Chat.addContact and Chat.removeContact are sent through chat server now
+
 
 ## [0.9.14.0] -2021-12-26
 

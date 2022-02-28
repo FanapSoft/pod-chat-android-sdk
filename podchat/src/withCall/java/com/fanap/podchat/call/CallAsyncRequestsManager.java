@@ -82,6 +82,8 @@ public class CallAsyncRequestsManager {
             content.remove("creatorSsoId");
         if (request.getCreatorCoreUserId() == 0)
             content.remove("creatorCoreUserId");
+        if (request.getThreadId() == null || request.getThreadId() <= 0)
+            content.remove("threadId");
 
         content.remove("useCache");
 
@@ -257,7 +259,7 @@ public class CallAsyncRequestsManager {
         }
 
 
-        if(callThread!=null){
+        if (callThread != null) {
             createCallVO.setCreateCallThreadRequest(callThread);
         }
 
@@ -270,7 +272,7 @@ public class CallAsyncRequestsManager {
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
         contentObj.add("creatorClientDto", clientDtoObj);
 
-        if(callThread==null){
+        if (callThread == null) {
             contentObj.remove("createCallThreadRequest");
         }
 
