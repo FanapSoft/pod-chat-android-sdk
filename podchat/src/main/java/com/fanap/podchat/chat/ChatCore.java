@@ -260,6 +260,7 @@ import com.fanap.podchat.util.PodThreadManager;
 import com.fanap.podchat.util.RequestMapSearch;
 import com.fanap.podchat.util.TextMessageType;
 import com.fanap.podchat.util.Util;
+import com.fanap.podchat.util.encryption.EncryptionHelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -337,6 +338,7 @@ public abstract class ChatCore extends AsyncAdapter {
     private String podSpaceServer;
     private static
     Chat instance;
+    private static EncryptionHelper encryptionHelper;
     private static SecurePreferences mSecurePrefs;
     protected static ChatListenerManager listenerManager;
     private long userId;
@@ -503,6 +505,7 @@ public abstract class ChatCore extends AsyncAdapter {
             Sentry.setExtra("chat-sdk-flavor", BuildConfig.FLAVOR);
 
             dataSource = new ChatDataSource(new MemoryDataSource(), new CacheDataSource(instance.messageDatabaseHelper));
+            encryptionHelper = new EncryptionHelper();
 
         }
 
@@ -3140,6 +3143,20 @@ public abstract class ChatCore extends AsyncAdapter {
         String jsonMetaData = requestMessage.getJsonMetaData();
 
         return sendTextMessage(textMessage, threadId, messageType, jsonMetaData, handler);
+    }
+
+    /**
+     *
+     *
+     */
+    public void decryptMessage(MessageVO messageVO, String privateKey) {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                String decryptedMessage = encryptionHelper.decrypt(messageVO.getMessage(), privateKey);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
