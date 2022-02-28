@@ -261,6 +261,9 @@ public interface ChatContract {
 
     interface presenter {
 
+        void decryptMessage(String message,String privateKey);
+
+        void getPrivateKey(String keyId);
         void enableAutoRefresh(Activity activity,String entry);
 
         void sendLocationMessage(RequestLocationMessage request);

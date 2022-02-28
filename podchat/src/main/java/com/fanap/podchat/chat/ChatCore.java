@@ -102,6 +102,7 @@ import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
 import com.fanap.podchat.chat.thread.request.GetMutualGroupRequest;
 import com.fanap.podchat.chat.thread.request.SafeLeaveRequest;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
+import com.fanap.podchat.chat.user.encryption.PodEncryption;
 import com.fanap.podchat.chat.user.profile.RequestUpdateProfile;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.profile.UserProfile;
@@ -141,6 +142,8 @@ import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.MetaDataFile;
+import com.fanap.podchat.model.OutPutDefineSecretKey;
+import com.fanap.podchat.model.OutPutGetKey;
 import com.fanap.podchat.model.OutPutHistory;
 import com.fanap.podchat.model.OutPutMapRout;
 import com.fanap.podchat.model.OutPutNotSeenDurations;
@@ -3157,6 +3160,93 @@ public abstract class ChatCore extends AsyncAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     *
+     *
+     */
+    public void getPrivateKey(String keyId, PodEncryption.IPodPrivateKeyProvider iPodPrivateKeyProvider) {
+        prepareSecretKey(new PodEncryption.IPodSecretKeyProvider() {
+            @Override
+            public void onSecretKeyIdPrepared(String secretKeyId) {
+                preparePrivateKey(keyId, secretKeyId, iPodPrivateKeyProvider);
+            }
+
+            @Override
+            public void onFaild(String error) {
+                iPodPrivateKeyProvider.onFaild(error);
+            }
+        });
+    }
+
+    /**
+     *
+     *
+     */
+    private void preparePrivateKey(String keyId, String secretKeyId, PodEncryption.IPodPrivateKeyProvider iPodPrivateKeyProvider) {
+        RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(encryptionHost);
+        SSOApi SSOApi = retrofitHelperSsoHost.getService(SSOApi.class);
+        rx.Observable<Response<OutPutGetKey>> defineSecretKeyObservable = SSOApi.generateEncryptionPrivateKey("Bearer" + " " + getToken(), secretKeyId, keyId, "xml");
+        defineSecretKeyObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    if (response.isSuccessful()) {
+                        iPodPrivateKeyProvider.onPrivateKeyPrepared(response.body());
+                    } else {
+                        if (response.code() == 401) {
+                            captureError("unauthorized", response.code(), null);
+                            iPodPrivateKeyProvider.onFaild("unauthorized");
+                        } else {
+                            captureError(response.message(), response.code(), null);
+                            iPodPrivateKeyProvider.onFaild(response.message());
+                        }
+                    }
+
+                }, (Throwable throwable) -> {
+                    if (log) Log.e(TAG, "Error on define secret key" + throwable.getMessage());
+                    iPodPrivateKeyProvider.onFaild("Error on define secret key");
+                });
+    }
+
+    /**
+     *
+     *
+     */
+    private void prepareSecretKey(PodEncryption.IPodSecretKeyProvider iPodSecretKeyProvider) {
+        EncryptionHelper encryptionHelper = new EncryptionHelper();
+        String secretKey = encryptionHelper.getStringSecretKey();
+        defineSecretKey(secretKey, iPodSecretKeyProvider);
+    }
+
+    /**
+     *
+     *
+     */
+    private void defineSecretKey(String secretKey, PodEncryption.IPodSecretKeyProvider iPodSecretKeyProvider) {
+        RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(encryptionHost);
+        SSOApi SSOApi = retrofitHelperSsoHost.getService(SSOApi.class);
+        rx.Observable<Response<OutPutDefineSecretKey>> defineSecretKeyObservable = SSOApi.defineSecretKey("Bearer" + " " + getToken(), secretKey, "aes");
+        defineSecretKeyObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    if (response.isSuccessful()) {
+                        iPodSecretKeyProvider.onSecretKeyIdPrepared(response.body().getKeyId());
+                    } else {
+                        if (response.code() == 401) {
+                            iPodSecretKeyProvider.onFaild("unauthorized");
+                            captureError("unauthorized", response.code(), null);
+                        } else {
+                            iPodSecretKeyProvider.onFaild(response.message());
+                            captureError(response.message(), response.code(), null);
+                        }
+                    }
+                }, (Throwable throwable) -> {
+                    iPodSecretKeyProvider.onFaild("Error on define secret key");
+                    if (log) Log.e(TAG, "Error on define secret key" + throwable.getMessage());
+                });
     }
 
     /**

@@ -174,7 +174,8 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
+    private String TOKEN = "7e74bb92442d4783bb9df4c7fe475d9f";
+//    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -183,6 +184,7 @@ public class ChatActivity extends AppCompatActivity
     private String socketAddress;
     private String platformHost;
     private String fileServer;
+    private String encryptionServer;
 
 
     //views
@@ -194,7 +196,7 @@ public class ChatActivity extends AppCompatActivity
     private Map<String, List<Method>> categoryMap;
     private List<Method> movieList;
     private ExpandablePlaceHolderView expandablePlaceHolderView;
-    private final Enum<ServerType> serverType = ServerType.Integration;
+    private final Enum<ServerType> serverType = ServerType.Sandbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -647,7 +649,8 @@ public class ChatActivity extends AppCompatActivity
     private void setListeners() {
         //new
         btConnect.setOnClickListener(this);
-        btSendMsg.setOnClickListener(this::sendMessage);
+        btSendMsg.setOnClickListener(this::getPrivateKey);
+//        btSendMsg.setOnClickListener(this::sendMessage);
         btChangeThreadId.setOnClickListener(this::setThreadId);
         btSettoken.setOnClickListener(this::setToken);
 
@@ -662,6 +665,10 @@ public class ChatActivity extends AppCompatActivity
 //        });
 
 
+    }
+
+    private void getPrivateKey(View v) {
+        presenter.getPrivateKey("b56701111645883699");
     }
 
     private void init() {
@@ -2648,7 +2655,7 @@ public class ChatActivity extends AppCompatActivity
                 ssoHost,
                 platformHost,
                 fileServer,
-                podSpaceServer)
+                podSpaceServer, encryptionServer)
                 .build();
         presenter.connect(rc);
 
@@ -2663,6 +2670,7 @@ public class ChatActivity extends AppCompatActivity
         socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
+        encryptionServer = BaseApplication.getInstance().getString(R.string.encryptionServer);
     }
 
     private void setSandBoxServer() {
@@ -2673,7 +2681,8 @@ public class ChatActivity extends AppCompatActivity
         socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-
+        fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
+        encryptionServer = BaseApplication.getInstance().getString(R.string.sandbox_encryptionServer);
     }
 
     private void setIntgrationServer() {
@@ -2685,6 +2694,8 @@ public class ChatActivity extends AppCompatActivity
         socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+        fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
+        encryptionServer = BaseApplication.getInstance().getString(R.string.integration_encryptionServer);
     }
 
     private void showPicChooser() {
