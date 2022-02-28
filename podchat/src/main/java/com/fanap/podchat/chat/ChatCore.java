@@ -11017,6 +11017,10 @@ public abstract class ChatCore extends AsyncAdapter {
         try {
             MessageVO messageVO = gson.fromJson(chatMessage.getContent(), MessageVO.class);
 
+            if (messageVO.getMessageType() == TextMessageType.Constants.ENCRYPTED_TEXT) {
+                handleEncryptedMessage(chatMessage, messageVO);
+            }
+
             if (cache) {
                 dataSource.saveMessageResultFromServer(messageVO, chatMessage.getSubjectId());
             }
@@ -11068,6 +11072,18 @@ public abstract class ChatCore extends AsyncAdapter {
 
     }
 
+    private void handleEncryptedMessage(ChatMessage chatMessage, MessageVO messageVO) {
+        if (sentryResponseLog) {
+            showLog("ENCREPTED MESSAGE RESSIVED", gson.toJson(chatMessage));
+        } else {
+            showLog("ENCREPTED MESSAGE RESSIVED");
+        }
+
+        ChatResponse<MessageVO> finalResponse = new ChatResponse<>();
+        finalResponse.setResult(messageVO);
+        listenerManager.callOnEncryptedMessage(chatMessage.getContent(), finalResponse);
+    }
+
     private void handleOnNewMessageAdded(Thread thread, String uniqueId) {
 
         if (thread != null && thread.getId() > 0) {
@@ -11109,6 +11125,7 @@ public abstract class ChatCore extends AsyncAdapter {
         }
 
         listenerManager.callOnTagCreated(chatMessage.getContent(), response);
+
     }
 
     private void handleOutPutEditTag(ChatMessage chatMessage, String messageUniqueId) {

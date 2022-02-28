@@ -20,6 +20,7 @@ import com.fanap.podchat.chat.thread.public_thread.ResultJoinPublicThread;
 import com.fanap.podchat.chat.thread.respone.CloseThreadResult;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
@@ -310,6 +311,7 @@ public interface ChatListener {
     default void onAssistantUnBlocked(ChatResponse<List<AssistantVo>> response){}
     default void onAssistantBlocks(ChatResponse<List<AssistantVo>> response){}
     default void onTagCreated(String content, ChatResponse<TagResult> response){}
+    default void OnEncryptedMessage(String content, ChatResponse<MessageVO> chatResponse){}
     default void onTagEdited(String content, ChatResponse<TagResult> response){}
     default void onTagDeleted(String content, ChatResponse<TagResult> response){}
     default void OnTagParticipantAdded(String content, ChatResponse<TagParticipantResult> response){}
