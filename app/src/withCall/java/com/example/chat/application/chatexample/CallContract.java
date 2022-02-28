@@ -76,9 +76,6 @@ public interface CallContract {
         default void onVoiceCallStarted(String uniqueId, String clientId) {
         }
 
-        default void onGetCallHistory(List<CallVO> calls) {
-        }
-
         default void onCallReconnect(long callId) {
         }
 
