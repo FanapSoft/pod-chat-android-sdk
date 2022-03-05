@@ -133,6 +133,9 @@ dependencies {
     withCallPublishEmbed "ir.fanap.call:podcall:$podcallVersion"
     withCallReleaseEmbed "ir.fanap.call:podcall:$podcallVersion"
 
+    implementation 'ir.fanap.sdk_notif:sdk_notif:0.0.6.3'
+
+
 }
 
 

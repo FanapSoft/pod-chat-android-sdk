@@ -48,6 +48,16 @@ allprojects {
             url 'http://www.idescout.com/maven/repo/'
             name 'IDEScout, Inc.'
         }
+        maven {
+            name = "notif_sdk"
+            url = uri("https://maven.pkg.github.com/FanapSoft/pod-notif-android-sdk")
+            credentials {
+                Properties properties = new Properties()
+                properties.load(project.rootProject.file('local.properties').newDataInputStream())
+                username = properties.getProperty('GITHUB_USER')
+                password = properties.getProperty('GITHUB_PERSONAL_ACCESS_TOKEN')
+            }
+        }
 
     }
 }

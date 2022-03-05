@@ -296,6 +296,9 @@ import io.sentry.core.Sentry;
 import io.sentry.core.SentryEvent;
 import io.sentry.core.SentryLevel;
 import io.sentry.core.protocol.User;
+import ir.fanap.sdk_notif.presenter.NotificationListener;
+import ir.fanap.sdk_notif.presenter.ResponseListener;
+import ir.fanap.sdk_notif.view.PushSdk;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -538,6 +541,40 @@ public abstract class ChatCore extends AsyncAdapter {
      */
 
     public void setupNotification(CustomNotificationConfig notificationConfig) {
+
+
+        PushSdk push = new PushSdk.Builder()
+                .setContext(notificationConfig.getTargetActivity())
+                .setApiToken("")
+                .setAppId("")
+                .setData(null)
+                .setHandleNotification(true)
+                .setResponseListener(new ResponseListener() {
+                    @Override
+                    public void onSubscribe(JSONObject data) {
+                        showLog("PushNotif onSubscribe with: " + data);
+                    }
+
+                    @Override
+                    public void onUnsubscribe() {
+                        showLog("PushNotif onUnSubscribe");
+
+                    }
+
+                    @Override
+                    public void onError(Exception ex) {
+                        showErrorLog("PushNotif On Error " + ex.getMessage());
+                    }
+                })
+                .setNotificationListener(new NotificationListener() {
+                    @Override
+                    public void getNotification(JSONObject object) {
+                        showLog("PushNotif getNotification " + object);
+
+                    }
+                })
+                .build();
+
 
         PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
             @Override
