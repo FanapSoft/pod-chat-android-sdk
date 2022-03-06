@@ -42,6 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter phone number"
+                android:inputType="phone"
                 android:textColor="@color/white"
                 android:textColorHint="@color/colorPrimaryDark" />
             <Button
@@ -67,6 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter OTP"
+                android:inputType="number"
                 android:textColor="@color/white"
                 android:textColorHint="@color/colorPrimaryDark" />
 

@@ -1,12 +1,20 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
+    ext{
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        localRepositoryPath = properties.getProperty('localRepo')
+        print(localRepositoryPath)
+    }
+
+
 
 
     repositories {
         google()
+        mavenCentral()
         jcenter()
-//        mavenCentral()
         maven {
             url "https://s3.amazonaws.com/repo.commonsware.com"
         }
@@ -24,14 +32,21 @@ buildscript {
 
 allprojects {
     repositories {
+        maven{
+            url localRepositoryPath
+        }
         google()
+        mavenCentral()
         jcenter()
-        maven {
-            url 'http://www.idescout.com/maven/repo/'
-            name 'IDEScout, Inc.'
+        maven{
+            url localRepositoryPath
         }
         maven {
             url "https://s3.amazonaws.com/repo.commonsware.com"
+        }
+        maven {
+            url 'http://www.idescout.com/maven/repo/'
+            name 'IDEScout, Inc.'
         }
 
     }

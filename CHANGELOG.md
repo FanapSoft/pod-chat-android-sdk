@@ -5,6 +5,141 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## [0.9.15.0] -2021-2-12
+
+### Added
+
+ CallRequest.title
+ CallRequest.description
+ CallRequest.metadata
+ CallRequest.image
+ CallRequest.uniqueName
+
+ ```Chat.getActiveCalls(GetActiveCallsRequest)``` method
+ ```Chat.onReceiveActiveCalls(ChatResponse<GetActiveCallsResult>)``` callback
+
+
+### Changed
+
+ Update PodCall version to 3.5.6
+
+ The initial delay when starting a call is now reduced
+
+ 
+
+ 
+
+ 
+
+## [0.9.14.0] -2021-12-26
+
+### Added
+
+ ```SearchSystemMetadataRequest```
+
+ ```startShareScreen``` callback
+
+ ```onShareScreenStarted``` method
+
+ ```endShareScreen``` callback
+
+ ```onShareScreenEnded``` method
+
+ ```startCallRecord``` method
+
+ ```onCallRecordStarted``` callback
+
+ ```endCallRecord``` method
+
+ ```onCallRecordEnded``` callback
+
+ ```ChatListeners.onCallClientErrors(ChatResponse<CallClientErrorsResult>)``` callback
+
+
+### Changed
+
+ Improved bluetooth headset detection
+ 
+ Update podcall to 3.5.2
+
+ Deprecated NosqlListMessageCriteriaVO
+
+
+
+## [0.9.13.0] -2021-10-18
+
+### Added
+
+```Chat.addPartnerView(CallPartnerView,int)```
+
+```onAnotherDeviceAcceptedCall``` callback
+
+```VideoCallParam.CameraId```
+
+```Chat.switchToFrontCamera```
+
+```Chat.switchToBackCamera```
+
+```Chat.isBackCamera```
+
+```Chat.isFrontCamera```
+
+
+### Changed
+
+- Update podcall version to 3.4.3
+
+
+### Fixed
+
+- audio call concurrent exception
+
+- back camera rotation
+
+- crash when making large number of calls
+
+- bug to stop displaying CallPartnerView on Activity.onPause
+
+
+### Deprecated
+
+ ```Chat.switchCamera```
+
+ ```Chat.endAudioCall```
+
+ ```Chat.terminateAudioCall```
+
+
+
+## [0.9.12.0] -2021-10-4
+
+### Added
+
+- partnerId to CallPartnerView
+
+- CallPartnerView.setPartnerName(String partnerName)
+
+- CallPartnerView.setDisplayName(boolean displayName)
+
+- CallPartnerView.setDisplayCameraIsOffIcon(Boolean displayCameraIsOffIcon)
+
+- CallPartnerView.setDisplayIsMuteIcon(Boolean displayIsMuteIcon)
+
+- ArrayList<CallParticipantVO> to CallStartResult. only userId, mute and video fills in CallParticipantVO.
+
+
+### Fixed
+
+- VideoCall minor bugs
+
+### Changed
+
+- Improve group call
+
+- CallActivity UI
+
+
+
 
 ## Version [0.9.11.0] -2021-8-21
 

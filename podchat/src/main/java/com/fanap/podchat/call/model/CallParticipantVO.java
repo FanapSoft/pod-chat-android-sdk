@@ -60,22 +60,22 @@ public class CallParticipantVO implements Serializable {
     }
 
     public String getSendTopicVideo() {
-        if (sendTopic != null && sendTopic.endsWith(VIDEO_TOPIC_SUFFIX))
+        if (sendTopic != null && sendTopic.startsWith(VIDEO_TOPIC_SUFFIX))
             return sendTopic;
-        if (sendTopic != null && sendTopic.endsWith(VOICE_TOPIC_SUFFIX))
-            return sendTopic.replace(VOICE_TOPIC_SUFFIX,VIDEO_TOPIC_SUFFIX);
+        if (sendTopic != null && sendTopic.startsWith(VOICE_TOPIC_SUFFIX))
+            return sendTopic.replace(VOICE_TOPIC_SUFFIX, VIDEO_TOPIC_SUFFIX);
         if (sendTopic != null)
-            return sendTopic + VIDEO_TOPIC_SUFFIX;
+            return VIDEO_TOPIC_SUFFIX + sendTopic;
         return null;
     }
 
     public String getSendTopicAudio() {
-        if (sendTopic != null && sendTopic.endsWith(VOICE_TOPIC_SUFFIX))
+        if (sendTopic != null && sendTopic.startsWith(VOICE_TOPIC_SUFFIX))
             return sendTopic;
-        if (sendTopic != null && sendTopic.endsWith(VIDEO_TOPIC_SUFFIX))
-            return sendTopic.replace(VIDEO_TOPIC_SUFFIX,VOICE_TOPIC_SUFFIX);
+        if (sendTopic != null && sendTopic.startsWith(VIDEO_TOPIC_SUFFIX))
+            return sendTopic.replace(VIDEO_TOPIC_SUFFIX, VOICE_TOPIC_SUFFIX);
         if (sendTopic != null)
-            return sendTopic + VOICE_TOPIC_SUFFIX;
+            return VOICE_TOPIC_SUFFIX + sendTopic;
         return null;
     }
 

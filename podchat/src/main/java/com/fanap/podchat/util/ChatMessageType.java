@@ -97,6 +97,7 @@ public class ChatMessageType {
             Constants.END_CALL,
             Constants.CALL_RECONNECT,
             Constants.CALL_CONNECT,
+            Constants.CALL_CLIENT_ERRORS,
             Constants.GROUP_CALL_REQUEST,
             Constants.LEAVE_CALL,
             Constants.ADD_CALL_PARTICIPANT,
@@ -110,7 +111,7 @@ public class ChatMessageType {
             Constants.UN_MUTE_CALL_PARTICIPANT,
             Constants.CANCEL_GROUP_CALL,
             Constants.REGISTER_ASSISTANT,
-            Constants.DEACTICVE_ASSISTANT,
+            Constants.DEACTIVE_ASSISTANT,
             Constants.GET_ASSISTANTS,
             Constants.GET_ASSISTANT_HISTORY,
             Constants.CREATE_TAG,
@@ -119,11 +120,16 @@ public class ChatMessageType {
             Constants.ADD_TAG_PARTICIPANT,
             Constants.REMOVE_TAG_PARTICIPANT,
             Constants.GET_TAG_LIST,
-
-
-
             Constants.TURN_ON_VIDEO_CALL,
-            Constants.TURN_OFF_VIDEO_CALL
+            Constants.TURN_OFF_VIDEO_CALL,
+            Constants.START_RECORD_CALL,
+            Constants.END_RECORD_CALL,
+            Constants.START_SHARE_SCREEN,
+            Constants.END_SHARE_SCREEN,
+            Constants.ADD_CONTACT,
+            Constants.REMOVE_CONTACT,
+            Constants.GET_CALLS_TO_JOIN
+
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -208,6 +214,7 @@ public class ChatMessageType {
         int GET_CALLS = 77;
         int CALL_RECONNECT = 78;
         int CALL_CONNECT = 79;
+        int CALL_CLIENT_ERRORS = 153;
 
 
         int GROUP_CALL_REQUEST = 91;
@@ -222,7 +229,19 @@ public class ChatMessageType {
 
 
         int CALL_CREATED = 111;
+
+        int TURN_ON_VIDEO_CALL = 113;
+        int TURN_OFF_VIDEO_CALL = 114;
+
         int GET_ACTIVE_CALL_PARTICIPANTS = 110;
+
+        int START_RECORD_CALL = 121;
+        int END_RECORD_CALL = 122;
+
+        int START_SHARE_SCREEN = 123;
+        int END_SHARE_SCREEN = 124;
+
+        int GET_CALLS_TO_JOIN = 129;
 
         int LAST_MESSAGE_DELETED = 66;
         int LAST_MESSAGE_EDITED = 67;
@@ -239,7 +258,7 @@ public class ChatMessageType {
         int CLOSE_THREAD = 102;
         int ERROR = 999;
         int REGISTER_ASSISTANT = 107;
-        int DEACTICVE_ASSISTANT = 108;
+        int DEACTIVE_ASSISTANT = 108;
         int GET_ASSISTANTS = 109;
         int BLOCK_ASSISTANT = 116;
         int UNBLOCK_ASSISTANT = 117;
@@ -251,10 +270,13 @@ public class ChatMessageType {
         int ADD_TAG_PARTICIPANT = 143;
         int REMOVE_TAG_PARTICIPANT = 144;
         int GET_TAG_LIST = 145;
-        int MUTAL_GROUPS = 130;
+        int MUTUAL_GROUPS = 130;
 
-        int TURN_ON_VIDEO_CALL = 113;
-        int TURN_OFF_VIDEO_CALL = 114;
+        int ADD_CONTACT = 200;
+        int REMOVE_CONTACT = 201;
+
+
+
 
 
 

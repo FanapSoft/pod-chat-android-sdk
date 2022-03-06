@@ -16,7 +16,7 @@ import com.fanap.podchat.mainmodel.BlockedContact;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.MessageVO;
-import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.Admin;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
@@ -223,6 +223,11 @@ public class CacheDataSource {
     public void cancelMessage(String uniqueId) {
         databaseHelper.deleteSendingMessageQueue(uniqueId);
         databaseHelper.deleteWaitQueueMsgs(uniqueId);
+    }
+
+    public Observable<MessageManager.HistoryResponse> getMessagesSystemMetadataData(SearchSystemMetadataRequest request) {
+        return databaseHelper.getThreadHistory(request)
+                .map(data -> new MessageManager.HistoryResponse(data, DISK));
     }
 
     //sending queue

@@ -55,6 +55,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_call_blue" />
 
+    <ImageButton
+        android:id="@+id/imgBtnVideoCallContact"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imgBtnCallContact"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_videocam" />
+
     <View
         android:background="@drawable/rounded_primary"
         android:layout_width="0dp"

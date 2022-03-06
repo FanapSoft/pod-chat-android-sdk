@@ -1,6 +1,7 @@
 package com.fanap.podchat.call.model;
 
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.Thread;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class CallVO {
     private int status;
     private boolean isGroup;
     private List<Participant> callParticipants;
+    private Thread conversationVO;
     private Participant partnerParticipantVO;
 
 
@@ -99,5 +101,13 @@ public class CallVO {
 
     public void setPartnerParticipantVO(Participant partnerParticipantVO) {
         this.partnerParticipantVO = partnerParticipantVO;
+    }
+
+    public Thread getConversationVO() {
+        return conversationVO;
+    }
+
+    public void setConversationVO(Thread conversationVO) {
+        this.conversationVO = conversationVO;
     }
 }

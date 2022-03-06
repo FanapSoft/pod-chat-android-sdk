@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
 import com.fanap.podchat.chat.RoleType;
-import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.thread.public_thread.RequestCreatePublicThread;
 import com.fanap.podchat.chat.thread.request.ChangeThreadTypeRequest;
 import com.fanap.podchat.chat.thread.request.CloseThreadRequest;
@@ -173,7 +172,7 @@ public class ThreadManager {
         content.remove("useCache");
 
         AsyncMessage message = new ChatMessage();
-        message.setType(ChatMessageType.Constants.MUTAL_GROUPS);
+        message.setType(ChatMessageType.Constants.MUTUAL_GROUPS);
         message.setToken(CoreConfig.token);
         message.setTokenIssuer(CoreConfig.tokenIssuer);
         message.setContent(content.toString());

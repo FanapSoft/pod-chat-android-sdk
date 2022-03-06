@@ -79,12 +79,13 @@ import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
@@ -184,7 +185,9 @@ public class ChatActivity extends AppCompatActivity
 //        private String TOKEN = "c13546cffb4d4bd682f19edbc6084977";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
+    private static String appId = "POD-Chat";
     private String podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_main);
+    private String name;
     private String socketAddress;
     private String platformHost;
     private String fileServer;
@@ -1634,7 +1637,7 @@ public class ChatActivity extends AppCompatActivity
                 .Builder("name")
                 .is("sina")
                 .build();
-        NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(231)
+        SearchSystemMetadataRequest criteriaVO = new SearchSystemMetadataRequest.Builder(231)
                 .count(10)
                 .metadataCriteria(builderMeta)
                 .build();
@@ -2239,12 +2242,22 @@ public class ChatActivity extends AppCompatActivity
 //
 //
 //       }
+//        RequestAddContact request = new RequestAddContact.Builder()
+//                .firstName("Leila")
+//                .lastName("Nemati")
+//                .cellphoneNumber("09126975376") //80617 //80618
+//                // .cellphoneNumber()
+//                // .email()
+//                .build();
+//
+//        presenter.addContact(request);
+
+
         RequestAddContact request = new RequestAddContact.Builder()
-                .firstName("Leila")
-                .lastName("Nemati")
-                .cellphoneNumber("09126975376") //80617 //80618
-                // .cellphoneNumber()
-                // .email()
+                .firstName("Nadia")
+                .lastName("Anvari")
+                .username("nadia.anvari")
+                .email("nadia.anvari@fanap.ir")
                 .build();
 
         presenter.addContact(request);
@@ -2520,7 +2533,7 @@ public class ChatActivity extends AppCompatActivity
 
         RequestCreateThread requestCreateThread = new RequestCreateThread
                 .Builder(ThreadType.Constants.NORMAL, invite)
-                .title("thread for test upload 1" + (new Date().getTime() / 1000))
+                .title("Test Thread ByAhmad" + (new Date().getTime() / 1000))
 //       .withDescription("Description created at "
 //      + new Date().getTime())
 //       .withImage("URL")
@@ -2703,7 +2716,6 @@ public class ChatActivity extends AppCompatActivity
             RequestGetContact request = new RequestGetContact.Builder()
                     .count(50)
                     .offset(0)
-                    .setUserName("mahyar.zhiani")
 //       .withNoCache()
                     .build();
 
@@ -2756,14 +2768,12 @@ public class ChatActivity extends AppCompatActivity
 
     private void connect() {
         if (serverType == ServerType.Main) {
-            SetMainServer();
+            setMainServer();
         } else if (serverType == ServerType.Sandbox) {
-            SetSandBoxServer();
+            setSandBoxServer();
         } else if (serverType == ServerType.Integration) {
-            SetIntgrationServer();
-        } else if (serverType == ServerType.KafkaTest) {
-            SetKafkaTestServer();
-        } else SetMainServer();
+            setIntgrationServer();
+        } else setMainServer();
 
         RequestConnect rc = new RequestConnect.Builder(
                 socketAddress,
@@ -2780,46 +2790,36 @@ public class ChatActivity extends AppCompatActivity
         tvServerType.setText(serverType.name());
     }
 
-    private void SetMainServer() {
+    private void setMainServer() {
         ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
         serverName = "chat-server";
 
+        name = BaseApplication.getInstance().getString(R.string.main_server_name);
         socketAddress = BaseApplication.getInstance().getString(R.string.socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.fileServer);
     }
 
-    private void SetSandBoxServer() {
+    private void setSandBoxServer() {
         ssoHost = BaseApplication.getInstance().getString(R.string.sandbox_ssoHost);
         serverName = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
 
+        name = BaseApplication.getInstance().getString(R.string.sandbox_server_name);
         socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-        podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_integration);
 
     }
 
-    private void SetKafkaTestServer() {
-        ssoHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_ssoHost);
-        serverName = BaseApplication.getInstance().getString(R.string.kafkaTestStream_server_name);
-
-        socketAddress = BaseApplication.getInstance().getString(R.string.kafkaTestStream_socketAddress);
-        platformHost = BaseApplication.getInstance().getString(R.string.kafkaTestStream_platformHost);
-        fileServer = BaseApplication.getInstance().getString(R.string.kafkaTestStream_fileServer);
-
-    }
-
-    private void SetIntgrationServer() {
+    private void setIntgrationServer() {
 
         ssoHost = BaseApplication.getInstance().getString(R.string.integration_ssoHost);
         serverName = BaseApplication.getInstance().getString(R.string.integration_serverName);
 
+        name = BaseApplication.getInstance().getString(R.string.integration_serverName);
         socketAddress = BaseApplication.getInstance().getString(R.string.integration_socketAddress);
         platformHost = BaseApplication.getInstance().getString(R.string.integration_platformHost);
         fileServer = BaseApplication.getInstance().getString(R.string.integration_platformHost);
-        podSpaceServer = BaseApplication.getInstance().getString(R.string.podspace_file_server_integration);
-
     }
 
     private void showPicChooser() {
