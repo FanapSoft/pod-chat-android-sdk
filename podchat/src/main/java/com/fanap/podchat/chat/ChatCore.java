@@ -11617,6 +11617,10 @@ public abstract class ChatCore extends AsyncAdapter {
             async.sendMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK);
         }
 
+        if(cache){
+            dataSource.saveMessageResultFromServer(messageVO,chatMessage.getSubjectId());
+        }
+
         listenerManager.callOnNewMessage(json, chatResponse);
     }
 

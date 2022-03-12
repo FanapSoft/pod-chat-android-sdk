@@ -194,7 +194,7 @@ public class ChatActivity extends AppCompatActivity
     private Map<String, List<Method>> categoryMap;
     private List<Method> movieList;
     private ExpandablePlaceHolderView expandablePlaceHolderView;
-    private final Enum<ServerType> serverType = ServerType.Integration;
+    private final Enum<ServerType> serverType = ServerType.Sandbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
