@@ -78,7 +78,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 public class Chat extends ChatCore {
@@ -537,7 +536,7 @@ public class Chat extends ChatCore {
 
 
             if (Util.isNotNullOrEmpty(info.getResult().getOtherClientDtoList())) {
-                prepareRemotePartnersByClientDTOList(info.getResult().getOtherClientDtoList());
+                prepareRemotePartnersByClientDTOList(info);
             } else {
                 if (prepareRemotePartnersByReceiveTopic(info)) return;
             }
@@ -578,10 +577,17 @@ public class Chat extends ChatCore {
         }
     }
 
-    private void prepareRemotePartnersByClientDTOList(ArrayList<ClientDTO> callClientList) {
+    private void prepareRemotePartnersByClientDTOList(ChatResponse<StartedCallModel> info) {
+
+
+        boolean hasScreenSharer = CallAsyncRequestsManager.checkIsAnyScreenSharing(info);
+
+        boolean isCallRecording = CallAsyncRequestsManager.checkIsCallIsRecording(info);
+
+
 
         for (ClientDTO client :
-                callClientList) {
+                info.getResult().getOtherClientDtoList()) {
 
             if (client.getUserId() == 0) continue;
 
@@ -605,6 +611,26 @@ public class Chat extends ChatCore {
             }
 
         }
+
+        if(hasScreenSharer){
+            ChatResponse<ScreenShareResult> sc = CallAsyncRequestsManager.handleOnScreenIsSharing(info);
+            addScreenSharer(sc);
+        }
+
+        if(isCallRecording){
+
+            ChatResponse<Participant> response
+                    = CallAsyncRequestsManager.handleCallIsRecordingCallResponse(info);
+
+            if (CoreConfig.userId.equals(response.getResult().getId())) {
+                removeCallback(info.getUniqueId());
+                listenerManager.callOnCallRecordStarted(response);
+            } else {
+                listenerManager.callOnCallParticipantStartRecording(response);
+            }
+
+        }
+
     }
 
     private void prepareRemotePartnersByCallParticipantVO(List<CallParticipantVO> callClientList) {
@@ -1215,24 +1241,28 @@ public class Chat extends ChatCore {
                             listenerManager.callOnScreenShareStarted(response);
                         }
                     } else {
-                        if (hasRemotePartnerView()) {
-                            visibleView(assignScreenShareView());
-
-                            CallPartner rPartner = new CallPartner.Builder()
-                                    .setPartnerType(PartnerType.REMOTE)
-                                    .setName("Screen Sharer:" + response.getResult().getScreenOwner().getUserId())
-                                    .setVideoTopic(response.getResult().getScreenShare())
-                                    .setVideoView(getShareScreenView())
-                                    .build();
-
-                            podVideoCall.addPartner(rPartner);
-                            listenerManager.callOnCallParticipantSharedScreen(response);
-                        }
+                        addScreenSharer(response);
                     }
                 } else {
                     captureError(new PodChatException(ChatConstant.ERROR_METHOD_NOT_IMPLEMENTED, ChatConstant.ERROR_CODE_METHOD_NOT_IMPLEMENTED, chatMessage.getUniqueId()));
                 }
             }
+        }
+    }
+
+    private void addScreenSharer(ChatResponse<ScreenShareResult> response) {
+        if (hasRemotePartnerView()) {
+            visibleView(assignScreenShareView());
+
+            CallPartner rPartner = new CallPartner.Builder()
+                    .setPartnerType(PartnerType.REMOTE)
+                    .setName("Screen Sharer:" + response.getResult().getScreenOwner().getUserId())
+                    .setVideoTopic(response.getResult().getScreenShare())
+                    .setVideoView(getShareScreenView())
+                    .build();
+
+            podVideoCall.addPartner(rPartner);
+            listenerManager.callOnCallParticipantSharedScreen(response);
         }
     }
 
@@ -1785,8 +1815,8 @@ public class Chat extends ChatCore {
 
     void visibleView(View view) {
         new MainThreadExecutor()
-                .execute(()->{
-                    if(view!=null){
+                .execute(() -> {
+                    if (view != null) {
                         if (view.getVisibility() != View.VISIBLE)
                             view.setVisibility(View.VISIBLE);
                     }

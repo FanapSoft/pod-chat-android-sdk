@@ -734,15 +734,14 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @Override
     public void onGetActiveCalls(List<CallWrapper> calls) {
-
-
-        if(recyclerViewAdapter==null){
-            initRecyclerViewAdapter(calls);
-        }else {
-            recyclerViewAdapter.addToFirst(calls);
-            Objects.requireNonNull(recyclerViewHistory.getLayoutManager()).scrollToPosition(0);
-        }
-
+        runOnUiThread(()->{
+            if(recyclerViewAdapter==null){
+                initRecyclerViewAdapter(calls);
+            }else {
+                recyclerViewAdapter.addToFirst(calls);
+                Objects.requireNonNull(recyclerViewHistory.getLayoutManager()).scrollToPosition(0);
+            }
+        });
     }
 
     private void initRecyclerViewAdapter(List<CallWrapper> calls) {
@@ -770,9 +769,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @Override
     public void removeCallItem(CallWrapper call) {
-        if(recyclerViewAdapter!=null){
-            recyclerViewAdapter.removeItem(call);
-        }
+        runOnUiThread(()->{
+            if(recyclerViewAdapter!=null){
+                recyclerViewAdapter.removeItem(call);
+            }
+        });
     }
 
     @Override

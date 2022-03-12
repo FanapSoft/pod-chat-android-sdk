@@ -5,6 +5,12 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+
+## [0.9.16.0] -2021-**-**
+
+ When you join a started call, you will inform that if a screen is sharing or call is recording
+
+
 ## [0.9.15.0] -2021-2-23
 
 ### Added
