@@ -144,8 +144,7 @@ public class ProgressResponseBody extends ResponseBody {
 
             Response originalResponse = chain.proceed(chain.request());
 
-            String res = App.getGson().toJson(originalResponse);
-            if (originalResponse.isSuccessful()) {
+            if (!originalResponse.isSuccessful()) {
                 String error = "error was happend !!!";
                 switch (originalResponse.code()) {
                     case 400:
