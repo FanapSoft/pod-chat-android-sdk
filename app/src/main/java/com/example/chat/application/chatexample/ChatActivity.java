@@ -179,10 +179,10 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-    private final Enum<ServerType> serverType = ServerType.Sandbox;
-//    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
-        private String TOKEN = "e3402cdb715d42f9bed5b1ad53bd7f36";
-//        private String TOKEN = "c13546cffb4d4bd682f19edbc6084977";
+    private final Enum<ServerType> serverType = ServerType.Main;
+    //    private String TOKEN = BaseApplication.getInstance().getString(R.string.Pooria_Pahlevani);
+    private String TOKEN = "b1d451e0d1544b299aa5b31b1fae1a69";
+    //        private String TOKEN = "c13546cffb4d4bd682f19edbc6084977";
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
     private static String appId = "POD-Chat";
@@ -200,7 +200,7 @@ public class ChatActivity extends AppCompatActivity
 
     //upload views
     private ImageButton ibClose;
-    private TextView tvPercent,tvLog;
+    private TextView tvPercent, tvLog;
     private ImageView imImage, imImagedownloaded;
     private Button btChooseFile, btUploadImage, btDownloadFile, btDownloadImage, btUploadFile, btSentFile;
     private ConstraintLayout vUpload;
@@ -212,7 +212,7 @@ public class ChatActivity extends AppCompatActivity
     private ExpandablePlaceHolderView expandablePlaceHolderView;
 
 
-    private String fileHash = "UDXVMRM5E8R2KR44";
+    private String fileHash = "F3U4LP7QCWDE1XIW";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1047,7 +1047,7 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onError(String uniqueId, String error, String url) {
                 Log.e("DOWNLOAD", "IN ACTIVITY: ERROR :(((");
-                showLog("Error :" +error);
+                showLog("Error :" + error);
             }
 
             @Override
@@ -1138,7 +1138,7 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-    private void showLog(String log){
+    private void showLog(String log) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1151,9 +1151,10 @@ public class ChatActivity extends AppCompatActivity
 
         RequestGetPodSpaceImage rePodImage = new RequestGetPodSpaceImage
                 .Builder(fileHash)
-//       .setCrop(true)
+                .setCrop(false)
                 .setQuality(0.45f)
-                .setCheckUserGroupAccess(true)
+                .setSize("ACTUAL")
+                .setCheckUserGroupAccess(false)
                 .build();
 
 
@@ -1180,13 +1181,13 @@ public class ChatActivity extends AppCompatActivity
             @Override
             public void onError(String uniqueId, String error, String url) {
                 Log.e("DOWNLOAD", "IN ACTIVITY: ERROR :(((");
-                showLog("Error :" +error);
+                showLog("Error :" + error);
             }
 
             @Override
             public void onLowFreeSpace(String uniqueId, String url) {
                 Log.e("DOWNLOAD", "Low Space...");
-                showLog("Error : Low Space..." );
+                showLog("Error : Low Space...");
             }
 
             @Override
@@ -1207,7 +1208,7 @@ public class ChatActivity extends AppCompatActivity
                     }
                 }
 
-                showLog("File Uri " + response.getResult().getUri() );
+                showLog("File Uri " + response.getResult().getUri());
             }
         });
 
@@ -1700,7 +1701,7 @@ public class ChatActivity extends AppCompatActivity
                         Log.e("SFM", "onFinishImage");
                         fileHash = chatResponse.getResult().getHashCode();
 
-                        showLog("onFinishImage : image hash :" +fileHash);
+                        showLog("onFinishImage : image hash :" + fileHash);
 
                     }
 
@@ -1709,7 +1710,7 @@ public class ChatActivity extends AppCompatActivity
 
                         Log.e("SFM", "onFinishFile");
                         fileHash = chatResponse.getResult().getHashCode();
-                        showLog("onFinishFile : file hash :" +fileHash);
+                        showLog("onFinishFile : file hash :" + fileHash);
                     }
 
                     @Override
@@ -1717,7 +1718,7 @@ public class ChatActivity extends AppCompatActivity
 
                         Log.e("SFM", "onError");
 
-                        showLog("onError :" +jsonError);
+                        showLog("onError :" + jsonError);
                     }
                 });
 
@@ -3019,6 +3020,7 @@ public class ChatActivity extends AppCompatActivity
                         Toast.makeText(getApplicationContext(), "Finish Upload", Toast.LENGTH_SHORT).show();
                         tvPercent.setText("100");
                         tvPercent.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+                        fileHash = fileImageUpload.getResult().getHashCode();
                     });
 
                 }

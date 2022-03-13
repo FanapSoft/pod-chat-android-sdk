@@ -1122,7 +1122,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         RequestUploadFile req = new RequestUploadFile
                 .Builder(activity, fileUri)
-                .setPublic(false)
+                .setPublic(true)
                 .build();
 
         chat.uploadFileProgress(req, handler);
