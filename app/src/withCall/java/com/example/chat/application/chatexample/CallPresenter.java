@@ -259,8 +259,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         VideoCallParam videoCallParam =
                 new VideoCallParam.Builder(localVideo)
-                        .setCamWidth(176) // FIXME: 3/12/2022 fix updating params after call is started
-                        .setCamHeight(144)
+                        .setCamWidth(720) // FIXME: 3/12/2022 fix updating params after call is started
+                        .setCamHeight(480)
                         .setCamFPS(30)
                         .setVideoCodecType(VideoCodecType.VIDEO_CODEC_VP8)
                         .setBitrate(50_000)
@@ -1416,13 +1416,20 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         }
 
         String uniqueId;
+        uniqueId = requestCallByServerType(callRequest);
+        callUniqueIds.add(uniqueId);
+        callImpUniqueIds.add(uniqueId);
+    }
+
+    @SuppressLint("MissingPermission")
+    private String requestCallByServerType(CallRequest callRequest) {
+        String uniqueId;
         if (serverType == ServerType.SANDBOX) {
-            uniqueId = chat.requestGroupCall(callRequest);
+            uniqueId = chat.requestCall(callRequest);
         } else {
             uniqueId = chat.requestCall(callRequest);
         }
-        callUniqueIds.add(uniqueId);
-        callImpUniqueIds.add(uniqueId);
+        return uniqueId;
     }
 
     private void requestP2PCallWithContactId(int contactId, int callType, String contactName) {
@@ -1447,12 +1454,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             prepareAudioCallView();
         }
 
-        String uniqueId;
-        if (serverType == ServerType.SANDBOX) {
-            uniqueId = chat.requestGroupCall(callRequest);
-        } else {
-            uniqueId = chat.requestCall(callRequest);
-        }
+        String uniqueId = requestCallByServerType(callRequest);
         callUniqueIds.add(uniqueId);
         callImpUniqueIds.add(uniqueId);
     }
