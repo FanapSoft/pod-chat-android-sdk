@@ -3833,6 +3833,23 @@ public abstract class ChatCore extends AsyncAdapter {
                     request.getDescription(),
                     request.isPublic(),
                     new PodUploader.IPodUploadFileToPodSpace() {
+                        @Override
+                        public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length, int actualWidth, int ActualHeight, int width, int height) {
+                            ResultFile resultFile = PodUploader.generateFileUploadResult(response);
+                            FileUpload result = new FileUpload();
+                            result.setResult(resultFile);
+                            ChatResponse<ResultFile> chatResponse = new ChatResponse<>();
+                            resultFile.setUrl(getPodSpaceFileUrl(resultFile.getHashCode()));
+                            showLog("FINISH_UPLOAD_FILE", gson.toJson(resultFile));
+                            chatResponse.setResult(resultFile);
+                            chatResponse.setUniqueId(uniqueId);
+
+                            if (handler != null) {
+                                handler.onFinish(gson.toJson(chatResponse), result);
+                            }
+
+                            listenerManager.callOnUploadFile(gson.toJson(resultFile), chatResponse);
+                        }
 
                         @Override
                         public void onSuccess(UploadToPodSpaceResult response, File file, String mimeType, long length) {
