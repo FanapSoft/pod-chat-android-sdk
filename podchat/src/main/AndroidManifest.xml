@@ -4,8 +4,16 @@
     package="com.fanap.podchat"
     tools:targetApi="n">
 
+    <uses-sdk tools:overrideLibrary="com.example.kafkassl" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.USE_SIP" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+
     <application>
 
 
@@ -23,15 +31,14 @@
             android:name=".call.audio_call.EndCallReceiver"
             android:enabled="true" />
 
-        <receiver
-            android:name=".notification.ShowNotificationHelper$NotificationClickReceiver">
+        <receiver android:name=".notification.ShowNotificationHelper$NotificationClickReceiver">
             <intent-filter>
                 <action android:name="com.fanap.podchat.action_click_notification" />
             </intent-filter>
         </receiver>
         <receiver
-            android:enabled="true"
-            android:name=".notification.ShowNotificationHelper$NotificationDismissReceiver" />
+            android:name=".notification.ShowNotificationHelper$NotificationDismissReceiver"
+            android:enabled="true" />
 
         <service
             android:name=".call.audio_call.PodCallAudioCallService"
@@ -46,19 +53,11 @@
             </intent-filter>
         </service>
 
-        <meta-data android:name="io.sentry.auto-init" android:value="false" />
+        <meta-data
+            android:name="io.sentry.auto-init"
+            android:value="false" />
 
     </application>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.MODPoIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.USE_SIP" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-
-    <uses-sdk tools:overrideLibrary="com.example.kafkassl" />
 
 
 </manifest>
