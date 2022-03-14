@@ -46,6 +46,7 @@ import com.fanap.podchat.chat.user.user_roles.model.ResultCurrentUserRoles;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.chat.messge.SearchSystemMetadataRequest;
+import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ChatResponse;
@@ -263,7 +264,7 @@ public interface ChatContract {
 
         void decryptMessage(String message,String privateKey);
 
-        void getPrivateKey(String keyId);
+        void getPrivateKey(String keyId, MessageVO messageVO);
         void enableAutoRefresh(Activity activity,String entry);
 
         void sendLocationMessage(RequestLocationMessage request);
