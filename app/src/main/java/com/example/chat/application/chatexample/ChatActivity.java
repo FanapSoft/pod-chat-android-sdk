@@ -154,7 +154,7 @@ public class ChatActivity extends AppCompatActivity
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
     private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
-    public static int TEST_THREAD_ID = 63264;
+    public static int TEST_THREAD_ID = 59817;
 
 
     ArrayList<String> runningSignals = new ArrayList<>();
@@ -174,7 +174,7 @@ public class ChatActivity extends AppCompatActivity
 
 
     // Chat server config
-    private String TOKEN = "7e74bb92442d4783bb9df4c7fe475d9f";
+    private String TOKEN = "34520eba37a14b119c85c960980f1052";
 //    private String TOKEN = BaseApplication.getInstance().getString(R.string.Ahmad_Sajadi);
     private static String ssoHost = BaseApplication.getInstance().getString(R.string.ssoHost);
     private static String serverName = "chat-server";
@@ -649,8 +649,8 @@ public class ChatActivity extends AppCompatActivity
     private void setListeners() {
         //new
         btConnect.setOnClickListener(this);
-        btSendMsg.setOnClickListener(this::getPrivateKey);
-//        btSendMsg.setOnClickListener(this::sendMessage);
+//        btSendMsg.setOnClickListener(this::getPrivateKey);
+        btSendMsg.setOnClickListener(this::sendMessage);
         btChangeThreadId.setOnClickListener(this::setThreadId);
         btSettoken.setOnClickListener(this::setToken);
 
@@ -668,7 +668,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     private void getPrivateKey(View v) {
-        presenter.getPrivateKey("b56701111645883699");
+//        presenter.getPrivateKey("b56701111645883699");
     }
 
     private void init() {
@@ -1422,11 +1422,11 @@ public class ChatActivity extends AppCompatActivity
 //        return "";
         JsonObject a = new JsonObject();
 
-        a.addProperty("actionType", 1);
-        a.addProperty("amount", 100);
-        a.addProperty("id", 161);
-        a.addProperty("state", 1);
-        a.addProperty("destUserId", 1900896);
+        a.addProperty("KeyId", "b56701111645883699");
+//        a.addProperty("amount", 100);
+//        a.addProperty("id", 161);
+//        a.addProperty("state", 1);
+//        a.addProperty("destUserId", 1900896);
         return gson.toJson(a);
 
 //
@@ -1877,7 +1877,9 @@ public class ChatActivity extends AppCompatActivity
                 .build();
 //
 //
-        presenter.sendTextMessage(et_text.getText().toString(), TEST_THREAD_ID, TextMessageType.Constants.TEXT, meta, null);
+        String encryptedMessage = "AEKveVnxkddZEBVSZa3I6QUo3bJQP3xG+gktJie6GBk7SIf7ZLODGiiz2PiuuujiKPIY9jHrgiGO9APC2sloFG98mMYjJJRORov32QrJ5X42RgYBoCQRUxlRK6ItA0wMWfopfMJ4YHBqMd3gxZdI2aXXuEenvP3Slj0KNbvD47m6JEMZPLzd1MCOZCn5tSJDS8uOwtOyiq5o0D7Tns+nTucz+ytbmwZzVunRev1QeG5+mMAMDqSv1/59PPVXoEAnZ3BKO6B1FL5bTnyXzV/65BQrEhQksx5/nJfXSVYHDCw+oP/qKy14AFbPxidx53RJGLKcXRGmZSegWZf9CWfyzvQ=";
+//        String encryptedMessage = "ABtPl3A1ZJyGwG8DvXEsg5/tX47R7pXvy3mfKAyEKs8CP9zyKKfkt0tD11itZHg70fQ0LCsdNoj8gRDr2oDsEo3ipGosd5hvrkSszE/tQcpLDGcq89pyuoSZHVVQGRwXwKxrB1xpzQZwiq15VHlHKvADnnT89bGphfU+JFt91zdFWVMw92qJMW/E5zJvUKX5+ydBMPByAD3vOMG8koN659ySk882FJY9nphk4x9Ap1tZ29v6NIXnSbjZHfiN3UNGT+nQZXJVjBvgemX32TYCx1KQPwn6kUnBfPwGyeMqfmytmSv6FWmzJngEjFU/8Y9BXy528f6owGd2RrqMzWjPTXc=";
+        presenter.sendTextMessage(encryptedMessage, TEST_THREAD_ID, TextMessageType.Constants.ENCRYPTED_TEXT, meta, null);
 //
 //
 //        editText.setText("");
