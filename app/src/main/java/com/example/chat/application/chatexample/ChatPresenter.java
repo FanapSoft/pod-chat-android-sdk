@@ -149,6 +149,9 @@ import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 import com.fanap.podchat.util.RequestMapSearch;
 import com.fanap.podchat.util.Util;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -535,11 +538,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getPrivateKey(String keyId) {
+    public void getPrivateKey(String keyId, MessageVO messageVO) {
         chat.getPrivateKey(keyId, new PodEncryption.IPodPrivateKeyProvider() {
             @Override
             public void onPrivateKeyPrepared(OutPutGetKey response) {
                 Log.e(TAG, "onPrivateKeyPrepared: ");
+                chat.decryptMessage(messageVO, response.getPrivateKey());
             }
 
             @Override
@@ -1286,7 +1290,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void OnEncryptedMessage(String content, ChatResponse<MessageVO> chatResponse) {
         super.OnEncryptedMessage(content, chatResponse);
-        chat.decryptMessage(chatResponse.getResult(),"");
+        getPrivateKey(retrieveKeyId(chatResponse.getResult().getSystemMetadata()), chatResponse.getResult());
+    }
+
+    public String retrieveKeyId(String metaData) {
+        String keyId = "";
+        try {
+            JSONObject jsonObject = new JSONObject(metaData);
+            keyId = jsonObject.getString("KeyId");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return keyId;
     }
 
     @Override
