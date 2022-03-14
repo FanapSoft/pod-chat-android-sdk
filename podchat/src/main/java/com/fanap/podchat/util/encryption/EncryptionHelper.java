@@ -24,7 +24,7 @@ public class EncryptionHelper {
     private void prepareSecretKey() {
         try {
             keyGenerator = KeyGenerator.getInstance("AES");
-            keyGenerator.init(128);
+            keyGenerator.init(48);
             secretKey = keyGenerator.generateKey();
             random = new SecureRandom();
             random.nextBytes(IV);
