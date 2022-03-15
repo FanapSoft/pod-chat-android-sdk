@@ -21,6 +21,7 @@ import com.fanap.podchat.mainmodel.MessageVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ResultHistory;
+import com.fanap.podchat.model.ResultNewMessage;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestForwardMessage;
@@ -30,6 +31,7 @@ import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.util.TextMessageType;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -41,6 +43,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -89,12 +92,12 @@ public class MessagesCacheTest {
         appContext = InstrumentationRegistry.getTargetContext();
 
         chat = Chat.init(appContext);
-
+        Looper.prepare();
     }
 
     @Before
     public void createChat() {
-        Looper.prepare();
+
 
         view = Mockito.mock(ChatContract.view.class);
 
@@ -135,7 +138,6 @@ public class MessagesCacheTest {
 
 
     //requests for list of threads
-    @Test
     public void populateThreadsListFromServerOrCache() {
 
 
@@ -167,17 +169,24 @@ public class MessagesCacheTest {
     }
 
     //requests for list of threads from server
-    @Test
+
     public void populateThreadsListFromServerOnly() {
 
 
         chatListeners = new ChatListener() {
             @Override
-            public void onGetThread(String content, ChatResponse<ResultThreads> thread) {
+            public void onGetThread(String content, ChatResponse<ResultThreads> response) {
 
-                if (!thread.isCache()) {
+                if (!response.isCache()) {
                     System.out.println("Received List: " + content);
-                    threads.addAll(thread.getResult().getThreads());
+                    threads.addAll(response.getResult().getThreads()
+                            .stream()
+                            .filter(thread -> thread.getTitle() != null
+                                    && thread.getId() > 0
+                                    && !thread.isClosed()
+                                    && thread.getLastMessageVO() != null)
+                            .collect(Collectors.toList()));
+
                     chat.removeListener(chatListeners);
                     resumeProcess();
                 }
@@ -201,7 +210,7 @@ public class MessagesCacheTest {
     }
 
     //requests for list of threads from cache
-    @Test
+
     public void populateThreadsListFromCacheOnly() {
 
 
@@ -233,7 +242,7 @@ public class MessagesCacheTest {
 
     }
 
-    @Test
+
     public void populateMessagesFromServer() {
         populateThreadsListFromServerOnly();
         assert threads.size() > 0;
@@ -246,7 +255,13 @@ public class MessagesCacheTest {
 
                 if (!history.isCache()) {
                     System.out.println("Received Message List Server: " + content);
-                    threadMessagesList.addAll(history.getResult().getHistory());
+
+                    threadMessagesList.addAll(history.getResult().getHistory()
+                            .stream()
+                            .filter(messageVO ->
+                                    messageVO.getMessage() != null)
+                            .collect(Collectors.toList()));
+
                     chat.removeListener(chatListeners);
                     resumeProcess();
                 }
@@ -264,7 +279,7 @@ public class MessagesCacheTest {
         pauseProcess();
     }
 
-    @Test
+
     public void populateMessagesFromCache() {
         populateThreadsListFromServerOnly();
         assert threads.size() > 0;
@@ -294,7 +309,7 @@ public class MessagesCacheTest {
         pauseProcess();
     }
 
-    @Test
+
     public void populateMessagesFromServerOrCache() {
         populateThreadsListFromServerOnly();
         assert threads.size() > 0;
@@ -390,13 +405,11 @@ public class MessagesCacheTest {
 
     @Test
     public void sendReplyMessage() {
-        populateThreadsListFromServerOnly();
         populateMessagesFromServer();
-        assert threads.size() > 0;
-        assert threadMessagesList.size() > 0;
-
-        Thread thread = threads.get(0);
+        Collections.shuffle(threadMessagesList);
         MessageVO message = threadMessagesList.get(0);
+        Assert.assertNotNull(message);
+        Thread thread = message.getConversation();
         ChatListener mTestListener = Mockito.mock(ChatListener.class);
 
         chat.setListener(mTestListener);
@@ -449,7 +462,6 @@ public class MessagesCacheTest {
                         .stream().anyMatch(messageVO -> messageVO.getMessage().equals(replyTXT))));
 
 
-
     }
 
 
@@ -469,7 +481,7 @@ public class MessagesCacheTest {
 
         RequestForwardMessage forRequest
                 = new RequestForwardMessage.Builder(thread2.getId(),
-               new ArrayList<>(Collections.singletonList(message.getId())))
+                new ArrayList<>(Collections.singletonList(message.getId())))
                 .build();
 
         chat.forwardMessage(forRequest);
@@ -512,7 +524,339 @@ public class MessagesCacheTest {
 
         Mockito.verify(mTestListener, Mockito.after(2000).atLeastOnce())
                 .onGetHistory(Mockito.any(), Mockito.argThat((ChatResponse<ResultHistory> response) -> response.isCache() && response.getResult().getHistory()
-                        .stream().anyMatch(messageVO -> messageVO.getForwardInfo()!=null)));
+                        .stream().anyMatch(messageVO -> messageVO.getForwardInfo() != null)));
+
+    }
+
+    @Test
+    public void testIfReplyInfoVOsAreTheSame() {
+        populateMessagesFromServer();
+
+        assert threadMessagesList.size() > 0;
+
+        Collections.shuffle(threadMessagesList);
+        MessageVO message = threadMessagesList.get(0);
+
+        assert message.getConversation() != null;
+
+        Thread thread = message.getConversation();
+
+
+        chat.setListener(new ChatListener() {
+            @Override
+            public void onNewMessage(String content, ChatResponse<ResultNewMessage> response) {
+
+                resumeProcess();
+            }
+        });
+
+        RequestReplyMessage repRequest
+                = new RequestReplyMessage.Builder("Reply to " + message.getMessage(), thread.getId(), message.getId(), TextMessageType.Constants.TEXT)
+                .build();
+
+        chat.replyMessage(repRequest, null);
+
+        pauseProcess();
+
+
+        // Load Server messages
+        ArrayList<MessageVO> msgFromServer = new ArrayList<>();
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+                if (!history.isCache()) {
+                    System.out.println("Received Message List Server: " + content);
+                    msgFromServer.addAll(history.getResult().getHistory());
+                    chat.removeListener(chatListeners);
+                    resumeProcess();
+                }
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestGetHistory requestGetHistory
+                = new RequestGetHistory.Builder(thread.getId())
+                .withNoCache()
+                .build();
+
+        chat.getHistory(requestGetHistory, null);
+        pauseProcess();
+
+        // Load cache
+        ArrayList<MessageVO> msgFromCache = new ArrayList<>();
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+                if (history.isCache()) {
+                    System.out.println("Received Message List Cache: " + content);
+                    msgFromCache.addAll(history.getResult().getHistory());
+                    chat.removeListener(chatListeners);
+                    resumeProcess();
+                }
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestGetHistory requestGetHistoryCache
+                = new RequestGetHistory.Builder(thread.getId())
+                .build();
+
+        chat.getHistory(requestGetHistoryCache, null);
+        pauseProcess();
+
+
+        assert msgFromServer.size() > 0;
+        assert msgFromCache.size() > 0;
+        assert msgFromCache.size() == msgFromServer.size();
+
+        for (MessageVO msg :
+                msgFromServer) {
+
+            if(msg.getMessage()==null) continue;
+
+            System.out.println(">>>>>>>>>>> Server Message " + msg.getMessage() + " RepInfo: " + msg.getReplyInfoVO());
+            MessageVO msgInCache = msgFromCache.stream().filter(messageVO -> messageVO.getId() == msg.getId()).findFirst().get();
+            System.out.println(">>>>>>>>>>> Cache Message " + msgInCache.getMessage() + " RepInfo: " + msgInCache.getReplyInfoVO());
+
+
+            Assert.assertEquals(msg.getReplyInfoVO() != null, msgInCache.getReplyInfoVO() != null);
+
+            if (msg.getReplyInfoVO() != null) {
+                Assert.assertEquals(msg.getReplyInfoVO().getMessage(), msgInCache.getReplyInfoVO().getMessage());
+                Assert.assertEquals(msg.getReplyInfoVO().getMetadata(), msgInCache.getReplyInfoVO().getMetadata());
+                Assert.assertEquals(msg.getReplyInfoVO().getRepliedToMessageTime(), msgInCache.getReplyInfoVO().getRepliedToMessageTime());
+                Assert.assertEquals(msg.getReplyInfoVO().getRepliedToMessageNanos(), msgInCache.getReplyInfoVO().getRepliedToMessageNanos());
+                Assert.assertEquals(msg.getReplyInfoVO().getSystemMetadata(), msgInCache.getReplyInfoVO().getSystemMetadata());
+
+                if (msg.getReplyInfoVO().getParticipant() != null) {
+                    Assert.assertEquals(msg.getReplyInfoVO().getParticipant().getName(), msgInCache.getReplyInfoVO().getParticipant().getName());
+                    Assert.assertEquals(msg.getReplyInfoVO().getParticipant().getContactFirstName(), msgInCache.getReplyInfoVO().getParticipant().getContactFirstName());
+                    Assert.assertEquals(msg.getReplyInfoVO().getParticipant().getCellphoneNumber(), msgInCache.getReplyInfoVO().getParticipant().getCellphoneNumber());
+                    Assert.assertEquals(msg.getReplyInfoVO().getParticipant().getAdmin(), msgInCache.getReplyInfoVO().getParticipant().getAdmin());
+                }
+            }
+        }
+
+    }
+
+
+    @Test
+    public void testIfConversationAreSame(){
+        populateMessagesFromServer();
+
+        assert threadMessagesList.size() > 0;
+
+        Collections.shuffle(threadMessagesList);
+        MessageVO message = threadMessagesList.get(0);
+
+        assert message.getConversation() != null;
+
+        Thread thread = message.getConversation();
+
+
+        chat.setListener(new ChatListener() {
+            @Override
+            public void onNewMessage(String content, ChatResponse<ResultNewMessage> response) {
+
+                resumeProcess();
+            }
+        });
+
+        RequestMessage repRequest
+                = new RequestMessage.Builder("Message at " + new Date() , thread.getId())
+                .messageType( TextMessageType.Constants.TEXT)
+                .build();
+
+        chat.sendTextMessage(repRequest, null);
+
+        pauseProcess();
+
+
+        // Load Server messages
+        ArrayList<MessageVO> msgFromServer = new ArrayList<>();
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+                if (!history.isCache()) {
+                    System.out.println("Received Message List Server: " + content);
+                    msgFromServer.addAll(history.getResult().getHistory());
+                    chat.removeListener(chatListeners);
+                    resumeProcess();
+                }
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestGetHistory requestGetHistory
+                = new RequestGetHistory.Builder(thread.getId())
+                .withNoCache()
+                .build();
+
+        chat.getHistory(requestGetHistory, null);
+        pauseProcess();
+
+        // Load cache
+        ArrayList<MessageVO> msgFromCache = new ArrayList<>();
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+                if (history.isCache()) {
+                    System.out.println("Received Message List Cache: " + content);
+                    msgFromCache.addAll(history.getResult().getHistory());
+                    chat.removeListener(chatListeners);
+                    resumeProcess();
+                }
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestGetHistory requestGetHistoryCache
+                = new RequestGetHistory.Builder(thread.getId())
+                .build();
+
+        chat.getHistory(requestGetHistoryCache, null);
+        pauseProcess();
+
+
+        assert msgFromServer.size() > 0;
+        assert msgFromCache.size() > 0;
+        assert msgFromCache.size() == msgFromServer.size();
+
+        for (MessageVO msg :
+                msgFromServer) {
+
+            if(msg.getMessage()==null) continue;
+
+            System.out.println(">>>>>>>>>>> Server Message " + msg.getMessage() + " Conversation: " + msg.getConversation());
+            MessageVO msgInCache = msgFromCache.stream().filter(messageVO -> messageVO.getId() == msg.getId()).findFirst().get();
+            System.out.println(">>>>>>>>>>> Cache Message " + msgInCache.getMessage() + " RepInfo: " + msgInCache.getConversation());
+
+
+            Assert.assertEquals(msg.getConversation() != null, msgInCache.getConversation() != null);
+
+            if (msg.getConversation() != null) {
+                Assert.assertEquals(msg.getConversation().getId(),msgInCache.getConversation().getId());
+
+            }
+        }
+
+    }
+
+    @Test
+    public void testIfParticipantsAreSame(){
+        populateMessagesFromServer();
+
+        assert threadMessagesList.size() > 0;
+
+        Collections.shuffle(threadMessagesList);
+        MessageVO message = threadMessagesList.get(0);
+
+        assert message.getConversation() != null;
+
+        Thread thread = message.getConversation();
+
+
+        chat.setListener(new ChatListener() {
+            @Override
+            public void onNewMessage(String content, ChatResponse<ResultNewMessage> response) {
+
+                resumeProcess();
+            }
+        });
+
+        RequestMessage repRequest
+                = new RequestMessage.Builder("Message at " + new Date() , thread.getId())
+                .messageType( TextMessageType.Constants.TEXT)
+                .build();
+
+        chat.sendTextMessage(repRequest, null);
+
+        pauseProcess();
+
+
+        // Load Server messages
+        ArrayList<MessageVO> msgFromServer = new ArrayList<>();
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+                if (!history.isCache()) {
+                    System.out.println("Received Message List Server: " + content);
+                    msgFromServer.addAll(history.getResult().getHistory());
+                    chat.removeListener(chatListeners);
+                    resumeProcess();
+                }
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestGetHistory requestGetHistory
+                = new RequestGetHistory.Builder(thread.getId())
+                .withNoCache()
+                .build();
+
+        chat.getHistory(requestGetHistory, null);
+        pauseProcess();
+
+        // Load cache
+        ArrayList<MessageVO> msgFromCache = new ArrayList<>();
+
+        chatListeners = new ChatListener() {
+            @Override
+            public void onGetHistory(String content, ChatResponse<ResultHistory> history) {
+
+                if (history.isCache()) {
+                    System.out.println("Received Message List Cache: " + content);
+                    msgFromCache.addAll(history.getResult().getHistory());
+                    chat.removeListener(chatListeners);
+                    resumeProcess();
+                }
+            }
+        };
+
+        chat.addListener(chatListeners);
+
+        RequestGetHistory requestGetHistoryCache
+                = new RequestGetHistory.Builder(thread.getId())
+                .build();
+
+        chat.getHistory(requestGetHistoryCache, null);
+        pauseProcess();
+
+
+        assert msgFromServer.size() > 0;
+        assert msgFromCache.size() > 0;
+        assert msgFromCache.size() == msgFromServer.size();
+
+        for (MessageVO msg :
+                msgFromServer) {
+
+            if(msg.getMessage()==null) continue;
+
+            System.out.println(">>>>>>>>>>> Server Message " + msg.getMessage() + " Conversation: " + msg.getConversation());
+            MessageVO msgInCache = msgFromCache.stream().filter(messageVO -> messageVO.getId() == msg.getId()).findFirst().get();
+            System.out.println(">>>>>>>>>>> Cache Message " + msgInCache.getMessage() + " RepInfo: " + msgInCache.getConversation());
+
+
+            Assert.assertEquals(msg.getParticipant() != null, msgInCache.getParticipant() != null);
+
+            if (msg.getParticipant() != null) {
+                Assert.assertEquals(msg.getParticipant().getId(),msgInCache.getParticipant().getId());
+                Assert.assertEquals(msg.getParticipant().getName(),msgInCache.getParticipant().getName());
+                Assert.assertEquals(msg.getParticipant().getChatProfileVO()!=null,msgInCache.getParticipant().getChatProfileVO()!=null);
+            }
+        }
 
     }
 

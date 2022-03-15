@@ -1413,6 +1413,10 @@ public class MessageDatabaseHelper {
                 }
 
             }
+
+            ThreadVo thread = messageDao.getThreadById(cacheMessageVO.getConversationId());
+            cacheMessageVO.setConversation(thread);
+
             if (cacheMessageVO.getReplyInfoVOId() != null) {
 
                 CacheReplyInfoVO cacheReplyInfoVO = messageDao.getReplyInfo(cacheMessageVO.getReplyInfoVOId());
@@ -1470,9 +1474,9 @@ public class MessageDatabaseHelper {
 
 
             }
-
+            Thread msgThread = threadVoToThreadMapper(cacheMessageVO.getConversation(),null);
             MessageVO messageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, forwardInfo, cacheMessageVO);
-
+            messageVO.setConversation(msgThread);
             messageVOS.add(messageVO);
         }
     }

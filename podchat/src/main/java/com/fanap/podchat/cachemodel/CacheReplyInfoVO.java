@@ -38,8 +38,10 @@ public class CacheReplyInfoVO {
 
     public static CacheReplyInfoVO fromReplyInfo(ReplyInfoVO replyInfoVO, long threadId) {
         CacheReplyInfoVO cacheReplyInfoVO = new CacheReplyInfoVO();
-        cacheReplyInfoVO.participant = new CacheParticipant(replyInfoVO.getParticipant(),threadId);
-        cacheReplyInfoVO.participantId = replyInfoVO.getParticipant().getId();
+        if(replyInfoVO.getParticipant()!=null){
+            cacheReplyInfoVO.participant = new CacheParticipant(replyInfoVO.getParticipant(),threadId);
+            cacheReplyInfoVO.participantId = replyInfoVO.getParticipant().getId();
+        }
         cacheReplyInfoVO.repliedToMessageId = replyInfoVO.getRepliedToMessageId();
         cacheReplyInfoVO.repliedToMessageTime = replyInfoVO.getRepliedToMessageTime();
         cacheReplyInfoVO.repliedToMessageNanos = replyInfoVO.getRepliedToMessageNanos();
