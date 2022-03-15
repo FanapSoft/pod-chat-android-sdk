@@ -1,6 +1,6 @@
 package com.fanap.podchat.call.history;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.mainmodel.Participant;

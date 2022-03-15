@@ -1,7 +1,7 @@
 package com.fanap.podchat.requestobject;
 
-import android.arch.persistence.room.Ignore;
-import android.support.annotation.NonNull;
+import androidx.room.Ignore;
+import androidx.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;

@@ -1,6 +1,6 @@
 package com.fanap.podchat.networking.retrofithelper;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.concurrent.TimeUnit;
 

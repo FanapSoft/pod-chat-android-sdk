@@ -1,6 +1,6 @@
 package com.fanap.podchat.cachemodel;
 
-import android.arch.persistence.room.Entity;
+import androidx.room.Entity;
 
 /*Link thread and participant together */
 @Entity(primaryKeys = {"threadId","participantId"})

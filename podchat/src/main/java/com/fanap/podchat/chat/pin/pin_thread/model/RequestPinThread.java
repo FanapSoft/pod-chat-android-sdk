@@ -1,6 +1,6 @@
 package com.fanap.podchat.chat.pin.pin_thread.model;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.fanap.podchat.requestobject.GeneralRequestObject;
 

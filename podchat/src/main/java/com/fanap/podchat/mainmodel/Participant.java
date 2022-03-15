@@ -1,8 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.fanap.podchat.chat.user.profile.ChatProfileVO;
 

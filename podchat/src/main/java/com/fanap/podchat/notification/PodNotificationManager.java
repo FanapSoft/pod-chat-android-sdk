@@ -4,11 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
-import android.support.v4.app.NotificationManagerCompat;
+
+import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
 
-import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.R;
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
-import static com.fanap.podchat.notification.ShowNotificationHelper.MESSAGE_ID;
 
 public class PodNotificationManager {
 

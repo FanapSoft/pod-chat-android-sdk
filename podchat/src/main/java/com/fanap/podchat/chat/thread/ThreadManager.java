@@ -1,7 +1,7 @@
 package com.fanap.podchat.chat.thread;
 
 import android.os.Build;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.fanap.podchat.chat.App;
 import com.fanap.podchat.chat.CoreConfig;

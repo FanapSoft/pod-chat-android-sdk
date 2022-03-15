@@ -16,9 +16,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.CursorLoader;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.content.CursorLoader;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -275,6 +276,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -544,11 +546,10 @@ public abstract class ChatCore extends AsyncAdapter {
 
 
         PushSdk push = new PushSdk.Builder()
-                .setContext(notificationConfig.getTargetActivity())
-                .setApiToken("")
-                .setAppId("")
-                .setData(null)
-                .setHandleNotification(true)
+                .setContext(context.getApplicationContext())
+                .setApiToken("761a6d32f45548a4a7749f1ef235211e")
+                .setAppId("affee6ac-4aae-494f-9985-411e2bb26365")
+                .setHandleNotification(false)
                 .setResponseListener(new ResponseListener() {
                     @Override
                     public void onSubscribe(JSONObject data) {
@@ -576,38 +577,40 @@ public abstract class ChatCore extends AsyncAdapter {
                 .build();
 
 
-        PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
-            @Override
-            public void onNotificationEvent(String log) {
-                showLog(log);
-            }
 
-            @Override
-            public void onNotificationError(String log) {
 
-                captureError(log, ChatConstant.ERROR_CODE_NOTIFICATION_ERROR, "");
-
-            }
-
-            @Override
-            public void sendAsyncMessage(String message, String info) {
-
-                if (chatReady) {
-                    showLog(info, message);
-                    async.sendMessage(message, AsyncAckType.Constants.WITHOUT_ACK);
-                    if (Sentry.isEnabled()) {
-                        Sentry.captureMessage("FCM : " + info + " ********* " + message);
-                    }
-                }
-
-            }
-        });
-
-        PodNotificationManager.withConfig(notificationConfig, context);
-
-        PodNotificationManager.registerFCMTokenReceiver(context);
-
-        PodNotificationManager.registerClickReceiver(context);
+//        PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
+//            @Override
+//            public void onNotificationEvent(String log) {
+//                showLog(log);
+//            }
+//
+//            @Override
+//            public void onNotificationError(String log) {
+//
+//                captureError(log, ChatConstant.ERROR_CODE_NOTIFICATION_ERROR, "");
+//
+//            }
+//
+//            @Override
+//            public void sendAsyncMessage(String message, String info) {
+//
+//                if (chatReady) {
+//                    showLog(info, message);
+//                    async.sendMessage(message, AsyncAckType.Constants.WITHOUT_ACK);
+//                    if (Sentry.isEnabled()) {
+//                        Sentry.captureMessage("FCM : " + info + " ********* " + message);
+//                    }
+//                }
+//
+//            }
+//        });
+//
+//        PodNotificationManager.withConfig(notificationConfig, context);
+//
+//        PodNotificationManager.registerFCMTokenReceiver(context);
+//
+//        PodNotificationManager.registerClickReceiver(context);
 
     }
 

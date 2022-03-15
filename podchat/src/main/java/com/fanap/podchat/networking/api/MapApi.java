@@ -1,6 +1,6 @@
 package com.fanap.podchat.networking.api;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.MapNeshan;
 import com.fanap.podchat.mainmodel.MapReverse;

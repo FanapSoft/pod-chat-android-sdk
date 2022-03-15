@@ -1,6 +1,6 @@
 package com.fanap.podchat.mainmodel;
 
-import android.arch.persistence.room.ColumnInfo;
+import androidx.room.ColumnInfo;
 
 public class LinkedUser  {
     @ColumnInfo(name = "linkedUser_id")

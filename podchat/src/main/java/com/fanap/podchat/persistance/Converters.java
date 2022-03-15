@@ -1,7 +1,7 @@
 package com.fanap.podchat.persistance;
 
-import android.arch.persistence.room.TypeConverter;
-import android.support.annotation.Nullable;
+import androidx.room.TypeConverter;
+import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

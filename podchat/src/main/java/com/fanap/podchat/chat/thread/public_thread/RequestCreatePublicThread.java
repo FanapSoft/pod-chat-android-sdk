@@ -1,6 +1,6 @@
 package com.fanap.podchat.chat.thread.public_thread;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.requestobject.RequestCreateThread;

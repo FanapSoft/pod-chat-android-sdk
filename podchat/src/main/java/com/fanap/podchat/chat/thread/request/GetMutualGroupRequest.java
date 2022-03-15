@@ -1,7 +1,7 @@
 package com.fanap.podchat.chat.thread.request;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.requestobject.BaseRequestObject;

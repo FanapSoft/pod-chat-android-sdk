@@ -1,8 +1,8 @@
 package com.fanap.podchat.util;
 
-import android.arch.persistence.room.TypeConverter;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.room.TypeConverter;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.fanap.podchat.cachemodel.CacheParticipant;
 import com.fanap.podchat.mainmodel.Participant;

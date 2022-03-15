@@ -1,6 +1,6 @@
 package com.fanap.podchat.requestobject;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class RequestUnBlock extends GeneralRequestObject {
     private long blockId;

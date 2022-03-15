@@ -1,7 +1,6 @@
 package com.fanap.podchat.util;
 
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -15,14 +14,12 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.content.FileProvider;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.FileProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
-
-import com.fanap.podchat.chat.Chat;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,7 +32,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
-import java.util.Objects;
 import java.util.Random;
 
 

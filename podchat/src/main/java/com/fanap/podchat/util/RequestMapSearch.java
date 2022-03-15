@@ -1,6 +1,6 @@
 package com.fanap.podchat.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class RequestMapSearch {
     private String searchTerm;

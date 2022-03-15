@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class OutputSetRoleToUser {
 

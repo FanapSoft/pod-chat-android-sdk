@@ -2,7 +2,7 @@ package com.fanap.podchat.requestobject;
 
 import android.app.Activity;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class RequestImageMessage extends RequestFileMessage {
     private String imageXc;

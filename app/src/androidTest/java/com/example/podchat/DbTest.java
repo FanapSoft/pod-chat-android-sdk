@@ -5,8 +5,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Looper;
 import android.provider.ContactsContract;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.fanap.podchat.cachemodel.CacheMessageVO;
 import com.fanap.podchat.mainmodel.Contact;

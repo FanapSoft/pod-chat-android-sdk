@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <android.support.design.widget.AppBarLayout
+    <androidx.design.widget.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/appbar_padding_top"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.v7.widget.Toolbar
             android:id="@+id/toolbar_test"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
@@ -23,18 +23,18 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="@string/app_name">
 
-        </android.support.v7.widget.Toolbar>
+        </androidx.v7.widget.Toolbar>
 
-    </android.support.design.widget.AppBarLayout>
+    </androidx.design.widget.AppBarLayout>
 
-    <android.support.v4.view.ViewPager
+    <androidx.core.view.ViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <android.support.design.widget.TabLayout
+        <androidx.design.widget.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,24 +46,24 @@
             app:tabSelectedTextColor="@color/tabLayout_selected_text_color"
             app:tabMode="fixed">
 
-            <android.support.design.widget.TabItem
+            <androidx.design.widget.TabItem
                 android:id="@+id/tab_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_chat" />
 
-            <android.support.design.widget.TabItem
+            <androidx.design.widget.TabItem
                 android:id="@+id/tab_function"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_function" />
 
-            <android.support.design.widget.TabItem
+            <androidx.design.widget.TabItem
                 android:id="@+id/tab_log"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_log" />
-        </android.support.design.widget.TabLayout>
-    </android.support.v4.view.ViewPager>
+        </androidx.design.widget.TabLayout>
+    </androidx.core.view.ViewPager>
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.design.widget.CoordinatorLayout>

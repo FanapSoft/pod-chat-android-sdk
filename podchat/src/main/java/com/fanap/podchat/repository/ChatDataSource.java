@@ -1,6 +1,6 @@
 package com.fanap.podchat.repository;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.fanap.podchat.cachemodel.CacheFile;
 import com.fanap.podchat.cachemodel.CacheMessageVO;

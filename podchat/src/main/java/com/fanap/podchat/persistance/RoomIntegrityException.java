@@ -1,6 +1,6 @@
 package com.fanap.podchat.persistance;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class RoomIntegrityException extends Exception {
     @Nullable

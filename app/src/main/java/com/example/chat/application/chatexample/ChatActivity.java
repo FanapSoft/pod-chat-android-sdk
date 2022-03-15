@@ -9,11 +9,11 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -81,7 +81,6 @@ import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
-import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
@@ -194,7 +193,7 @@ public class ChatActivity extends AppCompatActivity
     private Map<String, List<Method>> categoryMap;
     private List<Method> movieList;
     private ExpandablePlaceHolderView expandablePlaceHolderView;
-    private final Enum<ServerType> serverType = ServerType.Integration;
+    private final Enum<ServerType> serverType = ServerType.Sandbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,7 +1,7 @@
 package com.fanap.podchat.chat;
 
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import com.fanap.podcall.IPodCall;
 import com.fanap.podcall.PartnerType;

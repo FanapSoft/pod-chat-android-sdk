@@ -1,6 +1,6 @@
 package com.fanap.podchat.chat.messge;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.requestobject.BaseRequestObject;

@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Person;
 import android.app.RemoteInput;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +13,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -32,22 +31,6 @@ import java.util.concurrent.ExecutionException;
 
 
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
-import static com.fanap.podchat.util.ChatConstant.POD_CALL_INFO;
-import static com.fanap.podchat.util.ChatConstant.POD_PUSH_MESSAGE_ID;
-import static com.fanap.podchat.util.ChatConstant.POD_PUSH_SENDER_USER_NAME;
-import static com.fanap.podchat.util.ChatConstant.POD_PUSH_THREAD_ID;
-import static com.fanap.podchat.util.TextMessageType.Constants.FILE;
-import static com.fanap.podchat.util.TextMessageType.Constants.LINK;
-import static com.fanap.podchat.util.TextMessageType.Constants.PICTURE;
-import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_FILE;
-import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_PICTURE;
-import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_SOUND;
-import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_VIDEO;
-import static com.fanap.podchat.util.TextMessageType.Constants.POD_SPACE_VOICE;
-import static com.fanap.podchat.util.TextMessageType.Constants.SOUND;
-import static com.fanap.podchat.util.TextMessageType.Constants.TEXT;
-import static com.fanap.podchat.util.TextMessageType.Constants.VIDEO;
-import static com.fanap.podchat.util.TextMessageType.Constants.VOICE;
 
 public class ShowNotificationHelper {
 
