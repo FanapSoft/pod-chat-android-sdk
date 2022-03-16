@@ -545,37 +545,6 @@ public abstract class ChatCore extends AsyncAdapter {
     public void setupNotification(CustomNotificationConfig notificationConfig) {
 
 
-        PushSdk push = new PushSdk.Builder()
-                .setContext(context.getApplicationContext())
-                .setApiToken("761a6d32f45548a4a7749f1ef235211e")
-                .setAppId("affee6ac-4aae-494f-9985-411e2bb26365")
-                .setHandleNotification(false)
-                .setResponseListener(new ResponseListener() {
-                    @Override
-                    public void onSubscribe(JSONObject data) {
-                        showLog("PushNotif onSubscribe with: " + data);
-                    }
-
-                    @Override
-                    public void onUnsubscribe() {
-                        showLog("PushNotif onUnSubscribe");
-
-                    }
-
-                    @Override
-                    public void onError(Exception ex) {
-                        showErrorLog("PushNotif On Error " + ex.getMessage());
-                    }
-                })
-                .setNotificationListener(new NotificationListener() {
-                    @Override
-                    public void getNotification(JSONObject object) {
-                        showLog("PushNotif getNotification " + object);
-
-                    }
-                })
-                .build();
-
 
 
 
@@ -12558,6 +12527,38 @@ public abstract class ChatCore extends AsyncAdapter {
             pingWithDelay();
             messageCallbacks.remove(messageUniqueId);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
+
+            PushSdk push = new PushSdk.Builder()
+                    .setContext(context.getApplicationContext())
+                    .setSsoId(userInfo.getId())
+                    .setAppId("affee6ac-4aae-494f-9985-411e2bb26365")
+                    .setHandleNotification(false)
+                    .setResponseListener(new ResponseListener() {
+                        @Override
+                        public void onSubscribe(JSONObject data) {
+                            showLog("PushNotif onSubscribe with: " + data);
+                        }
+
+                        @Override
+                        public void onUnsubscribe() {
+                            showLog("PushNotif onUnSubscribe");
+
+                        }
+
+                        @Override
+                        public void onError(Exception ex) {
+                            showErrorLog("PushNotif On Error " + ex.getMessage());
+                        }
+                    })
+                    .setNotificationListener(new NotificationListener() {
+                        @Override
+                        public void getNotification(JSONObject object) {
+                            showLog("PushNotif getNotification " + object);
+
+                        }
+                    })
+                    .build();
+
 
         }
     }
