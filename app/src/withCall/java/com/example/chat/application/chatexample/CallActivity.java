@@ -1080,6 +1080,17 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
     @Override
+    public void onAddContact() {
+        hideContactsFragment();
+        showFabContacts();
+    }
+
+    @Override
+    public void onAddContactSelected(String name, String lastName, String id, int idType) {
+        presenter.addContact(name,lastName,id,idType);
+    }
+
+    @Override
     public void showFabContact() {
         showFabContacts();
     }

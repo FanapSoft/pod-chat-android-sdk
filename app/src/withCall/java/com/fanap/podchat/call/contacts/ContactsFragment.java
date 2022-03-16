@@ -9,7 +9,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.fanap.podchat.example.R;
 
@@ -21,6 +27,9 @@ public class ContactsFragment extends Fragment {
     public interface IContactsFragment {
 
         void onContactsSelected(ContactsWrapper contact, int callType);
+
+        void onAddContactSelected(String name, String lastName, String id, int idType);
+
     }
 
 
@@ -34,6 +43,14 @@ public class ContactsFragment extends Fragment {
     View viewAddContact;
 
     View viewCreateGroupCall;
+
+    ViewSwitcher switcher;
+
+    RadioGroup radioGroup;
+    RadioButton rbPhone,rbEmail,rbUserName;
+    EditText etName,etLastName,etIdentity;
+    Button btnAddContact;
+
 
     @Override
     public void onAttach(Context context) {
@@ -78,8 +95,47 @@ public class ContactsFragment extends Fragment {
 
     private void setListeners() {
 
-        viewAddContact.setOnClickListener(v-> Toast.makeText(getContext(), "فعلا این قابلیت اضافه نشده", Toast.LENGTH_SHORT).show());
-        viewCreateGroupCall.setOnClickListener(v-> Toast.makeText(getContext(), "فعلا این قابلیت اضافه نشده", Toast.LENGTH_SHORT).show());
+        viewAddContact.setOnClickListener(v -> switcher.showNext());
+        viewCreateGroupCall.setOnClickListener(v -> Toast.makeText(getContext(), "فعلا این قابلیت اضافه نشده", Toast.LENGTH_SHORT).show());
+        radioGroup.setOnCheckedChangeListener((group, checkedId) -> findSelectedIdType(group));
+
+        btnAddContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String name = etName.getText().toString();
+                String lastName = etLastName.getText().toString();
+                String id = etIdentity.getText().toString();
+                int idType = etIdentity.getInputType();
+
+                callback.onAddContactSelected(name,lastName,id,idType);
+
+            }
+        });
+    }
+
+    private void findSelectedIdType(RadioGroup group) {
+
+        if(group.getCheckedRadioButtonId()==rbPhone.getId()){
+            etIdentity.setHint("شماره همراه");
+            etIdentity.setInputType(EditorInfo.TYPE_CLASS_PHONE);
+            return;
+        }
+
+        if(group.getCheckedRadioButtonId()==rbEmail.getId()){
+            etIdentity.setHint("ایمیل");
+            etIdentity.setInputType(EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            return;
+        }
+
+        if(group.getCheckedRadioButtonId()==rbUserName.getId()){
+            etIdentity.setHint("نام کاربری");
+            etIdentity.setInputType(EditorInfo.TYPE_CLASS_TEXT);
+            return;
+        }
+
+        etIdentity.setHint("شماره همراه");
+        etIdentity.setInputType(EditorInfo.TYPE_CLASS_PHONE);
 
     }
 
@@ -90,7 +146,7 @@ public class ContactsFragment extends Fragment {
                 (contactsWrapper, callType) -> {
                     Log.d("TAGG", "Selected " + contactsWrapper.getFirstName());
                     if (callback != null) {
-                        callback.onContactsSelected(contactsWrapper,callType);
+                        callback.onContactsSelected(contactsWrapper, callType);
                     }
                 });
 
@@ -100,7 +156,17 @@ public class ContactsFragment extends Fragment {
     private void initial(View view) {
         recyclerView = view.findViewById(R.id.recyclerViewContacts);
         viewAddContact = view.findViewById(R.id.viewAddContact);
+        switcher = view.findViewById(R.id.viewSwitcherAddContact);
         viewCreateGroupCall = view.findViewById(R.id.viewCreateGroupCall);
+        radioGroup = view.findViewById(R.id.rgIdentityType);
+        rbEmail = view.findViewById(R.id.rbEmail);
+        rbPhone = view.findViewById(R.id.rbCellPhoneNumber);
+        rbUserName = view.findViewById(R.id.rbUserName);
+
+        etIdentity = view.findViewById(R.id.etId);
+        etName = view.findViewById(R.id.etName);
+        etLastName = view.findViewById(R.id.etLastName);
+        btnAddContact = view.findViewById(R.id.btnAddContact);
     }
 
 

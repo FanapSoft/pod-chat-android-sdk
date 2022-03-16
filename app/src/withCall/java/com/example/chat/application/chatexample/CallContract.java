@@ -304,6 +304,8 @@ public interface CallContract {
 
         void onContactSelected(ContactsWrapper contact, int callType);
 
+        void addContact(String name, String lastName, String id, int idType);
+
         void connect(String token);
 
         void requestAudioCall(CallWrapper call);

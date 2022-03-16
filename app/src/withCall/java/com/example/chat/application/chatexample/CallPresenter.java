@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 
 import com.example.chat.application.chatexample.token.TokenHandler;
 import com.fanap.podcall.audio.AudioCallParam;
@@ -92,6 +93,7 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
+import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -693,7 +695,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onContactAdded(String content, ChatResponse<ResultAddContact> chatResponse) {
         super.onContactAdded(content, chatResponse);
-        view.onAddContact();
+        Contact c = chatResponse.getResult().getContact();
+
+        view.showMessage(c.getFirstName() + " " + c.getLastName() + " " + c.getCellphoneNumber() + " " + c.getEmail()
+        + " " + (c.getLinkedUser()!=null?c.getLinkedUser().getName() + " " + c.getLinkedUser().getUsername():"") + " اضافه شد");
     }
 
 
@@ -1153,6 +1158,31 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         }
         hideVideoViews();
         getActiveCalls();
+    }
+
+
+    @Override
+    public void addContact(String name, String lastName, String id, int idType) {
+
+        view.hideContactsFragment();
+        view.showFabContact();
+
+        switch (idType){
+            case EditorInfo.TYPE_CLASS_PHONE:{
+                chat.addContact(name,lastName,id,null,"default",null);
+                break;
+            }
+            case EditorInfo.TYPE_CLASS_TEXT:{
+                chat.addContact(name,lastName,null,null,"default",id);
+                break;
+            }
+            case EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS:{
+                chat.addContact(name,lastName,null,id,"default",null);
+                break;
+            }
+        }
+
+
     }
 
     private void stopScreenShare() {
