@@ -83,18 +83,46 @@
 
     </android.support.constraint.ConstraintLayout>
 
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/etGroupName"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="8dp"
+        android:gravity="start"
+        android:hint="نام گروه"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/view3" />
+
     <ViewSwitcher
         android:id="@+id/viewSwitcherAddContact"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view3">
+        app:layout_constraintTop_toBottomOf="@+id/etGroupName">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerViewContacts"
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="8dp" />
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewContacts"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:nestedScrollingEnabled="false"
+                    tools:targetApi="lollipop" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp" />
+            </LinearLayout>
+        </android.support.v4.widget.NestedScrollView>
+
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/layoutAddContact"
@@ -174,13 +202,13 @@
                 android:id="@+id/etId"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
+                android:gravity="center"
                 android:hint="شماره همراه"
                 android:inputType="phone"
                 android:maxLines="1"
-                android:gravity="center"
                 android:padding="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/rgIdentityType"
-                app:hintTextAppearance="@color/colorPrimary" />
+                app:hintTextAppearance="@color/colorPrimary"
+                app:layout_constraintTop_toBottomOf="@+id/rgIdentityType" />
 
 
             <android.support.v7.widget.AppCompatButton
@@ -201,5 +229,69 @@
 
     </ViewSwitcher>
 
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="240dp"
+        android:layout_height="90dp"
+        android:id="@+id/layoutCallType"
+        android:layout_margin="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/rounded_corner_background_primer_color"
+        android:padding="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:gravity="center"
+            android:text="برقراری تماس گروهی"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+
+        <ImageButton
+            android:id="@+id/imgBtnCallGroup"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/round_border_button_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imgBtnVideoCallGroup"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_call_blue" />
+
+        <ImageButton
+            android:id="@+id/imgBtnVideoCallGroup"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/round_border_button_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/imgBtnCallGroup"
+            app:srcCompat="@drawable/ic_videocam" />
+
+    </android.support.constraint.ConstraintLayout>
+
+
+    <android.support.constraint.Group
+        android:id="@+id/gpGroupCallState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="layoutCallType,etGroupName" />
 
 </android.support.constraint.ConstraintLayout>

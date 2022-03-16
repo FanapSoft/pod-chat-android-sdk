@@ -1,5 +1,6 @@
 package com.fanap.podchat.call.contacts;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -21,8 +22,12 @@ import java.util.ArrayList;
 class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
 
 
+
+
     public interface IContactInterface {
         void onContactSelected(ContactsWrapper wrapper, int callType);
+        void onContactAddedToGroupCallList(ContactsWrapper wrapper);
+        void onContactRemovedFromGroupCallList(ContactsWrapper wrapper);
     }
 
     ArrayList<ContactsWrapper> contacts;
@@ -52,6 +57,17 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
         return new ViewHolder(view);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    public void setMultiSelect(boolean multiSelect) {
+        this.isMultiSelect = multiSelect;
+        notifyDataSetChanged();
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    public void switchMultiSelect() {
+        isMultiSelect = !isMultiSelect;
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
@@ -67,7 +83,7 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
                         .apply(RequestOptions.circleCropTransform())
                         .into(viewHolder.imageViewProfile);
 
-            if (contact.isSelected())
+            if (contact.isSelected() && isMultiSelect)
                 viewHolder.imageViewDone.setVisibility(View.VISIBLE);
             else viewHolder.imageViewDone.setVisibility(View.INVISIBLE);
 
@@ -78,6 +94,8 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
                 viewHolder.imageButtonVideoCall.setVisibility(View.GONE);
             }
             else {
+                viewHolder.imageButtonAudioCall.setVisibility(View.VISIBLE);
+                viewHolder.imageButtonVideoCall.setVisibility(View.VISIBLE);
                 viewHolder.imageButtonAudioCall.setOnClickListener(v->{
                     if (iContactInterface != null)
                         iContactInterface.onContactSelected(contact, CallType.Constants.VOICE_CALL);
@@ -91,9 +109,12 @@ class ContactsAdaptor extends RecyclerView.Adapter<ContactsAdaptor.ViewHolder> {
             viewHolder.itemView.setOnClickListener(v -> {
                 if (isMultiSelect) {
                     contact.setSelected(!contact.isSelected());
-                    notifyDataSetChanged();
-                    if (iContactInterface != null)
-                        iContactInterface.onContactSelected(contact, 0);
+                    notifyItemChanged(viewHolder.getAdapterPosition());
+                    if (contact.isSelected()) {
+                        iContactInterface.onContactAddedToGroupCallList(contact);
+                    } else {
+                        iContactInterface.onContactRemovedFromGroupCallList(contact);
+                    }
                 }
             });
         }

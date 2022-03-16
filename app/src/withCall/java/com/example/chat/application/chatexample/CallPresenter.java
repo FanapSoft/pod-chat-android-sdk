@@ -93,7 +93,6 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
-import com.fanap.podchat.requestobject.RequestAddContact;
 import com.fanap.podchat.requestobject.RequestAddParticipants;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestGetContact;
@@ -111,7 +110,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
@@ -1160,6 +1158,49 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         getActiveCalls();
     }
 
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void requestGroupAudioCallByContactId(String callName, ArrayList<Long> selectContactIds) {
+
+        view.hideContactsFragment();
+        view.showFabContact();
+
+        List<Invitee> invitees
+                = new ArrayList<>();
+        for (Long cId :
+                selectContactIds) {
+            invitees.add(new Invitee(cId, InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        }
+        CallRequest request = new CallRequest.Builder()
+                .setTitle(callName)
+                .setCallType(CallType.Constants.VIDEO_CALL)
+                .setInvitees(invitees)
+                .build();
+        prepareAudioCallView();
+        callImpUniqueIds.add(chat.requestGroupCall(request));
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void requestGroupVideoCallByContactId(String callName, ArrayList<Long> selectContactIds) {
+        view.hideContactsFragment();
+        view.showFabContact();
+
+        List<Invitee> invitees
+                = new ArrayList<>();
+        for (Long cId :
+                selectContactIds) {
+            invitees.add(new Invitee(cId, InviteType.Constants.TO_BE_USER_CONTACT_ID));
+        }
+        CallRequest request = new CallRequest.Builder()
+                .setTitle(callName)
+                .setCallType(CallType.Constants.VIDEO_CALL)
+                .setInvitees(invitees)
+                .build();
+        showVideoViews();
+        callImpUniqueIds.add(chat.requestGroupCall(request));
+    }
 
     @Override
     public void addContact(String name, String lastName, String id, int idType) {

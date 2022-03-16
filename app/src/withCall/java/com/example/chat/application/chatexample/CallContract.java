@@ -2,7 +2,6 @@ package com.example.chat.application.chatexample;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
 import com.fanap.podcall.view.CallPartnerView;
@@ -320,5 +319,9 @@ public interface CallContract {
 
         @RestrictTo(RestrictTo.Scope.TESTS)
         void prepareNewView(CallPartnerView partnerView);
+
+        void requestGroupAudioCallByContactId(String callName, ArrayList<Long> selectContactIds);
+
+        void requestGroupVideoCallByContactId(String callName, ArrayList<Long> selectContactIds);
     }
 }

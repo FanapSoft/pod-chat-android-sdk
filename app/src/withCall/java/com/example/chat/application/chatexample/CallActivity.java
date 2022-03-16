@@ -45,7 +45,6 @@ import com.fanap.podchat.call.history.HistoryAdaptor;
 import com.fanap.podchat.call.login.LoginFragment;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
-import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
 import com.fanap.podchat.example.BuildConfig;
 import com.fanap.podchat.example.R;
@@ -1088,6 +1087,16 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     public void onAddContactSelected(String name, String lastName, String id, int idType) {
         presenter.addContact(name,lastName,id,idType);
+    }
+
+    @Override
+    public void onListOfContactsSelectedForAudioCall(String callName, ArrayList<Long> selectContactIds) {
+        presenter.requestGroupAudioCallByContactId(callName,selectContactIds);
+    }
+
+    @Override
+    public void onListOfContactsSelectedForVideoCall(String callName, ArrayList<Long> selectContactIds) {
+        presenter.requestGroupVideoCallByContactId(callName,selectContactIds);
     }
 
     @Override
