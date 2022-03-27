@@ -1581,4 +1581,24 @@ public class ChatListenerManager {
             }
         }
     }
+
+    public void callOnDeviceIsNear() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeviceIsNear();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnDeviceGotFar() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeviceGotFar();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

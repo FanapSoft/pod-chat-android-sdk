@@ -5,6 +5,21 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## [0.9.17.0] -2021-**-**
+
+### Added
+
+ You could use following events and methods to be aware of camera is on, the device is near ( to the ear ) or the device got far ( from the ear ) : 
+
+- add ChatListener.onDeviceIsNear
+- add ChatListener.onDeviceGotFar
+- add Chat.isCameraOn
+  
+### Changed
+
+- update podcall version to 3.7.2-SNAPSHOT
+
+
 
 ## [0.9.16.0] -2021-**-**
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +19,15 @@ import com.fanap.podchat.call.CallStatus;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.util.Util;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHolder> {
 
@@ -112,7 +117,9 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
                 setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
                 Date time = new Date(historyVO.getCreateTime());
-                viewHolder.tvCallTime.setText(time.toString());
+                String t= DateFormatUtils.format(time,"E yyyy/MM/dd HH:mm");
+                String ago = getTimePassed(historyVO);
+                viewHolder.tvCallTime.setText(t + " - " + ago );
             }
 
             viewHolder.imageButtonAudioCall.setOnClickListener(v -> {
@@ -125,6 +132,29 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             });
 
         }
+    }
+
+    private String getTimePassed(CallWrapper historyVO) {
+        String ago = null;
+        try {
+            Date past = new Date(historyVO.getCreateTime());
+            Date now = new Date();
+
+
+            if(TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime()) > 0){
+                ago = TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime()) + " days ago";
+            }else if(TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime()) > 0){
+                ago =TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime()) + " hours ago";
+            }else if(TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime()) > 0){
+                ago =TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime()) + " minutes ago";
+            }else if(TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime()) > 0){
+                ago =TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime()) + " seconds ago";
+            }
+        }
+        catch (Exception j){
+            j.printStackTrace();
+        }
+        return ago;
     }
 
     private void setImageStatus(ImageView imageStatus, int status) {

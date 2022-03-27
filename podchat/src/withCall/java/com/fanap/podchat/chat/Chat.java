@@ -165,6 +165,17 @@ public class Chat extends ChatCore {
             public void onMicrophoneIsNotAvailable(String message) {
                 captureError(new PodChatException(ChatConstant.ERROR_MICROPHONE_NOT_AVAILABLE, ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE));
             }
+
+            @Override
+            public void onDeviceIsNear() {
+                listenerManager.callOnDeviceIsNear();
+            }
+
+            @Override
+            public void onDeviceGotFar() {
+                listenerManager.callOnDeviceGotFar();
+
+            }
         })
                 .setVideoCallParam(videoCallParam)
                 .setAudioCallParam(audioCallParam)
@@ -210,6 +221,17 @@ public class Chat extends ChatCore {
             @Override
             public void onMicrophoneIsNotAvailable(String message) {
                 captureError(new PodChatException(ChatConstant.ERROR_MICROPHONE_NOT_AVAILABLE, ChatConstant.ERROR_CODE_MICROPHONE_NOT_AVAILABLE));
+            }
+
+            @Override
+            public void onDeviceIsNear() {
+                listenerManager.callOnDeviceIsNear();
+            }
+
+            @Override
+            public void onDeviceGotFar() {
+                listenerManager.callOnDeviceGotFar();
+
             }
         })
                 .setVideoCallParam(videoCallParam)
@@ -585,7 +607,6 @@ public class Chat extends ChatCore {
         boolean isCallRecording = CallAsyncRequestsManager.checkIsCallIsRecording(info);
 
 
-
         for (ClientDTO client :
                 info.getResult().getOtherClientDtoList()) {
 
@@ -612,12 +633,12 @@ public class Chat extends ChatCore {
 
         }
 
-        if(hasScreenSharer){
+        if (hasScreenSharer) {
             ChatResponse<ScreenShareResult> sc = CallAsyncRequestsManager.handleOnScreenIsSharing(info);
             addScreenSharer(sc);
         }
 
-        if(isCallRecording){
+        if (isCallRecording) {
 
             ChatResponse<Participant> response
                     = CallAsyncRequestsManager.handleCallIsRecordingCallResponse(info);
@@ -1623,6 +1644,9 @@ public class Chat extends ChatCore {
         }
     }
 
+    public boolean isCameraOn() {
+        return podVideoCall != null && podVideoCall.isCameraOn();
+    }
 
     public String turnOnVideo(long callId) {
 

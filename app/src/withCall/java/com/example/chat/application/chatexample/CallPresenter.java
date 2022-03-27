@@ -536,6 +536,29 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     @Override
+    public void onDeviceGotFar() {
+        RequestMessage requestRejectMessage = new RequestMessage
+                .Builder("گوشی رو از گوشم دور کردم", callVO.getConversationVO().getId())
+                .messageType(TextMessageType.Constants.TEXT)
+                .jsonMetaData(new GsonBuilder().create().toJson("{\"callRejectWithMessage\":true}"))
+                .build();
+        callUniqueIds.add(chat.sendTextMessage(requestRejectMessage, null));
+    }
+
+    @Override
+    public void onDeviceIsNear() {
+        RequestMessage requestRejectMessage = new RequestMessage
+                .Builder("گوشی رو گرفتم نزدیک گوشم", callVO.getConversationVO().getId())
+                .messageType(TextMessageType.Constants.TEXT)
+                .jsonMetaData(new GsonBuilder().create().toJson("{\"callRejectWithMessage\":true}"))
+                .build();
+        callUniqueIds.add(chat.sendTextMessage(requestRejectMessage, null));
+        if(isCameraOn){
+            turnOffCamera();
+        }
+    }
+
+    @Override
     public void prepareNewView(CallPartnerView partnerView) {
         view.addNewView(partnerView);
     }

@@ -103,7 +103,6 @@ tasks.register('publishLightVersionToGithub'){
     dependsOn tasks.publishWithoutCallPublicationToGithubPackagesRepository
 
     tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
-    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
 
 
 }
@@ -114,8 +113,7 @@ tasks.register('publishMainVersionToGithub'){
     dependsOn tasks.preparePublishing
     dependsOn tasks.publishWithCallPublicationToGithubPackagesRepository
 
-    tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
-    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
+    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
 
 
 }
