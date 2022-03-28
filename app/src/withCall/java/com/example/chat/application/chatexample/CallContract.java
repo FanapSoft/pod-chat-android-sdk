@@ -226,6 +226,14 @@ public interface CallContract {
         default void onGetActiveCalls(List<CallWrapper> calls){}
 
         default void removeCallItem(CallWrapper call){}
+
+        default void showTurnOffIncomingVideosBtn(){}
+
+        default void hideTurnOnIncomingVideosBtn(){}
+
+        default void hideTurnOffIncomingVideosBtn(){}
+
+        default void showTurnOnIncomingVideosBtn(){}
     }
 
     interface presenter {
@@ -323,5 +331,9 @@ public interface CallContract {
         void requestGroupAudioCallByContactId(String callName, ArrayList<Long> selectContactIds);
 
         void requestGroupVideoCallByContactId(String callName, ArrayList<Long> selectContactIds);
+
+        void turnOnIncomingVideos();
+
+        void turnOffIncomingVideos();
     }
 }

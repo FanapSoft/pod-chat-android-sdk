@@ -1681,6 +1681,38 @@ public class Chat extends ChatCore {
 
     }
 
+    public void turnOffIncomingVideos(){
+        if(podVideoCall!=null){
+            podVideoCall.turnOffIncomingVideos();
+        }
+        if(viewPool!=null){
+            viewPool.hideAllAssignedViews();
+        }
+    }
+     public void turnOnIncomingVideos(){
+        if(podVideoCall!=null){
+            podVideoCall.turnOnIncomingVideos();
+        }
+         if(viewPool!=null){
+             viewPool.showAllAssignedViews();
+         }
+    }
+
+
+    public void turnOffIncomingVideo(CallParticipantVO callParticipant){
+        if(podVideoCall!=null){
+            podVideoCall.removePartnerVideo(callParticipant.getSendTopicVideo());
+        }
+    }
+    public void turnOnIncomingVideo(CallParticipantVO callParticipant){
+        if(podVideoCall!=null){
+            podVideoCall.addPartnerVideo(callParticipant.getSendTopicVideo());
+        }
+    }
+
+    public boolean isIncomingVideosOn(){
+        return podVideoCall!=null && podVideoCall.isIncomingVideosOn();
+    }
 
     private void removeCallPartner(String topic) {
         if (podVideoCall != null)

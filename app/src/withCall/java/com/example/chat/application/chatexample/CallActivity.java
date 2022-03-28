@@ -99,7 +99,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             buttonAddCallParticipant,
             imgBtnSwitchCamera,
             imgBtnTurnOnCam,
-            imgBtnTurnOffCam;
+            imgBtnTurnOffCam,
+            imgBtnTurnOffIncomingVideos,
+            imgBtnTurnOnIncomingVideos;
     ImageView imgViewCallerProfile, imgViewCallerProfileInCall;
     EditText etSandboxThreadId;
 
@@ -230,6 +232,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         imgBtnTurnOnCam.setOnClickListener(v -> presenter.turnOnCamera());
         imgBtnTurnOffCam.setOnClickListener(v -> presenter.turnOffCamera());
 
+        imgBtnTurnOnIncomingVideos.setOnClickListener(v -> presenter.turnOnIncomingVideos());
+        imgBtnTurnOffIncomingVideos.setOnClickListener(v -> presenter.turnOffIncomingVideos());
 
         View.OnClickListener cllPartnersListener = this::swapMainCallPartner;
 //        remoteCallPartner1.setOnClickListener(cllPartnersListener);
@@ -424,6 +428,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         imgBtnSwitchCamera = findViewById(R.id.imgBtnSwitchCamera);
         imgBtnTurnOnCam = findViewById(R.id.imgBtnTurnOnCam);
         imgBtnTurnOffCam = findViewById(R.id.imgBtnTurnOffCam);
+        imgBtnTurnOffIncomingVideos = findViewById(R.id.imgBtnTurnOffIncomingVideos);
+        imgBtnTurnOnIncomingVideos = findViewById(R.id.imgBtnTurnOnIncomingVideos);
 
         etSandboxThreadId = findViewById(R.id.etSandBoxPartnerId);
 
@@ -558,8 +564,10 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             imgBtnSwitchCamera.setVisibility(View.VISIBLE);
             imgBtnTurnOffCam.setVisibility(View.VISIBLE);
+            imgBtnTurnOffIncomingVideos.setVisibility(View.VISIBLE);
             constraintHolder.setVisibility(View.VISIBLE);
             imgBtnTurnOnCam.setVisibility(View.GONE);
+            imgBtnTurnOnIncomingVideos.setVisibility(View.GONE);
             imgViewCallerProfileInCall.setVisibility(View.GONE);
         });
     }
@@ -773,6 +781,26 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
                 recyclerViewAdapter.removeItem(call);
             }
         });
+    }
+
+    @Override
+    public void showTurnOffIncomingVideosBtn() {
+        imgBtnTurnOffIncomingVideos.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideTurnOnIncomingVideosBtn() {
+        imgBtnTurnOnIncomingVideos.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void hideTurnOffIncomingVideosBtn() {
+        imgBtnTurnOffIncomingVideos.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showTurnOnIncomingVideosBtn() {
+        imgBtnTurnOnIncomingVideos.setVisibility(View.VISIBLE);
     }
 
     @Override

@@ -70,6 +70,10 @@ public interface CallPartnerViewPoolUseCase {
 
         void unAssignScreenShareView();
 
+        void hideAllAssignedViews();
+
+        void showAllAssignedViews();
+
     }
 
 

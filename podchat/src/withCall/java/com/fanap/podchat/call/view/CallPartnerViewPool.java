@@ -3,9 +3,11 @@ package com.fanap.podchat.call.view;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.View;
 
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.chat.CallPartnerViewManager;
+import com.fanap.podchat.chat.MainThreadExecutor;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
@@ -168,6 +170,31 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
         return true;
     }
 
+    @Override
+    public void hideAllAssignedViews() {
+        checkIsMapInitialized();
+        for (CallPartnerView view :
+                getValidUserIdToViewMap().values()) {
+            new MainThreadExecutor()
+                    .execute(()->{
+                        view.setVisibility(View.GONE);
+                    });
+        }
+    }
+
+    @Override
+    public void showAllAssignedViews() {
+        checkIsMapInitialized();
+        for (CallPartnerView view :
+                getValidUserIdToViewMap().values()) {
+            new MainThreadExecutor()
+                    .execute(()->{
+                        if(view.getPartnerId()!=null && view.getPartnerId()>0){
+                            view.setVisibility(View.VISIBLE);
+                        }
+                    });
+        }
+    }
 
     private void checkIsListInitialized() {
         if (Util.isNullOrEmpty(partnerViewsPool)) {

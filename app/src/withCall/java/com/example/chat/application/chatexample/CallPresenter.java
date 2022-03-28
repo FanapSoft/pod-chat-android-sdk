@@ -536,6 +536,24 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     @Override
+    public void turnOnIncomingVideos() {
+        if(isInCall){
+            view.showTurnOffIncomingVideosBtn();
+            view.hideTurnOnIncomingVideosBtn();
+            chat.turnOnIncomingVideos();
+        }
+    }
+
+    @Override
+    public void turnOffIncomingVideos() {
+        if(isInCall){
+            view.hideTurnOffIncomingVideosBtn();
+            view.showTurnOnIncomingVideosBtn();
+            chat.turnOffIncomingVideos();
+        }
+    }
+
+    @Override
     public void onDeviceGotFar() {
         RequestMessage requestRejectMessage = new RequestMessage
                 .Builder("گوشی رو از گوشم دور کردم", callVO.getConversationVO().getId())

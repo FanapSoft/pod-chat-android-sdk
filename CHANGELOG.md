@@ -9,15 +9,27 @@ All notable changes to this project will be documented here.
 
 ### Added
 
+
  You could use following events and methods to be aware of camera is on, the device is near ( to the ear ) or the device got far ( from the ear ) : 
 
-- add ChatListener.onDeviceIsNear
-- add ChatListener.onDeviceGotFar
-- add Chat.isCameraOn
+- ChatListener.onDeviceIsNear
+- ChatListener.onDeviceGotFar
+- Chat.isCameraOn
+
+
+ Now you can turn all incoming streams or a specific call partner stream off and turn them on again
+
+- Chat.turnOffIncomingVideos
+- Chat.turnOnIncomingVideos
+- Chat.turnOffIncomingVideo
+- Chat.turnOnIncomingVideo
   
+- CallActivity.imgBtnTurnOffIncomingVideos
+- CallActivity.imgBtnTurnOnIncomingVideos 
+
 ### Changed
 
-- update podcall version to 3.7.2-SNAPSHOT
+- update podcall version to 3.7.7-SNAPSHOT
 
 
 
