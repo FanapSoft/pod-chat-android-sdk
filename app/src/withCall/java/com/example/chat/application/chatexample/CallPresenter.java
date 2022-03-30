@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -65,6 +66,7 @@ import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
 import com.fanap.podchat.call.result_model.LeaveCallResult;
 import com.fanap.podchat.call.result_model.MuteUnMuteCallParticipantResult;
 import com.fanap.podchat.call.result_model.RemoveFromCallResult;
+import com.fanap.podchat.call.setting.SettingFragment;
 import com.fanap.podchat.chat.CallPartnerViewManager;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
@@ -294,10 +296,54 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     }
 
+    @Override
+    public void updateCallConfig(VideoCallParam videoCallParam, AudioCallParam audioCallParam, ScreenShareParam screenShareParam) {
+
+        view.hideSettingFragment();
+        CallConfig callConfig = new CallConfig(CallActivity.class.getName());
+
+        checkCallPermissions();
+
+        VideoCallParam vc =
+                new VideoCallParam.Builder(cameraPreview)
+                        .setCamWidth(videoCallParam.getWidth())
+                        .setCamHeight(videoCallParam.getHeight())
+                        .setCamFPS(videoCallParam.getFps())
+                        .setVideoCodecType(VideoCodecType.VIDEO_CODEC_VP8)
+                        .setBitrate(videoCallParam.getBitrate())
+                        .setCameraId(videoCallParam.getCameraId())
+                        .build();
+
+        cameraId = vc.getCameraId();
+
+        chat.setupCall(vc, audioCallParam, screenShareParam, callConfig);
+
+    }
+
     private void checkCallPermissions() {
         if (CallPermissionHandler.needCameraAndRecordPermission(activity)) {
             CallPermissionHandler.requestPermission(activity, CALL_PERMISSION_REQUEST_CODE);
         }
+    }
+
+    @Override
+    public void showSetting() {
+        view.hideFabSetting();
+        view.hideFabContactButton();
+        SettingFragment fragment = new SettingFragment();
+        Bundle v = new Bundle();
+
+
+//        v.putParcelableArrayList("CONTACTS", contactsWrappers);
+        fragment.setArguments(v);
+
+        view.showSettingFragment(fragment);
+    }
+
+    @Override
+    public void hideSetting() {
+        view.showFabSetting();
+        view.showFabContact();
     }
 
     @Override
@@ -552,6 +598,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             chat.turnOffIncomingVideos();
         }
     }
+
 
     @Override
     public void onDeviceGotFar() {

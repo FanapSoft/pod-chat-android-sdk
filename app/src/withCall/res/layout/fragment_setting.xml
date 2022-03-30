@@ -1,0 +1,682 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey"
+    tools:context="com.fanap.podchat.call.setting.SettingFragment">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_video_setting" />
+
+
+            <TextView
+                android:id="@+id/tvTitleOfSetting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="تنظیمات تماس"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView"
+                app:layout_constraintEnd_toStartOf="@+id/imageView"
+                app:layout_constraintTop_toTopOf="@+id/imageView" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constVideoSetting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:background="@drawable/gradiant_back"
+                android:padding="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tvTitleOfSetting"
+                tools:layout_editor_absoluteX="8dp">
+
+                <TextView
+                    android:id="@+id/tvTitleOfVideoSetting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" تصویر"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="اندازه"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup"
+                    app:layout_constraintEnd_toEndOf="@+id/tvTitleOfVideoSetting"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView8"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTitleOfVideoSetting">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rb144"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="144*176"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="26dp"
+                        tools:layout_editor_absoluteY="39dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rb320"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="320*240"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="130dp"
+                        tools:layout_editor_absoluteY="39dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rb720"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:text="720*480"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="233dp"
+                        tools:layout_editor_absoluteY="39dp" />
+
+                </RadioGroup>
+
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="نرخ تصویربرداری( FPS )"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup2"
+                    app:layout_constraintEnd_toEndOf="@+id/textView8"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup2" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView9"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbFPS30"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:text="30"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="60dp"
+                        tools:layout_editor_absoluteY="103dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbFPS15"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="15"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="160dp"
+                        tools:layout_editor_absoluteY="103dp" />
+                </RadioGroup>
+
+
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="دوربین پیش فرض"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup3"
+                    app:layout_constraintEnd_toEndOf="@+id/textView9"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup3" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView10"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup2">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbDefaultCamFront"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:gravity="center|end"
+                        android:text="جلو"
+
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="184dp"
+                        tools:layout_editor_absoluteY="160dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbDefaultCamBack"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:gravity="center|end"
+                        android:text="پشت"
+
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="67dp"
+                        tools:layout_editor_absoluteY="160dp" />
+                </RadioGroup>
+
+
+                <TextView
+                    android:id="@+id/textView12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="کدک: VP8"
+                    android:textColor="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup3" />
+
+
+                <TextView
+                    android:id="@+id/textView11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="بیت ریت:"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup4"
+                    app:layout_constraintEnd_toEndOf="@+id/textView10"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup4" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView11"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView12">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbBitrate50"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+
+                        android:text="50k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="253dp"
+                        tools:layout_editor_absoluteY="223dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbBitrate90"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="90k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="182dp"
+                        tools:layout_editor_absoluteY="223dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbBitrate150"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="150k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="102dp"
+                        tools:layout_editor_absoluteY="223dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbBitrate300"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="300k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="24dp"
+                        tools:layout_editor_absoluteY="223dp" />
+                </RadioGroup>
+
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constAudioSetting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:background="@drawable/gradiant_back"
+                android:padding="8dp"
+                app:layout_constraintTop_toBottomOf="@id/constVideoSetting"
+                tools:layout_editor_absoluteX="8dp">
+
+
+                <TextView
+                    android:id="@+id/tvTitleOfAudioSetting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:text=" صدا"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/textView15"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="نرخ صدابرداری (فریم ریت):"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup6"
+                    app:layout_constraintEnd_toEndOf="@+id/textView14"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup6" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView15"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup5">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameRate8"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:text="8k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="178dp"
+                        tools:layout_editor_absoluteY="109dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameRate16"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="16k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="28dp"
+                        tools:layout_editor_absoluteY="109dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameRate12"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="12k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="103dp"
+                        tools:layout_editor_absoluteY="109dp" />
+                </RadioGroup>
+
+
+                <TextView
+                    android:id="@+id/textView14"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="اندازه فریم"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup5"
+                    app:layout_constraintEnd_toEndOf="@+id/tvTitleOfAudioSetting"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/radioGroup5"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup5" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView14"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTitleOfAudioSetting">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameSize5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="5"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="262dp"
+                        tools:layout_editor_absoluteY="47dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameSize10"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="10"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="202dp"
+                        tools:layout_editor_absoluteY="47dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameSize20"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="20"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="141dp"
+                        tools:layout_editor_absoluteY="47dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameSize40"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="40"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="81dp"
+                        tools:layout_editor_absoluteY="47dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioFrameSize60"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:text="60"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="21dp"
+                        tools:layout_editor_absoluteY="47dp" />
+
+                </RadioGroup>
+
+
+                <TextView
+                    android:id="@+id/textView16"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="بیت ریت"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup7"
+                    app:layout_constraintEnd_toEndOf="@+id/textView15"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup7" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup7"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView16"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup6">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioBitRate12"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="12k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="149dp"
+                        tools:layout_editor_absoluteY="173dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioBitRate16"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:text="16k"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="51dp"
+                        tools:layout_editor_absoluteY="173dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioBitRate8"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:text="8k"
+
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="248dp"
+                        tools:layout_editor_absoluteY="173dp" />
+
+                </RadioGroup>
+
+
+                <TextView
+                    android:id="@+id/textView13"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="تعداد کانال ها"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup8"
+                    app:layout_constraintEnd_toEndOf="@+id/textView16"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup8" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup8"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView13"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/radioGroup7">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioChannels2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:gravity="center|end"
+                        android:text="دو کاناله"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="61dp"
+                        tools:layout_editor_absoluteY="237dp" />
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbAudioChannels1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:gravity="center|end"
+
+                        android:text="تک کاناله"
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="187dp"
+                        tools:layout_editor_absoluteY="237dp" />
+                </RadioGroup>
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:background="@drawable/gradiant_back"
+                android:padding="8dp"
+                app:layout_constraintTop_toBottomOf="@id/constAudioSetting"
+                tools:layout_editor_absoluteX="8dp">
+
+                <TextView
+                    android:id="@+id/tvTitleOfScreenShareSetting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:text="اسکرین شیر"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/textView18"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="کیفیت"
+                    android:textColor="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/radioGroup9"
+                    app:layout_constraintEnd_toEndOf="@+id/tvTitleOfScreenShareSetting"
+                    app:layout_constraintTop_toTopOf="@+id/radioGroup9" />
+
+                <RadioGroup
+                    android:id="@+id/radioGroup9"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/textView18"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvTitleOfScreenShareSetting">
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbScreenShareHighQuality"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:gravity="center|end"
+                        android:text="زیاد"
+
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="90dp"
+                        tools:layout_editor_absoluteY="40dp" />
+
+
+                    <android.support.v7.widget.AppCompatRadioButton
+                        android:id="@+id/rbScreenShareLowQuality"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/white"
+                        android:checked="true"
+                        android:gravity="center|end"
+                        android:text="کم"
+
+                        android:textColor="@color/white"
+                        tools:layout_editor_absoluteX="224dp"
+                        tools:layout_editor_absoluteY="40dp" />
+                </RadioGroup>
+
+
+            </android.support.constraint.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
+        </android.support.constraint.ConstraintLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnUpdateSettings"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        android:translationZ="10dp"
+        android:background="@drawable/rounded_button_prim_dark"
+        android:text="بروزرسانی تنظیمات"
+        android:textColor="@color/white"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="32dp"
+        tools:targetApi="lollipop" />
+
+</FrameLayout>

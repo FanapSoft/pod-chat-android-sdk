@@ -3,7 +3,11 @@ package com.example.chat.application.chatexample;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.RestrictTo;
+import android.util.Pair;
 
+import com.fanap.podcall.audio.AudioCallParam;
+import com.fanap.podcall.model.VideoCallParam;
+import com.fanap.podcall.screenshare.model.ScreenShareParam;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.contacts.ContactsFragment;
 import com.fanap.podchat.call.contacts.ContactsWrapper;
@@ -11,6 +15,7 @@ import com.fanap.podchat.call.history.CallWrapper;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.setting.SettingFragment;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.chat.user.profile.ResultUpdateProfile;
 import com.fanap.podchat.mainmodel.Participant;
@@ -151,6 +156,9 @@ public interface CallContract {
 
         default void hideFabContactButton() {
         }
+        default void showFabSetting(){}
+
+        default void hideFabSetting(){}
 
         default void setInitState() {
         }
@@ -234,6 +242,10 @@ public interface CallContract {
         default void hideTurnOffIncomingVideosBtn(){}
 
         default void showTurnOnIncomingVideosBtn(){}
+
+        default void showSettingFragment(SettingFragment fragment){}
+
+        default void hideSettingFragment(){}
     }
 
     interface presenter {
@@ -335,5 +347,12 @@ public interface CallContract {
         void turnOnIncomingVideos();
 
         void turnOffIncomingVideos();
+
+
+        void showSetting();
+
+        void hideSetting();
+
+        void updateCallConfig(VideoCallParam videoCallParam, AudioCallParam audioCallParam, ScreenShareParam screenShareParam);
     }
 }

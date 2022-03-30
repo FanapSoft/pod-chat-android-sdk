@@ -27,6 +27,10 @@ All notable changes to this project will be documented here.
 - CallActivity.imgBtnTurnOffIncomingVideos
 - CallActivity.imgBtnTurnOnIncomingVideos 
 
+ It's possible to change call setting
+
+- SettingFragment
+
 ### Changed
 
 - update podcall version to 3.7.7-SNAPSHOT
