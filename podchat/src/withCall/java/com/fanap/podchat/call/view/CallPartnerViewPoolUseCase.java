@@ -59,6 +59,8 @@ public interface CallPartnerViewPoolUseCase {
 
         CallPartnerView getPartnerAssignedView(Long partnerUserId);
 
+        void changePartnerView(Long partnerUserId,CallPartnerView newView);
+
         CallPartnerView getScreenShareView();
 
 

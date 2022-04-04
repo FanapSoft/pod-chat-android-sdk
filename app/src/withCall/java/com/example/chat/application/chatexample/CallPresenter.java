@@ -118,7 +118,7 @@ import java.util.concurrent.TimeUnit;
 public class CallPresenter extends ChatAdapter implements CallContract.presenter, Application.ActivityLifecycleCallbacks, CallPartnerViewManager.IAutoGenerate {
 
     public static final int CALL_PERMISSION_REQUEST_CODE = 101;
-    public static final String GROUP_CALL_NAME_PREFIX =  "تماس گروهی ";
+    public static final String GROUP_CALL_NAME_PREFIX = "تماس گروهی ";
 
     private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
     public static final int SIGNAL_INTERVAL_TIME = 1000;
@@ -320,6 +320,21 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     }
 
+    @Override
+    public void onCallPartnerViewSelected(CallPartnerView secondPartnerView) {
+
+
+        if (isInCall) {
+            CallPartnerView mainPartnerView = remotePartnersViews.get(0);
+            Long mainPartnerId = mainPartnerView.getPartnerId();
+            Long secondPartnerId = secondPartnerView.getPartnerId();
+            chat.changePartnerView(secondPartnerId,mainPartnerView);
+            chat.changePartnerView(mainPartnerId, secondPartnerView);
+        }
+
+
+    }
+
     private void checkCallPermissions() {
         if (CallPermissionHandler.needCameraAndRecordPermission(activity)) {
             CallPermissionHandler.requestPermission(activity, CALL_PERMISSION_REQUEST_CODE);
@@ -435,13 +450,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             String name = getValidName(contact);
             view.updateTvCallee("داریم به " + name + " درخواست تماس می‌فرستیم...");
             view.showFabContact();
-            requestP2PCallWithContactId((int) contact.getId(), callType,contact.getFirstName() + " " + contact.getLastName());
+            requestP2PCallWithContactId((int) contact.getId(), callType, contact.getFirstName() + " " + contact.getLastName());
         }
 
 
     }
-
-
 
 
     private void inviteCallParticipant(ContactsWrapper contact) {
@@ -583,7 +596,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void turnOnIncomingVideos() {
-        if(isInCall){
+        if (isInCall) {
             view.showTurnOffIncomingVideosBtn();
             view.hideTurnOnIncomingVideosBtn();
             chat.turnOnIncomingVideos();
@@ -592,7 +605,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void turnOffIncomingVideos() {
-        if(isInCall){
+        if (isInCall) {
             view.hideTurnOffIncomingVideosBtn();
             view.showTurnOnIncomingVideosBtn();
             chat.turnOffIncomingVideos();
@@ -618,7 +631,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 .jsonMetaData(new GsonBuilder().create().toJson("{\"callRejectWithMessage\":true}"))
                 .build();
         callUniqueIds.add(chat.sendTextMessage(requestRejectMessage, null));
-        if(isCameraOn){
+        if (isCameraOn) {
             turnOffCamera();
         }
     }
@@ -784,7 +797,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         Contact c = chatResponse.getResult().getContact();
 
         view.showMessage(c.getFirstName() + " " + c.getLastName() + " " + c.getCellphoneNumber() + " " + c.getEmail()
-        + " " + (c.getLinkedUser()!=null?c.getLinkedUser().getName() + " " + c.getLinkedUser().getUsername():"") + " اضافه شد");
+                + " " + (c.getLinkedUser() != null ? c.getLinkedUser().getName() + " " + c.getLinkedUser().getUsername() : "") + " اضافه شد");
     }
 
 
@@ -1092,12 +1105,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         CallWrapper endedCallInList = null;
         for (CallWrapper callItem :
                 callsList) {
-            if(callItem.getId() == endedCallId){
+            if (callItem.getId() == endedCallId) {
                 endedCallInList = callItem;
                 break;
             }
         }
-        if(endedCallInList!=null){
+        if (endedCallInList != null) {
             view.removeCallItem(endedCallInList);
             endedCallInList.setCallItemType(CallWrapper.CallItemType.HISTORY);
             view.onGetCallHistory(Collections.singletonList(endedCallInList));
@@ -1124,7 +1137,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         for (CallVO call :
                 response.getResult().getCallsList()) {
 
-            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null){
+            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null) {
                 CallWrapper callWrapper = CallWrapper.fromCall(call);
                 callWrapper.setCallItemType(CallWrapper.CallItemType.HISTORY);
                 calls.add(callWrapper);
@@ -1133,7 +1146,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         }
 
-        if(callsList.size()>0){
+        if (callsList.size() > 0) {
             calls.removeAll(callsList);
         }
 
@@ -1149,7 +1162,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         for (CallVO call :
                 response.getResult().getCallsList()) {
 
-            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null){
+            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null) {
                 CallWrapper callWrapper = CallWrapper.fromCall(call);
                 callWrapper.setCallItemType(CallWrapper.CallItemType.ACTIVE);
                 calls.add(callWrapper);
@@ -1296,17 +1309,17 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         view.hideContactsFragment();
         view.showFabContact();
 
-        switch (idType){
-            case EditorInfo.TYPE_CLASS_PHONE:{
-                chat.addContact(name,lastName,id,null,"default",null);
+        switch (idType) {
+            case EditorInfo.TYPE_CLASS_PHONE: {
+                chat.addContact(name, lastName, id, null, "default", null);
                 break;
             }
-            case EditorInfo.TYPE_CLASS_TEXT:{
-                chat.addContact(name,lastName,null,null,"default",id);
+            case EditorInfo.TYPE_CLASS_TEXT: {
+                chat.addContact(name, lastName, null, null, "default", id);
                 break;
             }
-            case EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS:{
-                chat.addContact(name,lastName,null,id,"default",null);
+            case EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS: {
+                chat.addContact(name, lastName, null, id, "default", null);
                 break;
             }
         }
@@ -1461,12 +1474,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void requestAudioCall(CallWrapper call) {
 
         if (chat.isChatReady()) {
-            if(call.getCallItemType() == CallWrapper.CallItemType.ACTIVE){
+            if (call.getCallItemType() == CallWrapper.CallItemType.ACTIVE) {
                 initCallVoByCallWrapper(call);
                 acceptIncomingCallWithAudio();
                 callsList.remove(call);
                 view.removeCallItem(call);
-            }else requestP2PCall(call, CallType.Constants.VOICE_CALL);
+            } else requestP2PCall(call, CallType.Constants.VOICE_CALL);
         } else {
             view.showMessage("Chat is not ready...");
         }
@@ -1477,12 +1490,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void requestVideoCall(CallWrapper call) {
         if (chat.isChatReady()) {
-            if(call.getCallItemType() == CallWrapper.CallItemType.ACTIVE){
+            if (call.getCallItemType() == CallWrapper.CallItemType.ACTIVE) {
                 initCallVoByCallWrapper(call);
                 acceptIncomingCallWithVideo();
                 callsList.remove(call);
                 view.removeCallItem(call);
-            }else requestP2PCall(call, CallType.Constants.VIDEO_CALL);
+            } else requestP2PCall(call, CallType.Constants.VIDEO_CALL);
         } else {
             view.showMessage("Chat is not ready...");
         }
@@ -1491,12 +1504,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     private void initCallVoByCallWrapper(CallWrapper call) {
 
-            callVO = new CreateCallVO();
-            callVO.setCallId(call.getId());
-            callVO.setGroup(call.isGroup());
-            callVO.setConversationVO(call.getConversationVO());
-            callVO.setCreatorId(call.getCreatorId());
-            callVO.setType(call.getType());
+        callVO = new CreateCallVO();
+        callVO.setCallId(call.getId());
+        callVO.setGroup(call.isGroup());
+        callVO.setConversationVO(call.getConversationVO());
+        callVO.setCreatorId(call.getCreatorId());
+        callVO.setType(call.getType());
 
 
     }
@@ -1508,7 +1521,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             int cId = (int) call.getPartnerParticipantVO().getContactId();
             int uId = (int) call.getPartnerParticipantVO().getId();
             if (cId > 0) {
-                requestP2PCallWithContactId(cId, callType,call.getPartnerParticipantVO().getName());
+                requestP2PCallWithContactId(cId, callType, call.getPartnerParticipantVO().getName());
 
             } else if (uId > 0) {
                 requestP2PCallWithUserId(uId, callType);
@@ -1565,7 +1578,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 invitees,
                 callType)
                 .setTitle(GROUP_CALL_NAME_PREFIX + contactId)
-                .setDescription("Generated at "+new Date().toString())
+                .setDescription("Generated at " + new Date().toString())
                 .build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
@@ -1604,7 +1617,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 invitees,
                 callType)
                 .setTitle(GROUP_CALL_NAME_PREFIX + contactName)
-                .setDescription("Generated at "+new Date().toString())
+                .setDescription("Generated at " + new Date().toString())
                 .build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
@@ -1624,7 +1637,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 threadId,
                 callType)
                 .setTitle(GROUP_CALL_NAME_PREFIX + " " + threadId)
-                .setDescription("Generated at "+new Date().toString())
+                .setDescription("Generated at " + new Date().toString())
                 .build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
@@ -1705,7 +1718,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                                 invitees,
                                 BASE_CALL_TYPE)
                                 .setTitle(GROUP_CALL_NAME_PREFIX + ids)
-                                .setDescription("Generated at "+new Date().toString())
+                                .setDescription("Generated at " + new Date().toString())
                                 .build();
                         uniqueId = chat.requestGroupCall(callRequest);
 
@@ -1720,7 +1733,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                             Long.parseLong(query),
                             BASE_CALL_TYPE)
                             .setTitle(GROUP_CALL_NAME_PREFIX + query)
-                            .setDescription("Generated at "+new Date().toString())
+                            .setDescription("Generated at " + new Date().toString())
                             .build();
                     if (isGroupCall) {
                         uniqueId = chat.requestGroupCall(callRequest);

@@ -75,10 +75,8 @@ import com.fanap.podchat.util.PodChatException;
 import com.fanap.podchat.util.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 
 public class Chat extends ChatCore {
 
@@ -560,7 +558,7 @@ public class Chat extends ChatCore {
             if (Util.isNotNullOrEmpty(info.getResult().getOtherClientDtoList())) {
                 prepareRemotePartnersByClientDTOList(info);
             } else {
-                if (prepareRemotePartnersByReceiveTopic(info)) return;
+               captureError(new PodChatException("Util.isNotNullOrEmpty(info.getResult().getOtherClientDtoList()) == false",ChatConstant.ERROR_CODE_INVALID_DATA));
             }
 
 
@@ -615,17 +613,22 @@ public class Chat extends ChatCore {
             if (!client.getUserId().equals(CoreConfig.userId)) {
 
                 CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
+                rPartnerBuilder.setId(client.getUserId());
                 rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
                         .setName("" + client.getUserId());
+                rPartnerBuilder.setVideoTopic(client.getTopicSendVideo());
+                rPartnerBuilder.setHasVideo(Util.isNotNullOrEmpty(client.getTopicSendVideo()));
+                rPartnerBuilder.setVideoOn(client.getVideo());
 
                 if (client.getVideo() && hasRemotePartnerView()) {
-                    visibleView(assignCallPartnerView(client.getUserId()));
-                    getCallPartnerView(client.getUserId()).setPartnerId(client.getUserId());
-                    rPartnerBuilder.setVideoTopic(client.getTopicSendVideo());
-                    rPartnerBuilder.setVideoView(getCallPartnerView(client.getUserId()));
+                    CallPartnerView view = assignCallPartnerView(client.getUserId());
+                    visibleView(view);
+                    rPartnerBuilder.setVideoView(view);
                 }
 
                 rPartnerBuilder.setAudioTopic(client.getTopicSendAudio());
+                rPartnerBuilder.setHasAudio(Util.isNotNullOrEmpty(client.getTopicSendAudio()));
+                rPartnerBuilder.setAudioOn(!client.getMute());
                 CallPartner rPartner = rPartnerBuilder.build();
                 podVideoCall.addPartner(rPartner);
 
@@ -654,97 +657,7 @@ public class Chat extends ChatCore {
 
     }
 
-    private void prepareRemotePartnersByCallParticipantVO(List<CallParticipantVO> callClientList) {
 
-        for (CallParticipantVO callParticipant :
-                callClientList) {
-
-            if (callParticipant.getUserId() == 0) continue;
-
-            if (!callParticipant.getUserId().equals(CoreConfig.userId)) {
-
-                CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
-                rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
-                        .setName("" + callParticipant.getUserId());
-
-                if (callParticipant.hasVideo() && hasRemotePartnerView()) {
-                    visibleView(assignCallPartnerView(callParticipant.getUserId()));
-                    getCallPartnerView(callParticipant.getUserId()).setPartnerId(callParticipant.getUserId());
-                    getCallPartnerView(callParticipant.getUserId()).setPartnerName(callParticipant.getParticipantVO() != null ? callParticipant.getParticipantVO().getName() : "");
-                    rPartnerBuilder
-                            .setVideoTopic(callParticipant.getSendTopicVideo())
-                            .setVideoView(getCallPartnerView(callParticipant.getUserId()));
-                }
-                rPartnerBuilder.setAudioTopic(callParticipant.getSendTopicAudio());
-                CallPartner rPartner = rPartnerBuilder.build();
-                podVideoCall.addPartner(rPartner);
-
-            }
-
-        }
-    }
-
-
-    //deprecated and will remove soon
-    @Deprecated
-    private boolean prepareRemotePartnersByReceiveTopic(ChatResponse<StartedCallModel> info) {
-        String receiveTopic = info.getResult().getClientDTO().getTopicReceive();
-        List<String> receiveList = Arrays.asList(receiveTopic.split(","));
-        if (Util.isNullOrEmpty(receiveList)) {
-            captureError(new PodChatException(ChatConstant.ERROR_INVALID_DATA, ChatConstant.ERROR_CODE_INVALID_DATA));
-            return true;
-        }
-        if (receiveList.size() == 1) {
-            String receiveVideoTopic = info.getResult().getClientDTO().getTopicReceiveVideo();
-            String receiveAudioTopic = info.getResult().getClientDTO().getTopicReceiveAudio();
-            Boolean hasVideo = info.getResult().getClientDTO().getVideo();
-            CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
-            rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
-                    .setName(info.getResult().getClientDTO().getSendKey() + "" + receiveVideoTopic);
-            if (hasVideo && hasRemotePartnerView()) {
-                int randomId = new Random().nextInt();
-
-                visibleView(assignCallPartnerView(randomId));
-                rPartnerBuilder
-                        .setVideoTopic(receiveVideoTopic)
-                        .setVideoView(getCallPartnerView(randomId));
-                rPartnerBuilder.setId(randomId);
-            }
-            rPartnerBuilder.setAudioTopic(receiveAudioTopic);
-            CallPartner rPartner = rPartnerBuilder.build();
-            podVideoCall.addPartner(rPartner);
-        } else {
-            for (String topic :
-                    receiveList) {
-                addCallPartnerByTopicOnly(topic);
-            }
-        }
-        return false;
-    }
-
-
-    private void addCallPartnerByTopicOnly(String receiveTopic) {
-
-
-        String receiveVideoTopic = "Vi-" + receiveTopic;
-        String receiveAudioTopic = "Vo-" + receiveTopic;
-        boolean hasVideo = true; // todo fix later
-
-        CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
-        rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
-                .setName(receiveTopic + ":" + System.currentTimeMillis());
-        if (hasVideo && hasRemotePartnerView()) {
-            int randomId = new Random().nextInt();
-            visibleView(assignCallPartnerView(randomId));
-            rPartnerBuilder
-                    .setVideoTopic(receiveVideoTopic)
-                    .setVideoView(getCallPartnerView(randomId));
-            rPartnerBuilder.setId(randomId);
-        }
-        rPartnerBuilder.setAudioTopic(receiveAudioTopic);
-        CallPartner rPartner = rPartnerBuilder.build();
-        podVideoCall.addPartner(rPartner);
-    }
 
     /**
      * @param request request to start call recording
@@ -926,6 +839,16 @@ public class Chat extends ChatCore {
         return callPartnerViewManger;
     }
 
+    public void changePartnerView(Long partnerUserId,CallPartnerView newView){
+        if(podVideoCall!=null){
+            podVideoCall.updatePartnerSurface(partnerUserId,newView);
+            if (viewPool != null){
+                viewPool.changePartnerView(partnerUserId,newView);
+            }
+        }
+
+    }
+
     private void deliverCallRequest(ChatMessage chatMessage) {
 
         if (chatReady) {
@@ -1088,11 +1011,39 @@ public class Chat extends ChatCore {
 
             ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
 
-//        audioCallManager.addCallParticipant(response);
-
             if (podVideoCall != null)
-                prepareRemotePartnersByCallParticipantVO(response.getResult().getJoinedParticipants());
+            {
+                for (CallParticipantVO callParticipant :
+                        response.getResult().getJoinedParticipants()) {
 
+                    if (callParticipant.getUserId() == 0) continue;
+
+                    if (!callParticipant.getUserId().equals(CoreConfig.userId)) {
+
+                        CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
+                        rPartnerBuilder.setId(callParticipant.getUserId());
+                        rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
+                                .setName("" + callParticipant.getUserId());
+                        rPartnerBuilder.setVideoTopic(callParticipant.getSendTopicVideo());
+                        rPartnerBuilder.setHasVideo(Util.isNotNullOrEmpty(callParticipant.getSendTopicVideo()));
+                        rPartnerBuilder.setVideoOn(callParticipant.hasVideo());
+
+                        if (callParticipant.hasVideo() && hasRemotePartnerView()) {
+                            CallPartnerView view = assignCallPartnerView(callParticipant.getUserId());
+                            visibleView(view);
+                            view.setPartnerName(callParticipant.getParticipantVO() != null ? callParticipant.getParticipantVO().getName() : "");
+                            rPartnerBuilder.setVideoView(view);
+                        }
+                        rPartnerBuilder.setAudioTopic(callParticipant.getSendTopicAudio());
+                        rPartnerBuilder.setHasAudio(Util.isNotNullOrEmpty(callParticipant.getSendTopicAudio()));
+                        rPartnerBuilder.setAudioOn(!callParticipant.isMute());
+                        CallPartner rPartner = rPartnerBuilder.build();
+                        podVideoCall.addPartner(rPartner);
+
+                    }
+
+                }
+            }
             listenerManager.callOnCallParticipantJoined(response);
         }
     }
@@ -1278,6 +1229,7 @@ public class Chat extends ChatCore {
             CallPartner rPartner = new CallPartner.Builder()
                     .setPartnerType(PartnerType.REMOTE)
                     .setName("Screen Sharer:" + response.getResult().getScreenOwner().getUserId())
+                    .setId(response.getResult().getScreenOwner().getUserId())
                     .setVideoTopic(response.getResult().getScreenShare())
                     .setVideoView(getShareScreenView())
                     .build();
@@ -1701,12 +1653,12 @@ public class Chat extends ChatCore {
 
     public void turnOffIncomingVideo(CallParticipantVO callParticipant){
         if(podVideoCall!=null){
-            podVideoCall.removePartnerVideo(callParticipant.getSendTopicVideo());
+            podVideoCall.removePartnerVideo(callParticipant.getUserId());
         }
     }
     public void turnOnIncomingVideo(CallParticipantVO callParticipant){
         if(podVideoCall!=null){
-            podVideoCall.addPartnerVideo(callParticipant.getSendTopicVideo());
+            podVideoCall.addPartnerVideo(callParticipant.getUserId());
         }
     }
 
@@ -1758,23 +1710,14 @@ public class Chat extends ChatCore {
                 //todo fire an event for local partner
 
             } else {
-
-                String receiveVideoTopic = callParticipant.getSendTopicVideo();
-
-                CallPartner.Builder rPartnerBuilder = new CallPartner.Builder();
-
-                rPartnerBuilder.setPartnerType(PartnerType.REMOTE)
-                        .setName(receiveVideoTopic + ":" + System.currentTimeMillis());
-
-                if (hasRemotePartnerView()) {
-                    visibleView(assignCallPartnerView(callParticipant.getUserId()));
-                    getCallPartnerView(callParticipant.getUserId()).setPartnerId(callParticipant.getUserId());
-                    getCallPartnerView(callParticipant.getUserId()).setPartnerName(callParticipant.getParticipantVO() != null ? callParticipant.getParticipantVO().getName() : "");
-                    rPartnerBuilder.setVideoTopic(receiveVideoTopic).setVideoView(getCallPartnerView(callParticipant.getUserId()));
+                Long userId = callParticipant.getUserId();
+                if(hasRemotePartnerView()){
+                    CallPartnerView view = assignCallPartnerView(callParticipant.getUserId());
+                    view.setPartnerName(callParticipant.getParticipantVO() != null ? callParticipant.getParticipantVO().getName() : "");
+                    visibleView(view);
+                    podVideoCall.addPartnerVideo(userId,view);
+                    listenerManager.callOnCallParticipantStartedVideo(response);
                 }
-                podVideoCall.addPartner(rPartnerBuilder.build());
-                //todo fire an event for local partner
-                listenerManager.callOnCallParticipantStartedVideo(response);
             }
         }
 
@@ -1784,23 +1727,14 @@ public class Chat extends ChatCore {
 
     private void removeVideoCallPartner(ChatResponse<JoinCallParticipantResult> response) {
 
-
         for (CallParticipantVO callParticipant :
                 response.getResult().getJoinedParticipants()) {
-            String topic = callParticipant.getSendTopicVideo();
-            if (Util.isNotNullOrEmpty(topic)) {
-                CallPartner rPartner = new CallPartner.Builder()
-                        .setPartnerType(PartnerType.REMOTE)
-                        .setName(callParticipant.getSendTopicVideo() + " ")
-                        .setVideoTopic(topic)
-                        .build();
-                podVideoCall.removePartner(rPartner);
-                unAssignPartnerViewFrom(callParticipant.getUserId());
+            Long userId = callParticipant.getUserId();
+            if(podVideoCall!=null){
+                podVideoCall.removePartnerVideo(userId);
             }
-
+            unAssignPartnerViewFrom(callParticipant.getUserId());
         }
-
-
     }
 
     boolean hasRemotePartnerView() {

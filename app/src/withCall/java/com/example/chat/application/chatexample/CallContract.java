@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.RestrictTo;
 import android.util.Pair;
+import android.view.View;
 
 import com.fanap.podcall.audio.AudioCallParam;
 import com.fanap.podcall.model.VideoCallParam;
@@ -354,5 +355,7 @@ public interface CallContract {
         void hideSetting();
 
         void updateCallConfig(VideoCallParam videoCallParam, AudioCallParam audioCallParam, ScreenShareParam screenShareParam);
+
+        void onCallPartnerViewSelected(CallPartnerView v);
     }
 }

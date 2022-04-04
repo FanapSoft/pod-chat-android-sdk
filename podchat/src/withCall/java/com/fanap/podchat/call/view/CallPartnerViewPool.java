@@ -84,7 +84,15 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
         }
         return null;
     }
-
+    void visibleView(View view) {
+        new MainThreadExecutor()
+                .execute(() -> {
+                    if (view != null) {
+                        if (view.getVisibility() != View.VISIBLE)
+                            view.setVisibility(View.VISIBLE);
+                    }
+                });
+    }
 
     @Override
     public CallPartnerView assignScreenShareView() throws NullPointerException {
@@ -176,7 +184,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
         for (CallPartnerView view :
                 getValidUserIdToViewMap().values()) {
             new MainThreadExecutor()
-                    .execute(()->{
+                    .execute(() -> {
                         view.setVisibility(View.GONE);
                     });
         }
@@ -188,8 +196,8 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
         for (CallPartnerView view :
                 getValidUserIdToViewMap().values()) {
             new MainThreadExecutor()
-                    .execute(()->{
-                        if(view.getPartnerId()!=null && view.getPartnerId()>0){
+                    .execute(() -> {
+                        if (view.getPartnerId() != null && view.getPartnerId() > 0) {
                             view.setVisibility(View.VISIBLE);
                         }
                     });
@@ -237,6 +245,17 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
             return getValidUserIdToViewMap().get(partnerUserId);
         }
         return null;
+    }
+
+    @Override
+    public void changePartnerView(Long partnerUserId, CallPartnerView newView) {
+        checkIsMapInitialized();
+        CallPartnerView oldView = getPartnerAssignedView(partnerUserId);
+        if (oldView != null) {
+            releasePartnerView(partnerUserId);
+        }
+        newView.setPartnerId(partnerUserId);
+        getValidUserIdToViewMap().put(partnerUserId, newView);
     }
 
     @Nullable

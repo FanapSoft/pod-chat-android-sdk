@@ -244,7 +244,7 @@ SettingFragment.ISettingFragment{
         imgBtnTurnOnIncomingVideos.setOnClickListener(v -> presenter.turnOnIncomingVideos());
         imgBtnTurnOffIncomingVideos.setOnClickListener(v -> presenter.turnOffIncomingVideos());
 
-        View.OnClickListener cllPartnersListener = this::swapMainCallPartner;
+        View.OnClickListener cllPartnersListener = v -> presenter.onCallPartnerViewSelected((CallPartnerView) v);
 //        remoteCallPartner1.setOnClickListener(cllPartnersListener);
         remoteCallPartner2.setOnClickListener(cllPartnersListener);
         remoteCallPartner3.setOnClickListener(cllPartnersListener);
@@ -268,7 +268,7 @@ SettingFragment.ISettingFragment{
         presenter.terminateCall();
     }
 
-    private void swapMainCallPartner(View v) {
+    private void swapMainCallPartner(CallPartnerView v) {
 
         Boolean swapped = (Boolean) v.getTag();
 
@@ -1129,7 +1129,9 @@ SettingFragment.ISettingFragment{
         if (fabContacts != null) {
             hideFabContact();
         }
-        hideFabSetting();
+        if(fabSetting!=null){
+            hideFabSetting();
+        }
 
         LoginFragment loginFragment = new LoginFragment();
 

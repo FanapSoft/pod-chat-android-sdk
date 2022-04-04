@@ -61,6 +61,7 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
         return pool.getScreenShareView();
     }
 
+    @Nullable
     @Override
     public CallPartnerView getPartnerAssignedView(Long partnerUserId) {
         return pool.getPartnerAssignedView(partnerUserId);
@@ -114,8 +115,10 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
     @Override
     public void showPartnerName(Long userId, String name) {
         CallPartnerView pw = getPartnerAssignedView(userId);
-        pw.setDisplayName(true);
-        pw.setPartnerName(name);
+        if (pw != null) {
+            pw.setDisplayName(true);
+            pw.setPartnerName(name);
+        }
     }
 
     @UiThread
