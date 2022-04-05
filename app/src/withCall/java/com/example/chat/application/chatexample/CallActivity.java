@@ -1238,7 +1238,10 @@ SettingFragment.ISettingFragment{
 
     @Override
     public void hideContactsFragment() {
-
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            hideFragmentByTag("CFRAG");
+        }
     }
 
     @Override
