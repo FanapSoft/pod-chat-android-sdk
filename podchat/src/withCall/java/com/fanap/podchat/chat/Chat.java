@@ -839,12 +839,16 @@ public class Chat extends ChatCore {
         return callPartnerViewManger;
     }
 
-    public void changePartnerView(Long partnerUserId,CallPartnerView newView){
+    public void setPartnerView(Long partnerUserId, CallPartnerView newView){
         if(podVideoCall!=null){
-            podVideoCall.updatePartnerSurface(partnerUserId,newView);
             if (viewPool != null){
-                viewPool.changePartnerView(partnerUserId,newView);
+                if(viewPool.isScreenShareViewChanging(partnerUserId,newView)){
+                    captureError(new PodChatException("It's not possible to change screen share view during call",ChatConstant.ERROR_CODE_INVALID_REQUEST));
+                    return;
+                }
+                viewPool.setPartnerView(partnerUserId,newView);
             }
+            podVideoCall.updatePartnerSurface(partnerUserId,newView);
         }
 
     }
@@ -1229,11 +1233,12 @@ public class Chat extends ChatCore {
             CallPartner rPartner = new CallPartner.Builder()
                     .setPartnerType(PartnerType.REMOTE)
                     .setName("Screen Sharer:" + response.getResult().getScreenOwner().getUserId())
-                    .setId(response.getResult().getScreenOwner().getUserId())
+                    .setId(CallPartnerViewPool.SCREEN_SHARE_ID)
                     .setVideoTopic(response.getResult().getScreenShare())
                     .setVideoView(getShareScreenView())
                     .build();
-
+            rPartner.setHasVideo(Util.isNotNullOrEmpty(response.getResult().getScreenShare()));
+            rPartner.setVideoOn(true);
             podVideoCall.addPartner(rPartner);
             listenerManager.callOnCallParticipantSharedScreen(response);
         }

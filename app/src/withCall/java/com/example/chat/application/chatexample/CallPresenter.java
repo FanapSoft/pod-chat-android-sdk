@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -328,8 +327,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             CallPartnerView mainPartnerView = remotePartnersViews.get(0);
             Long mainPartnerId = mainPartnerView.getPartnerId();
             Long secondPartnerId = secondPartnerView.getPartnerId();
-            chat.changePartnerView(secondPartnerId,mainPartnerView);
-            chat.changePartnerView(mainPartnerId, secondPartnerView);
+            chat.setPartnerView(secondPartnerId,mainPartnerView);
+            chat.setPartnerView(mainPartnerId, secondPartnerView);
         }
 
 

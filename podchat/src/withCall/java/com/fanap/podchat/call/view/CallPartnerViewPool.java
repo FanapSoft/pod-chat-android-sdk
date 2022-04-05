@@ -23,6 +23,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
 
 
     public static final Long SCREEN_SHARE_ID = 10010101L;
+    public static final Long NOT_ASSIGNED = 0L;
 
     private CallPartnerViewManager.IAutoGenerate autoGenerateCallback;
 
@@ -162,6 +163,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
     @Override
     public void setAsScreenShareView(@NonNull CallPartnerView screenShareView) {
         this.screenShareView = screenShareView;
+        this.screenShareView.setPartnerId(SCREEN_SHARE_ID);
         checkIsMapInitialized();
         getValidUserIdToViewMap().put(SCREEN_SHARE_ID, screenShareView);
         checkIsListInitialized();
@@ -197,7 +199,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
                 getValidUserIdToViewMap().values()) {
             new MainThreadExecutor()
                     .execute(() -> {
-                        if (view.getPartnerId() != null && view.getPartnerId() > 0) {
+                        if (view.getPartnerId() != null && !view.getPartnerId().equals(NOT_ASSIGNED)) {
                             view.setVisibility(View.VISIBLE);
                         }
                     });
@@ -248,7 +250,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
     }
 
     @Override
-    public void changePartnerView(Long partnerUserId, CallPartnerView newView) {
+    public void setPartnerView(Long partnerUserId, CallPartnerView newView) {
         checkIsMapInitialized();
         CallPartnerView oldView = getPartnerAssignedView(partnerUserId);
         if (oldView != null) {
@@ -256,6 +258,13 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
         }
         newView.setPartnerId(partnerUserId);
         getValidUserIdToViewMap().put(partnerUserId, newView);
+    }
+
+    @Override
+    public boolean isScreenShareViewChanging(Long partnerUserId, CallPartnerView newView) {
+
+      return (screenShareView!=null&&newView==screenShareView) || partnerUserId.equals(SCREEN_SHARE_ID);
+
     }
 
     @Nullable
