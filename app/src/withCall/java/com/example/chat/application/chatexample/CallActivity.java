@@ -73,7 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CallActivity extends AppCompatActivity implements CallContract.view,
         LoginFragment.ILoginInterface,
         ContactsFragment.IContactsFragment,
-SettingFragment.ISettingFragment{
+        SettingFragment.ISettingFragment {
 
 
     private static final String TAG = "CHAT_SDK_CALL";
@@ -677,13 +677,21 @@ SettingFragment.ISettingFragment{
     @Override
     public void showFabSetting() {
         if (inCallView.getVisibility() != View.VISIBLE) {
-            runOnUiThread(() -> fabSetting.show());
+            runOnUiThread(() -> {
+                        if (fabSetting != null) {
+                            fabSetting.show();
+                        }
+                    });
         }
     }
 
     @Override
     public void hideFabSetting() {
-        runOnUiThread(() -> fabSetting.hide());
+        runOnUiThread(() -> {
+            if (fabSetting != null) {
+                fabSetting.hide();
+            }
+        });
 
     }
 
@@ -1048,7 +1056,7 @@ SettingFragment.ISettingFragment{
     }
 
     @Override
-    public void showSettingFragment(SettingFragment fragment){
+    public void showSettingFragment(SettingFragment fragment) {
         runOnUiThread(() -> {
             if (getSupportFragmentManager().findFragmentByTag("SFRAG") == null) {
                 hideFabs();
@@ -1393,7 +1401,7 @@ SettingFragment.ISettingFragment{
     @Override
     public void onSettingChanged(VideoCallParam videoCallParam, AudioCallParam audioCallParam, ScreenShareParam screenShareParam) {
         presenter.updateCallConfig(
-                videoCallParam,audioCallParam,screenShareParam
+                videoCallParam, audioCallParam, screenShareParam
         );
     }
 }
