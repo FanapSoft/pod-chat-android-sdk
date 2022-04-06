@@ -357,5 +357,7 @@ public interface CallContract {
         void updateCallConfig(VideoCallParam videoCallParam, AudioCallParam audioCallParam, ScreenShareParam screenShareParam);
 
         void onCallPartnerViewSelected(CallPartnerView v);
+
+        void onCallPartnerViewLongClicked(CallPartnerView v);
     }
 }

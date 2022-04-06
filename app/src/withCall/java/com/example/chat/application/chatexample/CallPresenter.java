@@ -111,6 +111,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 
@@ -332,6 +333,19 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         }
 
 
+    }
+
+    @Override
+    public void onCallPartnerViewLongClicked(CallPartnerView v) {
+        if (isInCall) {
+            CallParticipantVO p = new CallParticipantVO();
+            p.setUserId(v.getPartnerId());
+            chat.turnOffIncomingVideo(p);
+            if (cpvManager != null) {
+                v.setPartnerId(0L);
+                v.setVisibility(View.GONE);
+            }
+        }
     }
 
     private void checkCallPermissions() {
@@ -1969,11 +1983,28 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response) {
         try {
-            if (response.getResult().getJoinedParticipants().get(0).getParticipantVO().getId() == remotePartnersViews.get(0).getPartnerId()) {
-                view.showRemoteViews();
+//            if (response.getResult().getJoinedParticipants().get(0).getParticipantVO().getId() == remotePartnersViews.get(0).getPartnerId()) {
+//                view.showRemoteViews();
+//            }
+
+            if(cpvManager!=null){
+                CallParticipantVO callParticipant =
+                        response.getResult()
+                                .getJoinedParticipants().get(0);
+
+                new MainThreadExecutor()
+                        .execute(()->{
+                            try {
+                                Objects.requireNonNull(cpvManager.getPartnerAssignedView(callParticipant.getUserId()))
+                                        .setVisibility(View.VISIBLE);
+                                cpvManager.showPartnerName(callParticipant.getUserId(),callParticipant.getParticipantVO().getName());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
             }
             view.showMessage(response.getResult().getJoinedParticipants().get(0).getParticipantVO().getName() + " الان تصویر داره!");
-            setNameOnView(response.getResult().getJoinedParticipants());
+
         } catch (Exception e) {
             view.onError(e.getMessage());
         }
@@ -2105,5 +2136,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onNewViewGenerated(CallPartnerView callPartnerView) {
         view.addNewView(callPartnerView);
+    }
+
+    @Override
+    public void onMaximumViewNumberReached() {
+        view.showMessage("Maximum View Number Reached");
     }
 }

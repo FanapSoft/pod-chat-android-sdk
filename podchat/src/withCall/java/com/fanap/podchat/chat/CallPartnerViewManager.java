@@ -16,6 +16,7 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
 
     public interface IAutoGenerate {
         void onNewViewGenerated(CallPartnerView callPartnerView);
+        void onMaximumViewNumberReached();
     }
 
 
@@ -47,6 +48,11 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
     }
 
     @Override
+    public void setViewGenerationMax(int viewGenerationMax) {
+        pool.setViewGenerationMax(viewGenerationMax);
+    }
+
+    @Override
     public void setAsScreenShareView(@NonNull CallPartnerView screenShareView) {
         pool.setAsScreenShareView(screenShareView);
     }
@@ -75,19 +81,27 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
 
     @Override
     public void setAutoGenerateCallback(IAutoGenerate callback) {
-        pool.setAutoGenerateCallback((view) ->
-                new MainThreadExecutor().execute(() ->
-                        callback.onNewViewGenerated(view)));
+        pool.setAutoGenerateCallback(new IAutoGenerate() {
+            @Override
+            public void onNewViewGenerated(CallPartnerView callPartnerView) {
+                new MainThreadExecutor().execute(() -> callback.onNewViewGenerated(callPartnerView));
+            }
+
+            @Override
+            public void onMaximumViewNumberReached() {
+                callback.onMaximumViewNumberReached();
+            }
+        });
     }
 
 
     @UiThread
     @Override
     public void releasePartnerView(Long partnerUserId) {
-        CallPartnerView partnerView = getPartnerUnAssignedView(partnerUserId);
+        CallPartnerView partnerView = getPartnerUnAssignedView(partnerUserId) != null?getPartnerUnAssignedView(partnerUserId) : getPartnerAssignedView(partnerUserId);
         if (partnerView != null) {
             partnerView.setVisibility(View.GONE);
-            partnerView.setId(0);
+            partnerView.setPartnerId(CallPartnerViewPool.NOT_ASSIGNED);
             partnerView.setPartnerName("");
             partnerView.setDisplayName(false);
             partnerView.setDisplayIsMuteIcon(false);

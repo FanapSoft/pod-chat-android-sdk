@@ -73,7 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CallActivity extends AppCompatActivity implements CallContract.view,
         LoginFragment.ILoginInterface,
         ContactsFragment.IContactsFragment,
-SettingFragment.ISettingFragment{
+        SettingFragment.ISettingFragment {
 
 
     private static final String TAG = "CHAT_SDK_CALL";
@@ -249,6 +249,15 @@ SettingFragment.ISettingFragment{
         remoteCallPartner2.setOnClickListener(cllPartnersListener);
         remoteCallPartner3.setOnClickListener(cllPartnersListener);
         remoteCallPartner4.setOnClickListener(cllPartnersListener);
+
+        View.OnLongClickListener onLongClickPartnerView = v -> {
+            presenter.onCallPartnerViewLongClicked((CallPartnerView) v);
+            return true;
+        };
+        remoteCallPartner1.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner2.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner3.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner4.setOnLongClickListener(onLongClickPartnerView);
     }
 
     private void onPreStartCall() {
@@ -530,6 +539,7 @@ SettingFragment.ISettingFragment{
         runOnUiThread(() -> {
 
             localCallPartner.setVisibility(View.GONE);
+
             imgBtnSwitchCamera.setVisibility(View.GONE);
             imgBtnTurnOffCam.setVisibility(View.GONE);
             imgBtnTurnOnCam.setVisibility(View.VISIBLE);
@@ -1048,7 +1058,7 @@ SettingFragment.ISettingFragment{
     }
 
     @Override
-    public void showSettingFragment(SettingFragment fragment){
+    public void showSettingFragment(SettingFragment fragment) {
         runOnUiThread(() -> {
             if (getSupportFragmentManager().findFragmentByTag("SFRAG") == null) {
                 hideFabs();
@@ -1129,7 +1139,7 @@ SettingFragment.ISettingFragment{
         if (fabContacts != null) {
             hideFabContact();
         }
-        if(fabSetting!=null){
+        if (fabSetting != null) {
             hideFabSetting();
         }
 
@@ -1395,7 +1405,7 @@ SettingFragment.ISettingFragment{
     @Override
     public void onSettingChanged(VideoCallParam videoCallParam, AudioCallParam audioCallParam, ScreenShareParam screenShareParam) {
         presenter.updateCallConfig(
-                videoCallParam,audioCallParam,screenShareParam
+                videoCallParam, audioCallParam, screenShareParam
         );
     }
 }

@@ -1,10 +1,12 @@
 package com.fanap.podchat.call.view;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import com.fanap.podcall.util.Logger;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.chat.CallPartnerViewManager;
 import com.fanap.podchat.chat.MainThreadExecutor;
@@ -43,7 +45,14 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
 
     private boolean autoGenerate = true;
 
+    private static final int MAX_GENERATED_VIEW = 25;
+    private int maximumNumberOfViews = 10;
+    private static final int MIN_GENERATED_VIEW = 2;
+
+    private MainThreadExecutor mainThreadExecutor;
+
     public CallPartnerViewPool() {
+        mainThreadExecutor = new MainThreadExecutor();
     }
 
     /*
@@ -62,6 +71,19 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
         autoGenerate = isAutoGenerate;
     }
 
+    @Override
+    public void setViewGenerationMax(int viewGenerationMax) {
+
+        if (viewGenerationMax < MAX_GENERATED_VIEW
+                && viewGenerationMax > MIN_GENERATED_VIEW) {
+            maximumNumberOfViews = viewGenerationMax;
+        } else {
+            Logger.showError("The View Generation Max Number should be between >" + MIN_GENERATED_VIEW + " and <" + MAX_GENERATED_VIEW);
+        }
+
+
+    }
+
     public boolean isAutoGenerateEnable() {
         return autoGenerate;
     }
@@ -71,7 +93,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
      */
 
     @Override
-    public CallPartnerView assignViewToPartnerByUserId(Long partnerUserId) {
+    public @Nullable CallPartnerView assignViewToPartnerByUserId(Long partnerUserId) {
         checkIsMapInitialized();
         if (!partnerHasView(partnerUserId)) {
             CallPartnerView unAssignedViewFromList = getUnAssignedView();
@@ -82,17 +104,19 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
             } else if (autoGenerate) {
                 return generatePartnerView(partnerUserId);
             }
-        }
+        }else return getPartnerAssignedView(partnerUserId);
+
         return null;
     }
+
     void visibleView(View view) {
-        new MainThreadExecutor()
-                .execute(() -> {
-                    if (view != null) {
-                        if (view.getVisibility() != View.VISIBLE)
-                            view.setVisibility(View.VISIBLE);
-                    }
-                });
+
+        mainThreadExecutor.execute(()->{
+            if (view != null) {
+                if (view.getVisibility() != View.VISIBLE)
+                    view.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     @Override
@@ -250,20 +274,37 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
     }
 
     @Override
-    public void setPartnerView(Long partnerUserId, CallPartnerView newView) {
-        checkIsMapInitialized();
-        CallPartnerView oldView = getPartnerAssignedView(partnerUserId);
-        if (oldView != null) {
-            releasePartnerView(partnerUserId);
+    public boolean setPartnerView(Long partnerUserId, CallPartnerView newView) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (Objects.equals(partnerUserId, NOT_ASSIGNED) || partnerUserId < 0)
+                return false;
+        } else {
+            if (partnerUserId.equals(NOT_ASSIGNED) || partnerUserId < 0)
+                return false;
         }
+        checkIsMapInitialized();
+        CallPartnerView lastView = getPartnerAssignedView(partnerUserId);
+        if (lastView != null) {
+            lastView.setPartnerId(CallPartnerViewPool.NOT_ASSIGNED);
+            lastView.setPartnerName("");
+            lastView.setDisplayName(false);
+            lastView.setDisplayIsMuteIcon(false);
+            lastView.setDisplayCameraIsOffIcon(false);
+        }
+        Long newViewLastPartnerUserId = newView.getPartnerId();
+        if(!newViewLastPartnerUserId.equals(NOT_ASSIGNED)){
+            getValidUserIdToViewMap().remove(newViewLastPartnerUserId);
+        }
+        visibleView(newView);
         newView.setPartnerId(partnerUserId);
         getValidUserIdToViewMap().put(partnerUserId, newView);
+        return true;
     }
 
     @Override
     public boolean isScreenShareViewChanging(Long partnerUserId, CallPartnerView newView) {
 
-      return (screenShareView!=null&&newView==screenShareView) || partnerUserId.equals(SCREEN_SHARE_ID);
+        return (screenShareView != null && newView == screenShareView) || partnerUserId.equals(SCREEN_SHARE_ID);
 
     }
 
@@ -284,9 +325,13 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
     private CallPartnerView generatePartnerView(long partnerUserId) {
         CallPartnerView newPartnerView = null;
         try {
+            checkIsListInitialized();
+            if (Objects.requireNonNull(partnerViewsPool).size() == maximumNumberOfViews) {
+                autoGenerateCallback.onMaximumViewNumberReached();
+                return null;
+            }
             newPartnerView = new CallPartnerView(getContextFromPartnerView());
             newPartnerView.setPartnerId(partnerUserId);
-            checkIsListInitialized();
             addView(newPartnerView);
             checkIsMapInitialized();
             getValidUserIdToViewMap().put(partnerUserId, newPartnerView);

@@ -846,9 +846,11 @@ public class Chat extends ChatCore {
                     captureError(new PodChatException("It's not possible to change screen share view during call",ChatConstant.ERROR_CODE_INVALID_REQUEST));
                     return;
                 }
-                viewPool.setPartnerView(partnerUserId,newView);
+                boolean result = viewPool.setPartnerView(partnerUserId,newView);
+                if(result){
+                    podVideoCall.updatePartnerSurface(partnerUserId,newView);
+                }
             }
-            podVideoCall.updatePartnerSurface(partnerUserId,newView);
         }
 
     }
@@ -1161,8 +1163,10 @@ public class Chat extends ChatCore {
             if (podVideoCall != null)
                 removeVideoCallPartner(response);
 
-            // TODO: 10/3/2021 fire an event for local partner
-            listenerManager.callOnCallParticipantStoppedVideo(response);
+            if(!response.getResult().getJoinedParticipants().get(0).getUserId().equals(CoreConfig.userId)){
+                listenerManager.callOnCallParticipantStoppedVideo(response);
+            }
+
         }
 
     }
@@ -1735,10 +1739,13 @@ public class Chat extends ChatCore {
         for (CallParticipantVO callParticipant :
                 response.getResult().getJoinedParticipants()) {
             Long userId = callParticipant.getUserId();
-            if(podVideoCall!=null){
-                podVideoCall.removePartnerVideo(userId);
+            if(!userId.equals(CoreConfig.userId)){
+                if(podVideoCall!=null){
+                    podVideoCall.removePartnerVideo(userId);
+                }
+                unAssignPartnerViewFrom(callParticipant.getUserId());
             }
-            unAssignPartnerViewFrom(callParticipant.getUserId());
+
         }
     }
 
