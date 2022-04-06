@@ -687,13 +687,21 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     public void showFabSetting() {
         if (inCallView.getVisibility() != View.VISIBLE) {
-            runOnUiThread(() -> fabSetting.show());
+            runOnUiThread(() -> {
+                        if (fabSetting != null) {
+                            fabSetting.show();
+                        }
+                    });
         }
     }
 
     @Override
     public void hideFabSetting() {
-        runOnUiThread(() -> fabSetting.hide());
+        runOnUiThread(() -> {
+            if (fabSetting != null) {
+                fabSetting.hide();
+            }
+        });
 
     }
 
