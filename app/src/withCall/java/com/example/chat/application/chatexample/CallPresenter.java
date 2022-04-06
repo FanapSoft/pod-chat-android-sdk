@@ -25,6 +25,7 @@ import com.fanap.podcall.camera.CameraId;
 import com.fanap.podcall.model.VideoCallParam;
 import com.fanap.podcall.screenshare.model.ScreenShareParam;
 import com.fanap.podcall.util.CallPermissionHandler;
+import com.fanap.podcall.util.Logger;
 import com.fanap.podcall.video.codec.VideoCodecType;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.CallConfig;
@@ -329,7 +330,9 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             Long mainPartnerId = mainPartnerView.getPartnerId();
             Long secondPartnerId = secondPartnerView.getPartnerId();
             chat.setPartnerView(secondPartnerId,mainPartnerView);
+            Logger.showLog("Assigned view " + mainPartnerView + " with id " + mainPartnerView.getId() + " to user " + secondPartnerId );
             chat.setPartnerView(mainPartnerId, secondPartnerView);
+            Logger.showLog("Assigned view " + secondPartnerView + " with id " + secondPartnerView.getId() + " to user " + mainPartnerId );
         }
 
 
@@ -338,13 +341,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onCallPartnerViewLongClicked(CallPartnerView v) {
         if (isInCall) {
+            v.setVisibility(View.GONE);
             CallParticipantVO p = new CallParticipantVO();
             p.setUserId(v.getPartnerId());
             chat.turnOffIncomingVideo(p);
-            if (cpvManager != null) {
-                v.setPartnerId(0L);
-                v.setVisibility(View.GONE);
-            }
+
         }
     }
 
