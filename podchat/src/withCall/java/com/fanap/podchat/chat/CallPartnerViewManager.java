@@ -16,7 +16,7 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
 
     public interface IAutoGenerate {
         void onNewViewGenerated(CallPartnerView callPartnerView);
-        void onMaximumViewNumberReached();
+        void onMaximumViewNumberReached(Long partnerUserIdWithoutView);
     }
 
 
@@ -48,8 +48,8 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
     }
 
     @Override
-    public void setViewGenerationMax(int viewGenerationMax) {
-        pool.setViewGenerationMax(viewGenerationMax);
+    public void setMaximumNumberOfViews(int viewGenerationMax) {
+        pool.setMaximumNumberOfViews(viewGenerationMax);
     }
 
     @Override
@@ -88,8 +88,8 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
             }
 
             @Override
-            public void onMaximumViewNumberReached() {
-                callback.onMaximumViewNumberReached();
+            public void onMaximumViewNumberReached(Long partnerUserId) {
+                callback.onMaximumViewNumberReached(partnerUserId);
             }
         });
     }
@@ -133,6 +133,11 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
             pw.setDisplayName(true);
             pw.setPartnerName(name);
         }
+    }
+
+    @Override
+    public void resetViews(List<CallPartnerView> views) {
+        pool.resetViews(views);
     }
 
     @UiThread

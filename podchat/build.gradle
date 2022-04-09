@@ -7,7 +7,7 @@ apply plugin: 'com.google.gms.google-services'
 ext {
     libraryVersion = '0.9.17.0-BETA'
     libraryVersionLight = '0.9.14.0-SNAPSHOT1'
-    podcallVersion = '3.8.19-SNAPSHOT'
+    podcallVersion = '3.8.20-SNAPSHOT'
 }
 android {
 

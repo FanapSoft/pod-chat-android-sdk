@@ -19,7 +19,7 @@ public interface CallPartnerViewPoolUseCase {
 
         void setAutoGenerate(boolean isAutoGenerate);
 
-        void setViewGenerationMax(int viewGenerationMax);
+        void setMaximumNumberOfViews(int viewGenerationMax);
 
         void setAsScreenShareView(@NonNull CallPartnerView screenShareView);
 
@@ -49,6 +49,10 @@ public interface CallPartnerViewPoolUseCase {
         default void releaseScreenShareView(){}
         @MainThread
         default void showPartnerName(Long userId, String name){}
+
+        default void resetViews(List<CallPartnerView> views){}
+
+        default void hideAllAssignedViews(){}
     }
 
     interface ChatUseCase {
@@ -63,6 +67,8 @@ public interface CallPartnerViewPoolUseCase {
         CallPartnerView getPartnerAssignedView(Long partnerUserId);
 
         boolean setPartnerView(Long partnerUserId, CallPartnerView newView);
+
+        boolean swapPartnerViews(Long firstPartnerUserId,CallPartnerView firstPartnerView,Long secondPartnerUserId, CallPartnerView secondPartnerView);
 
         CallPartnerView getScreenShareView();
 

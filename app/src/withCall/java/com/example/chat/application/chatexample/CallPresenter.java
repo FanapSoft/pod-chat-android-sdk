@@ -45,7 +45,9 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetActiveCallsRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.request_model.ReplaceViewsRequest;
 import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
+import com.fanap.podchat.call.request_model.SwapViewsRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRequest;
@@ -153,6 +155,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     CallPartnerViewManager cpvManager;
 
     private ArrayList<CallWrapper> callsList = new ArrayList<>();
+    private final ArrayList<Long> listOfPartnerWithoutViews = new ArrayList<>();
 
 
     public CallPresenter(Context context, CallContract.view view, Activity activity) {
@@ -261,7 +264,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         CallConfig callConfig = new CallConfig(CallActivity.class.getName());
 
         VideoCallParam videoCallParam =
-                new VideoCallParam.Builder(localVideo)
+                new VideoCallParam.Builder(cameraPreview)
                         .setCamWidth(720) // FIXME: 3/12/2022 fix updating params after call is started
                         .setCamHeight(480)
                         .setCamFPS(30)
@@ -287,11 +290,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         cpvManager = chat.useCallPartnerViewManager();
 
-        cpvManager.addView(remoteViews);
+        cpvManager.addView(remotePartnersViews.get(0));
 
-        cpvManager.setAsCameraPreview(cameraPreview);
+//        cpvManager.setAsCameraPreview(cameraPreview);
 
-        cpvManager.setAsScreenShareView(remoteViews.get(remoteViews.size() - 1));
+//        cpvManager.setAsScreenShareView(remoteViews.get(remoteViews.size() - 1));
+
+        cpvManager.setMaximumNumberOfViews(1);
 
         cpvManager.setAutoGenerateCallback(this);
 
@@ -325,27 +330,57 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void onCallPartnerViewSelected(CallPartnerView secondPartnerView) {
 
 
+//        if (isInCall) {
+//            CallPartnerView mainPartnerView = remotePartnersViews.get(0);
+//            Long mainPartnerId = mainPartnerView.getPartnerId();
+//            Long secondPartnerId = secondPartnerView.getPartnerId();
+//            chat.changePartnerView(secondPartnerId, mainPartnerView);
+//            Logger.showLog("Assigned view " + mainPartnerView + " with id " + mainPartnerView.getId() + " to user " + secondPartnerId);
+//            chat.changePartnerView(mainPartnerId, secondPartnerView);
+//            Logger.showLog("Assigned view " + secondPartnerView + " with id " + secondPartnerView.getId() + " to user " + mainPartnerId);
+//        }
+
         if (isInCall) {
             CallPartnerView mainPartnerView = remotePartnersViews.get(0);
             Long mainPartnerId = mainPartnerView.getPartnerId();
             Long secondPartnerId = secondPartnerView.getPartnerId();
-            chat.setPartnerView(secondPartnerId,mainPartnerView);
-            Logger.showLog("Assigned view " + mainPartnerView + " with id " + mainPartnerView.getId() + " to user " + secondPartnerId );
-            chat.setPartnerView(mainPartnerId, secondPartnerView);
-            Logger.showLog("Assigned view " + secondPartnerView + " with id " + secondPartnerView.getId() + " to user " + mainPartnerId );
+            SwapViewsRequest request =
+                    new SwapViewsRequest.Builder()
+                    .setFirstPartnerUserId(mainPartnerId)
+                    .setSecondPartnerUserId(secondPartnerId)
+                    .setFirstPartnerView(mainPartnerView)
+                    .setSecondPartnerView(secondPartnerView)
+                    .build();
+            chat.swapPartnerViews(request);
         }
-
-
     }
 
     @Override
     public void onCallPartnerViewLongClicked(CallPartnerView v) {
         if (isInCall) {
-            v.setVisibility(View.GONE);
-            CallParticipantVO p = new CallParticipantVO();
-            p.setUserId(v.getPartnerId());
-            chat.turnOffIncomingVideo(p);
-
+//            chat.turnOffIncomingVideo(v.getPartnerId());
+//            if (cpvManager != null) {
+//                cpvManager.releasePartnerView(v.getPartnerId());
+//                if(listOfPartnerWithoutViews.size()>0){
+//                    Long partnerId = listOfPartnerWithoutViews.remove(0);
+//                    chat.addVideoForPartner(partnerId,v);
+//                }
+//            }
+            if (listOfPartnerWithoutViews.size() > 0) {
+                listOfPartnerWithoutViews.add(v.getPartnerId());
+                ReplaceViewsRequest request = new ReplaceViewsRequest.Builder()
+                        .setPartnerToRemoveVideoUserId(v.getPartnerId())
+                        .setPartnerToAddVideoUserId(listOfPartnerWithoutViews.remove(0))
+                        .setView(v)
+                        .build();
+                chat.replacePartnersVideos(request);
+            } else {
+                listOfPartnerWithoutViews.add(v.getPartnerId());
+                chat.turnOffIncomingVideo(v.getPartnerId());
+                if (cpvManager != null) {
+                    cpvManager.releasePartnerView(v.getPartnerId());
+                }
+            }
         }
     }
 
@@ -1005,13 +1040,13 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     private void showVideoViews() {
         view.showVideoCallElements();
-        updatePartnerViewList();
+//        updatePartnerViewList();
         showLocalCameraPreview();
     }
 
-    private void updatePartnerViewList() {
-        chat.setPartnerViews(remotePartnersViews);
-    }
+//    private void updatePartnerViewList() {
+////        chat.setPartnerViews(remotePartnersViews);
+//    }
 
     private void hideVideoViews() {
         hideAllRemotePartners();
@@ -1033,6 +1068,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     private void hideAllRemotePartners() {
+        if (cpvManager != null) {
+            cpvManager.hideAllAssignedViews();
+            return;
+        }
         activity.runOnUiThread(() -> {
             if (remotePartnersViews != null)
                 for (CallPartnerView partnerView :
@@ -1947,6 +1986,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     private CallPartnerView findParticipantView(Long userId) {
+        if (cpvManager != null) return cpvManager.getPartnerAssignedView(userId);
+
         CallPartnerView lpw = null;
         for (CallPartnerView partnerView :
                 remotePartnersViews) {
@@ -1988,17 +2029,17 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 //                view.showRemoteViews();
 //            }
 
-            if(cpvManager!=null){
+            if (cpvManager != null) {
                 CallParticipantVO callParticipant =
                         response.getResult()
                                 .getJoinedParticipants().get(0);
 
                 new MainThreadExecutor()
-                        .execute(()->{
+                        .execute(() -> {
                             try {
                                 Objects.requireNonNull(cpvManager.getPartnerAssignedView(callParticipant.getUserId()))
                                         .setVisibility(View.VISIBLE);
-                                cpvManager.showPartnerName(callParticipant.getUserId(),callParticipant.getParticipantVO().getName());
+                                cpvManager.showPartnerName(callParticipant.getUserId(), callParticipant.getParticipantVO().getName());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -2140,7 +2181,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     @Override
-    public void onMaximumViewNumberReached() {
+    public void onMaximumViewNumberReached(Long partnerUserId) {
+        listOfPartnerWithoutViews.add(partnerUserId);
         view.showMessage("Maximum View Number Reached");
     }
 }
