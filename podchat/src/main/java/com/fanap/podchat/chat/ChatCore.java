@@ -7868,22 +7868,14 @@ public abstract class ChatCore extends AsyncAdapter {
      */
     public String addContact(RequestAddContact request) {
 
-        String uniqueId = generateUniqueId();
-        List<String> firstNames = Arrays.asList(request.getFirstName());
-        List<String> lastNames = Arrays.asList(request.getLastName());
-        List<String> emails = Arrays.asList(request.getEmail());
-        List<String> cellNumbers = Arrays.asList(request.getCellphoneNumber());
-        List<String> userNames = Arrays.asList(request.getUsername());
-        List<String> uniqIds = Arrays.asList(generateUniqueId());
+        String firstName = request.getFirstName();
+        String lastName = request.getLastName();
+        String email = request.getEmail();
+        String cellphoneNumber = request.getCellphoneNumber();
+        String username = request.getUsername();
         String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
 
-        if (chatReady) {
-            String message = ContactManager.createAddContactRequest(uniqueId, typeCode, firstNames, lastNames, userNames, cellNumbers, emails, uniqIds);
-            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "ADD_CONTACT");
-        } else {
-            onChatNotReady(uniqueId);
-        }
-        return uniqueId;
+        return addContact(firstName, lastName, cellphoneNumber, email, typeCode, username);
     }
 
     /**
@@ -7955,20 +7947,9 @@ public abstract class ChatCore extends AsyncAdapter {
      */
     public String removeContact(RequestRemoveContact request) {
 
-        String uniqueId = generateUniqueId();
-        List<String> userIds = Arrays.asList(String.valueOf(request.getUserId()));
-        String typeCode = request.getTypeCode() != null ? request.getTypeCode() : getTypeCode();
+        long userId = request.getUserId();
 
-        if (chatReady) {
-            String message = ContactManager.createRemoveContactRequest(uniqueId, typeCode, userIds);
-            sendAsyncMessage(message, AsyncAckType.Constants.WITHOUT_ACK, "REMOVE_CONTACT");
-            Callback callbackRemoveContact = new Callback();
-            callbackRemoveContact.setUserId(request.getUserId());
-            messageCallbacks.put(uniqueId, callbackRemoveContact);
-        } else {
-            onChatNotReady(uniqueId);
-        }
-        return uniqueId;
+        return removeContact(userId);
 
     }
 
