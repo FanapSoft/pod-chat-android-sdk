@@ -16,6 +16,7 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
 
     public interface IAutoGenerate {
         void onNewViewGenerated(CallPartnerView callPartnerView);
+        void onMaximumViewNumberReached(Long partnerUserIdWithoutView);
     }
 
 
@@ -47,6 +48,11 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
     }
 
     @Override
+    public void setMaximumNumberOfGeneratedViews(int viewGenerationMax) {
+        pool.setMaximumNumberOfGeneratedViews(viewGenerationMax);
+    }
+
+    @Override
     public void setAsScreenShareView(@NonNull CallPartnerView screenShareView) {
         pool.setAsScreenShareView(screenShareView);
     }
@@ -61,6 +67,7 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
         return pool.getScreenShareView();
     }
 
+    @Nullable
     @Override
     public CallPartnerView getPartnerAssignedView(Long partnerUserId) {
         return pool.getPartnerAssignedView(partnerUserId);
@@ -74,19 +81,27 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
 
     @Override
     public void setAutoGenerateCallback(IAutoGenerate callback) {
-        pool.setAutoGenerateCallback((view) ->
-                new MainThreadExecutor().execute(() ->
-                        callback.onNewViewGenerated(view)));
+        pool.setAutoGenerateCallback(new IAutoGenerate() {
+            @Override
+            public void onNewViewGenerated(CallPartnerView callPartnerView) {
+                new MainThreadExecutor().execute(() -> callback.onNewViewGenerated(callPartnerView));
+            }
+
+            @Override
+            public void onMaximumViewNumberReached(Long partnerUserId) {
+                callback.onMaximumViewNumberReached(partnerUserId);
+            }
+        });
     }
 
 
     @UiThread
     @Override
     public void releasePartnerView(Long partnerUserId) {
-        CallPartnerView partnerView = getPartnerUnAssignedView(partnerUserId);
+        CallPartnerView partnerView = getPartnerUnAssignedView(partnerUserId) != null?getPartnerUnAssignedView(partnerUserId) : getPartnerAssignedView(partnerUserId);
         if (partnerView != null) {
             partnerView.setVisibility(View.GONE);
-            partnerView.setId(0);
+            partnerView.setPartnerId(CallPartnerViewPool.NOT_ASSIGNED);
             partnerView.setPartnerName("");
             partnerView.setDisplayName(false);
             partnerView.setDisplayIsMuteIcon(false);
@@ -114,8 +129,15 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
     @Override
     public void showPartnerName(Long userId, String name) {
         CallPartnerView pw = getPartnerAssignedView(userId);
-        pw.setDisplayName(true);
-        pw.setPartnerName(name);
+        if (pw != null) {
+            pw.setDisplayName(true);
+            pw.setPartnerName(name);
+        }
+    }
+
+    @Override
+    public void resetViews(List<CallPartnerView> views) {
+        pool.resetViews(views);
     }
 
     @UiThread

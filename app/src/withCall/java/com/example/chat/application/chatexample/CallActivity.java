@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -244,11 +245,30 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         imgBtnTurnOnIncomingVideos.setOnClickListener(v -> presenter.turnOnIncomingVideos());
         imgBtnTurnOffIncomingVideos.setOnClickListener(v -> presenter.turnOffIncomingVideos());
 
-        View.OnClickListener cllPartnersListener = this::swapMainCallPartner;
+        View.OnClickListener cllPartnersListener = getOnCallPartnerViewClickListener();
 //        remoteCallPartner1.setOnClickListener(cllPartnersListener);
         remoteCallPartner2.setOnClickListener(cllPartnersListener);
         remoteCallPartner3.setOnClickListener(cllPartnersListener);
         remoteCallPartner4.setOnClickListener(cllPartnersListener);
+
+        View.OnLongClickListener onLongClickPartnerView = getOnCallPartnerLongClickListener();
+        remoteCallPartner1.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner2.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner3.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner4.setOnLongClickListener(onLongClickPartnerView);
+    }
+
+    @NonNull
+    private View.OnLongClickListener getOnCallPartnerLongClickListener() {
+        return v -> {
+            presenter.onCallPartnerViewLongClicked((CallPartnerView) v);
+            return true;
+        };
+    }
+
+    @NonNull
+    private View.OnClickListener getOnCallPartnerViewClickListener() {
+        return v -> presenter.onCallPartnerViewSelected((CallPartnerView) v);
     }
 
     private void onPreStartCall() {
@@ -268,7 +288,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         presenter.terminateCall();
     }
 
-    private void swapMainCallPartner(View v) {
+    private void swapMainCallPartner(CallPartnerView v) {
 
         Boolean swapped = (Boolean) v.getTag();
 
@@ -530,6 +550,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
 
             localCallPartner.setVisibility(View.GONE);
+
             imgBtnSwitchCamera.setVisibility(View.GONE);
             imgBtnTurnOffCam.setVisibility(View.GONE);
             imgBtnTurnOnCam.setVisibility(View.VISIBLE);
@@ -1137,7 +1158,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         if (fabContacts != null) {
             hideFabContact();
         }
-        hideFabSetting();
+        if (fabSetting != null) {
+            hideFabSetting();
+        }
 
         LoginFragment loginFragment = new LoginFragment();
 
@@ -1387,6 +1410,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             params.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
             params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
             partnerView.setLayoutParams(params);
+            partnerView.setOnClickListener(getOnCallPartnerViewClickListener());
+            partnerView.setOnLongClickListener(getOnCallPartnerLongClickListener());
             ((ConstraintLayout) inCallView).addView(partnerView);
         });
 

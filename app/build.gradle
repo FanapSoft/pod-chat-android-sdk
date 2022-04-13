@@ -31,7 +31,7 @@ android {
     productFlavors {
 
         withCall {
-            versionName "4.1.1-BETA"
+            versionName "4.2.0-BETA"
             versionCode 1
             matchingFallbacks = ["withCall", "withoutCall"]
         }
