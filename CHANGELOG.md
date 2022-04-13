@@ -5,33 +5,8 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## [0.9.17.0] -2021-**-**
 
-### Added
-
-- add Chat.swapPartnerViews(SwapViewsRequest)
-- add Chat.addViewForPartner(Long partnerUserId, CallPartnerView newView)
-- add Chat.replacePartnersView(ReplaceViewsRequest)
-- add CallPartnerViewManager.setMaximumNumberOfGeneratedViews(int viewGenerationMax)
-- add IAutoGenerate.onMaximumViewNumberReached(Long partnerUserIdWithoutView)
-- add CallPartnerViewManager.resetViews
-- add CallPartnerViewPoolUseCase.ClientUseCase.hideAllAssignedViews
-
-### Changed
-
-- update podcall to 3.8.20-SNAPSHOT
-- change Chat.turnOffIncomingVideo(Long userId)
-- change Chat.turnOnIncomingVideo(Long userId)
-
-
-### Deprecated
-
-- deprecate Chat.setPartnerViews(List<CallPartnerView> views)
-- deprecate Chat.updatePartnerViews(List<CallPartnerView> views)
-
-
-
-## [0.9.16.0] -2021-**-**
+## [0.9.16.0] -2022-04-13
 
 ### Added
 
