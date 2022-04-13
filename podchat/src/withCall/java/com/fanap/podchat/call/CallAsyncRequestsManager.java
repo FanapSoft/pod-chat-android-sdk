@@ -28,7 +28,6 @@ import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
-import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
@@ -648,6 +647,31 @@ public class CallAsyncRequestsManager {
         return response;
     }
 
+    public static ChatResponse<Participant> handleCallIsRecordingCallResponse(ChatResponse<StartedCallModel> info) {
+
+        ChatResponse<Participant> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(info.getUniqueId());
+
+            response.setSubjectId(info.getSubjectId());
+
+            Participant participant = new Participant();
+
+            participant.setId(Long.parseLong(info.getResult().getChatDataDTO().getRecordingUser()));
+
+            response.setResult(participant);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+        return response;
+
+    }
+
+
+
     public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
@@ -977,6 +1001,31 @@ public class CallAsyncRequestsManager {
 
     }
 
+    public static ChatResponse<ScreenShareResult> handleOnScreenIsSharing(ChatResponse<StartedCallModel> info) {
+        ChatResponse<ScreenShareResult> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(info.getUniqueId());
+
+            response.setSubjectId(info.getSubjectId());
+
+            ScreenShareResult scr = new ScreenShareResult();
+
+            scr.setScreenshare(info.getResult().getChatDataDTO().getScreenShare());
+            CallParticipantVO callParticipantVO =
+                    new CallParticipantVO();
+            callParticipantVO.setUserId(Long.valueOf(info.getResult().getChatDataDTO().getScreenShareUser()));
+            scr.setScreenOwner(callParticipantVO);
+
+            response.setResult(scr);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+        return response;
+    }
+
     public static ChatResponse<ScreenShareResult> handleOnScreenShareStarted(ChatMessage chatMessage) {
         ChatResponse<ScreenShareResult> response = null;
         try {
@@ -1139,6 +1188,24 @@ public class CallAsyncRequestsManager {
         }
 
 
+    }
+
+
+    public static boolean checkIsAnyScreenSharing(ChatResponse<StartedCallModel> info) {
+
+        return Util.isNotNullOrEmpty(
+                info.getResult().getChatDataDTO().getScreenShareUser())
+                &&
+                !info.getResult().getChatDataDTO().getScreenShareUser().equals("0");
+    }
+
+
+    public static boolean checkIsCallIsRecording(ChatResponse<StartedCallModel> info) {
+
+        return Util.isNotNullOrEmpty(
+                info.getResult().getChatDataDTO().getRecordingUser())
+                &&
+                !info.getResult().getChatDataDTO().getRecordingUser().equals("0");
     }
 
 

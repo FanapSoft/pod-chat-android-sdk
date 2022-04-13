@@ -1,0 +1,3278 @@
+Index: app/src/withCall/java/com/fanap/podchat/call/history/HistoryAdaptor.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/withCall/java/com/fanap/podchat/call/history/HistoryAdaptor.java b/app/src/withCall/java/com/fanap/podchat/call/history/HistoryAdaptor.java
+--- a/app/src/withCall/java/com/fanap/podchat/call/history/HistoryAdaptor.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/withCall/java/com/fanap/podchat/call/history/HistoryAdaptor.java	(date 1635258528713)
+@@ -25,7 +25,9 @@
+ 
+ 
+     public interface IHistoryInterface {
+-        void onCallSelected(CallVO call);
++        void onAudioCallSelected(CallVO call);
++
++        void onVideoCallSelected(CallVO call);
+     }
+ 
+     ArrayList<CallVO> historyVOS;
+@@ -76,20 +78,35 @@
+                             .into(viewHolder.imageViewProfile);
+                 else {
+                     viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
+-
+                 }
+ 
+-                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+ 
+-                viewHolder.imageButtonCall.setOnClickListener(v -> {
+-                    if (iHistoryInterface != null)
+-                        iHistoryInterface.onCallSelected(historyVO);
+-                });
+-            } else {
++            } else if(historyVO.getConversationVO()!=null){
++                viewHolder.tvName.setText(historyVO.getConversationVO().getTitle());
++                if (Util.isNotNullOrEmpty(historyVO.getConversationVO().getImage()))
++                    Glide.with(context)
++                            .load(historyVO.getConversationVO().getImage())
++                            .apply(RequestOptions.circleCropTransform())
++                            .into(viewHolder.imageViewProfile);
++                else {
++                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_group));
++                }
++            }else {
+                 viewHolder.tvName.setText("Invalid name");
+                 viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
+                 setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+             }
++
++            setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
++
++            viewHolder.imageButtonAudioCall.setOnClickListener(v -> {
++                if (iHistoryInterface != null)
++                    iHistoryInterface.onAudioCallSelected(historyVO);
++            });
++            viewHolder.imageButtonVideoCall.setOnClickListener(v -> {
++                if (iHistoryInterface != null)
++                    iHistoryInterface.onVideoCallSelected(historyVO);
++            });
+ 
+         }
+ 
+@@ -148,14 +165,15 @@
+ 
+         TextView tvName;
+         ImageView imageViewProfile;
+-        ImageButton imageButtonCall;
++        ImageButton imageButtonAudioCall,imageButtonVideoCall;
+         ImageView imageStatus;
+ 
+         public ViewHolder(@NonNull View itemView) {
+             super(itemView);
+             tvName = itemView.findViewById(R.id.tvContactName);
+             imageViewProfile = itemView.findViewById(R.id.imageProfile);
+-            imageButtonCall = itemView.findViewById(R.id.imgBtnCallContact);
++            imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
++            imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
+             imageStatus = itemView.findViewById(R.id.imageStatus);
+         }
+ 
+Index: app/src/main/res/drawable/ic_videocam_off.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/ic_videocam_off.xml b/app/src/main/res/drawable/ic_videocam_off.xml
+new file mode 100644
+--- /dev/null	(date 1635260478275)
++++ b/app/src/main/res/drawable/ic_videocam_off.xml	(date 1635260478275)
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#FFFFFF"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M21,6.5l-4,4V7c0,-0.55 -0.45,-1 -1,-1H9.82L21,17.18V6.5zM3.27,2L2,3.27 4.73,6H4c-0.55,0 -1,0.45 -1,1v10c0,0.55 0.45,1 1,1h12c0.21,0 0.39,-0.08 0.54,-0.18L19.73,21 21,19.73 3.27,2z"/>
++</vector>
+Index: podchat/src/main/java/com/fanap/podchat/chat/ChatCore.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/podchat/src/main/java/com/fanap/podchat/chat/ChatCore.java b/podchat/src/main/java/com/fanap/podchat/chat/ChatCore.java
+--- a/podchat/src/main/java/com/fanap/podchat/chat/ChatCore.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/podchat/src/main/java/com/fanap/podchat/chat/ChatCore.java	(date 1635258528716)
+@@ -315,7 +315,7 @@
+ import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.OPEN;
+ 
+ @SuppressWarnings("unchecked")
+-public class ChatCore extends AsyncAdapter {
++public abstract class ChatCore extends AsyncAdapter {
+     private static final String MTAG = "MTAG";
+     public static final String PING = "PING";
+     public static final int READ_EXTERNAL_STORAGE_CODE = 1007;
+Index: app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsAdaptor.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsAdaptor.java b/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsAdaptor.java
+--- a/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsAdaptor.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsAdaptor.java	(date 1635327375666)
+@@ -12,6 +12,7 @@
+ 
+ import com.bumptech.glide.Glide;
+ import com.bumptech.glide.request.RequestOptions;
++import com.fanap.podchat.call.constants.CallType;
+ import com.fanap.podchat.example.R;
+ import com.fanap.podchat.util.Util;
+ 
+@@ -21,7 +22,7 @@
+ 
+ 
+     public interface IContactInterface {
+-        void onCantactSelected(ContactsWrapper wrapper);
++        void onContactSelected(ContactsWrapper wrapper, int callType);
+     }
+ 
+     ArrayList<ContactsWrapper> contacts;
+@@ -72,11 +73,18 @@
+ 
+ 
+             if(isMultiSelect)
+-                viewHolder.imageButtonCall.setVisibility(View.GONE);
++            {
++                viewHolder.imageButtonAudioCall.setVisibility(View.GONE);
++                viewHolder.imageButtonVideoCall.setVisibility(View.GONE);
++            }
+             else {
+-                viewHolder.imageButtonCall.setOnClickListener(v->{
++                viewHolder.imageButtonAudioCall.setOnClickListener(v->{
+                     if (iContactInterface != null)
+-                        iContactInterface.onCantactSelected(contact);
++                        iContactInterface.onContactSelected(contact, CallType.Constants.VOICE_CALL);
++                });
++                viewHolder.imageButtonVideoCall.setOnClickListener(v -> {
++                    if (iContactInterface != null)
++                        iContactInterface.onContactSelected(contact, CallType.Constants.VIDEO_CALL);
+                 });
+             }
+ 
+@@ -85,7 +93,7 @@
+                     contact.setSelected(!contact.isSelected());
+                     notifyDataSetChanged();
+                     if (iContactInterface != null)
+-                        iContactInterface.onCantactSelected(contact);
++                        iContactInterface.onContactSelected(contact, 0);
+                 }
+             });
+         }
+@@ -102,14 +110,15 @@
+ 
+         TextView tvName;
+         ImageView imageViewProfile;
+-        ImageButton imageButtonCall;
++        ImageButton imageButtonAudioCall,imageButtonVideoCall;
+         ImageView imageViewDone;
+ 
+         public ViewHolder(@NonNull View itemView) {
+             super(itemView);
+             tvName = itemView.findViewById(R.id.tvContactName);
+             imageViewProfile = itemView.findViewById(R.id.imageStatus);
+-            imageButtonCall = itemView.findViewById(R.id.imgBtnCallContact);
++            imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
++            imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
+             imageViewDone = itemView.findViewById(R.id.imageDone);
+         }
+ 
+Index: app/src/withCall/java/com/example/chat/application/chatexample/CallActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/withCall/java/com/example/chat/application/chatexample/CallActivity.java b/app/src/withCall/java/com/example/chat/application/chatexample/CallActivity.java
+--- a/app/src/withCall/java/com/example/chat/application/chatexample/CallActivity.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/withCall/java/com/example/chat/application/chatexample/CallActivity.java	(date 1635761046480)
+@@ -2,7 +2,6 @@
+ 
+ import android.Manifest;
+ import android.annotation.SuppressLint;
+-import android.app.Activity;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.media.AudioManager;
+@@ -30,12 +29,14 @@
+ import android.widget.EditText;
+ import android.widget.FrameLayout;
+ import android.widget.ImageButton;
++import android.widget.ImageView;
+ import android.widget.TextView;
+ import android.widget.Toast;
+ import android.widget.ViewSwitcher;
+ 
+-import com.fanap.podcall.util.CallPermissionHandler;
++import com.bumptech.glide.request.RequestOptions;
+ import com.fanap.podcall.view.CallPartnerView;
++import com.fanap.podchat.call.constants.CallType;
+ import com.fanap.podchat.call.contacts.ContactsFragment;
+ import com.fanap.podchat.call.contacts.ContactsWrapper;
+ import com.fanap.podchat.call.history.HistoryAdaptor;
+@@ -48,6 +49,7 @@
+ import com.fanap.podchat.example.R;
+ import com.fanap.podchat.mainmodel.Participant;
+ import com.fanap.podchat.mainmodel.UserInfo;
++import com.fanap.podchat.notification.GlideApp;
+ import com.fanap.podchat.util.ChatConstant;
+ import com.orhanobut.logger.AndroidLogAdapter;
+ import com.orhanobut.logger.Logger;
+@@ -79,11 +81,23 @@
+ 
+     TextView tvStatus, tvCallerName, tvHistory, tvCalleeName, tvVersion;
+ 
+-    View callRequestView, inCallView;
+-    ConstraintLayout constraintHolder, constraintChild;
+-    ImageButton buttonRejectCall, buttonAcceptCall, buttonEndCall, buttonMute, buttonSpeaker, buttonStartScreenShare, buttonStartCallRecord, buttonAddCallParticipant,
+-            imgBtnSwitchCamera;
+-    EditText etSandboxThreadId, etNewParticipantToAdd;
++    View callRequestView, inCallView, viewCallProfileBorder;
++    ConstraintLayout constraintHolder;
++    ImageButton buttonRejectCall,
++            buttonAcceptCall,
++            buttonAcceptWithAudio,
++            buttonRejectWithMessage,
++            buttonEndCall,
++            buttonMute,
++            buttonSpeaker,
++            buttonStartScreenShare,
++            buttonStartCallRecord,
++            buttonAddCallParticipant,
++            imgBtnSwitchCamera,
++            imgBtnTurnOnCam,
++            imgBtnTurnOffCam;
++    ImageView imgViewCallerProfile, imgViewCallerProfileInCall;
++    EditText etSandboxThreadId;
+ 
+     FrameLayout frameLayout;
+     FloatingActionButton fabContacts;
+@@ -102,14 +116,12 @@
+             remoteCallPartner3,
+             remoteCallPartner4;
+ 
+-    private boolean isVideoPaused = false;
+ 
+     private RecyclerView recyclerViewHistory;
+     private ViewSwitcher viewSwitcherRecentCalls;
+     ScheduledExecutorService ex;
+ 
+ 
+-
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+@@ -131,8 +143,15 @@
+             cancelVib();
+             stopRingtone();
+             onPreStartCall();
+-            presenter.acceptIncomingCall();
+-
++            presenter.acceptIncomingCallWithVideo();
++
++        });
++
++        buttonAcceptWithAudio.setOnClickListener(v -> {
++            cancelVib();
++            stopRingtone();
++            onPreStartCall();
++            presenter.acceptIncomingCallWithAudio();
+         });
+ 
+         buttonRejectCall.setOnClickListener((v) -> {
+@@ -142,6 +161,13 @@
+             presenter.rejectIncomingCall();
+         });
+ 
++        buttonRejectWithMessage.setOnClickListener((v) -> {
++            cancelVib();
++            stopRingtone();
++            setInitState();
++            presenter.rejectIncomingCallWithMessage("");
++        });
++
+ 
+         buttonEndCall.setOnClickListener(v -> {
+             onCallEnded();
+@@ -172,7 +198,7 @@
+         });
+ 
+         buttonStartCallById.setOnClickListener(v -> {
+-            presenter.requestP2PCallWithUserId(Integer.parseInt(etSandboxThreadId.getText().toString()));
++            presenter.requestP2PCallWithUserId(Integer.parseInt(etSandboxThreadId.getText().toString()), CallType.Constants.VOICE_CALL);
+         });
+ 
+ 
+@@ -185,26 +211,19 @@
+             presenter.switchCamera();
+         });
+ 
+-        localCallPartner.setOnClickListener(v -> {
+-            if (isVideoPaused) {
+-                presenter.resumeVideo();
+-            } else {
+-                presenter.pauseVideo();
+-            }
+-
+-            isVideoPaused = !isVideoPaused;
+-        });
+-
+         buttonStartScreenShare.setOnClickListener(v -> {
+             scaleIt(v);
+             presenter.onShareScreenTouched();
+         });
+ 
+         buttonStartCallRecord.setOnClickListener(v -> {
+-//            scaleIt(v);
+-//            presenter.onRecordButtonTouched();
+-            showToast("Not available yet!");
++            scaleIt(v);
++            presenter.onRecordButtonTouched();
++//            showToast("Not available yet!");
+         });
++
++        imgBtnTurnOnCam.setOnClickListener(v -> presenter.turnOnCamera());
++        imgBtnTurnOffCam.setOnClickListener(v -> presenter.turnOffCamera());
+ 
+ 
+         View.OnClickListener cllPartnersListener = this::swapMainCallPartner;
+@@ -220,7 +239,7 @@
+             inCallView.setVisibility(View.VISIBLE);
+             buttonStartCallById.setVisibility(View.VISIBLE);
+             tvCallerName.setText("");
+-            fabContacts.hide();
++            hideFabContact();
+         });
+     }
+ 
+@@ -360,11 +379,6 @@
+                 .start();
+     }
+ 
+-    private void updateViewOnCallReaction() {
+-
+-
+-    }
+-
+ 
+     private void init() {
+ 
+@@ -386,9 +400,12 @@
+ 
+         callRequestView = findViewById(R.id.viewCallRequest);
+         inCallView = findViewById(R.id.viewCall);
++        viewCallProfileBorder = findViewById(R.id.viewCallerProfileBorder);
+ 
+         buttonAcceptCall = findViewById(R.id.buttonAccept);
++        buttonAcceptWithAudio = findViewById(R.id.buttonAcceptWithAudio);
+         buttonRejectCall = findViewById(R.id.buttonReject);
++        buttonRejectWithMessage = findViewById(R.id.buttonRejectWithMessage);
+         buttonEndCall = findViewById(R.id.buttonEndCall);
+         buttonStartCallById = findViewById(R.id.btnSandboxCall);
+ 
+@@ -400,15 +417,19 @@
+         buttonSpeaker = findViewById(R.id.buttonSpeakerOn);
+ 
+         imgBtnSwitchCamera = findViewById(R.id.imgBtnSwitchCamera);
++        imgBtnTurnOnCam = findViewById(R.id.imgBtnTurnOnCam);
++        imgBtnTurnOffCam = findViewById(R.id.imgBtnTurnOffCam);
+ 
+         etSandboxThreadId = findViewById(R.id.etSandBoxPartnerId);
+-        etNewParticipantToAdd = findViewById(R.id.etNewParticipant);
+ 
+         frameLayout = findViewById(R.id.frame_call);
+         fabContacts = findViewById(R.id.fabShowContactsList);
+ 
+         Logger.addLogAdapter(new AndroidLogAdapter());
+ 
++        imgViewCallerProfile = findViewById(R.id.imgViewCallerProfile);
++        imgViewCallerProfileInCall = findViewById(R.id.imgViewCallerProfileInCall);
++
+         localCallPartner = findViewById(R.id.localPartnerCameraView);
+         remoteCallPartner1 = findViewById(R.id.remotePartnerView1);
+         remoteCallPartner2 = findViewById(R.id.remotePartnerView2);
+@@ -441,8 +462,9 @@
+ 
+     private void runTestCode() {
+ 
+-        inCallView.setVisibility(View.VISIBLE);
+-        fabContacts.hide();
++        callRequestView.setVisibility(View.VISIBLE);
++        hideFabContact();
++        animateViewProfile();
+ 
+ //        remoteCallPartner4.setVisibility(View.VISIBLE);
+ //        remoteCallPartner1.setVisibility(View.VISIBLE);
+@@ -460,7 +482,7 @@
+ 
+     @Override
+     public void switchToRecentCallsLoading() {
+-        runOnUiThread(()->{
++        runOnUiThread(() -> {
+             viewSwitcherRecentCalls.setDisplayedChild(0);
+         });
+     }
+@@ -473,11 +495,66 @@
+ 
+         runOnUiThread(() -> {
+             callRequestView.setVisibility(View.VISIBLE);
+-            buttonStartCallById.setVisibility(View.INVISIBLE);
+-            tvCallerName.setText(" " + callerName);
+-            fabContacts.hide();
++            buttonStartCallById.setVisibility(View.GONE);
++            hideFabContact();
+         });
+ 
++    }
++
++
++    @Override
++    public void hideCameraPreview() {
++        runOnUiThread(() -> {
++
++            localCallPartner.setVisibility(View.GONE);
++            imgBtnSwitchCamera.setVisibility(View.GONE);
++            imgBtnTurnOffCam.setVisibility(View.GONE);
++            imgBtnTurnOnCam.setVisibility(View.VISIBLE);
++        });
++    }
++
++    @Override
++    public void showCameraPreview() {
++        runOnUiThread(() -> {
++            localCallPartner.setVisibility(View.VISIBLE);
++            imgBtnSwitchCamera.setVisibility(View.VISIBLE);
++            imgBtnTurnOffCam.setVisibility(View.VISIBLE);
++            imgBtnTurnOnCam.setVisibility(View.GONE);
++        });
++    }
++
++
++    @Override
++    public void hideRemoteViews() {
++        runOnUiThread(() -> {
++            remoteCallPartner1.setVisibility(View.GONE);
++            remoteCallPartner2.setVisibility(View.GONE);
++            remoteCallPartner3.setVisibility(View.GONE);
++            remoteCallPartner4.setVisibility(View.GONE);
++            constraintHolder.setVisibility(View.GONE);
++//            viewCallProfileBorder.setVisibility(View.VISIBLE);
++            imgViewCallerProfileInCall.setVisibility(View.VISIBLE);
++        });
++    }
++
++    @Override
++    public void showRemoteViews() {
++        runOnUiThread(() -> {
++            constraintHolder.setVisibility(View.VISIBLE);
++            imgViewCallerProfileInCall.setVisibility(View.GONE);
++//            viewCallProfileBorder.setVisibility(View.GONE);
++        });
++    }
++
++    @Override
++    public void showVideoCallElements() {
++        runOnUiThread(() -> {
++            imgBtnSwitchCamera.setVisibility(View.VISIBLE);
++            imgBtnTurnOffCam.setVisibility(View.VISIBLE);
++            constraintHolder.setVisibility(View.VISIBLE);
++            imgBtnTurnOnCam.setVisibility(View.GONE);
++            imgViewCallerProfileInCall.setVisibility(View.GONE);
++        });
+     }
+ 
+     @Override
+@@ -520,9 +597,9 @@
+     private void showInCallView() {
+         runOnUiThread(() -> {
+             inCallView.setVisibility(View.VISIBLE);
+-            callRequestView.setVisibility(View.INVISIBLE);
+-            fabContacts.hide();
+-            buttonStartCallById.setVisibility(View.INVISIBLE);
++            callRequestView.setVisibility(View.GONE);
++            hideFabContact();
++            buttonStartCallById.setVisibility(View.GONE);
+             tvCalleeName.setText("");
+         });
+ 
+@@ -553,21 +630,31 @@
+ 
+     }
+ 
++    private void hideFabContact() {
++        fabContacts.hide();
++    }
++
+     private void hideInCallView() {
+         runOnUiThread(() -> {
+             inCallView.setVisibility(View.GONE);
+-            callRequestView.setVisibility(View.INVISIBLE);
+-            fabContacts.show();
++            callRequestView.setVisibility(View.GONE);
++            showFabContacts();
+             buttonStartCallById.setVisibility(View.VISIBLE);
+         });
+     }
+ 
++    private void showFabContacts() {
++        if(inCallView.getVisibility()!=View.VISIBLE){
++            fabContacts.show();
++        }
++    }
++
+     private void showRequestCallView() {
+         runOnUiThread(() -> {
+             inCallView.setVisibility(View.VISIBLE);
+-            callRequestView.setVisibility(View.INVISIBLE);
+-            fabContacts.hide();
+-            buttonStartCallById.setVisibility(View.INVISIBLE);
++            callRequestView.setVisibility(View.GONE);
++            hideFabContact();
++            buttonStartCallById.setVisibility(View.GONE);
+         });
+     }
+ 
+@@ -575,17 +662,14 @@
+         runOnUiThread(() -> {
+             inCallView.setVisibility(View.GONE);
+             callRequestView.setVisibility(View.GONE);
+-            fabContacts.show();
++            showFabContacts();
+             buttonStartCallById.setVisibility(View.VISIBLE);
+         });
+     }
+ 
+     @Override
+     public void onVoiceCallEnded(String uniqueId, long subjectId) {
+-
+         onCallEnded();
+-
+-
+     }
+ 
+     private void onCallEnded() {
+@@ -595,16 +679,13 @@
+         stopCallTimer();
+ 
+         runOnUiThread(() -> {
+-
+-            inCallView.setVisibility(View.INVISIBLE);
+-            callRequestView.setVisibility(View.INVISIBLE);
+-//            buttonTestCall.setVisibility(View.VISIBLE);
+-            fabContacts.show();
++            inCallView.setVisibility(View.GONE);
++            callRequestView.setVisibility(View.GONE);
++            showFabContacts();
+             buttonStartCallById.setVisibility(View.VISIBLE);
+-            Toast.makeText(this, "Call has been ended", Toast.LENGTH_SHORT).show();
+-            tvStatus.setText("Call has been ended");
+-            tvCalleeName.setText("");
+         });
++        updateStatus("تماس به پایان رسید");
++        updateTvCallee("");
+ 
+     }
+ 
+@@ -621,24 +702,21 @@
+ 
+         runOnUiThread(() -> {
+ 
+-            fabContacts.show();
++            showFabContacts();
+ 
+             switchToRecentCallsRecycler();
+ 
+             HistoryAdaptor hAdaptor = new HistoryAdaptor(
+                     new ArrayList<>(calls),
+-                    this, call ->
+-            {
+-                tvCalleeName.setText("Calling " + call.getPartnerParticipantVO().getFirstName() + " " + call.getPartnerParticipantVO().getLastName());
++                    this, new HistoryAdaptor.IHistoryInterface() {
++                @Override
++                public void onAudioCallSelected(CallVO call) {
++                    presenter.requestAudioCall(call);
++                }
+ 
+-                if (call.getPartnerParticipantVO().getContactId() > 0) {
+-                    presenter.requestP2PCallWithContactId(
+-                            (int) call.getPartnerParticipantVO().getContactId()
+-                    );
+-                } else if (call.getPartnerParticipantVO().getId() > 0) {
+-                    presenter.requestP2PCallWithUserId(
+-                            (int) call.getPartnerParticipantVO().getId()
+-                    );
++                @Override
++                public void onVideoCallSelected(CallVO call) {
++                    presenter.requestVideoCall(call);
+                 }
+             }
+             );
+@@ -675,11 +753,7 @@
+ 
+     @Override
+     public void onCallDelivered(CallDeliverResult result) {
+-        runOnUiThread(() -> {
+ 
+-            Toast.makeText(this, "Call Request Delivered to " + result.getCallParticipantVO().getUserId(), Toast.LENGTH_SHORT).show();
+-
+-        });
+     }
+ 
+     @Override
+@@ -688,11 +762,9 @@
+         vibrateE();
+         ring();
+         runOnUiThread(() -> {
+-            Toast.makeText(this, "Group Call from " + callerName, Toast.LENGTH_SHORT).show();
+             callRequestView.setVisibility(View.VISIBLE);
+-            buttonStartCallById.setVisibility(View.INVISIBLE);
+-            tvCallerName.setText(callerName + " from " + title);
+-            fabContacts.hide();
++            buttonStartCallById.setVisibility(View.GONE);
++            hideFabContact();
+         });
+ 
+     }
+@@ -738,10 +810,6 @@
+     }
+ 
+ 
+-
+-
+-
+-
+     @Override
+     public void updateUserInfo(UserInfo user) {
+ 
+@@ -785,7 +853,6 @@
+ 
+     @Override
+     public void onCallCreated(long threadId) {
+-        updateStatus("Call with id " + threadId + " was created");
+         showRequestCallView();
+     }
+ 
+@@ -802,7 +869,6 @@
+ 
+     @Override
+     public void callParticipantMuted(CallParticipantVO participant, CallPartnerView partnerView) {
+-        showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " is muted now!");
+         runOnUiThread(() -> {
+             if (partnerView != null)
+                 partnerView.setDisplayIsMuteIcon(true);
+@@ -811,7 +877,7 @@
+ 
+     @Override
+     public void callParticipantUnMuted(CallParticipantVO participant, CallPartnerView partnerView) {
+-        showToast(participant.getParticipantVO().getFirstName() + " " + participant.getParticipantVO().getLastName() + " Is unmuted now!");
++
+         runOnUiThread(() -> {
+             if (partnerView != null)
+                 partnerView.setDisplayIsMuteIcon(false);
+@@ -875,7 +941,7 @@
+ 
+         runOnUiThread(() -> {
+             if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null) {
+-                fabContacts.hide();
++                hideFabContact();
+ 
+                 FrameLayout frameLayout = findViewById(R.id.frame_call);
+                 frameLayout.setVisibility(View.VISIBLE);
+@@ -886,7 +952,7 @@
+                             .addToBackStack("CFRAG")
+                             .commit();
+                 } catch (Exception e) {
+-                    fabContacts.show();
++                    showFabContacts();
+                     Log.wtf(TAG, e);
+                 }
+             }
+@@ -915,7 +981,7 @@
+ 
+         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+             getSupportFragmentManager().popBackStack();
+-            fabContacts.show();
++            showFabContacts();
+             hideFragmentByTag("CFRAG");
+ 
+             hideFragmentByTag("LFRAG");
+@@ -943,7 +1009,7 @@
+ 
+ 
+         if (fabContacts != null) {
+-            fabContacts.hide();
++            hideFabContact();
+         }
+ 
+         LoginFragment loginFragment = new LoginFragment();
+@@ -970,18 +1036,64 @@
+ 
+ 
+     @Override
+-    public void onContactsSelected(ContactsWrapper contact) {
+-        presenter.onContactSelected(contact);
++    public void onContactsSelected(ContactsWrapper contact, int callType) {
++        presenter.onContactSelected(contact, callType);
+     }
+ 
+     @Override
+     public void showFabContact() {
+-        fabContacts.show();
++        showFabContacts();
++    }
++
++    @Override
++    public void updateTvCaller(String callerName) {
++        runOnUiThread(() -> {
++            tvCallerName.setText(callerName);
++        });
+     }
+ 
+     @Override
+     public void updateTvCallee(String txt) {
+-        tvCalleeName.setText(txt);
++        runOnUiThread(() -> tvCalleeName.setText(txt));
++    }
++
++    @Override
++    public void updateCallerImage(String profileUrl) {
++        runOnUiThread(() -> {
++            GlideApp.with(this)
++                    .load(profileUrl)
++                    .apply(RequestOptions.circleCropTransform())
++                    .fallback(R.mipmap.ic_profile)
++                    .into(imgViewCallerProfile);
++
++            animateViewProfile();
++        });
++    }
++
++    private void animateViewProfile() {
++        viewCallProfileBorder.animate()
++                .scaleX(1.5f)
++                .scaleY(1.5f)
++                .alpha(0)
++                .setInterpolator(new BounceInterpolator())
++                .setDuration(1000)
++                .withEndAction(() -> {
++                    viewCallProfileBorder.setScaleY(1);
++                    viewCallProfileBorder.setScaleX(1);
++                    viewCallProfileBorder.setAlpha(1);
++                    animateViewProfile();
++                });
++    }
++
++    @Override
++    public void updateCallImage(String profileUrl) {
++        runOnUiThread(() -> {
++            GlideApp.with(this)
++                    .load(profileUrl)
++                    .apply(RequestOptions.circleCropTransform())
++                    .fallback(R.mipmap.ic_profile)
++                    .into(imgViewCallerProfileInCall);
++        });
+     }
+ 
+     @Override
+@@ -1083,7 +1195,7 @@
+ 
+         runOnUiThread(() -> {
+             localCallPartner.setVisibility(View.GONE);
+-            fabContacts.show();
++            showFabContacts();
+             hideRequestCallView();
+         });
+ 
+Index: app/src/withCall/java/com/example/chat/application/chatexample/CallContract.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/withCall/java/com/example/chat/application/chatexample/CallContract.java b/app/src/withCall/java/com/example/chat/application/chatexample/CallContract.java
+--- a/app/src/withCall/java/com/example/chat/application/chatexample/CallContract.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/withCall/java/com/example/chat/application/chatexample/CallContract.java	(date 1635327375593)
+@@ -142,9 +142,23 @@
+ 
+         default void updateTvCallee(String txt){}
+ 
++        default void updateTvCaller(String txt){}
++
+         default void showMessage(String msg){}
+ 
+         default void switchToRecentCallsLoading(){}
++
++        default void hideCameraPreview(){}
++        default void showCameraPreview(){}
++
++
++        default void hideRemoteViews(){}
++        default void showRemoteViews(){}
++
++        default void showVideoCallElements(){}
++
++        default void updateCallerImage(String profileUrl){}
++        default void updateCallImage(String profileUrl){}
+     }
+ 
+     interface presenter {
+@@ -166,7 +180,9 @@
+ 
+         void getContact(RequestGetContact request);
+ 
+-        void acceptIncomingCall();
++        void acceptIncomingCallWithVideo();
++
++        void acceptIncomingCallWithAudio();
+ 
+         void rejectIncomingCall();
+ 
+@@ -198,9 +214,9 @@
+ 
+         void requestP2PCallWithP2PThreadId(int threadId);
+ 
+-        void requestP2PCallWithContactId(int contactId);
++        void requestP2PCallWithContactId(int contactId, int callType);
+ 
+-        void requestP2PCallWithUserId(int userId);
++        void requestP2PCallWithUserId(int userId, int callType);
+ 
+         void terminateCall();
+ 
+@@ -210,10 +226,6 @@
+ 
+         void switchCamera();
+ 
+-        void pauseVideo();
+-
+-        void resumeVideo();
+-
+         void onShareScreenTouched();
+ 
+         void handleActivityResult(int requestCode, int resultCode, Intent data);
+@@ -222,8 +234,18 @@
+ 
+         void onRecordButtonTouched();
+ 
+-        void onContactSelected(ContactsWrapper contact);
++        void onContactSelected(ContactsWrapper contact, int callType);
+ 
+         void connect(String token);
++
++        void requestAudioCall(CallVO call);
++
++        void requestVideoCall(CallVO call);
++
++        void rejectIncomingCallWithMessage(String msg);
++
++        void turnOnCamera();
++
++        void turnOffCamera();
+     }
+ }
+Index: app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsFragment.java b/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsFragment.java
+--- a/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsFragment.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/withCall/java/com/fanap/podchat/call/contacts/ContactsFragment.java	(date 1635329254440)
+@@ -20,7 +20,7 @@
+ 
+     public interface IContactsFragment {
+ 
+-        void onContactsSelected(ContactsWrapper contact);
++        void onContactsSelected(ContactsWrapper contact, int callType);
+     }
+ 
+ 
+@@ -78,8 +78,8 @@
+ 
+     private void setListeners() {
+ 
+-        viewAddContact.setOnClickListener(v-> Toast.makeText(getContext(), "Not Today!", Toast.LENGTH_SHORT).show());
+-        viewCreateGroupCall.setOnClickListener(v-> Toast.makeText(getContext(), "Not Today!", Toast.LENGTH_SHORT).show());
++        viewAddContact.setOnClickListener(v-> Toast.makeText(getContext(), "فعلا این قابلیت اضافه نشده", Toast.LENGTH_SHORT).show());
++        viewCreateGroupCall.setOnClickListener(v-> Toast.makeText(getContext(), "فعلا این قابلیت اضافه نشده", Toast.LENGTH_SHORT).show());
+ 
+     }
+ 
+@@ -87,10 +87,10 @@
+         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+ 
+         adaptor = new ContactsAdaptor(contacts, view.getContext(), false,
+-                contactsWrapper -> {
++                (contactsWrapper, callType) -> {
+                     Log.d("TAGG", "Selected " + contactsWrapper.getFirstName());
+                     if (callback != null) {
+-                        callback.onContactsSelected(contactsWrapper);
++                        callback.onContactsSelected(contactsWrapper,callType);
+                     }
+                 });
+ 
+Index: podchat/src/withCall/java/com/fanap/podchat/chat/Chat.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/podchat/src/withCall/java/com/fanap/podchat/chat/Chat.java b/podchat/src/withCall/java/com/fanap/podchat/chat/Chat.java
+--- a/podchat/src/withCall/java/com/fanap/podchat/chat/Chat.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/podchat/src/withCall/java/com/fanap/podchat/chat/Chat.java	(date 1635344144767)
+@@ -7,7 +7,6 @@
+ import com.fanap.podcall.PartnerType;
+ import com.fanap.podcall.PodCall;
+ import com.fanap.podcall.PodCallBuilder;
+-import com.fanap.podcall.PodCallV2;
+ import com.fanap.podcall.audio.AudioCallParam;
+ import com.fanap.podcall.kafka.KafkaConfig;
+ import com.fanap.podcall.model.CallPartner;
+@@ -73,7 +72,7 @@
+     private boolean deviceIsInCall = false;
+     private List<CallPartnerView> videoCallPartnerViews;
+     private CallPartnerView localPartnerView;
+-    private PodCallV2 podVideoCall;
++    private PodCall podVideoCall;
+     private CallServiceManager callServiceManager;
+ 
+     @Deprecated
+@@ -101,14 +100,10 @@
+                 showLog("Camera is ready");
+             }
+ 
+-            @Override
+-            public void onCameraReady(PodCallV2 podCallV2) {
+-                showLog("Camera is ready");
+-            }
+         })
+                 .setVideoCallParam(videoCallParam)
+                 .setAudioCallParam(audioCallParam)
+-                .buildV2();
++                .build();
+ 
+         podVideoCall.initial();
+ 
+@@ -143,15 +138,12 @@
+                 showLog("Call is ready");
+             }
+ 
+-            @Override
+-            public void onCameraReady(PodCallV2 podCallV2) {
+-                showLog("Call is ready");
+-            }
++
+         })
+                 .setVideoCallParam(videoCallParam)
+                 .setAudioCallParam(audioCallParam)
+                 .setScreenShareParam(screenShareParam)
+-                .buildV2();
++                .build();
+ 
+         podVideoCall.initial();
+ 
+@@ -271,9 +263,9 @@
+     }
+ 
+     /**
+-     * @deprecated terminateAudioCall is misleading in video calls. {@link #terminateCall(TerminateCallRequest)}
+      * @param terminateCallRequest
+      * @return
++     * @deprecated terminateAudioCall is misleading in video calls. {@link #terminateCall(TerminateCallRequest)}
+      */
+     @Deprecated
+     public String terminateAudioCall(TerminateCallRequest terminateCallRequest) {
+@@ -485,9 +477,9 @@
+                     visibleView(videoCallPartnerViews.get(0));
+                     videoCallPartnerViews.get(0).setPartnerId(client.getUserId());
+                     rPartnerBuilder.setVideoTopic(client.getTopicSendVideo());
+-                }
+-
+-                rPartnerBuilder.setVideoView(videoCallPartnerViews.remove(0));
++                    rPartnerBuilder.setVideoView(videoCallPartnerViews.remove(0));
++                }
++
+                 rPartnerBuilder.setAudioTopic(client.getTopicSendAudio());
+                 CallPartner rPartner = rPartnerBuilder.build();
+                 podVideoCall.addPartner(rPartner);
+@@ -663,9 +655,9 @@
+     }
+ 
+     /**
+-     * @Deprecated endAudioCall is misleading in video calls. use {@link #endCall(EndCallRequest)}
+      * @param endCallRequest
+      * @return request uniqueId
++     * @Deprecated endAudioCall is misleading in video calls. use {@link #endCall(EndCallRequest)}
+      */
+     @Deprecated
+     public String endAudioCall(EndCallRequest endCallRequest) {
+@@ -714,11 +706,13 @@
+         videoCallPartnerViews.add(view);
+     }
+ 
+-    public void addPartnerView(CallPartnerView view,int pos) {
++    public void addPartnerView(CallPartnerView view, int pos) {
+         if (Util.isNullOrEmpty(videoCallPartnerViews)) {
+             videoCallPartnerViews = new ArrayList<>();
+-        }
+-        videoCallPartnerViews.add(pos,view);
++            videoCallPartnerViews.add(view);
++        }else {
++            videoCallPartnerViews.add(pos, view);
++        }
+     }
+ 
+     public void addAllPartnerView(List<CallPartnerView> views) {
+@@ -830,7 +824,7 @@
+ 
+     void handleOnCallStarted(Callback callback, ChatMessage chatMessage) {
+ 
+-        if(deviceIsInCall){
++        if (deviceIsInCall) {
+             if (sentryResponseLog) {
+                 showLog("VOICE_CALL_STARTED", gson.toJson(chatMessage));
+             } else {
+@@ -852,7 +846,7 @@
+                 messageCallbacks.remove(callback.getUniqueId());
+ 
+             listenerManager.callOnCallVoiceCallStarted(response);
+-        }else{
++        } else {
+             handleOnCallAcceptedFromAnotherDevice(chatMessage);
+         }
+ 
+@@ -872,22 +866,22 @@
+     void handleOnVoiceCallEnded(ChatMessage chatMessage) {
+ 
+ 
+-       if(deviceIsInCall){
+-           if (sentryResponseLog) {
+-               showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
+-           } else {
+-               showLog("RECEIVE_VOICE_CALL_ENDED");
+-           }
++        if (deviceIsInCall) {
++            if (sentryResponseLog) {
++                showLog("RECEIVE_VOICE_CALL_ENDED", gson.toJson(chatMessage));
++            } else {
++                showLog("RECEIVE_VOICE_CALL_ENDED");
++            }
+ 
+-           stopCallService();
++            stopCallService();
+ 
+-           endCall();
++            endCall();
+ 
+ 
+-           ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
++            ChatResponse<EndCallResult> response = CallAsyncRequestsManager.handleOnCallEnded(chatMessage);
+ 
+-           listenerManager.callOnVoiceCallEnded(response);
+-       }
++            listenerManager.callOnVoiceCallEnded(response);
++        }
+ 
+ 
+     }
+@@ -895,90 +889,90 @@
+     @Override
+     void handleOnNewCallParticipantJoined(ChatMessage chatMessage) {
+ 
+-       if(deviceIsInCall){
+-           if (sentryResponseLog) {
+-               showLog("RECEIVE_PARTICIPANT_JOINED", gson.toJson(chatMessage));
+-           } else {
+-               showLog("RECEIVE_PARTICIPANT_JOINED");
+-           }
++        if (deviceIsInCall) {
++            if (sentryResponseLog) {
++                showLog("RECEIVE_PARTICIPANT_JOINED", gson.toJson(chatMessage));
++            } else {
++                showLog("RECEIVE_PARTICIPANT_JOINED");
++            }
+ 
+-           ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
++            ChatResponse<JoinCallParticipantResult> response = CallAsyncRequestsManager.handleOnParticipantJoined(chatMessage);
+ 
+ //        audioCallManager.addCallParticipant(response);
+ 
+-           if (podVideoCall != null)
+-               prepareRemotePartnersByCallParticipantVO(response.getResult().getJoinedParticipants());
++            if (podVideoCall != null)
++                prepareRemotePartnersByCallParticipantVO(response.getResult().getJoinedParticipants());
+ 
+-           listenerManager.callOnCallParticipantJoined(response);
+-       }
++            listenerManager.callOnCallParticipantJoined(response);
++        }
+     }
+ 
+     @Override
+     protected void handleOnCallParticipantCanceledCall(ChatMessage chatMessage) {
+-       if(deviceIsInCall){
+-           showLog("RECEIVE_CANCEL_GROUP_CALL", gson.toJson(chatMessage));
++        if (deviceIsInCall) {
++            showLog("RECEIVE_CANCEL_GROUP_CALL", gson.toJson(chatMessage));
+ 
+-           ChatResponse<CallCancelResult> response = CallAsyncRequestsManager.handleOnCallCanceled(chatMessage);
++            ChatResponse<CallCancelResult> response = CallAsyncRequestsManager.handleOnCallCanceled(chatMessage);
+ 
+-           listenerManager.callOnCallCanceled(response);
+-       }
++            listenerManager.callOnCallCanceled(response);
++        }
+     }
+ 
+     @Override
+     protected void handleOnCallParticipantLeft(ChatMessage chatMessage) {
+ 
+-       if(deviceIsInCall){
+-           if (sentryResponseLog) {
+-               showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
+-           } else {
+-               showLog("RECEIVE_LEAVE_CALL");
+-           }
++        if (deviceIsInCall) {
++            if (sentryResponseLog) {
++                showLog("RECEIVE_LEAVE_CALL", gson.toJson(chatMessage));
++            } else {
++                showLog("RECEIVE_LEAVE_CALL");
++            }
+ 
+-           ChatResponse<LeaveCallResult> response = CallAsyncRequestsManager.handleOnParticipantLeft(chatMessage);
++            ChatResponse<LeaveCallResult> response = CallAsyncRequestsManager.handleOnParticipantLeft(chatMessage);
+ 
+-           removeCallPartner(response.getResult().getCallParticipants().get(0));
++            removeCallPartner(response.getResult().getCallParticipants().get(0));
+ 
+-           listenerManager.callOnCallParticipantLeft(response);
+-       }
++            listenerManager.callOnCallParticipantLeft(response);
++        }
+     }
+ 
+     @Override
+     protected void handleOnCallParticipantRemoved(ChatMessage chatMessage) {
+ 
+-      if(deviceIsInCall){
+-          ChatResponse<RemoveFromCallResult> response = CallAsyncRequestsManager.handleOnParticipantRemoved(chatMessage);
++        if (deviceIsInCall) {
++            ChatResponse<RemoveFromCallResult> response = CallAsyncRequestsManager.handleOnParticipantRemoved(chatMessage);
+ 
+-          if (response.getResult().isUserRemoved()) {
++            if (response.getResult().isUserRemoved()) {
+ 
+-              if (sentryResponseLog) {
+-                  showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
+-              } else {
+-                  showLog("RECEIVE_REMOVED_FROM_CALL");
+-              }
++                if (sentryResponseLog) {
++                    showLog("RECEIVE_REMOVED_FROM_CALL", gson.toJson(chatMessage));
++                } else {
++                    showLog("RECEIVE_REMOVED_FROM_CALL");
++                }
+ 
+-              stopCallService();
++                stopCallService();
+ 
+-              endCall();
++                endCall();
+ 
+ 
+-              listenerManager.callOnRemovedFromCall(response);
++                listenerManager.callOnRemovedFromCall(response);
+ 
+-          } else {
++            } else {
+ 
+-              if (sentryResponseLog) {
+-                  showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
+-              } else {
+-                  showLog("RECEIVE_CALL_PARTICIPANT_REMOVED");
+-              }
++                if (sentryResponseLog) {
++                    showLog("RECEIVE_CALL_PARTICIPANT_REMOVED", gson.toJson(chatMessage));
++                } else {
++                    showLog("RECEIVE_CALL_PARTICIPANT_REMOVED");
++                }
+ 
+-              if (podVideoCall != null)
+-                  removeCallPartner(response.getResult().getCallParticipants().get(0));
++                if (podVideoCall != null)
++                    removeCallPartner(response.getResult().getCallParticipants().get(0));
+ 
+-              listenerManager.callOnCallParticipantRemoved(response);
++                listenerManager.callOnCallParticipantRemoved(response);
+ 
+-          }
++            }
+ 
+-      }
++        }
+ 
+     }
+ 
+@@ -1003,15 +997,12 @@
+         if (podVideoCall != null)
+             addVideoCallPartner(response);
+ 
+-        //todo fire an event for local partner
+-        listenerManager.callOnCallParticipantStartedVideo(response);
+-
+     }
+ 
+     @Override
+     void handleOnCallParticipantRemovedVideo(ChatMessage chatMessage) {
+ 
+-        if(deviceIsInCall){
++        if (deviceIsInCall) {
+             if (sentryResponseLog) {
+                 showLog("RECEIVE_CALL_PARTICIPANT_STOPPED_VIDEO", gson.toJson(chatMessage));
+             } else {
+@@ -1031,7 +1022,7 @@
+     @Override
+     void handleOnEndedCallRecord(ChatMessage chatMessage, Callback callback) {
+ 
+-        if(deviceIsInCall){
++        if (deviceIsInCall) {
+             if (sentryResponseLog) {
+                 showLog("RECORD_CALL_ENDED", gson.toJson(chatMessage));
+             } else {
+@@ -1053,7 +1044,7 @@
+     @Override
+     void handOnShareScreenStarted(ChatMessage chatMessage, Callback callback) {
+ 
+-        if(deviceIsInCall){
++        if (deviceIsInCall) {
+             if (sentryResponseLog) {
+                 showLog("RECEIVE_SHARE_SCREEN_STARTED", gson.toJson(chatMessage));
+             } else {
+@@ -1128,197 +1119,197 @@
+     @Override
+     void handOnShareScreenEnded(ChatMessage chatMessage, Callback callback) {
+ 
+-      if(deviceIsInCall){
+-          if (sentryResponseLog) {
+-              showLog("RECEIVE_SHARE_SCREEN_ENDED", gson.toJson(chatMessage));
+-          } else {
+-              showLog("RECEIVE_SHARE_SCREEN_ENDED");
+-          }
++        if (deviceIsInCall) {
++            if (sentryResponseLog) {
++                showLog("RECEIVE_SHARE_SCREEN_ENDED", gson.toJson(chatMessage));
++            } else {
++                showLog("RECEIVE_SHARE_SCREEN_ENDED");
++            }
+ 
+-          ChatResponse<ScreenShareResult> response = CallAsyncRequestsManager.handleOnScreenShareStarted(chatMessage);
++            ChatResponse<ScreenShareResult> response = CallAsyncRequestsManager.handleOnScreenShareStarted(chatMessage);
+ 
+-          if (callback != null) {
+-              removeCallback(chatMessage.getUniqueId());
+-              //client stopped screen share
+-              listenerManager.callOnScreenShareEnded(response);
+-          } else {
+-              if (podVideoCall != null) {
+-                  podVideoCall.removePartnerOfTopic("screenShare" + chatMessage.getSubjectId());
++            if (callback != null) {
++                removeCallback(chatMessage.getUniqueId());
++                //client stopped screen share
++                listenerManager.callOnScreenShareEnded(response);
++            } else {
++                if (podVideoCall != null) {
++                    podVideoCall.removePartnerOfTopic("screenShare" + chatMessage.getSubjectId());
+ //                podVideoCall.removePartnerOfTopic(response.getResult().getTopicReceive());
+-              }
+-              listenerManager.callOnCallParticipantStoppedScreenSharing(response);
+-          }
+-      }
++                }
++                listenerManager.callOnCallParticipantStoppedScreenSharing(response);
++            }
++        }
+ 
+     }
+ 
+     @Override
+     void handleOnStartedCallRecord(ChatMessage chatMessage, Callback callback) {
+ 
+-       if(deviceIsInCall){
+-           if (sentryResponseLog) {
+-               showLog("RECORD_CALL_STARTED", gson.toJson(chatMessage));
+-           } else {
+-               showLog("RECORD_CALL_STARTED");
+-           }
++        if (deviceIsInCall) {
++            if (sentryResponseLog) {
++                showLog("RECORD_CALL_STARTED", gson.toJson(chatMessage));
++            } else {
++                showLog("RECORD_CALL_STARTED");
++            }
+ 
+-           ChatResponse<Participant> response
+-                   = CallAsyncRequestsManager.handleStartedRecordCallResponse(chatMessage);
++            ChatResponse<Participant> response
++                    = CallAsyncRequestsManager.handleStartedRecordCallResponse(chatMessage);
+ 
+-           if (callback != null) {
+-               removeCallback(chatMessage.getUniqueId());
+-               listenerManager.callOnCallRecordStarted(response);
+-           } else {
+-               listenerManager.callOnCallParticipantStartRecording(response);
+-           }
+-       }
++            if (callback != null) {
++                removeCallback(chatMessage.getUniqueId());
++                listenerManager.callOnCallRecordStarted(response);
++            } else {
++                listenerManager.callOnCallParticipantStartRecording(response);
++            }
++        }
+ 
+     }
+ 
+     @Override
+     protected void handleOnCallParticipantMuted(Callback callback, ChatMessage chatMessage) {
+-      if(deviceIsInCall){
+-          showLog("RECEIVE_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
++        if (deviceIsInCall) {
++            showLog("RECEIVE_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
+ 
+-          ChatResponse<MuteUnMuteCallParticipantResult> response =
+-                  CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
++            ChatResponse<MuteUnMuteCallParticipantResult> response =
++                    CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
+ 
+-          if (callback != null) {
++            if (callback != null) {
+ 
+-              if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+-                  //audio call muted onAudioCallMuted
+-                  showLog("RECEIVE_AUDIO_CALL_MUTED");
+-                  callOnUserIsMute(callback, response);
++                if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
++                    //audio call muted onAudioCallMuted
++                    showLog("RECEIVE_AUDIO_CALL_MUTED");
++                    callOnUserIsMute(callback, response);
+ 
+-                  if (response.getResult().getCallParticipants().size() > 1) {
+-                      callOnOtherCallParticipantsMuted(response);
+-                  }
++                    if (response.getResult().getCallParticipants().size() > 1) {
++                        callOnOtherCallParticipantsMuted(response);
++                    }
+ 
+-              } else {
+-                  callOnOtherCallParticipantsMuted(response);
+-              }
++                } else {
++                    callOnOtherCallParticipantsMuted(response);
++                }
+ 
+ 
+-          } else {
++            } else {
+ 
+-              if (!response.isHasError()) {
++                if (!response.isHasError()) {
+ 
+-                  if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+-                      //user is muted onMutedByAdmin
+-                      callOnCurrentUserMutedByAdmin(response);
++                    if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
++                        //user is muted onMutedByAdmin
++                        callOnCurrentUserMutedByAdmin(response);
+ 
+-                      if (response.getResult().getCallParticipants().size() > 1) {
+-                          callOnOtherCallParticipantsMuted(response);
+-                      }
+-                  } else {
+-                      //call participant muted onCallParticipantMuted
+-                      callOnOtherCallParticipantsMuted(response);
+-                  }
+-              }
++                        if (response.getResult().getCallParticipants().size() > 1) {
++                            callOnOtherCallParticipantsMuted(response);
++                        }
++                    } else {
++                        //call participant muted onCallParticipantMuted
++                        callOnOtherCallParticipantsMuted(response);
++                    }
++                }
+ 
+-          }
++            }
+ 
+ 
+-      }
++        }
+     }
+ 
+     @Override
+     protected void handleOnCallParticipantUnMuted(Callback callback, ChatMessage chatMessage) {
+-       if(deviceIsInCall){
+-           showLog("RECEIVE_UN_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
++        if (deviceIsInCall) {
++            showLog("RECEIVE_UN_MUTE_CALL_PARTICIPANT", chatMessage.getContent());
+ 
+-           ChatResponse<MuteUnMuteCallParticipantResult> response =
+-                   CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
++            ChatResponse<MuteUnMuteCallParticipantResult> response =
++                    CallAsyncRequestsManager.handleMuteUnMuteCallParticipant(chatMessage);
+ 
+ 
+-           if (callback != null) {
++            if (callback != null) {
+ 
+-               if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+-                   //audio call unmuted onAudioCallMuted
+-                   callOnUserIsUnMute(callback, response);
++                if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
++                    //audio call unmuted onAudioCallMuted
++                    callOnUserIsUnMute(callback, response);
+ 
+-                   if (response.getResult().getCallParticipants().size() > 1) {
+-                       callOnOtherCallParticipantsUnMuted(response);
+-                   }
++                    if (response.getResult().getCallParticipants().size() > 1) {
++                        callOnOtherCallParticipantsUnMuted(response);
++                    }
+ 
+-               } else {
+-                   //call participant unmuted onCallParticipantUnMuted
+-                   callOnOtherCallParticipantsUnMuted(response);
+-               }
++                } else {
++                    //call participant unmuted onCallParticipantUnMuted
++                    callOnOtherCallParticipantsUnMuted(response);
++                }
+ 
+ 
+-           } else {
++            } else {
+ 
+-               if (!response.isHasError()) {
++                if (!response.isHasError()) {
+ 
+-                   if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
+-                       //user is unmuted onMutedByAdmin
+-                       callOnCurrentUserUnMutedByAdmin(response);
++                    if (CallAsyncRequestsManager.isUserContains(response.getResult().getCallParticipants())) {
++                        //user is unmuted onMutedByAdmin
++                        callOnCurrentUserUnMutedByAdmin(response);
+ 
+-                       if (response.getResult().getCallParticipants().size() > 1) {
+-                           //call participant unmuted onCallParticipantUnMuted
+-                           callOnOtherCallParticipantsUnMuted(response);
+-                       }
++                        if (response.getResult().getCallParticipants().size() > 1) {
++                            //call participant unmuted onCallParticipantUnMuted
++                            callOnOtherCallParticipantsUnMuted(response);
++                        }
+ 
+-                   } else {
+-                       //call participant unmuted onCallParticipantUnMuted
+-                       callOnOtherCallParticipantsUnMuted(response);
+-                   }
+-               }
++                    } else {
++                        //call participant unmuted onCallParticipantUnMuted
++                        callOnOtherCallParticipantsUnMuted(response);
++                    }
++                }
+ 
+-           }
+-       }
++            }
++        }
+     }
+ 
+ 
+     @Override
+     protected void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
+-      if(callback!=null){
+-          if (sentryResponseLog) {
+-              showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
+-          } else {
+-              showLog("RECEIVED_CALL_HISTORY");
+-          }
++        if (callback != null) {
++            if (sentryResponseLog) {
++                showLog("RECEIVED_CALL_HISTORY", gson.toJson(chatMessage));
++            } else {
++                showLog("RECEIVED_CALL_HISTORY");
++            }
+ 
+-          ChatResponse<GetCallHistoryResult> response = CallAsyncRequestsManager.handleOnGetCallHistory(chatMessage, callback);
++            ChatResponse<GetCallHistoryResult> response = CallAsyncRequestsManager.handleOnGetCallHistory(chatMessage, callback);
+ 
+-          if (cache)
+-              messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
++            if (cache)
++                messageDatabaseHelper.saveCallsHistory(response.getResult().getCallsList());
+ 
+-          listenerManager.callOnGetCallHistory(response);
+-      }
++            listenerManager.callOnGetCallHistory(response);
++        }
+ 
+     }
+ 
+     @Override
+     protected void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
+-       if(deviceIsInCall){
+-           if (sentryResponseLog) {
+-               showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
+-           } else {
+-               showLog("RECEIVED_CALL_RECONNECT");
+-           }
++        if (deviceIsInCall) {
++            if (sentryResponseLog) {
++                showLog("RECEIVED_CALL_RECONNECT", gson.toJson(chatMessage));
++            } else {
++                showLog("RECEIVED_CALL_RECONNECT");
++            }
+ 
+-           ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallReconnectReceived(chatMessage);
++            ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallReconnectReceived(chatMessage);
+ 
+-           listenerManager.callOnCallReconnectReceived(response);
+-       }
++            listenerManager.callOnCallReconnectReceived(response);
++        }
+     }
+ 
+     @Override
+     protected void handleOnReceivedCallConnect(ChatMessage chatMessage) {
+-       if(deviceIsInCall){
+-           if (sentryResponseLog) {
+-               showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
+-           } else {
+-               showLog("RECEIVED_CALL_CONNECT");
+-           }
++        if (deviceIsInCall) {
++            if (sentryResponseLog) {
++                showLog("RECEIVED_CALL_CONNECT", gson.toJson(chatMessage));
++            } else {
++                showLog("RECEIVED_CALL_CONNECT");
++            }
+ 
+ 
+-           ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallConnectReceived(chatMessage);
++            ChatResponse<CallReconnectResult> response = CallAsyncRequestsManager.handleOnCallConnectReceived(chatMessage);
+ 
+-           listenerManager.callOnCallConnectReceived(response);
+-       }
++            listenerManager.callOnCallConnectReceived(response);
++        }
+     }
+ 
+ 
+@@ -1424,27 +1415,28 @@
+         }
+     }
+ 
+-    public boolean isFrontCamera(){
+-        if(podVideoCall!=null){
++    public boolean isFrontCamera() {
++        if (podVideoCall != null) {
+             return podVideoCall.isFrontCamera();
+         }
+         return false;
+     }
+ 
+-    public void switchToFrontCamera(){
+-        if(podVideoCall!=null){
++    public void switchToFrontCamera() {
++        if (podVideoCall != null) {
+             podVideoCall.switchToFrontCamera();
+         }
+     }
+ 
+-    public boolean isBackCamera(){
+-       if(podVideoCall!=null){
+-        return podVideoCall.isBackCamera();
+-       }
+-       return false;
++    public boolean isBackCamera() {
++        if (podVideoCall != null) {
++            return podVideoCall.isBackCamera();
++        }
++        return false;
+     }
+-    public void switchToBackCamera(){
+-        if(podVideoCall!=null){
++
++    public void switchToBackCamera() {
++        if (podVideoCall != null) {
+             podVideoCall.switchToBackCamera();
+         }
+     }
+@@ -1522,7 +1514,9 @@
+                 }
+                 podVideoCall.addPartner(lCallPartnerBuilder.build());
+ 
+-            } else if (hasRemotePartnerView()) {
++                //todo fire an event for local partner
++
++            } else {
+ 
+                 String receiveVideoTopic = callParticipant.getSendTopicVideo();
+ 
+@@ -1538,7 +1532,8 @@
+                     rPartnerBuilder.setVideoTopic(receiveVideoTopic).setVideoView(videoCallPartnerViews.remove(0));
+                 }
+                 podVideoCall.addPartner(rPartnerBuilder.build());
+-
++                //todo fire an event for local partner
++                listenerManager.callOnCallParticipantStartedVideo(response);
+             }
+         }
+ 
+Index: podchat/src/main/java/com/fanap/podchat/call/model/CallVO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/podchat/src/main/java/com/fanap/podchat/call/model/CallVO.java b/podchat/src/main/java/com/fanap/podchat/call/model/CallVO.java
+--- a/podchat/src/main/java/com/fanap/podchat/call/model/CallVO.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/podchat/src/main/java/com/fanap/podchat/call/model/CallVO.java	(date 1635258528713)
+@@ -1,6 +1,7 @@
+ package com.fanap.podchat.call.model;
+ 
+ import com.fanap.podchat.mainmodel.Participant;
++import com.fanap.podchat.mainmodel.Thread;
+ 
+ import java.util.List;
+ 
+@@ -16,6 +17,7 @@
+     private int status;
+     private boolean isGroup;
+     private List<Participant> callParticipants;
++    private Thread conversationVO;
+     private Participant partnerParticipantVO;
+ 
+ 
+@@ -100,4 +102,12 @@
+     public void setPartnerParticipantVO(Participant partnerParticipantVO) {
+         this.partnerParticipantVO = partnerParticipantVO;
+     }
++
++    public Thread getConversationVO() {
++        return conversationVO;
++    }
++
++    public void setConversationVO(Thread conversationVO) {
++        this.conversationVO = conversationVO;
++    }
+ }
+Index: app/src/main/res/layout/view_on_call_started.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/view_on_call_started.xml b/app/src/main/res/layout/view_on_call_started.xml
+--- a/app/src/main/res/layout/view_on_call_started.xml	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/main/res/layout/view_on_call_started.xml	(date 1635275023296)
+@@ -5,52 +5,11 @@
+     android:id="@+id/viewCall"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    android:background="@color/grey"
++    android:background="@color/cardview_dark_background"
+     android:keepScreenOn="true"
+     android:visibility="gone"
+     tools:showIn="@layout/activity_call"
+-    tools:visibility="visible">
+-
+-
+-    <LinearLayout
+-        android:id="@+id/layoutAddParticipant"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal"
+-        android:visibility="gone"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintHorizontal_bias="0.0"
+-        app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="parent">
+-
+-
+-        <android.support.v7.widget.AppCompatCheckBox
+-            android:id="@+id/checkboxAddFarhad"
+-            style="@style/radio_button"
+-            android:text="Farhad" />
+-
+-        <android.support.v7.widget.AppCompatCheckBox
+-            android:id="@+id/checkboxAddMasoud"
+-            style="@style/radio_button"
+-            android:text="Masoud" />
+-
+-        <android.support.v7.widget.AppCompatCheckBox
+-            android:id="@+id/checkboxAddPooria"
+-            style="@style/radio_button"
+-            android:text="Pooria" />
+-
+-    </LinearLayout>
+-
+-
+-    <EditText
+-        android:id="@+id/etNewParticipant"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:hint="Enter new participant username"
+-        android:inputType="text"
+-        android:textColor="@color/white"
+-        android:visibility="gone"
+-        app:layout_constraintTop_toBottomOf="@+id/layoutAddParticipant" />
++    tools:visibility="gone">
+ 
+ 
+     <ImageButton
+@@ -72,18 +31,23 @@
+         android:id="@+id/constraintHolder"
+         android:layout_width="match_parent"
+         android:layout_height="0dp"
+-        android:background="@color/colorPrimaryDark"
+         android:padding="2dp"
+         app:layout_constraintBottom_toTopOf="@+id/guideline4"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="parent">
++        app:layout_constraintTop_toTopOf="parent"
++        tools:visibility="visible">
+ 
+ 
+         <android.support.v7.widget.CardView
+             android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            app:cardBackgroundColor="@color/grey"
++            android:padding="4dp"
+             app:cardCornerRadius="16dp"
+-            android:layout_height="match_parent">
++            app:cardMaxElevation="8dp"
++            app:cardUseCompatPadding="true">
++
+             <com.fanap.podcall.view.CallPartnerView
+                 android:id="@+id/remotePartnerView1"
+                 android:layout_width="match_parent"
+@@ -93,9 +57,21 @@
+         </android.support.v7.widget.CardView>
+ 
+ 
+-
+     </android.support.constraint.ConstraintLayout>
+ 
++    <ImageView
++        android:id="@+id/imgViewCallerProfileInCall"
++        android:layout_width="150dp"
++        android:layout_height="150dp"
++        android:src="@mipmap/ic_profile"
++        android:visibility="gone"
++        app:layout_constraintBottom_toTopOf="@+id/tvCalleeName"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.498"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent"
++        tools:visibility="gone" />
++
+     <TextView
+         android:id="@+id/tvCalleeName"
+         android:layout_width="wrap_content"
+@@ -115,23 +91,23 @@
+         android:id="@+id/buttonMute"
+         android:layout_width="48dp"
+         android:layout_height="48dp"
+-        tools:background="@drawable/rounded_white_background"
+-        android:background="@android:color/transparent"
+         android:alpha="0.6"
++        android:background="@android:color/transparent"
+         app:layout_constraintBottom_toBottomOf="@+id/buttonEndCall"
+         app:layout_constraintEnd_toStartOf="@+id/buttonEndCall"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="@+id/buttonEndCall"
+-        app:srcCompat="@drawable/ic_mic_off" />
++        app:srcCompat="@drawable/ic_mic_off"
++        tools:background="@drawable/rounded_white_background" />
+ 
+     <ImageButton
+         android:id="@+id/buttonStartRecord"
+         android:layout_width="48dp"
+         android:layout_height="48dp"
++        android:layout_margin="8dp"
+         android:alpha="0.3"
+-        android:layout_margin="8dp"
++        android:background="@android:color/transparent"
+         android:visibility="visible"
+-        android:background="@android:color/transparent"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toBottomOf="@+id/buttonAddPartner"
+         app:srcCompat="@drawable/ic_start_record_call" />
+@@ -140,15 +116,15 @@
+         android:id="@+id/buttonSpeakerOn"
+         android:layout_width="48dp"
+         android:layout_height="48dp"
+-        tools:background="@drawable/rounded_white_background"
+-        android:background="@android:color/transparent"
+         android:alpha="0.6"
++        android:background="@android:color/transparent"
+         app:layout_constraintBottom_toBottomOf="@+id/buttonEndCall"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintHorizontal_bias="0.5"
+         app:layout_constraintStart_toEndOf="@+id/buttonEndCall"
+         app:layout_constraintTop_toTopOf="@+id/buttonEndCall"
+-        app:srcCompat="@drawable/ic_speaker_on" />
++        app:srcCompat="@drawable/ic_speaker_on"
++        tools:background="@drawable/rounded_white_background" />
+ 
+     <ImageButton
+         android:id="@+id/buttonScreenShare"
+@@ -159,15 +135,15 @@
+         android:background="@android:color/transparent"
+         android:visibility="visible"
+         app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="@+id/constraintHolder"
++        app:layout_constraintTop_toTopOf="parent"
+         app:srcCompat="@drawable/ic_mobile_screen_share" />
+ 
+     <ImageButton
+         android:id="@+id/buttonAddPartner"
+         android:layout_width="48dp"
+         android:layout_height="48dp"
+-        android:alpha="0.6"
+         android:layout_margin="8dp"
++        android:alpha="0.6"
+         android:background="@android:color/transparent"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toBottomOf="@+id/buttonScreenShare"
+@@ -176,13 +152,35 @@
+     <ImageButton
+         android:id="@+id/imgBtnSwitchCamera"
+         android:layout_width="48dp"
+-        android:layout_margin="8dp"
+         android:layout_height="48dp"
++        android:layout_margin="8dp"
+         android:background="@android:color/transparent"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toBottomOf="@+id/buttonStartRecord"
+         app:srcCompat="@drawable/ic_cameraswitch" />
+ 
++    <ImageButton
++        android:id="@+id/imgBtnTurnOnCam"
++        android:layout_width="48dp"
++        android:layout_height="48dp"
++        android:layout_margin="8dp"
++        android:background="@android:color/transparent"
++        android:visibility="gone"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/buttonStartRecord"
++        app:srcCompat="@drawable/ic_videocam_white" />
++
++    <ImageButton
++        android:id="@+id/imgBtnTurnOffCam"
++        android:layout_width="48dp"
++        android:layout_height="48dp"
++        android:layout_margin="8dp"
++        android:background="@android:color/transparent"
++        android:visibility="visible"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/imgBtnSwitchCamera"
++        app:srcCompat="@drawable/ic_videocam_off" />
++
+     <com.fanap.podcall.view.CallPartnerView
+         android:id="@+id/localPartnerCameraView"
+         android:layout_width="130dp"
+@@ -193,7 +191,8 @@
+         app:layout_constraintHorizontal_bias="0.5"
+         app:layout_constraintStart_toEndOf="@+id/remotePartnerView4"
+         app:layout_constraintTop_toTopOf="@+id/guideline4"
+-        tools:targetApi="lollipop" />
++        tools:targetApi="lollipop"
++        tools:visibility="gone" />
+ 
+ 
+     <com.fanap.podcall.view.CallPartnerView
+@@ -206,7 +205,7 @@
+         app:layout_constraintHorizontal_bias="0.5"
+         app:layout_constraintStart_toEndOf="@+id/remotePartnerView3"
+         app:layout_constraintTop_toTopOf="@+id/guideline4"
+-        tools:visibility="visible" />
++        tools:visibility="gone" />
+ 
+     <com.fanap.podcall.view.CallPartnerView
+         android:id="@+id/remotePartnerView3"
+@@ -218,7 +217,7 @@
+         app:layout_constraintHorizontal_bias="0.5"
+         app:layout_constraintStart_toEndOf="@+id/remotePartnerView2"
+         app:layout_constraintTop_toTopOf="@+id/guideline4"
+-        tools:visibility="visible" />
++        tools:visibility="gone" />
+ 
+ 
+     <com.fanap.podcall.view.CallPartnerView
+@@ -232,7 +231,7 @@
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="@+id/guideline4"
+         app:layout_constraintVertical_bias="0.0"
+-        tools:visibility="visible" />
++        tools:visibility="gone" />
+ 
+ 
+     <android.support.constraint.Guideline
+Index: podchat/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/podchat/build.gradle b/podchat/build.gradle
+--- a/podchat/build.gradle	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/podchat/build.gradle	(date 1635253262716)
+@@ -5,7 +5,7 @@
+ apply plugin: 'com.google.gms.google-services'
+ 
+ ext {
+-    libraryVersion = '0.9.13.0'
++    libraryVersion = '0.9.13.1'
+     libraryVersionLight = '0.9.12.0'
+ }
+ android {
+@@ -14,7 +14,7 @@
+     defaultConfig {
+         minSdkVersion 17
+         targetSdkVersion 29
+-        versionCode 180
++        versionCode 181
+         versionName libraryVersion
+ 
+         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+Index: app/src/main/res/layout/item_history.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/item_history.xml b/app/src/main/res/layout/item_history.xml
+--- a/app/src/main/res/layout/item_history.xml	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/main/res/layout/item_history.xml	(date 1635258528711)
+@@ -11,6 +11,7 @@
+         android:layout_width="24dp"
+         android:layout_height="24dp"
+         android:layout_margin="8dp"
++        tools:src="@drawable/ic_call_end_green"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintTop_toTopOf="parent" />
+@@ -44,15 +45,26 @@
+ 
+     <ImageButton
+         android:id="@+id/imgBtnCallContact"
+-        android:layout_width="48dp"
+-        android:layout_height="48dp"
++        android:layout_width="36dp"
++        android:layout_height="36dp"
+         android:layout_margin="8dp"
+-        android:background="@android:color/transparent"
++        android:background="@drawable/rounded_white"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="parent"
+         app:srcCompat="@drawable/ic_call_blue" />
+ 
++    <ImageButton
++        android:id="@+id/imgBtnVideoCallContact"
++        android:layout_width="36dp"
++        android:layout_height="36dp"
++        android:layout_marginStart="16dp"
++        android:background="@drawable/rounded_white"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintStart_toEndOf="@+id/imgBtnCallContact"
++        app:layout_constraintTop_toTopOf="parent"
++        app:srcCompat="@drawable/ic_videocam" />
++
+     <View
+         android:id="@+id/view2"
+         android:layout_width="match_parent"
+Index: app/src/main/res/drawable/ic_videocam.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/ic_videocam.xml b/app/src/main/res/drawable/ic_videocam.xml
+new file mode 100644
+--- /dev/null	(date 1635258528709)
++++ b/app/src/main/res/drawable/ic_videocam.xml	(date 1635258528709)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:tint="#2196F3"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++    <path
++        android:fillColor="@android:color/white"
++        android:pathData="M17,10.5V7c0,-0.55 -0.45,-1 -1,-1H4c-0.55,0 -1,0.45 -1,1v10c0,0.55 0.45,1 1,1h12c0.55,0 1,-0.45 1,-1v-3.5l4,4v-11l-4,4z" />
++</vector>
+Index: app/src/main/res/drawable/ic_videocam_white.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/ic_videocam_white.xml b/app/src/main/res/drawable/ic_videocam_white.xml
+new file mode 100644
+--- /dev/null	(date 1635258528709)
++++ b/app/src/main/res/drawable/ic_videocam_white.xml	(date 1635258528709)
+@@ -0,0 +1,10 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="24dp"
++    android:height="24dp"
++    android:tint="#FFFFFF"
++    android:viewportWidth="24"
++    android:viewportHeight="24">
++    <path
++        android:fillColor="@android:color/white"
++        android:pathData="M17,10.5V7c0,-0.55 -0.45,-1 -1,-1H4c-0.55,0 -1,0.45 -1,1v10c0,0.55 0.45,1 1,1h12c0.55,0 1,-0.45 1,-1v-3.5l4,4v-11l-4,4z" />
++</vector>
+Index: app/src/main/res/layout/call_request_receive_layout.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/call_request_receive_layout.xml b/app/src/main/res/layout/call_request_receive_layout.xml
+--- a/app/src/main/res/layout/call_request_receive_layout.xml	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/main/res/layout/call_request_receive_layout.xml	(date 1635265705090)
+@@ -2,12 +2,12 @@
+ <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
++    android:id="@+id/viewCallRequest"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    android:background="@color/colorPrimaryDark"
++    android:background="@color/cardview_dark_background"
++    android:keepScreenOn="true"
+     android:visibility="gone"
+-    android:keepScreenOn="true"
+-    android:id="@+id/viewCallRequest"
+     tools:visibility="gone">
+ 
+ 
+@@ -31,33 +31,70 @@
+         app:layout_constraintBottom_toTopOf="@+id/guideline2"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintTop_toTopOf="@+id/guideline2"
++        app:srcCompat="@drawable/ic_videocam_white" />
++
++
++    <ImageButton
++        android:id="@+id/buttonAcceptWithAudio"
++        android:layout_width="48dp"
++        android:layout_height="48dp"
++        android:layout_margin="24dp"
++        android:background="@drawable/circle_grey_low"
++        app:layout_constraintBottom_toTopOf="@+id/buttonAccept"
++        app:layout_constraintEnd_toEndOf="@+id/buttonAccept"
++        app:layout_constraintStart_toStartOf="@+id/buttonAccept"
++        app:layout_constraintTop_toBottomOf="@+id/tvCallerName"
+         app:srcCompat="@drawable/ic_call_white_24dp" />
+ 
++    <ImageButton
++        android:id="@+id/buttonRejectWithMessage"
++        android:layout_width="48dp"
++        android:layout_height="48dp"
++        android:layout_margin="24dp"
++        android:background="@drawable/circle_grey_low"
++        app:layout_constraintBottom_toTopOf="@+id/buttonReject"
++        app:layout_constraintEnd_toEndOf="@+id/buttonReject"
++        app:layout_constraintStart_toStartOf="@+id/buttonReject"
++        app:layout_constraintTop_toBottomOf="@+id/tvCallerName"
++        app:srcCompat="@drawable/ic_message_2" />
++
+ 
+-    <TextView
+-        android:id="@+id/tvCallerName"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:layout_marginTop="48dp"
+-        android:textColor="@color/white"
+-        android:textSize="36dp"
++    <View
++        android:id="@+id/viewCallerProfileBorder"
++        android:layout_width="150dp"
++        android:layout_height="150dp"
++        android:background="@drawable/rounded_border_white"
++        app:layout_constraintBottom_toTopOf="@+id/guideline2"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.5"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent" />
++
++    <ImageView
++        android:id="@+id/imgViewCallerProfile"
++        android:layout_width="150dp"
++        android:layout_height="150dp"
++        android:src="@mipmap/ic_profile"
++        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintHorizontal_bias="0.5"
+         app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toTopOf="parent"
+-        tools:text="Zizi" />
++        app:layout_constraintTop_toTopOf="parent" />
++
++
+ 
+     <TextView
++        android:id="@+id/tvCallerName"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_marginTop="8dp"
+-        android:text="is calling..."
+         android:textColor="@color/white"
+-        android:textSize="24sp"
++        android:textSize="18sp"
+         app:layout_constraintEnd_toEndOf="parent"
++        android:layout_margin="16dp"
+         app:layout_constraintHorizontal_bias="0.5"
+         app:layout_constraintStart_toStartOf="parent"
+-        app:layout_constraintTop_toBottomOf="@+id/tvCallerName" />
++        app:layout_constraintTop_toBottomOf="@+id/imgViewCallerProfile"
++        tools:text="Zizi" />
+ 
+     <android.support.constraint.Guideline
+         android:id="@+id/guideline2"
+Index: app/src/main/res/drawable/circle_grey_low.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/circle_grey_low.xml b/app/src/main/res/drawable/circle_grey_low.xml
+new file mode 100644
+--- /dev/null	(date 1635258528709)
++++ b/app/src/main/res/drawable/circle_grey_low.xml	(date 1635258528709)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape android:shape="oval" xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <solid android:color="#292929"/>
++
++</shape>
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_call.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_call.xml b/app/src/main/res/layout/activity_call.xml
+--- a/app/src/main/res/layout/activity_call.xml	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/main/res/layout/activity_call.xml	(date 1635267098685)
+@@ -4,6 +4,7 @@
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
++    android:keepScreenOn="true"
+     android:background="@color/grey"
+     tools:context="com.example.chat.application.chatexample.CallActivity">
+ 
+@@ -98,13 +99,13 @@
+     <ViewSwitcher
+         android:id="@+id/viewSwitcherRecentCalls"
+         android:layout_width="0dp"
+-        android:layout_height="wrap_content"
++        android:layout_height="0dp"
+         android:layout_marginTop="8dp"
++        app:layout_constraintBottom_toTopOf="@+id/tvVersion"
+         app:layout_constraintEnd_toEndOf="@+id/view2"
+         app:layout_constraintStart_toStartOf="@+id/textView2"
+         app:layout_constraintTop_toBottomOf="@+id/textView2">
+ 
+-
+         <LinearLayout
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+@@ -121,17 +122,16 @@
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_marginTop="8dp"
+-                android:text="Loading..."
++                android:text="منتظر جواب سروریم...🙂"
+                 android:textColor="@color/colorPrimary"
+-                android:textSize="10sp"
++                android:textSize="14sp"
+                 app:layout_constraintStart_toStartOf="@+id/linearLayout"
+                 app:layout_constraintTop_toBottomOf="@+id/view2" />
+ 
+         </LinearLayout>
+-
+         <android.support.v4.widget.NestedScrollView
+             android:layout_width="match_parent"
+-            android:layout_height="wrap_content">
++            android:layout_height="match_parent">
+ 
+             <LinearLayout
+                 android:layout_width="match_parent"
+@@ -148,7 +148,7 @@
+ 
+                 <View
+                     android:layout_width="match_parent"
+-                    android:layout_height="90dp" />
++                    android:layout_height="150dp" />
+ 
+             </LinearLayout>
+ 
+Index: app/src/main/res/drawable/ic_message_2.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/ic_message_2.xml b/app/src/main/res/drawable/ic_message_2.xml
+new file mode 100644
+--- /dev/null	(date 1635258528709)
++++ b/app/src/main/res/drawable/ic_message_2.xml	(date 1635258528709)
+@@ -0,0 +1,5 @@
++<vector android:height="24dp" android:tint="#FFFFFF"
++    android:viewportHeight="24" android:viewportWidth="24"
++    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="@android:color/white" android:pathData="M20,2L4,2c-1.1,0 -1.99,0.9 -1.99,2L2,22l4,-4h14c1.1,0 2,-0.9 2,-2L22,4c0,-1.1 -0.9,-2 -2,-2zM18,14L6,14v-2h12v2zM18,11L6,11L6,9h12v2zM18,8L6,8L6,6h12v2z"/>
++</vector>
+Index: podchat/src/withCall/java/com/fanap/podchat/call/CallAsyncRequestsManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/podchat/src/withCall/java/com/fanap/podchat/call/CallAsyncRequestsManager.java b/podchat/src/withCall/java/com/fanap/podchat/call/CallAsyncRequestsManager.java
+--- a/podchat/src/withCall/java/com/fanap/podchat/call/CallAsyncRequestsManager.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/podchat/src/withCall/java/com/fanap/podchat/call/CallAsyncRequestsManager.java	(date 1635258528717)
+@@ -896,12 +896,15 @@
+         if(Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())){
+             for (ClientDTO client :
+                     callResponse.getResult().getOtherClientDtoList()) {
+-                CallParticipantVO partner = new CallParticipantVO();
+-                partner.setUserId(client.getUserId());
+-                partner.setMute(client.getMute());
+-                partner.setVideo(client.getVideo());
++                if(!client.getUserId().equals(CoreConfig.userId)){
++                    CallParticipantVO partner = new CallParticipantVO();
++                    partner.setUserId(client.getUserId());
++                    partner.setMute(client.getMute());
++                    partner.setVideo(client.getVideo());
+ 
+-                callPartners.add(partner);
++                    callPartners.add(partner);
++                }
++
+             }
+         }
+ 
+Index: app/src/main/res/drawable/rounded_border_white.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/drawable/rounded_border_white.xml b/app/src/main/res/drawable/rounded_border_white.xml
+new file mode 100644
+--- /dev/null	(date 1635258528710)
++++ b/app/src/main/res/drawable/rounded_border_white.xml	(date 1635258528710)
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android"
++    android:shape="oval">
++
++    <stroke android:color="#FFFFFF"
++        android:width="2dp"/>
++
++
++</shape>
+\ No newline at end of file
+Index: app/src/withCall/java/com/example/chat/application/chatexample/CallPresenter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/withCall/java/com/example/chat/application/chatexample/CallPresenter.java b/app/src/withCall/java/com/example/chat/application/chatexample/CallPresenter.java
+--- a/app/src/withCall/java/com/example/chat/application/chatexample/CallPresenter.java	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/withCall/java/com/example/chat/application/chatexample/CallPresenter.java	(date 1635346971752)
+@@ -15,7 +15,6 @@
+ import android.util.Log;
+ import android.view.View;
+ import android.view.ViewGroup;
+-import android.widget.Toast;
+ 
+ import com.example.chat.application.chatexample.token.TokenHandler;
+ import com.fanap.podcall.audio.AudioCallParam;
+@@ -86,10 +85,13 @@
+ import com.fanap.podchat.requestobject.RequestAddParticipants;
+ import com.fanap.podchat.requestobject.RequestConnect;
+ import com.fanap.podchat.requestobject.RequestGetContact;
++import com.fanap.podchat.requestobject.RequestMessage;
+ import com.fanap.podchat.util.ChatStateType;
+ import com.fanap.podchat.util.InviteType;
+ import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
++import com.fanap.podchat.util.TextMessageType;
+ import com.fanap.podchat.util.Util;
++import com.google.gson.GsonBuilder;
+ 
+ import java.util.ArrayList;
+ import java.util.Arrays;
+@@ -122,6 +124,7 @@
+     private CreateCallVO callVO;
+     private boolean speakerOn = false;
+     private boolean isMute = false;
++    private boolean isCameraOn = false;
+     private boolean isInCall;
+     private boolean isScreenIsSharing;
+     private boolean isCallRecording;
+@@ -130,6 +133,7 @@
+ 
+     private int cameraId = CameraId.FRONT;
+ 
++
+     public CallPresenter(Context context, CallContract.view view, Activity activity) {
+ 
+ 
+@@ -246,10 +250,10 @@
+                         .build();
+ 
+         AudioCallParam audioCallParam = new AudioCallParam.Builder()
+-                .setFrameRate(16000)
+-                .setBitrate(12000)
++                .setFrameRate(16000) //8000
++                .setBitrate(12000) //8000
+                 .setFrameSize(60)
+-                .setNumberOfChannels(2)
++                .setNumberOfChannels(2) //1
+                 .build();
+ 
+         ScreenShareParam screenShareParam = new ScreenShareParam.Builder()
+@@ -279,18 +283,6 @@
+         }
+     }
+ 
+-    @Override
+-    public void pauseVideo() {
+-        chat.turnOffVideo(callVO != null ? callVO.getCallId() : 0);
+-    }
+-
+-    @Override
+-    public void resumeVideo() {
+-        chat.openCamera();
+-        chat.turnOnVideo(callVO != null ? callVO.getCallId() : 0);
+-    }
+-
+-
+     private void connectToMainServer(String token) {
+ 
+         RequestConnect request = new RequestConnect.Builder(
+@@ -360,23 +352,26 @@
+ 
+ 
+     @Override
+-    public void onContactSelected(ContactsWrapper contact) {
++    public void onContactSelected(ContactsWrapper contact, int callType) {
+         view.hideContactsFragment();
+ 
+         if (isInCall) {
+             inviteCallParticipant(contact);
+         } else {
+-            view.updateTvCallee("Calling " + contact.getFirstName() + " " + contact.getLastName());
++            String name = getValidName(contact);
++            view.updateTvCallee("داریم به " + name + " درخواست تماس می‌فرستیم...");
+             view.showFabContact();
+-            requestP2PCallWithContactId((int) contact.getId());
++            requestP2PCallWithContactId((int) contact.getId(), callType);
+         }
+ 
+ 
+     }
++
+ 
+     private void inviteCallParticipant(ContactsWrapper contact) {
+ 
+-        view.showMessage("Call request sent to " + contact.getFirstName() + " " + contact.getLastName() + " " + contact.getCellphoneNumber());
++        String name = contact.getLinkedUser() != null ? contact.getLinkedUser().getName() : "" + contact.getFirstName() + " " + contact.getLinkedUser();
++        view.showMessage("" + name + " به تماس دعوت شد");
+         RequestAddParticipants request = RequestAddParticipants.newBuilder()
+                 .threadId(callVO.getThreadId())
+                 .withContactId(contact.getId())
+@@ -436,19 +431,24 @@
+ 
+ 
+     @Override
+-    public void acceptIncomingCall() {
++    public void acceptIncomingCallWithVideo() {
+ 
+ 
+         AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
+                 callVO.getCallId());
+-
+-
+-        if (callVO.getType() == CallType.Constants.VIDEO_CALL) {
+-            request.withVideo();
+-
+-            showVideoViews();
+-        }
+-
++        request.withVideo();
++        showVideoViews();
++        String uniqueId = chat.acceptVoiceCall(request.build());
++        callUniqueIds.add(uniqueId);
++
++    }
++
++    @Override
++    public void acceptIncomingCallWithAudio() {
++
++        AcceptCallRequest.Builder request = new AcceptCallRequest.Builder(
++                callVO.getCallId());
++        hideLocalCameraPreview();
+         String uniqueId = chat.acceptVoiceCall(request.build());
+         callUniqueIds.add(uniqueId);
+ 
+@@ -466,6 +466,45 @@
+ 
+     }
+ 
++    @Override
++    public void rejectIncomingCallWithMessage(String msg) {
++
++        RejectCallRequest request = new RejectCallRequest.Builder(
++                callVO.getCallId())
++                .build();
++
++        String uniqueId = chat.rejectVoiceCall(request);
++        callUniqueIds.add(uniqueId);
++
++        RequestMessage requestRejectMessage = new RequestMessage
++                .Builder("الان نمی‌تونم جواب بدم", callVO.getConversationVO().getId())
++                .messageType(TextMessageType.Constants.TEXT)
++                .jsonMetaData(new GsonBuilder().create().toJson("{\"callRejectWithMessage\":true}"))
++                .build();
++        callUniqueIds.add(chat.sendTextMessage(requestRejectMessage, null));
++
++    }
++
++    @Override
++    public void turnOnCamera() {
++        showLocalCameraPreview();
++        if (callVO.getCallId() > 0) {
++            chat.turnOnVideo(callVO.getCallId());
++        } else {
++            view.showMessage("تماسی برقرار نیست!");
++        }
++    }
++
++    @Override
++    public void turnOffCamera() {
++        hideLocalCameraPreview();
++        if (callVO.getCallId() > 0) {
++            chat.turnOffVideo(callVO.getCallId());
++        } else {
++            view.showMessage("تماسی برقرار نیست!");
++        }
++    }
++
+     @Override
+     public void onStart() {
+ 
+@@ -473,19 +512,12 @@
+ 
+     @Override
+     public void onStop() {
+-
+-//        chat.shouldShowNotification(true);
+-
+         chat.closeChat();
+-
+     }
+ 
+     @Override
+     public void onResume() {
+-
+         chat.resumeChat();
+-//        chat.shouldShowNotification(false);
+-
+     }
+ 
+ 
+@@ -523,7 +555,7 @@
+         if (Util.isNotNullOrEmpty(entry)) {
+             tokenHandler.handshake(entry);
+         } else {
+-            view.showMessage("Phone number should start with 09");
++            view.showMessage("شماره صحیح نیست! ☹");
+         }
+     }
+ 
+@@ -599,13 +631,13 @@
+             if (tokenHandler != null) {
+                 tokenHandler.refreshToken();
+             } else {
+-                Toast.makeText(context, "Token refresh failed!", Toast.LENGTH_LONG).show();
++                view.showMessage("لطفا دوباره وارد بشید");
+             }
+         }
+ 
+         if (Util.isNotNullOrEmpty(outPutError.getUniqueId()) && callUniqueIds.contains(outPutError.getUniqueId())) {
+-            view.onError("");
+-            view.updateStatus(outPutError.getErrorMessage());
++            view.onError("خطا در برقراری تماس 😓");
++            view.updateStatus(outPutError.getErrorMessage() + " 😨");
+ 
+             if (callimpUniqueIds.contains(outPutError.getUniqueId())) {
+                 view.setInitState();
+@@ -663,19 +695,34 @@
+         this.state = state;
+ 
+         if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
+-            view.updateStatus("Chat is Ready :)");
++            view.updateStatus("وصل شدیم ❤");
+             getCallHistory();
+             view.switchToRecentCallsLoading();
+         } else {
+-            view.updateStatus("Connecting");
++            view.updateStatus("داریم وصل می‌شیم... 😍");
+         }
+ 
+     }
+ 
+     @Override
+     public void onNewMessage(String content, ChatResponse<ResultNewMessage> chatResponse) {
+-        super.onNewMessage(content, chatResponse);
++
++        //This is reject message from contact
++        if (!callUniqueIds.contains(chatResponse.getUniqueId())) {
++            if (Util.isNotNullOrEmpty(chatResponse.getResult().getMessageVO().getMessage())) {
++                if (chatResponse.getResult().getMessageVO().getCallHistoryVO() == null) {
+ 
++                    String message = chatResponse.getResult().getMessageVO().getMessage();
++                    Participant participant = chatResponse.getResult().getMessageVO().getParticipant();
++
++                    view.updateStatus(participant.getName() + " گفت: " + message);
++                    view.showMessage(" ✉ " + participant.getName() + " : " + message);
++                }
++
++            }
++        } else {
++            callUniqueIds.remove(chatResponse.getUniqueId());
++        }
+     }
+ 
+ 
+@@ -758,89 +805,75 @@
+ 
+     }
+ 
++
+     @Override
+     public void onReceiveCallRequest(ChatResponse<CallRequestResult> response) {
+-
+-        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
+-
+-            callVO = response.getResult();
+-
+-            String callerName = response.getResult().getCreatorVO().getName();
+-
+-            view.showCallRequest(callerName);
+-
+-        } else if (response.getResult().getType() == CallType.Constants.VIDEO_CALL) {
+-
+-            showVideoViews();
+-
+-            callVO = response.getResult();
+-
+-            String callerName = response.getResult().getCreatorVO().getName();
+-
+-            view.showCallRequest(callerName);
+-
+-        }
+-
++        String callerName = showCallRequest(response);
++        view.updateTvCaller("تماس از " + callerName);
+     }
+ 
+     @Override
+     public void onReceiveGroupCallRequest(ChatResponse<CallRequestResult> response) {
++        String callerName = showCallRequest(response);
++        view.updateTvCaller(" تماس " + callerName + " از " + response.getResult().getConversationVO().getTitle());
++    }
+ 
+-        if (response.getResult().getType() == CallType.Constants.VOICE_CALL) {
+-
+-            callVO = response.getResult();
+-
+-            String callerName = response.getResult().getCreatorVO().getName();
+-
+-            view.onGroupVoiceCallRequestReceived(callerName, response.getResult().getConversationVO().getTitle(), response.getResult().getConversationVO().getParticipants());
+-
+-        } else if (response.getResult().getType() == CallType.Constants.VIDEO_CALL) {
+-
++    private String showCallRequest(ChatResponse<CallRequestResult> response) {
++        callVO = response.getResult();
++        String callerImage = response.getResult().getCreatorVO().getImage();
++        String callerName = response.getResult().getCreatorVO().getName();
++        if (Util.isNotNullOrEmpty(callerImage))
++            view.updateCallerImage(callerImage);
++        if (response.getResult().getType() == CallType.Constants.VIDEO_CALL) {
+             showVideoViews();
+-
+-            callVO = response.getResult();
++        } else {
++            view.hideRemoteViews();
++            view.hideCameraPreview();
++            if (Util.isNotNullOrEmpty(callerImage))
++                view.updateCallImage(callerImage);
++        }
+ 
+-            String callerName = response.getResult().getCreatorVO().getName();
+-
+-            view.onGroupVoiceCallRequestReceived(callerName, response.getResult().getConversationVO().getTitle(), response.getResult().getConversationVO().getParticipants());
+-
+-        }
++        view.showCallRequest(callerName);
++        return callerName;
+     }
+ 
+     private void showVideoViews() {
+-        activity.runOnUiThread(() -> {
+-            try {
+-//                if (cameraPreview != null) {
+-//                    cameraPreview.setVisibility(View.VISIBLE);
+-//                    remotePartnersViews.get(0).setVisibility(View.VISIBLE);
+-//                    defaultCameraPreviewLayoutParams = cameraPreview.getLayoutParams();
+-//                    ViewGroup.LayoutParams lp = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
+-//                    callLocalView.setLayoutParams(lp);
+-//                }
+-                chat.setPartnerViews(remotePartnersViews);
+-                chat.openCamera();
+-            } catch (Exception e) {
+-                e.printStackTrace();
+-            }
+-        });
++        view.showVideoCallElements();
++        updatePartnerViewList();
++        showLocalCameraPreview();
++    }
++
++    private void updatePartnerViewList() {
++        chat.setPartnerViews(remotePartnersViews);
+     }
+ 
+     private void hideVideoViews() {
++        hideAllRemotePartners();
++        hideLocalCameraPreview();
++    }
++
++    private void showLocalCameraPreview() {
+         activity.runOnUiThread(() -> {
+-            try {
+-//                if (cameraPreview != null) {
+-//                    cameraPreview.setVisibility(View.INVISIBLE);
+-//                }
+-                if (remotePartnersViews != null)
+-                    for (CallPartnerView partnerView :
+-                            remotePartnersViews) {
+-                        partnerView.setVisibility(View.GONE);
+-                        partnerView.reset();
+-                    }
+-                chat.closeCamera();
+-            } catch (Exception e) {
+-                e.printStackTrace();
+-            }
++            view.showCameraPreview();
++            chat.openCamera();
++            isCameraOn = true;
++        });
++    }
++
++    private void hideLocalCameraPreview() {
++        chat.closeCamera();
++        isCameraOn = false;
++        view.hideCameraPreview();
++    }
++
++    private void hideAllRemotePartners() {
++        activity.runOnUiThread(() -> {
++            if (remotePartnersViews != null)
++                for (CallPartnerView partnerView :
++                        remotePartnersViews) {
++                    partnerView.setVisibility(View.GONE);
++                    partnerView.reset();
++                }
+         });
+     }
+ 
+@@ -849,30 +882,42 @@
+ 
+         isInCall = true;
+ 
++        if (Util.isNotNullOrEmpty(response.getResult().getCallPartners())) {
++
++            if (response.getResult().getCallPartners().size() == 1) {
++                CallParticipantVO rp = response.getResult().getCallPartners().get(0);
++                if (!rp.hasVideo()) {
++                    view.hideRemoteViews();
++                } else {
++                    view.showRemoteViews();
++                }
++            }
++        }
++
+         view.onVoiceCallStarted(" " + response.getUniqueId(), "");
+ 
+     }
+ 
+     @Override
+     public void onActiveCallParticipantsReceived(ChatResponse<GetCallParticipantResult> response) {
++        setNameOnView(response.getResult().getCallParticipantVOS());
++    }
+ 
+-
+-          activity.runOnUiThread(()->{
+-              for (CallParticipantVO cp :
+-                      response.getResult().getCallParticipantVOS()) {
+-                  try {
+-                      CallPartnerView pw = findParticipantView(cp.getUserId());
+-                      pw.setPartnerName(cp.getParticipantVO().getContactName());
+-                      pw.setDisplayName(true);
+-                  }catch (Exception ex){
+-                      ex.printStackTrace();
+-                  }
+-
+-              }
+-          });
+-
+-
+-
++    private void setNameOnView(List<CallParticipantVO> callParticipantVOArrayList) {
++        try {
++            activity.runOnUiThread(() -> {
++                for (CallParticipantVO cp :
++                        callParticipantVOArrayList) {
++                    if (cp.hasVideo()) {
++                        CallPartnerView pw = findParticipantView(cp.getUserId());
++                        pw.setPartnerName(cp.getParticipantVO().getContactName());
++                        pw.setDisplayName(true);
++                    }
++                }
++            });
++        } catch (Exception ex) {
++            ex.printStackTrace();
++        }
+     }
+ 
+     @Override
+@@ -915,7 +960,7 @@
+         for (CallVO call :
+                 response.getResult().getCallsList()) {
+ 
+-            if (call.getPartnerParticipantVO() != null)
++            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null)
+                 calls.add(call);
+ 
+         }
+@@ -942,7 +987,7 @@
+ 
+             hideVideoViews();
+ 
+-            String uniqueId = chat.terminateAudioCall(terminateCallRequest);
++            String uniqueId = chat.terminateCall(terminateCallRequest);
+ 
+         }
+ 
+@@ -1081,60 +1126,187 @@
+ 
+     @Override
+     public void addCallParticipant() {
+-
+-
+         getContact();
+-
+-//        if (Util.isNotNullOrEmpty(username)) {
+-//
+-//            if (username.contains(",")) {
+-//                String[] names = username.split(",");
+-//                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+-//                        .threadId(callVO.getThreadId())
+-//                        .withUserNames(names)
+-//                        .build();
+-//                callUniqueIds.add(chat.addGroupCallParticipant(request));
+-//            } else {
+-//                RequestAddParticipants request = RequestAddParticipants.newBuilder()
+-//                        .threadId(callVO.getThreadId())
+-//                        .withUserNames(username)
+-//                        .build();
+-//                callUniqueIds.add(chat.addGroupCallParticipant(request));
+-//            }
+-//
+-//        } else {
+-//            List<Long> ids = new ArrayList<>();
+-//
+-//            if (pooriaChecked)
+-//                ids.add((long) Pooria_ID);
+-//            if (masoudChecked)
+-//                ids.add((long) Masoud_ID);
+-//            if (farhadChecked)
+-//                ids.add((long) Farhad_ID);
+-//
+-//            RequestAddParticipants request = RequestAddParticipants.newBuilder()
+-//                    .threadId(callVO.getThreadId())
+-//                    .withCoreUserIds(ids)
+-//                    .build();
+-//
+-//
+-//            callUniqueIds.add(chat.addGroupCallParticipant(request));
+-//
+-//
+-//        }
+-
+     }
+ 
+     @Override
+     public void setCallInfo(CallInfo callInfo) {
+-
+         if (callVO == null) {
+             isInCall = true;
+             callVO = new CreateCallVO();
+             callVO.setCallId(callInfo.getCallId());
+         }
++    }
++
++
++    private void prepareAudioCallView() {
++        view.hideCameraPreview();
++        view.hideRemoteViews();
++    }
++
++    private String getValidName(ContactsWrapper contact) {
++
++        String name;
++
++        if (Util.isNotNullOrEmpty(contact.getLinkedUser().getName())) {
++            name = contact.getLinkedUser().getName();
++        } else if (Util.isNotNullOrEmpty(contact.getFirstName()) && Util.isNotNullOrEmpty(contact.getLastName())) {
++            name = contact.getFirstName() + " " + contact.getLastName();
++        } else {
++            name = contact.getCellphoneNumber();
++        }
++
++        return name;
++    }
++
++    private String getValidName(CallVO call) {
++
++        if (call.getPartnerParticipantVO() != null) {
++            if (Util.isNotNullOrEmpty(call.getPartnerParticipantVO().getContactName()))
++                return call.getPartnerParticipantVO().getContactName();
++            if (Util.isNotNullOrEmpty(call.getPartnerParticipantVO().getCellphoneNumber()))
++                return call.getPartnerParticipantVO().getCellphoneNumber();
++        } else if (call.getConversationVO() != null) {
++            return call.getConversationVO().getTitle();
++        }
++
++        return "ناشناس👽";
++    }
++
+ 
++    @Override
++    public void requestAudioCall(CallVO call) {
+ 
++        if (chat.isChatReady()) {
++            requestP2PCall(call, CallType.Constants.VOICE_CALL);
++        } else {
++            view.showMessage("Chat is not ready...");
++        }
++
++    }
++
++    @Override
++    public void requestVideoCall(CallVO call) {
++        if (chat.isChatReady()) {
++            requestP2PCall(call, CallType.Constants.VIDEO_CALL);
++        } else {
++            view.showMessage("Chat is not ready...");
++        }
++
++    }
++
++    private void requestP2PCall(CallVO call, int callType) {
++        view.updateTvCallee("داریم به " + getValidName(call) + " درخواست تماس می‌فرستیم...");
++
++        if (call.getPartnerParticipantVO() != null) {
++            int cId = (int) call.getPartnerParticipantVO().getContactId();
++            int uId = (int) call.getPartnerParticipantVO().getId();
++            if (cId > 0) {
++                requestP2PCallWithContactId(cId, callType);
++
++            } else if (uId > 0) {
++                requestP2PCallWithUserId(uId, callType);
++            } else {
++                view.updateStatus("نمی‌تونیم با ایشون تماس بگیریم! 😔");
++            }
++        } else {
++            int tId = (int) call.getConversationVO().getId();
++            if (tId > 0) {
++                requestGroupCallWithThreadId(tId, callType);
++            }
++        }
++
++    }
++
++
++    @Override
++    public void requestP2PCallWithUserId(int userId, int callType) {
++        List<Invitee> invitees = new ArrayList<>();
++        Invitee invitee = new Invitee();
++        invitee.setId(userId);
++        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
++        invitees.add(invitee);
++
++
++        //request with invitee list
++        CallRequest callRequest = new CallRequest.Builder(
++                invitees,
++                callType).build();
++
++        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
++            showVideoViews();
++        } else {
++            prepareAudioCallView();
++        }
++
++        String uniqueId = chat.requestCall(callRequest);
++        callUniqueIds.add(uniqueId);
++        callimpUniqueIds.add(uniqueId);
++    }
++
++    @Override
++    public void requestP2PCallWithContactId(int contactId, int callType) {
++        List<Invitee> invitees = new ArrayList<>();
++        Invitee invitee = new Invitee();
++        invitee.setId(contactId);
++        invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
++        invitees.add(invitee);
++
++
++        //request with invitee list
++        CallRequest callRequest = new CallRequest.Builder(
++                invitees,
++                callType).build();
++
++        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
++            showVideoViews();
++        } else {
++            prepareAudioCallView();
++        }
++
++        String uniqueId;
++        if (serverType == ServerType.SANDBOX) {
++            uniqueId = chat.requestGroupCall(callRequest);
++        } else {
++            uniqueId = chat.requestCall(callRequest);
++        }
++        callUniqueIds.add(uniqueId);
++        callimpUniqueIds.add(uniqueId);
++    }
++
++    private void requestGroupCallWithThreadId(int threadId, int callType) {
++
++        CallRequest callRequest = new CallRequest.Builder(
++                threadId,
++                callType).build();
++
++        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
++            showVideoViews();
++        } else {
++            prepareAudioCallView();
++        }
++        String uniqueId = chat.requestGroupCall(callRequest);
++        callUniqueIds.add(uniqueId);
++        callimpUniqueIds.add(uniqueId);
++
++    }
++
++    //Not using yet
++    @Override
++    public void requestP2PCallWithP2PThreadId(int threadId) {
++
++        //request with threadId
++        CallRequest callRequest = new CallRequest.Builder(
++                threadId,
++                BASE_CALL_TYPE).build();
++
++        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
++            showVideoViews();
++        }
++
++        String uniqueId = chat.requestCall(callRequest);
++        callUniqueIds.add(uniqueId);
++        callimpUniqueIds.add(uniqueId);
+     }
+ 
+     @Override
+@@ -1217,74 +1389,6 @@
+ 
+     }
+ 
+-    @Override
+-    public void requestP2PCallWithP2PThreadId(int threadId) {
+-
+-        //request with threadId
+-        CallRequest callRequest = new CallRequest.Builder(
+-                threadId,
+-                BASE_CALL_TYPE).build();
+-
+-        if (callRequest.getCallType() == BASE_CALL_TYPE) {
+-            showVideoViews();
+-        }
+-
+-        String uniqueId = chat.requestCall(callRequest);
+-        callUniqueIds.add(uniqueId);
+-        callimpUniqueIds.add(uniqueId);
+-    }
+-
+-    @Override
+-    public void requestP2PCallWithContactId(int contactId) {
+-        List<Invitee> invitees = new ArrayList<>();
+-        Invitee invitee = new Invitee();
+-        invitee.setId(contactId);
+-        invitee.setIdType(InviteType.Constants.TO_BE_USER_CONTACT_ID);
+-        invitees.add(invitee);
+-
+-
+-        //request with invitee list
+-        CallRequest callRequest = new CallRequest.Builder(
+-                invitees,
+-                BASE_CALL_TYPE).build();
+-
+-        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
+-            showVideoViews();
+-        }
+-
+-        String uniqueId;
+-        if (serverType == ServerType.SANDBOX) {
+-            uniqueId = chat.requestGroupCall(callRequest);
+-        } else {
+-            uniqueId = chat.requestCall(callRequest);
+-        }
+-        callUniqueIds.add(uniqueId);
+-        callimpUniqueIds.add(uniqueId);
+-    }
+-
+-    @Override
+-    public void requestP2PCallWithUserId(int userId) {
+-        List<Invitee> invitees = new ArrayList<>();
+-        Invitee invitee = new Invitee();
+-        invitee.setId(userId);
+-        invitee.setIdType(InviteType.Constants.TO_BE_USER_ID);
+-        invitees.add(invitee);
+-
+-
+-        //request with invitee list
+-        CallRequest callRequest = new CallRequest.Builder(
+-                invitees,
+-                BASE_CALL_TYPE).build();
+-
+-        if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
+-            showVideoViews();
+-        }
+-
+-        String uniqueId = chat.requestCall(callRequest);
+-        callUniqueIds.add(uniqueId);
+-        callimpUniqueIds.add(uniqueId);
+-    }
+-
+     @Override
+     public void onCallReconnect(ChatResponse<CallReconnectResult> response) {
+         view.onCallReconnect(response.getResult().getCallId());
+@@ -1297,6 +1401,11 @@
+ 
+     @Override
+     public void onCallDelivered(ChatResponse<CallDeliverResult> response) {
++        try {
++            view.updateTvCallee("درحال زنگ خوردنه... ");
++        } catch (NullPointerException e) {
++            e.printStackTrace();
++        }
+         view.onCallDelivered(response.getResult());
+     }
+ 
+@@ -1307,12 +1416,19 @@
+ 
+         for (CallParticipantVO c :
+                 response.getResult().getCallParticipants()) {
+-            view.onCallParticipantLeft(c.getParticipantVO().getFirstName() + " " + c.getParticipantVO().getLastName());
++            view.showMessage(c.getParticipantVO().getName() + " تماس رو ترک کرد");
+         }
+         try {
+             CallPartnerView pw = findParticipantView(response.getResult().getCallParticipants().get(0).getUserId());
+-            if (pw != null)
++            if (pw != null) {
++                pw.setId(0);
++                pw.setPartnerName("");
++                pw.setDisplayName(false);
++                pw.setDisplayIsMuteIcon(false);
++                pw.setDisplayCameraIsOffIcon(false);
++                pw.reset();
+                 chat.addPartnerView(pw, 0);
++            }
+         } catch (Exception e) {
+             view.onError(e.getMessage());
+         }
+@@ -1326,14 +1442,15 @@
+                 response.getResult().getJoinedParticipants()) {
+ 
+             try {
+-               activity.runOnUiThread(()->{
+-                   CallPartnerView pw = findParticipantView(callParticipant.getUserId());
+-                   pw.setDisplayName(true);
+-                   pw.setPartnerName(callParticipant.getParticipantVO().getName());
+-               });
+-            }catch (Exception ignored){}
++                activity.runOnUiThread(() -> {
++                    CallPartnerView pw = findParticipantView(callParticipant.getUserId());
++                    pw.setDisplayName(true);
++                    pw.setPartnerName(callParticipant.getParticipantVO().getName());
++                });
++            } catch (Exception ignored) {
++            }
+ 
+-            view.onCallParticipantJoined(callParticipant.getParticipantVO().getFirstName() + " " + callParticipant.getParticipantVO().getLastName());
++            view.showMessage(callParticipant.getParticipantVO().getName() + " وارد تماس شد!");
+         }
+     }
+ 
+@@ -1388,6 +1505,8 @@
+             if (userId != null) {
+                 partnerView = findParticipantView(userId);
+             }
++            String name = Util.isNotNullOrEmpty(participant.getParticipantVO().getContactName()) ? participant.getParticipantVO().getContactName() : participant.getParticipantVO().getName();
++            view.showMessage(name + " میکروفنش رو باز کرد 😍");
+             view.callParticipantUnMuted(participant, partnerView);
+         }
+     }
+@@ -1416,6 +1535,8 @@
+             if (userId != null) {
+                 partnerView = findParticipantView(userId);
+             }
++            String name = Util.isNotNullOrEmpty(participant.getParticipantVO().getContactName()) ? participant.getParticipantVO().getContactName() : participant.getParticipantVO().getName();
++            view.showMessage(name + " میکروفنش رو بست 🤐");
+             view.callParticipantMuted(participant, partnerView);
+         }
+     }
+@@ -1433,15 +1554,17 @@
+     @Override
+     public void onCallParticipantStoppedVideo(ChatResponse<JoinCallParticipantResult> response) {
+         try {
++            view.showMessage(response.getResult().getJoinedParticipants().get(0).getParticipantVO().getName() + " دوربینش رو بست! ");
+             CallPartnerView pw = findParticipantView(response.getResult().getJoinedParticipants().get(0).getUserId());
+-           activity.runOnUiThread(()->{
+-               if (pw != null){
+-                   pw.setPartnerName("");
+-                   pw.setPartnerId(0L);
+-                   pw.reset();
+-                   chat.addPartnerView(pw, 0);
+-               }
+-           });
++            activity.runOnUiThread(() -> {
++                if (pw != null) {
++                    pw.setPartnerName("");
++                    pw.setPartnerId(0L);
++                    pw.reset();
++                    pw.setVisibility(View.GONE);
++                    chat.addPartnerView(pw, 0);
++                }
++            });
+         } catch (Exception e) {
+             view.onError(e.getMessage());
+         }
+@@ -1451,7 +1574,11 @@
+     @Override
+     public void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response) {
+         try {
+-            view.showMessage(response.getResult().getJoinedParticipants().get(0).getParticipantVO().getName() + " has video now!");
++            if (response.getResult().getJoinedParticipants().get(0).getParticipantVO().getId() == remotePartnersViews.get(0).getPartnerId()) {
++                view.showRemoteViews();
++            }
++            view.showMessage(response.getResult().getJoinedParticipants().get(0).getParticipantVO().getName() + " الان تصویر داره!");
++            setNameOnView(response.getResult().getJoinedParticipants());
+         } catch (Exception e) {
+             view.onError(e.getMessage());
+         }
+@@ -1459,18 +1586,18 @@
+ 
+     @Override
+     public void onCallParticipantCanceledCall(ChatResponse<CallCancelResult> response) {
+-        view.callParticipantCanceledCall(response.getResult().getCallParticipant().getParticipantVO().getFirstName()
+-                + " " + response.getResult().getCallParticipant().getParticipantVO().getLastName());
++        view.showMessage(response.getResult().getCallParticipant().getParticipantVO().getName() + " تماس رو کنسل کرد");
+     }
+ 
+     @Override
+     public void onAnotherDeviceAcceptedCall() {
+         view.hideCallRequest();
+-        view.showMessage("Call accepted from another device");
++        view.showMessage(" با حساب دیگه‌اتون وارد تماس شدید!");
+     }
+ 
+     @Override
+     public void onScreenShareStarted(ChatResponse<ScreenShareResult> response) {
++        view.showMessage(" صفحه نمایش‌اتون در حال اشتراک گذاری با اعضای تماسه!");
+         view.onScreenIsSharing();
+     }
+ 
+@@ -1544,7 +1671,7 @@
+ 
+             case CALL_PERMISSION_REQUEST_CODE: {
+                 if (resultCode != Activity.RESULT_OK) {
+-                    view.updateStatus("Unable to make call without permissions");
++                    view.updateStatus("بدون اجازه دسترسی، نمی‌تونیم‌ تماس برقرار کنیم 😵");
+                 }
+                 break;
+             }
+Index: app/src/main/res/layout/item_contact.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/item_contact.xml b/app/src/main/res/layout/item_contact.xml
+--- a/app/src/main/res/layout/item_contact.xml	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/src/main/res/layout/item_contact.xml	(date 1635327375572)
+@@ -55,6 +55,17 @@
+         app:layout_constraintTop_toTopOf="parent"
+         app:srcCompat="@drawable/ic_call_blue" />
+ 
++    <ImageButton
++        android:id="@+id/imgBtnVideoCallContact"
++        android:layout_width="48dp"
++        android:layout_height="48dp"
++        android:layout_marginStart="16dp"
++        android:background="@android:color/transparent"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintStart_toEndOf="@+id/imgBtnCallContact"
++        app:layout_constraintTop_toTopOf="parent"
++        app:srcCompat="@drawable/ic_videocam" />
++
+     <View
+         android:background="@drawable/rounded_primary"
+         android:layout_width="0dp"
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle b/app/build.gradle
+--- a/app/build.gradle	(revision 423c225c231c3d8e6387647661b06a31625a82c5)
++++ b/app/build.gradle	(date 1635258573458)
+@@ -29,7 +29,7 @@
+     productFlavors{
+ 
+         withCall{
+-            versionName "1.0.0"
++            versionName "1.1.0"
+             versionCode 1
+             matchingFallbacks = ["withCall","withoutCall"]
+         }
