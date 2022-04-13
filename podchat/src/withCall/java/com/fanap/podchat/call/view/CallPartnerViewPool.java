@@ -45,9 +45,10 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
 
     private boolean autoGenerate = true;
 
-    private static final int MAX_NUMBER_OF_VIEWS = 10;
-    private int maximumNumberOfViews = 5;
-    private static final int MIN_NUMBER_OF_VIEWS = 1;
+    private static final int MAX_VALID_NUMBER_OF_GENERATED_VIEWS = 10;
+    private int maximumNumberOfGeneratedViews = 5;
+    private static final int MIN_VALID_NUMBER_OF_GENERATED_VIEWS = 0;
+    private int totalNumberOfGeneratedViews = 0;
 
     private MainThreadExecutor mainThreadExecutor;
 
@@ -77,13 +78,13 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
     }
 
     @Override
-    public void setMaximumNumberOfViews(int viewGenerationMax) {
+    public void setMaximumNumberOfGeneratedViews(int viewGenerationMax) {
 
-        if (viewGenerationMax <= MAX_NUMBER_OF_VIEWS
-                && viewGenerationMax >= MIN_NUMBER_OF_VIEWS) {
-            maximumNumberOfViews = viewGenerationMax;
+        if (viewGenerationMax <= MAX_VALID_NUMBER_OF_GENERATED_VIEWS
+                && viewGenerationMax >= MIN_VALID_NUMBER_OF_GENERATED_VIEWS) {
+            maximumNumberOfGeneratedViews = viewGenerationMax;
         } else {
-            Logger.showError("The View Generation Max Number should be between >" + MIN_NUMBER_OF_VIEWS + " and <" + MAX_NUMBER_OF_VIEWS);
+            Logger.showError("The View Generation Max Number should be between >" + MIN_VALID_NUMBER_OF_GENERATED_VIEWS + " and <" + MAX_VALID_NUMBER_OF_GENERATED_VIEWS);
         }
 
 
@@ -239,6 +240,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
     private void checkIsListInitialized() {
         if (Util.isNullOrEmpty(partnerViewsPool)) {
             partnerViewsPool = new ConcurrentLinkedQueue<>();
+            totalNumberOfGeneratedViews = 0;
         }
     }
 
@@ -357,10 +359,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
         CallPartnerView newPartnerView = null;
         try {
             checkIsListInitialized();
-            if (Objects.requireNonNull(partnerViewsPool).size() == maximumNumberOfViews) {
-                autoGenerateCallback.onMaximumViewNumberReached(partnerUserId);
-                return null;
-            }
+            if (isOnMaximumNumberOfViews(partnerUserId)) return null;
             newPartnerView = new CallPartnerView(getContextFromPartnerView());
             newPartnerView.setPartnerId(partnerUserId);
             addView(newPartnerView);
@@ -371,6 +370,14 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
             e.printStackTrace();
         }
         return newPartnerView;
+    }
+
+    private boolean isOnMaximumNumberOfViews(long partnerUserId) {
+        if (totalNumberOfGeneratedViews + 1 > maximumNumberOfGeneratedViews) {
+            autoGenerateCallback.onMaximumViewNumberReached(partnerUserId);
+            return true;
+        }
+        return false;
     }
 
 
@@ -407,6 +414,7 @@ public class CallPartnerViewPool implements CallPartnerViewPoolUseCase.ChatUseCa
     }
 
     private void callOnNewViewGenerated(CallPartnerView newPartnerView) {
+        totalNumberOfGeneratedViews++;
         if (autoGenerateCallback != null) {
             autoGenerateCallback.onNewViewGenerated(newPartnerView);
         }

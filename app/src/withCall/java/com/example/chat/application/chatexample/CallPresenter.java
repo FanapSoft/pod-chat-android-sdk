@@ -25,7 +25,6 @@ import com.fanap.podcall.camera.CameraId;
 import com.fanap.podcall.model.VideoCallParam;
 import com.fanap.podcall.screenshare.model.ScreenShareParam;
 import com.fanap.podcall.util.CallPermissionHandler;
-import com.fanap.podcall.util.Logger;
 import com.fanap.podcall.video.codec.VideoCodecType;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.CallConfig;
@@ -290,14 +289,14 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         cpvManager = chat.useCallPartnerViewManager();
 
-        cpvManager.addView(remotePartnersViews.get(0));
+        cpvManager.addView(remotePartnersViews);
 
 //        cpvManager.setAsCameraPreview(cameraPreview);
 
 //        cpvManager.setAsScreenShareView(remoteViews.get(remoteViews.size() - 1));
 
-        cpvManager.setMaximumNumberOfViews(1);
-
+        cpvManager.setMaximumNumberOfGeneratedViews(1);
+        cpvManager.setAutoGenerate(true);
         cpvManager.setAutoGenerateCallback(this);
 
     }
@@ -346,11 +345,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             Long secondPartnerId = secondPartnerView.getPartnerId();
             SwapViewsRequest request =
                     new SwapViewsRequest.Builder()
-                    .setFirstPartnerUserId(mainPartnerId)
-                    .setSecondPartnerUserId(secondPartnerId)
-                    .setFirstPartnerView(mainPartnerView)
-                    .setSecondPartnerView(secondPartnerView)
-                    .build();
+                            .setFirstPartnerUserId(mainPartnerId)
+                            .setSecondPartnerUserId(secondPartnerId)
+                            .setFirstPartnerView(mainPartnerView)
+                            .setSecondPartnerView(secondPartnerView)
+                            .build();
             chat.swapPartnerViews(request);
         }
     }
@@ -373,7 +372,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                         .setPartnerToAddVideoUserId(listOfPartnerWithoutViews.remove(0))
                         .setView(v)
                         .build();
-                chat.replacePartnersVideos(request);
+                chat.replacePartnersView(request);
             } else {
                 listOfPartnerWithoutViews.add(v.getPartnerId());
                 chat.turnOffIncomingVideo(v.getPartnerId());
@@ -1040,13 +1039,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     private void showVideoViews() {
         view.showVideoCallElements();
-//        updatePartnerViewList();
         showLocalCameraPreview();
     }
 
-//    private void updatePartnerViewList() {
-////        chat.setPartnerViews(remotePartnersViews);
-//    }
+
 
     private void hideVideoViews() {
         hideAllRemotePartners();

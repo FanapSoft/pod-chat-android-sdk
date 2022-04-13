@@ -48,8 +48,8 @@ public class CallPartnerViewManager implements CallPartnerViewPoolUseCase.Client
     }
 
     @Override
-    public void setMaximumNumberOfViews(int viewGenerationMax) {
-        pool.setMaximumNumberOfViews(viewGenerationMax);
+    public void setMaximumNumberOfGeneratedViews(int viewGenerationMax) {
+        pool.setMaximumNumberOfGeneratedViews(viewGenerationMax);
     }
 
     @Override

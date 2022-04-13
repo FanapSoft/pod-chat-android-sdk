@@ -899,7 +899,7 @@ public class Chat extends ChatCore {
             }
         }
     }
-    public void addVideoForPartner(Long partnerUserId, CallPartnerView newView){
+    public void addViewForPartner(Long partnerUserId, CallPartnerView newView){
         if(podVideoCall!=null){
             if (viewPool != null){
                 if(viewPool.isScreenShareViewChanging(partnerUserId,newView)){
@@ -913,7 +913,7 @@ public class Chat extends ChatCore {
             }
         }
     }
-    public void replacePartnersVideos(ReplaceViewsRequest request){
+    public void replacePartnersView(ReplaceViewsRequest request){
         if(podVideoCall!=null){
             if (viewPool != null){
                 if(viewPool.isScreenShareViewChanging(request.getPartnerToRemoveVideoUserId(),request.getView())){

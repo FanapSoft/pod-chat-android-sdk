@@ -19,7 +19,7 @@ public interface CallPartnerViewPoolUseCase {
 
         void setAutoGenerate(boolean isAutoGenerate);
 
-        void setMaximumNumberOfViews(int viewGenerationMax);
+        void setMaximumNumberOfGeneratedViews(int viewGenerationMax);
 
         void setAsScreenShareView(@NonNull CallPartnerView screenShareView);
 

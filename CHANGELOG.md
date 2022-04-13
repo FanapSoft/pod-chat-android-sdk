@@ -9,25 +9,53 @@ All notable changes to this project will be documented here.
 
 ### Added
 
+- add Chat.swapPartnerViews(SwapViewsRequest)
+- add Chat.addViewForPartner(Long partnerUserId, CallPartnerView newView)
+- add Chat.setPartnerView
+- add Chat.replacePartnersView(ReplaceViewsRequest)
+- add IAutoGenerate.onMaximumViewNumberReached(Long partnerUserIdWithoutView)
+- add CallPartnerViewManager.setMaximumNumberOfViews(int viewGenerationMax)
+- add CallPartnerViewManager.resetViews
+- add CallPartnerViewPoolUseCase.ClientUseCase.hideAllAssignedViews
 
- You could use following events and methods to be aware of camera is on, the device is near ( to the ear ) or the device got far ( from the ear ) : 
+### Changed
+
+- update podcall to 3.8.20-SNAPSHOT
+- change Chat.turnOffIncomingVideo(Long userId)
+- change Chat.turnOnIncomingVideo(Long userId)
+
+
+### Deprecated
+
+- deprecate Chat.setPartnerViews(List<CallPartnerView> views)
+- deprecate Chat.updatePartnerViews(List<CallPartnerView> views)
+
+
+
+## [0.9.16.0] -2021-**-**
+
+### Added
+
+When you join a started call, you will inform that if a screen is sharing or call is recording
+
+You could use following events and methods to be aware of camera is on, the device is near ( to the ear ) or the device got far ( from the ear ) :
 
 - ChatListener.onDeviceIsNear
 - ChatListener.onDeviceGotFar
 - Chat.isCameraOn
 
 
- Now you can turn all incoming streams or a specific call partner stream off and turn them on again
+Now you can turn all incoming streams or a specific call partner stream off and turn them on again
 
 - Chat.turnOffIncomingVideos
 - Chat.turnOnIncomingVideos
 - Chat.turnOffIncomingVideo
 - Chat.turnOnIncomingVideo
-  
-- CallActivity.imgBtnTurnOffIncomingVideos
-- CallActivity.imgBtnTurnOnIncomingVideos 
 
- It's possible to change call setting
+- CallActivity.imgBtnTurnOffIncomingVideos
+- CallActivity.imgBtnTurnOnIncomingVideos
+
+It's possible to change call setting
 
 - SettingFragment
 
@@ -35,11 +63,6 @@ All notable changes to this project will be documented here.
 
 - update podcall version to 3.7.7-SNAPSHOT
 
-
-
-## [0.9.16.0] -2021-**-**
-
- When you join a started call, you will inform that if a screen is sharing or call is recording
 
 
 ## [0.9.15.0] -2021-2-23
