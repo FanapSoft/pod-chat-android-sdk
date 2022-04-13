@@ -68,16 +68,16 @@ tasks.register('publishToLocalMaven'){
 
 }
 
-tasks.register('publishToCustomMaven'){
+tasks.register('publishToPodchatSnapshots'){
 
     group 'publishing'
 
     dependsOn tasks.preparePublishing
-    dependsOn tasks.publishWithoutCallPublicationToCustomMavenRepoRepository
-    dependsOn tasks.publishWithCallPublicationToCustomMavenRepoRepository
+    dependsOn tasks.publishWithoutCallPublicationToPodchatSnapshotsRepository
+    dependsOn tasks.publishWithCallPublicationToPodchatSnapshotsRepository
 
-    tasks.publishWithoutCallPublicationToCustomMavenRepoRepository.mustRunAfter 'preparePublishing'
-    tasks.publishWithCallPublicationToCustomMavenRepoRepository.mustRunAfter 'publishWithoutCallPublicationToCustomMavenRepoRepository'
+    tasks.publishWithoutCallPublicationToPodchatSnapshotsRepository.mustRunAfter 'preparePublishing'
+    tasks.publishWithCallPublicationToPodchatSnapshotsRepository.mustRunAfter 'publishWithoutCallPublicationToPodchatSnapshotsRepository'
 
 
 }
@@ -103,7 +103,6 @@ tasks.register('publishLightVersionToGithub'){
     dependsOn tasks.publishWithoutCallPublicationToGithubPackagesRepository
 
     tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
-    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
 
 
 }
@@ -114,8 +113,7 @@ tasks.register('publishMainVersionToGithub'){
     dependsOn tasks.preparePublishing
     dependsOn tasks.publishWithCallPublicationToGithubPackagesRepository
 
-    tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
-    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
+    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
 
 
 }
@@ -135,8 +133,10 @@ publishing {
             }
         }
         maven {
-            name = 'CustomMavenRepo'
-            url = "file://${buildDir}/repo"
+            name = 'PodchatSnapshots'
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+            url = properties.getProperty('snapshotRepo')
         }
     }
     publications {

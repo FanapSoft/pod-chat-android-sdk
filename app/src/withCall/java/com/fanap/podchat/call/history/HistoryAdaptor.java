@@ -15,33 +15,38 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.fanap.podchat.call.CallStatus;
-import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.util.Util;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHolder> {
 
 
     public interface IHistoryInterface {
-        void onAudioCallSelected(CallVO call);
+        void onAudioCallSelected(CallWrapper call);
 
-        void onVideoCallSelected(CallVO call);
+        void onVideoCallSelected(CallWrapper call);
     }
 
-    ArrayList<CallVO> historyVOS;
+    ArrayList<CallWrapper> historyVOS;
 
     Context context;
 
     IHistoryInterface iHistoryInterface;
 
-    public HistoryAdaptor(ArrayList<CallVO> historyVOS, Context context) {
+    public HistoryAdaptor(ArrayList<CallWrapper> historyVOS, Context context) {
         this.historyVOS = historyVOS;
         this.context = context;
     }
 
-    public HistoryAdaptor(ArrayList<CallVO> historyVOS, Context context, IHistoryInterface iHistoryInterface) {
+    public HistoryAdaptor(ArrayList<CallWrapper> historyVOS, Context context, IHistoryInterface iHistoryInterface) {
         this.historyVOS = historyVOS;
         this.context = context;
         this.iHistoryInterface = iHistoryInterface;
@@ -49,18 +54,24 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_history, viewGroup, false);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        View view;
+        if (viewType == CallWrapper.CallItemType.ACTIVE) {
+            view = LayoutInflater.from(context).inflate(R.layout.item_active_call, viewGroup, false);
+            return new ViewHolder(view);
+        }
+        view = LayoutInflater.from(context).inflate(R.layout.item_history, viewGroup, false);
         return new ViewHolder(view);
+
+
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-
         if (!historyVOS.isEmpty()) {
 
-            CallVO historyVO = historyVOS.get(viewHolder.getAdapterPosition());
+            CallWrapper historyVO = historyVOS.get(viewHolder.getAdapterPosition());
 
             if (historyVO.getPartnerParticipantVO() != null) {
 
@@ -77,11 +88,11 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                             .apply(RequestOptions.circleCropTransform())
                             .into(viewHolder.imageViewProfile);
                 else {
-                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
+                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_person));
                 }
 
 
-            } else if(historyVO.getConversationVO()!=null){
+            } else if (historyVO.getConversationVO() != null) {
                 viewHolder.tvName.setText(historyVO.getConversationVO().getTitle());
                 if (Util.isNotNullOrEmpty(historyVO.getConversationVO().getImage()))
                     Glide.with(context)
@@ -89,15 +100,30 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                             .apply(RequestOptions.circleCropTransform())
                             .into(viewHolder.imageViewProfile);
                 else {
-                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_group));
+                    viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_groups));
                 }
-            }else {
+            } else {
                 viewHolder.tvName.setText("Invalid name");
-                viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.mipmap.ic_profile));
-                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+                viewHolder.imageViewProfile.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_person));
+
+                if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
+                    setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+                }
             }
 
-            setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+            if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
+                setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
+                Date time = new Date(historyVO.getCreateTime());
+                String t = DateFormatUtils.format(time, "E yyyy/MM/dd HH:mm");
+                String ago = getTimePassed(historyVO);
+
+                if(historyVO.getStatus()==CallStatus.Constants.ENDED){
+                    String length = getCallLength(historyVO);
+                    viewHolder.tvCallTime.setText(t + " • " + ago + " • " + length);
+                }else {
+                    viewHolder.tvCallTime.setText(t + " • " + ago);
+                }
+            }
 
             viewHolder.imageButtonAudioCall.setOnClickListener(v -> {
                 if (iHistoryInterface != null)
@@ -109,16 +135,57 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             });
 
         }
-
-
     }
+
+    private String getTimePassed(CallWrapper historyVO) {
+        String ago = null;
+        try {
+            Date past = new Date(historyVO.getCreateTime());
+            Date now = new Date();
+
+
+            if (TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime()) + " days ago";
+            } else if (TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime()) + " hours ago";
+            } else if (TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime()) + " minutes ago";
+            } else if (TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime()) + " seconds ago";
+            }
+        } catch (Exception j) {
+            j.printStackTrace();
+        }
+        return ago;
+    }
+
+    private String getCallLength(CallWrapper historyVO) {
+        String ago = null;
+        try {
+            Date start = new Date(historyVO.getStartTime());
+            Date end = new Date(historyVO.getEndTime());
+
+
+            if (TimeUnit.MILLISECONDS.toHours(end.getTime() - start.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toHours(end.getTime() - start.getTime()) + " hour";
+            } else if (TimeUnit.MILLISECONDS.toMinutes(end.getTime() - start.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toMinutes(end.getTime() - start.getTime()) + " min";
+            } else if (TimeUnit.MILLISECONDS.toSeconds(end.getTime() - start.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toSeconds(end.getTime() - start.getTime()) + " sec";
+            }
+        } catch (Exception j) {
+            j.printStackTrace();
+        }
+        return ago;
+    }
+
 
     private void setImageStatus(ImageView imageStatus, int status) {
 
         switch (status) {
 
             case CallStatus.Constants.ACCEPTED: {
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_end_green));
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_successful_incoming_call));
                 break;
             }
             case CallStatus.Constants.REQUESTED: {
@@ -138,7 +205,7 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
                 break;
             }
             case CallStatus.Constants.STARTED: {
-                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_call_requested));
+                imageStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_successfull_outgoing_call));
                 break;
             }
             case CallStatus.Constants.ENDED: {
@@ -161,11 +228,53 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
         return historyVOS.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return Util.isNullOrEmpty(historyVOS) ? super.getItemViewType(position)
+                : position >= historyVOS.size() ? super.getItemViewType(position)
+                : historyVOS.get(position).getCallItemType();
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void update(List<CallWrapper> calls) {
+        historyVOS = new ArrayList<>(calls);
+        notifyDataSetChanged();
+    }
+
+    public void addToFirst(List<CallWrapper> calls) {
+        if (historyVOS == null) {
+            historyVOS = new ArrayList<>();
+        }
+        historyVOS.addAll(0, calls);
+        notifyItemChanged(0);
+    }
+
+    public void add(List<CallWrapper> calls) {
+        if (historyVOS == null) {
+            historyVOS = new ArrayList<>();
+        }
+        historyVOS.addAll(calls);
+        Collections.sort(historyVOS, (o1, o2) -> Long.compare(o2.getCreateTime(), o1.getCreateTime()));
+        notifyItemRangeChanged(historyVOS.size(), calls.size());
+    }
+
+    public void removeItem(CallWrapper call) {
+        if (historyVOS != null) {
+            if (historyVOS.contains(call)) {
+                int pos = historyVOS.indexOf(call);
+                historyVOS.remove(call);
+                notifyItemRemoved(pos);
+            }
+        }
+    }
+
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvName;
+        TextView tvName, tvCallTime;
         ImageView imageViewProfile;
-        ImageButton imageButtonAudioCall,imageButtonVideoCall;
+        ImageButton imageButtonAudioCall, imageButtonVideoCall;
         ImageView imageStatus;
 
         public ViewHolder(@NonNull View itemView) {
@@ -175,7 +284,26 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
             imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
             imageStatus = itemView.findViewById(R.id.imageStatus);
+            tvCallTime = itemView.findViewById(R.id.tvTime);
         }
 
     }
+
+
+    public static class ViewHolderActiveCall extends RecyclerView.ViewHolder {
+
+        TextView tvName;
+        ImageView imageViewProfile;
+        ImageButton imageButtonAudioCall, imageButtonVideoCall;
+
+        public ViewHolderActiveCall(@NonNull View itemView) {
+            super(itemView);
+            tvName = itemView.findViewById(R.id.tvContactName);
+            imageViewProfile = itemView.findViewById(R.id.imageProfile);
+            imageButtonAudioCall = itemView.findViewById(R.id.imgBtnCallContact);
+            imageButtonVideoCall = itemView.findViewById(R.id.imgBtnVideoCallContact);
+        }
+
+    }
+
 }

@@ -9,7 +9,7 @@
     android:keepScreenOn="true"
     android:visibility="gone"
     tools:showIn="@layout/activity_call"
-    tools:visibility="gone">
+    tools:visibility="visible">
 
 
     <ImageButton
@@ -180,6 +180,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgBtnSwitchCamera"
         app:srcCompat="@drawable/ic_videocam_off" />
+
+    <ImageButton
+        android:id="@+id/imgBtnTurnOffIncomingVideos"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="8dp"
+        android:alpha="0.5"
+        android:background="@android:color/transparent"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_videocam_off_all" />
+
+    <ImageButton
+        android:id="@+id/imgBtnTurnOnIncomingVideos"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="8dp"
+        android:background="@android:color/transparent"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_videocam" />
 
     <com.fanap.podcall.view.CallPartnerView
         android:id="@+id/localPartnerCameraView"

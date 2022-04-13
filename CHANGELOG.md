@@ -6,11 +6,139 @@
 All notable changes to this project will be documented here.
 
 
-## [0.9.14.0] -2021-12-26
+## [0.9.17.0] -2021-04-13
 
 ### Added
 
- ```SearchSystemMetadataRequest```
+- add Chat.swapPartnerViews(SwapViewsRequest)
+- add Chat.addViewForPartner(Long partnerUserId, CallPartnerView newView)
+- add Chat.replacePartnersView(ReplaceViewsRequest)
+- add CallPartnerViewManager.setMaximumNumberOfGeneratedViews(int viewGenerationMax)
+- add IAutoGenerate.onMaximumViewNumberReached(Long partnerUserIdWithoutView)
+- add CallPartnerViewManager.resetViews
+- add CallPartnerViewPoolUseCase.ClientUseCase.hideAllAssignedViews
+
+### Changed
+
+- update podcall to 3.8.20-SNAPSHOT
+- change Chat.turnOffIncomingVideo(Long userId)
+- change Chat.turnOnIncomingVideo(Long userId)
+
+
+### Deprecated
+
+- deprecate Chat.setPartnerViews(List<CallPartnerView> views)
+- deprecate Chat.updatePartnerViews(List<CallPartnerView> views)
+
+
+## [0.9.16.0] -2021-**-**
+
+### Added
+
+When you join a started call, you will inform that if a screen is sharing or call is recording
+
+You could use following events and methods to be aware of camera is on, the device is near ( to the ear ) or the device got far ( from the ear ) :
+
+- ChatListener.onDeviceIsNear
+- ChatListener.onDeviceGotFar
+- Chat.isCameraOn
+
+
+Now you can turn all incoming streams or a specific call partner stream off and turn them on again
+
+- Chat.turnOffIncomingVideos
+- Chat.turnOnIncomingVideos
+- Chat.turnOffIncomingVideo
+- Chat.turnOnIncomingVideo
+
+```Chat.useCallPartnerViewManager()```
+
+```addView(@NonNull CallPartnerView... partnerView);```
+
+```setAutoGenerate(boolean isAutoGenerate);```
+
+```setAsScreenShareView(@NonNull CallPartnerView screenShareView);```
+
+```setAsCameraPreview(@NonNull CallPartnerView cameraPreview);```
+
+```getScreenShareView();```
+
+```getPartnerAssignedView(partnerUserId);```
+
+```getPartnerUnAssignedView(partnerUserId);```
+
+```setAutoGenerateCallback(CallPartnerViewManager.IAutoGenerate);```
+
+```CallPartnerViewManager.addView(List<CallPartnerView>)```
+
+```CallPartnerViewManager.showMuteIcon(partnerUserId) ```
+
+```CallPartnerViewManager.hideMuteIcon(partnerUserId) ```
+
+``` CallPartnerViewManager.showCameraIsOff(partnerUserId) ```
+
+```CallPartnerViewManager.hideCameraIsOff(partnerUserId)```
+
+```CallPartnerViewManager.releasePartnerView(partnerUserId)```
+
+```CallPartnerViewManager.releaseScreenShareView()```
+
+```CallPartnerViewManager.showPartnerName(userId, name)```
+
+```MainThreadExecutor```
+
+
+
+
+- CallActivity.imgBtnTurnOffIncomingVideos
+- CallActivity.imgBtnTurnOnIncomingVideos
+
+It's possible to change call setting
+
+- SettingFragment
+
+### Changed
+
+- update podcall version to 3.7.7-SNAPSHOT
+
+
+
+## [0.9.15.0] -2021-2-23
+
+### Added
+
+ It's possible now to set title, description, metadata, uniqueName and image for a group call:
+
+- CallRequest.title
+- CallRequest.description
+- CallRequest.metadata
+- CallRequest.image
+- CallRequest.uniqueName
+
+ Get a list of active calls you can join:
+
+  ```Chat.getActiveCalls(GetActiveCallsRequest)``` method
+  ```Chat.onReceiveActiveCalls(ChatResponse<GetActiveCallsResult>)``` callback
+
+
+ GetCallHistoryRequest.threadId to filter server result by threadId
+
+ CacheCall.threadId to filter cache result by threadId
+
+ CallVO.Thread to Chat.getCallsHistory cache result
+
+
+### Changed
+
+ Update podCall version to 3.5.6
+
+ The initial delay when starting a call is now reduced
+
+ Chat.handleOnCallParticipantCanceledCall policy. This event is now also sent to the client who has canceled ( rejected ) incoming group call.
+
+## [0.9.14.0] -2021-12-26
+
+### Added
 
  ```startShareScreen``` callback
 
@@ -29,6 +157,10 @@ All notable changes to this project will be documented here.
  ```onCallRecordEnded``` callback
 
  ```ChatListeners.onCallClientErrors(ChatResponse<CallClientErrorsResult>)``` callback
+ 
+ ```SearchSystemMetadataRequest```
+
+ ```searchHistory(SearchSystemMetadataRequest, ChatHandler)```
 
 
 ### Changed
@@ -37,7 +169,12 @@ All notable changes to this project will be documented here.
  
  Update podcall to 3.5.2
 
- Deprecated NosqlListMessageCriteriaVO
+
+### Deprecated
+ 
+ NosqlListMessageCriteriaVO
+
+ ```searchHistory(NosqlListMessageCriteriaVO,ChatHandler)```
 
 
 

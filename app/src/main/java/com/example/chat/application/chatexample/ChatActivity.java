@@ -81,6 +81,7 @@ import com.fanap.podchat.mainmodel.RequestSearchContact;
 import com.fanap.podchat.mainmodel.RequestThreadInnerMessage;
 import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.ResultAddContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThreads;
@@ -153,7 +154,7 @@ public class ChatActivity extends AppCompatActivity
     private static final int PICK_IMAGE_FILE_REQUEST = 1;
     private static final int PICK_FILE_REQUEST = 2;
     private static final String TEST_THREAD_HASH = "2JS6BC7L4MGCYT";
-    public static int TEST_THREAD_ID = 152321;
+    public static int TEST_THREAD_ID = 63264;
 
 
     ArrayList<String> runningSignals = new ArrayList<>();
@@ -193,7 +194,7 @@ public class ChatActivity extends AppCompatActivity
     private Map<String, List<Method>> categoryMap;
     private List<Method> movieList;
     private ExpandablePlaceHolderView expandablePlaceHolderView;
-    private final Enum<ServerType> serverType = ServerType.Sandbox;
+    private final Enum<ServerType> serverType = ServerType.Integration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2109,12 +2110,22 @@ public class ChatActivity extends AppCompatActivity
 //
 //
 //       }
+//        RequestAddContact request = new RequestAddContact.Builder()
+//                .firstName("Leila")
+//                .lastName("Nemati")
+//                .cellphoneNumber("09126975376") //80617 //80618
+//                // .cellphoneNumber()
+//                // .email()
+//                .build();
+//
+//        presenter.addContact(request);
+
+
         RequestAddContact request = new RequestAddContact.Builder()
-                .firstName("Leila")
-                .lastName("Nemati")
-                .cellphoneNumber("09126975376") //80617 //80618
-                // .cellphoneNumber()
-                // .email()
+                .firstName("Nadia")
+                .lastName("Anvari")
+                .username("nadia.anvari")
+                .email("nadia.anvari@fanap.ir")
                 .build();
 
         presenter.addContact(request);

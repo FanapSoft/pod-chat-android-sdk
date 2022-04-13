@@ -13,6 +13,26 @@ public class ScreenShareResult implements Serializable {
     private String screenshare;
     private boolean isScreenSharer;
 
+    public void setScreenOwner(CallParticipantVO screenOwner) {
+        this.screenOwner = screenOwner;
+    }
+
+    public void setTopicReceive(String topicReceive) {
+        this.topicReceive = topicReceive;
+    }
+
+    public void setTopicSend(String topicSend) {
+        this.topicSend = topicSend;
+    }
+
+    public void setScreenshare(String screenshare) {
+        this.screenshare = screenshare;
+    }
+
+    public void setScreenSharer(boolean screenSharer) {
+        isScreenSharer = screenSharer;
+    }
+
     public CallParticipantVO getScreenOwner() {
         return screenOwner;
     }
