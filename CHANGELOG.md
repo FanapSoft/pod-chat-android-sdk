@@ -11,10 +11,9 @@ All notable changes to this project will be documented here.
 
 - add Chat.swapPartnerViews(SwapViewsRequest)
 - add Chat.addViewForPartner(Long partnerUserId, CallPartnerView newView)
-- add Chat.setPartnerView
 - add Chat.replacePartnersView(ReplaceViewsRequest)
+- add CallPartnerViewManager.setMaximumNumberOfGeneratedViews(int viewGenerationMax)
 - add IAutoGenerate.onMaximumViewNumberReached(Long partnerUserIdWithoutView)
-- add CallPartnerViewManager.setMaximumNumberOfViews(int viewGenerationMax)
 - add CallPartnerViewManager.resetViews
 - add CallPartnerViewPoolUseCase.ClientUseCase.hideAllAssignedViews
 
