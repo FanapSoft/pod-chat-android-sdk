@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -45,7 +44,9 @@ import com.fanap.podchat.call.request_model.EndCallRequest;
 import com.fanap.podchat.call.request_model.GetActiveCallsRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
+import com.fanap.podchat.call.request_model.ReplaceViewsRequest;
 import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
+import com.fanap.podchat.call.request_model.SwapViewsRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.screen_share.ScreenSharePermissionRequest;
@@ -112,13 +113,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 
 public class CallPresenter extends ChatAdapter implements CallContract.presenter, Application.ActivityLifecycleCallbacks, CallPartnerViewManager.IAutoGenerate {
 
     public static final int CALL_PERMISSION_REQUEST_CODE = 101;
-    public static final String GROUP_CALL_NAME_PREFIX =  "تماس گروهی ";
+    public static final String GROUP_CALL_NAME_PREFIX = "تماس گروهی ";
 
     private String TOKEN = BaseApplication.getInstance().getString(R.string.Farhad_Kheirkhah);
     public static final int SIGNAL_INTERVAL_TIME = 1000;
@@ -152,6 +154,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     CallPartnerViewManager cpvManager;
 
     private ArrayList<CallWrapper> callsList = new ArrayList<>();
+    private final ArrayList<Long> listOfPartnerWithoutViews = new ArrayList<>();
 
 
     public CallPresenter(Context context, CallContract.view view, Activity activity) {
@@ -260,7 +263,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         CallConfig callConfig = new CallConfig(CallActivity.class.getName());
 
         VideoCallParam videoCallParam =
-                new VideoCallParam.Builder(localVideo)
+                new VideoCallParam.Builder(cameraPreview)
                         .setCamWidth(720) // FIXME: 3/12/2022 fix updating params after call is started
                         .setCamHeight(480)
                         .setCamFPS(30)
@@ -286,12 +289,14 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         cpvManager = chat.useCallPartnerViewManager();
 
-        cpvManager.addView(remoteViews);
+        cpvManager.addView(remotePartnersViews);
 
-        cpvManager.setAsCameraPreview(cameraPreview);
+//        cpvManager.setAsCameraPreview(cameraPreview);
 
-        cpvManager.setAsScreenShareView(remoteViews.get(remoteViews.size() - 1));
+//        cpvManager.setAsScreenShareView(remoteViews.get(remoteViews.size() - 1));
 
+        cpvManager.setMaximumNumberOfGeneratedViews(1);
+        cpvManager.setAutoGenerate(true);
         cpvManager.setAutoGenerateCallback(this);
 
     }
@@ -318,6 +323,64 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         chat.setupCall(vc, audioCallParam, screenShareParam, callConfig);
 
+    }
+
+    @Override
+    public void onCallPartnerViewSelected(CallPartnerView secondPartnerView) {
+
+
+//        if (isInCall) {
+//            CallPartnerView mainPartnerView = remotePartnersViews.get(0);
+//            Long mainPartnerId = mainPartnerView.getPartnerId();
+//            Long secondPartnerId = secondPartnerView.getPartnerId();
+//            chat.changePartnerView(secondPartnerId, mainPartnerView);
+//            Logger.showLog("Assigned view " + mainPartnerView + " with id " + mainPartnerView.getId() + " to user " + secondPartnerId);
+//            chat.changePartnerView(mainPartnerId, secondPartnerView);
+//            Logger.showLog("Assigned view " + secondPartnerView + " with id " + secondPartnerView.getId() + " to user " + mainPartnerId);
+//        }
+
+        if (isInCall) {
+            CallPartnerView mainPartnerView = remotePartnersViews.get(0);
+            Long mainPartnerId = mainPartnerView.getPartnerId();
+            Long secondPartnerId = secondPartnerView.getPartnerId();
+            SwapViewsRequest request =
+                    new SwapViewsRequest.Builder()
+                            .setFirstPartnerUserId(mainPartnerId)
+                            .setSecondPartnerUserId(secondPartnerId)
+                            .setFirstPartnerView(mainPartnerView)
+                            .setSecondPartnerView(secondPartnerView)
+                            .build();
+            chat.swapPartnerViews(request);
+        }
+    }
+
+    @Override
+    public void onCallPartnerViewLongClicked(CallPartnerView v) {
+        if (isInCall) {
+//            chat.turnOffIncomingVideo(v.getPartnerId());
+//            if (cpvManager != null) {
+//                cpvManager.releasePartnerView(v.getPartnerId());
+//                if(listOfPartnerWithoutViews.size()>0){
+//                    Long partnerId = listOfPartnerWithoutViews.remove(0);
+//                    chat.addVideoForPartner(partnerId,v);
+//                }
+//            }
+            if (listOfPartnerWithoutViews.size() > 0) {
+                listOfPartnerWithoutViews.add(v.getPartnerId());
+                ReplaceViewsRequest request = new ReplaceViewsRequest.Builder()
+                        .setPartnerToRemoveVideoUserId(v.getPartnerId())
+                        .setPartnerToAddVideoUserId(listOfPartnerWithoutViews.remove(0))
+                        .setView(v)
+                        .build();
+                chat.replacePartnersView(request);
+            } else {
+                listOfPartnerWithoutViews.add(v.getPartnerId());
+                chat.turnOffIncomingVideo(v.getPartnerId());
+                if (cpvManager != null) {
+                    cpvManager.releasePartnerView(v.getPartnerId());
+                }
+            }
+        }
     }
 
     private void checkCallPermissions() {
@@ -435,13 +498,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             String name = getValidName(contact);
             view.updateTvCallee("داریم به " + name + " درخواست تماس می‌فرستیم...");
             view.showFabContact();
-            requestP2PCallWithContactId((int) contact.getId(), callType,contact.getFirstName() + " " + contact.getLastName());
+            requestP2PCallWithContactId((int) contact.getId(), callType, contact.getFirstName() + " " + contact.getLastName());
         }
 
 
     }
-
-
 
 
     private void inviteCallParticipant(ContactsWrapper contact) {
@@ -583,7 +644,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void turnOnIncomingVideos() {
-        if(isInCall){
+        if (isInCall) {
             view.showTurnOffIncomingVideosBtn();
             view.hideTurnOnIncomingVideosBtn();
             chat.turnOnIncomingVideos();
@@ -592,7 +653,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     @Override
     public void turnOffIncomingVideos() {
-        if(isInCall){
+        if (isInCall) {
             view.hideTurnOffIncomingVideosBtn();
             view.showTurnOnIncomingVideosBtn();
             chat.turnOffIncomingVideos();
@@ -618,7 +679,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 .jsonMetaData(new GsonBuilder().create().toJson("{\"callRejectWithMessage\":true}"))
                 .build();
         callUniqueIds.add(chat.sendTextMessage(requestRejectMessage, null));
-        if(isCameraOn){
+        if (isCameraOn) {
             turnOffCamera();
         }
     }
@@ -784,7 +845,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         Contact c = chatResponse.getResult().getContact();
 
         view.showMessage(c.getFirstName() + " " + c.getLastName() + " " + c.getCellphoneNumber() + " " + c.getEmail()
-        + " " + (c.getLinkedUser()!=null?c.getLinkedUser().getName() + " " + c.getLinkedUser().getUsername():"") + " اضافه شد");
+                + " " + (c.getLinkedUser() != null ? c.getLinkedUser().getName() + " " + c.getLinkedUser().getUsername() : "") + " اضافه شد");
     }
 
 
@@ -978,13 +1039,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     private void showVideoViews() {
         view.showVideoCallElements();
-        updatePartnerViewList();
         showLocalCameraPreview();
     }
 
-    private void updatePartnerViewList() {
-        chat.setPartnerViews(remotePartnersViews);
-    }
+
 
     private void hideVideoViews() {
         hideAllRemotePartners();
@@ -1006,6 +1064,10 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     private void hideAllRemotePartners() {
+        if (cpvManager != null) {
+            cpvManager.hideAllAssignedViews();
+            return;
+        }
         activity.runOnUiThread(() -> {
             if (remotePartnersViews != null)
                 for (CallPartnerView partnerView :
@@ -1092,12 +1154,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         CallWrapper endedCallInList = null;
         for (CallWrapper callItem :
                 callsList) {
-            if(callItem.getId() == endedCallId){
+            if (callItem.getId() == endedCallId) {
                 endedCallInList = callItem;
                 break;
             }
         }
-        if(endedCallInList!=null){
+        if (endedCallInList != null) {
             view.removeCallItem(endedCallInList);
             endedCallInList.setCallItemType(CallWrapper.CallItemType.HISTORY);
             view.onGetCallHistory(Collections.singletonList(endedCallInList));
@@ -1124,7 +1186,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         for (CallVO call :
                 response.getResult().getCallsList()) {
 
-            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null){
+            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null) {
                 CallWrapper callWrapper = CallWrapper.fromCall(call);
                 callWrapper.setCallItemType(CallWrapper.CallItemType.HISTORY);
                 calls.add(callWrapper);
@@ -1133,7 +1195,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
         }
 
-        if(callsList.size()>0){
+        if (callsList.size() > 0) {
             calls.removeAll(callsList);
         }
 
@@ -1149,7 +1211,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         for (CallVO call :
                 response.getResult().getCallsList()) {
 
-            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null){
+            if (call.getPartnerParticipantVO() != null || call.getConversationVO() != null) {
                 CallWrapper callWrapper = CallWrapper.fromCall(call);
                 callWrapper.setCallItemType(CallWrapper.CallItemType.ACTIVE);
                 calls.add(callWrapper);
@@ -1296,17 +1358,17 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
         view.hideContactsFragment();
         view.showFabContact();
 
-        switch (idType){
-            case EditorInfo.TYPE_CLASS_PHONE:{
-                chat.addContact(name,lastName,id,null,"default",null);
+        switch (idType) {
+            case EditorInfo.TYPE_CLASS_PHONE: {
+                chat.addContact(name, lastName, id, null, "default", null);
                 break;
             }
-            case EditorInfo.TYPE_CLASS_TEXT:{
-                chat.addContact(name,lastName,null,null,"default",id);
+            case EditorInfo.TYPE_CLASS_TEXT: {
+                chat.addContact(name, lastName, null, null, "default", id);
                 break;
             }
-            case EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS:{
-                chat.addContact(name,lastName,null,id,"default",null);
+            case EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS: {
+                chat.addContact(name, lastName, null, id, "default", null);
                 break;
             }
         }
@@ -1461,12 +1523,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     public void requestAudioCall(CallWrapper call) {
 
         if (chat.isChatReady()) {
-            if(call.getCallItemType() == CallWrapper.CallItemType.ACTIVE){
+            if (call.getCallItemType() == CallWrapper.CallItemType.ACTIVE) {
                 initCallVoByCallWrapper(call);
                 acceptIncomingCallWithAudio();
                 callsList.remove(call);
                 view.removeCallItem(call);
-            }else requestP2PCall(call, CallType.Constants.VOICE_CALL);
+            } else requestP2PCall(call, CallType.Constants.VOICE_CALL);
         } else {
             view.showMessage("Chat is not ready...");
         }
@@ -1477,12 +1539,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void requestVideoCall(CallWrapper call) {
         if (chat.isChatReady()) {
-            if(call.getCallItemType() == CallWrapper.CallItemType.ACTIVE){
+            if (call.getCallItemType() == CallWrapper.CallItemType.ACTIVE) {
                 initCallVoByCallWrapper(call);
                 acceptIncomingCallWithVideo();
                 callsList.remove(call);
                 view.removeCallItem(call);
-            }else requestP2PCall(call, CallType.Constants.VIDEO_CALL);
+            } else requestP2PCall(call, CallType.Constants.VIDEO_CALL);
         } else {
             view.showMessage("Chat is not ready...");
         }
@@ -1491,12 +1553,12 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
 
     private void initCallVoByCallWrapper(CallWrapper call) {
 
-            callVO = new CreateCallVO();
-            callVO.setCallId(call.getId());
-            callVO.setGroup(call.isGroup());
-            callVO.setConversationVO(call.getConversationVO());
-            callVO.setCreatorId(call.getCreatorId());
-            callVO.setType(call.getType());
+        callVO = new CreateCallVO();
+        callVO.setCallId(call.getId());
+        callVO.setGroup(call.isGroup());
+        callVO.setConversationVO(call.getConversationVO());
+        callVO.setCreatorId(call.getCreatorId());
+        callVO.setType(call.getType());
 
 
     }
@@ -1508,7 +1570,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
             int cId = (int) call.getPartnerParticipantVO().getContactId();
             int uId = (int) call.getPartnerParticipantVO().getId();
             if (cId > 0) {
-                requestP2PCallWithContactId(cId, callType,call.getPartnerParticipantVO().getName());
+                requestP2PCallWithContactId(cId, callType, call.getPartnerParticipantVO().getName());
 
             } else if (uId > 0) {
                 requestP2PCallWithUserId(uId, callType);
@@ -1565,7 +1627,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 invitees,
                 callType)
                 .setTitle(GROUP_CALL_NAME_PREFIX + contactId)
-                .setDescription("Generated at "+new Date().toString())
+                .setDescription("Generated at " + new Date().toString())
                 .build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
@@ -1604,7 +1666,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 invitees,
                 callType)
                 .setTitle(GROUP_CALL_NAME_PREFIX + contactName)
-                .setDescription("Generated at "+new Date().toString())
+                .setDescription("Generated at " + new Date().toString())
                 .build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
@@ -1624,7 +1686,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                 threadId,
                 callType)
                 .setTitle(GROUP_CALL_NAME_PREFIX + " " + threadId)
-                .setDescription("Generated at "+new Date().toString())
+                .setDescription("Generated at " + new Date().toString())
                 .build();
 
         if (callRequest.getCallType() == CallType.Constants.VIDEO_CALL) {
@@ -1705,7 +1767,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                                 invitees,
                                 BASE_CALL_TYPE)
                                 .setTitle(GROUP_CALL_NAME_PREFIX + ids)
-                                .setDescription("Generated at "+new Date().toString())
+                                .setDescription("Generated at " + new Date().toString())
                                 .build();
                         uniqueId = chat.requestGroupCall(callRequest);
 
@@ -1720,7 +1782,7 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
                             Long.parseLong(query),
                             BASE_CALL_TYPE)
                             .setTitle(GROUP_CALL_NAME_PREFIX + query)
-                            .setDescription("Generated at "+new Date().toString())
+                            .setDescription("Generated at " + new Date().toString())
                             .build();
                     if (isGroupCall) {
                         uniqueId = chat.requestGroupCall(callRequest);
@@ -1920,6 +1982,8 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     }
 
     private CallPartnerView findParticipantView(Long userId) {
+        if (cpvManager != null) return cpvManager.getPartnerAssignedView(userId);
+
         CallPartnerView lpw = null;
         for (CallPartnerView partnerView :
                 remotePartnersViews) {
@@ -1957,11 +2021,28 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onCallParticipantStartedVideo(ChatResponse<JoinCallParticipantResult> response) {
         try {
-            if (response.getResult().getJoinedParticipants().get(0).getParticipantVO().getId() == remotePartnersViews.get(0).getPartnerId()) {
-                view.showRemoteViews();
+//            if (response.getResult().getJoinedParticipants().get(0).getParticipantVO().getId() == remotePartnersViews.get(0).getPartnerId()) {
+//                view.showRemoteViews();
+//            }
+
+            if (cpvManager != null) {
+                CallParticipantVO callParticipant =
+                        response.getResult()
+                                .getJoinedParticipants().get(0);
+
+                new MainThreadExecutor()
+                        .execute(() -> {
+                            try {
+                                Objects.requireNonNull(cpvManager.getPartnerAssignedView(callParticipant.getUserId()))
+                                        .setVisibility(View.VISIBLE);
+                                cpvManager.showPartnerName(callParticipant.getUserId(), callParticipant.getParticipantVO().getName());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
             }
             view.showMessage(response.getResult().getJoinedParticipants().get(0).getParticipantVO().getName() + " الان تصویر داره!");
-            setNameOnView(response.getResult().getJoinedParticipants());
+
         } catch (Exception e) {
             view.onError(e.getMessage());
         }
@@ -2093,5 +2174,11 @@ public class CallPresenter extends ChatAdapter implements CallContract.presenter
     @Override
     public void onNewViewGenerated(CallPartnerView callPartnerView) {
         view.addNewView(callPartnerView);
+    }
+
+    @Override
+    public void onMaximumViewNumberReached(Long partnerUserId) {
+        listOfPartnerWithoutViews.add(partnerUserId);
+        view.showMessage("Maximum View Number Reached");
     }
 }

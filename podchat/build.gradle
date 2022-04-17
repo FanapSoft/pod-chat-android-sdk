@@ -5,10 +5,10 @@ apply plugin: 'com.kezong.fat-aar'
 apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.16.3'
+    libraryVersion = '0.9.17.2'
     libraryVersionCode = 193
     libraryVersionLight = '0.9.14.2'
-    podcallVersion = '3.7.7-SNAPSHOT'
+    podcallVersion = '3.8.21-SNAPSHOT'
 }
 android {
 
