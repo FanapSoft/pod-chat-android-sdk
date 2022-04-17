@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallClientErrorsResult;
@@ -1575,6 +1576,26 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onCallParticipantRecordStopped(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnDeviceIsNear() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeviceIsNear();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnDeviceGotFar() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeviceGotFar();
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

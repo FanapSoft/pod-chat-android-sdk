@@ -12,7 +12,7 @@ task sourceJar(type: Jar) {
 
 tasks.register('printPublishFilesPath') {
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     doLast {
 
@@ -26,7 +26,7 @@ tasks.register('printPublishFilesPath') {
 
 tasks.register('preparePublishingFiles', Copy) {
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     println("moving publish files...")
     from "$buildDir/outputs/aar"
@@ -41,7 +41,7 @@ tasks.register('preparePublishingFiles', Copy) {
 
 tasks.register('preparePublishing') {
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     dependsOn tasks.clean
     dependsOn tasks.assemblePublish
@@ -56,7 +56,7 @@ tasks.register('preparePublishing') {
 
 tasks.register('publishToLocalMaven'){
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     dependsOn tasks.preparePublishing
     dependsOn tasks.publishWithoutCallPublicationToMavenLocal
@@ -70,7 +70,7 @@ tasks.register('publishToLocalMaven'){
 
 tasks.register('publishToPodchatSnapshots'){
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     dependsOn tasks.preparePublishing
     dependsOn tasks.publishWithoutCallPublicationToPodchatSnapshotsRepository
@@ -84,7 +84,7 @@ tasks.register('publishToPodchatSnapshots'){
 
 tasks.register('publishToGithub'){
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     dependsOn tasks.preparePublishing
     dependsOn tasks.publishWithoutCallPublicationToGithubPackagesRepository
@@ -97,25 +97,23 @@ tasks.register('publishToGithub'){
 }
 tasks.register('publishLightVersionToGithub'){
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     dependsOn tasks.preparePublishing
     dependsOn tasks.publishWithoutCallPublicationToGithubPackagesRepository
 
     tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
-    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
 
 
 }
 tasks.register('publishMainVersionToGithub'){
 
-    group 'publishing'
+    group 'PodChatPublish'
 
     dependsOn tasks.preparePublishing
     dependsOn tasks.publishWithCallPublicationToGithubPackagesRepository
 
-    tasks.publishWithoutCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
-    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'publishWithoutCallPublicationToGithubPackagesRepository'
+    tasks.publishWithCallPublicationToGithubPackagesRepository.mustRunAfter 'preparePublishing'
 
 
 }

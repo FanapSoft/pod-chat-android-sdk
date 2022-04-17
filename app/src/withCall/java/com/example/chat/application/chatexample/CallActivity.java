@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +32,15 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.fanap.podcall.audio.AudioCallParam;
+import com.fanap.podcall.model.VideoCallParam;
+import com.fanap.podcall.screenshare.model.ScreenShareParam;
 import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.constants.CallType;
 import com.fanap.podchat.call.contacts.ContactsFragment;
@@ -44,8 +50,8 @@ import com.fanap.podchat.call.history.HistoryAdaptor;
 import com.fanap.podchat.call.login.LoginFragment;
 import com.fanap.podchat.call.model.CallInfo;
 import com.fanap.podchat.call.model.CallParticipantVO;
-import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.result_model.CallDeliverResult;
+import com.fanap.podchat.call.setting.SettingFragment;
 import com.fanap.podchat.example.BuildConfig;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.mainmodel.Participant;
@@ -55,6 +61,7 @@ import com.fanap.podchat.util.ChatConstant;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -66,12 +73,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CallActivity extends AppCompatActivity implements CallContract.view,
         LoginFragment.ILoginInterface,
-        ContactsFragment.IContactsFragment {
+        ContactsFragment.IContactsFragment,
+        SettingFragment.ISettingFragment {
 
 
     private static final String TAG = "CHAT_SDK_CALL";
     public static final long[] VIB_PATTERN = {0, 1000, 1000};
 
+    //set it to true if you went test CallPartnerViewManager auto generate ability
+    public static final boolean CALL_PARTNER_VIEW_AUTO_GENERATE_TEST = false;
 
     private boolean permissionToRecordAccepted = false;
     private String[] permissions = {Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
@@ -97,12 +107,14 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             buttonAddCallParticipant,
             imgBtnSwitchCamera,
             imgBtnTurnOnCam,
-            imgBtnTurnOffCam;
+            imgBtnTurnOffCam,
+            imgBtnTurnOffIncomingVideos,
+            imgBtnTurnOnIncomingVideos;
     ImageView imgViewCallerProfile, imgViewCallerProfileInCall;
     EditText etSandboxThreadId;
 
     FrameLayout frameLayout;
-    FloatingActionButton fabContacts;
+    FloatingActionButton fabContacts, fabSetting;
 
     boolean enableVibrate = false;
     boolean enableRing = false;
@@ -209,6 +221,8 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             presenter.getContact();
         });
 
+        fabSetting.setOnClickListener(v -> presenter.showSetting());
+
         imgBtnSwitchCamera.setOnClickListener(v -> {
             scaleIt(v);
             presenter.switchCamera();
@@ -228,12 +242,33 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         imgBtnTurnOnCam.setOnClickListener(v -> presenter.turnOnCamera());
         imgBtnTurnOffCam.setOnClickListener(v -> presenter.turnOffCamera());
 
+        imgBtnTurnOnIncomingVideos.setOnClickListener(v -> presenter.turnOnIncomingVideos());
+        imgBtnTurnOffIncomingVideos.setOnClickListener(v -> presenter.turnOffIncomingVideos());
 
-        View.OnClickListener cllPartnersListener = this::swapMainCallPartner;
+        View.OnClickListener cllPartnersListener = getOnCallPartnerViewClickListener();
 //        remoteCallPartner1.setOnClickListener(cllPartnersListener);
         remoteCallPartner2.setOnClickListener(cllPartnersListener);
         remoteCallPartner3.setOnClickListener(cllPartnersListener);
         remoteCallPartner4.setOnClickListener(cllPartnersListener);
+
+        View.OnLongClickListener onLongClickPartnerView = getOnCallPartnerLongClickListener();
+        remoteCallPartner1.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner2.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner3.setOnLongClickListener(onLongClickPartnerView);
+        remoteCallPartner4.setOnLongClickListener(onLongClickPartnerView);
+    }
+
+    @NonNull
+    private View.OnLongClickListener getOnCallPartnerLongClickListener() {
+        return v -> {
+            presenter.onCallPartnerViewLongClicked((CallPartnerView) v);
+            return true;
+        };
+    }
+
+    @NonNull
+    private View.OnClickListener getOnCallPartnerViewClickListener() {
+        return v -> presenter.onCallPartnerViewSelected((CallPartnerView) v);
     }
 
     private void onPreStartCall() {
@@ -242,7 +277,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
             inCallView.setVisibility(View.VISIBLE);
             buttonStartCallById.setVisibility(View.VISIBLE);
             tvCallerName.setText("");
-            hideFabContact();
+            hideFabs();
         });
     }
 
@@ -253,7 +288,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         presenter.terminateCall();
     }
 
-    private void swapMainCallPartner(View v) {
+    private void swapMainCallPartner(CallPartnerView v) {
 
         Boolean swapped = (Boolean) v.getTag();
 
@@ -422,11 +457,14 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         imgBtnSwitchCamera = findViewById(R.id.imgBtnSwitchCamera);
         imgBtnTurnOnCam = findViewById(R.id.imgBtnTurnOnCam);
         imgBtnTurnOffCam = findViewById(R.id.imgBtnTurnOffCam);
+        imgBtnTurnOffIncomingVideos = findViewById(R.id.imgBtnTurnOffIncomingVideos);
+        imgBtnTurnOnIncomingVideos = findViewById(R.id.imgBtnTurnOnIncomingVideos);
 
         etSandboxThreadId = findViewById(R.id.etSandBoxPartnerId);
 
         frameLayout = findViewById(R.id.frame_call);
         fabContacts = findViewById(R.id.fabShowContactsList);
+        fabSetting = findViewById(R.id.fabShowSetting);
 
         Logger.addLogAdapter(new AndroidLogAdapter());
 
@@ -443,9 +481,11 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         List<CallPartnerView> views = new ArrayList<>();
         views.add(remoteCallPartner1);
-        views.add(remoteCallPartner2);
-        views.add(remoteCallPartner3);
-        views.add(remoteCallPartner4);
+        if (!CALL_PARTNER_VIEW_AUTO_GENERATE_TEST) {
+            views.add(remoteCallPartner2);
+            views.add(remoteCallPartner3);
+            views.add(remoteCallPartner4);
+        }
 
         presenter.setupVideoCallParam(localCallPartner, views);
 
@@ -466,7 +506,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     private void runTestCode() {
 
         callRequestView.setVisibility(View.VISIBLE);
-        hideFabContact();
+        hideFabs();
         animateViewProfile();
 
 //        remoteCallPartner4.setVisibility(View.VISIBLE);
@@ -499,7 +539,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.VISIBLE);
             buttonStartCallById.setVisibility(View.GONE);
-            hideFabContact();
+            hideFabs();
         });
 
     }
@@ -510,6 +550,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
 
             localCallPartner.setVisibility(View.GONE);
+
             imgBtnSwitchCamera.setVisibility(View.GONE);
             imgBtnTurnOffCam.setVisibility(View.GONE);
             imgBtnTurnOnCam.setVisibility(View.VISIBLE);
@@ -554,8 +595,10 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             imgBtnSwitchCamera.setVisibility(View.VISIBLE);
             imgBtnTurnOffCam.setVisibility(View.VISIBLE);
+            imgBtnTurnOffIncomingVideos.setVisibility(View.VISIBLE);
             constraintHolder.setVisibility(View.VISIBLE);
             imgBtnTurnOnCam.setVisibility(View.GONE);
+            imgBtnTurnOnIncomingVideos.setVisibility(View.GONE);
             imgViewCallerProfileInCall.setVisibility(View.GONE);
         });
     }
@@ -601,7 +644,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.VISIBLE);
             callRequestView.setVisibility(View.GONE);
-            hideFabContact();
+            hideFabs();
             buttonStartCallById.setVisibility(View.GONE);
             tvCalleeName.setText("");
         });
@@ -641,7 +684,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.GONE);
             callRequestView.setVisibility(View.GONE);
-            showFabContacts();
+            showFabs();
             buttonStartCallById.setVisibility(View.VISIBLE);
         });
     }
@@ -652,11 +695,32 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         }
     }
 
+    @Override
+    public void showFabSetting() {
+        if (inCallView.getVisibility() != View.VISIBLE) {
+            runOnUiThread(() -> {
+                        if (fabSetting != null) {
+                            fabSetting.show();
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public void hideFabSetting() {
+        runOnUiThread(() -> {
+            if (fabSetting != null) {
+                fabSetting.hide();
+            }
+        });
+
+    }
+
     private void showRequestCallView() {
         runOnUiThread(() -> {
             inCallView.setVisibility(View.VISIBLE);
             callRequestView.setVisibility(View.GONE);
-            hideFabContact();
+            hideFabs();
             buttonStartCallById.setVisibility(View.GONE);
         });
     }
@@ -665,7 +729,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.GONE);
             callRequestView.setVisibility(View.GONE);
-            showFabContacts();
+            showFabs();
             buttonStartCallById.setVisibility(View.VISIBLE);
         });
     }
@@ -684,7 +748,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             inCallView.setVisibility(View.GONE);
             callRequestView.setVisibility(View.GONE);
-            showFabContacts();
+            showFabs();
             buttonStartCallById.setVisibility(View.VISIBLE);
         });
         updateStatus("تماس به پایان رسید");
@@ -709,9 +773,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
             switchToRecentCallsRecycler();
 
-            if(recyclerViewAdapter==null){
+            if (recyclerViewAdapter == null) {
                 initRecyclerViewAdapter(calls);
-            }else {
+            } else {
                 recyclerViewAdapter.add(calls);
             }
 
@@ -729,15 +793,14 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
     @Override
     public void onGetActiveCalls(List<CallWrapper> calls) {
-
-
-        if(recyclerViewAdapter==null){
-            initRecyclerViewAdapter(calls);
-        }else {
-            recyclerViewAdapter.addToFirst(calls);
-            Objects.requireNonNull(recyclerViewHistory.getLayoutManager()).scrollToPosition(0);
-        }
-
+        runOnUiThread(() -> {
+            if (recyclerViewAdapter == null) {
+                initRecyclerViewAdapter(calls);
+            } else {
+                recyclerViewAdapter.addToFirst(calls);
+                Objects.requireNonNull(recyclerViewHistory.getLayoutManager()).scrollToPosition(0);
+            }
+        });
     }
 
     private void initRecyclerViewAdapter(List<CallWrapper> calls) {
@@ -745,7 +808,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
                 new ArrayList<>(calls),
                 this, new HistoryAdaptor.IHistoryInterface() {
 
-                    @Override
+            @Override
             public void onAudioCallSelected(CallWrapper call) {
                 presenter.requestAudioCall(call);
             }
@@ -758,16 +821,37 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     }
 
 
-
     private void switchToRecentCallsRecycler() {
         viewSwitcherRecentCalls.setDisplayedChild(1);
     }
 
     @Override
     public void removeCallItem(CallWrapper call) {
-        if(recyclerViewAdapter!=null){
-            recyclerViewAdapter.removeItem(call);
-        }
+        runOnUiThread(() -> {
+            if (recyclerViewAdapter != null) {
+                recyclerViewAdapter.removeItem(call);
+            }
+        });
+    }
+
+    @Override
+    public void showTurnOffIncomingVideosBtn() {
+        imgBtnTurnOffIncomingVideos.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideTurnOnIncomingVideosBtn() {
+        imgBtnTurnOnIncomingVideos.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void hideTurnOffIncomingVideosBtn() {
+        imgBtnTurnOffIncomingVideos.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showTurnOnIncomingVideosBtn() {
+        imgBtnTurnOnIncomingVideos.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -797,7 +881,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         runOnUiThread(() -> {
             callRequestView.setVisibility(View.VISIBLE);
             buttonStartCallById.setVisibility(View.GONE);
-            hideFabContact();
+            hideFabs();
         });
 
     }
@@ -974,8 +1058,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         runOnUiThread(() -> {
             if (getSupportFragmentManager().findFragmentByTag("CFRAG") == null) {
-                hideFabContact();
-
+                hideFabs();
                 FrameLayout frameLayout = findViewById(R.id.frame_call);
                 frameLayout.setVisibility(View.VISIBLE);
                 try {
@@ -985,12 +1068,43 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
                             .addToBackStack("CFRAG")
                             .commit();
                 } catch (Exception e) {
-                    showFabContacts();
+                    showFabs();
                     Log.wtf(TAG, e);
                 }
             }
         });
 
+    }
+
+    @Override
+    public void showSettingFragment(SettingFragment fragment) {
+        runOnUiThread(() -> {
+            if (getSupportFragmentManager().findFragmentByTag("SFRAG") == null) {
+                hideFabs();
+                FrameLayout frameLayout = findViewById(R.id.frame_call);
+                frameLayout.setVisibility(View.VISIBLE);
+                try {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.frame_call, fragment, "SFRAG")
+                            .addToBackStack("SFRAG")
+                            .commit();
+                } catch (Exception e) {
+                    showFabs();
+                    Log.wtf(TAG, e);
+                }
+            }
+        });
+    }
+
+    private void showFabs() {
+        showFabContacts();
+        showFabSetting();
+    }
+
+    private void hideFabs() {
+        hideFabContact();
+        hideFabSetting();
     }
 
     @Override
@@ -1014,7 +1128,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
-            showFabContacts();
+            showFabs();
             hideFragmentByTag("CFRAG");
 
             hideFragmentByTag("LFRAG");
@@ -1044,6 +1158,9 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         if (fabContacts != null) {
             hideFabContact();
         }
+        if (fabSetting != null) {
+            hideFabSetting();
+        }
 
         LoginFragment loginFragment = new LoginFragment();
 
@@ -1071,6 +1188,27 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
     @Override
     public void onContactsSelected(ContactsWrapper contact, int callType) {
         presenter.onContactSelected(contact, callType);
+    }
+
+    @Override
+    public void onAddContact() {
+        hideContactsFragment();
+        showFabs();
+    }
+
+    @Override
+    public void onAddContactSelected(String name, String lastName, String id, int idType) {
+        presenter.addContact(name, lastName, id, idType);
+    }
+
+    @Override
+    public void onListOfContactsSelectedForAudioCall(String callName, ArrayList<Long> selectContactIds) {
+        presenter.requestGroupAudioCallByContactId(callName, selectContactIds);
+    }
+
+    @Override
+    public void onListOfContactsSelectedForVideoCall(String callName, ArrayList<Long> selectContactIds) {
+        presenter.requestGroupVideoCallByContactId(callName, selectContactIds);
     }
 
     @Override
@@ -1134,6 +1272,14 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
             hideFragmentByTag("CFRAG");
+        }
+    }
+
+    @Override
+    public void hideSettingFragment() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            hideFragmentByTag("SFRAG");
         }
     }
 
@@ -1228,7 +1374,7 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
 
         runOnUiThread(() -> {
             localCallPartner.setVisibility(View.GONE);
-            showFabContacts();
+            showFabs();
             hideRequestCallView();
         });
 
@@ -1254,10 +1400,33 @@ public class CallActivity extends AppCompatActivity implements CallContract.view
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    public void addNewView(CallPartnerView partnerView) {
+
+        showCallRequest("Call Partner");
+        runOnUiThread(() -> {
+            partnerView.setVisibility(View.VISIBLE);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400, 400);
+            params.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
+            params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+            partnerView.setLayoutParams(params);
+            partnerView.setOnClickListener(getOnCallPartnerViewClickListener());
+            partnerView.setOnLongClickListener(getOnCallPartnerLongClickListener());
+            ((ConstraintLayout) inCallView).addView(partnerView);
+        });
+
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         presenter.handleActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onSettingChanged(VideoCallParam videoCallParam, AudioCallParam audioCallParam, ScreenShareParam screenShareParam) {
+        presenter.updateCallConfig(
+                videoCallParam, audioCallParam, screenShareParam
+        );
     }
 }

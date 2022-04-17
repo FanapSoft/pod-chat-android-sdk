@@ -18,11 +18,13 @@ import com.fanap.podchat.call.CallStatus;
 import com.fanap.podchat.example.R;
 import com.fanap.podchat.util.Util;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHolder> {
 
@@ -112,7 +114,15 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             if (viewHolder.getItemViewType() != CallWrapper.CallItemType.ACTIVE) {
                 setImageStatus(viewHolder.imageStatus, historyVO.getStatus());
                 Date time = new Date(historyVO.getCreateTime());
-                viewHolder.tvCallTime.setText(time.toString());
+                String t = DateFormatUtils.format(time, "E yyyy/MM/dd HH:mm");
+                String ago = getTimePassed(historyVO);
+
+                if(historyVO.getStatus()==CallStatus.Constants.ENDED){
+                    String length = getCallLength(historyVO);
+                    viewHolder.tvCallTime.setText(t + " • " + ago + " • " + length);
+                }else {
+                    viewHolder.tvCallTime.setText(t + " • " + ago);
+                }
             }
 
             viewHolder.imageButtonAudioCall.setOnClickListener(v -> {
@@ -126,6 +136,49 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
 
         }
     }
+
+    private String getTimePassed(CallWrapper historyVO) {
+        String ago = null;
+        try {
+            Date past = new Date(historyVO.getCreateTime());
+            Date now = new Date();
+
+
+            if (TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime()) + " days ago";
+            } else if (TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime()) + " hours ago";
+            } else if (TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime()) + " minutes ago";
+            } else if (TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime()) + " seconds ago";
+            }
+        } catch (Exception j) {
+            j.printStackTrace();
+        }
+        return ago;
+    }
+
+    private String getCallLength(CallWrapper historyVO) {
+        String ago = null;
+        try {
+            Date start = new Date(historyVO.getStartTime());
+            Date end = new Date(historyVO.getEndTime());
+
+
+            if (TimeUnit.MILLISECONDS.toHours(end.getTime() - start.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toHours(end.getTime() - start.getTime()) + " hour";
+            } else if (TimeUnit.MILLISECONDS.toMinutes(end.getTime() - start.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toMinutes(end.getTime() - start.getTime()) + " min";
+            } else if (TimeUnit.MILLISECONDS.toSeconds(end.getTime() - start.getTime()) > 0) {
+                ago = TimeUnit.MILLISECONDS.toSeconds(end.getTime() - start.getTime()) + " sec";
+            }
+        } catch (Exception j) {
+            j.printStackTrace();
+        }
+        return ago;
+    }
+
 
     private void setImageStatus(ImageView imageStatus, int status) {
 
@@ -202,13 +255,13 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
             historyVOS = new ArrayList<>();
         }
         historyVOS.addAll(calls);
-        Collections.sort(historyVOS, (o1, o2) -> Long.compare(o2.getCreateTime(),o1.getCreateTime()));
+        Collections.sort(historyVOS, (o1, o2) -> Long.compare(o2.getCreateTime(), o1.getCreateTime()));
         notifyItemRangeChanged(historyVOS.size(), calls.size());
     }
 
     public void removeItem(CallWrapper call) {
         if (historyVOS != null) {
-            if(historyVOS.contains(call)){
+            if (historyVOS.contains(call)) {
                 int pos = historyVOS.indexOf(call);
                 historyVOS.remove(call);
                 notifyItemRemoved(pos);

@@ -31,14 +31,14 @@ android {
     productFlavors {
 
         withCall {
-            versionName "1.4.0-BETA7"
+            versionName "4.2.0-BETA"
             versionCode 1
             matchingFallbacks = ["withCall", "withoutCall"]
         }
         withoutCall {
             versionName "0.0.1"
             versionCode 1
-            matchingFallbacks = ["withoutCall", "withCall"]
+            matchingFallbacks = ["withoutCall","withCall"]
         }
 
     }
@@ -53,9 +53,9 @@ android {
             def buildType = variant.buildType.name // e. g. debug
             def variantName = variant.name // e. g. withCallDebug
 
-            if (flavorName == "withCall") {
+            if(flavorName == "withCall"){
                 outputFileName = "PodCall-v${versionName}.apk"
-            } else if (flavorName == "withoutCall") {
+            }else if(flavorName=="withoutCall"){
                 outputFileName = "PodChat-v${versionName}.apk"
             }
 

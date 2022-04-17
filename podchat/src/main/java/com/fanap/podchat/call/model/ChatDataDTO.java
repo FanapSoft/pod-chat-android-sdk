@@ -10,6 +10,8 @@ public class ChatDataDTO implements Parcelable {
     private String screenShare;
     private String brokerAddress;
     private String turnAddress;
+    private String screenShareUser;
+    private String recordingUser;
 
 
     public String getSendMetaData() {
@@ -53,6 +55,22 @@ public class ChatDataDTO implements Parcelable {
         this.turnAddress = turnAddress;
     }
 
+    public String getScreenShareUser() {
+        return screenShareUser;
+    }
+
+    public void setScreenShareUser(String screenShareUser) {
+        this.screenShareUser = screenShareUser;
+    }
+
+    public String getRecordingUser() {
+        return recordingUser;
+    }
+
+    public void setRecordingUser(String recordingUser) {
+        this.recordingUser = recordingUser;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -65,6 +83,8 @@ public class ChatDataDTO implements Parcelable {
         dest.writeString(this.screenShare);
         dest.writeString(this.brokerAddress);
         dest.writeString(this.turnAddress);
+        dest.writeString(this.screenShareUser);
+        dest.writeString(this.recordingUser);
     }
 
     public ChatDataDTO() {
@@ -76,6 +96,8 @@ public class ChatDataDTO implements Parcelable {
         this.screenShare = in.readString();
         this.brokerAddress = in.readString();
         this.turnAddress = in.readString();
+        this.screenShareUser = in.readString();
+        this.recordingUser = in.readString();
     }
 
     public static final Creator<ChatDataDTO> CREATOR = new Creator<ChatDataDTO>() {

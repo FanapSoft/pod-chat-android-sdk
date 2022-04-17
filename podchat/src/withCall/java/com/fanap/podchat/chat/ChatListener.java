@@ -398,4 +398,7 @@ public interface ChatListener {
     default void onCallParticipantRecordStopped(ChatResponse<Participant> response){}
 
     default void onReceiveActiveCalls(ChatResponse<GetActiveCallsResult> response){}
+
+    default void onDeviceIsNear(){}
+    default void onDeviceGotFar(){}
 }
