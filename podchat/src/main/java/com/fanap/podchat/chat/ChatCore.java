@@ -18,10 +18,10 @@ import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import com.fanap.podasync.Async;
@@ -276,7 +276,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1966,7 +1965,6 @@ public abstract class ChatCore extends AsyncAdapter {
     }
 
 
-
     void handleOnVoiceCallEnded(ChatMessage chatMessage) {
     }
 
@@ -3176,6 +3174,22 @@ public abstract class ChatCore extends AsyncAdapter {
 
 
         }
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public List<WaitQueueCache> getWaitingQ() {
+        if (cache) {
+            return messageDatabaseHelper.getAllWaitQueueMsg();
+        }
+        return new ArrayList<>(waitQList.values());
+    }
+
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public List<SendingQueueCache> getSendingQ() {
+        if (cache) {
+            return messageDatabaseHelper.getAllSendingQueue();
+        }
+        return new ArrayList<>(sendingQList.values());
     }
 
 
@@ -11592,8 +11606,8 @@ public abstract class ChatCore extends AsyncAdapter {
             async.sendMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK);
         }
 
-        if(cache){
-            dataSource.saveMessageResultFromServer(messageVO,chatMessage.getSubjectId());
+        if (cache) {
+            dataSource.saveMessageResultFromServer(messageVO, chatMessage.getSubjectId());
         }
 
         listenerManager.callOnNewMessage(json, chatResponse);
