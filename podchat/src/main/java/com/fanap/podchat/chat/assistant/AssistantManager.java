@@ -64,11 +64,11 @@ public class AssistantManager {
     public static String createGetAssistantsRequest(GetAssistantRequest request,
                                                     String uniqueId) {
         JsonObject content = new JsonObject();
-        content.addProperty("contactType", request.getTypeCode());
-        if ((Long)request.getOffset() != null) {
+        content.addProperty("contactType", request.getTypeCode() != null ? request.getTypeCode() : CoreConfig.typeCode);
+        if ((Long) request.getOffset() != null) {
             content.addProperty("offset", request.getOffset());
         }
-        if ((Long)request.getCount() != null) {
+        if ((Long) request.getCount() != null) {
             content.addProperty("count", request.getCount());
         } else {
             content.addProperty("count", 50);
@@ -85,6 +85,7 @@ public class AssistantManager {
 
         return App.getGson().toJson(message);
     }
+
     public static String createUnBlockAssistantRequest(BlockUnblockAssistantRequest request,
                                                        String uniqueId) {
         String content = App.getGson().toJson(request.getAssistantVos());
@@ -123,10 +124,10 @@ public class AssistantManager {
                                                            String uniqueId) {
         JsonObject content = new JsonObject();
         content.addProperty("contactType", request.getTypeCode());
-        if ((Long)request.getOffset() != null) {
+        if ((Long) request.getOffset() != null) {
             content.addProperty("offset", request.getOffset());
         }
-        if ((Long)request.getCount() != null) {
+        if ((Long) request.getCount() != null) {
             content.addProperty("count", request.getCount());
         } else {
             content.addProperty("count", 50);
@@ -143,6 +144,7 @@ public class AssistantManager {
 
         return App.getGson().toJson(message);
     }
+
     public static String createGetAssistantHistoryRequest(GetAssistantHistoryRequest request,
                                                           String uniqueId) {
         JsonObject content = new JsonObject();
@@ -159,7 +161,7 @@ public class AssistantManager {
         return App.getGson().toJson(message);
     }
 
-    public static ChatResponse<List<AssistantVo>> handleAssitantResponse(ChatMessage chatMessage) {
+    public static ChatResponse<List<AssistantVo>> handleAssistantResponse(ChatMessage chatMessage) {
 
         ChatResponse<List<AssistantVo>> response = new ChatResponse<>();
         List<AssistantVo> result = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<AssistantVo>>() {
@@ -175,7 +177,7 @@ public class AssistantManager {
     }
 
 
-    public static ChatResponse<List<AssistantHistoryVo>> handleAssitantHistoryResponse(ChatMessage chatMessage) {
+    public static ChatResponse<List<AssistantHistoryVo>> handleAssistantHistoryResponse(ChatMessage chatMessage) {
 
         ChatResponse<List<AssistantHistoryVo>> response = new ChatResponse<>();
         List<AssistantHistoryVo> result = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<AssistantHistoryVo>>() {
@@ -183,17 +185,20 @@ public class AssistantManager {
 
         for (AssistantHistoryVo history : result) {
             switch (history.getActionType()) {
-                case AsisstantActionType.REGISTER_ASSISTANT:
+                case AssistantActionType.REGISTER_ASSISTANT:
                     history.setActionName("REGISTER_ASSISTANT");
                     break;
-                case AsisstantActionType.ACTIVATE_ASSISTANT:
+                case AssistantActionType.ACTIVATE_ASSISTANT:
                     history.setActionName("ACTIVATE_ASSISTANT");
                     break;
-                case AsisstantActionType.DIACTIVE_ASSISTANT:
-                    history.setActionName("DIACTIVE_ASSISTANT");
+                case AssistantActionType.DEACTIVE_ASSISTANT:
+                    history.setActionName("DEACTIVE_ASSISTANT");
                     break;
-                case AsisstantActionType.BLOCK_ASSISTANT:
+                case AssistantActionType.BLOCK_ASSISTANT:
                     history.setActionName("BLOCK_ASSISTANT");
+                    break;
+                case AssistantActionType.UNBLOCK_ASSISTANT:
+                    history.setActionName("UNBLOCK_ASSISTANT");
                     break;
             }
         }
@@ -207,10 +212,11 @@ public class AssistantManager {
     }
 
     @Retention(RetentionPolicy.SOURCE)
-    public @interface AsisstantActionType {
+    public @interface AssistantActionType {
         int REGISTER_ASSISTANT = 1;
         int ACTIVATE_ASSISTANT = 2;
-        int DIACTIVE_ASSISTANT = 3;
+        int DEACTIVE_ASSISTANT = 3;
         int BLOCK_ASSISTANT = 4;
+        int UNBLOCK_ASSISTANT = 5;
     }
 }

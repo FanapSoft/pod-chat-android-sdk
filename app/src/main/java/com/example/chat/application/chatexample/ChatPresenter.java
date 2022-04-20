@@ -145,6 +145,7 @@ import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.NetworkUtils.NetworkPingSender;
 import com.fanap.podchat.util.RequestMapSearch;
 import com.fanap.podchat.util.Util;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -582,6 +583,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onLogEvent(log);
     }
 
+    @Override
+    public void onLogEvent(String logName, String json) {
+        view.onLogEvent(json);
+    }
 
     @Override
     public void searchMap(String searchTerm, double lat, double lon) {
