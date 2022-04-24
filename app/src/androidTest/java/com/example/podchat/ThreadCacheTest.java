@@ -29,6 +29,7 @@ import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.requestobject.RequestConnect;
 import com.fanap.podchat.requestobject.RequestDeleteMessage;
+import com.fanap.podchat.requestobject.RequestEditMessage;
 import com.fanap.podchat.requestobject.RequestMessage;
 import com.fanap.podchat.requestobject.RequestThread;
 import com.fanap.podchat.requestobject.RequestThreadInfo;
@@ -70,7 +71,7 @@ public class ThreadCacheTest {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "8c1c715aa4084a9e91d41f89f965d8b2";
+    private static String TOKEN = "f32ddf7e1bb0481fb5df2eaedcc62883";
 
     @Mock
     ChatListener chatListeners;
@@ -139,17 +140,18 @@ public class ThreadCacheTest {
     public void testThreadsAreSame() {
         populateThreadsFromServer();
         populateThreadsFromCache();
-        checkThreadsAreSameInCacheAndServer();
+        checkThreadMessagesAreSameInCacheAndServer();
     }
 
     @Test
     public void testThreadMessagesAreSame() {
-
+        populateThreadsFromServer();
+        populateThreadsFromCache();
     }
 
     @Test
     public void testThreadInfoAreSameAfterDeleteMessage() {
-        deleteMessage();
+        sendMessageAndDelete();
         populateThreadsFromServer();
         populateThreadsFromCache();
         checkThreadsAreSameInCacheAndServer();
@@ -163,8 +165,16 @@ public class ThreadCacheTest {
         checkThreadsAreSameInCacheAndServer();
     }
 
+    @Test
+    public void testThreadInfoAreSameAfterUpdateMessage() {
+        sendMessageAndEdit();
+        populateThreadsFromServer();
+        populateThreadsFromCache();
+        checkThreadsAreSameInCacheAndServer();
+    }
 
-    public void deleteMessage() {
+
+    public void sendMessageAndDelete() {
         populateThreadsFromServer();
         Collections.shuffle(threadsInServer);
         Thread thread = threadsInServer.get(0);
@@ -176,7 +186,7 @@ public class ThreadCacheTest {
             @Override
             public void onNewMessage(String content, ChatResponse<ResultNewMessage> response) {
                 resumeProcess();
-                msgIds.add( response.getResult().getMessageVO().getId());
+                msgIds.add(response.getResult().getMessageVO().getId());
                 System.out.println("new message sent -> msg : " + content);
                 chat.removeListener(chatListeners);
             }
@@ -265,6 +275,70 @@ public class ThreadCacheTest {
 
     }
 
+    public void sendMessageAndEdit() {
+        populateThreadsFromServer();
+        Collections.shuffle(threadsInServer);
+        Thread thread = threadsInServer.get(0);
+        Assert.assertNotNull(thread);
+        final long[] messageId = {0};
+
+        //send new message
+        chatListeners = new ChatListener() {
+            @Override
+            public void onNewMessage(String content, ChatResponse<ResultNewMessage> response) {
+                messageId[0] = response.getResult().getMessageVO().getId();
+                resumeProcess();
+                System.out.println("new message sent -> msg : " + content);
+                chat.removeListener(chatListeners);
+            }
+
+            @Override
+            public void onError(String content, ErrorOutPut error) {
+                resumeProcess();
+                System.out.println("Error: " + content);
+                Assert.assertEquals(0, 1);
+                chat.removeListener(chatListeners);
+            }
+        };
+        chat.addListener(chatListeners);
+
+
+        RequestMessage request =
+                new RequestMessage.Builder("Message for test edit :" + thread.getId(), thread.getId())
+                        .messageType(TextMessageType.Constants.TEXT)
+                        .build();
+
+        chat.sendTextMessage(request, null);
+        pauseProcess();
+
+        //delete last message
+        chatListeners = new ChatListener() {
+            @Override
+            public void onEditedMessage(String content, ChatResponse<ResultNewMessage> response) {
+                resumeProcess();
+                System.out.println("Edited: " + content);
+                chat.removeListener(chatListeners);
+            }
+
+            @Override
+            public void onError(String content, ErrorOutPut error) {
+                resumeProcess();
+                System.out.println("Error: " + content);
+                Assert.assertEquals(0, 1);
+                chat.removeListener(chatListeners);
+            }
+        };
+        chat.addListener(chatListeners);
+
+        RequestEditMessage requestEditMessage = new RequestEditMessage.Builder("last message edited " + messageId[0],
+                messageId[0])
+                .build();
+
+        chat.editMessage(requestEditMessage, null);
+        pauseProcess();
+
+    }
+
     public void populateThreadsFromServer() {
         chatListeners = new ChatListener() {
             @Override
@@ -344,6 +418,26 @@ public class ThreadCacheTest {
 
     public void checkThreadMessagesAreSameInCacheAndServer() {
 
+        for (Thread threadInServer :
+                threadsInServer) {
+
+            if (threadInServer == null) continue;
+
+            Thread threadInCache = threadsInCache.stream().filter(thread -> thread.getId() == threadInServer.getId()).findFirst().get();
+            System.out.println(">>>>>>>>>>> Thread in server " + threadInServer.getTitle());
+            System.out.println(">>>>>>>>>>> Thread in cache " + threadInCache.getTitle());
+
+            Assert.assertEquals(threadInServer.getId(), threadInCache.getId());
+            System.out.println(">>>>>>>>>>> Threads are same " + threadInCache.getTitle() + " threadId : " + threadInCache.getId());
+            Assert.assertNotNull(threadInServer.getLastMessageVO());
+            Assert.assertNotNull(threadInCache.getLastMessageVO());
+            System.out.println(">>>>>>>>>>> Last message in cache " + threadInCache.getLastMessageVO().getMessage());
+            System.out.println(">>>>>>>>>>> Last message in server " + threadInServer.getLastMessageVO().getMessage());
+            Assert.assertEquals(threadInCache.getLastMessage(), threadInCache.getLastMessageVO().getMessage());
+
+            // GET THREAD HISTRORY
+
+        }
     }
 
     private void resumeProcess() {
