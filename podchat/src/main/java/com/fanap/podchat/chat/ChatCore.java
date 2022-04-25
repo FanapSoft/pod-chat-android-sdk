@@ -12559,8 +12559,8 @@ public abstract class ChatCore extends AsyncAdapter {
                             data.put("messageId", "488779");
                             data.put("messageType", "1");
                             try {
-                                data.put("MessageSenderName", object.getString("title"));
-                                data.put("text", object.getString("body"));
+                                data.put("MessageSenderName", object.getString("title") != null ? object.getString("title"):"نامشخص");
+                                data.put("text", object.getString("body")!=null?object.getString("body"):"ناشناس");
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
