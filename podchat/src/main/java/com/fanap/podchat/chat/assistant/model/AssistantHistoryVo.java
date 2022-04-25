@@ -33,7 +33,7 @@ public class AssistantHistoryVo {
         return actionTime;
     }
 
-    public void setActionTime(int actionTime) {
+    public void setActionTime(long actionTime) {
         this.actionTime = actionTime;
     }
 

@@ -21,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 
 import com.fanap.podasync.Async;
@@ -276,7 +275,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1606,7 +1604,7 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("ON REGISTER ASSISTANT");
         }
 
-        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssistantResponse(chatMessage);
         if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
         }
@@ -1622,7 +1620,7 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("ON DEACTIVE ASSISTANT");
         }
 
-        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssistantResponse(chatMessage);
 
         if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.deleteCacheAssistantVos(response.getResult());
@@ -1641,16 +1639,10 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("ON GET ASSISTANTS");
         }
 
-        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssistantResponse(chatMessage);
 
         if (cache && !response.getResult().isEmpty()) {
-            messageDatabaseHelper.updateCashAssistant(new OnWorkDone() {
-                @Override
-                public void onWorkDone(@Nullable Object o) {
-
-                }
-            }, response.getResult());
-
+            messageDatabaseHelper.insertAssistantVo(response.getResult());
         }
 
         listenerManager.callOnGetAssistants(response);
@@ -1665,16 +1657,11 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("ON GET ASSISTANT HISTORY");
         }
 
-        ChatResponse<List<AssistantHistoryVo>> response = AssistantManager.handleAssitantHistoryResponse(chatMessage);
+        ChatResponse<List<AssistantHistoryVo>> response = AssistantManager.handleAssistantHistoryResponse(chatMessage);
 
 
         if (cache && !response.getResult().isEmpty()) {
-            messageDatabaseHelper.updateCashAssistantHistory(new OnWorkDone() {
-                @Override
-                public void onWorkDone(@Nullable Object o) {
-
-                }
-            }, response.getResult());
+            messageDatabaseHelper.updateCashAssistantHistory(o -> {}, response.getResult());
 
         }
 
@@ -1718,10 +1705,9 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("ON BLOCK ASSISTANT");
         }
 
-        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssistantResponse(chatMessage);
         if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
-            Log.e(TAG, "handleOnAssistantBlocked: ");
         }
         listenerManager.callOnAssistantBlocked(response);
 
@@ -1735,10 +1721,9 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("ON UNBLOCK ASSISTANT");
         }
 
-        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssistantResponse(chatMessage);
         if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
-            Log.e(TAG, "handleOnAssistantUnBlocked: ");
         }
         listenerManager.callOnAssistantUnBlocked(response);
 
@@ -1753,10 +1738,9 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("ON GET BLOCKED ASSISTANTS");
         }
 
-        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssitantResponse(chatMessage);
+        ChatResponse<List<AssistantVo>> response = AssistantManager.handleAssistantResponse(chatMessage);
         if (cache && !response.getResult().isEmpty()) {
             messageDatabaseHelper.insertAssistantVo(response.getResult());
-            Log.e(TAG, "handleOnAssistantsBlocks: ");
         }
         listenerManager.callOnAssistantBlocks(response);
     }
@@ -2460,7 +2444,7 @@ public abstract class ChatCore extends AsyncAdapter {
     public String getAssistants(GetAssistantRequest request) {
         String uniqueId = generateUniqueId();
 
-        if (cache) {
+        if (cache && request.useCacheData()) {
             try {
                 getAssistantFromCache(request, uniqueId);
             } catch (RoomIntegrityException e) {
@@ -2517,10 +2501,18 @@ public abstract class ChatCore extends AsyncAdapter {
     }
 
     /**
-     * @param request You can get list of bloked assistants
+     * @param request You can get list of blocked assistants
      */
     public String getBlocksAssistant(GetBlockedAssistantsRequest request) {
         String uniqueId = generateUniqueId();
+
+        if (cache && request.useCacheData()) {
+            try {
+                getBlockedAssistantFromCache(request, uniqueId);
+            } catch (RoomIntegrityException e) {
+                disableCache();
+            }
+        }
 
         if (chatReady) {
             String message = AssistantManager.createGetBlockedAssistantsRequest(request, uniqueId);
@@ -2532,12 +2524,29 @@ public abstract class ChatCore extends AsyncAdapter {
         return uniqueId;
     }
 
-    private void getAssistantFromCache(GetAssistantRequest request, String uniqueId) throws RoomIntegrityException {
-
-        messageDatabaseHelper.getCacheAssistantVos(request, (count, cachResponseList) -> {
+    private void getBlockedAssistantFromCache(GetBlockedAssistantsRequest request, String uniqueId) throws RoomIntegrityException {
+        messageDatabaseHelper.getCacheBlockedAssistantVos(request, (count, cacheAssistantList) -> {
 
             ChatResponse<List<AssistantVo>> cacheResponse = new ChatResponse<>();
-            cacheResponse.setResult((List<AssistantVo>) cachResponseList);
+            cacheResponse.setResult((List<AssistantVo>) cacheAssistantList);
+            cacheResponse.setUniqueId(uniqueId);
+            cacheResponse.setCache(true);
+
+            if (sentryResponseLog) {
+                showLog("ON_GET_BLOCKED_ASSISTANT_CACHE", cacheResponse.getJson());
+            } else {
+                showLog("ON_GET_BLOCKED_ASSISTANT_CACHE");
+            }
+            listenerManager.callOnAssistantBlocks(cacheResponse);
+        });
+    }
+
+    private void getAssistantFromCache(GetAssistantRequest request, String uniqueId) throws RoomIntegrityException {
+
+        messageDatabaseHelper.getCacheAssistantVos(request, (count, cacheResponseList) -> {
+
+            ChatResponse<List<AssistantVo>> cacheResponse = new ChatResponse<>();
+            cacheResponse.setResult((List<AssistantVo>) cacheResponseList);
             cacheResponse.setUniqueId(uniqueId);
             cacheResponse.setCache(true);
             listenerManager.callOnGetAssistants(cacheResponse);

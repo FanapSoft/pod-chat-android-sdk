@@ -43,6 +43,7 @@ import com.fanap.podchat.chat.assistant.model.AssistantHistoryVo;
 import com.fanap.podchat.chat.assistant.model.AssistantVo;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantHistoryRequest;
 import com.fanap.podchat.chat.assistant.request_model.GetAssistantRequest;
+import com.fanap.podchat.chat.assistant.request_model.GetBlockedAssistantsRequest;
 import com.fanap.podchat.chat.hashtag.model.RequestGetHashTagList;
 import com.fanap.podchat.chat.mention.model.RequestGetMentionList;
 import com.fanap.podchat.chat.messge.MessageManager;
@@ -4604,11 +4605,21 @@ public class MessageDatabaseHelper {
 
         if (assistantVo.getParticipantVO() != null) {
             Participant participant = assistantVo.getParticipantVO();
-            String participantJson = App.getGson().toJson(participant);
-            CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
-            messageDao.insertParticipant(cacheParticipant);
+            CacheParticipant pInCache = messageDao.getParticipant(participant.getId());
+            CacheParticipant cacheParticipant;
+            if(pInCache!=null){
+                cacheParticipant = new CacheParticipant(participant,pInCache.getThreadId());
+            }else {
+                cacheParticipant = new CacheParticipant(participant,0);
+            }
             cacheFile.setParticipantVOId(cacheParticipant.getId());
             cacheFile.setInviteeId(cacheParticipant.getId());
+            messageDao.insertParticipant(cacheParticipant);
+
+            if(participant.getChatProfileVO()!=null){
+                participant.getChatProfileVO().setId(participant.getId());
+                messageDao.insertChatProfile(participant.getChatProfileVO());
+            }
         }
 
         cacheFile.setContactType(assistantVo.getContactType());
@@ -4638,8 +4649,7 @@ public class MessageDatabaseHelper {
         if (!canUseDatabase()) throw new RoomIntegrityException();
 
         worker(() -> {
-
-            List<CacheAssistantVo> list = messageDao.getCacheAssistantVos();
+            List<CacheAssistantVo> list = messageDao.getCacheAssistantVos(request.getCount()>0?request.getCount():25,request.getOffset());
             List<AssistantVo> cachResponseList = new ArrayList<>();
             for (CacheAssistantVo item : list) {
                 AssistantVo assistantVo = new AssistantVo();
@@ -4647,11 +4657,40 @@ public class MessageDatabaseHelper {
                 assistantVo.setBlock(item.isBlock());
                 assistantVo.setContactType(item.getContactType());
                 Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
+                ChatProfileVO profileVO = messageDao.getChatProfileVOById(participant.getId());
+                participant.setChatProfileVO(profileVO);
                 assistantVo.setParticipantVO(participant);
                 cachResponseList.add(assistantVo);
             }
 
             callback.onWorkDone(list.size(), cachResponseList);
+
+        });
+
+    }
+
+    public void getCacheBlockedAssistantVos(GetBlockedAssistantsRequest request, FunctionalListener callback) throws RoomIntegrityException {
+
+        if (!canUseDatabase()) throw new RoomIntegrityException();
+
+        worker(() -> {
+
+            List<CacheAssistantVo> list = messageDao.getCacheBlockedAssistantVos(
+                    request.getCount()>0?request.getCount():25,request.getOffset());
+            List<AssistantVo> cacheResponseList = new ArrayList<>();
+            for (CacheAssistantVo item : list) {
+                AssistantVo assistantVo = new AssistantVo();
+                assistantVo.setRoles((ArrayList<String>) item.getRoles());
+                assistantVo.setBlock(item.isBlock());
+                assistantVo.setContactType(item.getContactType());
+                Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
+                ChatProfileVO profileVO = messageDao.getChatProfileVOById(participant.getId());
+                participant.setChatProfileVO(profileVO);
+                assistantVo.setParticipantVO(participant);
+                cacheResponseList.add(assistantVo);
+            }
+
+            callback.onWorkDone(list.size(), cacheResponseList);
 
         });
 
@@ -4663,58 +4702,30 @@ public class MessageDatabaseHelper {
 
         worker(() -> {
 
-            List<CacheAssistantHistoryVo> list = messageDao.getCacheAssistantHistory();
-            List<AssistantHistoryVo> cachResponseList = new ArrayList<>();
+            List<CacheAssistantHistoryVo> list = messageDao.getCacheAssistantHistory(
+                    request.getCount() > 0 ? request.getCount() : 25,
+                    request.getOffset()
+            );
+            List<AssistantHistoryVo> cacheResponseList = new ArrayList<>();
             for (CacheAssistantHistoryVo item : list) {
                 AssistantHistoryVo assistantHistoryVo = new AssistantHistoryVo();
                 assistantHistoryVo.setActionName(item.getActionName());
-                assistantHistoryVo.setActionTime((int) item.getActionTime());
+                assistantHistoryVo.setActionTime(item.getActionTime());
                 assistantHistoryVo.setActionType(item.getActionType());
                 Participant participant = cacheToParticipantMapper(messageDao.getParticipant(item.getParticipantVOId()), false, null);
                 assistantHistoryVo.setParticipantVO(participant);
-                cachResponseList.add(assistantHistoryVo);
+                cacheResponseList.add(assistantHistoryVo);
             }
 
-            callback.onWorkDone(list.size(), cachResponseList);
+            callback.onWorkDone(list.size(), cacheResponseList);
 
         });
 
     }
-
-    public void updateCashAssistant(OnWorkDone listener, List<AssistantVo> response) {
-        worker(() -> {
-            List<CacheAssistantVo> cacheAssistantVos = new ArrayList<>();
-            messageDao.deleteAllCacheAssistantVo();
-            for (AssistantVo assistantVo : response) {
-                CacheAssistantVo cacheFile = new CacheAssistantVo();
-                cacheFile.setRoles(assistantVo.getRoles());
-                cacheFile.setBlock(assistantVo.getBlock());
-                if (assistantVo.getParticipantVO() != null) {
-                    Participant participant = assistantVo.getParticipantVO();
-                    String participantJson = App.getGson().toJson(participant);
-                    CacheParticipant cacheParticipant = App.getGson().fromJson(participantJson, CacheParticipant.class);
-                    messageDao.insertParticipant(cacheParticipant);
-                    cacheFile.setParticipantVOId(assistantVo.getParticipantVO().getId());
-                    cacheFile.setInviteeId(assistantVo.getParticipantVO().getId());
-                }
-
-                cacheFile.setContactType(assistantVo.getContactType());
-
-                cacheAssistantVos.add(cacheFile);
-            }
-
-            messageDao.insertCacheAssistantVos(cacheAssistantVos);
-            listener.onWorkDone(true);
-        });
-
-
-    }
-
 
     public void updateCashAssistantHistory(OnWorkDone listener, List<AssistantHistoryVo> response) {
         worker(() -> {
             List<CacheAssistantHistoryVo> cashAssitantHistory = new ArrayList<>();
-            messageDao.deleteAllCacheAssistantHistoryVo();
             for (AssistantHistoryVo assistantVo : response) {
                 CacheAssistantHistoryVo cashAsisstantHistory = new CacheAssistantHistoryVo();
                 if (assistantVo.getParticipantVO() != null) {
