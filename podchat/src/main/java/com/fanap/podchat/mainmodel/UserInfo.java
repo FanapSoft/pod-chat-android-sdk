@@ -11,6 +11,7 @@ public class UserInfo {
     @PrimaryKey
     private long id;
     private Long coreUserId;
+    private Long ssoId;
     private Long lastSeen;
     private boolean sendEnable;
     private boolean receiveEnable;
@@ -31,6 +32,14 @@ public class UserInfo {
 
     public void setChatProfileVO(ChatProfileVO chatProfileVO) {
         this.chatProfileVO = chatProfileVO;
+    }
+
+    public void setSsoId(Long ssoId) {
+        this.ssoId = ssoId;
+    }
+
+    public Long getSsoId() {
+        return ssoId;
     }
 
     public long getId() {

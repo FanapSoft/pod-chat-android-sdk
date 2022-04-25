@@ -165,6 +165,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     List<String> uniqueIds = new ArrayList<>();
+    private boolean requestedUserInfo = false;
 
     public ChatPresenter(Context context, ChatContract.view view, Activity activity) {
 
@@ -1523,7 +1524,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         if (state.equals(ChatStateType.ChatSateConstant.CHAT_READY)) {
 
-
+            if(!requestedUserInfo){
+                requestedUserInfo = true;
+                getUserInfo(null);
+            }
 //            List<String> usernames = new ArrayList<>();
 //        usernames.add("leila.nemati");
 //            usernames.add("pooria.pahlevani");

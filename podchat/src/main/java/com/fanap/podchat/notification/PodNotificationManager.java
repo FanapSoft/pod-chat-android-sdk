@@ -320,56 +320,56 @@ public class PodNotificationManager {
     private static void checkForNewFCMToken(Context context, long userId) {
 
 
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setApplicationId(context.getString(R.string.firebase_app_id))
-                .setApiKey(context.getString(R.string.firebase_api_key))
-                .setProjectId(context.getString(R.string.firebase_project_id))
-                .build();
-
-        FirebaseApp.initializeApp(context /* Context */, options, "secondary");
-
-        FirebaseApp secondary = FirebaseApp.getInstance("secondary");
-
-        FirebaseInstanceId.getInstance(secondary).getInstanceId().addOnCompleteListener(task -> {
-
-            if (task.isSuccessful()) {
-
-                listener.onNotificationEvent("Token Retrieved");
-
-                String newToken = task.getResult() != null ? task.getResult().getToken() : null;
-
-                SecurePreferences mSecurePrefs = getSecurePrefs(context);
-
-                String lastToken = mSecurePrefs.getString(KEY_FCM_TOKEN, null);
-
-                // no token saved in device register device with new token
-                if (lastToken == null && newToken != null) {
-
-                    fcmToken = newToken;
-
-                    createRegisterUserDeviceRequest(context, userId);
-
-                }
-
-                // token refreshed, should update in server
-                if (lastToken != null && newToken != null && !lastToken.equals(newToken)) {
-
-                    fcmToken = lastToken;
-
-                    createUpdateUserDeviceRequest(newToken);
-
-                }
-
-            } else {
-
-                String cause = task.getException() != null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
-
-                listener.onNotificationError("Failed to retrieve fcm token: " + cause);
-                Log.w(TAG, "getInstanceId failed", task.getException());
-
-            }
-
-        });
+//        FirebaseOptions options = new FirebaseOptions.Builder()
+//                .setApplicationId(context.getString(R.string.firebase_app_id))
+//                .setApiKey(context.getString(R.string.firebase_api_key))
+//                .setProjectId(context.getString(R.string.firebase_project_id))
+//                .build();
+//
+//        FirebaseApp.initializeApp(context /* Context */, options, "secondary");
+//
+//        FirebaseApp secondary = FirebaseApp.getInstance("secondary");
+//
+//        FirebaseInstanceId.getInstance(secondary).getInstanceId().addOnCompleteListener(task -> {
+//
+//            if (task.isSuccessful()) {
+//
+//                listener.onNotificationEvent("Token Retrieved");
+//
+//                String newToken = task.getResult() != null ? task.getResult().getToken() : null;
+//
+//                SecurePreferences mSecurePrefs = getSecurePrefs(context);
+//
+//                String lastToken = mSecurePrefs.getString(KEY_FCM_TOKEN, null);
+//
+//                // no token saved in device register device with new token
+//                if (lastToken == null && newToken != null) {
+//
+//                    fcmToken = newToken;
+//
+//                    createRegisterUserDeviceRequest(context, userId);
+//
+//                }
+//
+//                // token refreshed, should update in server
+//                if (lastToken != null && newToken != null && !lastToken.equals(newToken)) {
+//
+//                    fcmToken = lastToken;
+//
+//                    createUpdateUserDeviceRequest(newToken);
+//
+//                }
+//
+//            } else {
+//
+//                String cause = task.getException() != null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
+//
+//                listener.onNotificationError("Failed to retrieve fcm token: " + cause);
+//                Log.w(TAG, "getInstanceId failed", task.getException());
+//
+//            }
+//
+//        });
 
 
     }
@@ -382,19 +382,19 @@ public class PodNotificationManager {
         if (listener == null) return;
 
 
-        if (fcmToken == null) {
-
-            //no fcmToken Saved in device
-            //check for fcm token
-            checkForNewFCMToken(context, userId);
-
-        } else {
-
-            //we have saved token
-            //update token
-            createUpdateUserDeviceRequest(getSavedFCMToken(context));
-
-        }
+//        if (fcmToken == null) {
+//
+//            //no fcmToken Saved in device
+//            //check for fcm token
+//            checkForNewFCMToken(context, userId);
+//
+//        } else {
+//
+//            //we have saved token
+//            //update token
+//            createUpdateUserDeviceRequest(getSavedFCMToken(context));
+//
+//        }
 
     }
 

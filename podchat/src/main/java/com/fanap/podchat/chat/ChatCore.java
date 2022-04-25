@@ -187,6 +187,7 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.notification.PodNotificationManager;
+import com.fanap.podchat.notification.PodPushMessage;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -12035,7 +12036,7 @@ public abstract class ChatCore extends AsyncAdapter {
         showLog(state, "");
         permit = true;
         checkFreeSpace();
-        PodNotificationManager.onChatIsReady(context, userId);
+//        PodNotificationManager.onChatIsReady(context, userId);
         resetConnectHandler();
         listenerManager.callOnChatState("CHAT_READY");
 
@@ -12529,10 +12530,10 @@ public abstract class ChatCore extends AsyncAdapter {
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
 
             PushSdk push = new PushSdk.Builder()
-                    .setContext(context.getApplicationContext())
-                    .setSsoId(userInfo.getId())
+                    .setContext(context)
+                    .setSsoId(userInfo.getSsoId())
                     .setAppId("affee6ac-4aae-494f-9985-411e2bb26365")
-                    .setHandleNotification(false)
+                    .setHandleNotification(true)
                     .setResponseListener(new ResponseListener() {
                         @Override
                         public void onSubscribe(JSONObject data) {
@@ -12554,8 +12555,21 @@ public abstract class ChatCore extends AsyncAdapter {
                         @Override
                         public void getNotification(JSONObject object) {
                             showLog("PushNotif getNotification " + object);
-
+                            Map<String, String> data = new HashMap<>();
+                            data.put("messageId", "488779");
+                            data.put("messageType", "1");
+                            try {
+                                data.put("MessageSenderName", object.getString("title"));
+                                data.put("text", object.getString("body"));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            data.put("senderImage", "http://sandbox.pod.ir:8080/nzh/image/?imageId=62606&width=1272&height=1272&hashCode=16bf4878c16-0.7172112194509095");
+                            data.put("threadId", "12269");
+                            data.put("isGroup", "false");
+                            PodNotificationManager.showNotification(data,context);
                         }
+
                     })
                     .build();
 
