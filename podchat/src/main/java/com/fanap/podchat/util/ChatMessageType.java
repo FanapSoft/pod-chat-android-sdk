@@ -128,7 +128,13 @@ public class ChatMessageType {
             Constants.END_SHARE_SCREEN,
             Constants.ADD_CONTACT,
             Constants.REMOVE_CONTACT,
-            Constants.GET_CALLS_TO_JOIN
+            Constants.GET_CALLS_TO_JOIN,
+            Constants.MUTUAL_GROUPS,
+            Constants.BLOCK_ASSISTANT,
+            Constants.UNBLOCK_ASSISTANT,
+            Constants.GET_BLOCKED_ASSISTANTS,
+            Constants.GET_USER_BOTS,
+
 
     })
 
