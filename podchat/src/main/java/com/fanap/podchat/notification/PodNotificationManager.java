@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationManagerCompat;
+
 import android.util.Log;
 
 import com.fanap.podchat.R;
@@ -16,9 +18,6 @@ import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.Util;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.RemoteMessage;
 import com.securepreferences.SecurePreferences;
 
@@ -29,13 +28,23 @@ import java.util.UUID;
 
 import static com.fanap.podchat.notification.PodChatPushNotificationService.TAG;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import ir.fanap.sdk_notif.presenter.NotificationListener;
+import ir.fanap.sdk_notif.presenter.ResponseListener;
+import ir.fanap.sdk_notif.view.PushSdk;
+
 public class PodNotificationManager {
 
-    private static boolean chatIsReady = false;
+//    private static boolean chatIsReady = false;
 
     private static boolean shouldShowNotification = true;
+    private static String appId;
+    private static boolean isSubscribed = false;
 
-    private static long DEVICE_TOKEN_HAS_ALREADY_REGISTERED = 152;
+    //    private static long DEVICE_TOKEN_HAS_ALREADY_REGISTERED = 152;
+    private static final String APP_ID = "APP_ID";
 
     private static final String TARGET_ACTIVITY = "TARGET_ACTIVITY";
     private static final String ICON = "ICON";
@@ -43,119 +52,194 @@ public class PodNotificationManager {
     private static final String CHANNEL_ID = "CHANNEL_ID";
     private static final String PACKAGE_NAME = "PACKAGE_NAME";
     private static final String KEY_FCM_TOKEN = "FCM_TOKEN";
+    @Nullable
     private static IPodNotificationManager listener;
-    private static BroadcastReceiver receiver;
-    private static String fcmToken;
+    //    private static BroadcastReceiver receiver;
+//    private static String fcmToken;
     private static SecurePreferences mSecurePrefs;
+    @Nullable
+    private static PushSdk push;
+//    private static int STATE = 0;
 
-    private static int STATE = 0;
-
-    private static final int NEED_REGISTER_USER_DEVICE = 1;
-
-    private static final int NEED_REFRESH_TOKEN = 2;
+//    private static final int NEED_REGISTER_USER_DEVICE = 1;
+//
+//    private static final int NEED_REFRESH_TOKEN = 2;
 
 
-    private static String messageUniqueId = "";
+//    private static String messageUniqueId = "";
 
-    private static Map<String, Runnable> messagesQ = new HashMap<>();
+//    private static Map<String, Runnable> messagesQ = new HashMap<>();
 
     //    private static final ArrayList<Map<String, String>> notificationsList = new ArrayList<>();
     private static final ArrayList<PodPushMessage> notificationsList = new ArrayList<>();
 
+    public static void enablePushNotification(IPodNotificationManager mListener) {
+        listener = mListener;
+    }
+
+    private static void subscribeNotificationBySSOId(Long ssoId, Context context) {
+
+        push = new PushSdk.Builder()
+                .setContext(context)
+                .setSsoId(ssoId)
+                .setAppId(appId)
+                .setHandleNotification(true)
+                .setResponseListener(new ResponseListener() {
+                    @Override
+                    public void onSubscribe(JSONObject data) {
+                        isSubscribed = true;
+                        if (listener != null) {
+                            listener.onNotificationEvent("Push Sdk onSubscribe with: " + data);
+                        }
+                    }
+
+                    @Override
+                    public void onUnsubscribe() {
+                        isSubscribed = false;
+                        if (listener != null) {
+                            listener.onNotificationEvent("Push Sdk onUnSubscribe");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception ex) {
+                        if (listener != null)
+                            listener.onNotificationError("Push Sdk On Error " + ex.getMessage());
+                    }
+                })
+                .setNotificationListener(new NotificationListener() {
+                    @Override
+                    public void getNotification(JSONObject object) {
+//                        showLog("PushNotif getNotification " + object);
+                        Map<String, String> data = new HashMap<>();
+                        data.put("messageId", "488779");
+                        data.put("messageType", "1");
+                        try {
+                            data.put("MessageSenderName", Util.isNotNullOrEmpty(object.getString("title")) ? object.getString("title") : "نامشخص");
+                            data.put("text", Util.isNotNullOrEmpty(object.getString("body")) ? object.getString("body") : "ناشناس");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        data.put("senderImage", "http://sandbox.pod.ir:8080/nzh/image/?imageId=62606&width=1272&height=1272&hashCode=16bf4878c16-0.7172112194509095");
+                        data.put("threadId", "12269");
+                        data.put("isGroup", "false");
+                        showNotification(data, context);
+                    }
+
+                })
+                .build();
+
+    }
+
+    public static void onChatIsReady(Context context, long ssoId) {
+
+//        chatIsReady = true;
+
+        // if notification is not enabled
+        if (listener == null) return;
+
+        subscribeNotificationBySSOId(ssoId, context);
+
+
+//        if (fcmToken == null) {
+//
+//            //no fcmToken Saved in device
+//            //check for fcm token
+//            checkForNewFCMToken(context, userId);
+//
+//        } else {
+//
+//            //we have saved token
+//            //update token
+//            createUpdateUserDeviceRequest(getSavedFCMToken(context));
+//
+//        }
+
+    }
 
     public static void setShouldShowNotification(boolean shouldShowNotification) {
         PodNotificationManager.shouldShowNotification = shouldShowNotification;
     }
 
-    private static synchronized String generateUniqueId() {
-        return UUID.randomUUID().toString();
-    }
+//    private static synchronized String generateUniqueId() {
+//        return UUID.randomUUID().toString();
+//    }
 
-    private static void createRegisterUserDeviceRequest(Context context, long userId) {
+//    private static void createRegisterUserDeviceRequest(Context context, long userId) {
+//
+//        if (userId <= 0) {
+//            if (listener != null)
+//                listener.onNotificationEvent("Try to register device but user id was 0");
+//            return;
+//        }
+//
+//        String uniqueId = generateUniqueId();
+//        STATE = NEED_REGISTER_USER_DEVICE;
+//        Map<String, String> userDeviceTokenMap = new HashMap<>();
+//        userDeviceTokenMap.put(fcmToken, String.valueOf(userId));
+//
+//        FcmAppUsersVO fcmAppUsersVO = new FcmAppUsersVO();
+//
+//        fcmAppUsersVO.setAppId(context.getApplicationInfo().packageName);
+//        fcmAppUsersVO.setUserDeviceTokenMap(userDeviceTokenMap);
+//
+//
+//        AsyncMessage message = new AsyncMessage();
+//        message.setContent(App.getGson().toJson(fcmAppUsersVO));
+//        message.setType(ChatMessageType.Constants.REGISTER_FCM_USER_DEVICE);
+//        message.setToken(CoreConfig.token);
+//        message.setTokenIssuer(CoreConfig.tokenIssuer);
+//        message.setUniqueId(uniqueId);
+//        message.setTypeCode(CoreConfig.typeCode);
+//
+//        messageUniqueId = uniqueId;
+//
+//        listener.sendAsyncMessage(App.getGson().toJson(message), "Register notification device and user");
+//
+//    }
 
-        if (userId <= 0) {
-            if (listener != null)
-                listener.onNotificationEvent("Try to register device but user id was 0");
-            return;
-        }
+//    private static void createUpdateUserDeviceRequest(String newToken) {
+//
+//        String uniqueId = generateUniqueId();
+//
+//        STATE = NEED_REFRESH_TOKEN;
+//
+//        Map<String, String> tokensMap = new HashMap<>();
+//        tokensMap.put(fcmToken, newToken);
+//
+//        AsyncMessage message = new AsyncMessage();
+//        message.setContent(App.getGson().toJson(tokensMap));
+//        message.setType(ChatMessageType.Constants.UPDATE_FCM_APP_USERS_DEVICE);
+//        message.setToken(CoreConfig.token);
+//        message.setTokenIssuer(CoreConfig.tokenIssuer);
+//        message.setUniqueId(uniqueId);
+//        message.setTypeCode(CoreConfig.typeCode);
+//
+//        messageUniqueId = uniqueId;
+//
+//        listener.sendAsyncMessage(App.getGson().toJson(message), "UPDATE_FCM_APP_USERS_DEVICE");
+//
+//
+//    }
 
-        String uniqueId = generateUniqueId();
-        STATE = NEED_REGISTER_USER_DEVICE;
-        Map<String, String> userDeviceTokenMap = new HashMap<>();
-        userDeviceTokenMap.put(fcmToken, String.valueOf(userId));
-
-        FcmAppUsersVO fcmAppUsersVO = new FcmAppUsersVO();
-
-        fcmAppUsersVO.setAppId(context.getApplicationInfo().packageName);
-        fcmAppUsersVO.setUserDeviceTokenMap(userDeviceTokenMap);
-
-
-        AsyncMessage message = new AsyncMessage();
-        message.setContent(App.getGson().toJson(fcmAppUsersVO));
-        message.setType(ChatMessageType.Constants.REGISTER_FCM_USER_DEVICE);
-        message.setToken(CoreConfig.token);
-        message.setTokenIssuer(CoreConfig.tokenIssuer);
-        message.setUniqueId(uniqueId);
-        message.setTypeCode(CoreConfig.typeCode);
-
-        messageUniqueId = uniqueId;
-
-        listener.sendAsyncMessage(App.getGson().toJson(message), "Register notification device and user");
-
-    }
-
-    private static void createUpdateUserDeviceRequest(String newToken) {
-
-        String uniqueId = generateUniqueId();
-
-        STATE = NEED_REFRESH_TOKEN;
-
-        Map<String, String> tokensMap = new HashMap<>();
-        tokensMap.put(fcmToken, newToken);
-
-        AsyncMessage message = new AsyncMessage();
-        message.setContent(App.getGson().toJson(tokensMap));
-        message.setType(ChatMessageType.Constants.UPDATE_FCM_APP_USERS_DEVICE);
-        message.setToken(CoreConfig.token);
-        message.setTokenIssuer(CoreConfig.tokenIssuer);
-        message.setUniqueId(uniqueId);
-        message.setTypeCode(CoreConfig.typeCode);
-
-        messageUniqueId = uniqueId;
-
-        listener.sendAsyncMessage(App.getGson().toJson(message), "UPDATE_FCM_APP_USERS_DEVICE");
-
-
-    }
-
-    private static String getPackageName(Context context) {
-        return context.getApplicationInfo().packageName;
-    }
-
-    public static void registerFCMTokenReceiver(Context context) {
-
-        try {
-
-            fcmToken = getSavedFCMToken(context);
-
-            listener.onNotificationEvent("Notification Manger started");
+//    private static String getPackageName(Context context) {
+//        return context.getApplicationInfo().packageName;
+//    }
 
 
-        } catch (Exception e) {
-            listener.onNotificationEvent("failed to register notification receiver");
-            listener.onNotificationError(e.getMessage());
-        }
-
-    }
-
-    public static void unRegisterReceiver(Context context) {
+    public static void unsubscribeNotification() {
 
         try {
-            listener.onNotificationEvent("Try to unregister notification receiver");
+            if (listener != null) {
+                listener.onNotificationEvent("Try to unregister notification receiver");
+                if (push != null && isSubscribed) {
+                    push.unsubscribe();
+                }
+//            context.unregisterReceiver(receiver);
+//            receiver = null;
+                listener.onNotificationEvent(" unregister notification receiver done");
 
-            context.unregisterReceiver(receiver);
-            receiver = null;
-            listener.onNotificationEvent(" unregister notification receiver done");
+            }
 
         } catch (Exception e) {
             listener.onNotificationEvent("failed to unregistering notification receiver");
@@ -163,18 +247,20 @@ public class PodNotificationManager {
         }
 
     }
+//    private static IntentFilter getFCMTokenIntentFilter() {
+//        return new IntentFilter(PodChatPushNotificationService.ACTION_REFRESH);
+//    }
 
-    public static void listenLogs(IPodNotificationManager mListener) {
+    public static void savePushNotificationConfig(CustomNotificationConfig mConfig, Context context) {
 
-        listener = mListener;
+        if(Util.isNullOrEmpty(mConfig.getAppId())){
+            if (listener != null) {
+                listener.onNotificationError("subscribing to Push Notification failed AppId == Null");
+            }
+            return;
+        }
 
-    }
-
-    private static IntentFilter getFCMTokenIntentFilter() {
-        return new IntentFilter(PodChatPushNotificationService.ACTION_REFRESH);
-    }
-
-    public static void withConfig(CustomNotificationConfig mConfig, Context context) {
+        appId = mConfig.getAppId();
 
         notificationsList.clear();
 
@@ -186,37 +272,33 @@ public class PodNotificationManager {
                 mConfig.getNotificationImportance());
 
         try {
-            saveConfig(mConfig, context);
+            SecurePreferences s = getSecurePrefs(context);
+
+            SharedPreferences.Editor e = s.edit();
+
+            if (mConfig.getTargetActivity() != null) {
+                e.putString(TARGET_ACTIVITY, mConfig.getTargetActivity().getClass().getName());
+            } else if (!Util.isNullOrEmpty(mConfig.getTargetActivityString())) {
+                e.putString(TARGET_ACTIVITY, mConfig.getTargetActivityString());
+            } else throw new IllegalStateException("Target Activity Could not be null");
+
+            e.putInt(ICON, mConfig.getIcon());
+
+            e.putInt(NOTIF_IMPORTANCE, mConfig.getNotificationImportance());
+
+            e.putString(APP_ID, appId);
+
+            e.putString(CHANNEL_ID, mConfig.getChannelId());
+
+            e.putString(PACKAGE_NAME, context.getApplicationInfo().packageName);
+
+            e.apply();
         } catch (IllegalStateException e) {
             if (listener != null) listener.onNotificationError(e.getMessage());
         }
 
     }
 
-    private static void saveConfig(CustomNotificationConfig mConfig, Context context) {
-
-        SecurePreferences s = getSecurePrefs(context);
-
-        SharedPreferences.Editor e = s.edit();
-
-        if (mConfig.getTargetActivity() != null) {
-            e.putString(TARGET_ACTIVITY, mConfig.getTargetActivity().getClass().getName());
-        } else if (!Util.isNullOrEmpty(mConfig.getTargetActivityString())) {
-            e.putString(TARGET_ACTIVITY, mConfig.getTargetActivityString());
-        } else throw new IllegalStateException("Target Activity Could not be null");
-
-        e.putInt(ICON, mConfig.getIcon());
-
-        e.putInt(NOTIF_IMPORTANCE, mConfig.getNotificationImportance());
-
-        e.putString(CHANNEL_ID, mConfig.getChannelId());
-
-        e.putString(PACKAGE_NAME, context.getApplicationInfo().packageName);
-
-        e.apply();
-
-
-    }
 
     public static void showNotification(Map<String, String> data, Context context) {
 
@@ -258,7 +340,6 @@ public class PodNotificationManager {
 
     }
 
-
     public static Map<String, ArrayList<PodPushMessage>> getNotificationsGroup() {
         return PodThreadPushMessages.getNotificationsGroup();
     }
@@ -292,14 +373,14 @@ public class PodNotificationManager {
 
     }
 
-    private static void saveFCMToken(String token, Context context) {
-
-
-        mSecurePrefs = getSecurePrefs(context);
-
-        mSecurePrefs.edit().putString(KEY_FCM_TOKEN, token).apply();
-
-    }
+//    private static void saveFCMToken(String token, Context context) {
+//
+//
+//        mSecurePrefs = getSecurePrefs(context);
+//
+//        mSecurePrefs.edit().putString(KEY_FCM_TOKEN, token).apply();
+//
+//    }
 
     private static SecurePreferences getSecurePrefs(Context context) {
 
@@ -309,190 +390,167 @@ public class PodNotificationManager {
         return mSecurePrefs;
     }
 
-    private static String getSavedFCMToken(Context context) {
-
-        SecurePreferences mSecurePrefs = getSecurePrefs(context);
-
-        return mSecurePrefs.getString(KEY_FCM_TOKEN, null);
-
-    }
-
-    private static void checkForNewFCMToken(Context context, long userId) {
-
-
-//        FirebaseOptions options = new FirebaseOptions.Builder()
-//                .setApplicationId(context.getString(R.string.firebase_app_id))
-//                .setApiKey(context.getString(R.string.firebase_api_key))
-//                .setProjectId(context.getString(R.string.firebase_project_id))
-//                .build();
+//    private static String getSavedFCMToken(Context context) {
 //
-//        FirebaseApp.initializeApp(context /* Context */, options, "secondary");
+//        SecurePreferences mSecurePrefs = getSecurePrefs(context);
 //
-//        FirebaseApp secondary = FirebaseApp.getInstance("secondary");
+//        return mSecurePrefs.getString(KEY_FCM_TOKEN, null);
 //
-//        FirebaseInstanceId.getInstance(secondary).getInstanceId().addOnCompleteListener(task -> {
+//    }
 //
-//            if (task.isSuccessful()) {
+//    private static void checkForNewFCMToken(Context context, long userId) {
 //
-//                listener.onNotificationEvent("Token Retrieved");
 //
-//                String newToken = task.getResult() != null ? task.getResult().getToken() : null;
+////        FirebaseOptions options = new FirebaseOptions.Builder()
+////                .setApplicationId(context.getString(R.string.firebase_app_id))
+////                .setApiKey(context.getString(R.string.firebase_api_key))
+////                .setProjectId(context.getString(R.string.firebase_project_id))
+////                .build();
+////
+////        FirebaseApp.initializeApp(context /* Context */, options, "secondary");
+////
+////        FirebaseApp secondary = FirebaseApp.getInstance("secondary");
+////
+////        FirebaseInstanceId.getInstance(secondary).getInstanceId().addOnCompleteListener(task -> {
+////
+////            if (task.isSuccessful()) {
+////
+////                listener.onNotificationEvent("Token Retrieved");
+////
+////                String newToken = task.getResult() != null ? task.getResult().getToken() : null;
+////
+////                SecurePreferences mSecurePrefs = getSecurePrefs(context);
+////
+////                String lastToken = mSecurePrefs.getString(KEY_FCM_TOKEN, null);
+////
+////                // no token saved in device register device with new token
+////                if (lastToken == null && newToken != null) {
+////
+////                    fcmToken = newToken;
+////
+////                    createRegisterUserDeviceRequest(context, userId);
+////
+////                }
+////
+////                // token refreshed, should update in server
+////                if (lastToken != null && newToken != null && !lastToken.equals(newToken)) {
+////
+////                    fcmToken = lastToken;
+////
+////                    createUpdateUserDeviceRequest(newToken);
+////
+////                }
+////
+////            } else {
+////
+////                String cause = task.getException() != null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
+////
+////                listener.onNotificationError("Failed to retrieve fcm token: " + cause);
+////                Log.w(TAG, "getInstanceId failed", task.getException());
+////
+////            }
+////
+////        });
 //
-//                SecurePreferences mSecurePrefs = getSecurePrefs(context);
 //
-//                String lastToken = mSecurePrefs.getString(KEY_FCM_TOKEN, null);
-//
-//                // no token saved in device register device with new token
-//                if (lastToken == null && newToken != null) {
-//
-//                    fcmToken = newToken;
-//
-//                    createRegisterUserDeviceRequest(context, userId);
-//
-//                }
-//
-//                // token refreshed, should update in server
-//                if (lastToken != null && newToken != null && !lastToken.equals(newToken)) {
-//
-//                    fcmToken = lastToken;
-//
-//                    createUpdateUserDeviceRequest(newToken);
-//
-//                }
-//
-//            } else {
-//
-//                String cause = task.getException() != null ? task.getException().getMessage() != null ? task.getException().getMessage() : "Unknown" : "Unknown";
-//
-//                listener.onNotificationError("Failed to retrieve fcm token: " + cause);
-//                Log.w(TAG, "getInstanceId failed", task.getException());
-//
-//            }
-//
-//        });
-
-
-    }
-
-    public static void onChatIsReady(Context context, long userId) {
-
-        chatIsReady = true;
-
-        // if notification is not enabled
-        if (listener == null) return;
+//    }
 
 
-//        if (fcmToken == null) {
+//    public static void handleOnUserAndDeviceRegistered(ChatMessage chatMessage, Context context) {
 //
-//            //no fcmToken Saved in device
-//            //check for fcm token
-//            checkForNewFCMToken(context, userId);
+//        String content = chatMessage.getContent();
 //
-//        } else {
+//        String uniqueId = chatMessage.getUniqueId();
 //
-//            //we have saved token
-//            //update token
-//            createUpdateUserDeviceRequest(getSavedFCMToken(context));
+//        if (listener != null) {
+//
+//            listener.onNotificationEvent("User and device registered successfully");
+//
+//            listener.onNotificationEvent(content);
+//
+//            messagesQ.remove(uniqueId);
+//
+//            messageUniqueId = "";
+//
+//            STATE = 0;
+//
+//            saveFCMToken(fcmToken, context);
 //
 //        }
+//
+//    }
 
-    }
+//    public static void handleOnFCMTokenRefreshed(ChatMessage chatMessage, Context context) {
+//
+//        String content = chatMessage.getContent();
+//
+//        String uniqueId = chatMessage.getUniqueId();
+//
+//        if (listener != null) {
+//
+//            listener.onNotificationEvent("FCM token refreshed successfully");
+//
+//            listener.onNotificationEvent(content);
+//
+//            messagesQ.remove(uniqueId);
+//
+//            STATE = 0;
+//
+//            saveFCMToken(fcmToken, context);
+//
+//        }
+//
+//    }
 
-    public static void handleOnUserAndDeviceRegistered(ChatMessage chatMessage, Context context) {
-
-        String content = chatMessage.getContent();
-
-        String uniqueId = chatMessage.getUniqueId();
-
-        if (listener != null) {
-
-            listener.onNotificationEvent("User and device registered successfully");
-
-            listener.onNotificationEvent(content);
-
-            messagesQ.remove(uniqueId);
-
-            messageUniqueId = "";
-
-            STATE = 0;
-
-            saveFCMToken(fcmToken, context);
-
-        }
-
-    }
-
-    public static void handleOnFCMTokenRefreshed(ChatMessage chatMessage, Context context) {
-
-        String content = chatMessage.getContent();
-
-        String uniqueId = chatMessage.getUniqueId();
-
-        if (listener != null) {
-
-            listener.onNotificationEvent("FCM token refreshed successfully");
-
-            listener.onNotificationEvent(content);
-
-            messagesQ.remove(uniqueId);
-
-            STATE = 0;
-
-            saveFCMToken(fcmToken, context);
-
-        }
-
-    }
-
-    public static boolean isNotificationError(ChatMessage chatMessage, Error error, Context context, long userId) {
-
-
-        //notification not enabled
-        if (listener == null || messageUniqueId.isEmpty()) return false;
-
-        if (messageUniqueId.equals(chatMessage.getUniqueId())) {
-
-            Log.e(TAG, chatMessage.getContent());
-
-            switch (STATE) {
-
-                case NEED_REGISTER_USER_DEVICE: {
-
-                    if (error.getCode() == DEVICE_TOKEN_HAS_ALREADY_REGISTERED) {
-
-
-                        //user registered but old token not exist
-                        //we send the only token we have as old token and new token
-                        createUpdateUserDeviceRequest(fcmToken);
-
-                    } else if (error.getCode() == 100) {
-
-                        listener.onNotificationError(chatMessage.getContent());
-
-                    }
-
-                    break;
-                }
-                case NEED_REFRESH_TOKEN: {
-
-                    //refresh failed, maybe we need register user device
-                    createRegisterUserDeviceRequest(context, userId);
-
-                    break;
-                }
-
-                default: {
-
-                    listener.onNotificationError(chatMessage.getContent());
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-
-    }
+//    public static boolean isNotificationError(ChatMessage chatMessage, Error error, Context context, long userId) {
+//
+//
+//        //notification not enabled
+//        if (listener == null || messageUniqueId.isEmpty()) return false;
+//
+//        if (messageUniqueId.equals(chatMessage.getUniqueId())) {
+//
+//            Log.e(TAG, chatMessage.getContent());
+//
+//            switch (STATE) {
+//
+//                case NEED_REGISTER_USER_DEVICE: {
+//
+//                    if (error.getCode() == DEVICE_TOKEN_HAS_ALREADY_REGISTERED) {
+//
+//
+//                        //user registered but old token not exist
+//                        //we send the only token we have as old token and new token
+//                        createUpdateUserDeviceRequest(fcmToken);
+//
+//                    } else if (error.getCode() == 100) {
+//
+//                        listener.onNotificationError(chatMessage.getContent());
+//
+//                    }
+//
+//                    break;
+//                }
+//                case NEED_REFRESH_TOKEN: {
+//
+//                    //refresh failed, maybe we need register user device
+//                    createRegisterUserDeviceRequest(context, userId);
+//
+//                    break;
+//                }
+//
+//                default: {
+//
+//                    listener.onNotificationError(chatMessage.getContent());
+//                }
+//            }
+//
+//            return true;
+//        }
+//
+//        return false;
+//
+//    }
 
     public static void clearNotifications(Context context) {
 
@@ -526,26 +584,26 @@ public class PodNotificationManager {
 
     public static void registerClickReceiver(Context context) {
 
-//        try {
-//            listener.onNotificationEvent("registering click receiver...");
-//
-//            IntentFilter filter = new IntentFilter(ShowNotificationHelper.ACTION_1);
-//
-//            ShowNotificationHelper.NotificationClickReceiver receiver = new ShowNotificationHelper.NotificationClickReceiver();
-//
-//            context.registerReceiver(receiver, filter);
-//
-//            listener.onNotificationEvent("registering click done!");
-//
+        try {
+            listener.onNotificationEvent("registering click receiver...");
+
+            IntentFilter filter = new IntentFilter(ShowNotificationHelper.ACTION_1);
+
+            ShowNotificationHelper.NotificationClickReceiver receiver = new ShowNotificationHelper.NotificationClickReceiver();
+
+            context.registerReceiver(receiver, filter);
+
+            listener.onNotificationEvent("registering click done!");
+
 //            ShowNotificationHelper.isClickReceiverRegistered(true);
-//
-//        } catch (Exception e) {
+
+        } catch (Exception e) {
 //            ShowNotificationHelper.isClickReceiverRegistered(false);
-//
-//            if (listener != null) {
-//                listener.onNotificationError("click receiver registration failed: " + e.getMessage());
-//            }
-//        }
+
+            if (listener != null) {
+                listener.onNotificationError("click receiver registration failed: " + e.getMessage());
+            }
+        }
 
 
     }

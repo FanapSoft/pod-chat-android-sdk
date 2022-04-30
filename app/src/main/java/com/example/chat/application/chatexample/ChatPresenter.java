@@ -159,7 +159,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private ChatContract.view view;
     private Context context;
     private Activity activity;
-    private static final String NOTIFICATION_APPLICATION_ID = "a7ef47ebe966e41b612216b457ccba222a33332de52e948c66708eb4e3a5328f";
+    private static final String NOTIFICATION_APPLICATION_ID = BaseApplication.getInstance().getString(R.string.push_sdk_app_id);
     private TokenHandler tokenHandler = null;
     private String state = "";
 
@@ -176,7 +176,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
         CustomNotificationConfig notificationConfig = new CustomNotificationConfig
-                .Builder(ChatActivity.class.getName())
+                .Builder(NOTIFICATION_APPLICATION_ID,ChatActivity.class.getName())
                 .setChannelName("POD_CHAT_CHANNEL")
                 .setChannelId("PODCHAT")
                 .setChannelDescription("Fanap soft podchat notification channel")

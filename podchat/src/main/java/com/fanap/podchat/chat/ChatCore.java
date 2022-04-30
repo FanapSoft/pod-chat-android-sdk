@@ -16,6 +16,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.content.CursorLoader;
@@ -187,7 +188,6 @@ import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.retrofithelper.TimeoutConfig;
 import com.fanap.podchat.notification.CustomNotificationConfig;
 import com.fanap.podchat.notification.PodNotificationManager;
-import com.fanap.podchat.notification.PodPushMessage;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.persistance.PhoneContactDbHelper;
 import com.fanap.podchat.persistance.RoomIntegrityException;
@@ -277,7 +277,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -299,9 +298,6 @@ import io.sentry.core.Sentry;
 import io.sentry.core.SentryEvent;
 import io.sentry.core.SentryLevel;
 import io.sentry.core.protocol.User;
-import ir.fanap.sdk_notif.presenter.NotificationListener;
-import ir.fanap.sdk_notif.presenter.ResponseListener;
-import ir.fanap.sdk_notif.view.PushSdk;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -546,41 +542,36 @@ public abstract class ChatCore extends AsyncAdapter {
     public void setupNotification(CustomNotificationConfig notificationConfig) {
 
 
+        PodNotificationManager.enablePushNotification(new PodNotificationManager.IPodNotificationManager() {
+            @Override
+            public void onNotificationEvent(String log) {
+                showLog(log);
+            }
 
+            @Override
+            public void onNotificationError(String log) {
+                captureError(log, ChatConstant.ERROR_CODE_NOTIFICATION_ERROR, "");
+            }
 
+            @Override
+            public void sendAsyncMessage(String message, String info) {
 
-//        PodNotificationManager.listenLogs(new PodNotificationManager.IPodNotificationManager() {
-//            @Override
-//            public void onNotificationEvent(String log) {
-//                showLog(log);
-//            }
-//
-//            @Override
-//            public void onNotificationError(String log) {
-//
-//                captureError(log, ChatConstant.ERROR_CODE_NOTIFICATION_ERROR, "");
-//
-//            }
-//
-//            @Override
-//            public void sendAsyncMessage(String message, String info) {
-//
-//                if (chatReady) {
-//                    showLog(info, message);
-//                    async.sendMessage(message, AsyncAckType.Constants.WITHOUT_ACK);
-//                    if (Sentry.isEnabled()) {
-//                        Sentry.captureMessage("FCM : " + info + " ********* " + message);
-//                    }
-//                }
-//
-//            }
-//        });
-//
-//        PodNotificationManager.withConfig(notificationConfig, context);
+                if (chatReady) {
+                    showLog(info, message);
+                    async.sendMessage(message, AsyncAckType.Constants.WITHOUT_ACK);
+                    if (Sentry.isEnabled()) {
+                        Sentry.captureMessage("FCM : " + info + " ********* " + message);
+                    }
+                }
+
+            }
+        });
+
+        PodNotificationManager.savePushNotificationConfig(notificationConfig, context);
 //
 //        PodNotificationManager.registerFCMTokenReceiver(context);
 //
-//        PodNotificationManager.registerClickReceiver(context);
+        PodNotificationManager.registerClickReceiver(context);
 
     }
 
@@ -602,6 +593,9 @@ public abstract class ChatCore extends AsyncAdapter {
 
     }
 
+    public void unsubscribePushNotification(){
+        PodNotificationManager.unsubscribeNotification();
+    }
 
     private static void runDatabase(Context context) {
 
@@ -1059,15 +1053,15 @@ public abstract class ChatCore extends AsyncAdapter {
                 break;
             }
 
-            case Constants.REGISTER_FCM_USER_DEVICE: {
-                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
-                break;
-            }
+//            case Constants.REGISTER_FCM_USER_DEVICE: {
+////                PodNotificationManager.handleOnUserAndDeviceRegistered(chatMessage, context);
+//                break;
+//            }
 
-            case Constants.UPDATE_FCM_APP_USERS_DEVICE: {
-                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage, context);
-                break;
-            }
+//            case Constants.UPDATE_FCM_APP_USERS_DEVICE: {
+//                PodNotificationManager.handleOnFCMTokenRefreshed(chatMessage, context);
+//                break;
+//            }
 
             case Constants.CALL_REQUEST:
                 handleOnCallRequestReceived(chatMessage);
@@ -10783,11 +10777,11 @@ public abstract class ChatCore extends AsyncAdapter {
         long errorCode = error.getCode();
 
 
-        if (PodNotificationManager.isNotificationError(
-                chatMessage,
-                error,
-                context,
-                getUserId())) return;
+//        if (PodNotificationManager.isNotificationError(
+//                chatMessage,
+//                error,
+//                context,
+//                getUserId())) return;
 
         ThreadManager.onError(chatMessage);
 
@@ -12529,50 +12523,7 @@ public abstract class ChatCore extends AsyncAdapter {
             messageCallbacks.remove(messageUniqueId);
             listenerManager.callOnUserInfo(userInfoJson, chatResponse);
 
-            PushSdk push = new PushSdk.Builder()
-                    .setContext(context)
-                    .setSsoId(userInfo.getSsoId())
-                    .setAppId("affee6ac-4aae-494f-9985-411e2bb26365")
-                    .setHandleNotification(true)
-                    .setResponseListener(new ResponseListener() {
-                        @Override
-                        public void onSubscribe(JSONObject data) {
-                            showLog("PushNotif onSubscribe with: " + data);
-                        }
-
-                        @Override
-                        public void onUnsubscribe() {
-                            showLog("PushNotif onUnSubscribe");
-
-                        }
-
-                        @Override
-                        public void onError(Exception ex) {
-                            showErrorLog("PushNotif On Error " + ex.getMessage());
-                        }
-                    })
-                    .setNotificationListener(new NotificationListener() {
-                        @Override
-                        public void getNotification(JSONObject object) {
-                            showLog("PushNotif getNotification " + object);
-                            Map<String, String> data = new HashMap<>();
-                            data.put("messageId", "488779");
-                            data.put("messageType", "1");
-                            try {
-                                data.put("MessageSenderName",Util.isNotNullOrEmpty( object.getString("title"))? object.getString("title"):"نامشخص");
-                                data.put("text",Util.isNotNullOrEmpty(object.getString("body"))?object.getString("body"):"ناشناس");
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            data.put("senderImage", "http://sandbox.pod.ir:8080/nzh/image/?imageId=62606&width=1272&height=1272&hashCode=16bf4878c16-0.7172112194509095");
-                            data.put("threadId", "12269");
-                            data.put("isGroup", "false");
-                            PodNotificationManager.showNotification(data,context);
-                        }
-
-                    })
-                    .build();
-
+            PodNotificationManager.onChatIsReady(context.getApplicationContext(),userInfo.getSsoId());
 
         }
     }

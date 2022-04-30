@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 public class CustomNotificationConfig {
 
+    private String appId;
 
     private String channelId;
     private String channelName;
@@ -17,6 +18,7 @@ public class CustomNotificationConfig {
 
     private CustomNotificationConfig(Builder builder) {
 
+        this.appId = builder.appId;
         channelId = builder.channelId;
         channelName = builder.channelName;
         channelDescription = builder.channelDescription;
@@ -54,7 +56,13 @@ public class CustomNotificationConfig {
         return icon;
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
     public static class Builder {
+
+        private String appId;
 
         private int icon;
         private String channelId;
@@ -66,12 +74,24 @@ public class CustomNotificationConfig {
 
 
 
+        @Deprecated
         public Builder(@NonNull Activity activity) {
             this.activity = activity;
         }
 
+        @Deprecated
         public Builder(@NonNull String targetActivityString) {
             this.targetActivityString = targetActivityString;
+        }
+
+        public Builder(@NonNull String appId,@NonNull String targetActivityString) {
+            this.appId = appId;
+            this.targetActivityString = targetActivityString;
+        }
+
+        public Builder(@NonNull String appId,@NonNull Activity activity) {
+            this.appId = appId;
+            this.activity = activity;
         }
 
         public Builder setChannelId(String channelId) {
