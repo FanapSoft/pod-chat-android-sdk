@@ -551,6 +551,9 @@ public interface MessageDao {
     @Query("SELECT * FROM CacheAssistantVo")
     List<CacheAssistantVo> getCacheAssistantVos();
 
+    @Query("SELECT * FROM CacheAssistantVo LIMIT :count OFFSET :offset")
+    List<CacheAssistantVo> getCacheAssistantVos(long count,long offset);
+
     @Query("delete from CacheAssistantVo where inviteeId = :inviteeId")
     void deleteCacheAssistantVo(long inviteeId);
 
@@ -561,10 +564,17 @@ public interface MessageDao {
     @Query("SELECT * FROM CacheAssistantHistoryVo")
     List<CacheAssistantHistoryVo> getCacheAssistantHistory();
 
+    @Query("SELECT * FROM CacheAssistantHistoryVo LIMIT :count OFFSET :offset")
+    List<CacheAssistantHistoryVo> getCacheAssistantHistory(long count , long offset);
+
     @Insert(onConflict = REPLACE)
     void insertCacheAssistantHistoryVo(List<CacheAssistantHistoryVo> assistantVo);
 
+    @Query("SELECT * FROM CacheAssistantVo where block")
+    List<CacheAssistantVo> getCacheBlockedAssistantVos();
 
+    @Query("SELECT * FROM CacheAssistantVo where block LIMIT :count OFFSET :offset")
+    List<CacheAssistantVo> getCacheBlockedAssistantVos(long count,long offset);
 
     @Query("DELETE FROM CacheAssistantHistoryVo")
     void deleteAllCacheAssistantHistoryVo();
