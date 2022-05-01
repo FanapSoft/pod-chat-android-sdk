@@ -43,7 +43,6 @@ public class CacheMessageVO {
     private CallHistoryVO callHistoryVO;
 
 
-
     @Ignore
     private CacheParticipant participant;
 
@@ -312,23 +311,23 @@ public class CacheMessageVO {
                 this.conversationId = messageVO.getConversation().getId();
                 this.threadVoId = this.conversationId;
 
-                if (messageVO.getParticipant() != null)
-                {
-                    this.participant = new CacheParticipant(messageVO.getParticipant(),threadVoId);
+                if (messageVO.getParticipant() != null) {
+                    this.participant = new CacheParticipant(messageVO.getParticipant(), threadVoId);
                     this.participantId = messageVO.getParticipant().getId();
                 }
+
+                if (messageVO.getReplyInfoVO() != null) {
+                    this.replyInfoVO = CacheReplyInfoVO.fromReplyInfo(messageVO.getReplyInfoVO(), messageVO.getConversation().getId());
+                    this.replyInfoVOId = messageVO.getReplyInfoVO().getRepliedToMessageId();
+                }
             }
-
-            if (messageVO.getReplyInfoVO() != null)
-                this.replyInfoVOId = messageVO.getReplyInfoVO().getRepliedToMessageId();
-
-            if (messageVO.getForwardInfo() != null && messageVO.getForwardInfo().getConversation() != null)
+            if (messageVO.getForwardInfo() != null && messageVO.getForwardInfo().getConversation() != null) {
+                this.forwardInfo = CacheForwardInfo.fromForwardInfo(messageVO.getForwardInfo());
                 this.forwardInfoId = messageVO.getForwardInfo().getConversation().getId();
-
+            }
             if (messageVO.getCallHistoryVO() != null) {
                 this.callHistoryVO = messageVO.getCallHistoryVO();
             }
-
 
 
         } catch (Exception e) {

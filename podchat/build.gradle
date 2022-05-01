@@ -2,12 +2,13 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.kezong.fat-aar'
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.14.0'
-    libraryVersionLight = '0.9.13.0'
-    podcallVersion = '3.5.2'
+    libraryVersion = '0.9.17.2'
+    libraryVersionCode = 193
+    libraryVersionLight = '0.9.14.2'
+    podcallVersion = '3.8.21-SNAPSHOT'
 }
 android {
 
@@ -15,7 +16,7 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 185
+        versionCode libraryVersionCode
         versionName libraryVersion
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

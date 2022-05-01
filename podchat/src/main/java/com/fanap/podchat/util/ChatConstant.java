@@ -54,6 +54,7 @@ public class ChatConstant {
     public static final int ERROR_CODE_CAMERA_NOT_AVAILABLE = 3001;
 
     public static final int ERROR_CODE_INVALID_VIEW = 7101;
+    public static final int ERROR_CODE_INVALID_REQUEST = 7102;
 
 
 

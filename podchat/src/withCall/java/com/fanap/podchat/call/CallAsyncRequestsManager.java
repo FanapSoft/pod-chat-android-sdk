@@ -10,12 +10,14 @@ import com.fanap.podchat.call.model.CallErrorVO;
 import com.fanap.podchat.call.model.CallParticipantVO;
 import com.fanap.podchat.call.model.CallVO;
 import com.fanap.podchat.call.model.ClientDTO;
+import com.fanap.podchat.call.model.CreateCallThread;
 import com.fanap.podchat.call.model.CreateCallVO;
 import com.fanap.podchat.call.model.SendClientDTO;
 import com.fanap.podchat.call.request_model.AcceptCallRequest;
 import com.fanap.podchat.call.request_model.CallClientErrorsRequest;
 import com.fanap.podchat.call.request_model.CallRequest;
 import com.fanap.podchat.call.request_model.EndCallRequest;
+import com.fanap.podchat.call.request_model.GetActiveCallsRequest;
 import com.fanap.podchat.call.request_model.screen_share.EndShareScreenRequest;
 import com.fanap.podchat.call.request_model.GetCallHistoryRequest;
 import com.fanap.podchat.call.request_model.GetCallParticipantsRequest;
@@ -26,7 +28,6 @@ import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.request_model.RejectCallRequest;
 import com.fanap.podchat.call.request_model.StartOrEndCallRecordRequest;
 import com.fanap.podchat.call.request_model.TerminateCallRequest;
-import com.fanap.podchat.call.request_model.TurnCallParticipantVideoOffRequest;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallClientErrorsResult;
 import com.fanap.podchat.call.result_model.CallCreatedResult;
@@ -35,6 +36,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetActiveCallsResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -79,6 +81,8 @@ public class CallAsyncRequestsManager {
             content.remove("creatorSsoId");
         if (request.getCreatorCoreUserId() == 0)
             content.remove("creatorCoreUserId");
+        if (request.getThreadId() == null || request.getThreadId() <= 0)
+            content.remove("threadId");
 
         content.remove("useCache");
 
@@ -97,6 +101,32 @@ public class CallAsyncRequestsManager {
         return jsonObject.toString();
 
     }
+
+    public static String createGetActiveCallsRequest(GetActiveCallsRequest request, String uniqueId) {
+
+
+        request.setCount(request.getCount() > 0 ? request.getCount() : 50);
+
+        JsonObject content = (JsonObject) App.getGson().toJsonTree(request);
+
+        content.remove("useCache");
+
+        AsyncMessage message = new AsyncMessage();
+        message.setContent(content.toString());
+        message.setType(ChatMessageType.Constants.GET_CALLS_TO_JOIN);
+        message.setToken(CoreConfig.token);
+        message.setTokenIssuer(CoreConfig.tokenIssuer);
+        message.setUniqueId(uniqueId);
+        message.setTypeCode(Util.isNullOrEmpty(request.getTypeCode()) ? CoreConfig.typeCode : request.getTypeCode());
+
+        JsonObject jsonObject = (JsonObject) App.getGson().toJsonTree(message);
+
+        jsonObject.remove("subjectId");
+
+        return jsonObject.toString();
+
+    }
+
 
     public static String createCallRequestMessage(CallRequest request, String uniqueId) {
 
@@ -153,7 +183,7 @@ public class CallAsyncRequestsManager {
         AsyncMessage message = new AsyncMessage();
 
         JsonObject contentObj = new JsonObject();
-        contentObj.addProperty("code",request.getErrorCode());
+        contentObj.addProperty("code", request.getErrorCode());
 
         message.setType(ChatMessageType.Constants.CALL_CLIENT_ERRORS);
         message.setContent(contentObj.toString());
@@ -203,6 +233,35 @@ public class CallAsyncRequestsManager {
 
         createCallVO.setType(request.getCallType());
 
+
+        CreateCallThread callThread = null;
+
+        if (Util.isNotNullOrEmpty(request.getTitle())) {
+            callThread = new CreateCallThread();
+            callThread.setTitle(request.getTitle());
+        }
+        if (Util.isNotNullOrEmpty(request.getImage())) {
+            if (callThread == null) callThread = new CreateCallThread();
+            callThread.setImage(request.getImage());
+        }
+        if (Util.isNotNullOrEmpty(request.getDescription())) {
+            if (callThread == null) callThread = new CreateCallThread();
+            callThread.setDescription(request.getDescription());
+        }
+        if (Util.isNotNullOrEmpty(request.getMetadata())) {
+            if (callThread == null) callThread = new CreateCallThread();
+            callThread.setMetadata(request.getMetadata());
+        }
+        if (Util.isNotNullOrEmpty(request.getUniqueName())) {
+            if (callThread == null) callThread = new CreateCallThread();
+            callThread.setUniqueName(request.getUniqueName());
+        }
+
+
+        if (callThread != null) {
+            createCallVO.setCreateCallThreadRequest(callThread);
+        }
+
         SendClientDTO sendClientDTO = new SendClientDTO();
         sendClientDTO.setVideo(request.getCallType() == CallType.Constants.VIDEO_CALL);
         sendClientDTO.setMute(false);
@@ -211,6 +270,10 @@ public class CallAsyncRequestsManager {
         JsonObject contentObj = (JsonObject) App.getGson().toJsonTree(createCallVO);
         JsonElement clientDtoObj = App.getGson().toJsonTree(sendClientDTO);
         contentObj.add("creatorClientDto", clientDtoObj);
+
+        if (callThread == null) {
+            contentObj.remove("createCallThreadRequest");
+        }
 
         AsyncMessage message = new AsyncMessage();
         message.setContent(contentObj.toString());
@@ -584,7 +647,32 @@ public class CallAsyncRequestsManager {
         return response;
     }
 
-    public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId){
+    public static ChatResponse<Participant> handleCallIsRecordingCallResponse(ChatResponse<StartedCallModel> info) {
+
+        ChatResponse<Participant> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(info.getUniqueId());
+
+            response.setSubjectId(info.getSubjectId());
+
+            Participant participant = new Participant();
+
+            participant.setId(Long.parseLong(info.getResult().getChatDataDTO().getRecordingUser()));
+
+            response.setResult(participant);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+        return response;
+
+    }
+
+
+
+    public static String createEndRecordCall(StartOrEndCallRecordRequest request, String uniqueId) {
 
         AsyncMessage message = new AsyncMessage();
         message.setType(ChatMessageType.Constants.END_RECORD_CALL);
@@ -796,6 +884,28 @@ public class CallAsyncRequestsManager {
 
     }
 
+    public static ChatResponse<GetActiveCallsResult> handleOnGetActiveCalls(ChatMessage chatMessage, Callback callback) {
+
+        ChatResponse<GetActiveCallsResult> response = new ChatResponse<>();
+
+        response.setUniqueId(chatMessage.getUniqueId());
+
+        ArrayList<CallVO> calls = new ArrayList<>();
+
+        long offset = callback != null ? callback.getOffset() : 0;
+
+        try {
+            calls = App.getGson().fromJson(chatMessage.getContent(), new TypeToken<ArrayList<CallVO>>() {
+            }.getType());
+        } catch (JsonSyntaxException ignored) {
+        }
+
+        response.setResult(new GetActiveCallsResult(calls, chatMessage.getContentCount(), (calls.size() + offset < chatMessage.getContentCount()), (calls.size() + offset)));
+
+        return response;
+
+    }
+
     public static ChatResponse<GetCallHistoryResult> handleOnGetCallHistoryFromCache(String uniqueId, ArrayList<CallVO> calls, long contentCount, long offset) {
 
         ChatResponse<GetCallHistoryResult> response = new ChatResponse<>();
@@ -865,6 +975,7 @@ public class CallAsyncRequestsManager {
         return response;
 
     }
+
     public static ChatResponse<CallClientErrorsResult> handleOnCallClientErrorsReceived(ChatMessage chatMessage) {
 
         ChatResponse<CallClientErrorsResult> response = null;
@@ -888,6 +999,31 @@ public class CallAsyncRequestsManager {
 
         return response;
 
+    }
+
+    public static ChatResponse<ScreenShareResult> handleOnScreenIsSharing(ChatResponse<StartedCallModel> info) {
+        ChatResponse<ScreenShareResult> response = null;
+        try {
+            response = new ChatResponse<>();
+
+            response.setUniqueId(info.getUniqueId());
+
+            response.setSubjectId(info.getSubjectId());
+
+            ScreenShareResult scr = new ScreenShareResult();
+
+            scr.setScreenshare(info.getResult().getChatDataDTO().getScreenShare());
+            CallParticipantVO callParticipantVO =
+                    new CallParticipantVO();
+            callParticipantVO.setUserId(Long.valueOf(info.getResult().getChatDataDTO().getScreenShareUser()));
+            scr.setScreenOwner(callParticipantVO);
+
+            response.setResult(scr);
+
+        } catch (Exception e) {
+            Log.wtf(TAG, e);
+        }
+        return response;
     }
 
     public static ChatResponse<ScreenShareResult> handleOnScreenShareStarted(ChatMessage chatMessage) {
@@ -945,10 +1081,10 @@ public class CallAsyncRequestsManager {
 
         ArrayList<CallParticipantVO> callPartners = new ArrayList<>();
 
-        if(Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())){
+        if (Util.isNotNullOrEmpty(callResponse.getResult().getOtherClientDtoList())) {
             for (ClientDTO client :
                     callResponse.getResult().getOtherClientDtoList()) {
-                if(!client.getUserId().equals(CoreConfig.userId)){
+                if (!client.getUserId().equals(CoreConfig.userId)) {
                     CallParticipantVO partner = new CallParticipantVO();
                     partner.setUserId(client.getUserId());
                     partner.setMute(client.getMute());
@@ -961,7 +1097,7 @@ public class CallAsyncRequestsManager {
         }
 
         CallStartResult result = new CallStartResult(callResponse.getResult().getCallName(),
-                callResponse.getResult().getCallImage(),callPartners);
+                callResponse.getResult().getCallImage(), callPartners);
 
         response.setResult(result);
         response.setSubjectId(callResponse.getSubjectId());
@@ -1052,6 +1188,24 @@ public class CallAsyncRequestsManager {
         }
 
 
+    }
+
+
+    public static boolean checkIsAnyScreenSharing(ChatResponse<StartedCallModel> info) {
+
+        return Util.isNotNullOrEmpty(
+                info.getResult().getChatDataDTO().getScreenShareUser())
+                &&
+                !info.getResult().getChatDataDTO().getScreenShareUser().equals("0");
+    }
+
+
+    public static boolean checkIsCallIsRecording(ChatResponse<StartedCallModel> info) {
+
+        return Util.isNotNullOrEmpty(
+                info.getResult().getChatDataDTO().getRecordingUser())
+                &&
+                !info.getResult().getChatDataDTO().getRecordingUser().equals("0");
     }
 
 

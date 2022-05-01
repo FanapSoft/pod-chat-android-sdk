@@ -22,6 +22,16 @@ public class Callback {
 
     private long messageId;
     private long tagId;
+    private long userId;
+
+    public Callback setUserId(long userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
 
     public Callback(String order, long count, long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
         this.offset = offset;

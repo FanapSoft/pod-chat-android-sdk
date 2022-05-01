@@ -28,6 +28,8 @@ public class CacheCall {
 
     private long partnerParticipantId;
 
+    private long threadId;
+
     @Ignore
     private Participant partnerParticipantVO;
 
@@ -35,7 +37,7 @@ public class CacheCall {
     public CacheCall() {
     }
 
-    public CacheCall(long id, long creatorId, int type, long createTime, long startTime, long endTime, int status, boolean isGroup, List<Participant> callParticipants, long partnerParticipantId, Participant partnerParticipantVO) {
+    public CacheCall(long id, long creatorId, int type, long createTime, long startTime, long endTime, int status, boolean isGroup, List<Participant> callParticipants,long threadId, long partnerParticipantId, Participant partnerParticipantVO) {
         this.id = id;
         this.creatorId = creatorId;
         this.type = type;
@@ -46,6 +48,7 @@ public class CacheCall {
         this.isGroup = isGroup;
         this.callParticipants = callParticipants;
         this.partnerParticipantId = partnerParticipantId;
+        this.threadId = threadId;
         this.partnerParticipantVO = partnerParticipantVO;
     }
 
@@ -60,6 +63,8 @@ public class CacheCall {
         this.isGroup = call.isGroup();
         this.callParticipants = call.getCallParticipants();
         this.partnerParticipantVO = call.getPartnerParticipantVO();
+        this.threadId = call.getConversationVO()!=null?
+                call.getConversationVO().getId() : 0;
         this.partnerParticipantId = call.getPartnerParticipantVO() != null ?
                 call.getPartnerParticipantVO().getId() : 0;
 
@@ -112,6 +117,14 @@ public class CacheCall {
 
     public void setPartnerParticipantVO(Participant partnerParticipantVO) {
         this.partnerParticipantVO = partnerParticipantVO;
+    }
+
+    public long getThreadId() {
+        return threadId;
+    }
+
+    public void setThreadId(long threadId) {
+        this.threadId = threadId;
     }
 
     public long getId() {

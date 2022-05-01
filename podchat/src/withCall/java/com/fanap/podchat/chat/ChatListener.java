@@ -9,6 +9,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetActiveCallsResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -395,4 +396,9 @@ public interface ChatListener {
     default void onCallRecordEnded(ChatResponse<Participant> response){}
     default void onCallParticipantRecordStarted(ChatResponse<Participant> response){}
     default void onCallParticipantRecordStopped(ChatResponse<Participant> response){}
+
+    default void onReceiveActiveCalls(ChatResponse<GetActiveCallsResult> response){}
+
+    default void onDeviceIsNear(){}
+    default void onDeviceGotFar(){}
 }

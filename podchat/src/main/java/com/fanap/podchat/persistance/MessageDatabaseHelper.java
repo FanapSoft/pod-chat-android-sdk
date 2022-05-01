@@ -357,8 +357,7 @@ public class MessageDatabaseHelper {
 
                 cacheMessageVO.setTimeStamp(timestamp);
             } catch (Exception e) {
-                if (Sentry.isEnabled())
-                    Sentry.captureException(e);
+                captureException(e);
             }
 
 
@@ -424,19 +423,6 @@ public class MessageDatabaseHelper {
 
             CacheMessageVO cacheMessageVO = new CacheMessageVO(message);
 
-            try {
-                long time = cacheMessageVO.getTime();
-                long timeNanos = cacheMessageVO.getTimeNanos();
-                long pow = (long) Math.pow(10, 9);
-                long timestamp = ((time / 1000) * pow) + timeNanos;
-
-                cacheMessageVO.setTimeStamp(timestamp);
-            } catch (Exception e) {
-                if (Sentry.isEnabled())
-                    Sentry.captureException(e);
-            }
-
-
             if (cacheMessageVO.getParticipant() != null) {
                 cacheMessageVO.setParticipantId(cacheMessageVO.getParticipant().getId());
                 messageDao.insertParticipant(cacheMessageVO.getParticipant());
@@ -490,6 +476,11 @@ public class MessageDatabaseHelper {
 
         });
 
+    }
+
+    private void captureException(Exception e) {
+        if (Sentry.isEnabled())
+            Sentry.captureException(e);
     }
 
 
@@ -1422,6 +1413,10 @@ public class MessageDatabaseHelper {
                 }
 
             }
+
+            ThreadVo thread = messageDao.getThreadById(cacheMessageVO.getConversationId());
+            cacheMessageVO.setConversation(thread);
+
             if (cacheMessageVO.getReplyInfoVOId() != null) {
 
                 CacheReplyInfoVO cacheReplyInfoVO = messageDao.getReplyInfo(cacheMessageVO.getReplyInfoVOId());
@@ -1479,9 +1474,9 @@ public class MessageDatabaseHelper {
 
 
             }
-
+            Thread msgThread = threadVoToThreadMapper(cacheMessageVO.getConversation(),null);
             MessageVO messageVO = cacheMessageVoToMessageVoMapper(participant, replyInfoVO, forwardInfo, cacheMessageVO);
-
+            messageVO.setConversation(msgThread);
             messageVOS.add(messageVO);
         }
     }
@@ -1601,7 +1596,7 @@ public class MessageDatabaseHelper {
                 return rawQuery;
             }
             if (Util.isNotNullOrEmpty(metadataCriteria.getHas())) {
-                rawQuery = rawQuery + " LIKE '%' || "+ metadataCriteria.getHas() +" || '%' ";
+                rawQuery = rawQuery + " LIKE '%' || " + metadataCriteria.getHas() + " || '%' ";
                 return rawQuery;
             }
 
@@ -2465,8 +2460,14 @@ public class MessageDatabaseHelper {
                     cacheCalls.add(cacheCall);
                 }
 
-            } else {
+            } else if (request.getThreadId() != null && request.getThreadId() > 0) {
 
+                cacheCalls = messageDao.getCachedCallByTypeAndThreadId(request.getCount(), request.getOffset(), request.getType(), request.getThreadId());
+
+                contentCount = messageDao.getCountOfCachedCallByTypeAndThreadId(request.getType(), request.getThreadId());
+
+
+            } else {
                 cacheCalls = messageDao.getCachedCallByType(request.getCount(), request.getOffset(), request.getType());
 
                 contentCount = messageDao.getCountOfCachedCallByType(request.getType());
@@ -2514,6 +2515,18 @@ public class MessageDatabaseHelper {
 
                 CallVO call = cacheCall.toCallVo();
 
+                if (cacheCall.getThreadId() > 0) {
+                    ThreadVo threadVo = messageDao.getThreadById(cacheCall.getThreadId());
+                    Thread thread;
+                    if (threadVo != null) {
+                        thread = threadVoToThreadMapper(threadVo, null);
+                    } else {
+                        thread = new Thread();
+                        thread.setId(cacheCall.getThreadId());
+                    }
+                    call.setConversationVO(thread);
+                }
+
                 callVOList.add(call);
 
             }
@@ -2551,6 +2564,10 @@ public class MessageDatabaseHelper {
 
                 if (cacheCall.getPartnerParticipantVO() != null) {
                     saveCallParticipant(cacheCall.getPartnerParticipantVO(), call.getId());
+                }
+
+                if (call.getConversationVO() != null) {
+                    saveNewThread(call.getConversationVO());
                 }
 
             }
@@ -3572,8 +3589,7 @@ public class MessageDatabaseHelper {
             messageVO.setConversation(null);
 
         } catch (Exception e) {
-            if (Sentry.isEnabled())
-                Sentry.captureException(e);
+            captureException(e);
             return null;
         }
 

@@ -124,6 +124,7 @@ import com.fanap.podchat.requestobject.RequestLocationMessage;
 import com.fanap.podchat.requestobject.RequestMapReverse;
 import com.fanap.podchat.requestobject.RequestMapStaticImage;
 import com.fanap.podchat.requestobject.RequestMessage;
+import com.fanap.podchat.requestobject.RequestRemoveContact;
 import com.fanap.podchat.requestobject.RequestReplyFileMessage;
 import com.fanap.podchat.requestobject.RequestReplyMessage;
 import com.fanap.podchat.requestobject.RequestSeenMessageList;
@@ -888,7 +889,10 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void removeContact(long id) {
-        chat.removeContact(id);
+//        chat.removeContact(id);
+        RequestRemoveContact requestRemoveContact = new RequestRemoveContact.Builder(id).build();
+        chat.removeContact(requestRemoveContact);
+
     }
 
     @Override

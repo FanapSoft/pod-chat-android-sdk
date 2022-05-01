@@ -11,6 +11,7 @@ public class GetCallHistoryRequest extends BaseRequestObject {
     private String name;
     private int type;
     private ArrayList<Long> callIds;
+    private Long threadId;
 
     private GetCallHistoryRequest(Builder builder) {
         super(builder);
@@ -19,8 +20,12 @@ public class GetCallHistoryRequest extends BaseRequestObject {
         this.name = builder.name;
         this.type = builder.type;
         this.callIds = builder.callIds;
+        this.threadId = builder.threadId;
     }
 
+    public Long getThreadId() {
+        return threadId;
+    }
 
     public long getCreatorSsoId() {
         return creatorSsoId;
@@ -49,6 +54,8 @@ public class GetCallHistoryRequest extends BaseRequestObject {
         private String name;
         private int type;
         private ArrayList<Long> callIds;
+        private Long threadId;
+
 
 
         public Builder setCreatorSsoId(long creatorSsoId) {
@@ -91,6 +98,11 @@ public class GetCallHistoryRequest extends BaseRequestObject {
         @Override
         public Builder typeCode(String typeCode) {
             super.typeCode(typeCode);
+            return this;
+        }
+
+        public Builder setThreadId(Long threadId) {
+            this.threadId = threadId;
             return this;
         }
 

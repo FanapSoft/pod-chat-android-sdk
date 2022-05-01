@@ -276,6 +276,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1110,6 +1111,9 @@ public abstract class ChatCore extends AsyncAdapter {
             case Constants.GET_CALLS:
                 handleOnGetCallsHistory(chatMessage, callback);
                 break;
+            case Constants.GET_CALLS_TO_JOIN:
+                handleOnGetActiveCalls(chatMessage, callback);
+                break;
             case Constants.CALL_RECONNECT:
                 handleOnReceivedCallReconnect(chatMessage);
                 break;
@@ -1237,6 +1241,15 @@ public abstract class ChatCore extends AsyncAdapter {
             case Constants.ADD_TAG_PARTICIPANT:
                 if (callback != null)
                     handleOutPutAddParticipantTag(chatMessage, messageUniqueId, callback.getTagId());
+                break;
+
+            case Constants.ADD_CONTACT:
+                handleOutPutAddContact(chatMessage);
+                break;
+
+            case Constants.REMOVE_CONTACT:
+                if (callback != null)
+                    handleOutPutRemoveContact(chatMessage, callback.getUserId());
                 break;
 
             case Constants.REMOVE_TAG_PARTICIPANT:
@@ -1952,13 +1965,7 @@ public abstract class ChatCore extends AsyncAdapter {
     void handleOnCallStarted(Callback callback, ChatMessage chatMessage) {
     }
 
-    void visibleView(View view) {
-        new Handler(context.getMainLooper())
-                .post(() -> {
-                    if (view.getVisibility() != View.VISIBLE)
-                        view.setVisibility(View.VISIBLE);
-                });
-    }
+
 
     void handleOnVoiceCallEnded(ChatMessage chatMessage) {
     }
@@ -1979,6 +1986,9 @@ public abstract class ChatCore extends AsyncAdapter {
     }
 
     protected void handleOnGetCallsHistory(ChatMessage chatMessage, Callback callback) {
+    }
+
+    protected void handleOnGetActiveCalls(ChatMessage chatMessage, Callback callback) {
     }
 
     protected void handleOnReceivedCallReconnect(ChatMessage chatMessage) {
@@ -7867,6 +7877,7 @@ public abstract class ChatCore extends AsyncAdapter {
      *
      * @param userId id of the user that we want to remove from contact list
      */
+    @Deprecated
     public String removeContact(long userId) {
         String uniqueId = generateUniqueId();
 
@@ -10321,53 +10332,6 @@ public abstract class ChatCore extends AsyncAdapter {
         return editMessage((int) request.getMessageId(), request.getMessageContent(), request.getMetaData(), handler);
 
 
-//        String uniqueId = generateUniqueId();
-//
-//        try {
-//            JsonObject jsonObject = null;
-//            if (chatReady) {
-//
-//                String messageContent = request.getMessageContent();
-//                long messageId = request.getMessageId();
-//                String metaData = request.getMetaData();
-//
-//                ChatMessage chatMessage = new ChatMessage();
-//                chatMessage.setMessageType(Constants.EDIT_MESSAGE);
-//                chatMessage.setToken(getToken());
-//                chatMessage.setUniqueId(uniqueId);
-//                chatMessage.setSubjectId(messageId);
-//                chatMessage.setContent(messageContent);
-//                chatMessage.setSystemMetadata(metaData);
-//                chatMessage.setTokenIssuer("1");
-//
-//                jsonObject = (JsonObject) gson.toJsonTree(chatMessage);
-//                jsonObject.remove("contentCount");
-//                jsonObject.remove("systemMetadata");
-//                jsonObject.remove("metadata");
-//                jsonObject.remove("repliedTo");
-//
-//                if (Util.isNullOrEmpty(typeCode)) {
-//                    if (Util.isNullOrEmpty(getTypeCode())) {
-//                        jsonObject.remove("typeCode");
-//                    } else {
-//                        jsonObject.addProperty("typeCode", getTypeCode());
-//                    }
-//                } else {
-//                    jsonObject.addProperty("typeCode", typeCode);
-//                }
-//
-//                setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
-//                sendAsyncMessage(jsonObject.toString(), AsyncAckType.Constants.WITHOUT_ACK, "SEND_EDIT_MESSAGE");
-//            } else {
-//                String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY, uniqueId);
-//            }
-//            if (handler != null) {
-//                handler.onEditMessage(uniqueId);
-//            }
-//        } catch (Exception e) {
-//            if (log) Log.e(TAG, e.getCause().getMessage());
-//        }
-//        return uniqueId;
     }
 
     public String getMessageDeliveredList(RequestDeliveredMessageList requestParams) {
@@ -10681,11 +10645,6 @@ public abstract class ChatCore extends AsyncAdapter {
                 listenerManager.callOnLogEvent(json);
                 listenerManager.callOnLogEvent(i, json);
             }
-//            try {
-//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + i + "\n" + json + "\n <<< \n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
         }
 
         if (sentryLog) {
@@ -10704,11 +10663,6 @@ public abstract class ChatCore extends AsyncAdapter {
     protected void showLog(String info) {
         if (log) {
             Log.d(TAG, info);
-//            try {
-//                FileUtils.appendLog("\n >>> " + new Date() + "\n" + info + "\n <<<\n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
         }
         Breadcrumb c = new Breadcrumb();
         c.setCategory("INFO " + info);
@@ -10725,12 +10679,6 @@ public abstract class ChatCore extends AsyncAdapter {
         if (log) {
             Log.e(TAG, "Error");
             Log.e(TAG, message);
-
-//            try {
-//                FileUtils.appendLog("\n *** " + new Date() + " \n" + message + "\n *** \n");
-//            } catch (IOException e) {
-//                Log.e(TAG, "Saving log failed: " + e.getMessage());
-//            }
         }
 
         if (sentryLog) {
@@ -11140,6 +11088,44 @@ public abstract class ChatCore extends AsyncAdapter {
 
 
         listenerManager.callOnTagParticipantAdded(chatMessage.getContent(), response);
+    }
+
+    private void handleOutPutAddContact(ChatMessage chatMessage) {
+
+        if (sentryResponseLog) {
+            showLog("CONTACT ADDED", gson.toJson(chatMessage));
+        } else {
+            showLog("CONTACT ADDED");
+        }
+
+        ChatResponse<ResultAddContact> chatResponse = ContactManager.prepareAddContactResponse(chatMessage);
+
+        String contactsJson = gson.toJson(chatMessage);
+
+        listenerManager.callOnAddContact(contactsJson, chatResponse);
+
+        if (cache) {
+            dataSource.saveContactResultFromServer(chatResponse.getResult().getContact());
+        }
+
+    }
+
+    private void handleOutPutRemoveContact(ChatMessage chatMessage, long userId) {
+
+        if (sentryResponseLog) {
+            showLog("CONTACT REMOVED", gson.toJson(chatMessage));
+        } else {
+            showLog("CONTACT REMOVED");
+        }
+
+        ChatResponse<ResultRemoveContact> chatResponse = ContactManager.prepareRemoveContactResponse(chatMessage);
+
+        String json = gson.toJson(chatResponse);
+        if (cache) {
+            dataSource.deleteContactById(userId);
+        }
+
+        listenerManager.callOnRemoveContact(json, chatResponse);
     }
 
     private void handleOutPutRemoveParticipantTag(ChatMessage chatMessage, String messageUniqueId, long tagId) {
@@ -11604,6 +11590,10 @@ public abstract class ChatCore extends AsyncAdapter {
             showLog("SEND_DELIVERY_MESSAGE", asyncContent);
 
             async.sendMessage(asyncContent, AsyncAckType.Constants.WITHOUT_ACK);
+        }
+
+        if(cache){
+            dataSource.saveMessageResultFromServer(messageVO,chatMessage.getSubjectId());
         }
 
         listenerManager.callOnNewMessage(json, chatResponse);

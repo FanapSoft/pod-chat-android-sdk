@@ -3,6 +3,7 @@ package com.fanap.podchat.chat;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.fanap.podcall.view.CallPartnerView;
 import com.fanap.podchat.call.request_model.screen_share.ScreenShareResult;
 import com.fanap.podchat.call.result_model.CallCancelResult;
 import com.fanap.podchat.call.result_model.CallClientErrorsResult;
@@ -12,6 +13,7 @@ import com.fanap.podchat.call.result_model.CallReconnectResult;
 import com.fanap.podchat.call.result_model.CallRequestResult;
 import com.fanap.podchat.call.result_model.CallStartResult;
 import com.fanap.podchat.call.result_model.EndCallResult;
+import com.fanap.podchat.call.result_model.GetActiveCallsResult;
 import com.fanap.podchat.call.result_model.GetCallHistoryResult;
 import com.fanap.podchat.call.result_model.GetCallParticipantResult;
 import com.fanap.podchat.call.result_model.JoinCallParticipantResult;
@@ -1196,6 +1198,19 @@ public class ChatListenerManager {
 
     }
 
+    public void callOnGetActiveCalls(ChatResponse<GetActiveCallsResult> response) {
+
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onReceiveActiveCalls(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+
+
+    }
+
     public void callOnCallReconnectReceived(ChatResponse<CallReconnectResult> response) {
 
 
@@ -1561,6 +1576,26 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onCallParticipantRecordStopped(response);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnDeviceIsNear() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeviceIsNear();
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnDeviceGotFar() {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeviceGotFar();
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

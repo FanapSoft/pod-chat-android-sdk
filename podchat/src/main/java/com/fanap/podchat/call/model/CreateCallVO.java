@@ -18,6 +18,8 @@ public class CreateCallVO implements Serializable {
     private long callId;
     private boolean isGroup;
 
+    private CreateCallThread createCallThreadRequest;
+
 
     public List<Invitee> getInvitees() {
         return invitees;
@@ -82,5 +84,13 @@ public class CreateCallVO implements Serializable {
     public CreateCallVO setCallId(long callId) {
         this.callId = callId;
         return this;
+    }
+
+    public CreateCallThread getCreateCallThreadRequest() {
+        return createCallThreadRequest;
+    }
+
+    public void setCreateCallThreadRequest(CreateCallThread createCallThreadRequest) {
+        this.createCallThreadRequest = createCallThreadRequest;
     }
 }

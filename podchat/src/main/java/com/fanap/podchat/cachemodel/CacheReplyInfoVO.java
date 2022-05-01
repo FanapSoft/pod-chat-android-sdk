@@ -4,6 +4,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
+import com.fanap.podchat.model.ReplyInfoVO;
+
 /**
  * deleted /Delete state of Replied Message
  * participant, /* Sender of Replied Message
@@ -33,6 +35,25 @@ public class CacheReplyInfoVO {
     private String systemMetadata;
     private String metadata;
     private String message;
+
+    public static CacheReplyInfoVO fromReplyInfo(ReplyInfoVO replyInfoVO, long threadId) {
+        CacheReplyInfoVO cacheReplyInfoVO = new CacheReplyInfoVO();
+        if(replyInfoVO.getParticipant()!=null){
+            cacheReplyInfoVO.participant = new CacheParticipant(replyInfoVO.getParticipant(),threadId);
+            cacheReplyInfoVO.participantId = replyInfoVO.getParticipant().getId();
+        }
+        cacheReplyInfoVO.repliedToMessageId = replyInfoVO.getRepliedToMessageId();
+        cacheReplyInfoVO.repliedToMessageTime = replyInfoVO.getRepliedToMessageTime();
+        cacheReplyInfoVO.repliedToMessageNanos = replyInfoVO.getRepliedToMessageNanos();
+        cacheReplyInfoVO.messageType = replyInfoVO.getMessageType();
+        cacheReplyInfoVO.deleted = replyInfoVO.isDeleted();
+        cacheReplyInfoVO.repliedToMessage = replyInfoVO.getRepliedToMessage();
+        cacheReplyInfoVO.systemMetadata = replyInfoVO.getSystemMetadata();
+        cacheReplyInfoVO.metadata = replyInfoVO.getMetadata();
+        cacheReplyInfoVO.message = replyInfoVO.getMessage();
+        
+        return cacheReplyInfoVO;
+    }
 
 
     public CacheParticipant getParticipant() {

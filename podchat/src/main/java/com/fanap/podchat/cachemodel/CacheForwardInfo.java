@@ -6,6 +6,7 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.model.ConversationSummery;
 
 @Entity
@@ -26,6 +27,15 @@ public class CacheForwardInfo {
     private ConversationSummery conversation;
 
     private long conversationId;
+
+    public static CacheForwardInfo fromForwardInfo(ForwardInfo forwardInfo) {
+        CacheForwardInfo cacheForwardInfo = new CacheForwardInfo();
+        cacheForwardInfo.setConversation(forwardInfo.getConversation());
+        cacheForwardInfo.setConversationId(forwardInfo.getConversation().getId());
+        cacheForwardInfo.setParticipant(new CacheParticipant(forwardInfo.getParticipant(),forwardInfo.getConversation().getId()));
+        cacheForwardInfo.setParticipantId(forwardInfo.getParticipant().getId());
+        return cacheForwardInfo;
+    }
 
     public CacheParticipant getParticipant() {
         return participant;

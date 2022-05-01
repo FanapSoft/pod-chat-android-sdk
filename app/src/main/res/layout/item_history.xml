@@ -3,15 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@drawable/gradiant_back"
     android:layout_height="wrap_content">
 
 
     <ImageView
         android:id="@+id/imageStatus"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
         android:layout_margin="8dp"
-        tools:src="@drawable/ic_call_end_green"
+        tools:src="@drawable/ic_call_requested"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -20,28 +21,49 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:id="@+id/imageProfile"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/imageStatus"
         app:layout_constraintTop_toTopOf="parent"
-        android:src="@mipmap/ic_profile" />
+        android:padding="4dp"
+        android:background="@drawable/rounded_border_white"
+        app:srcCompat="@drawable/ic_groups" />
+
 
 
     <TextView
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:id="@+id/tvContactName"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:textColor="@color/colorPrimary"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:gravity="start"
+        android:padding="4dp"
+        android:maxLines="2"
         app:layout_constraintBottom_toBottomOf="@+id/imageStatus"
         app:layout_constraintEnd_toStartOf="@+id/imageProfile"
+        app:layout_constraintStart_toEndOf="@+id/imgBtnVideoCallContact"
         app:layout_constraintTop_toTopOf="@+id/imageStatus"
         tools:text="نام مخاطب" />
+
+    <TextView
+        android:layout_marginTop="4dp"
+        android:id="@+id/tvTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:maxLines="2"
+        android:padding="4dp"
+        android:textColor="@color/colorPrimary"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        app:layout_constraintStart_toStartOf="@+id/imgBtnCallContact"
+        app:layout_constraintTop_toBottomOf="@+id/imgBtnCallContact"
+        tools:text="22/11/2022" />
 
     <ImageButton
         android:id="@+id/imgBtnCallContact"
@@ -65,13 +87,5 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_videocam" />
 
-    <View
-        android:id="@+id/view2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_margin="8dp"
-        android:background="@drawable/rounded_primary"
-        app:layout_constraintStart_toStartOf="@+id/imgBtnCallContact"
-        app:layout_constraintTop_toBottomOf="@+id/imgBtnCallContact" />
 
 </android.support.constraint.ConstraintLayout>
