@@ -5,8 +5,26 @@
 # Changelog
 All notable changes to this project will be documented here.
 
+## [0.9.18.0] -2022-05-01
 
-## [0.9.17.0] -2021-04-13
+### Added
+
+- Add LoudnessEnhancer for audio calls
+
+### Changed
+
+- Update Sentry DSN 
+
+- Update PodCall version to 3.8.21-SNAPSHOT
+
+### Fixed
+
+- Minor bug fixes and improvements
+
+
+
+
+## [0.9.17.0] -2022-04-13
 
 ### Added
 
