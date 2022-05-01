@@ -36,7 +36,7 @@ public class ServerConfig {
 
 
 
-    public static final Enum<ServerType> serverType = ServerType.MAIN;
+    public static final Enum<ServerType> serverType = ServerType.SANDBOX;
 
 
 
