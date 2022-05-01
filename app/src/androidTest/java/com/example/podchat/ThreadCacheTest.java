@@ -71,7 +71,7 @@ public class ThreadCacheTest {
     private static String socketAddress = BaseApplication.getInstance().getString(R.string.sandbox_socketAddress);
     private static String platformHost = BaseApplication.getInstance().getString(R.string.sandbox_platformHost);
     private static String fileServer = BaseApplication.getInstance().getString(R.string.sandbox_fileServer);
-    private static String TOKEN = "f32ddf7e1bb0481fb5df2eaedcc62883";
+    private static String TOKEN = "60396fb8fd3e44c196032c4e3bf22cca";
 
     @Mock
     ChatListener chatListeners;
@@ -362,7 +362,7 @@ public class ThreadCacheTest {
         presenter.getThreads(requestThread, null);
 
         long t1 = System.currentTimeMillis();
-        sleep(2500);
+        sleep(4000);
         long t2 = System.currentTimeMillis();
         System.out.println("Received List: " + threadsInServer.size() + " after: " + (t2 - t1) + " ms");
     }
@@ -436,6 +436,7 @@ public class ThreadCacheTest {
             Assert.assertEquals(threadInCache.getLastMessage(), threadInCache.getLastMessageVO().getMessage());
 
             // GET THREAD HISTRORY
+
 
         }
     }
