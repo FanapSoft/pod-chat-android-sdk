@@ -5,17 +5,17 @@ apply plugin: 'com.kezong.fat-aar'
 //apply plugin: 'com.google.gms.google-services'
 
 ext {
-    libraryVersion = '0.9.17.2'
-    libraryVersionCode = 193
-    libraryVersionLight = '0.9.14.2'
+    libraryVersion = '0.9.18.0-BETA'
+    libraryVersionCode = 194
+    libraryVersionLight = '0.9.15.0-BETA'
     podcallVersion = '3.8.21-SNAPSHOT'
 }
 android {
 
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode libraryVersionCode
         versionName libraryVersion
 
@@ -123,8 +123,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:16.0.0'
     implementation 'com.google.firebase:firebase-messaging:18.0.0'
 
-    implementation 'com.github.bumptech.glide:glide:4.7.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
 
     api 'com.fanap.async:podasync:0.2.13.8'
 
