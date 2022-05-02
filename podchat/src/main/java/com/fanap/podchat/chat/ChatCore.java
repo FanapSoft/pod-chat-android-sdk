@@ -28,6 +28,7 @@ import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
+import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.ProgressHandler;
 import com.fanap.podchat.R;
 import com.fanap.podchat.cachemodel.CacheMessageVO;
@@ -294,6 +295,7 @@ import io.sentry.core.Breadcrumb;
 import io.sentry.core.Sentry;
 import io.sentry.core.SentryEvent;
 import io.sentry.core.SentryLevel;
+import io.sentry.core.protocol.SentryException;
 import io.sentry.core.protocol.User;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -303,7 +305,6 @@ import retrofit2.Call;
 import retrofit2.Response;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.BuildConfig;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -507,10 +508,6 @@ public abstract class ChatCore extends AsyncAdapter {
         return instance;
     }
 
-    private static String sentryCachDir = "";
-    private static final StringBuilder sentrylogs = new StringBuilder();
-    private static final StringBuilder sentryCashedlogs = new StringBuilder();
-
     private static void setupSentry(Context context) {
         SentryAndroid.init(context.getApplicationContext(),
                 options -> {
@@ -519,8 +516,6 @@ public abstract class ChatCore extends AsyncAdapter {
                     options.setSentryClientName("PodChat-Android");
                     options.addInAppInclude("com.fanap.podchat");
                     options.setEnvironment("PODCHAT");
-//                    options.setEnableNdk(false);
-                    sentryCachDir = options.getCacheDirPath();
 
                     options.setBeforeSend((event, hint) -> {
                         options.setDsn(context.getApplicationContext().getString(R.string.sentry_dsn));
