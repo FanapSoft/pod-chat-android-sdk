@@ -5,7 +5,7 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## [0.9.18.0] -2022-05-01
+## [0.9.18.0] -2022-05-02
 
 ### Added
 
@@ -13,13 +13,17 @@ All notable changes to this project will be documented here.
 
 ### Changed
 
+- Update compileSdkVersion to 30
+  
+- Update targetSdkVersion to 30
+
 - Update Sentry DSN 
 
 - Update PodCall version to 3.8.21-SNAPSHOT
 
 ### Fixed
 
-- Minor bug fixes and improvements
+- Minor bug fixes and improvements for assistants management 
 
 
 
