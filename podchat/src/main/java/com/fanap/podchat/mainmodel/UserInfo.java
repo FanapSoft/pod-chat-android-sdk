@@ -19,9 +19,10 @@ public class UserInfo {
     private String cellphoneNumber;
     private String email;
     private String image;
+    private Boolean contactSynced;
 
     @Ignore
-    ChatProfileVO chatProfileVO;
+    private ChatProfileVO chatProfileVO;
 
 
     public ChatProfileVO getChatProfileVO() {
